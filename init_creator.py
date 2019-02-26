@@ -16,6 +16,8 @@ Fname              = 'Api_100.txt'
 
 dt = 10.0 
 
+true  ='.True.'
+false ='.False.'
 ### dimensions of the file
 
 file_check = np.loadtxt(path_cases_dir+path_case_name+'/'+Fname)
@@ -36,13 +38,13 @@ file.write("/ \n\n")
  
 
 
-file.write("####### Flags setup 0=included, 1= not included ####### \n\n")
+file.write("####### Flags setup True or false ####### \n\n")
 
 file.write("&NML_Flag \n ")
-file.write("Aerosol_flag   =   %d \n " %1  )
-file.write("Chemistry_flag =   %d \n " %1  )
-file.write("Particle_flag  =   %d \n " %1  )
-file.write("Extra_data     =   %d\n" %0  )
+file.write("Aerosol_flag   =   %s \n " %true  )
+file.write("Chemistry_flag =   %s \n " %true  )
+file.write("Particle_flag  =   %s \n " %false  )
+file.write("Extra_data     =   %s\n" %false  )
 file.write("/ \n\n")
 
 file.write("####### Time flag ######## \n\n")

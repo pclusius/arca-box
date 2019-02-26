@@ -7,13 +7,13 @@
  Input_file  =  'Api_100.txt'
 / 
 
-####### Flags setup 0=included, 1= not included ####### 
+####### Flags setup True or false ####### 
 
 &NML_Flag 
- Aerosol_flag   =   1 
- Chemistry_flag =   1 
- Particle_flag  =   1 
- Extra_data     =   0
+ Aerosol_flag   =   .True. 
+ Chemistry_flag =   .True. 
+ Particle_flag  =   .False. 
+ Extra_data     =   .False.
 / 
 
 ####### Time flag ######## 
