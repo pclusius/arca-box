@@ -24,7 +24,7 @@ file_check = np.loadtxt(path_cases_dir+path_case_name+'/'+Fname)
 (rr,col)=file_check.shape
 
 ## write to this file
-file = open("/home/local/carltonx/Box-model/supermodel-phase-1/model_init_test" , "w+")
+file = open("/home/local/carltonx/Box-model/supermodel-phase-1/model_init" , "w+")
 
 ##
 file.write("####### model initialization setup ############\n\n")
