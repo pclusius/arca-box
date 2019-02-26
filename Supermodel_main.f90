@@ -3,16 +3,17 @@ PROGRAM Supermodel
 
 
   !USE module statements
-  USE second_Precision,  ONLY : dp    ! KPP Numerical type
-
+!  USE second_Precision,  ONLY : dp    ! KPP Numerical type
+  USE Read_init
+  USE Inputs
 
   IMPLICIT NONE
 
 
   !Variable declaration
-  REAL ::			&	
-    dt,				&	!integration time step [s]
-    time				!simulation time [s]
+  REAL ::       &
+    dt,         &!integration time step [s]
+    time         !simulation time [s]
 
   !Create/Open outup file netcdf
 
@@ -22,7 +23,18 @@ PROGRAM Supermodel
     !Aerosol phase(distribution & composition)
     !Boundary conditions(dilution, losses, light,...)
  
-   
+  Call read_init_file 
+
+ 
+ write(*,*), 'The flags are', Aerosol_flag
+ write(*,*), 'The Working directory is', Work_dir
+ write(*,*), 'The CASE directory is',    case_dir
+ write(*,*), 'The Case name is',         case_name
+ write(*,*), 'The Input file is',        Input_file
+
+ 
+CALL read_input_data
+  
   !Main loop time: Eulerian forward integration 
   DO WHILE (time < sim_time)
 
@@ -43,4 +55,4 @@ PROGRAM Supermodel
 
   !Close output file netcdf
 
-END PRORGAM 
+END PROGRAM 

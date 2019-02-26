@@ -1,0 +1,31 @@
+####### model initialization setup ############
+
+&NML_path 
+ Work_Dir    =  '/home/local/carltonx/Box-model/supermodel-phase-1/' 
+ Case_Dir    =  '/home/local/carltonx/Box-model/supermodel-phase-1/Cases/' 
+ Case_name   =  'Test_case_01' 
+ Input_file  =  'Api_100.txt'
+/ 
+
+####### Flags setup 0=included, 1= not included ####### 
+
+&NML_Flag 
+ Aerosol_flag   =   1 
+ Chemistry_flag =   1 
+ Particle_flag  =   1 
+ Extra_data     =   0
+/ 
+
+####### Time flag ######## 
+
+&NML_Time 
+ dt   =  10.000000
+/ 
+
+ ####### file size ##### 
+
+&NML_shape 
+ rows   =  15 
+ cols   =  8
+/ 
+
