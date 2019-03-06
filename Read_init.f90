@@ -2,6 +2,8 @@
 
 Module Read_init
 
+USE second_precision
+
 Implicit none
 !Private
 
@@ -20,8 +22,10 @@ Logical :: Aerosol_flag         ,&
 NAMELIST /NML_Flag/ Aerosol_flag, chemistry_flag, particle_flag, Extra_data
 
 !!!!! integration timesteps
-REAL :: dt
-NAMELIST /NML_Time/ dt
+REAL(dp) :: dt           ,& ! integration time step (sec)
+            sim_time     ,& ! total simulation time (sec)
+            ctime           ! current time (sec)
+NAMELIST /NML_Time/ dt, sim_time, ctime
 
 !!!!! file shapes
 integer :: rows, cols
@@ -30,6 +34,11 @@ NAMELIST /NML_Shape/ rows, cols
 !!!!! init file name
 character(len=100):: Fname_init ! init file names
 
+!!!!! reading DMPS file 
+character(len=100) :: DMPS_file
+logical :: dmps_file_check
+integer :: dmps_rows, dmps_cols
+NAMELIST /NML_DMPS/ DMPS_file, dmps_file_check, dmps_rows, dmps_cols
 
 
 contains
@@ -51,6 +60,7 @@ READ(50,NML=NML_Path,  IOSTAT= io_status) !directories and test cases
 READ(50,NML=NML_Flag,  IOSTAT= ioinit) !flags
 READ(50,NML=NML_Time,  IOSTAT= iofloat) !time
 READ(50,NML=NML_SHAPE, IOSTAT= io_status) !shape
+READ(50,NML=NML_DMPS,  IOSTAT= io_status) ! dmps_file information
 
 CLOSE(50)
 
@@ -63,8 +73,7 @@ elseif (iofloat /=0) then
   write(*,*) 'Exit error:: Check the floating point number'
   Stop
 end if 
-
-
+ 
 
 end subroutine read_init_file
 

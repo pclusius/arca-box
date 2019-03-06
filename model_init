@@ -19,7 +19,9 @@
 ####### Time flag ######## 
 
 &NML_Time 
- dt   =  10.000000
+ dt         =  10.000000 
+ sim_time   =  3600.000000 
+ ctime      =  0.000000
 / 
 
  ####### file size ##### 
@@ -27,5 +29,14 @@
 &NML_shape 
  rows   =  15 
  cols   =  8
+/ 
+
+ ####### dmps file read ##### 
+
+&NML_DMPS 
+ DMPS_file         =  'dmps.txt' 
+ dmps_file_check   =   .True. 
+ dmps_rows         =   3 
+ dmps_cols         =   102
 / 
 

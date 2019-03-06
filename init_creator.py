@@ -13,15 +13,22 @@ path_dir           = '/home/local/carltonx/Box-model/supermodel-phase-1/'
 path_cases_dir     = '/home/local/carltonx/Box-model/supermodel-phase-1/Cases/'
 path_case_name     = 'Test_case_01'
 Fname              = 'Api_100.txt'
+Dfile              = 'dmps.txt'
 
-dt = 10.0 
+
+dt       = 10.0  ## seconds
+sim_time = 3600  ## seconds
+ctime    = 0.0   ## current time. 0 at beginning
 
 true  ='.True.'
 false ='.False.'
 ### dimensions of the file
 
 file_check = np.loadtxt(path_cases_dir+path_case_name+'/'+Fname)
-(rr,col)=file_check.shape
+dmps_check = np.loadtxt(path_cases_dir+path_case_name+'/'+Dfile)
+
+(rr,col)      =file_check.shape
+(rr_d, col_d) =dmps_check.shape
 
 ## write to this file
 file = open("/home/local/carltonx/Box-model/supermodel-phase-1/model_init" , "w+")
@@ -50,7 +57,9 @@ file.write("/ \n\n")
 file.write("####### Time flag ######## \n\n")
 
 file.write("&NML_Time \n ")
-file.write("dt   =  %f\n" %dt  )
+file.write("dt         =  %f \n " %dt  )
+file.write("sim_time   =  %f \n " %sim_time )
+file.write("ctime      =  %f\n" %ctime )
 file.write("/ \n\n")
 
 file.write(" ####### file size ##### \n\n")
@@ -59,5 +68,15 @@ file.write("&NML_shape \n ")
 file.write("rows   =  %d \n " %rr)
 file.write("cols   =  %d\n" %col)
 file.write("/ \n\n")
+
+file.write(" ####### dmps file read ##### \n\n")
+
+file.write("&NML_DMPS \n ")
+file.write("DMPS_file         =  '%s' \n " %Dfile)
+file.write("dmps_file_check   =   %s \n "  %true)
+file.write("dmps_rows         =   %d \n " %rr_d)
+file.write("dmps_cols         =   %d\n" %col_d)
+file.write("/ \n\n")
+
 
 file.close()
