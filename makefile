@@ -21,8 +21,7 @@ BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT -J$(OBJDIR) -I$(OBJD
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 
 
-BOX_OBJECTS = second_precision.o constants.o auxillaries.o 
-
+BOX_OBJECTS = second_precision.o constants.o auxillaries.o
 
 ACDC_OBJECTS = get_acdc_J.o driver.o acdc_system.o acdc_equations.o monomer_settings.o solution_settings.o \
                vode.o vodea.o
