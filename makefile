@@ -187,6 +187,7 @@ clean:
 	# -@cd $(OBJDIR) ; rm $(UHMA_OBJECTS) $(UHMA_MODS)   2>/dev/null || true
 # If you really want to remove chemistry objects too, use this
 cleanall:
+	-@cd $(OBJDIR) ; rm $(BOX_OBJECTS) $(BOX_MODS)       2>/dev/null || true
 	-@cd $(OBJDIR) ; rm $(ACDC_OBJECTS) $(ACDC_MODS)      2>/dev/null || true
 	-@cd $(OBJDIR) ; rm $(ACDC_D_OBJECTS) $(ACDC_D_MODS)  2>/dev/null || true
 	-@cd $(OBJDIR) ; rm Superbox.o                        2>/dev/null || true
