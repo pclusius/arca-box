@@ -44,6 +44,28 @@ CONTAINS
     REAL(dp) :: T, P
     C_AIR_m3 = P/(kb*T)
   end function C_AIR_m3
+  ! Converts hours to seconds
+  real(dp) function hrs_to_s(h)
+    REAL(dp) :: h
+    hrs_to_s = h*3600
+  end function hrs_to_s
 
+  real(dp) function sec_to_d(s)
+    REAL(dp) :: s
+    sec_to_d = s/24d0/3600d0
+  end function sec_to_d
+
+! Checks if model time is at some exact minute interval
+! t = time in seconds (real8)
+! check = minute that is to be checked (integer)
+logical function EVENMIN(t,check)
+  INTEGER :: check
+  REAL(dp):: t
+  IF (MODULO(int(t+0.5d0), 60*check) == 0) THEN
+    EVENMIN = .true.
+  ELSE
+    EVENMIN = .false.
+  END IF
+end function EVENMIN
 
 end MODULE AUXILLARIES
