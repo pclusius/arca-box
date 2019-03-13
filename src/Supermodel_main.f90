@@ -15,11 +15,19 @@ PROGRAM Supermodel
     dt,				&	!integration time step [s]
     time,     & !simulation time [s]
     sim_time
+<<<<<<< HEAD
     REAL(dp) :: c_acid =1e7*1d6
     REAL(dp) :: c_base =1d8*1d6
     REAL(dp) :: c_dma
     REAL(dp) :: c_org = 1d12*1d6
     REAL(dp) :: cs_H2SO4 = 0.000d6
+=======
+    REAL(dp) :: c_acid =1e6*1d6
+    REAL(dp) :: c_base =1d8*1d6
+    REAL(dp) :: c_dma = 10 ! in [ppt]
+    REAL(dp) :: c_org = 1d6*1d6
+    REAL(dp) :: cs_H2SO4 = 0.003d0
+>>>>>>> bdd8694825940d04cd97e2446bdf98e234def27d
     REAL(dp) :: TempK = K0 + 15d0
     REAL(dp) :: ION_RATE = 3d6
     REAL(dp) :: J_ACDC_NH3
@@ -30,7 +38,11 @@ PROGRAM Supermodel
 
     dt = 10
     time = 0
+<<<<<<< HEAD
     sim_time=30
+=======
+    sim_time=1
+>>>>>>> bdd8694825940d04cd97e2446bdf98e234def27d
   !Create/Open outup file netcdf
 
   !Variable initialization
@@ -38,11 +50,17 @@ PROGRAM Supermodel
     !Gas phase
     !Aerosol phase(distribution & composition)
     !Boundary conditions(dilution, losses, light,...)
+<<<<<<< HEAD
+=======
+    print*, c_acid,c_base,c_org,cs_H2SO4,TempK,ION_RATE,dt,ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS
+
+>>>>>>> bdd8694825940d04cd97e2446bdf98e234def27d
 
   !Main loop time: Eulerian forward integration
   DO WHILE (time < sim_time*hour_s)
 
 
+<<<<<<< HEAD
   ! ================================================================================================
   ! Call for Nucleation. See that all values entering here are in CUBIC METERS, KELVINS AND PASCALS.
   ! ................................................................................................
@@ -74,11 +92,17 @@ PROGRAM Supermodel
     c_base = 200*1d-12*C_AIR_m3(101325d0,TempK)
 
 
+=======
+    c_dma = 0.2*1d-12*C_AIR_m3(101325d0,TempK)
+    c_base = 200*1d-12*C_AIR_m3(101325d0,TempK)
+    print*, C_AIR_m3(101325d0,TempK)
+>>>>>>> bdd8694825940d04cd97e2446bdf98e234def27d
     ! NUCLEATION BY S-ACID AND NH3 - NOTE: ingoing concentrations are assumed to be in 1/m3!!
     CALL get_acdc_J(c_acid,c_base,c_org,cs_H2SO4,TempK,ION_RATE,dt,ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
     ! NUCLEATION BY S-ACID AND DMA - NOTE: ingoing concentrations are assumed to be in 1/m3!!
     CALL get_acdc_D(c_acid,c_dma,c_org,cs_H2SO4,TempK,dt,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
 
+<<<<<<< HEAD
     print*, 'ACID C:', c_acid*1d-6, '/cm3      DMA C:', c_dma*1d-6, '/cm3'
     print*, 'J_NH3:', J_ACDC_NH3*1d-6, '/cm3      J_DMA:', J_ACDC_DMA*1d-6, '/cm3'
     print*, time_hms(int(time))
@@ -86,6 +110,11 @@ PROGRAM Supermodel
   ! ................................................................................................
   ! END Nucleation
   ! ================================================================================================
+=======
+    print*, '#############################'
+    print*, J_ACDC_NH3, J_NH3_BY_IONS, J_ACDC_DMA
+    print*, time_hms(int(time))
+>>>>>>> bdd8694825940d04cd97e2446bdf98e234def27d
 
     !Photolysis
     !Chemistry
