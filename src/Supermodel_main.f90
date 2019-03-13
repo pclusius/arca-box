@@ -3,9 +3,11 @@ PROGRAM Supermodel
 
 
   !USE module statements
-  USE second_Precision,  ONLY : dp, ik    ! KPP Numerical type
+  USE second_Precision,  ONLY : dp ! KPP Numerical type
   USE constants
   USE AUXILLARIES
+  USE ACDC_NH3
+  USE ACDC_DMA
 
   IMPLICIT NONE
 
@@ -27,7 +29,7 @@ PROGRAM Supermodel
     REAL(dp) :: J_ACDC_DMA
     REAL(dp) :: J_NH3_BY_IONS(3)
     REAL(dp) :: acdc_cluster_diam = 1.17d-9
-    LOGICAL(dp) :: ACDC_solve_ss = .false., NUCLEATION=.true.
+    LOGICAL :: ACDC_solve_ss = .false., NUCLEATION=.true.
 
     dt = 10
     time = 0

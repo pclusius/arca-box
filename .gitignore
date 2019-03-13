@@ -1,0 +1,5 @@
+# ignore object folder
+src/build/
+
+gmon.out
+superbox.exe

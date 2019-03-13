@@ -1,3 +1,9 @@
+MODULE ACDC_NH3
+IMPLICIT NONE
+private
+public :: get_acdc_J
+CONTAINS
+
 subroutine get_acdc_J(c_acid,c_base,c_org,cs_ref,temp,ipr,t_sim,solve_ss,j_acdc,diameter_acdc, Nuc_by_charge)
 use acdc_system, only : nclust, neq					! number of clusters and equations
 use acdc_system, only : cluster_names				! names of the clusters and fluxes
@@ -98,3 +104,6 @@ use driver, only : acdc_driver						! driver
 
 
 end subroutine get_acdc_J
+
+
+END MODULE ACDC_NH3

@@ -1,3 +1,10 @@
+MODULE ACDC_DMA
+IMPLICIT NONE
+private
+public :: get_acdc_D
+CONTAINS
+
+
 subroutine get_acdc_D(c_acid,c_base,c_org,cs_ref,temp,t_sim,solve_ss,j_acdc,diameter_acdc)
 use acdc_systemD, only : nclust, neq					! number of clusters and equations
 use acdc_systemD, only : cluster_names				! names of the clusters and fluxes
@@ -98,3 +105,5 @@ use driverD, only : acdc_driver						! driver
 
 
 end subroutine get_acdc_D
+
+END MODULE ACDC_DMA
