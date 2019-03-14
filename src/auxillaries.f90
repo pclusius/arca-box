@@ -1,8 +1,14 @@
 MODULE AUXILLARIES
-USE SECOND_PRECISION,  ONLY : dp, ik
+USE SECOND_PRECISION,  ONLY : dp
 USE CONSTANTS
 IMPLICIT NONE
 PUBLIC
+
+CHARACTER(56) :: FMT_Tm       = '("+.",t18,82("."),t3,"Time: ",a,t100, "+")'
+CHARACTER(56) :: FMT10_CVU   = '("| ",t3, a,t13, es10.3,a,t100, "|")'
+CHARACTER(86) :: FMT10_2CVU  = '("| ",t3, a,t13, es10.3,a,t35,a,es10.3,a, t100, "|")'
+CHARACTER(86) :: FMT_LEND    = '("+",t2, 98(".") t100, "+")'
+CHARACTER(86) :: FMT_SUB    = '(t5,":",8(".") a)'
 
 INTERFACE TIME_HMS
   module procedure time_hms4
@@ -68,6 +74,9 @@ logical function EVENMIN(t,check)
   END IF
 end function EVENMIN
 
+! real(dp) :: sigma, min_c, max_c, peaktime, omega, amplitude
+! LOGICAL  :: LOGSCALE
+
 !==============================================================================
 ! Function to return y-value at [time] from a normal distribution function with
 ! standard deviation [sigma], minimum value (DC-level) [mn], maximum value [mx]
@@ -75,18 +84,19 @@ end function EVENMIN
 ! model many realistic diurnal concentrations, or use large deviation with late
 ! mean to model for example VOC etc. If LG=TRUE, will scale y logaritmically
 !..............................................................................
-REAL(dp) FUNCTION NORMALD(time,sigma, mn, mx, mean, LG)
-  REAL(dp) :: time,sigma, mn, mx, mean
-  REAL(dp) :: f
-  LOGICAL  :: LG
-  NORMALD = 1d0/SQRT(2d0*pi*sigma**2) * EXP(- (time/3600d0-mean)**2/(2d0*sigma**2))
-  f = 1d0/SQRT(2d0*pi*sigma**2)
-  if (LG) THEN
-    f = (LOG10(mx-mn))/f
-    NORMALD = 10**(NORMALD*f) + mn
+REAL(dp) FUNCTION NORMALD(time,MODS)
+  type(parametered_input) :: MODS
+  REAL(dp) :: time
+  REAL(dp) :: f, D
+  D = MODS%peaktime + sin(time/3600*MODS%omega)*MODS%amplitude
+  NORMALD = 1d0/SQRT(2d0*pi*MODS%sigma**2) * EXP(- (time/3600d0-D)**2/(2d0*MODS%sigma**2))
+  f = 1d0/SQRT(2d0*pi*MODS%sigma**2)
+  if (MODS%LOGSCALE) THEN
+    f = (LOG10(MODS%max_c-MODS%min_c))/f
+    NORMALD = 10**(NORMALD*f) + MODS%min_c
   ELSE
-    f = (mx-mn)/f
-    NORMALD = NORMALD*f + mn
+    f = (MODS%max_c-MODS%min_c)/f
+    NORMALD = NORMALD*f + MODS%min_c
   END IF
 end FUNCTION NORMALD
 
