@@ -20,7 +20,6 @@ IMPLICIT NONE
     time,     & !simulation time [s]
     sim_time
 
-    REAL(dp), dimension(:),allocatable :: modelled_SA
     REAL(dp) :: c_acid =1e7*1d6
     REAL(dp) :: c_base =1d8*1d6
     REAL(dp) :: c_dma
@@ -33,13 +32,17 @@ IMPLICIT NONE
     REAL(dp) :: J_NH3_BY_IONS(3)
     REAL(dp) :: acdc_cluster_diam = 1.17d-9
     LOGICAL :: ACDC_solve_ss = .false., NUCLEATION=.true.
+    type(parametered_input) :: MOD_H2SO4 = parametered_input(sigma=3d0,min_c=2d2,max_c=5d9,peaktime=12,omega=1d0,amplitude=-1.1d0, LOGSCALE=.true.)
+    type(parametered_input) :: MOD_NH3 = parametered_input(sigma=5d0,min_c=4d2,max_c=5d10,peaktime=8,omega=0d0,amplitude=-1.1d0, LOGSCALE=.true.)
+
+    ! real(dp) :: sigma, min_c, max_c, peaktime, omega, amplitude
+    ! LOGICAL  :: LOGSCALE
+
 
     dt = 10
     time = 0
     sim_time=24.
   !Create/Open outup file netcdf
-    ALLOCATE(modelled_SA(ceiling(sim_time)*6+1))
-
   !Variable initialization
     !Species properties in gas/particle phase
     !Gas phase
@@ -85,38 +88,37 @@ write(111,'(5(a20))') 'c_acid', 'c_base', 'J_ACDC_NH3', 'c_dma', 'J_ACDC_DMA'
   ! J_ACDC_DMA:        Particle formation rate due to DMA [1/s/m3]
   ! acdc_cluster_diam: Outgrowing cluster diameter [m]. The cluster typically has 5 to 6 H2SO4 in it
   ! =================================================================================================
-  c_dma  = 0!NORMALD_SINGLE(time,3d0, 4d4, 2.5d7, 11.d0)*1d6*0
-  !c_base = NORMALD(time,6d0, 5d4, 2.5d9, 24*SIN(time/3600d0), .true.)*1d6
-  c_base = NORMALD(time,3d0, 2d5, 9.5d5, 11.d0, .false.)*1d6
-  c_acid = NORMALD(time,9d0, 2d5, 9.5d5, 11.d0, .true.)*1d6
+  c_base = NORMALD(time,MOD_H2SO4)*1d6
+  c_acid = NORMALD(time,MOD_NH3)*1d6
 
   ! NUCLEATION BY S-ACID AND NH3 - NOTE: ingoing concentrations are assumed to be in 1/m3!!
 
   ! Speed up program by ignoring nucleation when there is none
-  if (c_base > 1d-1 .or. J_ACDC_NH3 > 1d-6) THEN
+  if (c_base > 1d12 .or. J_ACDC_NH3 > 1d-6) THEN
     CALL get_acdc_J(c_acid,c_base,c_org,cs_H2SO4,TempK,IPR,dt,&
           ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
   ELSE
     ! This will leave the last value for J stand - small enough to not count but not zero
-    if (EVENMIN(time, 15)) print*, 'NH3 IGNORED'
+    if (EVENMIN(time, 15)) print FMT_SUB, 'NH3 IGNORED'
   END IF
 
   ! NUCLEATION BY S-ACID AND DMA - NOTE: ingoing concentrations are assumed to be in 1/m3!!
 
   ! Speed up program by ignoring nucleation when there is none
-  if (c_dma > 1d1 .or. J_ACDC_DMA > 1d-6) THEN
+  if (c_dma > 1d6 .or. J_ACDC_DMA > 1d-6) THEN
     CALL get_acdc_D(c_acid,c_dma,c_org,cs_H2SO4,TempK,dt,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
   ELSE
     ! This will leave the last value for J stand - small enough to not count but not zero
-    if (EVENMIN(time, 15)) print*, 'DMA IGNORED'
+    if (EVENMIN(time, 15)) print FMT_SUB, 'DMA IGNORED'
   END IF
 
     if (EVENMIN(time, 15)) THEN
-            print*,
-            print'(a,a)', '* Time: ', time_hms(int(time))
-            print'(a,es10.3,a)', '* ACID C:', c_acid*1d-6, '/cm3'
-            print'(a,es10.3,a,es10.3,a)', '* NH3 C:', c_base*1d-6, '/cm3      DMA C:', c_dma*1d-6, '/cm3'
-            print'(a,es10.3,a,es10.3,a)', '* J_NH3 :', J_ACDC_NH3*1d-6, '/cm3      J_DMA:', J_ACDC_DMA*1d-6, '/cm3'
+      print*,
+      print FMT_Tm, time_hms(int(time))
+      print FMT10_CVU,'ACID C: ', c_acid*1d-6, ' [1/cm3]'
+      print FMT10_2CVU, 'NH3 C:', c_base*1d-6, ' [1/cm3]','J_NH3:', J_ACDC_NH3*1d-6, ' [1/cm3]'
+      print FMT10_2CVU, 'DMA C:', c_dma*1d-6 , ' [1/cm3]','J_DMA:', J_ACDC_DMA*1d-6, ' [1/cm3]'
+      print FMT_LEND,
     END IF
     if (EVENMIN(time, 5)) write(111,'(5(es20.3))') c_acid, c_base, J_ACDC_NH3, c_dma, J_ACDC_DMA
   ! ................................................................................................
@@ -137,6 +139,7 @@ write(111,'(5(a20))') 'c_acid', 'c_base', 'J_ACDC_NH3', 'c_dma', 'J_ACDC_DMA'
     !Write output to file
 
   END DO	!Main loop time: Eulerian forward integration
+  print FMT_Tm, time_hms(int(time))
 
   !Close output file netcdf
 
