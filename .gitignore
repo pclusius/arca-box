@@ -3,3 +3,5 @@ src/build/
 
 gmon.out
 superbox.exe
+output.dat
+Python/
