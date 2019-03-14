@@ -68,4 +68,26 @@ logical function EVENMIN(t,check)
   END IF
 end function EVENMIN
 
+!==============================================================================
+! Function to return y-value at [time] from a normal distribution function with
+! standard deviation [sigma], minimum value (DC-level) [mn], maximum value [mx]
+! and time of maximum at [mean]. Combine with mean = mean + SIN(time/3600)*k to
+! model many realistic diurnal concentrations, or use large deviation with late
+! mean to model for example VOC etc. If LG=TRUE, will scale y logaritmically
+!..............................................................................
+REAL(dp) FUNCTION NORMALD(time,sigma, mn, mx, mean, LG)
+  REAL(dp) :: time,sigma, mn, mx, mean
+  REAL(dp) :: f
+  LOGICAL  :: LG
+  NORMALD = 1d0/SQRT(2d0*pi*sigma**2) * EXP(- (time/3600d0-mean)**2/(2d0*sigma**2))
+  f = 1d0/SQRT(2d0*pi*sigma**2)
+  if (LG) THEN
+    f = (LOG10(mx-mn))/f
+    NORMALD = 10**(NORMALD*f) + mn
+  ELSE
+    f = (mx-mn)/f
+    NORMALD = NORMALD*f + mn
+  END IF
+end FUNCTION NORMALD
+
 end MODULE AUXILLARIES
