@@ -12,6 +12,11 @@ integer(ik), parameter:: min_s = 60           ! [s] seconds in minute
 integer(ik), parameter:: hour_s  = 3600       ! [s] seconds in hour
 integer(ik), parameter:: day_s = 24*hour_s
 
+type parametered_input
+    real(dp) :: sigma, min_c, max_c, peaktime, omega, amplitude
+    LOGICAL  :: LOGSCALE
+end type parametered_input
+
 CONTAINS
 
 
