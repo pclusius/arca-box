@@ -31,17 +31,10 @@ IMPLICIT NONE
     REAL(dp) :: J_ACDC_DMA
     REAL(dp) :: J_NH3_BY_IONS(3)
     REAL(dp) :: acdc_cluster_diam = 1.17d-9
-<<<<<<< HEAD
     LOGICAL :: ACDC_solve_ss = .false., NUCLEATION=.true., ACDC=.true.
     type(parametered_input) :: MOD_H2SO4 = parametered_input(sigma=3d0,min_c=5d7,max_c=5d7,peaktime=12,omega=1d0,amplitude=-1.1d0, LOGSCALE=.true.)
     type(parametered_input) :: MOD_NH3   = parametered_input(sigma=5d0,min_c=4d2,max_c=5d10,peaktime=8,omega=0d0,amplitude=-1.1d0, LOGSCALE=.true.)
     type(parametered_input) :: Jout_par  = parametered_input(sigma=2d0,min_c=1.d-4,max_c=5d0,peaktime=9,omega=0d0,amplitude=-1.1d0, LOGSCALE=.true.)
-=======
-    LOGICAL :: ACDC_solve_ss = .false., NUCLEATION=.true.
-    type(parametered_input) :: MOD_H2SO4 = parametered_input(sigma=3d0,min_c=5d7,max_c=5d7,peaktime=12,omega=1d0,amplitude=-1.1d0, LOGSCALE=.true.)
-    type(parametered_input) :: MOD_NH3 = parametered_input(sigma=5d0,min_c=4d2,max_c=5d10,peaktime=8,omega=0d0,amplitude=-1.1d0, LOGSCALE=.true.)
->>>>>>> bfd035089dc3353bedf0c439a9c499db97b7deba
-
     ! real(dp) :: sigma, min_c, max_c, peaktime, omega, amplitude
     ! LOGICAL  :: LOGSCALE
 
@@ -68,7 +61,6 @@ print FMT_Tm, time_hms(int(time))
 c_acid = NORMALD(time,MOD_H2SO4)*1d6
 c_base = NORMALD(time,MOD_NH3)*1d6
   if (NUCLEATION) THEN
-<<<<<<< HEAD
 
 #ifdef ISACDC
   if (ACDC) CALL ACDC_J() ! SUBROUTINE in CONTAINS of this file
@@ -131,42 +123,6 @@ SUBROUTINE ACDC_J()
 ! =================================================================================================
 
 ! NUCLEATION BY S-ACID AND NH3 - NOTE: ingoing concentrations are assumed to be in 1/m3!!
-=======
-#ifdef ACDC
-  ! =================================================================================================
-  ! ACDC Nucleation. See that all values here are in SI-UNITS: CUBIC METERS, KELVINS AND PASCALS.
-  ! Written by Tinja Olenius
-  ! .................................................................................................
-  ! Input for get_acdc_J:
-  ! c_acid:            Sulfuric acid concentration [1/m3]
-  ! c_base:            base (ammonia) concentration [1/m3]
-  ! c_org:             Nucleating organic concentration [1/m3]. not in AFAIK
-  ! cs_H2SO4:          Condensationnh3_to_ACDC sink of sulfuric acid [1/s/m3]
-  ! TempK:             Temperature in Kelvins
-  ! IPR:               Ion production rate in ion pairs per second [1/m3/s]. 3d6 is a good guestimate
-  ! dt:                Main time step [s]
-  ! ACDC_solve_ss:     Solve steady state or only to timestep duration (generally makes no difference)
-  ! J_ACDC_NH3:        Particle formation rate due to ammonia [1/s/m3]. Sum of J_NH3_BY_IONS
-  ! acdc_cluster_diam: Outgrowing cluster diameter [m]
-  ! J_NH3_BY_IONS:     Particle formation rate by ions (neutral, negative and positive) [1/s/m3].
-  !                    The outgrowing cluster typically has 5 to 6 H2SO4 in it
-  ! .................................................................................................
-  ! Input for get_acdc_D:
-  ! c_acid:            Sulfuric acid concentration [1/m3]
-  ! c_dma:             DMA concentration [1/m3]
-  ! c_org:             Nucleating organic concentration [1/m3]. not in AFAIK
-  ! cs_H2SO4:          Condensation sink of sulfuric acid [1/s/m3]
-  ! TempK:             Temperature in Kelvins
-  ! dt:                Main time step [s]
-  ! ACDC_solve_ss:     Solve steady state or only to timestep duration (generally makes no difference)
-  ! J_ACDC_DMA:        Particle formation rate due to DMA [1/s/m3]
-  ! acdc_cluster_diam: Outgrowing cluster diameter [m]. The cluster typically has 5 to 6 H2SO4 in it
-  ! =================================================================================================
-  c_acid = NORMALD(time,MOD_H2SO4)*1d6
-  c_base = NORMALD(time,MOD_NH3)*1d6
-
-  ! NUCLEATION BY S-ACID AND NH3 - NOTE: ingoing concentrations are assumed to be in 1/m3!!
->>>>>>> bfd035089dc3353bedf0c439a9c499db97b7deba
 
   ! Speed up program by ignoring nucleation when there is none
   if (c_base > 1d12 .or. J_ACDC_NH3 > 1d-6) THEN

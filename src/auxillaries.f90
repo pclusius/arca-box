@@ -94,13 +94,8 @@ REAL(dp) FUNCTION NORMALD(time,MODS)
     NORMALD = MODS%min_c
   ELSE
     if (MODS%LOGSCALE) THEN
-<<<<<<< HEAD
       f = (LOG10(MODS%max_c-MODS%min_c+1))/f
       NORMALD = 10**(NORMALD*f)-1 + MODS%min_c
-=======
-      f = (LOG10(MODS%max_c-MODS%min_c))/f
-      NORMALD = 10**(NORMALD*f) + MODS%min_c
->>>>>>> bfd035089dc3353bedf0c439a9c499db97b7deba
     ELSE
       f = (MODS%max_c-MODS%min_c)/f
       NORMALD = NORMALD*f + MODS%min_c

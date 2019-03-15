@@ -13,7 +13,7 @@ VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_
 # -w suppresses warning messages
 
 # For programming (faster compiling):
-BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT  -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
+BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
 -Warray-temporaries -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all
 #BOX_OPTS = -ffree-line-length-none -cpp -DLINUX -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
 #-Warray-temporaries -Wtabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all
