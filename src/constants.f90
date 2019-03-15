@@ -12,9 +12,18 @@ integer(ik), parameter:: min_s = 60           ! [s] seconds in minute
 integer(ik), parameter:: hour_s  = 3600       ! [s] seconds in hour
 integer(ik), parameter:: day_s = 24*hour_s
 
+! Container for input parameters for creating simulated datapoints
+! Uses gaussian function as generator
 type parametered_input
-    real(dp) :: sigma, min_c, max_c, peaktime, omega, amplitude
-    LOGICAL  :: LOGSCALE
+    real(dp) :: sigma       ! Standard deviation for the Gaussian
+    real(dp) :: min_c       ! Minimum value for the parametrized concentration
+                            ! OR constant value if max_c <= min_c
+    real(dp) :: max_c       ! Peak value
+    real(dp) :: peaktime    ! Time of peak value
+    real(dp) :: omega       ! Angular frequency [hours] of modifying sine function
+    real(dp) :: amplitude   ! Amplitude of modificaion
+    LOGICAL  :: LOGSCALE    ! Is concetration scale logaritmically or linearily.
+                            ! True for logaritmically scaled
 end type parametered_input
 
 CONTAINS

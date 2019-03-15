@@ -32,7 +32,7 @@ IMPLICIT NONE
     REAL(dp) :: J_NH3_BY_IONS(3)
     REAL(dp) :: acdc_cluster_diam = 1.17d-9
     LOGICAL :: ACDC_solve_ss = .false., NUCLEATION=.true.
-    type(parametered_input) :: MOD_H2SO4 = parametered_input(sigma=3d0,min_c=2d2,max_c=5d9,peaktime=12,omega=1d0,amplitude=-1.1d0, LOGSCALE=.true.)
+    type(parametered_input) :: MOD_H2SO4 = parametered_input(sigma=3d0,min_c=5d7,max_c=5d7,peaktime=12,omega=1d0,amplitude=-1.1d0, LOGSCALE=.true.)
     type(parametered_input) :: MOD_NH3 = parametered_input(sigma=5d0,min_c=4d2,max_c=5d10,peaktime=8,omega=0d0,amplitude=-1.1d0, LOGSCALE=.true.)
 
     ! real(dp) :: sigma, min_c, max_c, peaktime, omega, amplitude
@@ -88,8 +88,8 @@ write(111,'(5(a20))') 'c_acid', 'c_base', 'J_ACDC_NH3', 'c_dma', 'J_ACDC_DMA'
   ! J_ACDC_DMA:        Particle formation rate due to DMA [1/s/m3]
   ! acdc_cluster_diam: Outgrowing cluster diameter [m]. The cluster typically has 5 to 6 H2SO4 in it
   ! =================================================================================================
-  c_base = NORMALD(time,MOD_H2SO4)*1d6
-  c_acid = NORMALD(time,MOD_NH3)*1d6
+  c_acid = NORMALD(time,MOD_H2SO4)*1d6
+  c_base = NORMALD(time,MOD_NH3)*1d6
 
   ! NUCLEATION BY S-ACID AND NH3 - NOTE: ingoing concentrations are assumed to be in 1/m3!!
 
