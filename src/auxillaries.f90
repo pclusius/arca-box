@@ -74,15 +74,13 @@ logical function EVENMIN(t,check)
   END IF
 end function EVENMIN
 
-! real(dp) :: sigma, min_c, max_c, peaktime, omega, amplitude
-! LOGICAL  :: LOGSCALE
-
 !==============================================================================
 ! Function to return y-value at [time] from a normal distribution function with
 ! standard deviation [sigma], minimum value (DC-level) [mn], maximum value [mx]
-! and time of maximum at [mean]. Combine with mean = mean + SIN(time/3600)*k to
+! and time of maximum at [mean]. Combine with mean = mean + SIN(time/3600*c)*k to
 ! model many realistic diurnal concentrations, or use large deviation with late
 ! mean to model for example VOC etc. If LG=TRUE, will scale y logaritmically
+! If minimum >= maximum, minumum value is used as constant concentration
 !..............................................................................
 REAL(dp) FUNCTION NORMALD(time,MODS)
   type(parametered_input) :: MODS
@@ -91,12 +89,17 @@ REAL(dp) FUNCTION NORMALD(time,MODS)
   D = MODS%peaktime + sin(time/3600*MODS%omega)*MODS%amplitude
   NORMALD = 1d0/SQRT(2d0*pi*MODS%sigma**2) * EXP(- (time/3600d0-D)**2/(2d0*MODS%sigma**2))
   f = 1d0/SQRT(2d0*pi*MODS%sigma**2)
-  if (MODS%LOGSCALE) THEN
-    f = (LOG10(MODS%max_c-MODS%min_c))/f
-    NORMALD = 10**(NORMALD*f) + MODS%min_c
+  ! Check if minimum is same or more than maximum and if so, use constant concentration (minumum)
+  IF (MODS%max_c-MODS%min_c <1e-9) THEN
+    NORMALD = MODS%min_c
   ELSE
-    f = (MODS%max_c-MODS%min_c)/f
-    NORMALD = NORMALD*f + MODS%min_c
+    if (MODS%LOGSCALE) THEN
+      f = (LOG10(MODS%max_c-MODS%min_c))/f
+      NORMALD = 10**(NORMALD*f) + MODS%min_c
+    ELSE
+      f = (MODS%max_c-MODS%min_c)/f
+      NORMALD = NORMALD*f + MODS%min_c
+    END IF
   END IF
 end FUNCTION NORMALD
 
