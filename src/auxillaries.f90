@@ -128,6 +128,7 @@ end FUNCTION SIND
 ! Empty rows are also counted
 !..............................................................................
 INTEGER FUNCTION ROWCOUNT(file_id)
+  IMPLICIT NONE
   INTEGER :: file_id, ioi
   INTEGER(8) :: OFFSET
   OFFSET = FTELL(file_id)
@@ -156,6 +157,7 @@ END FUNCTION ROWCOUNT
 ! Empty row or row with only spaces will return 0
 !..............................................................................
 INTEGER FUNCTION COLCOUNT(file_id, separator)
+  IMPLICIT NONE
   INTEGER         :: file_id,ioi,i
   INTEGER(8)      :: OFFSET
   CHARACTER(6000) :: buffer
@@ -190,6 +192,57 @@ INTEGER FUNCTION COLCOUNT(file_id, separator)
   REWIND(file_id)
   CALL FSEEK(file_id, OFFSET, 0)
 END FUNCTION COLCOUNT
+
+!==============================================================================
+! Gets the current row in timearray [conctime] for which:
+! [conctime(getrow)] < time < [conctime(getrow+1)]
+! Can be used if for some reason we have different time intervals for different
+! inputs. The same  functionality is also incorporated in INTERP()
+!..............................................................................
+REAL(dp) FUNCTION getrow(time, conctime)
+  IMPLICIT NONE
+  INTEGER :: row = 0
+  REAL(dp) :: time, conctime(:)
+  conctime = conctime - conctime(1)
+  do WHILE (time/3600d0/24d0>=conctime(row+1))
+    row = row + 1
+  end do
+  getrow = row
+END  FUNCTION getrow
+
+!==============================================================================
+! Function that linearily interpolates any value at time [time] (seconds) using
+! timearray [conctime] (fractional day) and respective concentration timeseries
+! [conc]. If [row_opt] (integer) is provided, function will use that row as
+! starting point for interpolation, or search for correct row if this fails.
+!..............................................................................
+REAL(dp) FUNCTION INTERP(time, conctime, conc, row_opt)
+  IMPLICIT NONE
+  INTEGER, OPTIONAL :: row_opt
+  INTEGER :: row
+  REAL(dp) :: time, conctime(:), conc(:)
+  conctime = conctime - conctime(1)
+  row = 0
+  if (PRESENT(row_opt)) THEN
+    row = row_opt
+    if ((time/3600d0/24 > conctime(row)) .and. (time/3600d0/24 < conctime(row+1))) THEN
+        continue
+    else
+      print*,'Wrong row number is sent in to INTERP, searching for the real row now.'
+      row = 0
+      do WHILE (time/3600d0/24d0>=conctime(row+1))
+        row = row + 1
+      end do
+      print*,'real row is: ', row
+    end if
+  else
+    do WHILE (time/3600d0/24d0>=conctime(row+1))
+      row = row + 1
+    end do
+
+  end if
+  INTERP = (time/3600/24-conctime(row))/(conctime(row+1)-conctime(row))*(conc(row+1)-conc(row))+conc(row)
+END  FUNCTION INTERP
 
 
 end MODULE AUXILLARIES
