@@ -7,7 +7,7 @@ real(dp), parameter   :: Na = 6.022140857d23  ! 1/mol Avogadro constant
 real(dp), parameter   :: R  = 8.3144598       ! [J/K/mol] Universal gas constant
 real(dp), parameter   :: kb = R/Na            ! [J/K] Boltzmann constant
 real(dp), parameter   :: pi = ACOS(-1d0)      ! pi
-real(dp), parameter   :: K0 = 273.15          ! [K] Zero degree celcius in K
+real(dp), parameter   :: K0 = 273.15d0        ! [K] Zero degree celcius in K
 integer(ik), parameter:: min_s = 60           ! [s] seconds in minute
 integer(ik), parameter:: hour_s  = 3600       ! [s] seconds in hour
 integer(ik), parameter:: day_s = 24*hour_s
@@ -28,23 +28,25 @@ type parametered_input
                           ! True for logaritmically scaled
 end type parametered_input
 
-real(dp), parameter :: SIM_TIME = 24.0d0
+real(dp), parameter :: SIM_TIME = 1.0d0
+
 type timetype
-  real(dp):: SIM_TIME_H     = SIM_TIME
-  real(dp):: SIM_TIME_S     = SIM_TIME*3600.d0
-  real(dp):: sec            = 0
-  real(dp):: dt             = 10.0d0
-  real(dp):: dt_chem        = 10.0d0
-  real(dp):: dt_aero        = 10.0d0
-  integer :: ind_netcdf     = 1
-  integer :: tm             = 0
-  integer :: day            = 0
-  integer :: PRINT_INTERVAL = 15
-  integer :: FSAVE_INTERVAL = 1
-  character(8) :: hms       = "00:00:00"
-  logical :: printnow       = .true.
-  logical :: savenow        = .true.
-  logical :: PRINTACDC      = .false.
+  real(dp)      :: SIM_TIME_H     = SIM_TIME
+  real(dp)      :: SIM_TIME_S     = SIM_TIME*3600.d0
+  real(dp)      :: sec            = 0
+  real(dp)      :: dt             = 10.0d0
+  real(dp)      :: dt_chem        = 10.0d0
+  real(dp)      :: dt_aero        = 10.0d0
+  integer       :: ind_netcdf     = 1
+  integer       :: min            = 0
+  integer       :: day            = 0
+  integer       :: JD             = 0
+  integer       :: PRINT_INTERVAL = 15
+  integer       :: FSAVE_INTERVAL = 1
+  character(8)  :: hms            = "00:00:00"
+  logical       :: printnow       = .true.
+  logical       :: savenow        = .true.
+  logical       :: PRINTACDC      = .false.
 end type timetype
 
 ! UHMA-wide parameters that need to be constants
@@ -61,7 +63,6 @@ type type_particles
   real(dp),dimension(uhma_sections) :: n_conc,radius,rdry,rdry_orig,core,mass,gr, original_radiis
   real(dp),dimension(uhma_sections,uhma_compo) :: vol_conc ! um^3/m^3
   integer, dimension(uhma_sections) :: order
-  CHARACTER(*) :: DESCRIPTION = "Type to store particle number concentrations and volumes, masses, etc. and bins"
 end type type_particles
 
 ! holds variables related to vapors and ambient conditions
@@ -77,49 +78,52 @@ end type type_ambient
 
 ! holds misc. variables and options
 type type_options
-  real(dp) :: meas_interval,latitude,longitude,day_of_year,nuc_number
-  integer :: year, month, day
+  ! real(dp) :: meas_interval ! Commented out, this is in timetype
+  real(dp)              :: latitude,longitude, day_of_year, nuc_number
+  real(dp)              :: cons_multipliers(5)
+  real(dp)              :: cons_shifters(5)
+  integer               :: year, month, day
   integer, dimension(3) :: nuc_array
-  character (len=2) :: dist_approach
-  character (len=3) :: nuc_approach,solver
-  logical :: nucleation,condensation,coagulation,dry_deposition,snow_scavenge,equilibrate,cluster_divide, vapor_chemistry, vapor_loss,BLH_dilution
-  logical :: quasistationary, raoult
+  character (len=2)     :: dist_approach
+  character (len=3)     :: nuc_approach,solver
+  logical               :: nucleation,condensation,coagulation,dry_deposition,snow_scavenge,equilibrate,cluster_divide, vapor_chemistry, vapor_loss,BLH_dilution
+  logical               :: quasistationary, raoult
 end type type_options
 
 ! ------------------------------------------------------------
 ! PROCEDURES
 interface operator(+)
-  module procedure ADD
+  module procedure UPDtime
 end interface operator(+)
 
 type(type_options) :: aerosol_options
 
 CONTAINS
 
-type(timetype) function add(time, sec)
+type(timetype) function UPDtime(time, sec)
   implicit none
   type(timetype), intent(in) :: time
   real(dp), intent(in)       :: sec
-  add     = time
-  add%sec  = time%sec + sec
-  add%tm  = int(add%sec/60)
-  add%day = int(add%sec/3600/24)
-  write(add%hms, '(i2.2, ":" i2.2, ":" i2.2)') int(add%sec+0.5d0)/3600, &
-        int(MODULO(int(add%sec+0.5d0),3600)/60), MODULO(MODULO(int(add%sec+0.5d0),3600), 60)
-  IF (MODULO(int(add%sec+0.5d0), 60*add%PRINT_INTERVAL) == 0) THEN
-    add%printnow = .true.
+  UPDtime       = time
+  UPDtime%sec   = time%sec + sec
+  UPDtime%min   = int(UPDtime%sec/60d0)
+  UPDtime%day   = int(UPDtime%sec/3600/24)
+  write(UPDtime%hms, '(i2.2, ":" i2.2, ":" i2.2)') int(UPDtime%sec+0.5d0)/3600, &
+        int(MODULO(int(UPDtime%sec+0.5d0),3600)/60), MODULO(MODULO(int(UPDtime%sec+0.5d0),3600), 60)
+  IF (MODULO(int(UPDtime%sec+0.5d0), 60*UPDtime%PRINT_INTERVAL) == 0) THEN
+    UPDtime%printnow = .true.
   ELSE
-    add%printnow = .false.
+    UPDtime%printnow = .false.
   END IF
 
-  IF (MODULO(int(add%sec+0.5d0), 60*add%FSAVE_INTERVAL) == 0) THEN
-    add%savenow = .true.
-    add%ind_netcdf = add%ind_netcdf + 1
+  IF (MODULO(int(UPDtime%sec+0.5d0), 60*UPDtime%FSAVE_INTERVAL) == 0) THEN
+    UPDtime%savenow = .true.
+    UPDtime%ind_netcdf = UPDtime%ind_netcdf + 1
   ELSE
-    add%savenow = .false.
+    UPDtime%savenow = .false.
   END IF
 
-end function add
+end function UPDtime
 
 
 

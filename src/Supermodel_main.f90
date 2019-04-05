@@ -1,7 +1,6 @@
 PROGRAM Supermodel
 !We keep things easy and clear (no goto commands,...)
 
-!USE module statements
 USE second_Precision,  ONLY : dp ! KPP Numerical type
 USE constants
 USE AUXILLARIES
@@ -9,44 +8,57 @@ USE AUXILLARIES
   USE ACDC_NH3
   USE ACDC_DMA
 #endif
-USE ACDC_DMA
 use OUTPUT
+
 IMPLICIT NONE
 
-  !Variable declaration
-    TYPE(timetype) :: time
-    REAL(dp), allocatable :: conc(:,:)
-    REAL(dp) :: c_acid =1e7*1d6
-    REAL(dp) :: c_base =1d8*1d6
-    REAL(dp) :: c_dma
-    REAL(dp) :: c_org = 0*1d12*1d6
-    REAL(dp) :: cs_H2SO4 = 0.0003d0
-    REAL(dp) :: TempK = K0
-    REAL(dp) :: IPR = 3d6
-    REAL(dp) :: J_ACDC_NH3
-    REAL(dp) :: J_ACDC_DMA
-    REAL(dp) :: J_NH3_BY_IONS(3)
-    REAL(dp) :: acdc_cluster_diam = 2.17d-9
-    LOGICAL :: ACDC_solve_ss = .true. , NUCLEATION = .true., ACDC = .true.
-    type(parametered_input) :: MOD_NH3   = parametered_input(sigma=2d0,min_c=10d0,max_c=200d0,peaktime=8.30,omega=0d0,amplitude=-1.1d0, LOGSCALE=.true.)
-    type(parametered_input) :: T_par  = parametered_input(sigma=2d0,min_c=25d0+K0,max_c=35d0+K0,peaktime=9,omega=0d0,amplitude=-1.1d0, LOGSCALE=.false.)
-    ! type(parametered_input) :: MOD_H2SO4 = parametered_input(sigma=0.5d0,min_c=4.8d05,max_c=5.48d07,peaktime=8d0,omega=-1.1d0,amplitude=1.1d0, LOGSCALE=.true.)
-    ! type(parametered_input) :: Jout_par  = parametered_input(sigma=2d0,min_c=1.d-4,max_c=5d0,peaktime=9,omega=0d0,amplitude=-1.1d0, LOGSCALE=.false.)
-    INTEGER :: rows, cols, i,j
+CHARACTER(16)  :: modifier_names(5)
+real(dp)  :: cons_multipliers(5)
+real(dp)  :: cons_shifters(5)
 
-    !Create/Open outup file netcdf
-    !Variable initialization
-    !Species properties in gas/particle phase
-    !Gas phase
-    !Aerosol phase(distribution & composition)
-    !Boundary conditions(dilution, losses, light,...)
+integer   :: ind_Temp_shift  = 1
+integer   :: ind_SA_factor   = 2
+integer   :: ind_base_factor = 3
+integer   :: ind_DMA_factor  = 4
+integer   :: ind_CS_factor   = 5
+
+!Variable declaration
+TYPE(timetype) :: time
+TYPE(type_ambient) :: Gases
+REAL(dp), allocatable :: conc(:,:)
+REAL(dp) :: c_acid =1e7*1d6
+REAL(dp) :: c_base =1d8*1d6
+REAL(dp) :: c_dma
+REAL(dp) :: c_org = 0*1d12*1d6
+REAL(dp) :: cs_H2SO4 = 0.0003d0
+REAL(dp) :: TempK = K0
+REAL(dp) :: IPR = 3d6
+REAL(dp) :: J_ACDC_NH3
+REAL(dp) :: J_ACDC_DMA
+REAL(dp) :: J_NH3_BY_IONS(3)
+REAL(dp) :: acdc_cluster_diam = 2.17d-9
+LOGICAL :: ACDC_solve_ss = .true. , NUCLEATION = .true., ACDC = .true.
+type(parametered_input) :: MOD_NH3   = parametered_input(sigma=2d0,min_c=10d0,max_c=200d0,peaktime=8.30,omega=0d0,amplitude=-1.1d0, LOGSCALE=.true.)
+type(parametered_input) :: T_par  = parametered_input(sigma=2d0,min_c=25d0+K0,max_c=35d0+K0,peaktime=9,omega=0d0,amplitude=-1.1d0, LOGSCALE=.false.)
+! type(parametered_input) :: MOD_H2SO4 = parametered_input(sigma=0.5d0,min_c=4.8d05,max_c=5.48d07,peaktime=8d0,omega=-1.1d0,amplitude=1.1d0, LOGSCALE=.true.)
+! type(parametered_input) :: Jout_par  = parametered_input(sigma=2d0,min_c=1.d-4,max_c=5d0,peaktime=9,omega=0d0,amplitude=-1.1d0, LOGSCALE=.false.)
+INTEGER :: rows, cols, i,j
+
+!Create/Open outup file netcdf
+!Variable initialization
+!Species properties in gas/particle phase
+!Gas phase
+!Aerosol phase(distribution & composition)
+!Boundary conditions(dilution, losses, light,...)
 ! open(9333,FILE='Nanjing2_CS05_DMA10_K-70.dat')
+CALL SET_MODIFIERS()
+
 open(522, file = 'input/NANJING/case_Nanjing2.txt')
 
 open(9333,FILE='output/xxx.dat')
 write(9333,'(8(a20))') 'time(s)', 'c_acid(1/m3)', 'c_base(1/m3)', 'J_ACDC_NH3(1/m3/s)', 'c_dma(1/m3)', 'J_ACDC_DMA(1/m3/s)', 'TempK(K)', 'CS(1/s)'
 
-CALL OPEN_GASFILE('output/OutputGas.nc')
+CALL OPEN_GASFILE('output/OutputGas.nc', modifier_names, cons_multipliers, cons_shifters)!, model_options)
 
 rows = ROWCOUNT(522)
 cols = COLCOUNT(522)
@@ -66,11 +78,11 @@ DO WHILE (time%sec < time%SIM_TIME_S)
   !Photolysis
   !Chemistry
 
-  TempK    = interp(time%sec, conc(:,1), conc(:,3)) + K0 -10d0
-  CS_H2SO4 = interp(time%sec, conc(:,1), conc(:,4))*0.5
-  c_acid   = interp(time%sec, conc(:,1), conc(:,5))*1d6
-  c_base   = interp(time%sec, conc(:,1), conc(:,6))*1d6
-  c_dma    = interp(time%sec, conc(:,1), conc(:,7))*1d6
+  TempK    = interp(time%sec, conc(:,1), conc(:,3))  * cons_multipliers(ind_Temp_shift)  + cons_shifters(ind_Temp_shift)
+  CS_H2SO4 = interp(time%sec, conc(:,1), conc(:,4))  * cons_multipliers(ind_CS_factor)   + cons_shifters(ind_CS_factor)
+  c_acid   = interp(time%sec, conc(:,1), conc(:,5))  * cons_multipliers(ind_SA_factor)   + cons_shifters(ind_SA_factor)
+  c_base   = interp(time%sec, conc(:,1), conc(:,6))  * cons_multipliers(ind_base_factor) + cons_shifters(ind_base_factor)
+  c_dma    = interp(time%sec, conc(:,1), conc(:,7))  * cons_multipliers(ind_DMA_factor)  + cons_shifters(ind_DMA_factor)
 
   if (NUCLEATION) THEN
 
@@ -100,7 +112,7 @@ DO WHILE (time%sec < time%SIM_TIME_S)
   !Write output to file
   if (time%savenow) THEN
     write(9333,'(8(es20.8))') time%sec, c_acid, c_base, J_ACDC_NH3, c_dma, J_ACDC_DMA, TempK, CS_H2SO4
-    call SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4)
+    call SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, cons_multipliers, cons_shifters)
     ! call output_ambient(time, ambient)
     !call output_particles(time, particles)
 
@@ -114,7 +126,7 @@ END DO	! Main loop time: Eulerian forward integration
 print FMT_Tm, time%hms
 
 write(9333,'(8(es20.8))') time%sec, c_acid, c_base, J_ACDC_NH3, c_dma, J_ACDC_DMA, TempK, CS_H2SO4
-call SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4)
+call SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, cons_multipliers, cons_shifters)
 ! call output_time(time)
 ! call output_ambient(time, ambient)
 
@@ -178,6 +190,26 @@ SUBROUTINE ACDC_J()
   ! END ACDC Nucleation
   ! ================================================================================================
 END SUBROUTINE ACDC_J
+
+SUBROUTINE SET_MODIFIERS()
+  modifier_names(ind_Temp_shift)    = "Temperature     "
+  modifier_names(ind_SA_factor)     = "H2SO4           "
+  modifier_names(ind_base_factor)   = "Base_NH3        "
+  modifier_names(ind_DMA_factor)    = "DMA             "
+  modifier_names(ind_CS_factor)     = "C_sink          "
+
+  cons_multipliers(ind_Temp_shift)  = 1d0
+  cons_multipliers(ind_SA_factor)   = 1d0
+  cons_multipliers(ind_base_factor) = 1d0
+  cons_multipliers(ind_DMA_factor)  = 1d0
+  cons_multipliers(ind_CS_factor)   = 1d0
+
+  cons_shifters(ind_Temp_shift)     = 0d0 + K0
+  cons_shifters(ind_SA_factor)      = 0d0
+  cons_shifters(ind_base_factor)    = 0d0
+  cons_shifters(ind_DMA_factor)     = 0d0
+  cons_shifters(ind_CS_factor)      = 0d0
+END SUBROUTINE SET_MODIFIERS
 
 SUBROUTINE SOME_OTHER_NUCLEATION_TYPE(J1, J2)
   REAL(dp) :: J1, J2

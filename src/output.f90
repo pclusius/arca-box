@@ -5,7 +5,10 @@ use AUXILLARIES
 IMPLICIT NONE
 private
 ! Storing of indices of gases.nc
-character(16) , dimension(5):: gasnames
+character(16), allocatable  :: gasnames(:)
+INTEGER, allocatable        :: shifter_ind(:)
+INTEGER, allocatable        :: multipl_ind(:)
+
 integer :: gtime_id = 0
 integer :: gas_ncfile_id = 0
 integer :: gcompounds_id = 0
@@ -71,17 +74,24 @@ SUBROUTINE OPEN_NETCDF(filename, aerosol_options)
   character(len=*), intent(in)    :: filename
   !Initialize netcdf-output
   write(*,*) TRIM(filename)
-  print*, par_ncfile_id
   call initialize_output(TRIM(filename), 'explanation', 'experiment_set', aerosol_options)
-  print*, par_ncfile_id
 end SUBROUTINE OPEN_NETCDF
 
-SUBROUTINE OPEN_GASFILE(filename)
+
+SUBROUTINE OPEN_GASFILE(filename, modifier_names, cons_multipliers, cons_shifters)
+  real(dp)      :: cons_multipliers(:)
+  real(dp)      :: cons_shifters(:)
+  CHARACTER(*)  :: modifier_names(:)
+  integer :: i
   integer                         :: n_compounds = 5 ! needed for develempoment, later will be calculated from KPP input and stored in e.g. Constants.f90
   character(len=*), intent(in)    :: filename
   ! settings for netCDF4-file compression. shuffle=1 might improve compression but is slower
   integer:: shuffle=0, compress=1, compression_level=9
   integer::gambient_gases_ids(2)
+
+  ALLOCATE(multipl_ind(size(modifier_names)))
+  ALLOCATE(shifter_ind(size(modifier_names)))
+
   write(*,*) 'Create chemfile', TRIM(filename)
 
 
@@ -115,10 +125,15 @@ SUBROUTINE OPEN_GASFILE(filename)
   call handler(nf90_def_var(gas_ncfile_id, "time_step", NF90_DOUBLE,  gconstant_id, gtimestep_coef_id))
   call handler(nf90_def_var(gas_ncfile_id, "save_interval", NF90_INT, gconstant_id, gsave_interval_id))
 
-  !Making info variable(well attribute) for general stuff
+  !Create attributes for general stuff
   call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'info', 'Info here'))
   call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'experiment', 'Experiment set here'))
   ! call output_options(options)
+
+  do i = 1,size(modifier_names)
+    call handler(nf90_def_var(gas_ncfile_id, TRIM(modifier_names(i))//'_Multipl', NF90_DOUBLE, gtime_id, multipl_ind(i)))
+    call handler(nf90_def_var(gas_ncfile_id, TRIM(modifier_names(i))//'_Shifter', NF90_DOUBLE, gtime_id, shifter_ind(i)))
+  end do
 
   !defining units as attributes.
 
@@ -145,7 +160,7 @@ SUBROUTINE OPEN_GASFILE(filename)
 ! END COMPRESSION
 
 call handler( nf90_enddef(gas_ncfile_id))
-
+ALLOCATE(gasnames(5))
 gasnames(1) = "Sulf_acid"
 gasnames(2) = "Ammonia"
 gasnames(3) = "DMA"
@@ -375,18 +390,19 @@ subroutine initialize_output(filename, explanation, experiment_set, options)
 
 end subroutine initialize_output
 
-SUBROUTINE SAVE_GASES(time, temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS)
-  type(timetype), INTENT(in)  :: time
-  real(dp), INTENT(in)        :: temperature
-  real(dp), INTENT(in)        :: C_H2SO4
-  real(dp), INTENT(in)        :: C_NH3
-  real(dp), INTENT(in)        :: C_DMA
-  real(dp), INTENT(in)        :: J_NH3
-  real(dp), INTENT(in)        :: J_DMA
-  real(dp), INTENT(in)        :: CS
-  type(type_particles)        :: PARTICLES
-  type(type_gasconc)          :: CONC
-  type(type_meteo)            :: PARTICLES
+SUBROUTINE SAVE_GASES(time, temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, Gases, cons_multipliers, cons_shifters)
+  type(type_ambient), INTENT(in)  :: Gases
+  type(timetype), INTENT(in)      :: time
+  real(dp), INTENT(in)            :: temperature
+  real(dp), INTENT(in)            :: C_H2SO4
+  real(dp), INTENT(in)            :: C_NH3
+  real(dp), INTENT(in)            :: C_DMA
+  real(dp), INTENT(in)            :: J_NH3
+  real(dp), INTENT(in)            :: J_DMA
+  real(dp), INTENT(in)            :: CS
+  real(dp)      :: cons_multipliers(:)
+  real(dp)      :: cons_shifters(:)
+  integer       :: i
   ! integer :: gtime_id = 0
   ! integer :: gas_ncfile_id = 0
   ! integer :: gcompounds_id = 0
@@ -401,6 +417,12 @@ SUBROUTINE SAVE_GASES(time, temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS
   ! integer :: gsave_interval_id
   ! integer :: gconstant_id = 0
   ! integer :: gtimearr_id
+
+  do i = 1,size(cons_shifters)
+    call handler(nf90_put_var(gas_ncfile_id, multipl_ind(i), cons_multipliers(i), (/time%ind_netcdf/) ) )
+    call handler(nf90_put_var(gas_ncfile_id, shifter_ind(i), cons_shifters(i),  (/time%ind_netcdf/) ) )
+  end do
+
 
   call handler( nf90_put_var(gas_ncfile_id, gtimearr_id, time%sec, (/time%ind_netcdf/) ))
   call handler( nf90_put_var(gas_ncfile_id, gtemperature_id, temperature, (/time%ind_netcdf/)) )!, count=(/uhma_sections, 1/)))
