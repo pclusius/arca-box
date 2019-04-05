@@ -293,7 +293,6 @@ subroutine acdc_driver(c,cs_ref,temperature,ipr,t_max,t_iter,solve_ss,use_solver
 		!c(nout_neu) = c_out+c(nout_neu)
 		c((/nout_neu, nout_neg, nout_pos/)) = c_out+c((/nout_neu, nout_neg, nout_pos/))
 	end	if
-
 end subroutine acdc_driver
 
 subroutine fix_fitted_c(c,ci,ipar)

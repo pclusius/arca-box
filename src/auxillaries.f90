@@ -6,7 +6,9 @@ PUBLIC
 
 CHARACTER(56) :: FMT_Tm       = '("+.",t18,82("."),t3,"Time: ",a,t100, "+")'
 CHARACTER(56) :: FMT10_CVU   = '("| ",t3, a,t13, es10.3,a,t100, "|")'
+CHARACTER(56) :: FMT30_CVU   = '("| ",t3, a,t33, es10.3,a,t100, "|")'
 CHARACTER(86) :: FMT10_2CVU  = '("| ",t3, a,t13, es10.3,a,t35,a,es10.3,a, t100, "|")'
+CHARACTER(86) :: FMT10_3CVU  = '("| ",t3, a,t13, es10.3,a,t35,a,es10.3,a,t65,a,es10.3,a, t100, "|")'
 CHARACTER(86) :: FMT_LEND    = '("+",t2, 98(".") t100, "+")'
 CHARACTER(86) :: FMT_SUB    = '(t5,":",8(".") a)'
 
@@ -32,6 +34,7 @@ CONTAINS
     real(dp) :: s
     time_hms8 = time___HMS(real(s))
   end function time_hms8
+
   CHARACTER(8) function time___HMS(s)
     real :: s
     ! This will return the character string - modify if necessary
@@ -158,12 +161,12 @@ END FUNCTION ROWCOUNT
 !..............................................................................
 INTEGER FUNCTION COLCOUNT(file_id, separator)
   IMPLICIT NONE
-  INTEGER         :: file_id,ioi,i
-  INTEGER(8)      :: OFFSET
-  CHARACTER(6000) :: buffer
-  CHARACTER,OPTIONAL :: separator
-  CHARACTER          :: sep
-  logical         :: invalue = .false.
+  INTEGER             :: file_id,ioi,i
+  INTEGER(8)          :: OFFSET
+  CHARACTER(6000)     :: buffer
+  CHARACTER,OPTIONAL  :: separator
+  CHARACTER           :: sep
+  logical             :: invalue = .false.
 
   if(present(separator)) then
     sep = separator

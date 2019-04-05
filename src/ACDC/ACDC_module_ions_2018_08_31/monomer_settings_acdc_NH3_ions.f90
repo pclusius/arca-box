@@ -16,9 +16,9 @@ subroutine sources_and_constants(source,isconst,fitted,ipar)
 	integer :: fitted(nclust,0:nclust), ipar(4), n
 	integer :: cluster_numbers(n_1A_clusters)
 	integer :: neutral_monomers(n_neutral_monomers), negative_monomers(n_negative_monomers), positive_monomers(n_positive_monomers)
-	
+
 	source = 0.d0											! Initialize all source terms to 0
-	isconst = .false.										! Initialize all concentrations to 
+	isconst = .false.										! Initialize all concentrations to
 	fitted = 0												! change freely according to the eqs.
 
 !---Setting all monomer concentrations/sources----------------------------------------------------
@@ -26,10 +26,10 @@ subroutine sources_and_constants(source,isconst,fitted,ipar)
 	! Get the cluster numbers corresponding to the monomers
 	call monomer_arrays(neutral_monomers, negative_monomers, positive_monomers)
 
-!   Use constant concentrations for monomers	
+!   Use constant concentrations for monomers
 	isconst(neutral_monomers) = .true.						! Neutral monomer concentrations are constant
 															! (Ionic monomers can vary according to the ion production rate)
-	
+
 !   ...or fit concentrations (here for 1A)...
 !	isconst(n1A) = .false.
 !	fitted(1,0) = 1											! 1 concentration is fitted
@@ -45,7 +45,7 @@ subroutine sources_and_constants(source,isconst,fitted,ipar)
 !---Setting sources of generic ions----------------------------------------------------------------
 !	source((/nneg,npos/)) = 3.d6
 
-	
+
 end subroutine sources_and_constants
 
 

@@ -24,9 +24,9 @@
 ! Cluster 23: 3A4D
 ! Cluster 24: 4A4D
 ! 25 is for source fluxes
-! 26 is for coagulation losses
-! 27 is for wall losses
-! 28 is for dilution losses
+! 26 is for coagulation losses 
+! 27 is for wall losses 
+! 28 is for dilution losses 
 ! 29 is for recombination of positive and negative charger ions with each other
 ! 30 is for collisions that lead succesfully out of the system as neutrals
 ! 31 is for collisions that lead out of the system, but the resulting cluster is brought back
@@ -147,7 +147,7 @@ subroutine initialize_parametersD(coef_quad,coef_lin,ind_quad_loss,ind_quad_form
 			&ind_lin_loss,ind_lin_form,ind_quad_loss_extra,ind_quad_form_extra,&
 		&	source,isconst,fitted,coef,ipar)
 
-	use monomer_settings, only : sources_and_constants
+	use monomer_settingsD, only : sources_and_constants
 
 	implicit none
 	integer, parameter :: neqn=31, nclust=24
@@ -181,11 +181,11 @@ subroutine initialize_parametersD(coef_quad,coef_lin,ind_quad_loss,ind_quad_form
 	! ind_lin_form(i,0:2n) = (/n,j1,k1,j2,k2,...,jn,kn/) gives the cluster numbers for all the evaporations
 	!  k1 -> i + j1 etc. through which cluster i is formed
 
-	! ind_quad_loss_extra(i,0:3n) = (/n,j1,k1,c1,...,jn,kn,cn/) gives the cluster numbers and coefficients
+	! ind_quad_loss_extra(i,0:3n) = (/n,j1,k1,c1,...,jn,kn,cn/) gives the cluster numbers and coefficients 
 	!  i + j1 -> c1*k1 etc. for additional collision products k (e.g. monomers from the boundary)
 	!  in collisions where cluster i is lost
 
-	! ind_quad_form_extra(k,0:2n) = (/n,i1,j1,c1,...,in,jn,cn/) gives the cluster numbers and coefficients
+	! ind_quad_form_extra(k,0:2n) = (/n,i1,j1,c1,...,in,jn,cn/) gives the cluster numbers and coefficients 
 	!  i1 + j1 -> c1*k etc. for additional ways of forming k (e.g. as a monomer from the boundary)
 
 

@@ -19,7 +19,7 @@ subroutine sources_and_constants(source,isconst,fitted,ipar)
 	isconst = .false.										! Initialize all concentrations to
 	fitted = 0												! change freely according to the eqs.
 
-!---Setting all monomer concentrations/sources----------------------------------------------------
+  !---Setting all monomer concentrations/sources----------------------------------------------------
 	! Get the cluster numbers corresponding to the monomers
 	call monomer_indices(n_monomers)
 

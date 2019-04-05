@@ -4,28 +4,25 @@ private
 public :: get_acdc_D
 CONTAINS
 
-
-subroutine get_acdc_D(c_acid,c_base,c_org,cs_ref,temp,t_sim,solve_ss,j_acdc,diameter_acdc)
+subroutine get_acdc_D(c_acid,c_base,c_org,cs_ref,temp,time,solve_ss,j_acdc,diameter_acdc)
 use acdc_systemD, only : nclust, neq					! number of clusters and equations
 use acdc_systemD, only : cluster_names				! names of the clusters and fluxes
 use acdc_systemD, only : n1A							! cluster numbers of acid and base monomers
-!use acdc_system, only : n1base => n1N
-!use acdc_system, only : n1B, n1N1P
-!use acdc_system, only : nneg, npos					! cluster numbers of charger ions
 use acdc_systemD, only : nout_neu					! numbers for formation fluxes
-!use acdc_system, only : nout_neg, nout_pos
 use acdc_systemD, only : nmols_out_neutral, nmolA	! criteria for "nucleation"
 use acdc_systemD, only : diameter_max				! max. mass diameter (nm)
 use driverD, only : acdc_driver						! driver
+use AUXILLARIES, only  : FMT30_CVU, FMT_LEND
+use constants
 
 	implicit none
 	INTEGER, PARAMETER :: real_x = SELECTED_REAL_KIND(p=14, r=300)
 	! Input: ambient conditions and simulation time
+  type(timetype), intent(in) :: time ! ALL time related information
 	real(real_x), intent(inout) :: c_acid, c_base, c_org	! vapor concentrations (1/m^3)
 	real(real_x), intent(in) :: cs_ref				! reference coagulation sink (1/s)
 	real(real_x), intent(in) :: temp				! temperature (K)
 !	real(real_x), intent(in) :: q_ion				! ion source rate (1/s/m^3)
-	real(real_x), intent(in) :: t_sim				! simulation time (s)
 	logical, intent(in) :: solve_ss						! solve the steady state or run only for the given time
 	! Output: formed particles/time and their acid content
 	real(real_x), intent(out) :: j_acdc				! simulated formation rate (1/s/m^3)
@@ -45,7 +42,7 @@ use driverD, only : acdc_driver						! driver
 	integer, save :: ipar(4)							! parameters for re-calling the monomer settings and rate constants
 	logical, save :: firstcall = .true.
 	integer :: n
-
+  character(100) :: buf
 
 	! Initialize the rate constants etc. at every call
 	! because of the varying ambient conditions
@@ -78,7 +75,7 @@ use driverD, only : acdc_driver						! driver
 		! the driver is allowed to try to get to the steady state
 		t_in = 1.d6
 	else
-		t_in = t_sim
+		t_in = time%dt
 	end if
 
 	! Set the vapor concentrations
@@ -102,6 +99,14 @@ use driverD, only : acdc_driver						! driver
 	diameter_acdc = diameter_max*1.d-9
 
 	!nacid_acdc = real(nacid_out,kind=real_x)
+  if (time%printnow .and. time%PRINTACDC) THEN
+    call cluster_names(c_names)
+    do n = 1,nclust
+      buf = TRIM(c_names(n)(:))//'/1A from DMA: '
+      print FMT30_CVU, TRIM(buf), c(n)/c(1), '[]'
+    end do
+    print FMT_LEND
+  end if
 
 
 end subroutine get_acdc_D
