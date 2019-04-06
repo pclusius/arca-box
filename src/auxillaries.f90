@@ -4,74 +4,51 @@ USE CONSTANTS
 IMPLICIT NONE
 PUBLIC
 
-CHARACTER(56) :: FMT_Tm       = '("+.",t18,82("."),t3,"Time: ",a,t100, "+")'
+CHARACTER(56) :: FMT_TIME    = '("+.",t18,82("."),t3,"Time: ",a,t100, "+")'
 CHARACTER(56) :: FMT10_CVU   = '("| ",t3, a,t13, es10.3,a,t100, "|")'
 CHARACTER(56) :: FMT30_CVU   = '("| ",t3, a,t33, es10.3,a,t100, "|")'
 CHARACTER(86) :: FMT10_2CVU  = '("| ",t3, a,t13, es10.3,a,t35,a,es10.3,a, t100, "|")'
 CHARACTER(86) :: FMT10_3CVU  = '("| ",t3, a,t13, es10.3,a,t35,a,es10.3,a,t65,a,es10.3,a, t100, "|")'
 CHARACTER(86) :: FMT_LEND    = '("+",t2, 98(".") t100, "+")'
-CHARACTER(86) :: FMT_SUB    = '(t5,":",8(".") a)'
-
-INTERFACE TIME_HMS
-  module procedure time_hms4
-  module procedure time_hms8
-  module procedure time_hmsi
-end INTERFACE TIME_HMS
+CHARACTER(86) :: FMT_SUB     = '("| ",t5,":",8(".") a,t100, "|")'
+CHARACTER(86) :: FMT_WARN0   = '("| WARNING:",t12,88("~"),"+", t12, a)'
+CHARACTER(86) :: FMT_WARN1   = '("| WARNING:",t12,88("~"),"+", t12, a,f0.4)'
 
 CONTAINS
 
-  ! Function that will convert second in CHARACTER(8) of form hh:mm:ss
-  ! Due to overloading accepts all numeric types
-  CHARACTER(8) function time_hmsi(s)
-    INTEGER :: s
-    time_hmsi = time___HMS(real(s))
-  end function time_hmsi
-  CHARACTER(8) function time_hms4(s)
-    real :: s
-    time_hms4 = time___HMS(s)
-  end function time_hms4
-  CHARACTER(8) function time_hms8(s)
-    real(dp) :: s
-    time_hms8 = time___HMS(real(s))
-  end function time_hms8
+! concentration of air. Pressure P in [Pa], temperature T in [K] returns molecules/cm3
+real(dp) function C_AIR_cc(T,P)
+  REAL(dp) :: T, P
+  C_AIR_cc = P/(kb*T)*1d-6
+end function C_AIR_cc
+! concentration of air. Pressure P in [Pa], temperature T in [K] returns molecules/m3
+real(dp) function C_AIR_m3(T,P)
+  REAL(dp) :: T, P
+  C_AIR_m3 = P/(kb*T)
+end function C_AIR_m3
 
-  CHARACTER(8) function time___HMS(s)
-    real :: s
-    ! This will return the character string - modify if necessary
-    write(time___HMS, '(i2.2, ":" i2.2, ":" i2.2)') int(s+0.5_dp)/3600_ik, &
-    int(MODULO(int(s+0.5_dp),3600_ik)/60_ik), MODULO(MODULO(int(s+0.5_dp),3600_ik), 60_ik)
-  end function time___HMS
+! Converts hours to seconds
+real(dp) function hrs_to_s(h)
+  REAL(dp) :: h
+  hrs_to_s = h*3600
+end function hrs_to_s
 
-
-  ! concentration of air. Pressure P in [Pa], temperature T in [K] returns molecules/cm3
-  real(dp) function C_AIR_cc(T,P)
-    REAL(dp) :: T, P
-    C_AIR_cc = P/(kb*T)*1d-6
-  end function C_AIR_cc
-  ! concentration of air. Pressure P in [Pa], temperature T in [K] returns molecules/m3
-  real(dp) function C_AIR_m3(T,P)
-    REAL(dp) :: T, P
-    C_AIR_m3 = P/(kb*T)
-  end function C_AIR_m3
-  ! Converts hours to seconds
-  real(dp) function hrs_to_s(h)
-    REAL(dp) :: h
-    hrs_to_s = h*3600
-  end function hrs_to_s
-
-  real(dp) function sec_to_d(s)
-    REAL(dp) :: s
-    sec_to_d = s/24d0/3600d0
-  end function sec_to_d
+real(dp) function sec_to_d(s)
+  REAL(dp) :: s
+  sec_to_d = s/24d0/3600d0
+end function sec_to_d
 
 ! Checks if model time is at some exact minute interval
 ! t = time in seconds (real8)
 ! check = minute that is to be checked (integer)
-logical function EVENMIN(t,check)
+logical function EVENMIN(t,check,zero)
   IMPLICIT NONE
-  INTEGER :: check
+  INTEGER :: check, i
+  INTEGER, optional :: zero
   REAL(dp):: t
-  IF (MODULO(int(t+0.5d0), 60*check) == 0) THEN
+  i = 0
+  if (PRESENT(zero)) i=-1
+  IF ((MODULO(int(t+0.5d0), 60*check) == 0) .and. (int(t+0.5d0)>i)) THEN
     EVENMIN = .true.
   ELSE
     EVENMIN = .false.
@@ -80,20 +57,18 @@ end function EVENMIN
 
 !==============================================================================
 ! Function to return y-value at [time] from a normal distribution function with
-! standard deviation [sigma], minimum value (DC-level) [mn], maximum value [mx]
-! and time of maximum at [mean]. Combine with mean = mean + SIN(time/3600*c)*k to
-! model many realistic diurnal concentrations, or use large deviation with late
-! mean to model for example VOC etc. If LG=TRUE, will scale y logaritmically
-! If minimum >= maximum, minumum value is used as constant concentration
+! standard deviation [width], minimum value [min_c], maximum value [max_c]
+! and time of maximum at [peaktime]. Relies completely on the correct formulation
+! of MODS (parametered_input)
 !..............................................................................
 REAL(dp) FUNCTION NORMALD(time,MODS)
   IMPLICIT NONE
   type(parametered_input) :: MODS
-  REAL(dp) :: time
+  type(timetype) :: time
   REAL(dp) :: f, D
-  D = MODS%peaktime + sin(time/3600*MODS%omega)*MODS%amplitude
-  NORMALD = 1d0/SQRT(2d0*pi*MODS%sigma**2) * EXP(- (time/3600d0-D)**2/(2d0*MODS%sigma**2))
-  f = 1d0/SQRT(2d0*pi*MODS%sigma**2)
+  D = MODS%peaktime + sin((time%hrs-MODS%peaktime)*MODS%omega)*MODS%amplitude + MODS%phase
+  NORMALD = 1d0/SQRT(2d0*pi*MODS%width**2) * EXP(- (time%hrs-D)**2/(2d0*MODS%width**2))
+  f = 1d0/SQRT(2d0*pi*MODS%width**2)
   ! Check if minimum is same or more than maximum and if so, use constant concentration (minumum)
   IF (MODS%max_c-MODS%min_c <1e-9) THEN
     NORMALD = MODS%min_c
@@ -113,13 +88,15 @@ end FUNCTION NORMALD
 ! periodic variable such as temperature or relative humidity. By default uses
 ! 24 hour period.
 !..............................................................................
-REAL(dp) FUNCTION SIND(time,MODS)
+REAL(dp) FUNCTION PERIODICAL(time,MODS)
   IMPLICIT NONE
   type(parametered_input) :: MODS
-  REAL(dp) :: time, A
+  type(timetype)          :: time
+  real(dp)                :: A
   A = (MODS%max_c-MODS%min_c)/2d0
-  SIND = A*SIN(2d0*pi*time/3600d0/24d0 - 3d0*pi/4d0) + MODS%min_c + A
-end FUNCTION SIND
+  PERIODICAL = A*SIN(MODS%omega*2d0*pi*time%sec/time%SIM_TIME_S &
+              - 2d0*pi*MODS%phase/time%SIM_TIME_H) + MODS%min_c + A
+end FUNCTION PERIODICAL
 
 !==============================================================================
 ! Function to count number of rows in a file. Takes in the UNIT (file pointer)
@@ -211,40 +188,61 @@ REAL(dp) FUNCTION getrow(time, conctime)
     row = row + 1
   end do
   getrow = row
-END  FUNCTION getrow
+END FUNCTION getrow
 
 !==============================================================================
-! Function that linearily interpolates any value at time [time] (seconds) using
-! timearray [conctime] (fractional day) and respective concentration timeseries
-! [conc]. If [row_opt] (integer) is provided, function will use that row as
-! starting point for interpolation, or search for correct row if this fails.
+! Function that linearily interpolates any value at current [time] (of
+! type(timetype)) using timearray [conctime] (by default fractional day) and
+! respective concentration timeseries [conc]. If [row] (integer) is provided,
+! function will use that row as starting point for interpolation, or search for
+! correct row if this fails. If optional unit is provided ('sec', 'min', 'hrs',
+! 'day') then the corresponding time unit is used from [time].
 !..............................................................................
-REAL(dp) FUNCTION INTERP(time, conctime, conc, row_opt)
+REAL(dp) FUNCTION INTERP(time, conctime, conc, row, unit)
   IMPLICIT NONE
-  INTEGER, OPTIONAL :: row_opt
-  INTEGER :: row
-  REAL(dp) :: time, conctime(:), conc(:)
+  type(timetype) :: time
+  REAL(dp) :: conctime(:), conc(:), now
+  INTEGER, OPTIONAL :: row
+  CHARACTER(*), OPTIONAL :: unit
+  INTEGER :: rw
+  if (PRESENT(unit)) THEN
+    if (unit .eq. 'sec') THEN
+      now = time%sec
+    ELSEIF (unit .eq. 'min') THEN
+      now = time%min
+    ELSEIF (unit .eq. 'hrs') THEN
+      now = time%hrs
+    ELSEIF (unit .eq. 'day') THEN
+      now = time%day
+    ELSE
+      print FMT_WARN0, 'UNKNOWN TIME UNIT, can not interpolate, trying with days'
+      now = time%day
+    END IF
+  ELSE
+    now = time%day
+  END IF
+
   conctime = conctime - conctime(1)
-  row = 0
-  if (PRESENT(row_opt)) THEN
-    row = row_opt
-    if ((time/3600d0/24 > conctime(row)) .and. (time/3600d0/24 < conctime(row+1))) THEN
+  rw = 0
+  if (PRESENT(row)) THEN
+    rw = row
+    if ((now > conctime(rw)) .and. (now < conctime(rw+1))) THEN
         continue
     else
-      print*,'Wrong row number is sent in to INTERP, searching for the real row now.'
-      row = 0
-      do WHILE (time/3600d0/24d0>=conctime(row+1))
-        row = row + 1
+      print FMT_WARN1,'Wrong row number is sent in to INTERP, searching for the real row now.', REAL(rw)
+      rw = 0
+      do WHILE (now>=conctime(rw+1))
+        rw = rw + 1
       end do
-      print*,'real row is: ', row
+      print FMT_WARN1,'real row is: ', REAL(rw)
     end if
   else
-    do WHILE (time/3600d0/24d0>=conctime(row+1))
-      row = row + 1
+    do WHILE (now>=conctime(rw+1))
+      rw = rw + 1
     end do
 
   end if
-  INTERP = (time/3600/24-conctime(row))/(conctime(row+1)-conctime(row))*(conc(row+1)-conc(row))+conc(row)
+  INTERP = (now-conctime(rw))/(conctime(rw+1)-conctime(rw))*(conc(rw+1)-conc(rw))+conc(rw)
 END  FUNCTION INTERP
 
 

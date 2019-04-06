@@ -19,8 +19,7 @@ integer :: gpressure_id
 integer :: gJ_out_NH3_id
 integer :: gJ_out_DMA_id
 integer :: gc_sink_id
-integer :: gtimestep_coef_id
-integer :: gsave_interval_id
+integer :: gnotes_id
 integer :: gconstant_id = 0
 integer :: gtimearr_id
 integer :: gstrlen_id
@@ -60,11 +59,7 @@ integer, dimension(2) :: particles_nconc_dimension_ids, particles_radius_dimensi
 particles_mass_dimension_ids, ambient_vap_conc_ids
 integer, dimension(3) ::  part_volconc_dim_id
 
-character(len= *), parameter :: units = 'units'
-
-! integer :: timecounter = 1
-
-public :: output_particles,output_ambient, initialize_output,finalize_output, &
+public :: output_particles,output_ambient, initialize_output,CLOSE_FILES, &
  output_constants, output_time, OPEN_GASFILE, SAVE_GASES, OPEN_NETCDF
 
 CONTAINS
@@ -79,19 +74,21 @@ end SUBROUTINE OPEN_NETCDF
 
 
 SUBROUTINE OPEN_GASFILE(filename, modifier_names, cons_multipliers, cons_shifters)
+  implicit none
+  CHARACTER(255)     :: PROGRAM_NAME
   real(dp)      :: cons_multipliers(:)
   real(dp)      :: cons_shifters(:)
   CHARACTER(*)  :: modifier_names(:)
   integer :: i
   integer                         :: n_compounds = 5 ! needed for develempoment, later will be calculated from KPP input and stored in e.g. Constants.f90
   character(len=*), intent(in)    :: filename
-  ! settings for netCDF4-file compression. shuffle=1 might improve compression but is slower
-  integer:: shuffle=0, compress=1, compression_level=9
+  ! settings for netCDF4-file compression. shuff=1 might improve compression but is slower
+  integer:: shuff=1, compress=1, compression=9
   integer::gambient_gases_ids(2)
 
   ALLOCATE(multipl_ind(size(modifier_names)))
   ALLOCATE(shifter_ind(size(modifier_names)))
-
+  print *, 'NetCDF version: ', trim(nf90_inq_libvers())
   write(*,*) 'Create chemfile', TRIM(filename)
 
 
@@ -102,7 +99,7 @@ SUBROUTINE OPEN_GASFILE(filename, modifier_names, cons_multipliers, cons_shifter
   call handler( nf90_create(trim(filename), IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), gas_ncfile_id) )
 
   ! Defining dimensions: time(unlimited), size sections, vapor_species
-  call handler(nf90_def_dim(gas_ncfile_id, "time",NF90_UNLIMITED, gtime_id) )
+  call handler(nf90_def_dim(gas_ncfile_id, "time",1442, gtime_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "Compound",n_compounds, gcompounds_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "Constant",1, gconstant_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "StringL",16, gstrlen_id) )
@@ -112,21 +109,34 @@ SUBROUTINE OPEN_GASFILE(filename, modifier_names, cons_multipliers, cons_shifter
   gambient_gases_ids = (/gcompounds_id, gtime_id/)
 
   !Ambient:
-  call handler(nf90_def_var(gas_ncfile_id, "gas_concentrations", NF90_DOUBLE, gambient_gases_ids, gas_concentrations_id ) )
+  call handler(nf90_def_var(gas_ncfile_id, "time_in_sec", NF90_DOUBLE, gtime_id, gtimearr_id))
   call handler(nf90_def_var(gas_ncfile_id, "gas_names", NF90_CHAR, ([gstrlen_id, gcompounds_id]), gas_names_id) )
+  call handler(nf90_def_var(gas_ncfile_id, "gas_concentrations", NF90_DOUBLE, gambient_gases_ids, gas_concentrations_id ) )
   call handler(nf90_def_var(gas_ncfile_id, "temperature", NF90_DOUBLE, gtime_id, gtemperature_id))
   call handler(nf90_def_var(gas_ncfile_id, "pressure", NF90_DOUBLE, gtime_id, gpressure_id))
   call handler(nf90_def_var(gas_ncfile_id, "J_out_NH3", NF90_DOUBLE, gtime_id, gJ_out_NH3_id))
   call handler(nf90_def_var(gas_ncfile_id, "J_out_DMA", NF90_DOUBLE, gtime_id, gJ_out_DMA_id))
   call handler(nf90_def_var(gas_ncfile_id, "c_sink", NF90_DOUBLE, gtime_id, gc_sink_id))
-  call handler(nf90_def_var(gas_ncfile_id, "time_in_sec", NF90_DOUBLE, gtime_id, gtimearr_id))
+  ! COMPRESSION
+  call handler(nf90_def_var_deflate(gas_ncfile_id, gtime_id,              shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(gas_ncfile_id, gas_names_id,          shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(gas_ncfile_id, gas_concentrations_id, shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(gas_ncfile_id, gtemperature_id,       shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(gas_ncfile_id, gpressure_id,          shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(gas_ncfile_id, gJ_out_NH3_id,         shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(gas_ncfile_id, gJ_out_DMA_id,         shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(gas_ncfile_id, gc_sink_id,            shuff, compress, compression) )
+  ! END COMPRESSION
 
   !Constants:
-  call handler(nf90_def_var(gas_ncfile_id, "time_step", NF90_DOUBLE,  gconstant_id, gtimestep_coef_id))
-  call handler(nf90_def_var(gas_ncfile_id, "save_interval", NF90_INT, gconstant_id, gsave_interval_id))
 
   !Create attributes for general stuff
-  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'info', 'Info here'))
+  CALL get_command_argument(0, PROGRAM_NAME)
+  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Information', '(c) Atmospheric modelling group 2019 and (c) Simugroup 2019 (ACDC)'))
+  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Contact', 'michael.boy@helsinki.fi (Superbox), tinja.olenius@alumni.helsinki.fi (ACDC)'))
+  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Software', 'Superbox 0.1'))
+  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Package_Name:', TRIM(PROGRAM_NAME(3:))))
+  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Notes', 'e.g. Sulfuric acid concentration multiplied by 0.1'))
   call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'experiment', 'Experiment set here'))
   ! call output_options(options)
 
@@ -135,31 +145,21 @@ SUBROUTINE OPEN_GASFILE(filename, modifier_names, cons_multipliers, cons_shifter
     call handler(nf90_def_var(gas_ncfile_id, TRIM(modifier_names(i))//'_Shifter', NF90_DOUBLE, gtime_id, shifter_ind(i)))
   end do
 
-  !defining units as attributes.
+  !defining 'units' as attributes.
 
   !Particles
-  call handler(nf90_put_att(gas_ncfile_id, gas_concentrations_id, units , '1/m^3'))
-  call handler(nf90_put_att(gas_ncfile_id, gas_names_id, units, '[]'))
-  call handler(nf90_put_att(gas_ncfile_id, gtemperature_id, units, 'K'))
-  call handler(nf90_put_att(gas_ncfile_id, gpressure_id, units, 'Pa'))
-  call handler(nf90_put_att(gas_ncfile_id, gJ_out_NH3_id, units, '1/s/m3'))
-  call handler(nf90_put_att(gas_ncfile_id, gJ_out_DMA_id, units, '1/s/m3'))
-  call handler(nf90_put_att(gas_ncfile_id, gc_sink_id, units, '1/s'))
+  call handler(nf90_put_att(gas_ncfile_id, gas_concentrations_id, 'units' , '1/m^3'))
+  call handler(nf90_put_att(gas_ncfile_id, gas_names_id, 'units', '[]'))
+  call handler(nf90_put_att(gas_ncfile_id, gtemperature_id, 'units', 'K'))
+  call handler(nf90_put_att(gas_ncfile_id, gpressure_id, 'units', 'Pa'))
+  call handler(nf90_put_att(gas_ncfile_id, gJ_out_NH3_id, 'units', '1/s/m3'))
+  call handler(nf90_put_att(gas_ncfile_id, gJ_out_DMA_id, 'units', '1/s/m3'))
+  call handler(nf90_put_att(gas_ncfile_id, gc_sink_id, 'units', '1/s'))
 
 
-!Ending definition
+  !Ending definition
+  call handler( nf90_enddef(gas_ncfile_id))
 
-! COMPRESSION (added by PC)
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gas_concentrations_id, shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gas_names_id,          shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gtemperature_id,       shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gpressure_id,          shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gJ_out_NH3_id,         shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gJ_out_DMA_id,         shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gc_sink_id,            shuffle, compress, compression_level) )
-! END COMPRESSION
-
-call handler( nf90_enddef(gas_ncfile_id))
 ALLOCATE(gasnames(5))
 gasnames(1) = "Sulf_acid"
 gasnames(2) = "Ammonia"
@@ -179,79 +179,84 @@ call handler(nf90_put_var(gas_ncfile_id, gas_names_id, (gasnames), start=([1]), 
 end SUBROUTINE OPEN_GASFILE
 
 subroutine output_constants(ambient)
+  IMPLICIT NONE
 
-    type(type_ambient), intent(in) :: ambient
+  type(type_ambient), intent(in) :: ambient
 
-    call handler( nf90_put_var(par_ncfile_id, nucl_coef_id, ambient%nuc_coeff, (/1/)))
-    call handler( nf90_put_var(par_ncfile_id, boundaryheight_id, ambient%boundaryheight, (/1/)))
-    call handler( nf90_put_var(par_ncfile_id, vapordensity_id, ambient%density))
-    call handler( nf90_put_var(par_ncfile_id, molarmass_id, ambient%molarmass))
-    call handler( nf90_put_var(par_ncfile_id, surfacetension_id, ambient%surf_ten))
-    call handler( nf90_put_var(par_ncfile_id, diffusionvolume_id, ambient%diff_vol))
-    call handler( nf90_put_var(par_ncfile_id, massaccomondation_id, ambient%alpha))
-    !    call handler( nf90_put_var(par_ncfile_id, temperature_id, ambient%temp, (/1/)))
-    !    call handler( nf90_put_var(par_ncfile_id, pressure_id, ambient%pres, (/1/)))
-    !    call handler( nf90_put_var(par_ncfile_id, saturation_ratio_id, ambient%rh, (/1/)))
-    !    call handler( nf90_put_var(par_ncfile_id, saturation_id, ambient%c_sat))
+  call handler( nf90_put_var(par_ncfile_id, nucl_coef_id, ambient%nuc_coeff, (/1/)))
+  call handler( nf90_put_var(par_ncfile_id, boundaryheight_id, ambient%boundaryheight, (/1/)))
+  call handler( nf90_put_var(par_ncfile_id, vapordensity_id, ambient%density))
+  call handler( nf90_put_var(par_ncfile_id, molarmass_id, ambient%molarmass))
+  call handler( nf90_put_var(par_ncfile_id, surfacetension_id, ambient%surf_ten))
+  call handler( nf90_put_var(par_ncfile_id, diffusionvolume_id, ambient%diff_vol))
+  call handler( nf90_put_var(par_ncfile_id, massaccomondation_id, ambient%alpha))
+  !    call handler( nf90_put_var(par_ncfile_id, temperature_id, ambient%temp, (/1/)))
+  !    call handler( nf90_put_var(par_ncfile_id, pressure_id, ambient%pres, (/1/)))
+  !    call handler( nf90_put_var(par_ncfile_id, saturation_ratio_id, ambient%rh, (/1/)))
+  !    call handler( nf90_put_var(par_ncfile_id, saturation_id, ambient%c_sat))
 
 end subroutine output_constants
 
 subroutine output_options(options)
+  IMPLICIT NONE
 
-    type(type_options), intent(in) :: options
+  type(type_options), intent(in) :: options
 
-    call handler(nf90_put_att(par_ncfile_id, NF90_GLOBAL, 'solver', options%solver))
-    call handler(nf90_put_att(par_ncfile_id, NF90_GLOBAL, 'approach', options%dist_approach))
-    call handler(nf90_put_att(par_ncfile_id, NF90_GLOBAL, 'nucleation', options%nuc_approach))
+  call handler(nf90_put_att(par_ncfile_id, NF90_GLOBAL, 'solver', options%solver))
+  call handler(nf90_put_att(par_ncfile_id, NF90_GLOBAL, 'approach', options%dist_approach))
+  call handler(nf90_put_att(par_ncfile_id, NF90_GLOBAL, 'nucleation', options%nuc_approach))
 
 end subroutine output_options
 
 subroutine output_time(time)
+  IMPLICIT NONE
   type(timetype), intent(in) :: time
   call handler(nf90_put_var(par_ncfile_id, timevar_id, time%sec, (/time%ind_netcdf/) ))
 end subroutine output_time
 
 subroutine output_particles(particles, timestep)
-    type(type_particles), intent(in) :: particles
-    integer, intent(in) :: timestep
+  IMPLICIT NONE
+  type(type_particles), intent(in) :: particles
+  integer, intent(in) :: timestep
 
-    integer :: bin, compound
-    bin=0
-    compound=0
+  integer :: bin, compound
+  bin=0
+  compound=0
 
-    call handler( nf90_put_var(par_ncfile_id, nconc_id, particles%n_conc, start=(/1, timestep/), count=(/uhma_sections, 1/)))
-    call handler( nf90_put_var(par_ncfile_id, radius_id, particles%radius, start=(/1, timestep/), count=(/uhma_sections, 1/)))
-    call handler( nf90_put_var(par_ncfile_id, dry_radius_id, particles%rdry, start=(/1, timestep/),count=(/uhma_sections, 1/) ))
-    call handler( nf90_put_var(par_ncfile_id, orig_dry_radius_id, particles%rdry_orig, start=(/1, timestep/), count=(/uhma_sections, 1/)))
-    call handler( nf90_put_var(par_ncfile_id, growth_rate_id, particles%gr, start=(/1, timestep/), count=(/uhma_sections,1/)))
-    call handler( nf90_put_var(par_ncfile_id, mass_id, particles%mass, start=(/1, timestep/), count=(/uhma_sections,1/) ))
-    call handler( nf90_put_var(par_ncfile_id, core_volume_id, particles%core, start=(/1, timestep/), count=(/uhma_sections,1/)))
-    call handler( nf90_put_var(par_ncfile_id, order_id, particles%order, start=(/1, timestep/), count=(/uhma_sections, 1/)))
-    call handler(nf90_put_var(par_ncfile_id, vol_conc_id, particles%vol_conc, (/1, 1, timestep/), (/uhma_sections, uhma_compo, 1/) ))
+  call handler( nf90_put_var(par_ncfile_id, nconc_id, particles%n_conc, start=(/1, timestep/), count=(/uhma_sections, 1/)))
+  call handler( nf90_put_var(par_ncfile_id, radius_id, particles%radius, start=(/1, timestep/), count=(/uhma_sections, 1/)))
+  call handler( nf90_put_var(par_ncfile_id, dry_radius_id, particles%rdry, start=(/1, timestep/),count=(/uhma_sections, 1/) ))
+  call handler( nf90_put_var(par_ncfile_id, orig_dry_radius_id, particles%rdry_orig, start=(/1, timestep/), count=(/uhma_sections, 1/)))
+  call handler( nf90_put_var(par_ncfile_id, growth_rate_id, particles%gr, start=(/1, timestep/), count=(/uhma_sections,1/)))
+  call handler( nf90_put_var(par_ncfile_id, mass_id, particles%mass, start=(/1, timestep/), count=(/uhma_sections,1/) ))
+  call handler( nf90_put_var(par_ncfile_id, core_volume_id, particles%core, start=(/1, timestep/), count=(/uhma_sections,1/)))
+  call handler( nf90_put_var(par_ncfile_id, order_id, particles%order, start=(/1, timestep/), count=(/uhma_sections, 1/)))
+  call handler(nf90_put_var(par_ncfile_id, vol_conc_id, particles%vol_conc, (/1, 1, timestep/), (/uhma_sections, uhma_compo, 1/) ))
 
-    return
+  return
 
 end subroutine output_particles
 
 subroutine output_ambient(ambient, timestep)
+  IMPLICIT NONE
+  type(type_ambient), intent(in) :: ambient
+  integer, intent(in) :: timestep
+  integer :: compound, condensable
 
-    type(type_ambient), intent(in) :: ambient
-    integer, intent(in) :: timestep
-    integer :: compound, condensable
+  compound=0
+  condensable= 0
 
-    compound=0
-    condensable= 0
-
-    call handler( nf90_put_var(par_ncfile_id, temperature_id, ambient%temp, (/timestep/)))
-    call handler( nf90_put_var(par_ncfile_id, pressure_id, ambient%pres, (/timestep/)))
-    call handler( nf90_put_var(par_ncfile_id, saturation_id,ambient%c_sat, (/1, timestep/), (/uhma_cond, 1/)))
-    call handler( nf90_put_var(par_ncfile_id, vap_conc_id,ambient%vap_conc, (/1, timestep/), (/uhma_cond,1/)))
+  call handler( nf90_put_var(par_ncfile_id, temperature_id, ambient%temp, (/timestep/)))
+  call handler( nf90_put_var(par_ncfile_id, pressure_id, ambient%pres, (/timestep/)))
+  call handler( nf90_put_var(par_ncfile_id, saturation_id,ambient%c_sat, (/1, timestep/), (/uhma_cond, 1/)))
+  call handler( nf90_put_var(par_ncfile_id, vap_conc_id,ambient%vap_conc, (/1, timestep/), (/uhma_cond,1/)))
 
 end subroutine output_ambient
 
 subroutine initialize_output(filename, explanation, experiment_set, options)
-  ! settings for netCDF4-file compression. shuffle=1 might improve compression but is slower
-  integer:: shuffle=0, compress=1, compression_level=9
+  IMPLICIT NONE
+  ! settings for netCDF4-file compression. shuff=1 might improve compression but is slower
+  integer:: shuff=0, compress=1, compression=9
 
   !Extend as needed. Define stuff here.
   character(len=*), intent(in) :: filename, explanation, experiment_set
@@ -295,7 +300,7 @@ subroutine initialize_output(filename, explanation, experiment_set, options)
   call handler(nf90_def_var(par_ncfile_id, "growth_rate", NF90_DOUBLE, particles_radius_dimension_ids, growth_rate_id) )
   call handler(nf90_def_var(par_ncfile_id, "core_volume", NF90_DOUBLE, particles_radius_dimension_ids, core_volume_id) )
   call handler(nf90_def_var(par_ncfile_id, "mass", NF90_DOUBLE, particles_mass_dimension_ids, mass_id) )
-  call handler(nf90_def_var(par_ncfile_id, "time_in_units", NF90_DOUBLE, time_id, timevar_id) )
+  call handler(nf90_def_var(par_ncfile_id, "time_in_'units'", NF90_DOUBLE, time_id, timevar_id) )
   call handler(nf90_def_var(par_ncfile_id, "volume_concentration", NF90_DOUBLE, part_volconc_dim_id, vol_conc_id) )
   call handler(nf90_def_var(par_ncfile_id, "Bin order", NF90_INT, particles_radius_dimension_ids, order_id))
 
@@ -322,62 +327,62 @@ subroutine initialize_output(filename, explanation, experiment_set, options)
   call handler(nf90_put_att(par_ncfile_id, NF90_GLOBAL, 'experiment', experiment_set))
   call output_options(options)
 
-!defining units as attributes.
+!defining 'units' as attributes.
 
   !Particles
-  call handler(nf90_put_att(par_ncfile_id, nconc_id, units , '1/m^3'))
-  call handler(nf90_put_att(par_ncfile_id, radius_id, units, 'm'))
-  call handler(nf90_put_att(par_ncfile_id, dry_radius_id, units, 'm'))
-  call handler(nf90_put_att(par_ncfile_id, orig_dry_radius_id, units, 'm'))
-  call handler(nf90_put_att(par_ncfile_id, growth_rate_id, units, 'm/s'))
-  call handler(nf90_put_att(par_ncfile_id, core_volume_id, units, 'm^3'))
-  call handler(nf90_put_att(par_ncfile_id, mass_id, units, 'kg'))
-  call handler(nf90_put_att(par_ncfile_id, timevar_id, units, 's'))
-  call handler(nf90_put_att(par_ncfile_id, vol_conc_id, units, 'um^3/m^3'))
-  call handler(nf90_put_att(par_ncfile_id, order_id, units, ''))
+  call handler(nf90_put_att(par_ncfile_id, nconc_id, 'units' , '1/m^3'))
+  call handler(nf90_put_att(par_ncfile_id, radius_id, 'units', 'm'))
+  call handler(nf90_put_att(par_ncfile_id, dry_radius_id, 'units', 'm'))
+  call handler(nf90_put_att(par_ncfile_id, orig_dry_radius_id, 'units', 'm'))
+  call handler(nf90_put_att(par_ncfile_id, growth_rate_id, 'units', 'm/s'))
+  call handler(nf90_put_att(par_ncfile_id, core_volume_id, 'units', 'm^3'))
+  call handler(nf90_put_att(par_ncfile_id, mass_id, 'units', 'kg'))
+  call handler(nf90_put_att(par_ncfile_id, timevar_id, 'units', 's'))
+  call handler(nf90_put_att(par_ncfile_id, vol_conc_id, 'units', 'um^3/m^3'))
+  call handler(nf90_put_att(par_ncfile_id, order_id, 'units', ''))
 
   !Ambient
-  call handler(nf90_put_att(par_ncfile_id, vap_conc_id, units, '1/m^3'))
-  call handler(nf90_put_att(par_ncfile_id, temperature_id, units, 'K'))
-  call handler(nf90_put_att(par_ncfile_id, pressure_id, units, 'Pa'))
+  call handler(nf90_put_att(par_ncfile_id, vap_conc_id, 'units', '1/m^3'))
+  call handler(nf90_put_att(par_ncfile_id, temperature_id, 'units', 'K'))
+  call handler(nf90_put_att(par_ncfile_id, pressure_id, 'units', 'Pa'))
 
   !constants:
-  ! call handler(nf90_put_att(par_ncfile_id, saturation_ratio_id, units, '1/1'))
-  call handler(nf90_put_att(par_ncfile_id, nucl_coef_id, units, 'Si units'))
-  call handler(nf90_put_att(par_ncfile_id, boundaryheight_id, units, 'm?'))
+  ! call handler(nf90_put_att(par_ncfile_id, saturation_ratio_id, 'units', '1/1'))
+  call handler(nf90_put_att(par_ncfile_id, nucl_coef_id, 'units', 'Si units'))
+  call handler(nf90_put_att(par_ncfile_id, boundaryheight_id, 'units', 'm?'))
 
   ! gas parameters
-  call handler(nf90_put_att(par_ncfile_id, vapordensity_id, units, 'kg/m^3'))
-  call handler(nf90_put_att(par_ncfile_id, molarmass_id, units, 'g/mol'))
-  call handler(nf90_put_att(par_ncfile_id, saturation_id, units, '1/m^3'))
-  call handler(nf90_put_att(par_ncfile_id, surfacetension_id, units, 'N/m'))
-  call handler(nf90_put_att(par_ncfile_id, diffusionvolume_id, units, '????'))
-  call handler(nf90_put_att(par_ncfile_id, massaccomondation_id, units, '1/1'))
+  call handler(nf90_put_att(par_ncfile_id, vapordensity_id, 'units', 'kg/m^3'))
+  call handler(nf90_put_att(par_ncfile_id, molarmass_id, 'units', 'g/mol'))
+  call handler(nf90_put_att(par_ncfile_id, saturation_id, 'units', '1/m^3'))
+  call handler(nf90_put_att(par_ncfile_id, surfacetension_id, 'units', 'N/m'))
+  call handler(nf90_put_att(par_ncfile_id, diffusionvolume_id, 'units', '????'))
+  call handler(nf90_put_att(par_ncfile_id, massaccomondation_id, 'units', '1/1'))
 
 !Ending definition
 
 ! COMPRESSION (added by PC)
-  call handler(nf90_def_var_deflate(par_ncfile_id, nconc_id             , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, radius_id            , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, dry_radius_id        , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, orig_dry_radius_id   , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, growth_rate_id       , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, core_volume_id       , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, mass_id              , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, timevar_id           , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, vol_conc_id          , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, order_id             , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, vap_conc_id          , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, temperature_id       , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, pressure_id          , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, nucl_coef_id         , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, boundaryheight_id    , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, vapordensity_id      , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, molarmass_id         , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, saturation_id        , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, surfacetension_id    , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, diffusionvolume_id   , shuffle, compress, compression_level) )
-  call handler(nf90_def_var_deflate(par_ncfile_id, massaccomondation_id , shuffle, compress, compression_level) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, nconc_id             , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, radius_id            , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, dry_radius_id        , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, orig_dry_radius_id   , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, growth_rate_id       , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, core_volume_id       , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, mass_id              , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, timevar_id           , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, vol_conc_id          , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, order_id             , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, vap_conc_id          , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, temperature_id       , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, pressure_id          , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, nucl_coef_id         , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, boundaryheight_id    , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, vapordensity_id      , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, molarmass_id         , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, saturation_id        , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, surfacetension_id    , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, diffusionvolume_id   , shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(par_ncfile_id, massaccomondation_id , shuff, compress, compression) )
 ! END COMPRESSION
 
   call handler( nf90_enddef(par_ncfile_id))
@@ -391,6 +396,7 @@ subroutine initialize_output(filename, explanation, experiment_set, options)
 end subroutine initialize_output
 
 SUBROUTINE SAVE_GASES(time, temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, Gases, cons_multipliers, cons_shifters)
+  IMPLICIT NONE
   type(type_ambient), INTENT(in)  :: Gases
   type(timetype), INTENT(in)      :: time
   real(dp), INTENT(in)            :: temperature
@@ -403,20 +409,6 @@ SUBROUTINE SAVE_GASES(time, temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS
   real(dp)      :: cons_multipliers(:)
   real(dp)      :: cons_shifters(:)
   integer       :: i
-  ! integer :: gtime_id = 0
-  ! integer :: gas_ncfile_id = 0
-  ! integer :: gcompounds_id = 0
-  ! integer :: gas_concentrations_id
-  ! integer :: gas_names_id
-  ! integer :: gtemperature_id
-  ! integer :: gpressure_id
-  ! integer :: gJ_out_NH3_id
-  ! integer :: gJ_out_DMA_id
-  ! integer :: gc_sink_id
-  ! integer :: gtimestep_coef_id
-  ! integer :: gsave_interval_id
-  ! integer :: gconstant_id = 0
-  ! integer :: gtimearr_id
 
   do i = 1,size(cons_shifters)
     call handler(nf90_put_var(gas_ncfile_id, multipl_ind(i), cons_multipliers(i), (/time%ind_netcdf/) ) )
@@ -440,15 +432,18 @@ END SUBROUTINE SAVE_GASES
 
 
 
-subroutine finalize_output()
-  call handler( nf90_close(par_ncfile_id))
-  Write(*,*) 'Outputfile closed.'
-end subroutine finalize_output
+subroutine CLOSE_FILES()
+  IMPLICIT NONE
+  ! call handler( nf90_close(par_ncfile_id))
+  call handler( nf90_close(gas_ncfile_id))
+  Write(*,*) 'Outputfiles closed.'
+end subroutine CLOSE_FILES
 
 subroutine HANDLER(status)
+  IMPLICIT NONE
   integer, intent(in) :: status
   if (status /= nf90_noerr) then
-    write(*,*) 'Error writing netcdf, code: ',NF90_STRERROR(status),''
+    write(*,*) 'Error writing netcdf, code: ',NF90_STRERROR(status)
     stop
   end if
 end subroutine HANDLER
