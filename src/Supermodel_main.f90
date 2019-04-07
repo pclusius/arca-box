@@ -12,22 +12,20 @@ use OUTPUT
 
 IMPLICIT NONE
 
-CHARACTER(16)  :: modifier_names(5)
-real(dp)  :: cons_multipliers(5)
-real(dp)  :: cons_shifters(5)
+type(parametered_input) :: conc_MODS(5)
 
-integer   :: ind_Temp_shift  = 1
-integer   :: ind_SA_factor   = 2
-integer   :: ind_base_factor = 3
-integer   :: ind_DMA_factor  = 4
-integer   :: ind_CS_factor   = 5
+integer   :: ind_Temp  = 1
+integer   :: ind_SA   = 2
+integer   :: ind_base = 3
+integer   :: ind_DMA  = 4
+integer   :: ind_CS   = 5
 
 !Variable declaration
-TYPE(timetype) :: time, testtime
+TYPE(timetype) :: time
 TYPE(type_ambient) :: Gases
 REAL(dp), allocatable :: conc(:,:)
-REAL(dp) :: c_acid =1e7*1d6
-REAL(dp) :: c_base =1d8*1d6
+REAL(dp) :: c_acid = 1e7*1d6
+REAL(dp) :: c_base = 1d8*1d6
 REAL(dp) :: c_dma
 REAL(dp) :: c_org = 0*1d12*1d6
 REAL(dp) :: cs_H2SO4 = 0.0003d0
@@ -38,11 +36,9 @@ REAL(dp) :: J_ACDC_DMA
 REAL(dp) :: J_NH3_BY_IONS(3)
 REAL(dp) :: acdc_cluster_diam = 2.17d-9
 LOGICAL :: ACDC_solve_ss = .true. , NUCLEATION = .true., ACDC = .true.
-type(parametered_input) :: MOD_NH3 = parametered_input(min_c=1.000000d1,max_c=2.200000d2,width=2.443526d0,peaktime=12.000000d0,omega=1.235556d0,phase=1.653333d0,amplitude=0.844444d0, LOGSCALE=.false.)
-type(parametered_input) :: MOD_Tmp  = parametered_input(width=1d0,min_c=25d0+K0,max_c=35d0+K0,peaktime=9,omega=1.5d0,phase=3d0 , amplitude=-1.1d0, LOGSCALE=.false.)
-type(parametered_input) :: Jout_par  = parametered_input(width=2.365970d0,min_c=1.0d4,max_c=1.0d5,peaktime=12.0d0,omega=0.933333d0,amplitude=1.288889d0, LOGSCALE=.true.)
-type(parametered_input) :: SA_mod  = parametered_input(width=1d0,min_c=2.4d7,max_c=0d4,peaktime=12.0d0,omega=0d0,amplitude=0d0, LOGSCALE=.true.)
 INTEGER :: rows, cols, i,j
+
+print FMT_LEND,
 
 !Create/Open outup file netcdf
 !Variable initialization
@@ -51,6 +47,7 @@ INTEGER :: rows, cols, i,j
 !Aerosol phase(distribution & composition)
 !Boundary conditions(dilution, losses, light,...)
 ! open(9333,FILE='Nanjing2_CS05_DMA10_K-70.dat')
+
 CALL SET_MODIFIERS()
 
 open(522, file = 'input/NANJING/case_Nanjing2.txt')
@@ -58,7 +55,7 @@ open(522, file = 'input/NANJING/case_Nanjing2.txt')
 open(9333,FILE='output/xxx.dat')
 write(9333,'(8(a20))') 'time(s)', 'c_acid(1/m3)', 'c_base(1/m3)', 'J_ACDC_NH3(1/m3/s)', 'c_dma(1/m3)', 'J_ACDC_DMA(1/m3/s)', 'TempK(K)', 'CS(1/s)'
 
-CALL OPEN_GASFILE('output/OutputGas.nc', modifier_names, cons_multipliers, cons_shifters)!, model_options)
+CALL OPEN_GASFILE('output/OutputGas.nc', CONC_MODS)!, model_options)
 
 rows = ROWCOUNT(522)
 cols = COLCOUNT(522)
@@ -67,23 +64,25 @@ do i=1,rows
   read(522, *) (conc(i,j), j=1,cols)
 end do
 
+CONC_MODS(ind_temp)%min_c = K0
+
+! Before the main loop starts, tell the user if any modifiers differ from default values
+CALL CHECK_MODIFIERS()
 !Main loop time: Eulerian forward integration
 DO WHILE (time%sec < time%SIM_TIME_S)
 
   if (time%printnow) print FMT_TIME, time%hms
 
-  TempK    = interp(time, conc(:,1), conc(:,3))  * cons_multipliers(ind_Temp_shift)  + cons_shifters(ind_Temp_shift)
-  TempK    = PERIODICAL(time, MOD_Tmp)
-  CS_H2SO4 = interp(time, conc(:,1), conc(:,4))  * cons_multipliers(ind_CS_factor)   + cons_shifters(ind_CS_factor)
-  c_acid   = interp(time, conc(:,1), conc(:,5))  * cons_multipliers(ind_SA_factor)   + cons_shifters(ind_SA_factor)
-  c_base   = interp(time, conc(:,1), conc(:,6))  * cons_multipliers(ind_base_factor) + cons_shifters(ind_base_factor)
-  c_dma    = interp(time, conc(:,1), conc(:,7))  * cons_multipliers(ind_DMA_factor)  + cons_shifters(ind_DMA_factor)
-  c_base   = NORMALD(time, MOD_NH3)
+  ! TempK    = PERIODICAL(time, conc_MODS(ind_temp))
+  ! c_base   = NORMALD(time, conc_MODS(ind_base))
+  TempK    = interp(time, conc(:,1), conc(:,3))  .mod. conc_MODS(ind_Temp)
+  CS_H2SO4 = interp(time, conc(:,1), conc(:,4))  .mod. conc_MODS(ind_CS)
+  c_acid   = interp(time, conc(:,1), conc(:,5))  .mod. conc_MODS(ind_SA)
+  c_base   = interp(time, conc(:,1), conc(:,6))  .mod. conc_MODS(ind_base)
+  c_dma    = interp(time, conc(:,1), conc(:,7))  .mod. conc_MODS(ind_dma)
   c_acid = c_acid*1d6
   c_base = c_base*1d6
   c_dma = c_dma*1d6
-
-  c_acid   = c_acid .mod. SA_mod
 
   if (NUCLEATION) THEN
 
@@ -103,7 +102,7 @@ DO WHILE (time%sec < time%SIM_TIME_S)
 
   ! Write printouts to screen and outputs to netcdf-file
   if (time%printnow) CALL PRINT_KEY_INFORMATION()
-  if (time%savenow) CALL SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, cons_multipliers, cons_shifters)
+  if (time%savenow) CALL SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, CONC_MODS)
 
   time = time + time%dt
 
@@ -112,7 +111,7 @@ END DO	! Main loop time: Eulerian forward integration
 
 print FMT_TIME, time%hms
 CALL PRINT_KEY_INFORMATION()
-call SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, cons_multipliers, cons_shifters)
+call SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, CONC_MODS)
 !Close output file netcdf
 CALL CLOSE_FILES()
 
@@ -178,23 +177,13 @@ SUBROUTINE ACDC_J()
 END SUBROUTINE ACDC_J
 
 SUBROUTINE SET_MODIFIERS()
-  modifier_names(ind_Temp_shift)    = "Temperature     "
-  modifier_names(ind_SA_factor)     = "H2SO4           "
-  modifier_names(ind_base_factor)   = "Base_NH3        "
-  modifier_names(ind_DMA_factor)    = "DMA             "
-  modifier_names(ind_CS_factor)     = "C_sink          "
 
-  cons_multipliers(ind_Temp_shift)  = 1d0
-  cons_multipliers(ind_SA_factor)   = 1d0
-  cons_multipliers(ind_base_factor) = 0d0
-  cons_multipliers(ind_DMA_factor)  = 1d0
-  cons_multipliers(ind_CS_factor)   = 1d0
+  conc_MODS(ind_Temp) %Name  = "Temperature     "
+  conc_MODS(ind_SA)   %Name  = "H2SO4           "
+  conc_MODS(ind_base) %Name  = "Base_NH3        "
+  conc_MODS(ind_DMA)  %Name  = "DMA             "
+  conc_MODS(ind_CS)   %Name  = "C_sink          "
 
-  cons_shifters(ind_Temp_shift)     = 0d0 + K0
-  cons_shifters(ind_SA_factor)      = 0d0
-  cons_shifters(ind_base_factor)    = 0d0
-  cons_shifters(ind_DMA_factor)     = 0d0
-  cons_shifters(ind_CS_factor)      = 0d0
 END SUBROUTINE SET_MODIFIERS
 
 SUBROUTINE SOME_OTHER_NUCLEATION_TYPE(J1, J2)
@@ -213,5 +202,18 @@ SUBROUTINE PRINT_KEY_INFORMATION()
   print FMT10_CVU, 'C-sink:', CS_H2SO4 , ' [1/s]'
   print FMT_LEND,
 END SUBROUTINE PRINT_KEY_INFORMATION
+
+SUBROUTINE CHECK_MODIFIERS()
+  IMPLICIT NONE
+  type(parametered_input) :: test
+  integer                 :: i
+  do i=1,size(CONC_MODS)
+    if (ABS(conc_MODS(i)%min_c - test%min_c) > 1d-9) THEN
+      print FMT_WARN1, 'Adding a constant to '//TRIM(conc_MODS(i)%name)//', value is: ',conc_MODS(i)%min_c
+    ELSEIF (ABS(conc_MODS(i)%amplitude - test%amplitude) > 1d-9) THEN
+      print FMT_WARN1, 'Multiplying '//TRIM(conc_MODS(i)%name)//' with: ',conc_MODS(i)%amplitude
+    END IF
+  END DO
+END SUBROUTINE CHECK_MODIFIERS
 
 END PROGRAM SUPERMODEL

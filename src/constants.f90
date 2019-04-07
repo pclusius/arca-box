@@ -25,8 +25,9 @@ type parametered_input
   real(dp) :: omega     = 0d0     ! Angular frequency [hours] of modIFying sine function
   real(dp) :: phase     = 0d0     ! Angular frequency [hours] of modIFying sine function
   real(dp) :: amplitude = 1d0     ! Amplitude of modIFicaion
-  LOGICAL  :: LOGSCALE  = .true.  ! Is concetration scale logaritmically or linearily.
-                                  ! True for logaritmically scaled
+  CHARACTER(16) :: Name = '-'          ! Human readable name
+  LOGICAL       :: LOGSCALE  = .true. ! Is concetration scale logaritmically or linearily.
+                                      ! True for logaritmically scaled
 end type parametered_input
 
 real(dp), parameter :: SIM_TIME = 24.0d0
