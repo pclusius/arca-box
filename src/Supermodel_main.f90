@@ -67,9 +67,9 @@ conc(:,3) = conc(:,3) + K0
 conc(:,5) = conc(:,5)*1d6
 conc(:,6) = conc(:,6)*1d6
 conc(:,7) = conc(:,7)*1d6
-CONC_MODS(ind_temp)%min = 0d0
-CONC_MODS(ind_NH3)%am = 1d0
-CONC_MODS(ind_NH3)%MODE = 0
+CONC_MODS(ind_temp)%shift = 0d0
+CONC_MODS(ind_NH3)%multi = 2d0
+CONC_MODS(ind_NH3)%MODE = 1
 CONC_MODS(ind_NH3)%sig = 4.5
 !CONC_MODS(ind_DMA)%am = 100d0
 !CONC_MODS(ind_CS)%am = 5d-1
@@ -81,8 +81,7 @@ CALL CHECK_MODIFIERS()
 DO WHILE (MODELTIME%sec < MODELTIME%SIM_TIME_S)
 
   if (MODELTIME%printnow) print FMT_TIME, MODELTIME%hms
-
-conc_MODS(ind_NH3) = input_mod(min=1.000000d4,max=1.000000d10,sig=2.348050d0,mju=12.000000d0,fv=0.966667d0,ph=-2.280000d0,am=1.000000d0, MODE=2)
+  conc_MODS(ind_NH3) = input_mod(min=1.000000d4,max=1.000000d10,sig=2.348050d0,mju=12.000000d0,fv=0.966667d0,ph=-2.280000d0,am=1.000000d0, MODE=2)
 
   ! TempK    = PERIODICAL(conc_MODS(ind_temp))
   ! c_base   = NORMALD(conc_MODS(ind_NH3))
@@ -215,11 +214,15 @@ SUBROUTINE CHECK_MODIFIERS()
   type(input_mod) :: test
   integer                 :: i
   do i=1,size(CONC_MODS)
+  IF (conc_MODS(i)%MODE > 0) THEN
+    print FMT_WARN0, 'Replacing input for '//TRIM(conc_MODS(i)%name)//' with parametrized function.'
+  ELSE
     if (ABS(conc_MODS(i)%shift - test%shift) > 1d-9) THEN
       print FMT_WARN1, 'Adding a constant to '//TRIM(conc_MODS(i)%name)//', value is: ',conc_MODS(i)%shift
     ELSEIF (ABS(conc_MODS(i)%multi - test%multi) > 1d-9) THEN
       print FMT_WARN1, 'Multiplying '//TRIM(conc_MODS(i)%name)//' with: ',conc_MODS(i)%multi
     END IF
+  END IF
   END DO
 END SUBROUTINE CHECK_MODIFIERS
 
