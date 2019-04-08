@@ -125,16 +125,16 @@ codeax = plt.axes([0.38, 0.025, 0.24, 0.03])
 code = Button(codeax, 'Show code on terminal', color=axcolor, hovercolor='0.975')
 
 def ccode(event):
-    strr ='type(parametered_input) :: [variable-name] = '
-    strr =strr+'parametered_input(min_c=%fd%d,max_c=%fd%d,width=%fd0,peaktime=%0fd0,omega=%fd0,phase=%fd0,amplitude=%fd0, LOGSCALE='%(
+#    strr ='type(input_mod) :: [variable-name] = '
+    strr = 'input_mod(min=%fd%d,max=%fd%d,sig=%fd0,mju=%0fd0,fv=%fd0,ph=%fd0,am=%fd0, MODE='%(
     range.minimum/(10**np.floor(np.log10(range.minimum))),np.floor(np.log10(range.minimum)),
     range.maximum/(10**np.floor(np.log10(range.maximum))),np.floor(np.log10(range.maximum)),
     ssigma.val,speak.val,
     sfreq.val,sphase.val,samp.val)
     if radio.value_selected == 'linear':
-        strr = strr+'.false.)'
+        strr = strr+'1)'
     else:
-        strr = strr+'.true.)'
+        strr = strr+'2)'
     print()
     print(strr)
 

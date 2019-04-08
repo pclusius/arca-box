@@ -12,16 +12,14 @@ use OUTPUT
 
 IMPLICIT NONE
 
-type(parametered_input) :: conc_MODS(5)
-
+type(input_mod) :: conc_MODS(5)
 integer   :: ind_Temp  = 1
 integer   :: ind_SA   = 2
 integer   :: ind_NH3 = 3
 integer   :: ind_DMA  = 4
 integer   :: ind_CS   = 5
 
-!Variable declaration
-TYPE(timetype) :: time
+!Variable declaration time
 TYPE(type_ambient) :: Gases
 REAL(dp), allocatable :: conc(:,:)
 REAL(dp) :: c_acid = 1e7*1d6
@@ -38,6 +36,7 @@ REAL(dp) :: acdc_cluster_diam = 2.17d-9
 LOGICAL :: ACDC_solve_ss = .true. , NUCLEATION = .true., ACDC = .true.
 INTEGER :: rows, cols, i,j
 CHARACTER(222) :: CASE, PATH,JDch, Description
+type(input_mod) :: M_NH3 = input_mod(min=1.000000d4,max=1.000000d10,sig=2.348050d0,mju=12.000000d0,fv=0.966667d0,ph=-2.280000d0,am=1.000000d0, MODE=2)
 print FMT_LEND,
 
 !Create/Open outup file netcdf
@@ -48,15 +47,15 @@ print FMT_LEND,
 !Boundary conditions(dilution, losses, light,...)
 
 CALL SET_MODIFIERS()
-time%JD = 1
+MODELTIME%JD = 1
 Case = 'NJA'
 Description = 'Nanjing day 1 Nominal values'
-write(JDch,'(i0.3)') time%JD
-write(path, '(a,i0,a)') 'input/NANJING/case_Nanjing',time%JD,'.txt'
+write(JDch,'(i0.3)') MODELTIME%JD
+write(path, '(a,i0,a)') 'input/NANJING/case_Nanjing',MODELTIME%JD,'.txt'
 print FMT_SUB, 'Input file: '//Trim(path)
 
 open(522, file = TRIM(path))
-CALL OPEN_GASFILE(('output/'//TRIM(JDch)//TRIM(CASE)//'.nc'), time, CONC_MODS, Description)!, model_options)
+CALL OPEN_GASFILE(('output/'//TRIM(JDch)//TRIM(CASE)//'.nc'), CONC_MODS, Description)!, model_options)
 
 rows = ROWCOUNT(522)
 cols = COLCOUNT(522)
@@ -65,30 +64,33 @@ do i=1,rows
   read(522, *) (conc(i,j), j=1,cols)
 end do
 conc(:,3) = conc(:,3) + K0
-
-CONC_MODS(ind_temp)%min_c = 0d0
-CONC_MODS(ind_NH3)%amplitude = 1d0
-!CONC_MODS(ind_DMA)%amplitude = 100d0
-!CONC_MODS(ind_CS)%amplitude = 5d-1
+conc(:,5) = conc(:,5)*1d6
+conc(:,6) = conc(:,6)*1d6
+conc(:,7) = conc(:,7)*1d6
+CONC_MODS(ind_temp)%min = 0d0
+CONC_MODS(ind_NH3)%am = 1d0
+CONC_MODS(ind_NH3)%MODE = 0
+CONC_MODS(ind_NH3)%sig = 4.5
+!CONC_MODS(ind_DMA)%am = 100d0
+!CONC_MODS(ind_CS)%am = 5d-1
 
 ! Before the main loop starts, tell the user if any modifiers differ from default values
 CALL CHECK_MODIFIERS()
 
 !Main loop time: Eulerian forward integration
-DO WHILE (time%sec < time%SIM_TIME_S)
+DO WHILE (MODELTIME%sec < MODELTIME%SIM_TIME_S)
 
-  if (time%printnow) print FMT_TIME, time%hms
+  if (MODELTIME%printnow) print FMT_TIME, MODELTIME%hms
 
-  ! TempK    = PERIODICAL(time, conc_MODS(ind_temp))
-  ! c_base   = NORMALD(time, conc_MODS(ind_NH3))
-  TempK    = interp(time, conc(:,1), conc(:,3))  .mod. conc_MODS(ind_Temp)
-  CS_H2SO4 = interp(time, conc(:,1), conc(:,4))  .mod. conc_MODS(ind_CS)
-  c_acid   = interp(time, conc(:,1), conc(:,5))  .mod. conc_MODS(ind_SA)
-  c_base   = interp(time, conc(:,1), conc(:,6))  .mod. conc_MODS(ind_NH3)
-  c_dma    = interp(time, conc(:,1), conc(:,7))  .mod. conc_MODS(ind_dma)
-  c_acid = c_acid*1d6
-  c_base = c_base*1d6
-  c_dma = c_dma*1d6
+conc_MODS(ind_NH3) = input_mod(min=1.000000d4,max=1.000000d10,sig=2.348050d0,mju=12.000000d0,fv=0.966667d0,ph=-2.280000d0,am=1.000000d0, MODE=2)
+
+  ! TempK    = PERIODICAL(conc_MODS(ind_temp))
+  ! c_base   = NORMALD(conc_MODS(ind_NH3))
+  TempK    = interp(conc(:,1), conc(:,3))  .mod. conc_MODS(ind_Temp)
+  CS_H2SO4 = interp(conc(:,1), conc(:,4))  .mod. conc_MODS(ind_CS)
+  c_acid   = interp(conc(:,1), conc(:,5))  .mod. conc_MODS(ind_SA)
+  c_base   = interp(conc(:,1), conc(:,6))  .mod. conc_MODS(ind_NH3)
+  c_dma    = interp(conc(:,1), conc(:,7))  .mod. conc_MODS(ind_dma)
 
   if (NUCLEATION) THEN
 
@@ -96,7 +98,7 @@ DO WHILE (time%sec < time%SIM_TIME_S)
   if (ACDC) CALL ACDC_J() ! SUBROUTINE in CONTAINS of this file
 #endif
 #ifndef ISACDC
-  if (time%printnow) print*, NORMALD(time%sec,Jout_par)
+  if (MODELTIME%printnow) print*, NORMALD(MODELTIME%sec,Jout_par)
 #endif
 
   END if ! NUCLEATION
@@ -107,17 +109,16 @@ DO WHILE (time%sec < time%SIM_TIME_S)
 
 
   ! Write printouts to screen and outputs to netcdf-file
-  if (time%printnow) CALL PRINT_KEY_INFORMATION()
-  if (time%savenow) CALL SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, CONC_MODS)
+  if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION()
+  if (MODELTIME%savenow) CALL SAVE_GASES(TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, CONC_MODS)
 
-  time = time + time%dt
-
-  if (time%printnow) print *
+  MODELTIME = ADD(MODELTIME)
+  if (MODELTIME%printnow) print *
 END DO	! Main loop time: Eulerian forward integration
 
-print FMT_TIME, time%hms
+print FMT_TIME, MODELTIME%hms
 CALL PRINT_KEY_INFORMATION()
-call SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, CONC_MODS)
+call SAVE_GASES(TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, CONC_MODS)
 !Close output file netcdf
 CALL CLOSE_FILES()
 
@@ -132,7 +133,7 @@ SUBROUTINE ACDC_J()
 ! c_acid:            Sulfuric acid concentration [1/m3]
 ! c_base:            base (ammonia) concentration [1/m3]
 ! c_org:             Nucleating organic concentration [1/m3]. not in use currently
-! cs_H2SO4:          Condensation sink of sulfuric acid [1/s]
+! cs_H2SO4:          Condensation sink of sulfuric amincid [1/s]
 ! TempK:             Temperature in Kelvins
 ! IPR:               Ion production rate in ion pairs per second [1/m3/s]. 3d6 is a good guestimate
 ! dt:                Main time step [s]
@@ -160,18 +161,18 @@ SUBROUTINE ACDC_J()
   if (c_base > 1d12 .or. J_ACDC_NH3 > 1d-6) THEN
 
     ! from cc to m3:
-    CALL get_acdc_J(c_acid,c_base,c_org,cs_H2SO4,TempK,IPR,time,&
+    CALL get_acdc_J(c_acid,c_base,c_org,cs_H2SO4,TempK,IPR,MODELTIME,&
           ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
   ELSE
     ! This will leave the last value for J stand - small enough to not count but not zero
-    if (time%printnow) print FMT_SUB, 'NH3 IGNORED'
+    if (MODELTIME%printnow) print FMT_SUB, 'NH3 IGNORED'
   END IF
 
   ! NUCLEATION BY S-ACID AND DMA - NOTE: ingoing concentrations are assumed to be in 1/m3!!
 
   ! Speed up program by ignoring nucleation when there is none
   ! if (c_dma > 1d6 .or. J_ACDC_DMA > 1d-6) THEN
-    CALL get_acdc_D(c_acid,c_dma,c_org,cs_H2SO4,TempK,time,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
+    CALL get_acdc_D(c_acid,c_dma,c_org,cs_H2SO4,TempK,MODELTIME,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
   ! ELSE
     ! This will leave the last value for J stand - small enough to not count but not zero
   !   if (EVENMIN(time, 180)) print FMT_SUB, 'DMA IGNORED'
@@ -186,7 +187,7 @@ SUBROUTINE SET_MODIFIERS()
 
   conc_MODS(ind_Temp) %Name  = "Temperature     "
   conc_MODS(ind_SA)   %Name  = "H2SO4           "
-  conc_MODS(ind_NH3) %Name  = "Base_NH3        "
+  conc_MODS(ind_NH3)  %Name  = "Base_NH3        "
   conc_MODS(ind_DMA)  %Name  = "DMA             "
   conc_MODS(ind_CS)   %Name  = "C_sink          "
 
@@ -211,13 +212,13 @@ END SUBROUTINE PRINT_KEY_INFORMATION
 
 SUBROUTINE CHECK_MODIFIERS()
   IMPLICIT NONE
-  type(parametered_input) :: test
+  type(input_mod) :: test
   integer                 :: i
   do i=1,size(CONC_MODS)
-    if (ABS(conc_MODS(i)%min_c - test%min_c) > 1d-9) THEN
-      print FMT_WARN1, 'Adding a constant to '//TRIM(conc_MODS(i)%name)//', value is: ',conc_MODS(i)%min_c
-    ELSEIF (ABS(conc_MODS(i)%amplitude - test%amplitude) > 1d-9) THEN
-      print FMT_WARN1, 'Multiplying '//TRIM(conc_MODS(i)%name)//' with: ',conc_MODS(i)%amplitude
+    if (ABS(conc_MODS(i)%shift - test%shift) > 1d-9) THEN
+      print FMT_WARN1, 'Adding a constant to '//TRIM(conc_MODS(i)%name)//', value is: ',conc_MODS(i)%shift
+    ELSEIF (ABS(conc_MODS(i)%multi - test%multi) > 1d-9) THEN
+      print FMT_WARN1, 'Multiplying '//TRIM(conc_MODS(i)%name)//' with: ',conc_MODS(i)%multi
     END IF
   END DO
 END SUBROUTINE CHECK_MODIFIERS

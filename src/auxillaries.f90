@@ -56,46 +56,24 @@ logical function EVENMIN(t,check,zero)
 end function EVENMIN
 
 !==============================================================================
-! Function to return y-value at [time] from a normal distribution function with
-! standard deviation [width], minimum value [min_c], maximum value [max_c]
-! and time of maximum at [peaktime]. Relies completely on the correct formulation
-! of MODS (parametered_input)
-!..............................................................................
-REAL(dp) FUNCTION NORMALD(time,MODS)
-  IMPLICIT NONE
-  type(parametered_input) :: MODS
-  type(timetype) :: time
-  REAL(dp) :: f, D
-  D = MODS%peaktime + sin((time%hrs-MODS%peaktime)*MODS%omega)*MODS%amplitude + MODS%phase
-  NORMALD = 1d0/SQRT(2d0*pi*MODS%width**2) * EXP(- (time%hrs-D)**2/(2d0*MODS%width**2))
-  f = 1d0/SQRT(2d0*pi*MODS%width**2)
-  ! Check if minimum is same or more than maximum and if so, use constant concentration (minumum)
-  IF (MODS%max_c-MODS%min_c <1e-9) THEN
-    NORMALD = MODS%min_c
-  ELSE
-    if (MODS%LOGSCALE) THEN
-      f = (LOG10(MODS%max_c-MODS%min_c+1))/f
-      NORMALD = 10**(NORMALD*f)-1 + MODS%min_c
-    ELSE
-      f = (MODS%max_c-MODS%min_c)/f
-      NORMALD = NORMALD*f + MODS%min_c
-    END IF
-  END IF
-end FUNCTION NORMALD
-
-!==============================================================================
 ! Function to return y-value at [time] from a sine function. Use to model a
 ! periodic variable such as temperature or relative humidity. By default uses
 ! 24 hour period.
 !..............................................................................
-REAL(dp) FUNCTION PERIODICAL(time,MODS)
+REAL(dp) FUNCTION PERIODICAL(MODS, timein)
   IMPLICIT NONE
-  type(parametered_input) :: MODS
-  type(timetype)          :: time
-  real(dp)                :: A
-  A = (MODS%max_c-MODS%min_c)/2d0
-  PERIODICAL = A*SIN(MODS%omega*2d0*pi*time%sec/time%SIM_TIME_S &
-              - 2d0*pi*MODS%phase/time%SIM_TIME_H) + MODS%min_c + A
+  type(input_mod)   :: MODS
+  type(timetype), OPTIONAL  :: timein
+  type(timetype)            :: time
+  real(dp)                  :: A
+  if (PRESENT(timein)) THEN
+    time = timein
+  ELSE
+    time = MODELTIME
+  END IF
+  A = (MODS%max-MODS%min)/2d0
+  PERIODICAL = A*SIN(MODS%fv*2d0*pi*time%sec/time%SIM_TIME_S &
+              - 2d0*pi*MODS%ph/time%SIM_TIME_H) + MODS%min + A
 end FUNCTION PERIODICAL
 
 !==============================================================================
@@ -198,13 +176,19 @@ END FUNCTION getrow
 ! correct row if this fails. If optional unit is provided ('sec', 'min', 'hrs',
 ! 'day') then the corresponding time unit is used from [time].
 !..............................................................................
-REAL(dp) FUNCTION INTERP(time, conctime, conc, row, unit)
+REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
   IMPLICIT NONE
-  type(timetype) :: time
+  type(timetype), OPTIONAL  :: timein
+  type(timetype)  :: time
   REAL(dp) :: conctime(:), conc(:), now
   INTEGER, OPTIONAL :: row
   CHARACTER(*), OPTIONAL :: unit
   INTEGER :: rw
+  if (PRESENT(timein)) THEN
+    time = timein
+  ELSE
+    time = MODELTIME
+  END IF
   if (PRESENT(unit)) THEN
     if (unit .eq. 'sec') THEN
       now = time%sec

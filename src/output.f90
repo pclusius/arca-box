@@ -64,12 +64,11 @@ public :: OPEN_GASFILE, SAVE_GASES,CLOSE_FILES!, &
 
 CONTAINS
 
-SUBROUTINE OPEN_GASFILE(filename, time, MODS, Description)
+SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
   implicit none
   CHARACTER(255)    :: PROGRAM_NAME
   CHARACTER(*)      :: Description
-  type(parametered_input) :: MODS(:)
-  type(timetype) :: time
+  type(input_mod) :: MODS(:)
   integer :: i
   integer                         :: n_compounds = 5 ! needed for develempoment, later will be calculated from KPP input and stored in e.g. Constants.f90
   character(len=*), intent(in)    :: filename
@@ -91,7 +90,7 @@ SUBROUTINE OPEN_GASFILE(filename, time, MODS, Description)
   call handler( nf90_create(trim(filename), IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), gas_ncfile_id) )
 
   ! Defining dimensions: time(unlimited), size sections, vapor_species
-  call handler(nf90_def_dim(gas_ncfile_id, "time",NINT(time%SIM_TIME_H*60/time%FSAVE_INTERVAL+1), gtime_id) )
+  call handler(nf90_def_dim(gas_ncfile_id, "time",NINT(MODELTIME%SIM_TIME_H*60/MODELTIME%FSAVE_INTERVAL+1), gtime_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "Compound",n_compounds, gcompounds_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "Constant",1, gconstant_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "StringL",16, gstrlen_id) )
@@ -174,11 +173,12 @@ call handler(nf90_put_var(gas_ncfile_id, gas_names_id, (gasnames), start=([1]), 
 
 end SUBROUTINE OPEN_GASFILE
 
-SUBROUTINE SAVE_GASES(time, temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, Gases, MODS)
+SUBROUTINE SAVE_GASES(temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, Gases, MODS, timein)
   IMPLICIT NONE
-  type(parametered_input), INTENT(in) :: MODS(:)
-  type(type_ambient), INTENT(in)  :: Gases
-  type(timetype), INTENT(in)      :: time
+  type(type_ambient), INTENT(in)        :: Gases
+  type(input_mod), INTENT(in)   :: MODS(:)
+  type(timetype), optional        :: timein
+  type(timetype)                  :: time
   real(dp), INTENT(in)            :: temperature
   real(dp), INTENT(in)            :: C_H2SO4
   real(dp), INTENT(in)            :: C_NH3
@@ -188,24 +188,30 @@ SUBROUTINE SAVE_GASES(time, temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS
   real(dp), INTENT(in)            :: CS
   integer                         :: i
 
+  if (PRESENT(timein)) THEN
+    time = timein
+  ELSE
+    time = MODELTIME
+  END IF
+
   do i = 1,size(MODS)
-    call handler(nf90_put_var(gas_ncfile_id, multipl_ind(i), MODS(i)%amplitude, (/time%ind_netcdf/) ) )
-    call handler(nf90_put_var(gas_ncfile_id, shifter_ind(i), MODS(i)%min_c,  (/time%ind_netcdf/) ) )
+    call handler(nf90_put_var(gas_ncfile_id, multipl_ind(i), MODS(i)%am, (/MODELTIME%ind_netcdf/) ) )
+    call handler(nf90_put_var(gas_ncfile_id, shifter_ind(i), MODS(i)%min,  (/MODELTIME%ind_netcdf/) ) )
   end do
 
-  call handler( nf90_put_var(gas_ncfile_id, gtimearr_id, time%sec, (/time%ind_netcdf/) ))
-  call handler( nf90_put_var(gas_ncfile_id, ghrsarr_id, time%hrs, (/time%ind_netcdf/) ))
-  call handler( nf90_put_var(gas_ncfile_id, gtemperature_id, temperature, (/time%ind_netcdf/)) )!, count=(/uhma_sections, 1/)))
-  call handler( nf90_put_var(gas_ncfile_id, gas_concentrations_id, ([C_H2SO4, C_NH3, C_DMA]), start=(/1, time%ind_netcdf/), count=(/3/)))
-  call handler( nf90_put_var(gas_ncfile_id, gJ_out_NH3_id, J_NH3, (/time%ind_netcdf/)) )
-  call handler( nf90_put_var(gas_ncfile_id, gJ_out_DMA_id, J_DMA, (/time%ind_netcdf/)) )
-  call handler( nf90_put_var(gas_ncfile_id, gc_sink_id, CS, (/time%ind_netcdf/)) )
-  call handler( nf90_put_var(gas_ncfile_id, gpressure_id, 101325d0, (/time%ind_netcdf/)) )
-  ! call handler( nf90_put_var(gas_ncfile_id, gas_concentrations_id, ([ C_H2SO4 ]), start=(/1, time%ind_netcdf/), count=(/1/)))
-  ! call handler( nf90_put_var(gas_ncfile_id, gcompounds_id, C_NH3, (/time%ind_netcdf/), count=(/2, 1/)))
-  ! call handler( nf90_put_var(gas_ncfile_id, gcompounds_id, C_DMA, (/time%ind_netcdf/), count=(/3, 1/)))
-  ! call handler( nf90_put_var(gas_ncfile_id, gtemperature_id, temperature, (/time%ind_netcdf/)) )!, count=(/uhma_sections, 1/)))
-  ! call handler( nf90_put_var(gas_ncfile_id, gtemperature_id, temperature, (/time%ind_netcdf/)) )!, count=(/uhma_sections, 1/)))
+  call handler( nf90_put_var(gas_ncfile_id, gtimearr_id, MODELTIME%sec, (/MODELTIME%ind_netcdf/) ))
+  call handler( nf90_put_var(gas_ncfile_id, ghrsarr_id, MODELTIME%hrs, (/MODELTIME%ind_netcdf/) ))
+  call handler( nf90_put_var(gas_ncfile_id, gtemperature_id, temperature, (/MODELTIME%ind_netcdf/)) )!, count=(/uhma_sections, 1/)))
+  call handler( nf90_put_var(gas_ncfile_id, gas_concentrations_id, ([C_H2SO4, C_NH3, C_DMA]), start=(/1, MODELTIME%ind_netcdf/), count=(/3/)))
+  call handler( nf90_put_var(gas_ncfile_id, gJ_out_NH3_id, J_NH3, (/MODELTIME%ind_netcdf/)) )
+  call handler( nf90_put_var(gas_ncfile_id, gJ_out_DMA_id, J_DMA, (/MODELTIME%ind_netcdf/)) )
+  call handler( nf90_put_var(gas_ncfile_id, gc_sink_id, CS, (/MODELTIME%ind_netcdf/)) )
+  call handler( nf90_put_var(gas_ncfile_id, gpressure_id, 101325d0, (/MODELTIME%ind_netcdf/)) )
+  ! call handler( nf90_put_var(gas_ncfile_id, gas_concentrations_id, ([ C_H2SO4 ]), start=(/1, MODELTIME%ind_netcdf/), count=(/1/)))
+  ! call handler( nf90_put_var(gas_ncfile_id, gcompounds_id, C_NH3, (/MODELTIME%ind_netcdf/), count=(/2, 1/)))
+  ! call handler( nf90_put_var(gas_ncfile_id, gcompounds_id, C_DMA, (/MODELTIME%ind_netcdf/), count=(/3, 1/)))
+  ! call handler( nf90_put_var(gas_ncfile_id, gtemperature_id, temperature, (/MODELTIME%ind_netcdf/)) )!, count=(/uhma_sections, 1/)))
+  ! call handler( nf90_put_var(gas_ncfile_id, gtemperature_id, temperature, (/MODELTIME%ind_netcdf/)) )!, count=(/uhma_sections, 1/)))
   ! call handler( nf90_put_var(gas_ncfile_id, nconc_id, particles%n_conc, start=(/1, timestep/), count=(/uhma_sections, 1/)))
 END SUBROUTINE SAVE_GASES
 
@@ -307,7 +313,7 @@ END MODULE OUTPUT
 ! subroutine output_time(time)
 !   IMPLICIT NONE
 !   type(timetype), intent(in) :: time
-!   call handler(nf90_put_var(par_ncfile_id, timevar_id, time%sec, (/time%ind_netcdf/) ))
+!   call handler(nf90_put_var(par_ncfile_id, timevar_id, MODELTIME%sec, (/MODELTIME%ind_netcdf/) ))
 ! end subroutine output_time
 !
 ! subroutine output_particles(particles, timestep)

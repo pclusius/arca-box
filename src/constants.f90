@@ -17,18 +17,24 @@ integer(ik), parameter:: day_s = 24*hour_s
 
 ! Container for input parameters for creating simulated datapoints
 ! Uses gaussian function as generator. Use ParameterTweaker.py for more complex functions
-type parametered_input
-  real(dp) :: min_c     = 0d0     ! Minimum value for the parametrized concentration OR constant value if max_c <= min_c
-  real(dp) :: max_c     = 1d5     ! Peak value
-  real(dp) :: width     = 1d0     ! Standard deviation for the Gaussian=width of the bell curve
-  real(dp) :: peaktime  = 12d0    ! Time of peak value
-  real(dp) :: omega     = 0d0     ! Angular frequency [hours] of modIFying sine function
-  real(dp) :: phase     = 0d0     ! Angular frequency [hours] of modIFying sine function
-  real(dp) :: amplitude = 1d0     ! Amplitude of modIFicaion
-  CHARACTER(16) :: Name = '-'          ! Human readable name
-  LOGICAL       :: LOGSCALE  = .true. ! Is concetration scale logaritmically or linearily.
-                                      ! True for logaritmically scaled
-end type parametered_input
+
+type input_mod
+  ! Mode of operation:
+  ! 0 = use values that are read in, poissibly modifying by a factor or a constant
+  ! 1 = Use NORMALD to create function in LINEAR mode
+  ! 2 = Use NORMALD to create function in LOGARITMIC mode
+  INTEGER   :: MODE  = 0
+  CHARACTER(16) :: NAME = '-'! Human readable name for modified value
+  real(dp)  :: min = 0d0     ! Minimum value for the parametrized concentration OR constant value if max <= min
+  real(dp)  :: max = 1d5     ! Peak value
+  real(dp)  :: sig = 1d0     ! Standard deviation for the Gaussian=sig of the bell curve
+  real(dp)  :: mju = 12d0    ! Time of peak value
+  real(dp)  :: fv  = 0d0    ! Angular frequency [hours] of modIFying sine function
+  real(dp)  :: ph  = 0d0    ! Angular frequency [hours] of modIFying sine function
+  real(dp)  :: am  = 1d0    ! Amplitude of modIFicaion
+  real(dp)  :: multi = 1d0   ! Multiplication factor in MODE0
+  real(dp)  :: shift = 0d0   ! Constant to be added in MODE0
+end type input_mod
 
 real(dp), parameter :: SIM_TIME = 24.0d0
 
@@ -51,6 +57,8 @@ type timetype
   logical       :: savenow        = .true.
   logical       :: PRINTACDC      = .false.
 end type timetype
+
+type(timetype)  :: MODELTIME
 
 ! UHMA-wide parameters that need to be constants
 integer,parameter ::  uhma_sections= 100                  !size sections!60
@@ -142,24 +150,63 @@ end function ADD
 
 REAL(dp) FUNCTION PLUS(c, MODS)
   IMPLICIT NONE
-  type(parametered_input), INTENT(in) :: MODS
-  REAL(dp), INTENT(in)                :: c
-  PLUS = c + MODS%min_c
+  type(input_mod), INTENT(in) :: MODS
+  REAL(dp), INTENT(in)        :: c
+  PLUS = c + MODS%min
 END FUNCTION PLUS
 
 REAL(dp) FUNCTION MULTIPLICATION(c, MODS)
   IMPLICIT NONE
-  type(parametered_input), INTENT(in) :: MODS
-  REAL(dp), INTENT(in)                :: c
-  MULTIPLICATION = c * MODS%amplitude
+  type(input_mod), INTENT(in) :: MODS
+  REAL(dp), INTENT(in)        :: c
+  MULTIPLICATION = c * MODS%multi
 END FUNCTION MULTIPLICATION
 
 REAL(dp) FUNCTION MOD_CONC(c, MODS)
   IMPLICIT NONE
-  type(parametered_input), INTENT(in) :: MODS
+  type(input_mod), INTENT(in) :: MODS
   REAL(dp), INTENT(in)                :: c
-  MOD_CONC = c * MODS%amplitude
-  MOD_CONC = MOD_CONC + MODS%min_c
+  if (MODS%MODE == 0) THEN
+    MOD_CONC = c * MODS%multi
+    MOD_CONC = MOD_CONC + MODS%shift
+  ELSE
+    MOD_CONC = NORMALD(MODS)
+  END IF
 END FUNCTION MOD_CONC
+
+!==============================================================================
+! Function to return y-value at [time] from a normal distribution function with
+! standard deviation [sig], minimum value [min], maximum value [max]
+! and time of maximum at [mju]. Relies completely on the correct formulation
+! of MODS (input_mod)
+!..............................................................................
+REAL(dp) FUNCTION NORMALD(MODS, timein)
+  IMPLICIT NONE
+  type(input_mod)   :: MODS
+  type(timetype), OPTIONAL  :: timein
+  type(timetype)            :: time
+  REAL(dp) :: f, D
+  if (PRESENT(timein)) THEN
+    time = timein
+  ELSE
+    time = MODELTIME
+  END IF
+
+  D = MODS%mju + sin((MODELTIME%hrs-MODS%mju)*MODS%fv)*MODS%am + MODS%ph
+  NORMALD = 1d0/SQRT(2d0*pi*MODS%sig**2) * EXP(- (MODELTIME%hrs-D)**2/(2d0*MODS%sig**2))
+  f = 1d0/SQRT(2d0*pi*MODS%sig**2)
+  ! Check if minimum is same or more than maximum and if so, use constant concentration (minumum)
+  IF (ABS(MODS%max-MODS%min) <1e-9) THEN
+    NORMALD = MODS%min
+  ELSE
+    if (MODS%MODE == 2) THEN
+      f = (LOG10(MODS%max-MODS%min+1))/f
+      NORMALD = 10**(NORMALD*f)-1 + MODS%min
+    ELSEIF  (MODS%MODE == 1) THEN
+      f = (MODS%max-MODS%min)/f
+      NORMALD = NORMALD*f + MODS%min
+    END IF
+  END IF
+end FUNCTION NORMALD
 
 end MODULE constants
