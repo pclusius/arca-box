@@ -64,10 +64,12 @@ public :: OPEN_GASFILE, SAVE_GASES,CLOSE_FILES!, &
 
 CONTAINS
 
-SUBROUTINE OPEN_GASFILE(filename, MODS)
+SUBROUTINE OPEN_GASFILE(filename, time, MODS, Description)
   implicit none
-  CHARACTER(255)     :: PROGRAM_NAME
+  CHARACTER(255)    :: PROGRAM_NAME
+  CHARACTER(*)      :: Description
   type(parametered_input) :: MODS(:)
+  type(timetype) :: time
   integer :: i
   integer                         :: n_compounds = 5 ! needed for develempoment, later will be calculated from KPP input and stored in e.g. Constants.f90
   character(len=*), intent(in)    :: filename
@@ -79,6 +81,7 @@ SUBROUTINE OPEN_GASFILE(filename, MODS)
   ALLOCATE(shifter_ind(size(MODS)))
   print FMT_SUB, 'NetCDF version: '//trim(nf90_inq_libvers())
   print FMT_SUB, 'Create chemfile: '//TRIM(filename)
+  print FMT_SUB, Description
 
 
   !Clearing file; Opening file. Overwrites
@@ -88,7 +91,7 @@ SUBROUTINE OPEN_GASFILE(filename, MODS)
   call handler( nf90_create(trim(filename), IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), gas_ncfile_id) )
 
   ! Defining dimensions: time(unlimited), size sections, vapor_species
-  call handler(nf90_def_dim(gas_ncfile_id, "time",1442, gtime_id) )
+  call handler(nf90_def_dim(gas_ncfile_id, "time",NINT(time%SIM_TIME_H*60/time%FSAVE_INTERVAL+1), gtime_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "Compound",n_compounds, gcompounds_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "Constant",1, gconstant_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "StringL",16, gstrlen_id) )
@@ -125,9 +128,9 @@ SUBROUTINE OPEN_GASFILE(filename, MODS)
   CALL get_command_argument(0, PROGRAM_NAME)
   call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Information', '(c) Atmospheric modelling group 2019 and (c) Simugroup 2019 (ACDC)'))
   call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Contact', 'michael.boy@helsinki.fi (Superbox), tinja.olenius@alumni.helsinki.fi (ACDC)'))
-  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Software', 'Superbox 0.1'))
+  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Software', 'Superbox 0.0.1'))
   call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Package_Name:', TRIM(PROGRAM_NAME(3:))))
-  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Notes', 'e.g. Sulfuric acid concentration multiplied by 0.1'))
+  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Notes', TRIM(Description)))
   call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'experiment', 'Experiment set here'))
   ! call output_options(options)
 

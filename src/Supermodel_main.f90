@@ -16,7 +16,7 @@ type(parametered_input) :: conc_MODS(5)
 
 integer   :: ind_Temp  = 1
 integer   :: ind_SA   = 2
-integer   :: ind_base = 3
+integer   :: ind_NH3 = 3
 integer   :: ind_DMA  = 4
 integer   :: ind_CS   = 5
 
@@ -37,7 +37,7 @@ REAL(dp) :: J_NH3_BY_IONS(3)
 REAL(dp) :: acdc_cluster_diam = 2.17d-9
 LOGICAL :: ACDC_solve_ss = .true. , NUCLEATION = .true., ACDC = .true.
 INTEGER :: rows, cols, i,j
-
+CHARACTER(222) :: CASE, PATH,JDch, Description
 print FMT_LEND,
 
 !Create/Open outup file netcdf
@@ -46,16 +46,17 @@ print FMT_LEND,
 !Gas phase
 !Aerosol phase(distribution & composition)
 !Boundary conditions(dilution, losses, light,...)
-! open(9333,FILE='Nanjing2_CS05_DMA10_K-70.dat')
 
 CALL SET_MODIFIERS()
+time%JD = 1
+Case = 'NJA'
+Description = 'Nanjing day 1 Nominal values'
+write(JDch,'(i0.3)') time%JD
+write(path, '(a,i0,a)') 'input/NANJING/case_Nanjing',time%JD,'.txt'
+print FMT_SUB, 'Input file: '//Trim(path)
 
-open(522, file = 'input/NANJING/case_Nanjing2.txt')
-
-open(9333,FILE='output/xxx.dat')
-write(9333,'(8(a20))') 'time(s)', 'c_acid(1/m3)', 'c_base(1/m3)', 'J_ACDC_NH3(1/m3/s)', 'c_dma(1/m3)', 'J_ACDC_DMA(1/m3/s)', 'TempK(K)', 'CS(1/s)'
-
-CALL OPEN_GASFILE('output/OutputGas.nc', CONC_MODS)!, model_options)
+open(522, file = TRIM(path))
+CALL OPEN_GASFILE(('output/'//TRIM(JDch)//TRIM(CASE)//'.nc'), time, CONC_MODS, Description)!, model_options)
 
 rows = ROWCOUNT(522)
 cols = COLCOUNT(522)
@@ -63,22 +64,27 @@ ALLOCATE(conc(rows, cols))
 do i=1,rows
   read(522, *) (conc(i,j), j=1,cols)
 end do
+conc(:,3) = conc(:,3) + K0
 
-CONC_MODS(ind_temp)%min_c = K0
+CONC_MODS(ind_temp)%min_c = 0d0
+CONC_MODS(ind_NH3)%amplitude = 1d0
+!CONC_MODS(ind_DMA)%amplitude = 100d0
+!CONC_MODS(ind_CS)%amplitude = 5d-1
 
 ! Before the main loop starts, tell the user if any modifiers differ from default values
 CALL CHECK_MODIFIERS()
+
 !Main loop time: Eulerian forward integration
 DO WHILE (time%sec < time%SIM_TIME_S)
 
   if (time%printnow) print FMT_TIME, time%hms
 
   ! TempK    = PERIODICAL(time, conc_MODS(ind_temp))
-  ! c_base   = NORMALD(time, conc_MODS(ind_base))
+  ! c_base   = NORMALD(time, conc_MODS(ind_NH3))
   TempK    = interp(time, conc(:,1), conc(:,3))  .mod. conc_MODS(ind_Temp)
   CS_H2SO4 = interp(time, conc(:,1), conc(:,4))  .mod. conc_MODS(ind_CS)
   c_acid   = interp(time, conc(:,1), conc(:,5))  .mod. conc_MODS(ind_SA)
-  c_base   = interp(time, conc(:,1), conc(:,6))  .mod. conc_MODS(ind_base)
+  c_base   = interp(time, conc(:,1), conc(:,6))  .mod. conc_MODS(ind_NH3)
   c_dma    = interp(time, conc(:,1), conc(:,7))  .mod. conc_MODS(ind_dma)
   c_acid = c_acid*1d6
   c_base = c_base*1d6
@@ -180,7 +186,7 @@ SUBROUTINE SET_MODIFIERS()
 
   conc_MODS(ind_Temp) %Name  = "Temperature     "
   conc_MODS(ind_SA)   %Name  = "H2SO4           "
-  conc_MODS(ind_base) %Name  = "Base_NH3        "
+  conc_MODS(ind_NH3) %Name  = "Base_NH3        "
   conc_MODS(ind_DMA)  %Name  = "DMA             "
   conc_MODS(ind_CS)   %Name  = "C_sink          "
 

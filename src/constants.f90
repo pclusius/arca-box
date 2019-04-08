@@ -45,7 +45,7 @@ type timetype
   integer       :: ind_netcdf     = 1
   integer       :: JD             = 0
   integer       :: PRINT_INTERVAL = 15
-  integer       :: FSAVE_INTERVAL = 1
+  integer       :: FSAVE_INTERVAL = 5
   character(8)  :: hms            = "00:00:00"
   logical       :: printnow       = .true.
   logical       :: savenow        = .true.
@@ -125,14 +125,14 @@ type(timetype) function ADD(time, sec)
   ADD%min = ADD%sec/60d0
   ADD%hrs = ADD%sec/3600d0
   ADD%day = ADD%sec/3600d0/24d0
-  write(ADD%hms, '(i2.2, ":" i2.2, ":" i2.2)') int(ADD%sec+0.5d0)/3600, &
-    int(MODULO(int(ADD%sec+0.5d0),3600)/60), MODULO(MODULO(int(ADD%sec+0.5d0),3600), 60)
-  IF (MODULO(int(ADD%sec+0.5d0), 60*ADD%PRINT_INTERVAL) == 0) THEN
+  write(ADD%hms, '(i2.2, ":" i2.2, ":" i2.2)') nint(ADD%sec)/3600, &
+    int(MODULO(nint(ADD%sec),3600)/60), MODULO(MODULO(nint(ADD%sec),3600), 60)
+  IF (MODULO(nint(ADD%sec), 60*ADD%PRINT_INTERVAL) == 0) THEN
     ADD%printnow = .true.
   ELSE
     ADD%printnow = .false.
   END IF
-  IF (MODULO(int(ADD%sec+0.5d0), 60*ADD%FSAVE_INTERVAL) == 0) THEN
+  IF (MODULO(nint(ADD%sec), 60*ADD%FSAVE_INTERVAL) == 0) THEN
     ADD%savenow = .true.
     ADD%ind_netcdf = ADD%ind_netcdf + 1
   ELSE
