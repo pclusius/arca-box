@@ -1,42 +1,46 @@
 ####### model initialization setup ############
 
-&NML_path 
- Work_Dir    =  '/home/local/carltonx/Box-model/supermodel-phase-1/' 
- Case_Dir    =  '/home/local/carltonx/Box-model/supermodel-phase-1/Cases/' 
- Case_name   =  'Test_case_01' 
+&NML_path
+ Work_Dir    =  '/home/local/carltonx/Box-model/supermodel-phase-1/'
+ Case_Dir    =  '/home/local/carltonx/Box-model/supermodel-phase-1/Cases/'
+ Case_name   =  'Test_case_01'
  Input_file  =  'Api_100.txt'
-/ 
+/
 
-####### Flags setup True or false ####### 
+####### Flags setup True or false #######
 
-&NML_Flag 
- Aerosol_flag   =   .True. 
- Chemistry_flag =   .True. 
- Particle_flag  =   .False. 
+&NML_Flag
+ Aerosol_flag   =   .True.
+ Chemistry_flag =   .True.
+ Particle_flag  =   .False.
  Extra_data     =   .False.
-/ 
+/
 
-####### Time flag ######## 
+####### dmps file read #####
 
-&NML_Time 
- dt         =  10.000000 
- sim_time   =  3600.000000 
- ctime      =  0.000000
-/ 
-
- ####### file size ##### 
-
-&NML_shape 
- rows   =  15 
- cols   =  8
-/ 
-
- ####### dmps file read ##### 
-
-&NML_DMPS 
- DMPS_file         =  'dmps.txt' 
- dmps_file_check   =   .True. 
- dmps_rows         =   3 
+&NML_DMPS
+ DMPS_file         =  'dmps.txt'
+ dmps_file_check   =   .True.
+ dmps_rows         =   3
  dmps_cols         =   102
-/ 
+/
 
+
+ ####### TEMP file read #####
+
+&NML_TEMP
+ TEMP_path         =  '/home/local/carltonx/Box-model/PC180330/'
+ TEMP_file         =  'SMEAR_TEMP_168.dat'
+ temp_file_check   =   .True.
+ temp_rows         =   146
+ temp_cols         =   2
+/
+
+ ####### VOC file read #####
+
+&NML_VOC
+ VOC_file          =  'VOC_0042.dat'
+ voc_file_check   =   .True.
+ voc_rows         =   146
+ voc_cols         =   15
+/

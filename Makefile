@@ -5,7 +5,7 @@ COMP:=gfortran
 OBJDIR=build
 
 # Path to search for files
- 
+
 VPATH = $(OBJDIR)
 
 ## OPTIONS
@@ -13,7 +13,7 @@ OPTS = -ffree-line-length-none -fcheck=bounds -Wall -Wextra -fbacktrace  -ffpe-t
 
 ### All object files are here. If you want to add new .o files add to OBJ
 
-OBJ = $(addprefix $(OBJDIR)/, second_Precision.o Constants.o Read_init.o Inputs.o Supermodel_main.o)
+OBJ = $(addprefix $(OBJDIR)/, second_Precision.o constants.o auxillaries.o Read_init.o Inputs.o Supermodel_main.o)
 
 EXE = main
 
@@ -24,8 +24,6 @@ $(EXE): $(OBJ)
 	$(COMP) $(OPTS) $(OBJ) -o $@
 
 
-clean: 
+clean:
 	@cd $(OBJDIR) ; rm *
 	rm -f *.o *.mod $(EXE)
-
-
