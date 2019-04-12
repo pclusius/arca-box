@@ -1,0 +1,11 @@
+# ignore object folder
+src/build/
+
+gmon.out
+superbox.exe
+output.dat
+Python/
+output/
+ACDC/
+output/
+input/
