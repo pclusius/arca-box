@@ -5,7 +5,7 @@ F90 = gfortran
 
 # Put .o and .mod files here:
 OBJDIR  = src
-
+BUILDDIR = build
 # When compiling, search for files in these directories:
 VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31
 
@@ -39,7 +39,7 @@ superbox.exe: Superbox.o $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
 # Main program
 
 #$(OBJDIR)/Superbox.o: Superbox.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(UHMA_OBJECTS) $(MEGAN_OBJECTS)
-$(OBJDIR)/Superbox.o: Supermodel_main.f90 $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
+$(OBJDIR)/Superbox.o: $(BUILDDIR)/Supermodel_main.f90 $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
 	 $(F90) $(BOX_OPTS) -c $< -o $@
 
 
@@ -150,7 +150,7 @@ $(OBJDIR)/vodea.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vodea.f
 	gfortran -std=legacy -O3 -c $< -o $@
 
 # Actual model files
-$(OBJDIR)/%.o: %.f90
+$(OBJDIR)/%.o: $(BUILDDIR)/%.f90
 	$(F90) $(BOX_OPTS) -c $< -o $@ $(NETLIBS)
 
 BOX_MODS = $(BOX_OBJECTS:.o=.mod)
@@ -173,6 +173,7 @@ clean:
 	@cd $(OBJDIR) ; rm $(ACDC_D_OBJECTS) $(ACDC_D_MODS) 2>/dev/null || true
 	@cd $(OBJDIR) ; rm Superbox.o                       2>/dev/null || true
 	@rm superbox.exe                                    2>/dev/null || true
+	@cd $(OBJDIR) ; rm *.mod *.o                        2>/dev/null || true ## added by carlton.. as some .mod files were not removed
 
 	# -@cd $(OBJDIR) ; rm $(UHMA_OBJECTS) $(UHMA_MODS)   2>/dev/null || true
 # If you really want to remove chemistry objects too, use this

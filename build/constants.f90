@@ -93,6 +93,12 @@ type type_options
   logical               :: quasistationary, raoult
 end type type_options
 
+!type for number of column and rows
+type nrowcol
+  integer :: rows,cols
+end type nrowcol
+
+
 ! ------------------------------------------------------------
 ! PROCEDURES
 interface operator(+)

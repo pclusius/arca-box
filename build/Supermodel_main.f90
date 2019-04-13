@@ -4,21 +4,24 @@ PROGRAM Supermodel
 USE second_Precision,  ONLY : dp ! KPP Numerical type
 USE constants
 USE AUXILLARIES
+USE Read_init
+USE Input
 #ifdef ISACDC
   USE ACDC_NH3
   USE ACDC_DMA
 #endif
-use OUTPUT
+USE OUTPUT
+
 
 IMPLICIT NONE
 
 type(parametered_input) :: conc_MODS(5)
 
 integer   :: ind_Temp  = 1
-integer   :: ind_SA   = 2
-integer   :: ind_NH3 = 3
-integer   :: ind_DMA  = 4
-integer   :: ind_CS   = 5
+integer   :: ind_SA    = 2
+integer   :: ind_NH3   = 3
+integer   :: ind_DMA   = 4
+integer   :: ind_CS    = 5
 
 !Variable declaration
 TYPE(timetype) :: time
@@ -36,7 +39,7 @@ REAL(dp) :: J_ACDC_DMA
 REAL(dp) :: J_NH3_BY_IONS(3)
 REAL(dp) :: acdc_cluster_diam = 2.17d-9
 LOGICAL :: ACDC_solve_ss = .true. , NUCLEATION = .true., ACDC = .true.
-INTEGER :: rows, cols, i,j
+INTEGER :: rows, cols
 CHARACTER(222) :: CASE, PATH,JDch, Description
 print FMT_LEND,
 
@@ -46,6 +49,13 @@ print FMT_LEND,
 !Gas phase
 !Aerosol phase(distribution & composition)
 !Boundary conditions(dilution, losses, light,...)
+
+if (Current_case) THEN
+CALL read_input_data()
+print*, Current_case
+endif
+
+if (Extra_data) Then
 
 CALL SET_MODIFIERS()
 time%JD = 1
@@ -74,9 +84,12 @@ CONC_MODS(ind_NH3)%amplitude = 1d0
 ! Before the main loop starts, tell the user if any modifiers differ from default values
 CALL CHECK_MODIFIERS()
 
+endif ! extra data endif
+
 !Main loop time: Eulerian forward integration
 DO WHILE (time%sec < time%SIM_TIME_S)
 
+if (Extra_data)then
   if (time%printnow) print FMT_TIME, time%hms
 
   ! TempK    = PERIODICAL(time, conc_MODS(ind_temp))
@@ -110,16 +123,25 @@ DO WHILE (time%sec < time%SIM_TIME_S)
   if (time%printnow) CALL PRINT_KEY_INFORMATION()
   if (time%savenow) CALL SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, CONC_MODS)
 
-  time = time + time%dt
+else
+  print*, 'In main loop'
+endif
+
+time = time + time%dt
 
   if (time%printnow) print *
+
 END DO	! Main loop time: Eulerian forward integration
+
+if (Extra_data) THEN
 
 print FMT_TIME, time%hms
 CALL PRINT_KEY_INFORMATION()
 call SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, CONC_MODS)
 !Close output file netcdf
 CALL CLOSE_FILES()
+end if
+
 
 CONTAINS
 
