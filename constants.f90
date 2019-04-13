@@ -1,7 +1,5 @@
 MODULE constants
 USE SECOND_PRECISION,  ONLY : dp, ik
-
-
 IMPLICIT NONE
 PUBLIC
 
@@ -44,7 +42,6 @@ type timetype
   real(dp)      :: day            = 0
   real(dp)      :: dt_chem        = 10.0d0
   real(dp)      :: dt_aero        = 10.0d0
-  real(dp)      :: run_time       = 0.0d0
   integer       :: ind_netcdf     = 1
   integer       :: JD             = 0
   integer       :: PRINT_INTERVAL = 15
@@ -54,8 +51,6 @@ type timetype
   logical       :: savenow        = .true.
   logical       :: PRINTACDC      = .false.
 end type timetype
-
-
 
 ! UHMA-wide parameters that need to be constants
 integer,parameter ::  uhma_sections= 100                  !size sections!60
@@ -97,6 +92,12 @@ type type_options
   logical               :: nucleation,condensation,coagulation,dry_deposition,snow_scavenge,equilibrate,cluster_divide, vapor_chemistry, vapor_loss,BLH_dilution
   logical               :: quasistationary, raoult
 end type type_options
+
+!type for number of column and rows
+type nrowcol
+  integer :: rows,cols
+end type nrowcol
+
 
 ! ------------------------------------------------------------
 ! PROCEDURES

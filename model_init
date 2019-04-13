@@ -1,8 +1,8 @@
 ####### model initialization setup ############
 
 &NML_path
- Work_Dir    =  '/home/local/carltonx/Box-model/supermodel-phase-1/'
- Case_Dir    =  '/home/local/carltonx/Box-model/supermodel-phase-1/Cases/'
+ Work_Dir    =  '/home/local/carltonx/Box-model/Update_model/'
+ Case_Dir    =  '/home/local/carltonx/Box-model/Update_model/Cases/'
  Case_name   =  'Test_case_01'
  Input_file  =  'Api_100.txt'
 /
@@ -14,6 +14,7 @@
  Chemistry_flag =   .True.
  Particle_flag  =   .False.
  Extra_data     =   .False.
+ Current_case   =   .True.
 /
 
 ####### dmps file read #####
@@ -21,8 +22,6 @@
 &NML_DMPS
  DMPS_file         =  'dmps.txt'
  dmps_file_check   =   .True.
- dmps_rows         =   3
- dmps_cols         =   102
 /
 
 
@@ -32,8 +31,6 @@
  TEMP_path         =  '/home/local/carltonx/Box-model/PC180330/'
  TEMP_file         =  'SMEAR_TEMP_168.dat'
  temp_file_check   =   .True.
- temp_rows         =   146
- temp_cols         =   2
 /
 
  ####### VOC file read #####
@@ -41,6 +38,4 @@
 &NML_VOC
  VOC_file          =  'VOC_0042.dat'
  voc_file_check   =   .True.
- voc_rows         =   146
- voc_cols         =   15
 /

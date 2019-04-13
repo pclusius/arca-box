@@ -1,6 +1,6 @@
 !!!!!! Module contains all the inputs used in "Superbox-model"
 
-module Inputs
+module Input
 USE second_precision
 USE Read_init
 Use constants
@@ -18,7 +18,7 @@ contains
 
 !!  assigning the allocatables and reading data
 
-subroutine read_input_data()!(apin_val,dmps_data,temp_data,voc_data)
+subroutine read_input_data()
 
 call read_init_file
 
