@@ -1,8 +1,8 @@
 ####### model initialization setup ############
 
 &NML_path
- Work_Dir    =  '/home/local/carltonx/Box-model/Update_model/'
- Case_Dir    =  '/home/local/carltonx/Box-model/Update_model/Cases/'
+ Work_Dir    =  '/home/local/carltonx/Box-model/supermodel-phase-1/'
+ Case_Dir    =  '/home/local/carltonx/Box-model/supermodel-phase-1/Cases/'
  Case_name   =  'Test_case_01'
  Input_file  =  'Api_100.txt'
 /

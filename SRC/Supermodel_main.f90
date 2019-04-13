@@ -41,7 +41,8 @@ REAL(dp) :: acdc_cluster_diam = 2.17d-9
 LOGICAL :: ACDC_solve_ss = .true. , NUCLEATION = .true., ACDC = .true.
 INTEGER :: rows, cols
 CHARACTER(222) :: CASE, PATH,JDch, Description
-print FMT_LEND,
+!print FMT_LEND,
+Integer :: counter
 
 !Create/Open outup file netcdf
 !Variable initialization
@@ -50,10 +51,10 @@ print FMT_LEND,
 !Aerosol phase(distribution & composition)
 !Boundary conditions(dilution, losses, light,...)
 
-if (Current_case) THEN
+!!!! for my case default
 CALL read_input_data()
-print*, Current_case
-endif
+counter = 0
+!!!!!!!
 
 if (Extra_data) Then
 
@@ -123,13 +124,14 @@ if (Extra_data)then
   if (time%printnow) CALL PRINT_KEY_INFORMATION()
   if (time%savenow) CALL SAVE_GASES(time, TempK, C_acid, C_base, C_DMA, J_ACDC_NH3, J_ACDC_DMA, CS_H2SO4, Gases, CONC_MODS)
 
-else
-  print*, 'In main loop'
-endif
+!else
+!  print*, 'In main loop'
+endif !!! extradata end if
 
 time = time + time%dt
+counter=counter+1
 
-  if (time%printnow) print *
+  if (time%printnow) print *, counter
 
 END DO	! Main loop time: Eulerian forward integration
 

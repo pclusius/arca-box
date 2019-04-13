@@ -4,10 +4,10 @@
 F90 = gfortran
 
 # Put .o and .mod files here:
-OBJDIR  = src
-BUILDDIR = build
+OBJDIR  = build
+SRCDIR = SRC
 # When compiling, search for files in these directories:
-VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31
+VPATH = $(OBJDIR):build:build/ACDC/ACDC_module_2016_09_23:build/ACDC/ACDC_module_ions_2018_08_31
 
 # Options reminders:
 # -w suppresses warning messages
@@ -39,7 +39,7 @@ superbox.exe: Superbox.o $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
 # Main program
 
 #$(OBJDIR)/Superbox.o: Superbox.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(UHMA_OBJECTS) $(MEGAN_OBJECTS)
-$(OBJDIR)/Superbox.o: $(BUILDDIR)/Supermodel_main.f90 $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
+$(OBJDIR)/Superbox.o: $(SRCDIR)/Supermodel_main.f90 $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
 	 $(F90) $(BOX_OPTS) -c $< -o $@
 
 
@@ -150,7 +150,7 @@ $(OBJDIR)/vodea.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vodea.f
 	gfortran -std=legacy -O3 -c $< -o $@
 
 # Actual model files
-$(OBJDIR)/%.o: $(BUILDDIR)/%.f90
+$(OBJDIR)/%.o: $(SRCDIR)/%.f90
 	$(F90) $(BOX_OPTS) -c $< -o $@ $(NETLIBS)
 
 BOX_MODS = $(BOX_OBJECTS:.o=.mod)

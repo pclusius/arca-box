@@ -38,6 +38,7 @@ NAMELIST /NML_VOC / VOC_file, voc_file_check
 
 contains
 
+
 subroutine read_init_file
 
 !!! reads the .init file !!!!1
