@@ -20,8 +20,7 @@ BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR)
 
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 
-
-BOX_OBJECTS = second_precision.o constants.o auxillaries.o output.o
+BOX_OBJECTS = second_precision.o constants.o auxillaries.o input.o output.o
 
 ACDC_OBJECTS = get_acdc_J.o driver.o acdc_system.o acdc_equations.o monomer_settings.o solution_settings.o \
                vode.o vodea.o
@@ -154,6 +153,9 @@ $(OBJDIR)/vodea.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vodea.f
 
 # Actual model files
 $(OBJDIR)/output.o: src/output.f90
+	$(F90) $(BOX_OPTS) -c $< -o $@ $(NETLIBS)
+
+$(OBJDIR)/input.o: src/input.f90
 	$(F90) $(BOX_OPTS) -c $< -o $@ $(NETLIBS)
 
 $(OBJDIR)/auxillaries.o: src/auxillaries.f90
