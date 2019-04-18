@@ -5,15 +5,13 @@ use AUXILLARIES
 IMPLICIT NONE
 private
 ! Storing of indices of gases.nc
-character(16), allocatable  :: gasnames(:)
 INTEGER, allocatable        :: shifter_ind(:)
 INTEGER, allocatable        :: multipl_ind(:)
-
+integer :: H2SO4_id
+integer :: NH3_id
+integer :: DMA_id
 integer :: gtime_id
 integer :: gas_ncfile_id
-integer :: gcompounds_id
-integer :: gas_concentrations_id
-integer :: gas_names_id
 integer :: gtemperature_id
 integer :: gpressure_id
 integer :: gJ_out_NH3_id
@@ -69,19 +67,26 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
   CHARACTER(255)    :: PROGRAM_NAME
   CHARACTER(*)      :: Description
   type(input_mod) :: MODS(:)
-  integer :: i
-  integer                         :: n_compounds = 5 ! needed for develempoment, later will be calculated from KPP input and stored in e.g. Constants.f90
+  integer :: i,lenD
   character(len=*), intent(in)    :: filename
   ! settings for netCDF4-file compression. shuff=1 might improve compression but is slower
   integer:: shuff=1, compress=1, compression=9
-  integer::gambient_gases_ids(2)
 
   ALLOCATE(multipl_ind(size(MODS)))
   ALLOCATE(shifter_ind(size(MODS)))
+  print FMT_HDR, 'PREPARING OUTPUT FILES'
   print FMT_SUB, 'NetCDF version: '//trim(nf90_inq_libvers())
   print FMT_SUB, 'Create chemfile: '//TRIM(filename)
-  print FMT_SUB, Description
 
+  ! Print run description
+  lenD = LEN(TRIM(Description))
+  print FMT_SUB, 'Description for run:'
+  i=0
+  do while (i< 1+lenD/90)
+    print FMT_MSG, '    '//TRIM(Description(((i*90)+1):90*(i+1)))
+    i = i+1
+  end do
+  ! end print run description
 
   !Clearing file; Opening file. Overwrites
   open(999, FILE=filename, ERR = 100)
@@ -90,20 +95,19 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
   call handler( nf90_create(trim(filename), IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), gas_ncfile_id) )
 
   ! Defining dimensions: time(unlimited), size sections, vapor_species
-  call handler(nf90_def_dim(gas_ncfile_id, "time",NINT(MODELTIME%SIM_TIME_H*60/MODELTIME%FSAVE_INTERVAL+1), gtime_id) )
-  call handler(nf90_def_dim(gas_ncfile_id, "Compound",n_compounds, gcompounds_id) )
+  call handler(nf90_def_dim(gas_ncfile_id, "time",NINT(MODELTIME%SIM_TIME_S/MODELTIME%FSAVE_INTERVAL+1), gtime_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "Constant",1, gconstant_id) )
   call handler(nf90_def_dim(gas_ncfile_id, "StringL",16, gstrlen_id) )
 
   !Identifying different shapes for arrays
   !Ambient:
-  gambient_gases_ids = (/gcompounds_id, gtime_id/)
 
   !Ambient:
-  call handler(nf90_def_var(gas_ncfile_id, "time_in_sec", NF90_DOUBLE, gtime_id, gtimearr_id))
+  call handler(nf90_def_var(gas_ncfile_id, "time", NF90_DOUBLE, gtime_id, gtimearr_id))
   call handler(nf90_def_var(gas_ncfile_id, "time_in_hrs", NF90_DOUBLE, gtime_id, ghrsarr_id))
-  call handler(nf90_def_var(gas_ncfile_id, "gas_names", NF90_CHAR, ([gstrlen_id, gcompounds_id]), gas_names_id) )
-  call handler(nf90_def_var(gas_ncfile_id, "gas_concentrations", NF90_DOUBLE, gambient_gases_ids, gas_concentrations_id ) )
+  call handler(nf90_def_var(gas_ncfile_id, "H2SO4", NF90_DOUBLE, gtime_id, H2SO4_id) )
+  call handler(nf90_def_var(gas_ncfile_id, "NH3", NF90_DOUBLE, gtime_id, NH3_id) )
+  call handler(nf90_def_var(gas_ncfile_id, "DMA", NF90_DOUBLE, gtime_id, DMA_id) )
   call handler(nf90_def_var(gas_ncfile_id, "temperature", NF90_DOUBLE, gtime_id, gtemperature_id))
   call handler(nf90_def_var(gas_ncfile_id, "pressure", NF90_DOUBLE, gtime_id, gpressure_id))
   call handler(nf90_def_var(gas_ncfile_id, "J_out_NH3", NF90_DOUBLE, gtime_id, gJ_out_NH3_id))
@@ -112,8 +116,9 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
   ! COMPRESSION
   call handler(nf90_def_var_deflate(gas_ncfile_id, gtimearr_id,           shuff, compress, compression) )
   call handler(nf90_def_var_deflate(gas_ncfile_id, ghrsarr_id,            shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gas_names_id,          shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gas_concentrations_id, shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(gas_ncfile_id, H2SO4_id,              shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(gas_ncfile_id, NH3_id,                shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(gas_ncfile_id, DMA_id,                shuff, compress, compression) )
   call handler(nf90_def_var_deflate(gas_ncfile_id, gtemperature_id,       shuff, compress, compression) )
   call handler(nf90_def_var_deflate(gas_ncfile_id, gpressure_id,          shuff, compress, compression) )
   call handler(nf90_def_var_deflate(gas_ncfile_id, gJ_out_NH3_id,         shuff, compress, compression) )
@@ -134,15 +139,20 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
   ! call output_options(options)
 
   do i = 1,size(MODS)
-    call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Multipl', NF90_DOUBLE, gtime_id, multipl_ind(i)))
-    call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Shifter', NF90_DOUBLE, gtime_id, shifter_ind(i)))
+    IF ((TRIM(MODS(i)%name) /= 'NONAME') .and. (TRIM(MODS(i)%name) /= 'RESERVE')) THEN
+      call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Multipl', NF90_DOUBLE, gtime_id, multipl_ind(i)))
+      call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Shifter', NF90_DOUBLE, gtime_id, shifter_ind(i)))
+      call handler(nf90_put_att(gas_ncfile_id, multipl_ind(i), 'units' , 'same_as_parent'))
+      call handler(nf90_put_att(gas_ncfile_id, shifter_ind(i), 'units' , '[]'))
+    END IF
   end do
 
   !defining 'units' as attributes.
 
   !Particles
-  call handler(nf90_put_att(gas_ncfile_id, gas_concentrations_id, 'units' , '1/m^3'))
-  call handler(nf90_put_att(gas_ncfile_id, gas_names_id, 'units', '[]'))
+  call handler(nf90_put_att(gas_ncfile_id, H2SO4_id, 'units' , '1/m^3'))
+  call handler(nf90_put_att(gas_ncfile_id, NH3_id, 'units' , '1/m^3'))
+  call handler(nf90_put_att(gas_ncfile_id, DMA_id, 'units' , '1/m^3'))
   call handler(nf90_put_att(gas_ncfile_id, gtemperature_id, 'units', 'K'))
   call handler(nf90_put_att(gas_ncfile_id, gpressure_id, 'units', 'Pa'))
   call handler(nf90_put_att(gas_ncfile_id, gJ_out_NH3_id, 'units', '1/s/m3'))
@@ -154,16 +164,7 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
 
   !Ending definition
   call handler( nf90_enddef(gas_ncfile_id))
-
-ALLOCATE(gasnames(5))
-gasnames(1) = "Sulf_acid"
-gasnames(2) = "Ammonia"
-gasnames(3) = "DMA"
-gasnames(4) = "undefined"
-gasnames(5) = "undefined"
-
-call handler(nf90_put_var(gas_ncfile_id, gas_names_id, (gasnames), start=([1]), count=([16, 5])))
-
+  print FMT_LEND,
 ! call handler(nf90_put_var(gas_ncfile_id, gas_names_id, (['time']), start=([1]), count=([4])))
   return
   ! error message if file open failed
@@ -173,9 +174,8 @@ call handler(nf90_put_var(gas_ncfile_id, gas_names_id, (gasnames), start=([1]), 
 
 end SUBROUTINE OPEN_GASFILE
 
-SUBROUTINE SAVE_GASES(temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, Gases, MODS, timein)
+SUBROUTINE SAVE_GASES(temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, MODS, timein)
   IMPLICIT NONE
-  type(type_ambient), INTENT(in)        :: Gases
   type(input_mod), INTENT(in)   :: MODS(:)
   type(timetype), optional        :: timein
   type(timetype)                  :: time
@@ -195,14 +195,18 @@ SUBROUTINE SAVE_GASES(temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, Gase
   END IF
 
   do i = 1,size(MODS)
-    call handler(nf90_put_var(gas_ncfile_id, multipl_ind(i), MODS(i)%am, (/MODELTIME%ind_netcdf/) ) )
-    call handler(nf90_put_var(gas_ncfile_id, shifter_ind(i), MODS(i)%min,  (/MODELTIME%ind_netcdf/) ) )
+    IF ((TRIM(MODS(i)%name) /= 'NONAME') .and. (TRIM(MODS(i)%name) /= 'RESERVE')) THEN
+      call handler(nf90_put_var(gas_ncfile_id, multipl_ind(i), MODS(i)%multi, (/MODELTIME%ind_netcdf/) ) )
+      call handler(nf90_put_var(gas_ncfile_id, shifter_ind(i), MODS(i)%shift,  (/MODELTIME%ind_netcdf/) ) )
+    END IF
   end do
 
   call handler( nf90_put_var(gas_ncfile_id, gtimearr_id, MODELTIME%sec, (/MODELTIME%ind_netcdf/) ))
   call handler( nf90_put_var(gas_ncfile_id, ghrsarr_id, MODELTIME%hrs, (/MODELTIME%ind_netcdf/) ))
   call handler( nf90_put_var(gas_ncfile_id, gtemperature_id, temperature, (/MODELTIME%ind_netcdf/)) )!, count=(/uhma_sections, 1/)))
-  call handler( nf90_put_var(gas_ncfile_id, gas_concentrations_id, ([C_H2SO4, C_NH3, C_DMA]), start=(/1, MODELTIME%ind_netcdf/), count=(/3/)))
+  call handler( nf90_put_var(gas_ncfile_id, H2SO4_id, C_H2SO4, (/MODELTIME%ind_netcdf/)))
+  call handler( nf90_put_var(gas_ncfile_id, NH3_id, C_NH3, (/MODELTIME%ind_netcdf/)))
+  call handler( nf90_put_var(gas_ncfile_id, DMA_id, C_DMA, (/MODELTIME%ind_netcdf/)))
   call handler( nf90_put_var(gas_ncfile_id, gJ_out_NH3_id, J_NH3, (/MODELTIME%ind_netcdf/)) )
   call handler( nf90_put_var(gas_ncfile_id, gJ_out_DMA_id, J_DMA, (/MODELTIME%ind_netcdf/)) )
   call handler( nf90_put_var(gas_ncfile_id, gc_sink_id, CS, (/MODELTIME%ind_netcdf/)) )
@@ -221,7 +225,8 @@ subroutine CLOSE_FILES()
   IMPLICIT NONE
   ! call handler( nf90_close(par_ncfile_id))
   call handler( nf90_close(gas_ncfile_id))
-  Write(*,*) 'Outputfiles closed.'
+  Write(*,FMT_SUB) 'Outputfiles closed.'
+  Write(*,FMT_LEND)
 end subroutine CLOSE_FILES
 
 subroutine HANDLER(status)

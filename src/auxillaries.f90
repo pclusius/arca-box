@@ -1,5 +1,5 @@
 MODULE AUXILLARIES
-USE SECOND_PRECISION,  ONLY : dp
+USE SECOND_PRECISION, ONLY : dp
 USE CONSTANTS
 IMPLICIT NONE
 PUBLIC
@@ -11,8 +11,11 @@ CHARACTER(86) :: FMT10_2CVU  = '("| ",t3, a,t13, es10.3,a,t35,a,es10.3,a, t100, 
 CHARACTER(86) :: FMT10_3CVU  = '("| ",t3, a,t13, es10.3,a,t35,a,es10.3,a,t65,a,es10.3,a, t100, "|")'
 CHARACTER(86) :: FMT_LEND    = '("+",t2, 98(".") t100, "+")'
 CHARACTER(86) :: FMT_SUB     = '("| ",t5,":",8(".") a,t100, "|")'
+CHARACTER(86) :: FMT_MSG     = '("| ",t3,a,t100, "|")'
+CHARACTER(86) :: FMT_HDR     = '("+",t2, 98(".") t3,a,t100, "+")'
 CHARACTER(86) :: FMT_WARN0   = '("| WARNING:",t12,88("~"),"+", t12, a)'
 CHARACTER(86) :: FMT_WARN1   = '("| WARNING:",t12,88("~"),"+", t12, a,f0.4)'
+CHARACTER(86) :: FMT_FAT0   = '("| FATAL ERROR:",t16,84("~"),"+", t16, a)'
 
 CONTAINS
 
@@ -85,17 +88,23 @@ end FUNCTION PERIODICAL
 ! The function does not check if the file has equal amounts of colums in each row
 ! Empty rows are also counted
 !..............................................................................
-INTEGER FUNCTION ROWCOUNT(file_id)
+INTEGER FUNCTION ROWCOUNT(file_id,hdr)
   IMPLICIT NONE
   INTEGER :: file_id, ioi
   INTEGER(8) :: OFFSET
+  character(1), optional :: hdr
+  character(20) :: buffer
   OFFSET = FTELL(file_id)
   REWIND(file_id)
   ioi = 0
   ROWCOUNT = 0
   DO WHILE (ioi==0)
-    READ(file_id, *, iostat=ioi)
-    ROWCOUNT = ROWCOUNT + 1
+    READ(file_id, *, iostat=ioi) buffer
+      if (present(hdr)) THEN
+        if (trim(buffer(1:1)) .ne. hdr) ROWCOUNT = ROWCOUNT + 1
+      ELSE
+        ROWCOUNT = ROWCOUNT + 1
+      END IF
   END DO
   ROWCOUNT = ROWCOUNT-1
   REWIND(file_id)
@@ -132,7 +141,9 @@ INTEGER FUNCTION COLCOUNT(file_id, separator)
   COLCOUNT = 0
   OFFSET = FTELL(file_id)
   REWIND(file_id)
-  READ(file_id, '(a)', iostat=ioi), buffer
+  do i=1,2
+    READ(file_id, '(a)', iostat=ioi), buffer
+  end do
   if (ioi /= 0) THEN
     COLCOUNT = -9999
   else
@@ -228,6 +239,21 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
   end if
   INTERP = (now-conctime(rw))/(conctime(rw+1)-conctime(rw))*(conc(rw+1)-conc(rw))+conc(rw)
 END  FUNCTION INTERP
+
+
+INTEGER FUNCTION CNTNONTYPESNML(NMLSTR)
+  IMPLICIT NONE
+  character(*):: NMLSTR
+  INTEGER I, types
+  types = 0
+  CNTNONTYPESNML = 0
+  DO I=1,LEN(TRIM(NMLSTR))
+    IF (NMLSTR(I:I) == '=') CNTNONTYPESNML = CNTNONTYPESNML + 1
+    IF (NMLSTR(I:I) == '%') types = types + 1
+  END DO
+  CNTNONTYPESNML = CNTNONTYPESNML - types
+END FUNCTION CNTNONTYPESNML
+
 
 
 end MODULE AUXILLARIES
