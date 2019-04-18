@@ -3,7 +3,7 @@
 &NML_path
  Work_Dir    =  
  Case_Dir    =  'input/'
- Case_name   =  'NANJING'
+ Case_name   =  'TEST'
  RUN_NAME    =  'NJ_Special'
 /
 
@@ -35,13 +35,13 @@
 
 ####### ENV file read #####
 &NML_ENV
- ENV_path         =  '/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
- ENV_file         =  'case_Nanjing1.txt'
+ ENV_path         =  'input'
+ ENV_file         =  
 /
 
 ####### VOC file read #####
 &NML_VOC
- VOC_path = '/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
+ VOC_path = 'input'
  VOC_file = 
 /
 
@@ -57,7 +57,7 @@
 &NML_MISC
   lat = 1
   lon = 7
-  Description = 'NJ = Nanjing runs; K-xx:temperature changed by -x.x degrees, CS05: Cond sink multiplied by 0.5 Dxxx: DMA multiplied by xxx'
+  Description = 'Notes for the run'
 /
 
 ####### indices #####
