@@ -142,8 +142,8 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
     IF ((TRIM(MODS(i)%name) /= 'NONAME') .and. (TRIM(MODS(i)%name) /= 'RESERVE')) THEN
       call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Multipl', NF90_DOUBLE, gtime_id, multipl_ind(i)))
       call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Shifter', NF90_DOUBLE, gtime_id, shifter_ind(i)))
-      call handler(nf90_put_att(gas_ncfile_id, multipl_ind(i), 'units' , 'same_as_parent'))
-      call handler(nf90_put_att(gas_ncfile_id, shifter_ind(i), 'units' , '[]'))
+      call handler(nf90_put_att(gas_ncfile_id, multipl_ind(i), 'units' , '[]'))
+      call handler(nf90_put_att(gas_ncfile_id, shifter_ind(i), 'units' , '[same]'))
     END IF
   end do
 

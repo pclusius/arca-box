@@ -24,6 +24,7 @@ def uniq(list):
 pth = '../output/'
 files=(['001NJ_D100.nc','001NJ_K-35_D100.nc','001NJ_K-70_D100.nc'])
 files=(['001NJ_nominal.nc','001NJ_K-35.nc','001NJ_K-70.nc','001NJ_CS05.nc','001NJ_K-35_CS05.nc','001NJ_K-70_CS05.nc'])
+files=([ 'NANJING_NJ_Special.nc'])
 N_f = len(files)
 ncs = []
 first_file = 0

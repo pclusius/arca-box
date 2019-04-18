@@ -6,14 +6,17 @@ use constants
 USE auxillaries
 
 Implicit none
+
 ! INDICES TO PROPERLY COMBINE INPUT TO CORRECT VALUES IN THE MODEL
 ! ALL VARIABLES THAT ARE TIME DEPENDENT MUST BE HERE
 ! IF YOU ADD VARIABLES HERE, YOU NEED TO UPDATE:
 ! - this list
 ! - parameter ind_LAST
-! - NAMELIST NML_INDX
+! - NAMELIST NML_ICOLS
 ! - SUBROUTINE PUT_INPUT_IN_THEIR_PLACES
 ! - subroutine NAME_MODS
+!------------------------------------------------------------------
+
 ! The following will be provided in ENV_file
 INTEGER :: inp_H2SO4 = -1 ; INTEGER, parameter :: ind_H2SO4 = 1
 INTEGER :: inp_NH3   = -1 ; INTEGER, parameter :: ind_NH3   = 2
@@ -67,7 +70,8 @@ INTEGER :: inp_RES1  = -1 ; INTEGER, parameter :: ind_RES1  = 47
 
 INTEGER, parameter :: ind_LAST  = 47 ! <-whatever the last index on previous line is
 
-NAMELIST /NML_INDX/ inp_H2SO4,inp_NH3,inp_DMA,inp_CS,inp_swr,&
+! INDICES
+NAMELIST /NML_ICOLS/ inp_H2SO4,inp_NH3,inp_DMA,inp_CS,inp_swr,&
 inp_RH,inp_pres,inp_temp,inp_SO2,inp_NO,inp_NO2,inp_CO,inp_H2,inp_O3,&
 inp_IPR,inp_CH3O,inp_CH3C,inp_C2H5,inp_C5H8,inp_MVK,inp_MEK,inp_BENZ,&
 inp_APIN,inp_BPIN,inp_LIMO,inp_Care,inp_TOLU, inp_RES20,inp_RES19,inp_RES18,&
@@ -80,9 +84,8 @@ REAL(dp), allocatable, private :: INPUT_ENV(:,:)  ! will be of shape ( len(timev
 REAL(dp), allocatable, private :: INPUT_VOC(:,:)  ! will be of shape ( len(timevec) : ind_last+1 )
 REAL(dp), allocatable :: timevec(:)     ! Whatever the times were for ALL measurements
 REAL(dp), allocatable :: CONC_MAT(:,:)  ! will be of shape ( len(timevec) : ind_last )
-type(input_mod)       :: MODS(ind_LAST) ! size must also match the number of inp_indices in NML_INDX NAMELIST
+real(dp), allocatable :: par_data(:,:)
 
-real, dimension(:,:), allocatable :: par_data
 
 ! variable for storing init file name
 character(len=256), private :: Fname_init ! init file names
@@ -111,13 +114,12 @@ real(dp)  :: FSAVE_INTERVAL = 300d0
 real(dp)  :: PRINT_INTERVAL = 15*60d0
 INTEGER   :: FSAVE_DIVISION = 0
 INTEGER   :: JD = -1
-real(dp)  :: DATE
-NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, JD, date
+NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, JD
 
 ! MODIFIER OPTIONS
-character(len=256)  :: MOD_file
-logical             :: mod_file_check = .false.
-NAMELIST /NML_MODS/ MOD_file, MODS, mod_file_check
+
+type(input_mod)     :: MODS(ind_LAST) ! THIS VECTOR HOLDS ALL MODIFICATION PARAMETERS
+NAMELIST /NML_MODS/ MODS
 
 ! DMPS INPUT
 character(len=256)  :: DMPS_dir
@@ -125,21 +127,20 @@ character(len=256)  :: DMPS_file
 REAL(dp)            :: read_in_time = 0d0 ![seconds] !for use_dmps_special, read dmps data above this cut_off_diameter(m)
 REAL(dp)            :: dmps_upper_band_limit = 18.*1d-9 !for use_dmps_special, read dmps data above this cut_off_diameter(m)
 REAL(dp)            :: dmps_lower_band_limit = 6.*1d-10 !for use_dmps_special, read dmps data below this take_in_diameter(m)
+logical             :: use_dmps = .false.
 logical             :: use_dmps_special = .false.
-logical             :: dmps_file_check  = .false.
-NAMELIST /NML_DMPS/ DMPS_dir, DMPS_file, dmps_file_check
+NAMELIST /NML_DMPS/ DMPS_dir, DMPS_file,read_in_time,dmps_upper_band_limit, dmps_lower_band_limit,&
+use_dmps,use_dmps_special
 
-! TEMPERATURE INPUT
-character(len=256)  :: ENV_path = '/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
-character(len=256)  :: ENV_file = 'case_Nanjing1.txt'
-logical             :: env_file_check = .false.
-NAMELIST /NML_ENV/ ENV_path, ENV_file, env_file_check
+! ENVIRONMENTAL INPUT
+character(len=256)  :: ENV_path = ''
+character(len=256)  :: ENV_file = ''
+NAMELIST /NML_ENV/ ENV_path, ENV_file
 
 ! VOC INPUT
-character(len=256)  :: VOC_path = '/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
-character(len=256)  :: VOC_file = 'case_Nanjing1.txt'
-logical             :: voc_file_check  = .false.
-NAMELIST /NML_VOC / VOC_path, VOC_file, voc_file_check
+character(len=256)  :: VOC_path = ''
+character(len=256)  :: VOC_file = ''
+NAMELIST /NML_VOC / VOC_path, VOC_file
 
 ! MISC OPTIONS
 real(dp)  :: lat
@@ -147,7 +148,6 @@ real(dp)  :: lon
 CHARACTER(1000)  :: Description
 NAMELIST /NML_MISC/ lat, lon, Description
 
-! INDICES
 contains
 
 subroutine read_input_data()
@@ -158,47 +158,68 @@ subroutine read_input_data()
   integer             :: ioi, N_indices
   character(6000)     :: buffer
 
-  write(buffer,NML_INDX)
+  write(buffer,NML_ICOLS)
   N_INDICES = CNTNONTYPESNML(TRIM(buffer))
   IF (N_INDICES /= IND_LAST) THEN
-    print FMT_FAT0, 'Number of possible input variables differs from what is assumed in IND_LAST. Check'
-    print FMT_MSG, 'input.f90 and that NML_INDX has all indeces and that IND_LAST is correct, then recompile.'
+    print FMT_FAT0, 'Number of possible input variables seems to differ from what is assumed in IND_LAST.'
+    print FMT_MSG, 'Check that: in input.f90, NML_ICOLS has all indices and that IND_LAST is correct, then recompile.'
     print FMT_LEND
     print*,
     STOP
   END IF
 
-  call NAME_MODS
-  call read_init_file
+  CALL NAME_MODS
+  CALL READ_INIT_FILE
   CALL FILL_INDRELAY_WITH_INDICES
+  CALL PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
+
+
+  ! ALLOCATE CONC_MAT
+  IF ((ENV_file /= '') .or. (VOC_file /= '')) THEN
+    IF (ENV_file /= '') THEN
+      OPEN(unit=51, File=TRIM(ENV_path) //'/'//TRIM(ENV_file), STATUS='OLD')
+    ELSE
+      OPEN(unit=51, File=TRIM(VOC_path) //'/'//TRIM(VOC_file), STATUS='OLD')
+    END IF
+    ALLOCATE(CONC_MAT(ROWCOUNT(51,'#'),IND_LAST))
+    ALLOCATE(TIMEVEC(ROWCOUNT(51,'#')))
+    CLOSE(51)
+    ! Deal with a situation where we have no input. We still need conc_mat and timevec.
+  ELSE
+    ALLOCATE(CONC_MAT(2,IND_LAST))
+    ALLOCATE(TIMEVEC(2))
+    TIMEVEC = (/0d0, MODELTIME%SIM_TIME_H/)
+  END IF
+  CONC_MAT = 0d0
 
   ! READ ENV INPUT
-  OPEN(unit=51, File=TRIM(ENV_path) //'/'//TRIM(ENV_file), STATUS='OLD')
-  rowcol_count%rows = ROWCOUNT(51,'#')
-  rowcol_count%cols = COLCOUNT(51)
-  ALLOCATE(CONC_MAT(rowcol_count%rows,IND_LAST))
-  ALLOCATE(INPUT_ENV(rowcol_count%rows,rowcol_count%cols))
-  ALLOCATE(TIMEVEC(rowcol_count%rows))
-  CONC_MAT = 0
-  INPUT_ENV = 0
-  call fill_input_buff(rowcol_count,INPUT_ENV,ENV_file)
-  timevec = INPUT_ENV(:,1)
-  CLOSE(51)
+  if (ENV_file /= '') THEN
+    OPEN(unit=51, File=TRIM(ENV_path) //'/'//TRIM(ENV_file), STATUS='OLD')
+    rowcol_count%rows = ROWCOUNT(51,'#')
+    rowcol_count%cols = COLCOUNT(51)
+    ALLOCATE(INPUT_ENV(rowcol_count%rows,rowcol_count%cols))
+    INPUT_ENV = 0
+    call fill_input_buff(51,rowcol_count,INPUT_ENV,ENV_file)
+    timevec = INPUT_ENV(:,1)
+    CLOSE(51)
+  END IF
 
-  ! READ VOC INPUT
-  OPEN(unit=51, File=TRIM(VOC_path) //'/'//TRIM(VOC_file), STATUS='OLD')
-  rowcol_count%rows = ROWCOUNT(51,'#')
-  rowcol_count%cols = COLCOUNT(51)
-  allocate(INPUT_VOC(rowcol_count%rows,rowcol_count%cols))
-  INPUT_VOC = 0
-  call fill_input_buff(rowcol_count,INPUT_VOC,VOC_file)
-  timevec = INPUT_VOC(:,1)
-  CLOSE(51)
+  if (VOC_file /= '') THEN
+    ! READ VOC INPUT
+    OPEN(unit=51, File=TRIM(VOC_path) //'/'//TRIM(VOC_file), STATUS='OLD')
+    rowcol_count%rows = ROWCOUNT(51,'#')
+    rowcol_count%cols = COLCOUNT(51)
+    allocate(INPUT_VOC(rowcol_count%rows,rowcol_count%cols))
+    INPUT_VOC = 0
+    call fill_input_buff(51,rowcol_count,INPUT_VOC,VOC_file)
+    timevec = INPUT_VOC(:,1)
+    CLOSE(51)
+  END IF
 
   CALL PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_VOC,CONC_MAT)
 
   ! check IF dmps data is used or not. If no then do nothing
-  IF (dmps_file_check) then
+  IF (USE_DMPS) then
    write(*,FMT_SUB),'Reading DMPS file '// TRIM(DMPS_file)
    OPEN(unit=51, File=TRIM(ADJUSTL(data_dir)) // '/' //TRIM(DMPS_dir)// '/'//TRIM(DMPS_file) ,STATUS='OLD', iostat=ioi)
    IF (ioi /= 0) THEN
@@ -212,13 +233,12 @@ subroutine read_input_data()
 
   CLOSE(51)
 
-  call PUT_USER_SUPPLIED_TIMES_IN_MODELTIME()
 
   print FMT_LEND,
 end subroutine read_input_data
 
 
-subroutine read_init_file
+subroutine READ_INIT_FILE
 !-------------------------------------------------------------------------------
 ! Reads the init file and fills user-provided variables
 !-------------------------------------------------------------------------------
@@ -234,26 +254,24 @@ subroutine read_init_file
     write(*,FMT_LEND)
     STOP
   END IF
-  READ(50,NML=NML_Path,  IOSTAT= IOS(2)) !directories and test cases
-    IF (IOS(2) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_Path, is it missing?'
-  READ(50,NML=NML_Flag,  IOSTAT= IOS(3)) !flags
-    IF (IOS(3) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_Flag, is it missing?'
-  READ(50,NML=NML_TIME,  IOSTAT= IOS(4)) !time
-    IF (IOS(4) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_TIME, is it missing?'
+  READ(50,NML=NML_Path,  IOSTAT= IOS(2)) ! directories and test cases
+    IF (IOS(2) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_Path, maybe some undefinded input?'
+  READ(50,NML=NML_Flag,  IOSTAT= IOS(3)) ! flags
+    IF (IOS(3) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_Flag, maybe some undefinded input?'
+  READ(50,NML=NML_TIME,  IOSTAT= IOS(4)) ! time related stuff
+    IF (IOS(4) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_TIME, maybe some undefinded input?'
   READ(50,NML=NML_DMPS,  IOSTAT= IOS(5)) ! dmps_file information
-    IF (IOS(5) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_DMPS, is it missing?'
-  READ(50,NML=NML_ENV,  IOSTAT= IOS(6)) ! temp_file information
-    IF (IOS(6) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_Temp, is it missing?'
-  READ(50,NML=NML_VOC,   IOSTAT= IOS(7)) ! temp_file information
-    IF (IOS(7) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_VOC, is it missing?'
-  READ(50,NML=NML_MODS,  IOSTAT= IOS(8)) ! temp_file information
-    IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_MODS, is it missing?'
+    IF (IOS(5) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_DMPS, maybe some undefinded input?'
+  READ(50,NML=NML_ENV,  IOSTAT= IOS(6)) ! environmental information
+    IF (IOS(6) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_Temp, maybe some undefinded input?'
+  READ(50,NML=NML_VOC,   IOSTAT= IOS(7)) ! voc_file information
+    IF (IOS(7) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_VOC, maybe some undefinded input?'
+  READ(50,NML=NML_MODS,  IOSTAT= IOS(8)) ! modification parameters
+    IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_MODS, maybe some undefinded input?'
   READ(50,NML=NML_MISC,  IOSTAT= IOS(9)) ! misc input
-    IF (IOS(9) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_MISC, is it missing?'
-  READ(50,NML=NML_INDX,  IOSTAT= IOS(10)) ! misc input
-    IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_INDX, is it missing?'
-  ! READ(50,NML=NML_txt,  IOSTAT= IOS(11)) ! misc input
-  !   IF (IOS(11) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_txt, is it missing?'
+    IF (IOS(9) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_MISC, maybe some undefinded input?'
+  READ(50,NML=NML_ICOLS,  IOSTAT= IOS(10)) ! indices input
+    IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_ICOLS, maybe some undefinded input?'
   CLOSE(50)
   IF (SUM(IOS) /= 0) then
     write(*,FMT_MSG) 'Problems with the init file, exiting now. Good bye.'
@@ -261,9 +279,9 @@ subroutine read_init_file
     STOP
   end if
 
-end subroutine read_init_file
+end subroutine READ_INIT_FILE
 
-subroutine PUT_USER_SUPPLIED_TIMES_IN_MODELTIME
+subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
   implicit none
   MODELTIME%SIM_TIME_H = runtime
   MODELTIME%SIM_TIME_S = runtime*3600d0
@@ -276,7 +294,7 @@ subroutine PUT_USER_SUPPLIED_TIMES_IN_MODELTIME
   MODELTIME%PRINT_INTERVAL = PRINT_INTERVAL
   ! IF julian day was provided, use it
   IF (JD > 0) MODELTIME%JD = JD
-end subroutine PUT_USER_SUPPLIED_TIMES_IN_MODELTIME
+end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
 
 subroutine NAME_MODS
   implicit none
@@ -473,16 +491,16 @@ SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_VOC,CONC_MAT)
 
 END SUBROUTINE PUT_INPUT_IN_THEIR_PLACES
 
-subroutine fill_input_buff(rowcol_count, INPUT_BF,Input_file)
+subroutine fill_input_buff(unit,rowcol_count, INPUT_BF,Input_file)
   implicit none
   type(nrowcol), intent(in) :: rowcol_count
   real(dp), intent(inout) :: INPUT_BF(:,:)
   character(*) :: Input_file
-  integer :: i,j,k, ioi
+  integer :: i,j,k, ioi, unit
   ! Reading data into the variable
   i = 1
   DO k = 1, rowcol_count%rows
-    READ(51,*, iostat=ioi) (INPUT_BF(i,j),j=1,rowcol_count%cols)
+    READ(unit,*, iostat=ioi) (INPUT_BF(i,j),j=1,rowcol_count%cols)
     IF ((ioi /= 0) .and. (i==1)) THEN
       print FMT_SUB, 'Header row omitted from file "'// TRIM(Input_file) //'".'
     ELSE IF ((ioi /= 0) .and. (i>1)) THEN

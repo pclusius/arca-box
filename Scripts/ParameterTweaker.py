@@ -138,6 +138,25 @@ def ccode(event):
     print()
     print(strr)
 
+
+def icode(event):
+#    strr ='type(input_mod) :: [variable-name] = '
+    if radio.value_selected == 'linear':
+        mode = 1
+    else:
+        mode = 2
+    name = 'NONAME'
+    strr = 'MODS() = %d "%s" %fd%d %fd%d %fd0 %0fd0 %fd0 %fd0 %fd0 1d0 0d0'%(
+    mode, name,
+    range.minimum/(10**np.floor(np.log10(range.minimum))),np.floor(np.log10(range.minimum)),
+    range.maximum/(10**np.floor(np.log10(range.maximum))),np.floor(np.log10(range.maximum)),
+    ssigma.val,speak.val,
+    sfreq.val,sphase.val,samp.val)
+    print()
+    print(strr)
+
 code.on_clicked(ccode)
+
+code.on_clicked(icode)
 
 plt.show()
