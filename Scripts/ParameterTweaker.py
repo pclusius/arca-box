@@ -22,8 +22,8 @@ class u:
         self.minimum = minimum_level
         self.maximum = maximum_level
 range = u()
-fig, ax = plt.subplots(figsize=(8,7), num='ParameterTweaker')
-plt.subplots_adjust(left=0.15, bottom=0.4)
+fig, ax = plt.subplots(figsize=(10,7), num='ParameterTweaker')
+plt.subplots_adjust(left=0.15, bottom=0.4, right=0.7)
 
 plt.title('Superbox function parameter tweaker')
 ax.set_xlabel('time (hours)')
@@ -42,11 +42,11 @@ ax.set_yscale('linear')
 ax.grid(True)
 
 axcolor = 'lightgoldenrodyellow'
-axsigma = plt.axes([0.15, 0.27, 0.75, 0.02], facecolor=axcolor)
-axpeak = plt.axes([0.15, 0.24, 0.75, 0.02], facecolor=axcolor)
-axfreq = plt.axes([0.15, 0.21, 0.75, 0.02], facecolor=axcolor)
-axphase = plt.axes([0.15, 0.18, 0.75, 0.02], facecolor=axcolor)
-axamp = plt.axes([0.15, 0.15, 0.75, 0.02], facecolor=axcolor)
+axsigma = plt.axes([0.15, 0.27, 0.55, 0.02], facecolor=axcolor)
+axpeak = plt.axes([0.15, 0.24, 0.55, 0.02], facecolor=axcolor)
+axfreq = plt.axes([0.15, 0.21, 0.55, 0.02], facecolor=axcolor)
+axphase = plt.axes([0.15, 0.18, 0.55, 0.02], facecolor=axcolor)
+axamp = plt.axes([0.15, 0.15, 0.55, 0.02], facecolor=axcolor)
 
 ssigma = Slider(axsigma, 'Width', 0.01, duration_in_hours/2, valinit=s0, color='orange')
 speak  = Slider(axpeak, 'Peaktime', 0.00, duration_in_hours, valinit=p0, color='orange')
@@ -79,7 +79,7 @@ speak.on_changed(update)
 ssigma.on_changed(update)
 sphase.on_changed(update)
 
-resetax = plt.axes([0.8, 0.025, 0.1, 0.03])
+resetax = plt.axes([0.2, 0.025, 0.1, 0.03])
 button = Button(resetax, 'Reset', color=axcolor, hovercolor='0.975')
 
 def reset(event):
@@ -121,8 +121,8 @@ maxb = TextBox(tb2ax, 'maximum', initial=str(range.maximum), color='.95', hoverc
 maxb.on_text_change(pint2)
 maxb.on_text_change(update)
 
-codeax = plt.axes([0.38, 0.025, 0.24, 0.03])
-code = Button(codeax, 'Show code on terminal', color=axcolor, hovercolor='0.975')
+codeax = plt.axes([0.38, 0.025, 0.34, 0.03])
+code = Button(codeax, 'Show fortran code on terminal', color=axcolor, hovercolor='0.975')
 
 def ccode(event):
 #    strr ='type(input_mod) :: [variable-name] = '
@@ -138,16 +138,14 @@ def ccode(event):
     print()
     print(strr)
 
-
-def icode(event):
-#    strr ='type(input_mod) :: [variable-name] = '
+def codeout(event,index,j):
     if radio.value_selected == 'linear':
         mode = 1
     else:
         mode = 2
-    name = 'NONAME'
-    strr = 'MODS() = %d "%s" %fd%d %fd%d %fd0 %0fd0 %fd0 %fd0 %fd0 1d0 0d0'%(
-    mode, name,
+    name = j
+    strr = 'MODS(%d) = %d "%s" %fd%d %fd%d %fd0 %0fd0 %fd0 %fd0 %fd0 1d0 0d0'%(
+    index,mode, name,
     range.minimum/(10**np.floor(np.log10(range.minimum))),np.floor(np.log10(range.minimum)),
     range.maximum/(10**np.floor(np.log10(range.maximum))),np.floor(np.log10(range.maximum)),
     ssigma.val,speak.val,
@@ -155,8 +153,129 @@ def icode(event):
     print()
     print(strr)
 
-code.on_clicked(ccode)
+def c_H2SO4(event):
+    codeout(event,1,'H2SO4')
+def c_NH3(event):
+    codeout(event,2,'NH3')
+def c_DMA(event):
+    codeout(event,3,'DMA')
+def c_condens_sink(event):
+    codeout(event,4,'condens_sink')
+def c_shortwave_rad(event):
+    codeout(event,5,'shortwave_rad')
+def c_relative_humid(event):
+    codeout(event,6,'relative_humid')
+def c_pressure(event):
+    codeout(event,7,'pressure')
+def c_temperature(event):
+    codeout(event,8,'temperature')
+def c_SO2(event):
+    codeout(event,9,'SO2')
+def c_NO(event):
+    codeout(event,10,'NO')
+def c_NO2(event):
+    codeout(event,11,'NO2')
+def c_CO(event):
+    codeout(event,12,'CO')
+def c_H2(event):
+    codeout(event,13,'H2')
+def c_O3(event):
+    codeout(event,14,'O3')
+def c_Ion_Prod_Rate(event):
+    codeout(event,15,'Ion_Prod_Rate')
+def c_CH3O(event):
+    codeout(event,16,'CH3O')
+def c_CH3C(event):
+    codeout(event,17,'CH3C')
+def c_C2H5(event):
+    codeout(event,18,'C2H5')
+def c_C5H8(event):
+    codeout(event,19,'C5H8')
+def c_MVK(event):
+    codeout(event,20,'MVK')
+def c_MEK(event):
+    codeout(event,21,'MEK')
+def c_BENZENE(event):
+    codeout(event,22,'BENZENE')
+def c_ALPHAPINENE(event):
+    codeout(event,23,'ALPHAPINENE')
+def c_BETAPINENE(event):
+    codeout(event,24,'BETAPINENE')
+def c_LIMONENE(event):
+    codeout(event,25,'LIMONENE')
+def c_CARENE(event):
+    codeout(event,26,'CARENE')
+def c_TOLUENE(event):
+    codeout(event,27,'TOLUENE')
 
-code.on_clicked(icode)
+
+compoundaxes =[]
+j=27
+tbax.annotate('Print input for init file:', wrap=True, xy=(0.8,0.025+0.03*(j+1)),
+xycoords=('figure fraction', 'figure fraction'), xytext=(0, 10), textcoords='offset points')
+while j>0:
+    compoundaxes.append(plt.axes([0.78, 0.025+0.03*j, 0.20, 0.03]))
+    j=j-1
+
+
+i=0  ;code1  = Button(compoundaxes[i], 'H2SO4', color=axcolor, hovercolor='0.975')
+i=i+1;code2  = Button(compoundaxes[i], 'NH3', color=axcolor, hovercolor='0.975')
+i=i+1;code3  = Button(compoundaxes[i], 'DMA', color=axcolor, hovercolor='0.975')
+i=i+1;code4  = Button(compoundaxes[i], 'condens_sink', color=axcolor, hovercolor='0.975')
+i=i+1;code5  = Button(compoundaxes[i], 'shortwave_rad', color=axcolor, hovercolor='0.975')
+i=i+1;code6  = Button(compoundaxes[i], 'relative_humid', color=axcolor, hovercolor='0.975')
+i=i+1;code7  = Button(compoundaxes[i], 'pressure', color=axcolor, hovercolor='0.975')
+i=i+1;code8  = Button(compoundaxes[i], 'temperature', color=axcolor, hovercolor='0.975')
+i=i+1;code9  = Button(compoundaxes[i], 'SO2', color=axcolor, hovercolor='0.975')
+i=i+1;code10 = Button(compoundaxes[i], 'NO', color=axcolor, hovercolor='0.975')
+i=i+1;code11 = Button(compoundaxes[i], 'NO2', color=axcolor, hovercolor='0.975')
+i=i+1;code12 = Button(compoundaxes[i], 'CO', color=axcolor, hovercolor='0.975')
+i=i+1;code13 = Button(compoundaxes[i], 'H2', color=axcolor, hovercolor='0.975')
+i=i+1;code14 = Button(compoundaxes[i], 'O3', color=axcolor, hovercolor='0.975')
+i=i+1;code15 = Button(compoundaxes[i], 'Ion_Prod_Rate', color=axcolor, hovercolor='0.975')
+i=i+1;code16 = Button(compoundaxes[i], 'CH3O', color=axcolor, hovercolor='0.975')
+i=i+1;code17 = Button(compoundaxes[i], 'CH3C', color=axcolor, hovercolor='0.975')
+i=i+1;code18 = Button(compoundaxes[i], 'C2H5', color=axcolor, hovercolor='0.975')
+i=i+1;code19 = Button(compoundaxes[i], 'C5H8', color=axcolor, hovercolor='0.975')
+i=i+1;code20 = Button(compoundaxes[i], 'MVK', color=axcolor, hovercolor='0.975')
+i=i+1;code21 = Button(compoundaxes[i], 'MEK', color=axcolor, hovercolor='0.975')
+i=i+1;code22 = Button(compoundaxes[i], 'BENZENE', color=axcolor, hovercolor='0.975')
+i=i+1;code23 = Button(compoundaxes[i], 'ALPHAPINENE', color=axcolor, hovercolor='0.975')
+i=i+1;code24 = Button(compoundaxes[i], 'BETAPINENE', color=axcolor, hovercolor='0.975')
+i=i+1;code25 = Button(compoundaxes[i], 'LIMONENE', color=axcolor, hovercolor='0.975')
+i=i+1;code26 = Button(compoundaxes[i], 'CARENE', color=axcolor, hovercolor='0.975')
+i=i+1;code27 = Button(compoundaxes[i], 'TOLUENE', color=axcolor, hovercolor='0.975')
+
+
+code1.on_clicked(c_H2SO4)
+code2.on_clicked(c_NH3)
+code3.on_clicked(c_DMA)
+code4.on_clicked(c_condens_sink)
+code5.on_clicked(c_shortwave_rad)
+code6.on_clicked(c_relative_humid)
+code7.on_clicked(c_pressure)
+code8.on_clicked(c_temperature)
+code9.on_clicked(c_SO2)
+code10.on_clicked(c_NO)
+code11.on_clicked(c_NO2)
+code12.on_clicked(c_CO)
+code13.on_clicked(c_H2)
+code14.on_clicked(c_O3)
+code15.on_clicked(c_Ion_Prod_Rate)
+code16.on_clicked(c_CH3O)
+code17.on_clicked(c_CH3C)
+code18.on_clicked(c_C2H5)
+code19.on_clicked(c_C5H8)
+code20.on_clicked(c_MVK)
+code21.on_clicked(c_MEK)
+code22.on_clicked(c_BENZENE)
+code23.on_clicked(c_ALPHAPINENE)
+code24.on_clicked(c_BETAPINENE)
+code25.on_clicked(c_LIMONENE)
+code26.on_clicked(c_CARENE)
+code27.on_clicked(c_TOLUENE)
+
+#
+code.on_clicked(ccode)
 
 plt.show()

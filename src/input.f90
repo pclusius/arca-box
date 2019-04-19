@@ -157,7 +157,7 @@ subroutine read_input_data()
   type(nrowcol)       :: rowcol_count
   integer             :: ioi, N_indices
   character(6000)     :: buffer
-
+  print'(a,t23,a)', achar(10),  '--~:| Gas and Aerosol Box Model - GABO v.0.1 |:~--'//achar(10)
   write(buffer,NML_ICOLS)
   N_INDICES = CNTNONTYPESNML(TRIM(buffer))
   IF (N_INDICES /= IND_LAST) THEN
