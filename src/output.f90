@@ -225,7 +225,7 @@ subroutine CLOSE_FILES()
   IMPLICIT NONE
   ! call handler( nf90_close(par_ncfile_id))
   call handler( nf90_close(gas_ncfile_id))
-  Write(*,FMT_SUB) 'Outputfiles closed.'
+  Write(*,FMT_MSG) 'Outputfiles closed.'
   Write(*,FMT_LEND)
 end subroutine CLOSE_FILES
 

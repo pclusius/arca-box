@@ -17,33 +17,21 @@ REAL(dp) :: J_ACDC_NH3
 REAL(dp) :: J_ACDC_DMA
 REAL(dp) :: J_NH3_BY_IONS(3)
 REAL(dp) :: acdc_cluster_diam = 2.17d-9
-INTEGER :: I
+LOGICAL  :: precision_check_is_okay = .true.
+INTEGER  :: I
 
-! =================================================================================================
-  print*, ! PROGRAM STARTS with an empty line
-! =================================================================================================
+  CALL read_input_data ! Declare most variables and read user input and options in input.f90
 
-! =================================================================================================
-  CALL read_input_data() ! READ USER INPUT AND OPTIONS
-! =================================================================================================
-
-! =================================================================================================
   CALL OPEN_GASFILE(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'.nc'), MODS, Description)
-! =================================================================================================
 
-! =================================================================================================
-  CALL CHECK_MODIFIERS() ! Print out which modifiers differ from default values
-! =================================================================================================
+  CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
 
-! =================================================================================================
   print*,;print FMT_HDR, 'Beginning simulation' ! Information to user
+
 ! =================================================================================================
   DO WHILE (MODELTIME%sec < MODELTIME%SIM_TIME_S + 1d-12) ! MAIN LOOP STARTS HERE
 ! =================================================================================================
-
-! =================================================================================================
   if (MODELTIME%printnow) print FMT_TIME, MODELTIME%hms ! Print time
-! =================================================================================================
 
 ! =================================================================================================
 ! Assign values to input variables
@@ -71,42 +59,25 @@ INTEGER :: I
 ! =================================================================================================
 ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
   if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-  if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(ind_temp), TSTEP_CONC(ind_H2SO4), TSTEP_CONC(ind_nh3), TSTEP_CONC(ind_dma),&
-                                          J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(ind_cs), MODS)
+  if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(ind_temp), TSTEP_CONC(ind_H2SO4), TSTEP_CONC(ind_nh3),&
+                              TSTEP_CONC(ind_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(ind_cs), MODS)
 ! =================================================================================================
 
 ! =================================================================================================
-  MODELTIME = ADD(MODELTIME) ! Add main timestep to modeltime
+  ! If the precision checks, add main timestep to modeltime
+  IF (precision_check_is_okay) MODELTIME = ADD(MODELTIME)
 ! =================================================================================================
 
 ! =================================================================================================
   END DO	! Main loop ends
 ! =================================================================================================
 
-! =================================================================================================
-! If user had opted a save or print interval which does not concide with last timestep, we print
-! and save the values at last timesteps
-  MODELTIME = ADD(MODELTIME, -MODELTIME%dt)
-  print*
-  print FMT_HDR, 'Main loop ended'
-  print FMT_MSG, 'Some housekeeping...'
+  CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
-  if (.not. MODELTIME%printnow) THEN
-    print FMT_MSG, 'Values from the last timestep:'
-    print FMT_TIME, MODELTIME%hms
-    CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-  END IF
-  if (.not. MODELTIME%savenow) call SAVE_GASES(TSTEP_CONC(ind_temp), TSTEP_CONC(ind_H2SO4), &
-  TSTEP_CONC(ind_nh3), TSTEP_CONC(ind_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(ind_cs), MODS)
-! =================================================================================================
-
-! =================================================================================================
   CALL CLOSE_FILES() !Close output file netcdf
-! =================================================================================================
 
-! =================================================================================================
   print *, ACHAR(10)," SIMULATION HAS ENDED. SO LONG!",ACHAR(10)
-! =================================================================================================
+
 
 CONTAINS
 
@@ -211,5 +182,23 @@ SUBROUTINE CHECK_MODIFIERS()
   END DO
   if (j == 1) print FMT_LEND
 END SUBROUTINE CHECK_MODIFIERS
+
+SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
+! =================================================================================================
+! If user had opted a save or print interval which does not concide with last timestep, we print
+! and save the values at last timesteps
+  MODELTIME = ADD(MODELTIME, -MODELTIME%dt)
+  print*
+  print FMT_HDR, 'Main loop ended'
+
+  if (.not. MODELTIME%printnow) THEN
+    print FMT_MSG, 'Values from the last timestep:'
+    print FMT_TIME, MODELTIME%hms
+    CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
+  END IF
+  if (.not. MODELTIME%savenow) call SAVE_GASES(TSTEP_CONC(ind_temp), TSTEP_CONC(ind_H2SO4), &
+  TSTEP_CONC(ind_nh3), TSTEP_CONC(ind_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(ind_cs), MODS)
+END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
+
 
 END PROGRAM SUPERMODEL
