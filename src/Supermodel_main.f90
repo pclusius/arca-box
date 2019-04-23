@@ -29,8 +29,9 @@ INTEGER  :: I
   print*,;print FMT_HDR, 'Beginning simulation' ! Information to user
 
 ! =================================================================================================
-  DO WHILE (MODELTIME%sec < MODELTIME%SIM_TIME_S + 1d-12) ! MAIN LOOP STARTS HERE
+  DO WHILE (MODELTIME%SIM_TIME_S - MODELTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 ! =================================================================================================
+
   if (MODELTIME%printnow) print FMT_TIME, MODELTIME%hms ! Print time
 
 ! =================================================================================================
