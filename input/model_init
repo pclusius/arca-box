@@ -1,9 +1,9 @@
 ####### model initialization setup ############
 
 &NML_path
- Work_Dir    =  
+ Work_Dir    =
  Case_Dir    =  'input/'
- Case_name   =  'TEST'
+ Case_name   =  'NANJING'
  RUN_NAME    =  'NJ_Special'
 /
 
@@ -18,7 +18,7 @@
 
 ####### TIME related user input #####
 &NML_TIME
- runtime        = 22
+ runtime        = 24
  PRINT_INTERVAL = 600
  FSAVE_INTERVAL = 300
  FSAVE_DIVISION = 100
@@ -35,14 +35,14 @@
 
 ####### ENV file read #####
 &NML_ENV
- ENV_path         =  'input'
- ENV_file         =  
+ ENV_path         =  '/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
 /
+#  ENV_file         =  'case_Nanjing1.txt'
 
-####### VOC file read #####
-&NML_VOC
- VOC_path = 'input'
- VOC_file = 
+####### MCM file read #####
+&NML_MCM
+ MCM_path = '/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
+ MCM_file =
 /
 
 
@@ -50,23 +50,16 @@
 &NML_MODS
  MODS(1) = 1 "SA" 1.0d1 1.0d5 1.2d0 12.0d0 0.0d0 0.0d0 1.0d0 1d0 0d0
  MODS(8)%SHIFT=  292d0     ,
- MODS(15)%SHIFT=  3.0d6    ,
+ MODS(15)%SHIFT=  3.0    ,
 /
 
 ####### Misc stuff #####
 &NML_MISC
   lat = 1
   lon = 7
-  Description = 'Notes for the run'
+  Description = 'NJ = Nanjing runs; K-xx:temperature changed by -x.x degrees, CS05: Cond sink multiplied by 0.5 Dxxx: DMA multiplied by xxx'
 /
 
 ####### indices #####
 &NML_ICOLS
-inp_H2SO4 = 5
-inp_NH3   = 6
-inp_DMA   = 7
-inp_CS    = 4
-inp_temp  = 3
 /
-
-
