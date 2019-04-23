@@ -1,6 +1,7 @@
 PROGRAM Supermodel
 
 USE second_Precision,  ONLY : dp ! KPP Numerical type
+USE second_Monitor, ONLY: SPC_NAMES
 USE constants
 USE AUXILLARIES
 use INPUT
@@ -13,6 +14,7 @@ use OUTPUT
 IMPLICIT NONE
 ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
 REAL(dp) :: TSTEP_CONC(inm_LAST) = 0d0
+REAL(DP), ALLOCATABLE :: CH_GAS_DUMMY(:)
 REAL(dp) :: J_ACDC_NH3
 REAL(dp) :: J_ACDC_DMA
 REAL(dp) :: J_NH3_BY_IONS(3)
@@ -22,9 +24,14 @@ INTEGER  :: I
 
   CALL read_input_data ! Declare most variables and read user input and options in input.f90
 
-  CALL OPEN_GASFILE(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'.nc'), MODS, Description)
-
   CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
+
+  CALL CHECK_INPUT_AGAINST_KPP
+
+  ALLOCATE(CH_GAS_DUMMY(size(SPC_NAMES)))
+  CH_GAS_DUMMY = 0
+
+  CALL OPEN_GASFILE(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'.nc'), MODS, Description)
 
   print*,;print FMT_HDR, 'Beginning simulation' ! Information to user
 
@@ -45,6 +52,11 @@ INTEGER  :: I
 ! =================================================================================================
 
 ! Chemistry
+  DO I = 1, inm_LAST ! <-- inm_last will cycle through all variables
+    IF (INDRELAY_CH(I)>0) THEN ! <-- this will pick those that were paired in CHECK_INPUT_AGAINST_KPP
+      CH_GAS_DUMMY(INDRELAY_CH(I)) = TSTEP_CONC(I)
+    END IF
+  END DO
 
 ! =================================================================================================
 ! NUCLEATION
@@ -202,6 +214,37 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
   if (.not. MODELTIME%savenow) call SAVE_GASES(TSTEP_CONC(inm_temp), TSTEP_CONC(inm_H2SO4), &
   TSTEP_CONC(inm_nh3), TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), MODS)
 END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
+
+SUBROUTINE CHECK_INPUT_AGAINST_KPP
+integer :: i,j, check
+print FMT_MSG
+do i=1,INM_LAST
+  check = 0
+  IF (INDRELAY(I) > 0 .or. MODS(I)%MODE > 0 .or. ABS(MODS(I)%SHIFT - 0) > 1d-100) THEN
+    DO j=1,size(SPC_NAMES)
+      IF (MODS(i)%NAME == TRIM(SPC_NAMES(j))) THEN
+        check = 1
+        print FMT_MSG, 'Found '//TRIM(SPC_NAMES(j))//' from chemistry'
+        INDRELAY_CH(I) = J !store the key->value map for input and chemistry
+        exit
+      end if
+    END DO
+    IF (check == 0 .and. I>=20) THEN
+      print FMT_FAT0, 'You are using a compound which does not exist in chemistry: '//TRIM(MODS(i)%NAME)//' '
+      IF (INDRELAY(I) > 0) print FMT_SUB, 'In INITFILE; &NML_ICOLS'
+      IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS'
+      print FMT_MSG, 'Good bye.'
+      STOP
+    END IF
+    IF (check == 0 .and. I>=7 .and. I<20) THEN
+      print FMT_WARN0, 'A compound which does not exist in chemistry but could be used elsewhere: '//TRIM(MODS(i)%NAME)//' '
+      IF (INDRELAY(I) > 0) print FMT_SUB, 'In INITFILE; &NML_ICOLS'
+      IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS'
+    END IF
+  END IF
+END DO
+
+END SUBROUTINE CHECK_INPUT_AGAINST_KPP
 
 
 END PROGRAM SUPERMODEL
