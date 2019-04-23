@@ -966,7 +966,6 @@ SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
   IF (INF_ETHOX        > 0) CONC_MAT(:,INM_ETHOX     ) = input_MCM(:,INF_ETHOX     ); i=i+1
 
 
-
   ! As safety feature, check that here nothing is left out
   IF (i /= INM_LAST) THEN
     print FMT_FAT0, 'Trouble in PUT_INPUT_IN_THEIR_PLACES (input.f90). Number of input variables differs'
