@@ -37,9 +37,9 @@ INTEGER  :: I
 ! =================================================================================================
 ! Assign values to input variables
   DO I = 1, inm_LAST ! <-- inm_last will cycle through all variables that user can provide or tamper, and leave zero if no input or mod was provided
-    IF ((INDRELAY(I,2)>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift-0d0) > 1d-100)) THEN
+    IF ((INDRELAY(I)>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift-0d0) > 1d-100)) THEN
       TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I))  .mod. MODS(I)
-      ! INDRELAY(I,2)>0 means that user must have provided a column from an input file; MODS(I)%MODE > 0 means NORMALD is in use
+      ! INDRELAY(I)>0 means that user must have provided a column from an input file; MODS(I)%MODE > 0 means NORMALD is in use
     END IF
   END DO
 ! =================================================================================================

@@ -217,7 +217,7 @@ INF_HEX2ONE,INF_HEX3ONE,INF_MIBK,INF_MTBK,INF_CYHEXONE,INF_APINENE,&
 INF_BPINENE,INF_LIMONENE,INF_BCARY,INF_HCOOH,INF_CH3CO2H,INF_PROPACID,&
 INF_DMM,INF_DMC,INF_DMS,INF_ETHOX
 
-INTEGER :: INDRELAY(inm_LAST,2)
+INTEGER :: INDRELAY(inm_LAST)
 
 REAL(dp), allocatable, private :: INPUT_ENV(:,:)  ! will be of shape ( len(timevec) : inm_last+1 )
 REAL(dp), allocatable, private :: INPUT_MCM(:,:)  ! will be of shape ( len(timevec) : inm_last+1 )
@@ -617,170 +617,170 @@ subroutine FILL_INDRELAY_WITH_INDICES
   implicit none
   integer::i
   i = 0
-  INDRELAY(inm_H2SO4,1:2) = (/inm_H2SO4 , inf_H2SO4/) ;i=i+1
-  INDRELAY(inm_NH3  ,1:2) = (/inm_NH3   , inf_NH3  /) ;i=i+1
-  INDRELAY(inm_DMA  ,1:2) = (/inm_DMA   , inf_DMA  /) ;i=i+1
-  INDRELAY(inm_CS   ,1:2) = (/inm_CS    , inf_CS   /) ;i=i+1
-  INDRELAY(inm_swr  ,1:2) = (/inm_swr   , inf_swr  /) ;i=i+1
-  INDRELAY(inm_RH   ,1:2) = (/inm_RH    , inf_RH   /) ;i=i+1
-  INDRELAY(inm_pres ,1:2) = (/inm_pres  , inf_pres /) ;i=i+1
-  INDRELAY(inm_temp ,1:2) = (/inm_temp  , inf_temp /) ;i=i+1
-  INDRELAY(inm_SO2  ,1:2) = (/inm_SO2   , inf_SO2  /) ;i=i+1
-  INDRELAY(inm_NO   ,1:2) = (/inm_NO    , inf_NO   /) ;i=i+1
-  INDRELAY(inm_NO2  ,1:2) = (/inm_NO2   , inf_NO2  /) ;i=i+1
-  INDRELAY(inm_CO   ,1:2) = (/inm_CO    , inf_CO   /) ;i=i+1
-  INDRELAY(inm_H2   ,1:2) = (/inm_H2    , inf_H2   /) ;i=i+1
-  INDRELAY(inm_O3   ,1:2) = (/inm_O3    , inf_O3   /) ;i=i+1
-  INDRELAY(inm_IPR  ,1:2) = (/inm_IPR   , inf_IPR  /) ;i=i+1
+  INDRELAY(inm_H2SO4) = inf_H2SO4 ;i=i+1
+  INDRELAY(inm_NH3  ) = inf_NH3   ;i=i+1
+  INDRELAY(inm_DMA  ) = inf_DMA   ;i=i+1
+  INDRELAY(inm_CS   ) = inf_CS    ;i=i+1
+  INDRELAY(inm_swr  ) = inf_swr   ;i=i+1
+  INDRELAY(inm_RH   ) = inf_RH    ;i=i+1
+  INDRELAY(inm_pres ) = inf_pres  ;i=i+1
+  INDRELAY(inm_temp ) = inf_temp  ;i=i+1
+  INDRELAY(inm_SO2  ) = inf_SO2   ;i=i+1
+  INDRELAY(inm_NO   ) = inf_NO    ;i=i+1
+  INDRELAY(inm_NO2  ) = inf_NO2   ;i=i+1
+  INDRELAY(inm_CO   ) = inf_CO    ;i=i+1
+  INDRELAY(inm_H2   ) = inf_H2    ;i=i+1
+  INDRELAY(inm_O3   ) = inf_O3    ;i=i+1
+  INDRELAY(inm_IPR  ) = inf_IPR   ;i=i+1
 
-  INDRELAY(inm_RES16 ,1:2) = (/inm_RES16, inf_RES16/) ;i=i+1
-  INDRELAY(inm_RES17 ,1:2) = (/inm_RES17, inf_RES17/) ;i=i+1
-  INDRELAY(inm_RES18 ,1:2) = (/inm_RES18, inf_RES18/) ;i=i+1
-  INDRELAY(inm_RES19 ,1:2) = (/inm_RES19, inf_RES19/) ;i=i+1
+  INDRELAY(inm_RES16) = inf_RES16 ;i=i+1
+  INDRELAY(inm_RES17) = inf_RES17 ;i=i+1
+  INDRELAY(inm_RES18) = inf_RES18 ;i=i+1
+  INDRELAY(inm_RES19) = inf_RES19 ;i=i+1
 
-  INDRELAY(INM_CH3OH        ,1:2) = (/INM_CH3OH     ,INF_CH3OH     /); i=i+1
-  INDRELAY(INM_C2H5OH       ,1:2) = (/INM_C2H5OH    ,INF_C2H5OH    /); i=i+1
-  INDRELAY(INM_NPROPOL      ,1:2) = (/INM_NPROPOL   ,INF_NPROPOL   /); i=i+1
-  INDRELAY(INM_IPROPOL      ,1:2) = (/INM_IPROPOL   ,INF_IPROPOL   /); i=i+1
-  INDRELAY(INM_NBUTOL       ,1:2) = (/INM_NBUTOL    ,INF_NBUTOL    /); i=i+1
-  INDRELAY(INM_BUT2OL       ,1:2) = (/INM_BUT2OL    ,INF_BUT2OL    /); i=i+1
-  INDRELAY(INM_IBUTOL       ,1:2) = (/INM_IBUTOL    ,INF_IBUTOL    /); i=i+1
-  INDRELAY(INM_TBUTOL       ,1:2) = (/INM_TBUTOL    ,INF_TBUTOL    /); i=i+1
-  INDRELAY(INM_PECOH        ,1:2) = (/INM_PECOH     ,INF_PECOH     /); i=i+1
-  INDRELAY(INM_IPEAOH       ,1:2) = (/INM_IPEAOH    ,INF_IPEAOH    /); i=i+1
-  INDRELAY(INM_ME3BUOL      ,1:2) = (/INM_ME3BUOL   ,INF_ME3BUOL   /); i=i+1
-  INDRELAY(INM_IPECOH       ,1:2) = (/INM_IPECOH    ,INF_IPECOH    /); i=i+1
-  INDRELAY(INM_IPEBOH       ,1:2) = (/INM_IPEBOH    ,INF_IPEBOH    /); i=i+1
-  INDRELAY(INM_CYHEXOL      ,1:2) = (/INM_CYHEXOL   ,INF_CYHEXOL   /); i=i+1
-  INDRELAY(INM_MIBKAOH      ,1:2) = (/INM_MIBKAOH   ,INF_MIBKAOH   /); i=i+1
-  INDRELAY(INM_ETHGLY       ,1:2) = (/INM_ETHGLY    ,INF_ETHGLY    /); i=i+1
-  INDRELAY(INM_PROPGLY      ,1:2) = (/INM_PROPGLY   ,INF_PROPGLY   /); i=i+1
-  INDRELAY(INM_MBO          ,1:2) = (/INM_MBO       ,INF_MBO       /); i=i+1
-  INDRELAY(INM_HCHO         ,1:2) = (/INM_HCHO      ,INF_HCHO      /); i=i+1
-  INDRELAY(INM_CH3CHO       ,1:2) = (/INM_CH3CHO    ,INF_CH3CHO    /); i=i+1
-  INDRELAY(INM_C2H5CHO      ,1:2) = (/INM_C2H5CHO   ,INF_C2H5CHO   /); i=i+1
-  INDRELAY(INM_C3H7CHO      ,1:2) = (/INM_C3H7CHO   ,INF_C3H7CHO   /); i=i+1
-  INDRELAY(INM_IPRCHO       ,1:2) = (/INM_IPRCHO    ,INF_IPRCHO    /); i=i+1
-  INDRELAY(INM_C4H9CHO      ,1:2) = (/INM_C4H9CHO   ,INF_C4H9CHO   /); i=i+1
-  INDRELAY(INM_ACR          ,1:2) = (/INM_ACR       ,INF_ACR       /); i=i+1
-  INDRELAY(INM_MACR         ,1:2) = (/INM_MACR      ,INF_MACR      /); i=i+1
-  INDRELAY(INM_C4ALDB       ,1:2) = (/INM_C4ALDB    ,INF_C4ALDB    /); i=i+1
-  INDRELAY(INM_CH4          ,1:2) = (/INM_CH4       ,INF_CH4       /); i=i+1
-  INDRELAY(INM_C2H6         ,1:2) = (/INM_C2H6      ,INF_C2H6      /); i=i+1
-  INDRELAY(INM_C3H8         ,1:2) = (/INM_C3H8      ,INF_C3H8      /); i=i+1
-  INDRELAY(INM_NC4H10       ,1:2) = (/INM_NC4H10    ,INF_NC4H10    /); i=i+1
-  INDRELAY(INM_IC4H10       ,1:2) = (/INM_IC4H10    ,INF_IC4H10    /); i=i+1
-  INDRELAY(INM_NC5H12       ,1:2) = (/INM_NC5H12    ,INF_NC5H12    /); i=i+1
-  INDRELAY(INM_IC5H12       ,1:2) = (/INM_IC5H12    ,INF_IC5H12    /); i=i+1
-  INDRELAY(INM_NEOP         ,1:2) = (/INM_NEOP      ,INF_NEOP      /); i=i+1
-  INDRELAY(INM_NC6H14       ,1:2) = (/INM_NC6H14    ,INF_NC6H14    /); i=i+1
-  INDRELAY(INM_M2PE         ,1:2) = (/INM_M2PE      ,INF_M2PE      /); i=i+1
-  INDRELAY(INM_M3PE         ,1:2) = (/INM_M3PE      ,INF_M3PE      /); i=i+1
-  INDRELAY(INM_M22C4        ,1:2) = (/INM_M22C4     ,INF_M22C4     /); i=i+1
-  INDRELAY(INM_M23C4        ,1:2) = (/INM_M23C4     ,INF_M23C4     /); i=i+1
-  INDRELAY(INM_NC7H16       ,1:2) = (/INM_NC7H16    ,INF_NC7H16    /); i=i+1
-  INDRELAY(INM_M2HEX        ,1:2) = (/INM_M2HEX     ,INF_M2HEX     /); i=i+1
-  INDRELAY(INM_M3HEX        ,1:2) = (/INM_M3HEX     ,INF_M3HEX     /); i=i+1
-  INDRELAY(INM_NC8H18       ,1:2) = (/INM_NC8H18    ,INF_NC8H18    /); i=i+1
-  INDRELAY(INM_NC9H20       ,1:2) = (/INM_NC9H20    ,INF_NC9H20    /); i=i+1
-  INDRELAY(INM_NC10H22      ,1:2) = (/INM_NC10H22   ,INF_NC10H22   /); i=i+1
-  INDRELAY(INM_NC11H24      ,1:2) = (/INM_NC11H24   ,INF_NC11H24   /); i=i+1
-  INDRELAY(INM_NC12H26      ,1:2) = (/INM_NC12H26   ,INF_NC12H26   /); i=i+1
-  INDRELAY(INM_CHEX         ,1:2) = (/INM_CHEX      ,INF_CHEX      /); i=i+1
-  INDRELAY(INM_C2H4         ,1:2) = (/INM_C2H4      ,INF_C2H4      /); i=i+1
-  INDRELAY(INM_C3H6         ,1:2) = (/INM_C3H6      ,INF_C3H6      /); i=i+1
-  INDRELAY(INM_BUT1ENE      ,1:2) = (/INM_BUT1ENE   ,INF_BUT1ENE   /); i=i+1
-  INDRELAY(INM_CBUT2ENE     ,1:2) = (/INM_CBUT2ENE  ,INF_CBUT2ENE  /); i=i+1
-  INDRELAY(INM_TBUT2ENE     ,1:2) = (/INM_TBUT2ENE  ,INF_TBUT2ENE  /); i=i+1
-  INDRELAY(INM_MEPROPENE    ,1:2) = (/INM_MEPROPENE ,INF_MEPROPENE /); i=i+1
-  INDRELAY(INM_PENT1ENE     ,1:2) = (/INM_PENT1ENE  ,INF_PENT1ENE  /); i=i+1
-  INDRELAY(INM_CPENT2ENE    ,1:2) = (/INM_CPENT2ENE ,INF_CPENT2ENE /); i=i+1
-  INDRELAY(INM_TPENT2ENE    ,1:2) = (/INM_TPENT2ENE ,INF_TPENT2ENE /); i=i+1
-  INDRELAY(INM_ME2BUT1ENE   ,1:2) = (/INM_ME2BUT1ENE,INF_ME2BUT1ENE/); i=i+1
-  INDRELAY(INM_ME3BUT1ENE   ,1:2) = (/INM_ME3BUT1ENE,INF_ME3BUT1ENE/); i=i+1
-  INDRELAY(INM_ME2BUT2ENE   ,1:2) = (/INM_ME2BUT2ENE,INF_ME2BUT2ENE/); i=i+1
-  INDRELAY(INM_HEX1ENE      ,1:2) = (/INM_HEX1ENE   ,INF_HEX1ENE   /); i=i+1
-  INDRELAY(INM_CHEX2ENE     ,1:2) = (/INM_CHEX2ENE  ,INF_CHEX2ENE  /); i=i+1
-  INDRELAY(INM_THEX2ENE     ,1:2) = (/INM_THEX2ENE  ,INF_THEX2ENE  /); i=i+1
-  INDRELAY(INM_DM23BU2ENE   ,1:2) = (/INM_DM23BU2ENE,INF_DM23BU2ENE/); i=i+1
-  INDRELAY(INM_C2H2         ,1:2) = (/INM_C2H2      ,INF_C2H2      /); i=i+1
-  INDRELAY(INM_BENZENE      ,1:2) = (/INM_BENZENE   ,INF_BENZENE   /); i=i+1
-  INDRELAY(INM_TOLUENE      ,1:2) = (/INM_TOLUENE   ,INF_TOLUENE   /); i=i+1
-  INDRELAY(INM_OXYL         ,1:2) = (/INM_OXYL      ,INF_OXYL      /); i=i+1
-  INDRELAY(INM_MXYL         ,1:2) = (/INM_MXYL      ,INF_MXYL      /); i=i+1
-  INDRELAY(INM_PXYL         ,1:2) = (/INM_PXYL      ,INF_PXYL      /); i=i+1
-  INDRELAY(INM_EBENZ        ,1:2) = (/INM_EBENZ     ,INF_EBENZ     /); i=i+1
-  INDRELAY(INM_PBENZ        ,1:2) = (/INM_PBENZ     ,INF_PBENZ     /); i=i+1
-  INDRELAY(INM_IPBENZ       ,1:2) = (/INM_IPBENZ    ,INF_IPBENZ    /); i=i+1
-  INDRELAY(INM_TM123B       ,1:2) = (/INM_TM123B    ,INF_TM123B    /); i=i+1
-  INDRELAY(INM_TM124B       ,1:2) = (/INM_TM124B    ,INF_TM124B    /); i=i+1
-  INDRELAY(INM_TM135B       ,1:2) = (/INM_TM135B    ,INF_TM135B    /); i=i+1
-  INDRELAY(INM_OETHTOL      ,1:2) = (/INM_OETHTOL   ,INF_OETHTOL   /); i=i+1
-  INDRELAY(INM_METHTOL      ,1:2) = (/INM_METHTOL   ,INF_METHTOL   /); i=i+1
-  INDRELAY(INM_PETHTOL      ,1:2) = (/INM_PETHTOL   ,INF_PETHTOL   /); i=i+1
-  INDRELAY(INM_DIME35EB     ,1:2) = (/INM_DIME35EB  ,INF_DIME35EB  /); i=i+1
-  INDRELAY(INM_DIET35TOL    ,1:2) = (/INM_DIET35TOL ,INF_DIET35TOL /); i=i+1
-  INDRELAY(INM_STYRENE      ,1:2) = (/INM_STYRENE   ,INF_STYRENE   /); i=i+1
-  INDRELAY(INM_BENZAL       ,1:2) = (/INM_BENZAL    ,INF_BENZAL    /); i=i+1
-  INDRELAY(INM_CH3CL        ,1:2) = (/INM_CH3CL     ,INF_CH3CL     /); i=i+1
-  INDRELAY(INM_CH2CL2       ,1:2) = (/INM_CH2CL2    ,INF_CH2CL2    /); i=i+1
-  INDRELAY(INM_CHCL3        ,1:2) = (/INM_CHCL3     ,INF_CHCL3     /); i=i+1
-  INDRELAY(INM_CH3CCL3      ,1:2) = (/INM_CH3CCL3   ,INF_CH3CCL3   /); i=i+1
-  INDRELAY(INM_TCE          ,1:2) = (/INM_TCE       ,INF_TCE       /); i=i+1
-  INDRELAY(INM_TRICLETH     ,1:2) = (/INM_TRICLETH  ,INF_TRICLETH  /); i=i+1
-  INDRELAY(INM_CDICLETH     ,1:2) = (/INM_CDICLETH  ,INF_CDICLETH  /); i=i+1
-  INDRELAY(INM_TDICLETH     ,1:2) = (/INM_TDICLETH  ,INF_TDICLETH  /); i=i+1
-  INDRELAY(INM_CH2CLCH2CL   ,1:2) = (/INM_CH2CLCH2CL,INF_CH2CLCH2CL/); i=i+1
-  INDRELAY(INM_CCL2CH2      ,1:2) = (/INM_CCL2CH2   ,INF_CCL2CH2   /); i=i+1
-  INDRELAY(INM_CL12PROP     ,1:2) = (/INM_CL12PROP  ,INF_CL12PROP  /); i=i+1
-  INDRELAY(INM_CHCL2CH3     ,1:2) = (/INM_CHCL2CH3  ,INF_CHCL2CH3  /); i=i+1
-  INDRELAY(INM_CH3CH2CL     ,1:2) = (/INM_CH3CH2CL  ,INF_CH3CH2CL  /); i=i+1
-  INDRELAY(INM_CHCL2CHCL2   ,1:2) = (/INM_CHCL2CHCL2,INF_CHCL2CHCL2/); i=i+1
-  INDRELAY(INM_CH2CLCHCL2   ,1:2) = (/INM_CH2CLCHCL2,INF_CH2CLCHCL2/); i=i+1
-  INDRELAY(INM_VINCL        ,1:2) = (/INM_VINCL     ,INF_VINCL     /); i=i+1
-  INDRELAY(INM_C4H6         ,1:2) = (/INM_C4H6      ,INF_C4H6      /); i=i+1
-  INDRELAY(INM_C5H8         ,1:2) = (/INM_C5H8      ,INF_C5H8      /); i=i+1
-  INDRELAY(INM_CH3OCHO      ,1:2) = (/INM_CH3OCHO   ,INF_CH3OCHO   /); i=i+1
-  INDRELAY(INM_METHACET     ,1:2) = (/INM_METHACET  ,INF_METHACET  /); i=i+1
-  INDRELAY(INM_ETHACET      ,1:2) = (/INM_ETHACET   ,INF_ETHACET   /); i=i+1
-  INDRELAY(INM_NPROACET     ,1:2) = (/INM_NPROACET  ,INF_NPROACET  /); i=i+1
-  INDRELAY(INM_IPROACET     ,1:2) = (/INM_IPROACET  ,INF_IPROACET  /); i=i+1
-  INDRELAY(INM_NBUTACET     ,1:2) = (/INM_NBUTACET  ,INF_NBUTACET  /); i=i+1
-  INDRELAY(INM_SBUTACET     ,1:2) = (/INM_SBUTACET  ,INF_SBUTACET  /); i=i+1
-  INDRELAY(INM_TBUACET      ,1:2) = (/INM_TBUACET   ,INF_TBUACET   /); i=i+1
-  INDRELAY(INM_CH3OCH3      ,1:2) = (/INM_CH3OCH3   ,INF_CH3OCH3   /); i=i+1
-  INDRELAY(INM_DIETETHER    ,1:2) = (/INM_DIETETHER ,INF_DIETETHER /); i=i+1
-  INDRELAY(INM_MTBE         ,1:2) = (/INM_MTBE      ,INF_MTBE      /); i=i+1
-  INDRELAY(INM_DIIPRETHER   ,1:2) = (/INM_DIIPRETHER,INF_DIIPRETHER/); i=i+1
-  INDRELAY(INM_ETBE         ,1:2) = (/INM_ETBE      ,INF_ETBE      /); i=i+1
-  INDRELAY(INM_MO2EOL       ,1:2) = (/INM_MO2EOL    ,INF_MO2EOL    /); i=i+1
-  INDRELAY(INM_EOX2EOL      ,1:2) = (/INM_EOX2EOL   ,INF_EOX2EOL   /); i=i+1
-  INDRELAY(INM_PR2OHMOX     ,1:2) = (/INM_PR2OHMOX  ,INF_PR2OHMOX  /); i=i+1
-  INDRELAY(INM_BUOX2ETOH    ,1:2) = (/INM_BUOX2ETOH ,INF_BUOX2ETOH /); i=i+1
-  INDRELAY(INM_BOX2PROL     ,1:2) = (/INM_BOX2PROL  ,INF_BOX2PROL  /); i=i+1
-  INDRELAY(INM_CH3BR        ,1:2) = (/INM_CH3BR     ,INF_CH3BR     /); i=i+1
-  INDRELAY(INM_DIBRET       ,1:2) = (/INM_DIBRET    ,INF_DIBRET    /); i=i+1
-  INDRELAY(INM_CH3COCH3     ,1:2) = (/INM_CH3COCH3  ,INF_CH3COCH3  /); i=i+1
-  INDRELAY(INM_MEK          ,1:2) = (/INM_MEK       ,INF_MEK       /); i=i+1
-  INDRELAY(INM_MPRK         ,1:2) = (/INM_MPRK      ,INF_MPRK      /); i=i+1
-  INDRELAY(INM_DIEK         ,1:2) = (/INM_DIEK      ,INF_DIEK      /); i=i+1
-  INDRELAY(INM_MIPK         ,1:2) = (/INM_MIPK      ,INF_MIPK      /); i=i+1
-  INDRELAY(INM_HEX2ONE      ,1:2) = (/INM_HEX2ONE   ,INF_HEX2ONE   /); i=i+1
-  INDRELAY(INM_HEX3ONE      ,1:2) = (/INM_HEX3ONE   ,INF_HEX3ONE   /); i=i+1
-  INDRELAY(INM_MIBK         ,1:2) = (/INM_MIBK      ,INF_MIBK      /); i=i+1
-  INDRELAY(INM_MTBK         ,1:2) = (/INM_MTBK      ,INF_MTBK      /); i=i+1
-  INDRELAY(INM_CYHEXONE     ,1:2) = (/INM_CYHEXONE  ,INF_CYHEXONE  /); i=i+1
-  INDRELAY(INM_APINENE      ,1:2) = (/INM_APINENE   ,INF_APINENE   /); i=i+1
-  INDRELAY(INM_BPINENE      ,1:2) = (/INM_BPINENE   ,INF_BPINENE   /); i=i+1
-  INDRELAY(INM_LIMONENE     ,1:2) = (/INM_LIMONENE  ,INF_LIMONENE  /); i=i+1
-  INDRELAY(INM_BCARY        ,1:2) = (/INM_BCARY     ,INF_BCARY     /); i=i+1
-  INDRELAY(INM_HCOOH        ,1:2) = (/INM_HCOOH     ,INF_HCOOH     /); i=i+1
-  INDRELAY(INM_CH3CO2H      ,1:2) = (/INM_CH3CO2H   ,INF_CH3CO2H   /); i=i+1
-  INDRELAY(INM_PROPACID     ,1:2) = (/INM_PROPACID  ,INF_PROPACID  /); i=i+1
-  INDRELAY(INM_DMM          ,1:2) = (/INM_DMM       ,INF_DMM       /); i=i+1
-  INDRELAY(INM_DMC          ,1:2) = (/INM_DMC       ,INF_DMC       /); i=i+1
-  INDRELAY(INM_DMS          ,1:2) = (/INM_DMS       ,INF_DMS       /); i=i+1
-  INDRELAY(INM_ETHOX        ,1:2) = (/INM_ETHOX     ,INF_ETHOX     /); i=i+1
+  INDRELAY(INM_CH3OH       ) = INF_CH3OH      ; i=i+1
+  INDRELAY(INM_C2H5OH      ) = INF_C2H5OH     ; i=i+1
+  INDRELAY(INM_NPROPOL     ) = INF_NPROPOL    ; i=i+1
+  INDRELAY(INM_IPROPOL     ) = INF_IPROPOL    ; i=i+1
+  INDRELAY(INM_NBUTOL      ) = INF_NBUTOL     ; i=i+1
+  INDRELAY(INM_BUT2OL      ) = INF_BUT2OL     ; i=i+1
+  INDRELAY(INM_IBUTOL      ) = INF_IBUTOL     ; i=i+1
+  INDRELAY(INM_TBUTOL      ) = INF_TBUTOL     ; i=i+1
+  INDRELAY(INM_PECOH       ) = INF_PECOH      ; i=i+1
+  INDRELAY(INM_IPEAOH      ) = INF_IPEAOH     ; i=i+1
+  INDRELAY(INM_ME3BUOL     ) = INF_ME3BUOL    ; i=i+1
+  INDRELAY(INM_IPECOH      ) = INF_IPECOH     ; i=i+1
+  INDRELAY(INM_IPEBOH      ) = INF_IPEBOH     ; i=i+1
+  INDRELAY(INM_CYHEXOL     ) = INF_CYHEXOL    ; i=i+1
+  INDRELAY(INM_MIBKAOH     ) = INF_MIBKAOH    ; i=i+1
+  INDRELAY(INM_ETHGLY      ) = INF_ETHGLY     ; i=i+1
+  INDRELAY(INM_PROPGLY     ) = INF_PROPGLY    ; i=i+1
+  INDRELAY(INM_MBO         ) = INF_MBO        ; i=i+1
+  INDRELAY(INM_HCHO        ) = INF_HCHO       ; i=i+1
+  INDRELAY(INM_CH3CHO      ) = INF_CH3CHO     ; i=i+1
+  INDRELAY(INM_C2H5CHO     ) = INF_C2H5CHO    ; i=i+1
+  INDRELAY(INM_C3H7CHO     ) = INF_C3H7CHO    ; i=i+1
+  INDRELAY(INM_IPRCHO      ) = INF_IPRCHO     ; i=i+1
+  INDRELAY(INM_C4H9CHO     ) = INF_C4H9CHO    ; i=i+1
+  INDRELAY(INM_ACR         ) = INF_ACR        ; i=i+1
+  INDRELAY(INM_MACR        ) = INF_MACR       ; i=i+1
+  INDRELAY(INM_C4ALDB      ) = INF_C4ALDB     ; i=i+1
+  INDRELAY(INM_CH4         ) = INF_CH4        ; i=i+1
+  INDRELAY(INM_C2H6        ) = INF_C2H6       ; i=i+1
+  INDRELAY(INM_C3H8        ) = INF_C3H8       ; i=i+1
+  INDRELAY(INM_NC4H10      ) = INF_NC4H10     ; i=i+1
+  INDRELAY(INM_IC4H10      ) = INF_IC4H10     ; i=i+1
+  INDRELAY(INM_NC5H12      ) = INF_NC5H12     ; i=i+1
+  INDRELAY(INM_IC5H12      ) = INF_IC5H12     ; i=i+1
+  INDRELAY(INM_NEOP        ) = INF_NEOP       ; i=i+1
+  INDRELAY(INM_NC6H14      ) = INF_NC6H14     ; i=i+1
+  INDRELAY(INM_M2PE        ) = INF_M2PE       ; i=i+1
+  INDRELAY(INM_M3PE        ) = INF_M3PE       ; i=i+1
+  INDRELAY(INM_M22C4       ) = INF_M22C4      ; i=i+1
+  INDRELAY(INM_M23C4       ) = INF_M23C4      ; i=i+1
+  INDRELAY(INM_NC7H16      ) = INF_NC7H16     ; i=i+1
+  INDRELAY(INM_M2HEX       ) = INF_M2HEX      ; i=i+1
+  INDRELAY(INM_M3HEX       ) = INF_M3HEX      ; i=i+1
+  INDRELAY(INM_NC8H18      ) = INF_NC8H18     ; i=i+1
+  INDRELAY(INM_NC9H20      ) = INF_NC9H20     ; i=i+1
+  INDRELAY(INM_NC10H22     ) = INF_NC10H22    ; i=i+1
+  INDRELAY(INM_NC11H24     ) = INF_NC11H24    ; i=i+1
+  INDRELAY(INM_NC12H26     ) = INF_NC12H26    ; i=i+1
+  INDRELAY(INM_CHEX        ) = INF_CHEX       ; i=i+1
+  INDRELAY(INM_C2H4        ) = INF_C2H4       ; i=i+1
+  INDRELAY(INM_C3H6        ) = INF_C3H6       ; i=i+1
+  INDRELAY(INM_BUT1ENE     ) = INF_BUT1ENE    ; i=i+1
+  INDRELAY(INM_CBUT2ENE    ) = INF_CBUT2ENE   ; i=i+1
+  INDRELAY(INM_TBUT2ENE    ) = INF_TBUT2ENE   ; i=i+1
+  INDRELAY(INM_MEPROPENE   ) = INF_MEPROPENE  ; i=i+1
+  INDRELAY(INM_PENT1ENE    ) = INF_PENT1ENE   ; i=i+1
+  INDRELAY(INM_CPENT2ENE   ) = INF_CPENT2ENE  ; i=i+1
+  INDRELAY(INM_TPENT2ENE   ) = INF_TPENT2ENE  ; i=i+1
+  INDRELAY(INM_ME2BUT1ENE  ) = INF_ME2BUT1ENE ; i=i+1
+  INDRELAY(INM_ME3BUT1ENE  ) = INF_ME3BUT1ENE ; i=i+1
+  INDRELAY(INM_ME2BUT2ENE  ) = INF_ME2BUT2ENE ; i=i+1
+  INDRELAY(INM_HEX1ENE     ) = INF_HEX1ENE    ; i=i+1
+  INDRELAY(INM_CHEX2ENE    ) = INF_CHEX2ENE   ; i=i+1
+  INDRELAY(INM_THEX2ENE    ) = INF_THEX2ENE   ; i=i+1
+  INDRELAY(INM_DM23BU2ENE  ) = INF_DM23BU2ENE ; i=i+1
+  INDRELAY(INM_C2H2        ) = INF_C2H2       ; i=i+1
+  INDRELAY(INM_BENZENE     ) = INF_BENZENE    ; i=i+1
+  INDRELAY(INM_TOLUENE     ) = INF_TOLUENE    ; i=i+1
+  INDRELAY(INM_OXYL        ) = INF_OXYL       ; i=i+1
+  INDRELAY(INM_MXYL        ) = INF_MXYL       ; i=i+1
+  INDRELAY(INM_PXYL        ) = INF_PXYL       ; i=i+1
+  INDRELAY(INM_EBENZ       ) = INF_EBENZ      ; i=i+1
+  INDRELAY(INM_PBENZ       ) = INF_PBENZ      ; i=i+1
+  INDRELAY(INM_IPBENZ      ) = INF_IPBENZ     ; i=i+1
+  INDRELAY(INM_TM123B      ) = INF_TM123B     ; i=i+1
+  INDRELAY(INM_TM124B      ) = INF_TM124B     ; i=i+1
+  INDRELAY(INM_TM135B      ) = INF_TM135B     ; i=i+1
+  INDRELAY(INM_OETHTOL     ) = INF_OETHTOL    ; i=i+1
+  INDRELAY(INM_METHTOL     ) = INF_METHTOL    ; i=i+1
+  INDRELAY(INM_PETHTOL     ) = INF_PETHTOL    ; i=i+1
+  INDRELAY(INM_DIME35EB    ) = INF_DIME35EB   ; i=i+1
+  INDRELAY(INM_DIET35TOL   ) = INF_DIET35TOL  ; i=i+1
+  INDRELAY(INM_STYRENE     ) = INF_STYRENE    ; i=i+1
+  INDRELAY(INM_BENZAL      ) = INF_BENZAL     ; i=i+1
+  INDRELAY(INM_CH3CL       ) = INF_CH3CL      ; i=i+1
+  INDRELAY(INM_CH2CL2      ) = INF_CH2CL2     ; i=i+1
+  INDRELAY(INM_CHCL3       ) = INF_CHCL3      ; i=i+1
+  INDRELAY(INM_CH3CCL3     ) = INF_CH3CCL3    ; i=i+1
+  INDRELAY(INM_TCE         ) = INF_TCE        ; i=i+1
+  INDRELAY(INM_TRICLETH    ) = INF_TRICLETH   ; i=i+1
+  INDRELAY(INM_CDICLETH    ) = INF_CDICLETH   ; i=i+1
+  INDRELAY(INM_TDICLETH    ) = INF_TDICLETH   ; i=i+1
+  INDRELAY(INM_CH2CLCH2CL  ) = INF_CH2CLCH2CL ; i=i+1
+  INDRELAY(INM_CCL2CH2     ) = INF_CCL2CH2    ; i=i+1
+  INDRELAY(INM_CL12PROP    ) = INF_CL12PROP   ; i=i+1
+  INDRELAY(INM_CHCL2CH3    ) = INF_CHCL2CH3   ; i=i+1
+  INDRELAY(INM_CH3CH2CL    ) = INF_CH3CH2CL   ; i=i+1
+  INDRELAY(INM_CHCL2CHCL2  ) = INF_CHCL2CHCL2 ; i=i+1
+  INDRELAY(INM_CH2CLCHCL2  ) = INF_CH2CLCHCL2 ; i=i+1
+  INDRELAY(INM_VINCL       ) = INF_VINCL      ; i=i+1
+  INDRELAY(INM_C4H6        ) = INF_C4H6       ; i=i+1
+  INDRELAY(INM_C5H8        ) = INF_C5H8       ; i=i+1
+  INDRELAY(INM_CH3OCHO     ) = INF_CH3OCHO    ; i=i+1
+  INDRELAY(INM_METHACET    ) = INF_METHACET   ; i=i+1
+  INDRELAY(INM_ETHACET     ) = INF_ETHACET    ; i=i+1
+  INDRELAY(INM_NPROACET    ) = INF_NPROACET   ; i=i+1
+  INDRELAY(INM_IPROACET    ) = INF_IPROACET   ; i=i+1
+  INDRELAY(INM_NBUTACET    ) = INF_NBUTACET   ; i=i+1
+  INDRELAY(INM_SBUTACET    ) = INF_SBUTACET   ; i=i+1
+  INDRELAY(INM_TBUACET     ) = INF_TBUACET    ; i=i+1
+  INDRELAY(INM_CH3OCH3     ) = INF_CH3OCH3    ; i=i+1
+  INDRELAY(INM_DIETETHER   ) = INF_DIETETHER  ; i=i+1
+  INDRELAY(INM_MTBE        ) = INF_MTBE       ; i=i+1
+  INDRELAY(INM_DIIPRETHER  ) = INF_DIIPRETHER ; i=i+1
+  INDRELAY(INM_ETBE        ) = INF_ETBE       ; i=i+1
+  INDRELAY(INM_MO2EOL      ) = INF_MO2EOL     ; i=i+1
+  INDRELAY(INM_EOX2EOL     ) = INF_EOX2EOL    ; i=i+1
+  INDRELAY(INM_PR2OHMOX    ) = INF_PR2OHMOX   ; i=i+1
+  INDRELAY(INM_BUOX2ETOH   ) = INF_BUOX2ETOH  ; i=i+1
+  INDRELAY(INM_BOX2PROL    ) = INF_BOX2PROL   ; i=i+1
+  INDRELAY(INM_CH3BR       ) = INF_CH3BR      ; i=i+1
+  INDRELAY(INM_DIBRET      ) = INF_DIBRET     ; i=i+1
+  INDRELAY(INM_CH3COCH3    ) = INF_CH3COCH3   ; i=i+1
+  INDRELAY(INM_MEK         ) = INF_MEK        ; i=i+1
+  INDRELAY(INM_MPRK        ) = INF_MPRK       ; i=i+1
+  INDRELAY(INM_DIEK        ) = INF_DIEK       ; i=i+1
+  INDRELAY(INM_MIPK        ) = INF_MIPK       ; i=i+1
+  INDRELAY(INM_HEX2ONE     ) = INF_HEX2ONE    ; i=i+1
+  INDRELAY(INM_HEX3ONE     ) = INF_HEX3ONE    ; i=i+1
+  INDRELAY(INM_MIBK        ) = INF_MIBK       ; i=i+1
+  INDRELAY(INM_MTBK        ) = INF_MTBK       ; i=i+1
+  INDRELAY(INM_CYHEXONE    ) = INF_CYHEXONE   ; i=i+1
+  INDRELAY(INM_APINENE     ) = INF_APINENE    ; i=i+1
+  INDRELAY(INM_BPINENE     ) = INF_BPINENE    ; i=i+1
+  INDRELAY(INM_LIMONENE    ) = INF_LIMONENE   ; i=i+1
+  INDRELAY(INM_BCARY       ) = INF_BCARY      ; i=i+1
+  INDRELAY(INM_HCOOH       ) = INF_HCOOH      ; i=i+1
+  INDRELAY(INM_CH3CO2H     ) = INF_CH3CO2H    ; i=i+1
+  INDRELAY(INM_PROPACID    ) = INF_PROPACID   ; i=i+1
+  INDRELAY(INM_DMM         ) = INF_DMM        ; i=i+1
+  INDRELAY(INM_DMC         ) = INF_DMC        ; i=i+1
+  INDRELAY(INM_DMS         ) = INF_DMS        ; i=i+1
+  INDRELAY(INM_ETHOX       ) = INF_ETHOX      ; i=i+1
 
   ! As safety feature, check that here nothing is left out
   IF (i /= INM_LAST) THEN
