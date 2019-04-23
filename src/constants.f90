@@ -24,7 +24,6 @@ type input_mod
   ! 0 = use values that are read in, poissibly modifying by a factor or a constant
   ! 1 = Use NORMALD to create function in LINEAR mode
   ! 2 = Use NORMALD to create function in LOGARITMIC mode
-  CHARACTER(16) :: NAME = 'NONAME'! Human readable name for modified variable
   real(dp)  :: min = 0d0     ! Minimum value for the parametrized concentration OR constant value if max <= min
   real(dp)  :: max = 1d5     ! Peak value
   real(dp)  :: sig = 1d0     ! Standard deviation for the Gaussian=sig of the bell curve
@@ -34,6 +33,7 @@ type input_mod
   real(dp)  :: am  = 1d0    ! Amplitude of modIFicaion
   real(dp)  :: multi = 1d0   ! Multiplication factor in MODE0
   real(dp)  :: shift = 0d0   ! Constant to be added in MODE0
+  CHARACTER(16) :: NAME = 'NONAME'! Human readable name for modified variable
 end type input_mod
 
 type timetype
