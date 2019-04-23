@@ -18,9 +18,13 @@ BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR)
 #BOX_OPTS = -ffree-line-length-none -cpp -DLINUX -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
 #-Warray-temporaries -Wtabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all
 
+CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR) -I$(OBJDIR)
+
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 
-BOX_OBJECTS = second_precision.o constants.o auxillaries.o input.o output.o
+CHEM_OBJECTS = second_Precision.o second_Monitor.o
+
+BOX_OBJECTS = constants.o auxillaries.o input.o output.o
 
 ACDC_OBJECTS = get_acdc_J.o driver.o acdc_system.o acdc_equations.o monomer_settings.o solution_settings.o \
                vode.o vodea.o
@@ -33,7 +37,7 @@ NETLIBS =  -I/usr/include -L/usr/lib/x86_64-linux-gnu/ -lnetcdf  -lnetcdff -lcur
 all: superbox.exe
 
 # Here is the link step:
-superbox.exe: Superbox.o $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
+superbox.exe: Superbox.o $(BOX_OBJECTS) $(CHEM_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
 	$(F90) $(BOX_OPTS) $^ -o $@ $(NETLIBS)
 
 
@@ -41,14 +45,14 @@ superbox.exe: Superbox.o $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
 # Main program
 
 #$(OBJDIR)/Superbox.o: Superbox.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(UHMA_OBJECTS) $(MEGAN_OBJECTS)
-$(OBJDIR)/Superbox.o: src/Supermodel_main.f90 $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
+$(OBJDIR)/Superbox.o: src/Supermodel_main.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
 	 $(F90) $(BOX_OPTS) -c $< -o $@
 
 
 
 # # Chemistry
-# $(OBJDIR)/second_Precision.o: chemistry/second_Precision.f90
-# 	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Precision.o: chemistry/second_Precision.f90
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
 # $(OBJDIR)/second_Parameters.o: chemistry/second_Parameters.f90 second_Precision.o
 # 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 # $(OBJDIR)/second_Global.o: chemistry/second_Global.f90 second_Parameters.o
@@ -57,8 +61,8 @@ $(OBJDIR)/Superbox.o: src/Supermodel_main.f90 $(BOX_OBJECTS) $(ACDC_OBJECTS) $(A
 # 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 # $(OBJDIR)/second_Util.o: chemistry/second_Util.f90 second_Parameters.o second_Monitor.o
 # 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-# $(OBJDIR)/second_Monitor.o: chemistry/second_Monitor.f90
-# 	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Monitor.o: chemistry/second_Monitor.f90
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
 # $(OBJDIR)/second_JacobianSP.o: chemistry/second_JacobianSP.f90
 # 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 # $(OBJDIR)/second_LinearAlgebra.o: chemistry/second_LinearAlgebra.f90 second_Parameters.o second_JacobianSP.o
@@ -164,14 +168,11 @@ $(OBJDIR)/auxillaries.o: src/auxillaries.f90
 $(OBJDIR)/constants.o: src/constants.f90
 	$(F90) $(BOX_OPTS) -c $< -o $@
 
-$(OBJDIR)/second_precision.o: src/second_precision.f90
-	$(F90) $(BOX_OPTS) -c $< -o $@
-
 BOX_MODS = $(BOX_OBJECTS:.o=.mod)
 
 # UHMA_MODS = $(UHMA_OBJECTS:.o=.mod)
-# #CHEM_MODS = $(CHEM_OBJECTS:.o=.mod)
-# CHEM_MODS = second_precision.mod second_parameters.mod second_initialize.mod second_util.mod second_monitor.mod second_jacobiansp.mod \
+# CHEM_MODS = $(CHEM_OBJECTS:.o=.mod)
+CHEM_MODS = second_precision.mod second_monitor.mod #\second_parameters.mod second_initialize.mod second_util.mod second_jacobiansp.mod \
 #                second_linearalgebra.mod second_jacobian.mod second_global.mod second_rates.mod second_integrator.mod second_function.mod \
 #                second_model.mod second_main.mod
 ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
