@@ -11,79 +11,79 @@ Implicit none
 ! ALL VARIABLES THAT ARE TIME DEPENDENT MUST BE HERE
 ! IF YOU ADD VARIABLES HERE, YOU NEED TO UPDATE:
 ! - this list
-! - parameter ind_LAST
+! - parameter inm_LAST
 ! - NAMELIST NML_ICOLS
 ! - SUBROUTINE PUT_INPUT_IN_THEIR_PLACES
 ! - subroutine NAME_MODS
 !------------------------------------------------------------------
 
 ! The following will be provided in ENV_file
-INTEGER :: inp_H2SO4 = -1 ; INTEGER, parameter :: ind_H2SO4 = 1
-INTEGER :: inp_NH3   = -1 ; INTEGER, parameter :: ind_NH3   = 2
-INTEGER :: inp_DMA   = -1 ; INTEGER, parameter :: ind_DMA   = 3
-INTEGER :: inp_CS    = -1 ; INTEGER, parameter :: ind_CS    = 4
-INTEGER :: inp_swr   = -1 ; INTEGER, parameter :: ind_swr   = 5
-INTEGER :: inp_RH    = -1 ; INTEGER, parameter :: ind_RH    = 6
-INTEGER :: inp_pres  = -1 ; INTEGER, parameter :: ind_pres  = 7
-INTEGER :: inp_temp  = -1 ; INTEGER, parameter :: ind_temp  = 8
-INTEGER :: inp_SO2   = -1 ; INTEGER, parameter :: ind_SO2   = 9
-INTEGER :: inp_NO    = -1 ; INTEGER, parameter :: ind_NO    = 10
-INTEGER :: inp_NO2   = -1 ; INTEGER, parameter :: ind_NO2   = 11
-INTEGER :: inp_CO    = -1 ; INTEGER, parameter :: ind_CO    = 12
-INTEGER :: inp_H2    = -1 ; INTEGER, parameter :: ind_H2    = 13
-INTEGER :: inp_O3    = -1 ; INTEGER, parameter :: ind_O3    = 14
-INTEGER :: inp_IPR   = -1 ; INTEGER, parameter :: ind_IPR   = 15
+INTEGER :: inf_H2SO4 = -1 ; INTEGER, parameter :: inm_H2SO4 = 1
+INTEGER :: inf_NH3   = -1 ; INTEGER, parameter :: inm_NH3   = 2
+INTEGER :: inf_DMA   = -1 ; INTEGER, parameter :: inm_DMA   = 3
+INTEGER :: inf_CS    = -1 ; INTEGER, parameter :: inm_CS    = 4
+INTEGER :: inf_swr   = -1 ; INTEGER, parameter :: inm_swr   = 5
+INTEGER :: inf_RH    = -1 ; INTEGER, parameter :: inm_RH    = 6
+INTEGER :: inf_pres  = -1 ; INTEGER, parameter :: inm_pres  = 7
+INTEGER :: inf_temp  = -1 ; INTEGER, parameter :: inm_temp  = 8
+INTEGER :: inf_SO2   = -1 ; INTEGER, parameter :: inm_SO2   = 9
+INTEGER :: inf_NO    = -1 ; INTEGER, parameter :: inm_NO    = 10
+INTEGER :: inf_NO2   = -1 ; INTEGER, parameter :: inm_NO2   = 11
+INTEGER :: inf_CO    = -1 ; INTEGER, parameter :: inm_CO    = 12
+INTEGER :: inf_H2    = -1 ; INTEGER, parameter :: inm_H2    = 13
+INTEGER :: inf_O3    = -1 ; INTEGER, parameter :: inm_O3    = 14
+INTEGER :: inf_IPR   = -1 ; INTEGER, parameter :: inm_IPR   = 15
 ! The following will be provided in VOC_file
-INTEGER :: inp_CH3O  = -1 ; INTEGER, parameter :: ind_CH3O  = 16
-INTEGER :: inp_CH3C  = -1 ; INTEGER, parameter :: ind_CH3C  = 17
-INTEGER :: inp_C2H5  = -1 ; INTEGER, parameter :: ind_C2H5  = 18
-INTEGER :: inp_C5H8  = -1 ; INTEGER, parameter :: ind_C5H8  = 19
-INTEGER :: inp_MVK   = -1 ; INTEGER, parameter :: ind_MVK   = 20
-INTEGER :: inp_MEK   = -1 ; INTEGER, parameter :: ind_MEK   = 21
-INTEGER :: inp_BENZ  = -1 ; INTEGER, parameter :: ind_BENZ  = 22
-INTEGER :: inp_APIN  = -1 ; INTEGER, parameter :: ind_APIN  = 23
-INTEGER :: inp_BPIN  = -1 ; INTEGER, parameter :: ind_BPIN  = 24
-INTEGER :: inp_LIMO  = -1 ; INTEGER, parameter :: ind_LIMO  = 25
-INTEGER :: inp_Care  = -1 ; INTEGER, parameter :: ind_Care  = 26
-INTEGER :: inp_TOLU  = -1 ; INTEGER, parameter :: ind_TOLU  = 27
+INTEGER :: inf_CH3O  = -1 ; INTEGER, parameter :: inm_CH3O  = 16
+INTEGER :: inf_CH3C  = -1 ; INTEGER, parameter :: inm_CH3C  = 17
+INTEGER :: inf_C2H5  = -1 ; INTEGER, parameter :: inm_C2H5  = 18
+INTEGER :: inf_C5H8  = -1 ; INTEGER, parameter :: inm_C5H8  = 19
+INTEGER :: inf_MVK   = -1 ; INTEGER, parameter :: inm_MVK   = 20
+INTEGER :: inf_MEK   = -1 ; INTEGER, parameter :: inm_MEK   = 21
+INTEGER :: inf_BENZ  = -1 ; INTEGER, parameter :: inm_BENZ  = 22
+INTEGER :: inf_APIN  = -1 ; INTEGER, parameter :: inm_APIN  = 23
+INTEGER :: inf_BPIN  = -1 ; INTEGER, parameter :: inm_BPIN  = 24
+INTEGER :: inf_LIMO  = -1 ; INTEGER, parameter :: inm_LIMO  = 25
+INTEGER :: inf_Care  = -1 ; INTEGER, parameter :: inm_Care  = 26
+INTEGER :: inf_TOLU  = -1 ; INTEGER, parameter :: inm_TOLU  = 27
 ! Some reserves for VOC, create more if these run out
-INTEGER :: inp_RES20 = -1 ; INTEGER, parameter :: ind_RES20 = 28
-INTEGER :: inp_RES19 = -1 ; INTEGER, parameter :: ind_RES19 = 29
-INTEGER :: inp_RES18 = -1 ; INTEGER, parameter :: ind_RES18 = 30
-INTEGER :: inp_RES17 = -1 ; INTEGER, parameter :: ind_RES17 = 31
-INTEGER :: inp_RES16 = -1 ; INTEGER, parameter :: ind_RES16 = 32
-INTEGER :: inp_RES15 = -1 ; INTEGER, parameter :: ind_RES15 = 33
-INTEGER :: inp_RES14 = -1 ; INTEGER, parameter :: ind_RES14 = 34
-INTEGER :: inp_RES13 = -1 ; INTEGER, parameter :: ind_RES13 = 35
-INTEGER :: inp_RES12 = -1 ; INTEGER, parameter :: ind_RES12 = 36
-INTEGER :: inp_RES11 = -1 ; INTEGER, parameter :: ind_RES11 = 37
-INTEGER :: inp_RES10 = -1 ; INTEGER, parameter :: ind_RES10 = 38
-INTEGER :: inp_RES9  = -1 ; INTEGER, parameter :: ind_RES9  = 39
-INTEGER :: inp_RES8  = -1 ; INTEGER, parameter :: ind_RES8  = 40
-INTEGER :: inp_RES7  = -1 ; INTEGER, parameter :: ind_RES7  = 41
-INTEGER :: inp_RES6  = -1 ; INTEGER, parameter :: ind_RES6  = 42
-INTEGER :: inp_RES5  = -1 ; INTEGER, parameter :: ind_RES5  = 43
-INTEGER :: inp_RES4  = -1 ; INTEGER, parameter :: ind_RES4  = 44
-INTEGER :: inp_RES3  = -1 ; INTEGER, parameter :: ind_RES3  = 45
-INTEGER :: inp_RES2  = -1 ; INTEGER, parameter :: ind_RES2  = 46
-INTEGER :: inp_RES1  = -1 ; INTEGER, parameter :: ind_RES1  = 47
+INTEGER :: inf_RES20 = -1 ; INTEGER, parameter :: inm_RES20 = 28
+INTEGER :: inf_RES19 = -1 ; INTEGER, parameter :: inm_RES19 = 29
+INTEGER :: inf_RES18 = -1 ; INTEGER, parameter :: inm_RES18 = 30
+INTEGER :: inf_RES17 = -1 ; INTEGER, parameter :: inm_RES17 = 31
+INTEGER :: inf_RES16 = -1 ; INTEGER, parameter :: inm_RES16 = 32
+INTEGER :: inf_RES15 = -1 ; INTEGER, parameter :: inm_RES15 = 33
+INTEGER :: inf_RES14 = -1 ; INTEGER, parameter :: inm_RES14 = 34
+INTEGER :: inf_RES13 = -1 ; INTEGER, parameter :: inm_RES13 = 35
+INTEGER :: inf_RES12 = -1 ; INTEGER, parameter :: inm_RES12 = 36
+INTEGER :: inf_RES11 = -1 ; INTEGER, parameter :: inm_RES11 = 37
+INTEGER :: inf_RES10 = -1 ; INTEGER, parameter :: inm_RES10 = 38
+INTEGER :: inf_RES9  = -1 ; INTEGER, parameter :: inm_RES9  = 39
+INTEGER :: inf_RES8  = -1 ; INTEGER, parameter :: inm_RES8  = 40
+INTEGER :: inf_RES7  = -1 ; INTEGER, parameter :: inm_RES7  = 41
+INTEGER :: inf_RES6  = -1 ; INTEGER, parameter :: inm_RES6  = 42
+INTEGER :: inf_RES5  = -1 ; INTEGER, parameter :: inm_RES5  = 43
+INTEGER :: inf_RES4  = -1 ; INTEGER, parameter :: inm_RES4  = 44
+INTEGER :: inf_RES3  = -1 ; INTEGER, parameter :: inm_RES3  = 45
+INTEGER :: inf_RES2  = -1 ; INTEGER, parameter :: inm_RES2  = 46
+INTEGER :: inf_RES1  = -1 ; INTEGER, parameter :: inm_RES1  = 47
 
-INTEGER, parameter :: ind_LAST  = 47 ! <-whatever the last index on previous line is
+INTEGER, parameter :: inm_LAST  = 47 ! <-whatever the last index on previous line is
 
 ! INDICES
-NAMELIST /NML_ICOLS/ inp_H2SO4,inp_NH3,inp_DMA,inp_CS,inp_swr,&
-inp_RH,inp_pres,inp_temp,inp_SO2,inp_NO,inp_NO2,inp_CO,inp_H2,inp_O3,&
-inp_IPR,inp_CH3O,inp_CH3C,inp_C2H5,inp_C5H8,inp_MVK,inp_MEK,inp_BENZ,&
-inp_APIN,inp_BPIN,inp_LIMO,inp_Care,inp_TOLU, inp_RES20,inp_RES19,inp_RES18,&
-inp_RES17,inp_RES16,inp_RES15,inp_RES14,inp_RES13,inp_RES12,inp_RES11,inp_RES10,&
-inp_RES9 ,inp_RES8 ,inp_RES7 ,inp_RES6 ,inp_RES5 ,inp_RES4 ,inp_RES3 ,inp_RES2 ,inp_RES1
+NAMELIST /NML_ICOLS/ inf_H2SO4,inf_NH3,inf_DMA,inf_CS,inf_swr,&
+inf_RH,inf_pres,inf_temp,inf_SO2,inf_NO,inf_NO2,inf_CO,inf_H2,inf_O3,&
+inf_IPR,inf_CH3O,inf_CH3C,inf_C2H5,inf_C5H8,inf_MVK,inf_MEK,inf_BENZ,&
+inf_APIN,inf_BPIN,inf_LIMO,inf_Care,inf_TOLU, inf_RES20,inf_RES19,inf_RES18,&
+inf_RES17,inf_RES16,inf_RES15,inf_RES14,inf_RES13,inf_RES12,inf_RES11,inf_RES10,&
+inf_RES9 ,inf_RES8 ,inf_RES7 ,inf_RES6 ,inf_RES5 ,inf_RES4 ,inf_RES3 ,inf_RES2 ,inf_RES1
 
-INTEGER :: INDRELAY(ind_LAST,2)
+INTEGER :: INDRELAY(inm_LAST,2)
 
-REAL(dp), allocatable, private :: INPUT_ENV(:,:)  ! will be of shape ( len(timevec) : ind_last+1 )
-REAL(dp), allocatable, private :: INPUT_VOC(:,:)  ! will be of shape ( len(timevec) : ind_last+1 )
+REAL(dp), allocatable, private :: INPUT_ENV(:,:)  ! will be of shape ( len(timevec) : inm_last+1 )
+REAL(dp), allocatable, private :: INPUT_VOC(:,:)  ! will be of shape ( len(timevec) : inm_last+1 )
 REAL(dp), allocatable :: timevec(:)     ! Whatever the times were for ALL measurements
-REAL(dp), allocatable :: CONC_MAT(:,:)  ! will be of shape ( len(timevec) : ind_last )
+REAL(dp), allocatable :: CONC_MAT(:,:)  ! will be of shape ( len(timevec) : inm_last )
 real(dp), allocatable :: par_data(:,:)
 
 
@@ -118,7 +118,7 @@ NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, JD
 
 ! MODIFIER OPTIONS
 
-type(input_mod)     :: MODS(ind_LAST) ! THIS VECTOR HOLDS ALL MODIFICATION PARAMETERS
+type(input_mod)     :: MODS(inm_LAST) ! THIS VECTOR HOLDS ALL MODIFICATION PARAMETERS
 NAMELIST /NML_MODS/ MODS
 
 ! DMPS INPUT
@@ -160,9 +160,9 @@ subroutine read_input_data()
   print'(a,t23,a)', achar(10),  '--~:| Gas and Aerosol Box Model - GABO v.0.1 |:~--'//achar(10)
   write(buffer,NML_ICOLS)
   N_INDICES = CNTNONTYPESNML(TRIM(buffer))
-  IF (N_INDICES /= IND_LAST) THEN
-    print FMT_FAT0, 'Number of possible input variables seems to differ from what is assumed in IND_LAST.'
-    print FMT_MSG, 'Check that: in input.f90, NML_ICOLS has all indices and that IND_LAST is correct, then recompile.'
+  IF (N_INDICES /= INM_LAST) THEN
+    print FMT_FAT0, 'Number of possible input variables seems to differ from what is assumed in INM_LAST.'
+    print FMT_MSG, 'Check that: in input.f90, NML_ICOLS has all indices and that INM_LAST is correct, then recompile.'
     print FMT_LEND
     print*,
     STOP
@@ -181,12 +181,12 @@ subroutine read_input_data()
     ELSE
       OPEN(unit=51, File=TRIM(VOC_path) //'/'//TRIM(VOC_file), STATUS='OLD')
     END IF
-    ALLOCATE(CONC_MAT(ROWCOUNT(51,'#'),IND_LAST))
+    ALLOCATE(CONC_MAT(ROWCOUNT(51,'#'),INM_LAST))
     ALLOCATE(TIMEVEC(ROWCOUNT(51,'#')))
     CLOSE(51)
     ! Deal with a situation where we have no input. We still need conc_mat and timevec.
   ELSE
-    ALLOCATE(CONC_MAT(2,IND_LAST))
+    ALLOCATE(CONC_MAT(2,INM_LAST))
     ALLOCATE(TIMEVEC(2))
     TIMEVEC = (/0d0, MODELTIME%SIM_TIME_H/)
   END IF
@@ -300,58 +300,58 @@ subroutine NAME_MODS
   implicit none
   INTEGER :: i = 0
   ! Maximum length is 16 characters - for no good reason.
-  i=i+1; MODS(ind_H2SO4)%NAME = 'H2SO4'
-  i=i+1; MODS(ind_NH3  )%NAME = 'NH3'
-  i=i+1; MODS(ind_DMA  )%NAME = 'DMA'
-  i=i+1; MODS(ind_CS   )%NAME = 'condens_sink'
-  i=i+1; MODS(ind_swr  )%NAME = 'shortwave_rad'
-  i=i+1; MODS(ind_RH   )%NAME = 'relative_humid'
-  i=i+1; MODS(ind_pres )%NAME = 'pressure'
-  i=i+1; MODS(ind_temp )%NAME = 'temperature'
-  i=i+1; MODS(ind_SO2  )%NAME = 'SO2'
-  i=i+1; MODS(ind_NO   )%NAME = 'NO'
-  i=i+1; MODS(ind_NO2  )%NAME = 'NO2'
-  i=i+1; MODS(ind_CO   )%NAME = 'CO'
-  i=i+1; MODS(ind_H2   )%NAME = 'H2'
-  i=i+1; MODS(ind_O3   )%NAME = 'O3'
-  i=i+1; MODS(ind_IPR  )%NAME = 'Ion_Prod_Rate'
-  i=i+1; MODS(ind_CH3O )%NAME = 'CH3O'
-  i=i+1; MODS(ind_CH3C )%NAME = 'CH3C'
-  i=i+1; MODS(ind_C2H5 )%NAME = 'C2H5'
-  i=i+1; MODS(ind_C5H8 )%NAME = 'C5H8'
-  i=i+1; MODS(ind_MVK  )%NAME = 'MVK'
-  i=i+1; MODS(ind_MEK  )%NAME = 'MEK'
-  i=i+1; MODS(ind_BENZ )%NAME = 'BENZENE'
-  i=i+1; MODS(ind_APIN )%NAME = 'ALPHAPINENE'
-  i=i+1; MODS(ind_BPIN )%NAME = 'BETAPINENE'
-  i=i+1; MODS(ind_LIMO )%NAME = 'LIMONENE'
-  i=i+1; MODS(ind_Care )%NAME = 'CARENE'
-  i=i+1; MODS(ind_TOLU )%NAME = 'TOLUENE'
+  i=i+1; MODS(inm_H2SO4)%NAME = 'H2SO4'
+  i=i+1; MODS(inm_NH3  )%NAME = 'NH3'
+  i=i+1; MODS(inm_DMA  )%NAME = 'DMA'
+  i=i+1; MODS(inm_CS   )%NAME = 'condens_sink'
+  i=i+1; MODS(inm_swr  )%NAME = 'shortwave_rad'
+  i=i+1; MODS(inm_RH   )%NAME = 'relative_humid'
+  i=i+1; MODS(inm_pres )%NAME = 'pressure'
+  i=i+1; MODS(inm_temp )%NAME = 'temperature'
+  i=i+1; MODS(inm_SO2  )%NAME = 'SO2'
+  i=i+1; MODS(inm_NO   )%NAME = 'NO'
+  i=i+1; MODS(inm_NO2  )%NAME = 'NO2'
+  i=i+1; MODS(inm_CO   )%NAME = 'CO'
+  i=i+1; MODS(inm_H2   )%NAME = 'H2'
+  i=i+1; MODS(inm_O3   )%NAME = 'O3'
+  i=i+1; MODS(inm_IPR  )%NAME = 'Ion_Prod_Rate'
+  i=i+1; MODS(inm_CH3O )%NAME = 'CH3O'
+  i=i+1; MODS(inm_CH3C )%NAME = 'CH3C'
+  i=i+1; MODS(inm_C2H5 )%NAME = 'C2H5'
+  i=i+1; MODS(inm_C5H8 )%NAME = 'C5H8'
+  i=i+1; MODS(inm_MVK  )%NAME = 'MVK'
+  i=i+1; MODS(inm_MEK  )%NAME = 'MEK'
+  i=i+1; MODS(inm_BENZ )%NAME = 'BENZENE'
+  i=i+1; MODS(inm_APIN )%NAME = 'ALPHAPINENE'
+  i=i+1; MODS(inm_BPIN )%NAME = 'BETAPINENE'
+  i=i+1; MODS(inm_LIMO )%NAME = 'LIMONENE'
+  i=i+1; MODS(inm_Care )%NAME = 'CARENE'
+  i=i+1; MODS(inm_TOLU )%NAME = 'TOLUENE'
 
-  i=i+1; MODS(ind_RES20)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES19)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES18)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES17)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES16)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES15)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES14)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES13)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES12)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES11)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES10)%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES9 )%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES8 )%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES7 )%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES6 )%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES5 )%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES4 )%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES3 )%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES2 )%NAME = 'RESERVE'
-  i=i+1; MODS(ind_RES1 )%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES20)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES19)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES18)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES17)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES16)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES15)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES14)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES13)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES12)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES11)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES10)%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES9 )%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES8 )%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES7 )%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES6 )%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES5 )%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES4 )%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES3 )%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES2 )%NAME = 'RESERVE'
+  i=i+1; MODS(inm_RES1 )%NAME = 'RESERVE'
   ! As safety feature, check that here nothing is left out
-  IF (i /= IND_LAST) THEN
+  IF (i /= INM_LAST) THEN
     print FMT_FAT0, 'Trouble in NAME_MODS (input.f90). Number of input variables differs from what is assumed'
-    print FMT_MSG, 'in IND_LAST. Fix and recompile.'
+    print FMT_MSG, 'in INM_LAST. Fix and recompile.'
     print FMT_LEND
     print*,
     STOP
@@ -362,59 +362,59 @@ subroutine FILL_INDRELAY_WITH_INDICES
   implicit none
   integer::i
   i = 0
-  INDRELAY(ind_H2SO4,1:2) = (/ind_H2SO4 , inp_H2SO4/) ;i=i+1
-  INDRELAY(ind_NH3  ,1:2) = (/ind_NH3   , inp_NH3  /) ;i=i+1
-  INDRELAY(ind_DMA  ,1:2) = (/ind_DMA   , inp_DMA  /) ;i=i+1
-  INDRELAY(ind_CS   ,1:2) = (/ind_CS    , inp_CS   /) ;i=i+1
-  INDRELAY(ind_swr  ,1:2) = (/ind_swr   , inp_swr  /) ;i=i+1
-  INDRELAY(ind_RH   ,1:2) = (/ind_RH    , inp_RH   /) ;i=i+1
-  INDRELAY(ind_pres ,1:2) = (/ind_pres  , inp_pres /) ;i=i+1
-  INDRELAY(ind_temp ,1:2) = (/ind_temp  , inp_temp /) ;i=i+1
-  INDRELAY(ind_SO2  ,1:2) = (/ind_SO2   , inp_SO2  /) ;i=i+1
-  INDRELAY(ind_NO   ,1:2) = (/ind_NO    , inp_NO   /) ;i=i+1
-  INDRELAY(ind_NO2  ,1:2) = (/ind_NO2   , inp_NO2  /) ;i=i+1
-  INDRELAY(ind_CO   ,1:2) = (/ind_CO    , inp_CO   /) ;i=i+1
-  INDRELAY(ind_H2   ,1:2) = (/ind_H2    , inp_H2   /) ;i=i+1
-  INDRELAY(ind_O3   ,1:2) = (/ind_O3    , inp_O3   /) ;i=i+1
-  INDRELAY(ind_IPR  ,1:2) = (/ind_IPR   , inp_IPR  /) ;i=i+1
-  INDRELAY(ind_CH3O ,1:2) = (/ind_CH3O  , inp_CH3O /) ;i=i+1
-  INDRELAY(ind_CH3C ,1:2) = (/ind_CH3C  , inp_CH3C /) ;i=i+1
-  INDRELAY(ind_C2H5 ,1:2) = (/ind_C2H5  , inp_C2H5 /) ;i=i+1
-  INDRELAY(ind_C5H8 ,1:2) = (/ind_C5H8  , inp_C5H8 /) ;i=i+1
-  INDRELAY(ind_MVK  ,1:2) = (/ind_MVK   , inp_MVK  /) ;i=i+1
-  INDRELAY(ind_MEK  ,1:2) = (/ind_MEK   , inp_MEK  /) ;i=i+1
-  INDRELAY(ind_BENZ ,1:2) = (/ind_BENZ  , inp_BENZ /) ;i=i+1
-  INDRELAY(ind_APIN ,1:2) = (/ind_APIN  , inp_APIN /) ;i=i+1
-  INDRELAY(ind_BPIN ,1:2) = (/ind_BPIN  , inp_BPIN /) ;i=i+1
-  INDRELAY(ind_LIMO ,1:2) = (/ind_LIMO  , inp_LIMO /) ;i=i+1
-  INDRELAY(ind_Care ,1:2) = (/ind_Care  , inp_Care /) ;i=i+1
-  INDRELAY(ind_TOLU ,1:2) = (/ind_TOLU  , inp_TOLU /) ;i=i+1
+  INDRELAY(inm_H2SO4,1:2) = (/inm_H2SO4 , inf_H2SO4/) ;i=i+1
+  INDRELAY(inm_NH3  ,1:2) = (/inm_NH3   , inf_NH3  /) ;i=i+1
+  INDRELAY(inm_DMA  ,1:2) = (/inm_DMA   , inf_DMA  /) ;i=i+1
+  INDRELAY(inm_CS   ,1:2) = (/inm_CS    , inf_CS   /) ;i=i+1
+  INDRELAY(inm_swr  ,1:2) = (/inm_swr   , inf_swr  /) ;i=i+1
+  INDRELAY(inm_RH   ,1:2) = (/inm_RH    , inf_RH   /) ;i=i+1
+  INDRELAY(inm_pres ,1:2) = (/inm_pres  , inf_pres /) ;i=i+1
+  INDRELAY(inm_temp ,1:2) = (/inm_temp  , inf_temp /) ;i=i+1
+  INDRELAY(inm_SO2  ,1:2) = (/inm_SO2   , inf_SO2  /) ;i=i+1
+  INDRELAY(inm_NO   ,1:2) = (/inm_NO    , inf_NO   /) ;i=i+1
+  INDRELAY(inm_NO2  ,1:2) = (/inm_NO2   , inf_NO2  /) ;i=i+1
+  INDRELAY(inm_CO   ,1:2) = (/inm_CO    , inf_CO   /) ;i=i+1
+  INDRELAY(inm_H2   ,1:2) = (/inm_H2    , inf_H2   /) ;i=i+1
+  INDRELAY(inm_O3   ,1:2) = (/inm_O3    , inf_O3   /) ;i=i+1
+  INDRELAY(inm_IPR  ,1:2) = (/inm_IPR   , inf_IPR  /) ;i=i+1
+  INDRELAY(inm_CH3O ,1:2) = (/inm_CH3O  , inf_CH3O /) ;i=i+1
+  INDRELAY(inm_CH3C ,1:2) = (/inm_CH3C  , inf_CH3C /) ;i=i+1
+  INDRELAY(inm_C2H5 ,1:2) = (/inm_C2H5  , inf_C2H5 /) ;i=i+1
+  INDRELAY(inm_C5H8 ,1:2) = (/inm_C5H8  , inf_C5H8 /) ;i=i+1
+  INDRELAY(inm_MVK  ,1:2) = (/inm_MVK   , inf_MVK  /) ;i=i+1
+  INDRELAY(inm_MEK  ,1:2) = (/inm_MEK   , inf_MEK  /) ;i=i+1
+  INDRELAY(inm_BENZ ,1:2) = (/inm_BENZ  , inf_BENZ /) ;i=i+1
+  INDRELAY(inm_APIN ,1:2) = (/inm_APIN  , inf_APIN /) ;i=i+1
+  INDRELAY(inm_BPIN ,1:2) = (/inm_BPIN  , inf_BPIN /) ;i=i+1
+  INDRELAY(inm_LIMO ,1:2) = (/inm_LIMO  , inf_LIMO /) ;i=i+1
+  INDRELAY(inm_Care ,1:2) = (/inm_Care  , inf_Care /) ;i=i+1
+  INDRELAY(inm_TOLU ,1:2) = (/inm_TOLU  , inf_TOLU /) ;i=i+1
 
-  INDRELAY(ind_RES20 ,1:2) = (/ind_RES20, inp_RES20/) ;i=i+1
-  INDRELAY(ind_RES19 ,1:2) = (/ind_RES19, inp_RES19/) ;i=i+1
-  INDRELAY(ind_RES18 ,1:2) = (/ind_RES18, inp_RES18/) ;i=i+1
-  INDRELAY(ind_RES17 ,1:2) = (/ind_RES17, inp_RES17/) ;i=i+1
-  INDRELAY(ind_RES16 ,1:2) = (/ind_RES16, inp_RES16/) ;i=i+1
-  INDRELAY(ind_RES15 ,1:2) = (/ind_RES15, inp_RES15/) ;i=i+1
-  INDRELAY(ind_RES14 ,1:2) = (/ind_RES14, inp_RES14/) ;i=i+1
-  INDRELAY(ind_RES13 ,1:2) = (/ind_RES13, inp_RES13/) ;i=i+1
-  INDRELAY(ind_RES12 ,1:2) = (/ind_RES12, inp_RES12/) ;i=i+1
-  INDRELAY(ind_RES11 ,1:2) = (/ind_RES11, inp_RES11/) ;i=i+1
-  INDRELAY(ind_RES10 ,1:2) = (/ind_RES10, inp_RES10/) ;i=i+1
-  INDRELAY(ind_RES9  ,1:2) = (/ind_RES9 , inp_RES9 /) ;i=i+1
-  INDRELAY(ind_RES8  ,1:2) = (/ind_RES8 , inp_RES8 /) ;i=i+1
-  INDRELAY(ind_RES7  ,1:2) = (/ind_RES7 , inp_RES7 /) ;i=i+1
-  INDRELAY(ind_RES6  ,1:2) = (/ind_RES6 , inp_RES6 /) ;i=i+1
-  INDRELAY(ind_RES5  ,1:2) = (/ind_RES5 , inp_RES5 /) ;i=i+1
-  INDRELAY(ind_RES4  ,1:2) = (/ind_RES4 , inp_RES4 /) ;i=i+1
-  INDRELAY(ind_RES3  ,1:2) = (/ind_RES3 , inp_RES3 /) ;i=i+1
-  INDRELAY(ind_RES2  ,1:2) = (/ind_RES2 , inp_RES2 /) ;i=i+1
-  INDRELAY(ind_RES1  ,1:2) = (/ind_RES1 , inp_RES1 /) ;i=i+1
+  INDRELAY(inm_RES20 ,1:2) = (/inm_RES20, inf_RES20/) ;i=i+1
+  INDRELAY(inm_RES19 ,1:2) = (/inm_RES19, inf_RES19/) ;i=i+1
+  INDRELAY(inm_RES18 ,1:2) = (/inm_RES18, inf_RES18/) ;i=i+1
+  INDRELAY(inm_RES17 ,1:2) = (/inm_RES17, inf_RES17/) ;i=i+1
+  INDRELAY(inm_RES16 ,1:2) = (/inm_RES16, inf_RES16/) ;i=i+1
+  INDRELAY(inm_RES15 ,1:2) = (/inm_RES15, inf_RES15/) ;i=i+1
+  INDRELAY(inm_RES14 ,1:2) = (/inm_RES14, inf_RES14/) ;i=i+1
+  INDRELAY(inm_RES13 ,1:2) = (/inm_RES13, inf_RES13/) ;i=i+1
+  INDRELAY(inm_RES12 ,1:2) = (/inm_RES12, inf_RES12/) ;i=i+1
+  INDRELAY(inm_RES11 ,1:2) = (/inm_RES11, inf_RES11/) ;i=i+1
+  INDRELAY(inm_RES10 ,1:2) = (/inm_RES10, inf_RES10/) ;i=i+1
+  INDRELAY(inm_RES9  ,1:2) = (/inm_RES9 , inf_RES9 /) ;i=i+1
+  INDRELAY(inm_RES8  ,1:2) = (/inm_RES8 , inf_RES8 /) ;i=i+1
+  INDRELAY(inm_RES7  ,1:2) = (/inm_RES7 , inf_RES7 /) ;i=i+1
+  INDRELAY(inm_RES6  ,1:2) = (/inm_RES6 , inf_RES6 /) ;i=i+1
+  INDRELAY(inm_RES5  ,1:2) = (/inm_RES5 , inf_RES5 /) ;i=i+1
+  INDRELAY(inm_RES4  ,1:2) = (/inm_RES4 , inf_RES4 /) ;i=i+1
+  INDRELAY(inm_RES3  ,1:2) = (/inm_RES3 , inf_RES3 /) ;i=i+1
+  INDRELAY(inm_RES2  ,1:2) = (/inm_RES2 , inf_RES2 /) ;i=i+1
+  INDRELAY(inm_RES1  ,1:2) = (/inm_RES1 , inf_RES1 /) ;i=i+1
 
   ! As safety feature, check that here nothing is left out
-  IF (i /= IND_LAST) THEN
+  IF (i /= INM_LAST) THEN
     print FMT_FAT0, 'Trouble in FILL_INDRELAY_WITH_INDICES (input.f90). Number of input variables differs'
-    print FMT_MSG, 'from what is assumed in IND_LAST. Fix and recompile.'
+    print FMT_MSG, 'from what is assumed in INM_LAST. Fix and recompile.'
     print FMT_LEND
     print*,
     STOP
@@ -429,61 +429,61 @@ SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_VOC,CONC_MAT)
   integer::i
   i = 0
 
-  IF (inp_H2SO4 > 0) CONC_MAT(:,ind_H2SO4) = input_ENV(:,inp_H2SO4) ;i=i+1
-  IF (inp_NH3   > 0) CONC_MAT(:,ind_NH3  ) = input_ENV(:,inp_NH3  ) ;i=i+1
-  IF (inp_DMA   > 0) CONC_MAT(:,ind_DMA  ) = input_ENV(:,inp_DMA  ) ;i=i+1
-  IF (inp_CS    > 0) CONC_MAT(:,ind_CS   ) = input_ENV(:,inp_CS   ) ;i=i+1
-  IF (inp_swr   > 0) CONC_MAT(:,ind_swr  ) = input_ENV(:,inp_swr  ) ;i=i+1
-  IF (inp_RH    > 0) CONC_MAT(:,ind_RH   ) = input_ENV(:,inp_RH   ) ;i=i+1
-  IF (inp_pres  > 0) CONC_MAT(:,ind_pres ) = input_ENV(:,inp_pres ) ;i=i+1
-  IF (inp_temp  > 0) CONC_MAT(:,ind_temp ) = input_ENV(:,inp_temp ) ;i=i+1
-  IF (inp_SO2   > 0) CONC_MAT(:,ind_SO2  ) = input_ENV(:,inp_SO2  ) ;i=i+1
-  IF (inp_NO    > 0) CONC_MAT(:,ind_NO   ) = input_ENV(:,inp_NO   ) ;i=i+1
-  IF (inp_NO2   > 0) CONC_MAT(:,ind_NO2  ) = input_ENV(:,inp_NO2  ) ;i=i+1
-  IF (inp_CO    > 0) CONC_MAT(:,ind_CO   ) = input_ENV(:,inp_CO   ) ;i=i+1
-  IF (inp_H2    > 0) CONC_MAT(:,ind_H2   ) = input_ENV(:,inp_H2   ) ;i=i+1
-  IF (inp_O3    > 0) CONC_MAT(:,ind_O3   ) = input_ENV(:,inp_O3   ) ;i=i+1
-  IF (inp_IPR   > 0) CONC_MAT(:,ind_IPR  ) = input_ENV(:,inp_IPR  ) ;i=i+1
+  IF (inf_H2SO4 > 0) CONC_MAT(:,inm_H2SO4) = input_ENV(:,inf_H2SO4) ;i=i+1
+  IF (inf_NH3   > 0) CONC_MAT(:,inm_NH3  ) = input_ENV(:,inf_NH3  ) ;i=i+1
+  IF (inf_DMA   > 0) CONC_MAT(:,inm_DMA  ) = input_ENV(:,inf_DMA  ) ;i=i+1
+  IF (inf_CS    > 0) CONC_MAT(:,inm_CS   ) = input_ENV(:,inf_CS   ) ;i=i+1
+  IF (inf_swr   > 0) CONC_MAT(:,inm_swr  ) = input_ENV(:,inf_swr  ) ;i=i+1
+  IF (inf_RH    > 0) CONC_MAT(:,inm_RH   ) = input_ENV(:,inf_RH   ) ;i=i+1
+  IF (inf_pres  > 0) CONC_MAT(:,inm_pres ) = input_ENV(:,inf_pres ) ;i=i+1
+  IF (inf_temp  > 0) CONC_MAT(:,inm_temp ) = input_ENV(:,inf_temp ) ;i=i+1
+  IF (inf_SO2   > 0) CONC_MAT(:,inm_SO2  ) = input_ENV(:,inf_SO2  ) ;i=i+1
+  IF (inf_NO    > 0) CONC_MAT(:,inm_NO   ) = input_ENV(:,inf_NO   ) ;i=i+1
+  IF (inf_NO2   > 0) CONC_MAT(:,inm_NO2  ) = input_ENV(:,inf_NO2  ) ;i=i+1
+  IF (inf_CO    > 0) CONC_MAT(:,inm_CO   ) = input_ENV(:,inf_CO   ) ;i=i+1
+  IF (inf_H2    > 0) CONC_MAT(:,inm_H2   ) = input_ENV(:,inf_H2   ) ;i=i+1
+  IF (inf_O3    > 0) CONC_MAT(:,inm_O3   ) = input_ENV(:,inf_O3   ) ;i=i+1
+  IF (inf_IPR   > 0) CONC_MAT(:,inm_IPR  ) = input_ENV(:,inf_IPR  ) ;i=i+1
 
-  IF (inp_CH3O  > 0) CONC_MAT(:,ind_CH3O ) = input_VOC(:,inp_CH3O ) ;i=i+1
-  IF (inp_CH3C  > 0) CONC_MAT(:,ind_CH3C ) = input_VOC(:,inp_CH3C ) ;i=i+1
-  IF (inp_C2H5  > 0) CONC_MAT(:,ind_C2H5 ) = input_VOC(:,inp_C2H5 ) ;i=i+1
-  IF (inp_C5H8  > 0) CONC_MAT(:,ind_C5H8 ) = input_VOC(:,inp_C5H8 ) ;i=i+1
-  IF (inp_MVK   > 0) CONC_MAT(:,ind_MVK  ) = input_VOC(:,inp_MVK  ) ;i=i+1
-  IF (inp_MEK   > 0) CONC_MAT(:,ind_MEK  ) = input_VOC(:,inp_MEK  ) ;i=i+1
-  IF (inp_BENZ  > 0) CONC_MAT(:,ind_BENZ ) = input_VOC(:,inp_BENZ ) ;i=i+1
-  IF (inp_APIN  > 0) CONC_MAT(:,ind_APIN ) = input_VOC(:,inp_APIN ) ;i=i+1
-  IF (inp_BPIN  > 0) CONC_MAT(:,ind_BPIN ) = input_VOC(:,inp_BPIN ) ;i=i+1
-  IF (inp_LIMO  > 0) CONC_MAT(:,ind_LIMO ) = input_VOC(:,inp_LIMO ) ;i=i+1
-  IF (inp_Care  > 0) CONC_MAT(:,ind_Care ) = input_VOC(:,inp_Care ) ;i=i+1
-  IF (inp_TOLU  > 0) CONC_MAT(:,ind_TOLU ) = input_VOC(:,inp_TOLU ) ;i=i+1
+  IF (inf_CH3O  > 0) CONC_MAT(:,inm_CH3O ) = input_VOC(:,inf_CH3O ) ;i=i+1
+  IF (inf_CH3C  > 0) CONC_MAT(:,inm_CH3C ) = input_VOC(:,inf_CH3C ) ;i=i+1
+  IF (inf_C2H5  > 0) CONC_MAT(:,inm_C2H5 ) = input_VOC(:,inf_C2H5 ) ;i=i+1
+  IF (inf_C5H8  > 0) CONC_MAT(:,inm_C5H8 ) = input_VOC(:,inf_C5H8 ) ;i=i+1
+  IF (inf_MVK   > 0) CONC_MAT(:,inm_MVK  ) = input_VOC(:,inf_MVK  ) ;i=i+1
+  IF (inf_MEK   > 0) CONC_MAT(:,inm_MEK  ) = input_VOC(:,inf_MEK  ) ;i=i+1
+  IF (inf_BENZ  > 0) CONC_MAT(:,inm_BENZ ) = input_VOC(:,inf_BENZ ) ;i=i+1
+  IF (inf_APIN  > 0) CONC_MAT(:,inm_APIN ) = input_VOC(:,inf_APIN ) ;i=i+1
+  IF (inf_BPIN  > 0) CONC_MAT(:,inm_BPIN ) = input_VOC(:,inf_BPIN ) ;i=i+1
+  IF (inf_LIMO  > 0) CONC_MAT(:,inm_LIMO ) = input_VOC(:,inf_LIMO ) ;i=i+1
+  IF (inf_Care  > 0) CONC_MAT(:,inm_Care ) = input_VOC(:,inf_Care ) ;i=i+1
+  IF (inf_TOLU  > 0) CONC_MAT(:,inm_TOLU ) = input_VOC(:,inf_TOLU ) ;i=i+1
 
-  IF (inp_RES20 > 0) CONC_MAT(:,ind_RES20) = input_VOC(:,inp_RES20) ;i=i+1
-  IF (inp_RES19 > 0) CONC_MAT(:,ind_RES19) = input_VOC(:,inp_RES19) ;i=i+1
-  IF (inp_RES18 > 0) CONC_MAT(:,ind_RES18) = input_VOC(:,inp_RES18) ;i=i+1
-  IF (inp_RES17 > 0) CONC_MAT(:,ind_RES17) = input_VOC(:,inp_RES17) ;i=i+1
-  IF (inp_RES16 > 0) CONC_MAT(:,ind_RES16) = input_VOC(:,inp_RES16) ;i=i+1
-  IF (inp_RES15 > 0) CONC_MAT(:,ind_RES15) = input_VOC(:,inp_RES15) ;i=i+1
-  IF (inp_RES14 > 0) CONC_MAT(:,ind_RES14) = input_VOC(:,inp_RES14) ;i=i+1
-  IF (inp_RES13 > 0) CONC_MAT(:,ind_RES13) = input_VOC(:,inp_RES13) ;i=i+1
-  IF (inp_RES12 > 0) CONC_MAT(:,ind_RES12) = input_VOC(:,inp_RES12) ;i=i+1
-  IF (inp_RES11 > 0) CONC_MAT(:,ind_RES11) = input_VOC(:,inp_RES11) ;i=i+1
-  IF (inp_RES10 > 0) CONC_MAT(:,ind_RES10) = input_VOC(:,inp_RES10) ;i=i+1
-  IF (inp_RES9  > 0) CONC_MAT(:,ind_RES9 ) = input_VOC(:,inp_RES9 ) ;i=i+1
-  IF (inp_RES8  > 0) CONC_MAT(:,ind_RES8 ) = input_VOC(:,inp_RES8 ) ;i=i+1
-  IF (inp_RES7  > 0) CONC_MAT(:,ind_RES7 ) = input_VOC(:,inp_RES7 ) ;i=i+1
-  IF (inp_RES6  > 0) CONC_MAT(:,ind_RES6 ) = input_VOC(:,inp_RES6 ) ;i=i+1
-  IF (inp_RES5  > 0) CONC_MAT(:,ind_RES5 ) = input_VOC(:,inp_RES5 ) ;i=i+1
-  IF (inp_RES4  > 0) CONC_MAT(:,ind_RES4 ) = input_VOC(:,inp_RES4 ) ;i=i+1
-  IF (inp_RES3  > 0) CONC_MAT(:,ind_RES3 ) = input_VOC(:,inp_RES3 ) ;i=i+1
-  IF (inp_RES2  > 0) CONC_MAT(:,ind_RES2 ) = input_VOC(:,inp_RES2 ) ;i=i+1
-  IF (inp_RES1  > 0) CONC_MAT(:,ind_RES1 ) = input_VOC(:,inp_RES1 ) ;i=i+1
+  IF (inf_RES20 > 0) CONC_MAT(:,inm_RES20) = input_VOC(:,inf_RES20) ;i=i+1
+  IF (inf_RES19 > 0) CONC_MAT(:,inm_RES19) = input_VOC(:,inf_RES19) ;i=i+1
+  IF (inf_RES18 > 0) CONC_MAT(:,inm_RES18) = input_VOC(:,inf_RES18) ;i=i+1
+  IF (inf_RES17 > 0) CONC_MAT(:,inm_RES17) = input_VOC(:,inf_RES17) ;i=i+1
+  IF (inf_RES16 > 0) CONC_MAT(:,inm_RES16) = input_VOC(:,inf_RES16) ;i=i+1
+  IF (inf_RES15 > 0) CONC_MAT(:,inm_RES15) = input_VOC(:,inf_RES15) ;i=i+1
+  IF (inf_RES14 > 0) CONC_MAT(:,inm_RES14) = input_VOC(:,inf_RES14) ;i=i+1
+  IF (inf_RES13 > 0) CONC_MAT(:,inm_RES13) = input_VOC(:,inf_RES13) ;i=i+1
+  IF (inf_RES12 > 0) CONC_MAT(:,inm_RES12) = input_VOC(:,inf_RES12) ;i=i+1
+  IF (inf_RES11 > 0) CONC_MAT(:,inm_RES11) = input_VOC(:,inf_RES11) ;i=i+1
+  IF (inf_RES10 > 0) CONC_MAT(:,inm_RES10) = input_VOC(:,inf_RES10) ;i=i+1
+  IF (inf_RES9  > 0) CONC_MAT(:,inm_RES9 ) = input_VOC(:,inf_RES9 ) ;i=i+1
+  IF (inf_RES8  > 0) CONC_MAT(:,inm_RES8 ) = input_VOC(:,inf_RES8 ) ;i=i+1
+  IF (inf_RES7  > 0) CONC_MAT(:,inm_RES7 ) = input_VOC(:,inf_RES7 ) ;i=i+1
+  IF (inf_RES6  > 0) CONC_MAT(:,inm_RES6 ) = input_VOC(:,inf_RES6 ) ;i=i+1
+  IF (inf_RES5  > 0) CONC_MAT(:,inm_RES5 ) = input_VOC(:,inf_RES5 ) ;i=i+1
+  IF (inf_RES4  > 0) CONC_MAT(:,inm_RES4 ) = input_VOC(:,inf_RES4 ) ;i=i+1
+  IF (inf_RES3  > 0) CONC_MAT(:,inm_RES3 ) = input_VOC(:,inf_RES3 ) ;i=i+1
+  IF (inf_RES2  > 0) CONC_MAT(:,inm_RES2 ) = input_VOC(:,inf_RES2 ) ;i=i+1
+  IF (inf_RES1  > 0) CONC_MAT(:,inm_RES1 ) = input_VOC(:,inf_RES1 ) ;i=i+1
 
 
   ! As safety feature, check that here nothing is left out
-  IF (i /= IND_LAST) THEN
+  IF (i /= INM_LAST) THEN
     print FMT_FAT0, 'Trouble in PUT_INPUT_IN_THEIR_PLACES (input.f90). Number of input variables differs'
-    print FMT_MSG, 'from what is assumed in IND_LAST. Fix and recompile.'
+    print FMT_MSG, 'from what is assumed in INM_LAST. Fix and recompile.'
     print FMT_LEND
     print*,
     STOP
