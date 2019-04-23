@@ -140,10 +140,12 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
 
   do i = 1,size(MODS)
     IF ((TRIM(MODS(i)%name) /= 'NONAME') .and. (TRIM(MODS(i)%name) /= 'RESERVE')) THEN
-      call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Multipl', NF90_DOUBLE, gtime_id, multipl_ind(i)))
-      call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Shifter', NF90_DOUBLE, gtime_id, shifter_ind(i)))
-      call handler(nf90_put_att(gas_ncfile_id, multipl_ind(i), 'units' , '[]'))
-      call handler(nf90_put_att(gas_ncfile_id, shifter_ind(i), 'units' , '[same]'))
+      IF ((ABS(MODS(i)%shift-0d0) > 1d-100) .or. (ABS(MODS(i)%multi-1d0) > 1d-100)) THEN
+        call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Multipl', NF90_DOUBLE, gtime_id, multipl_ind(i)))
+        call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Shifter', NF90_DOUBLE, gtime_id, shifter_ind(i)))
+        call handler(nf90_put_att(gas_ncfile_id, multipl_ind(i), 'units' , '[]'))
+        call handler(nf90_put_att(gas_ncfile_id, shifter_ind(i), 'units' , '[same]'))
+      END IF
     END IF
   end do
 
@@ -196,8 +198,10 @@ SUBROUTINE SAVE_GASES(temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, MODS
 
   do i = 1,size(MODS)
     IF ((TRIM(MODS(i)%name) /= 'NONAME') .and. (TRIM(MODS(i)%name) /= 'RESERVE')) THEN
-      call handler(nf90_put_var(gas_ncfile_id, multipl_ind(i), MODS(i)%multi, (/MODELTIME%ind_netcdf/) ) )
-      call handler(nf90_put_var(gas_ncfile_id, shifter_ind(i), MODS(i)%shift,  (/MODELTIME%ind_netcdf/) ) )
+      IF ((ABS(MODS(i)%shift-0d0) > 1d-100) .or. (ABS(MODS(i)%multi-1d0) > 1d-100)) THEN
+        call handler(nf90_put_var(gas_ncfile_id, multipl_ind(i), MODS(i)%multi, (/MODELTIME%ind_netcdf/) ) )
+        call handler(nf90_put_var(gas_ncfile_id, shifter_ind(i), MODS(i)%shift,  (/MODELTIME%ind_netcdf/) ) )
+      END IF
     END IF
   end do
 
