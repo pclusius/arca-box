@@ -8,6 +8,152 @@ duration_in_hours = 24
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
 
+indices = [
+"CH3OH      = 20",
+"C2H5OH     = 21",
+"NPROPOL    = 22",
+"IPROPOL    = 23",
+"NBUTOL     = 24",
+"BUT2OL     = 25",
+"IBUTOL     = 26",
+"TBUTOL     = 27",
+"PECOH      = 28",
+"IPEAOH     = 29",
+"ME3BUOL    = 30",
+"IPECOH     = 31",
+"IPEBOH     = 32",
+"CYHEXOL    = 33",
+"MIBKAOH    = 34",
+"ETHGLY     = 35",
+"PROPGLY    = 36",
+"MBO        = 37",
+"HCHO       = 38",
+"CH3CHO     = 39",
+"C2H5CHO    = 40",
+"C3H7CHO    = 41",
+"IPRCHO     = 42",
+"C4H9CHO    = 43",
+"ACR        = 44",
+"MACR       = 45",
+"C4ALDB     = 46",
+"CH4        = 47",
+"C2H6       = 48",
+"C3H8       = 49",
+"NC4H10     = 50",
+"IC4H10     = 51",
+"NC5H12     = 52",
+"IC5H12     = 53",
+"NEOP       = 54",
+"NC6H14     = 55",
+"M2PE       = 56",
+"M3PE       = 57",
+"M22C4      = 58",
+"M23C4      = 59",
+"NC7H16     = 60",
+"M2HEX      = 61",
+"M3HEX      = 62",
+"NC8H18     = 63",
+"NC9H20     = 64",
+"NC10H22    = 65",
+"NC11H24    = 66",
+"NC12H26    = 67",
+"CHEX       = 68",
+"C2H4       = 69",
+"C3H6       = 70",
+"BUT1ENE    = 71",
+"CBUT2ENE   = 72",
+"TBUT2ENE   = 73",
+"MEPROPENE  = 74",
+"PENT1ENE   = 75",
+"CPENT2ENE  = 76",
+"TPENT2ENE  = 77",
+"ME2BUT1ENE = 78",
+"ME3BUT1ENE = 79",
+"ME2BUT2ENE = 80",
+"HEX1ENE    = 81",
+"CHEX2ENE   = 82",
+"THEX2ENE   = 83",
+"DM23BU2ENE = 84",
+"C2H2       = 85",
+"BENZENE    = 86",
+"TOLUENE    = 87",
+"OXYL       = 88",
+"MXYL       = 89",
+"PXYL       = 90",
+"EBENZ      = 91",
+"PBENZ      = 92",
+"IPBENZ     = 93",
+"TM123B     = 94",
+"TM124B     = 95",
+"TM135B     = 96",
+"OETHTOL    = 97",
+"METHTOL    = 98",
+"PETHTOL    = 99",
+"DIME35EB   = 100",
+"DIET35TOL  = 101",
+"STYRENE    = 102",
+"BENZAL     = 103",
+"CH3CL      = 104",
+"CH2CL2     = 105",
+"CHCL3      = 106",
+"CH3CCL3    = 107",
+"TCE        = 108",
+"TRICLETH   = 109",
+"CDICLETH   = 110",
+"TDICLETH   = 111",
+"CH2CLCH2CL = 112",
+"CCL2CH2    = 113",
+"CL12PROP   = 114",
+"CHCL2CH3   = 115",
+"CH3CH2CL   = 116",
+"CHCL2CHCL2 = 117",
+"CH2CLCHCL2 = 118",
+"VINCL      = 119",
+"C4H6       = 120",
+"C5H8       = 121",
+"CH3OCHO    = 122",
+"METHACET   = 123",
+"ETHACET    = 124",
+"NPROACET   = 125",
+"IPROACET   = 126",
+"NBUTACET   = 127",
+"SBUTACET   = 128",
+"TBUACET    = 129",
+"CH3OCH3    = 130",
+"DIETETHER  = 131",
+"MTBE       = 132",
+"DIIPRETHER = 133",
+"ETBE       = 134",
+"MO2EOL     = 135",
+"EOX2EOL    = 136",
+"PR2OHMOX   = 137",
+"BUOX2ETOH  = 138",
+"BOX2PROL   = 139",
+"CH3BR      = 140",
+"DIBRET     = 141",
+"CH3COCH3   = 142",
+"MEK        = 143",
+"MPRK       = 144",
+"DIEK       = 145",
+"MIPK       = 146",
+"HEX2ONE    = 147",
+"HEX3ONE    = 148",
+"MIBK       = 149",
+"MTBK       = 150",
+"CYHEXONE   = 151",
+"APINENE    = 152",
+"BPINENE    = 153",
+"LIMONENE   = 154",
+"BCARY      = 155",
+"HCOOH      = 156",
+"CH3CO2H    = 157",
+"PROPACID   = 158",
+"DMM        = 159",
+"DMC        = 160",
+"DMS        = 161",
+"ETHOX      = 162"]
+
+
 x = np.linspace(0.0, duration_in_hours, 1000)
 minimum_level = 1e1
 maximum_level = 1e5
@@ -144,136 +290,94 @@ def codeout(event,index,j):
     else:
         mode = 2
     name = j
-    strr = 'MODS(%d) = %d "%s" %fd%d %fd%d %fd0 %0fd0 %fd0 %fd0 %fd0 1d0 0d0'%(
-    index,mode, name,
+    strr = 'MODS(%d) = %d %fd%d %fd%d %fd0 %0fd0 %fd0 %fd0 %fd0 1d0 0d0 "%s"'%(
+    index,mode,
     range.minimum/(10**np.floor(np.log10(range.minimum))),np.floor(np.log10(range.minimum)),
     range.maximum/(10**np.floor(np.log10(range.maximum))),np.floor(np.log10(range.maximum)),
     ssigma.val,speak.val,
-    sfreq.val,sphase.val,samp.val)
+    sfreq.val,sphase.val,samp.val, name)
     print()
     print(strr)
 
-def c_H2SO4(event):
-    codeout(event,1,'H2SO4')
-def c_NH3(event):
-    codeout(event,2,'NH3')
-def c_DMA(event):
-    codeout(event,3,'DMA')
+def c_temperature(event):
+    codeout(event,1,'temperature')
+def c_pressure(event):
+    codeout(event,2,'pressure')
+def c_relative_humid(event):
+    codeout(event,3,'relative_humid')
 def c_condens_sink(event):
     codeout(event,4,'condens_sink')
 def c_shortwave_rad(event):
     codeout(event,5,'shortwave_rad')
-def c_relative_humid(event):
-    codeout(event,6,'relative_humid')
-def c_pressure(event):
-    codeout(event,7,'pressure')
-def c_temperature(event):
-    codeout(event,8,'temperature')
-def c_SO2(event):
-    codeout(event,9,'SO2')
-def c_NO(event):
-    codeout(event,10,'NO')
-def c_NO2(event):
-    codeout(event,11,'NO2')
-def c_CO(event):
-    codeout(event,12,'CO')
-def c_H2(event):
-    codeout(event,13,'H2')
-def c_O3(event):
-    codeout(event,14,'O3')
 def c_Ion_Prod_Rate(event):
-    codeout(event,15,'Ion_Prod_Rate')
-def c_CH3O(event):
-    codeout(event,16,'CH3O')
-def c_CH3C(event):
-    codeout(event,17,'CH3C')
-def c_C2H5(event):
-    codeout(event,18,'C2H5')
-def c_C5H8(event):
-    codeout(event,19,'C5H8')
-def c_MVK(event):
-    codeout(event,20,'MVK')
-def c_MEK(event):
-    codeout(event,21,'MEK')
-def c_BENZENE(event):
-    codeout(event,22,'BENZENE')
-def c_ALPHAPINENE(event):
-    codeout(event,23,'ALPHAPINENE')
-def c_BETAPINENE(event):
-    codeout(event,24,'BETAPINENE')
-def c_LIMONENE(event):
-    codeout(event,25,'LIMONENE')
-def c_CARENE(event):
-    codeout(event,26,'CARENE')
-def c_TOLUENE(event):
-    codeout(event,27,'TOLUENE')
+    codeout(event,6,'Ion_Prod_Rate')
+def c_H2SO4(event):
+    codeout(event,7,'H2SO4')
+def c_NH3(event):
+    codeout(event,8,'NH3')
+def c_DMA(event):
+    codeout(event,9,'DMA')
+def c_SO2(event):
+    codeout(event,10,'SO2')
+def c_NO(event):
+    codeout(event,11,'NO')
+def c_NO2(event):
+    codeout(event,12,'NO2')
+def c_CO(event):
+    codeout(event,13,'CO')
+def c_H2(event):
+    codeout(event,14,'H2')
+def c_O3(event):
+    codeout(event,15,'O3')
+def LIST(event):
+    for c in indices:
+        print(c)
 
 
 compoundaxes =[]
-j=27
+j=16
 tbax.annotate('Print input for init file:', wrap=True, xy=(0.8,0.025+0.03*(j+1)),
 xycoords=('figure fraction', 'figure fraction'), xytext=(0, 10), textcoords='offset points')
 while j>0:
     compoundaxes.append(plt.axes([0.78, 0.025+0.03*j, 0.20, 0.03]))
     j=j-1
 
-
-i=0  ;code1  = Button(compoundaxes[i], 'H2SO4', color=axcolor, hovercolor='0.975')
-i=i+1;code2  = Button(compoundaxes[i], 'NH3', color=axcolor, hovercolor='0.975')
-i=i+1;code3  = Button(compoundaxes[i], 'DMA', color=axcolor, hovercolor='0.975')
+i=-1
+i=i+1;code1  = Button(compoundaxes[i], 'temperature', color=axcolor, hovercolor='0.975')
+i=i+1;code2  = Button(compoundaxes[i], 'pressure', color=axcolor, hovercolor='0.975')
+i=i+1;code3  = Button(compoundaxes[i], 'relative_humid', color=axcolor, hovercolor='0.975')
 i=i+1;code4  = Button(compoundaxes[i], 'condens_sink', color=axcolor, hovercolor='0.975')
 i=i+1;code5  = Button(compoundaxes[i], 'shortwave_rad', color=axcolor, hovercolor='0.975')
-i=i+1;code6  = Button(compoundaxes[i], 'relative_humid', color=axcolor, hovercolor='0.975')
-i=i+1;code7  = Button(compoundaxes[i], 'pressure', color=axcolor, hovercolor='0.975')
-i=i+1;code8  = Button(compoundaxes[i], 'temperature', color=axcolor, hovercolor='0.975')
-i=i+1;code9  = Button(compoundaxes[i], 'SO2', color=axcolor, hovercolor='0.975')
-i=i+1;code10 = Button(compoundaxes[i], 'NO', color=axcolor, hovercolor='0.975')
-i=i+1;code11 = Button(compoundaxes[i], 'NO2', color=axcolor, hovercolor='0.975')
-i=i+1;code12 = Button(compoundaxes[i], 'CO', color=axcolor, hovercolor='0.975')
-i=i+1;code13 = Button(compoundaxes[i], 'H2', color=axcolor, hovercolor='0.975')
-i=i+1;code14 = Button(compoundaxes[i], 'O3', color=axcolor, hovercolor='0.975')
-i=i+1;code15 = Button(compoundaxes[i], 'Ion_Prod_Rate', color=axcolor, hovercolor='0.975')
-i=i+1;code16 = Button(compoundaxes[i], 'CH3O', color=axcolor, hovercolor='0.975')
-i=i+1;code17 = Button(compoundaxes[i], 'CH3C', color=axcolor, hovercolor='0.975')
-i=i+1;code18 = Button(compoundaxes[i], 'C2H5', color=axcolor, hovercolor='0.975')
-i=i+1;code19 = Button(compoundaxes[i], 'C5H8', color=axcolor, hovercolor='0.975')
-i=i+1;code20 = Button(compoundaxes[i], 'MVK', color=axcolor, hovercolor='0.975')
-i=i+1;code21 = Button(compoundaxes[i], 'MEK', color=axcolor, hovercolor='0.975')
-i=i+1;code22 = Button(compoundaxes[i], 'BENZENE', color=axcolor, hovercolor='0.975')
-i=i+1;code23 = Button(compoundaxes[i], 'ALPHAPINENE', color=axcolor, hovercolor='0.975')
-i=i+1;code24 = Button(compoundaxes[i], 'BETAPINENE', color=axcolor, hovercolor='0.975')
-i=i+1;code25 = Button(compoundaxes[i], 'LIMONENE', color=axcolor, hovercolor='0.975')
-i=i+1;code26 = Button(compoundaxes[i], 'CARENE', color=axcolor, hovercolor='0.975')
-i=i+1;code27 = Button(compoundaxes[i], 'TOLUENE', color=axcolor, hovercolor='0.975')
+i=i+1;code6 = Button(compoundaxes[i], 'Ion_Prod_Rate', color=axcolor, hovercolor='0.975')
+i=i+1;code7  = Button(compoundaxes[i], 'H2SO4', color=axcolor, hovercolor='0.975')
+i=i+1;code8  = Button(compoundaxes[i], 'NH3', color=axcolor, hovercolor='0.975')
+i=i+1;code9  = Button(compoundaxes[i], 'DMA', color=axcolor, hovercolor='0.975')
+i=i+1;code10  = Button(compoundaxes[i], 'SO2', color=axcolor, hovercolor='0.975')
+i=i+1;code11 = Button(compoundaxes[i], 'NO', color=axcolor, hovercolor='0.975')
+i=i+1;code12 = Button(compoundaxes[i], 'NO2', color=axcolor, hovercolor='0.975')
+i=i+1;code13 = Button(compoundaxes[i], 'CO', color=axcolor, hovercolor='0.975')
+i=i+1;code14 = Button(compoundaxes[i], 'H2', color=axcolor, hovercolor='0.975')
+i=i+1;code15 = Button(compoundaxes[i], 'O3', color=axcolor, hovercolor='0.975')
+i=i+1;code16 = Button(compoundaxes[i], 'print list of VOC', color=axcolor, hovercolor='0.975')
 
 
-code1.on_clicked(c_H2SO4)
-code2.on_clicked(c_NH3)
-code3.on_clicked(c_DMA)
+
+code1.on_clicked(c_temperature)
+code2.on_clicked(c_pressure)
+code3.on_clicked(c_relative_humid)
 code4.on_clicked(c_condens_sink)
 code5.on_clicked(c_shortwave_rad)
-code6.on_clicked(c_relative_humid)
-code7.on_clicked(c_pressure)
-code8.on_clicked(c_temperature)
-code9.on_clicked(c_SO2)
-code10.on_clicked(c_NO)
-code11.on_clicked(c_NO2)
-code12.on_clicked(c_CO)
-code13.on_clicked(c_H2)
-code14.on_clicked(c_O3)
-code15.on_clicked(c_Ion_Prod_Rate)
-code16.on_clicked(c_CH3O)
-code17.on_clicked(c_CH3C)
-code18.on_clicked(c_C2H5)
-code19.on_clicked(c_C5H8)
-code20.on_clicked(c_MVK)
-code21.on_clicked(c_MEK)
-code22.on_clicked(c_BENZENE)
-code23.on_clicked(c_ALPHAPINENE)
-code24.on_clicked(c_BETAPINENE)
-code25.on_clicked(c_LIMONENE)
-code26.on_clicked(c_CARENE)
-code27.on_clicked(c_TOLUENE)
+code6.on_clicked(c_Ion_Prod_Rate)
+code7.on_clicked(c_H2SO4)
+code8.on_clicked(c_NH3)
+code9.on_clicked(c_DMA)
+code10.on_clicked(c_SO2)
+code11.on_clicked(c_NO)
+code12.on_clicked(c_NO2)
+code13.on_clicked(c_CO)
+code14.on_clicked(c_H2)
+code15.on_clicked(c_O3)
+code16.on_clicked(LIST)
 
 #
 code.on_clicked(ccode)
