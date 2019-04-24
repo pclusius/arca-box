@@ -395,23 +395,23 @@ subroutine READ_INIT_FILE
     STOP
   END IF
   READ(50,NML=NML_Path,  IOSTAT= IOS(2)) ! directories and test cases
-    IF (IOS(2) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_Path, maybe some undefinded input?'
+    IF (IOS(2) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Path, maybe some undefinded input?'
   READ(50,NML=NML_Flag,  IOSTAT= IOS(3)) ! flags
-    IF (IOS(3) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_Flag, maybe some undefinded input?'
+    IF (IOS(3) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Flag, maybe some undefinded input?'
   READ(50,NML=NML_TIME,  IOSTAT= IOS(4)) ! time related stuff
-    IF (IOS(4) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_TIME, maybe some undefinded input?'
+    IF (IOS(4) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_TIME, maybe some undefinded input?'
   READ(50,NML=NML_DMPS,  IOSTAT= IOS(5)) ! dmps_file information
-    IF (IOS(5) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_DMPS, maybe some undefinded input?'
+    IF (IOS(5) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_DMPS, maybe some undefinded input?'
   READ(50,NML=NML_ENV,  IOSTAT= IOS(6)) ! environmental information
-    IF (IOS(6) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_Temp, maybe some undefinded input?'
+    IF (IOS(6) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Temp, maybe some undefinded input?'
   READ(50,NML=NML_MCM,   IOSTAT= IOS(7)) ! MCM_file information
-    IF (IOS(7) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_MCM, maybe some undefinded input?'
+    IF (IOS(7) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MCM, maybe some undefinded input?'
   READ(50,NML=NML_MODS,  IOSTAT= IOS(8)) ! modification parameters
-    IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_MODS, maybe some undefinded input?'
+    IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MODS, maybe some undefinded input?'
   READ(50,NML=NML_MISC,  IOSTAT= IOS(9)) ! misc input
-    IF (IOS(9) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_MISC, maybe some undefinded input?'
+    IF (IOS(9) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MISC, maybe some undefinded input?'
   READ(50,NML=NML_ICOLS,  IOSTAT= IOS(10)) ! indices input
-    IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in init file; NML_ICOLS, maybe some undefinded input?'
+    IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_ICOLS, maybe some undefinded input?'
   CLOSE(50)
   IF (SUM(IOS) /= 0) then
     write(*,FMT_MSG) 'Problems with the init file, exiting now. Good bye.'
@@ -804,170 +804,174 @@ SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
   integer::i
   i = 0
 
-  IF ((inf_temp  > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_temp ) = input_ENV(:,inf_temp ) ;i=i+1
-  IF ((inf_pres  > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_pres ) = input_ENV(:,inf_pres ) ;i=i+1
-  IF ((inf_RH    > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_RH   ) = input_ENV(:,inf_RH   ) ;i=i+1
-  IF ((inf_CS    > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_CS   ) = input_ENV(:,inf_CS   ) ;i=i+1
-  IF ((inf_swr   > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_swr  ) = input_ENV(:,inf_swr  ) ;i=i+1
-  IF ((inf_IPR   > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_IPR  ) = input_ENV(:,inf_IPR  ) ;i=i+1
+  IF (ENV_file /= '') THEN
+    IF (inf_temp  > 0) CONC_MAT(:,inm_temp ) = input_ENV(:,inf_temp ) ;i=i+1
+    IF (inf_pres  > 0) CONC_MAT(:,inm_pres ) = input_ENV(:,inf_pres ) ;i=i+1
+    IF (inf_RH    > 0) CONC_MAT(:,inm_RH   ) = input_ENV(:,inf_RH   ) ;i=i+1
+    IF (inf_CS    > 0) CONC_MAT(:,inm_CS   ) = input_ENV(:,inf_CS   ) ;i=i+1
+    IF (inf_swr   > 0) CONC_MAT(:,inm_swr  ) = input_ENV(:,inf_swr  ) ;i=i+1
+    IF (inf_IPR   > 0) CONC_MAT(:,inm_IPR  ) = input_ENV(:,inf_IPR  ) ;i=i+1
 
-  IF ((inf_H2SO4 > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_H2SO4) = input_ENV(:,inf_H2SO4) ;i=i+1
-  IF ((inf_NH3   > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_NH3  ) = input_ENV(:,inf_NH3  ) ;i=i+1
-  IF ((inf_DMA   > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_DMA  ) = input_ENV(:,inf_DMA  ) ;i=i+1
-  IF ((inf_SO2   > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_SO2  ) = input_ENV(:,inf_SO2  ) ;i=i+1
-  IF ((inf_NO    > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_NO   ) = input_ENV(:,inf_NO   ) ;i=i+1
-  IF ((inf_NO2   > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_NO2  ) = input_ENV(:,inf_NO2  ) ;i=i+1
-  IF ((inf_CO    > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_CO   ) = input_ENV(:,inf_CO   ) ;i=i+1
-  IF ((inf_H2    > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_H2   ) = input_ENV(:,inf_H2   ) ;i=i+1
-  IF ((inf_O3    > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_O3   ) = input_ENV(:,inf_O3   ) ;i=i+1
-  IF ((inf_RES16 > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_RES16) = INPUT_MCM(:,inf_RES16) ;i=i+1
-  IF ((inf_RES17 > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_RES17) = INPUT_MCM(:,inf_RES17) ;i=i+1
-  IF ((inf_RES18 > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_RES18) = INPUT_MCM(:,inf_RES18) ;i=i+1
-  IF ((inf_RES19 > 0) .and. (ENV_file /= '')) CONC_MAT(:,inm_RES19) = INPUT_MCM(:,inf_RES19) ;i=i+1
+    IF (inf_H2SO4 > 0) CONC_MAT(:,inm_H2SO4) = input_ENV(:,inf_H2SO4) ;i=i+1
+    IF (inf_NH3   > 0) CONC_MAT(:,inm_NH3  ) = input_ENV(:,inf_NH3  ) ;i=i+1
+    IF (inf_DMA   > 0) CONC_MAT(:,inm_DMA  ) = input_ENV(:,inf_DMA  ) ;i=i+1
+    IF (inf_SO2   > 0) CONC_MAT(:,inm_SO2  ) = input_ENV(:,inf_SO2  ) ;i=i+1
+    IF (inf_NO    > 0) CONC_MAT(:,inm_NO   ) = input_ENV(:,inf_NO   ) ;i=i+1
+    IF (inf_NO2   > 0) CONC_MAT(:,inm_NO2  ) = input_ENV(:,inf_NO2  ) ;i=i+1
+    IF (inf_CO    > 0) CONC_MAT(:,inm_CO   ) = input_ENV(:,inf_CO   ) ;i=i+1
+    IF (inf_H2    > 0) CONC_MAT(:,inm_H2   ) = input_ENV(:,inf_H2   ) ;i=i+1
+    IF (inf_O3    > 0) CONC_MAT(:,inm_O3   ) = input_ENV(:,inf_O3   ) ;i=i+1
+    IF (inf_RES16 > 0) CONC_MAT(:,inm_RES16) = INPUT_MCM(:,inf_RES16) ;i=i+1
+    IF (inf_RES17 > 0) CONC_MAT(:,inm_RES17) = INPUT_MCM(:,inf_RES17) ;i=i+1
+    IF (inf_RES18 > 0) CONC_MAT(:,inm_RES18) = INPUT_MCM(:,inf_RES18) ;i=i+1
+    IF (inf_RES19 > 0) CONC_MAT(:,inm_RES19) = INPUT_MCM(:,inf_RES19) ;i=i+1
+  END IF
 
-  IF ((INF_CH3OH        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH3OH     ) = input_MCM(:,INF_CH3OH     ); i=i+1
-  IF ((INF_C2H5OH       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C2H5OH    ) = input_MCM(:,INF_C2H5OH    ); i=i+1
-  IF ((INF_NPROPOL      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NPROPOL   ) = input_MCM(:,INF_NPROPOL   ); i=i+1
-  IF ((INF_IPROPOL      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_IPROPOL   ) = input_MCM(:,INF_IPROPOL   ); i=i+1
-  IF ((INF_NBUTOL       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NBUTOL    ) = input_MCM(:,INF_NBUTOL    ); i=i+1
-  IF ((INF_BUT2OL       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_BUT2OL    ) = input_MCM(:,INF_BUT2OL    ); i=i+1
-  IF ((INF_IBUTOL       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_IBUTOL    ) = input_MCM(:,INF_IBUTOL    ); i=i+1
-  IF ((INF_TBUTOL       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TBUTOL    ) = input_MCM(:,INF_TBUTOL    ); i=i+1
-  IF ((INF_PECOH        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_PECOH     ) = input_MCM(:,INF_PECOH     ); i=i+1
-  IF ((INF_IPEAOH       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_IPEAOH    ) = input_MCM(:,INF_IPEAOH    ); i=i+1
-  IF ((INF_ME3BUOL      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_ME3BUOL   ) = input_MCM(:,INF_ME3BUOL   ); i=i+1
-  IF ((INF_IPECOH       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_IPECOH    ) = input_MCM(:,INF_IPECOH    ); i=i+1
-  IF ((INF_IPEBOH       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_IPEBOH    ) = input_MCM(:,INF_IPEBOH    ); i=i+1
-  IF ((INF_CYHEXOL      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CYHEXOL   ) = input_MCM(:,INF_CYHEXOL   ); i=i+1
-  IF ((INF_MIBKAOH      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MIBKAOH   ) = input_MCM(:,INF_MIBKAOH   ); i=i+1
-  IF ((INF_ETHGLY       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_ETHGLY    ) = input_MCM(:,INF_ETHGLY    ); i=i+1
-  IF ((INF_PROPGLY      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_PROPGLY   ) = input_MCM(:,INF_PROPGLY   ); i=i+1
-  IF ((INF_MBO          > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MBO       ) = input_MCM(:,INF_MBO       ); i=i+1
-  IF ((INF_HCHO         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_HCHO      ) = input_MCM(:,INF_HCHO      ); i=i+1
-  IF ((INF_CH3CHO       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH3CHO    ) = input_MCM(:,INF_CH3CHO    ); i=i+1
-  IF ((INF_C2H5CHO      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C2H5CHO   ) = input_MCM(:,INF_C2H5CHO   ); i=i+1
-  IF ((INF_C3H7CHO      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C3H7CHO   ) = input_MCM(:,INF_C3H7CHO   ); i=i+1
-  IF ((INF_IPRCHO       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_IPRCHO    ) = input_MCM(:,INF_IPRCHO    ); i=i+1
-  IF ((INF_C4H9CHO      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C4H9CHO   ) = input_MCM(:,INF_C4H9CHO   ); i=i+1
-  IF ((INF_ACR          > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_ACR       ) = input_MCM(:,INF_ACR       ); i=i+1
-  IF ((INF_MACR         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MACR      ) = input_MCM(:,INF_MACR      ); i=i+1
-  IF ((INF_C4ALDB       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C4ALDB    ) = input_MCM(:,INF_C4ALDB    ); i=i+1
-  IF ((INF_CH4          > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH4       ) = input_MCM(:,INF_CH4       ); i=i+1
-  IF ((INF_C2H6         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C2H6      ) = input_MCM(:,INF_C2H6      ); i=i+1
-  IF ((INF_C3H8         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C3H8      ) = input_MCM(:,INF_C3H8      ); i=i+1
-  IF ((INF_NC4H10       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NC4H10    ) = input_MCM(:,INF_NC4H10    ); i=i+1
-  IF ((INF_IC4H10       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_IC4H10    ) = input_MCM(:,INF_IC4H10    ); i=i+1
-  IF ((INF_NC5H12       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NC5H12    ) = input_MCM(:,INF_NC5H12    ); i=i+1
-  IF ((INF_IC5H12       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_IC5H12    ) = input_MCM(:,INF_IC5H12    ); i=i+1
-  IF ((INF_NEOP         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NEOP      ) = input_MCM(:,INF_NEOP      ); i=i+1
-  IF ((INF_NC6H14       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NC6H14    ) = input_MCM(:,INF_NC6H14    ); i=i+1
-  IF ((INF_M2PE         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_M2PE      ) = input_MCM(:,INF_M2PE      ); i=i+1
-  IF ((INF_M3PE         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_M3PE      ) = input_MCM(:,INF_M3PE      ); i=i+1
-  IF ((INF_M22C4        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_M22C4     ) = input_MCM(:,INF_M22C4     ); i=i+1
-  IF ((INF_M23C4        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_M23C4     ) = input_MCM(:,INF_M23C4     ); i=i+1
-  IF ((INF_NC7H16       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NC7H16    ) = input_MCM(:,INF_NC7H16    ); i=i+1
-  IF ((INF_M2HEX        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_M2HEX     ) = input_MCM(:,INF_M2HEX     ); i=i+1
-  IF ((INF_M3HEX        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_M3HEX     ) = input_MCM(:,INF_M3HEX     ); i=i+1
-  IF ((INF_NC8H18       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NC8H18    ) = input_MCM(:,INF_NC8H18    ); i=i+1
-  IF ((INF_NC9H20       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NC9H20    ) = input_MCM(:,INF_NC9H20    ); i=i+1
-  IF ((INF_NC10H22      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NC10H22   ) = input_MCM(:,INF_NC10H22   ); i=i+1
-  IF ((INF_NC11H24      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NC11H24   ) = input_MCM(:,INF_NC11H24   ); i=i+1
-  IF ((INF_NC12H26      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NC12H26   ) = input_MCM(:,INF_NC12H26   ); i=i+1
-  IF ((INF_CHEX         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CHEX      ) = input_MCM(:,INF_CHEX      ); i=i+1
-  IF ((INF_C2H4         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C2H4      ) = input_MCM(:,INF_C2H4      ); i=i+1
-  IF ((INF_C3H6         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C3H6      ) = input_MCM(:,INF_C3H6      ); i=i+1
-  IF ((INF_BUT1ENE      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_BUT1ENE   ) = input_MCM(:,INF_BUT1ENE   ); i=i+1
-  IF ((INF_CBUT2ENE     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CBUT2ENE  ) = input_MCM(:,INF_CBUT2ENE  ); i=i+1
-  IF ((INF_TBUT2ENE     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TBUT2ENE  ) = input_MCM(:,INF_TBUT2ENE  ); i=i+1
-  IF ((INF_MEPROPENE    > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MEPROPENE ) = input_MCM(:,INF_MEPROPENE ); i=i+1
-  IF ((INF_PENT1ENE     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_PENT1ENE  ) = input_MCM(:,INF_PENT1ENE  ); i=i+1
-  IF ((INF_CPENT2ENE    > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CPENT2ENE ) = input_MCM(:,INF_CPENT2ENE ); i=i+1
-  IF ((INF_TPENT2ENE    > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TPENT2ENE ) = input_MCM(:,INF_TPENT2ENE ); i=i+1
-  IF ((INF_ME2BUT1ENE   > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_ME2BUT1ENE) = input_MCM(:,INF_ME2BUT1ENE); i=i+1
-  IF ((INF_ME3BUT1ENE   > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_ME3BUT1ENE) = input_MCM(:,INF_ME3BUT1ENE); i=i+1
-  IF ((INF_ME2BUT2ENE   > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_ME2BUT2ENE) = input_MCM(:,INF_ME2BUT2ENE); i=i+1
-  IF ((INF_HEX1ENE      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_HEX1ENE   ) = input_MCM(:,INF_HEX1ENE   ); i=i+1
-  IF ((INF_CHEX2ENE     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CHEX2ENE  ) = input_MCM(:,INF_CHEX2ENE  ); i=i+1
-  IF ((INF_THEX2ENE     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_THEX2ENE  ) = input_MCM(:,INF_THEX2ENE  ); i=i+1
-  IF ((INF_DM23BU2ENE   > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_DM23BU2ENE) = input_MCM(:,INF_DM23BU2ENE); i=i+1
-  IF ((INF_C2H2         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C2H2      ) = input_MCM(:,INF_C2H2      ); i=i+1
-  IF ((INF_BENZENE      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_BENZENE   ) = input_MCM(:,INF_BENZENE   ); i=i+1
-  IF ((INF_TOLUENE      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TOLUENE   ) = input_MCM(:,INF_TOLUENE   ); i=i+1
-  IF ((INF_OXYL         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_OXYL      ) = input_MCM(:,INF_OXYL      ); i=i+1
-  IF ((INF_MXYL         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MXYL      ) = input_MCM(:,INF_MXYL      ); i=i+1
-  IF ((INF_PXYL         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_PXYL      ) = input_MCM(:,INF_PXYL      ); i=i+1
-  IF ((INF_EBENZ        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_EBENZ     ) = input_MCM(:,INF_EBENZ     ); i=i+1
-  IF ((INF_PBENZ        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_PBENZ     ) = input_MCM(:,INF_PBENZ     ); i=i+1
-  IF ((INF_IPBENZ       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_IPBENZ    ) = input_MCM(:,INF_IPBENZ    ); i=i+1
-  IF ((INF_TM123B       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TM123B    ) = input_MCM(:,INF_TM123B    ); i=i+1
-  IF ((INF_TM124B       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TM124B    ) = input_MCM(:,INF_TM124B    ); i=i+1
-  IF ((INF_TM135B       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TM135B    ) = input_MCM(:,INF_TM135B    ); i=i+1
-  IF ((INF_OETHTOL      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_OETHTOL   ) = input_MCM(:,INF_OETHTOL   ); i=i+1
-  IF ((INF_METHTOL      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_METHTOL   ) = input_MCM(:,INF_METHTOL   ); i=i+1
-  IF ((INF_PETHTOL      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_PETHTOL   ) = input_MCM(:,INF_PETHTOL   ); i=i+1
-  IF ((INF_DIME35EB     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_DIME35EB  ) = input_MCM(:,INF_DIME35EB  ); i=i+1
-  IF ((INF_DIET35TOL    > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_DIET35TOL ) = input_MCM(:,INF_DIET35TOL ); i=i+1
-  IF ((INF_STYRENE      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_STYRENE   ) = input_MCM(:,INF_STYRENE   ); i=i+1
-  IF ((INF_BENZAL       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_BENZAL    ) = input_MCM(:,INF_BENZAL    ); i=i+1
-  IF ((INF_CH3CL        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH3CL     ) = input_MCM(:,INF_CH3CL     ); i=i+1
-  IF ((INF_CH2CL2       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH2CL2    ) = input_MCM(:,INF_CH2CL2    ); i=i+1
-  IF ((INF_CHCL3        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CHCL3     ) = input_MCM(:,INF_CHCL3     ); i=i+1
-  IF ((INF_CH3CCL3      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH3CCL3   ) = input_MCM(:,INF_CH3CCL3   ); i=i+1
-  IF ((INF_TCE          > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TCE       ) = input_MCM(:,INF_TCE       ); i=i+1
-  IF ((INF_TRICLETH     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TRICLETH  ) = input_MCM(:,INF_TRICLETH  ); i=i+1
-  IF ((INF_CDICLETH     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CDICLETH  ) = input_MCM(:,INF_CDICLETH  ); i=i+1
-  IF ((INF_TDICLETH     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TDICLETH  ) = input_MCM(:,INF_TDICLETH  ); i=i+1
-  IF ((INF_CH2CLCH2CL   > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH2CLCH2CL) = input_MCM(:,INF_CH2CLCH2CL); i=i+1
-  IF ((INF_CCL2CH2      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CCL2CH2   ) = input_MCM(:,INF_CCL2CH2   ); i=i+1
-  IF ((INF_CL12PROP     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CL12PROP  ) = input_MCM(:,INF_CL12PROP  ); i=i+1
-  IF ((INF_CHCL2CH3     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CHCL2CH3  ) = input_MCM(:,INF_CHCL2CH3  ); i=i+1
-  IF ((INF_CH3CH2CL     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH3CH2CL  ) = input_MCM(:,INF_CH3CH2CL  ); i=i+1
-  IF ((INF_CHCL2CHCL2   > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CHCL2CHCL2) = input_MCM(:,INF_CHCL2CHCL2); i=i+1
-  IF ((INF_CH2CLCHCL2   > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH2CLCHCL2) = input_MCM(:,INF_CH2CLCHCL2); i=i+1
-  IF ((INF_VINCL        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_VINCL     ) = input_MCM(:,INF_VINCL     ); i=i+1
-  IF ((INF_C4H6         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C4H6      ) = input_MCM(:,INF_C4H6      ); i=i+1
-  IF ((INF_C5H8         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_C5H8      ) = input_MCM(:,INF_C5H8      ); i=i+1
-  IF ((INF_CH3OCHO      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH3OCHO   ) = input_MCM(:,INF_CH3OCHO   ); i=i+1
-  IF ((INF_METHACET     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_METHACET  ) = input_MCM(:,INF_METHACET  ); i=i+1
-  IF ((INF_ETHACET      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_ETHACET   ) = input_MCM(:,INF_ETHACET   ); i=i+1
-  IF ((INF_NPROACET     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NPROACET  ) = input_MCM(:,INF_NPROACET  ); i=i+1
-  IF ((INF_IPROACET     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_IPROACET  ) = input_MCM(:,INF_IPROACET  ); i=i+1
-  IF ((INF_NBUTACET     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_NBUTACET  ) = input_MCM(:,INF_NBUTACET  ); i=i+1
-  IF ((INF_SBUTACET     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_SBUTACET  ) = input_MCM(:,INF_SBUTACET  ); i=i+1
-  IF ((INF_TBUACET      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_TBUACET   ) = input_MCM(:,INF_TBUACET   ); i=i+1
-  IF ((INF_CH3OCH3      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH3OCH3   ) = input_MCM(:,INF_CH3OCH3   ); i=i+1
-  IF ((INF_DIETETHER    > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_DIETETHER ) = input_MCM(:,INF_DIETETHER ); i=i+1
-  IF ((INF_MTBE         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MTBE      ) = input_MCM(:,INF_MTBE      ); i=i+1
-  IF ((INF_DIIPRETHER   > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_DIIPRETHER) = input_MCM(:,INF_DIIPRETHER); i=i+1
-  IF ((INF_ETBE         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_ETBE      ) = input_MCM(:,INF_ETBE      ); i=i+1
-  IF ((INF_MO2EOL       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MO2EOL    ) = input_MCM(:,INF_MO2EOL    ); i=i+1
-  IF ((INF_EOX2EOL      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_EOX2EOL   ) = input_MCM(:,INF_EOX2EOL   ); i=i+1
-  IF ((INF_PR2OHMOX     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_PR2OHMOX  ) = input_MCM(:,INF_PR2OHMOX  ); i=i+1
-  IF ((INF_BUOX2ETOH    > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_BUOX2ETOH ) = input_MCM(:,INF_BUOX2ETOH ); i=i+1
-  IF ((INF_BOX2PROL     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_BOX2PROL  ) = input_MCM(:,INF_BOX2PROL  ); i=i+1
-  IF ((INF_CH3BR        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH3BR     ) = input_MCM(:,INF_CH3BR     ); i=i+1
-  IF ((INF_DIBRET       > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_DIBRET    ) = input_MCM(:,INF_DIBRET    ); i=i+1
-  IF ((INF_CH3COCH3     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH3COCH3  ) = input_MCM(:,INF_CH3COCH3  ); i=i+1
-  IF ((INF_MEK          > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MEK       ) = input_MCM(:,INF_MEK       ); i=i+1
-  IF ((INF_MPRK         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MPRK      ) = input_MCM(:,INF_MPRK      ); i=i+1
-  IF ((INF_DIEK         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_DIEK      ) = input_MCM(:,INF_DIEK      ); i=i+1
-  IF ((INF_MIPK         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MIPK      ) = input_MCM(:,INF_MIPK      ); i=i+1
-  IF ((INF_HEX2ONE      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_HEX2ONE   ) = input_MCM(:,INF_HEX2ONE   ); i=i+1
-  IF ((INF_HEX3ONE      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_HEX3ONE   ) = input_MCM(:,INF_HEX3ONE   ); i=i+1
-  IF ((INF_MIBK         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MIBK      ) = input_MCM(:,INF_MIBK      ); i=i+1
-  IF ((INF_MTBK         > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_MTBK      ) = input_MCM(:,INF_MTBK      ); i=i+1
-  IF ((INF_CYHEXONE     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CYHEXONE  ) = input_MCM(:,INF_CYHEXONE  ); i=i+1
-  IF ((INF_APINENE      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_APINENE   ) = input_MCM(:,INF_APINENE   ); i=i+1
-  IF ((INF_BPINENE      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_BPINENE   ) = input_MCM(:,INF_BPINENE   ); i=i+1
-  IF ((INF_LIMONENE     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_LIMONENE  ) = input_MCM(:,INF_LIMONENE  ); i=i+1
-  IF ((INF_BCARY        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_BCARY     ) = input_MCM(:,INF_BCARY     ); i=i+1
-  IF ((INF_HCOOH        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_HCOOH     ) = input_MCM(:,INF_HCOOH     ); i=i+1
-  IF ((INF_CH3CO2H      > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_CH3CO2H   ) = input_MCM(:,INF_CH3CO2H   ); i=i+1
-  IF ((INF_PROPACID     > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_PROPACID  ) = input_MCM(:,INF_PROPACID  ); i=i+1
-  IF ((INF_DMM          > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_DMM       ) = input_MCM(:,INF_DMM       ); i=i+1
-  IF ((INF_DMC          > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_DMC       ) = input_MCM(:,INF_DMC       ); i=i+1
-  IF ((INF_DMS          > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_DMS       ) = input_MCM(:,INF_DMS       ); i=i+1
-  IF ((INF_ETHOX        > 0) .and. (MCM_file /= '')) CONC_MAT(:,INM_ETHOX     ) = input_MCM(:,INF_ETHOX     ); i=i+1
+  IF (MCM_file /= '') THEN
+    IF (INF_CH3OH        > 0) CONC_MAT(:,INM_CH3OH     ) = input_MCM(:,INF_CH3OH     ); i=i+1
+    IF (INF_C2H5OH       > 0) CONC_MAT(:,INM_C2H5OH    ) = input_MCM(:,INF_C2H5OH    ); i=i+1
+    IF (INF_NPROPOL      > 0) CONC_MAT(:,INM_NPROPOL   ) = input_MCM(:,INF_NPROPOL   ); i=i+1
+    IF (INF_IPROPOL      > 0) CONC_MAT(:,INM_IPROPOL   ) = input_MCM(:,INF_IPROPOL   ); i=i+1
+    IF (INF_NBUTOL       > 0) CONC_MAT(:,INM_NBUTOL    ) = input_MCM(:,INF_NBUTOL    ); i=i+1
+    IF (INF_BUT2OL       > 0) CONC_MAT(:,INM_BUT2OL    ) = input_MCM(:,INF_BUT2OL    ); i=i+1
+    IF (INF_IBUTOL       > 0) CONC_MAT(:,INM_IBUTOL    ) = input_MCM(:,INF_IBUTOL    ); i=i+1
+    IF (INF_TBUTOL       > 0) CONC_MAT(:,INM_TBUTOL    ) = input_MCM(:,INF_TBUTOL    ); i=i+1
+    IF (INF_PECOH        > 0) CONC_MAT(:,INM_PECOH     ) = input_MCM(:,INF_PECOH     ); i=i+1
+    IF (INF_IPEAOH       > 0) CONC_MAT(:,INM_IPEAOH    ) = input_MCM(:,INF_IPEAOH    ); i=i+1
+    IF (INF_ME3BUOL      > 0) CONC_MAT(:,INM_ME3BUOL   ) = input_MCM(:,INF_ME3BUOL   ); i=i+1
+    IF (INF_IPECOH       > 0) CONC_MAT(:,INM_IPECOH    ) = input_MCM(:,INF_IPECOH    ); i=i+1
+    IF (INF_IPEBOH       > 0) CONC_MAT(:,INM_IPEBOH    ) = input_MCM(:,INF_IPEBOH    ); i=i+1
+    IF (INF_CYHEXOL      > 0) CONC_MAT(:,INM_CYHEXOL   ) = input_MCM(:,INF_CYHEXOL   ); i=i+1
+    IF (INF_MIBKAOH      > 0) CONC_MAT(:,INM_MIBKAOH   ) = input_MCM(:,INF_MIBKAOH   ); i=i+1
+    IF (INF_ETHGLY       > 0) CONC_MAT(:,INM_ETHGLY    ) = input_MCM(:,INF_ETHGLY    ); i=i+1
+    IF (INF_PROPGLY      > 0) CONC_MAT(:,INM_PROPGLY   ) = input_MCM(:,INF_PROPGLY   ); i=i+1
+    IF (INF_MBO          > 0) CONC_MAT(:,INM_MBO       ) = input_MCM(:,INF_MBO       ); i=i+1
+    IF (INF_HCHO         > 0) CONC_MAT(:,INM_HCHO      ) = input_MCM(:,INF_HCHO      ); i=i+1
+    IF (INF_CH3CHO       > 0) CONC_MAT(:,INM_CH3CHO    ) = input_MCM(:,INF_CH3CHO    ); i=i+1
+    IF (INF_C2H5CHO      > 0) CONC_MAT(:,INM_C2H5CHO   ) = input_MCM(:,INF_C2H5CHO   ); i=i+1
+    IF (INF_C3H7CHO      > 0) CONC_MAT(:,INM_C3H7CHO   ) = input_MCM(:,INF_C3H7CHO   ); i=i+1
+    IF (INF_IPRCHO       > 0) CONC_MAT(:,INM_IPRCHO    ) = input_MCM(:,INF_IPRCHO    ); i=i+1
+    IF (INF_C4H9CHO      > 0) CONC_MAT(:,INM_C4H9CHO   ) = input_MCM(:,INF_C4H9CHO   ); i=i+1
+    IF (INF_ACR          > 0) CONC_MAT(:,INM_ACR       ) = input_MCM(:,INF_ACR       ); i=i+1
+    IF (INF_MACR         > 0) CONC_MAT(:,INM_MACR      ) = input_MCM(:,INF_MACR      ); i=i+1
+    IF (INF_C4ALDB       > 0) CONC_MAT(:,INM_C4ALDB    ) = input_MCM(:,INF_C4ALDB    ); i=i+1
+    IF (INF_CH4          > 0) CONC_MAT(:,INM_CH4       ) = input_MCM(:,INF_CH4       ); i=i+1
+    IF (INF_C2H6         > 0) CONC_MAT(:,INM_C2H6      ) = input_MCM(:,INF_C2H6      ); i=i+1
+    IF (INF_C3H8         > 0) CONC_MAT(:,INM_C3H8      ) = input_MCM(:,INF_C3H8      ); i=i+1
+    IF (INF_NC4H10       > 0) CONC_MAT(:,INM_NC4H10    ) = input_MCM(:,INF_NC4H10    ); i=i+1
+    IF (INF_IC4H10       > 0) CONC_MAT(:,INM_IC4H10    ) = input_MCM(:,INF_IC4H10    ); i=i+1
+    IF (INF_NC5H12       > 0) CONC_MAT(:,INM_NC5H12    ) = input_MCM(:,INF_NC5H12    ); i=i+1
+    IF (INF_IC5H12       > 0) CONC_MAT(:,INM_IC5H12    ) = input_MCM(:,INF_IC5H12    ); i=i+1
+    IF (INF_NEOP         > 0) CONC_MAT(:,INM_NEOP      ) = input_MCM(:,INF_NEOP      ); i=i+1
+    IF (INF_NC6H14       > 0) CONC_MAT(:,INM_NC6H14    ) = input_MCM(:,INF_NC6H14    ); i=i+1
+    IF (INF_M2PE         > 0) CONC_MAT(:,INM_M2PE      ) = input_MCM(:,INF_M2PE      ); i=i+1
+    IF (INF_M3PE         > 0) CONC_MAT(:,INM_M3PE      ) = input_MCM(:,INF_M3PE      ); i=i+1
+    IF (INF_M22C4        > 0) CONC_MAT(:,INM_M22C4     ) = input_MCM(:,INF_M22C4     ); i=i+1
+    IF (INF_M23C4        > 0) CONC_MAT(:,INM_M23C4     ) = input_MCM(:,INF_M23C4     ); i=i+1
+    IF (INF_NC7H16       > 0) CONC_MAT(:,INM_NC7H16    ) = input_MCM(:,INF_NC7H16    ); i=i+1
+    IF (INF_M2HEX        > 0) CONC_MAT(:,INM_M2HEX     ) = input_MCM(:,INF_M2HEX     ); i=i+1
+    IF (INF_M3HEX        > 0) CONC_MAT(:,INM_M3HEX     ) = input_MCM(:,INF_M3HEX     ); i=i+1
+    IF (INF_NC8H18       > 0) CONC_MAT(:,INM_NC8H18    ) = input_MCM(:,INF_NC8H18    ); i=i+1
+    IF (INF_NC9H20       > 0) CONC_MAT(:,INM_NC9H20    ) = input_MCM(:,INF_NC9H20    ); i=i+1
+    IF (INF_NC10H22      > 0) CONC_MAT(:,INM_NC10H22   ) = input_MCM(:,INF_NC10H22   ); i=i+1
+    IF (INF_NC11H24      > 0) CONC_MAT(:,INM_NC11H24   ) = input_MCM(:,INF_NC11H24   ); i=i+1
+    IF (INF_NC12H26      > 0) CONC_MAT(:,INM_NC12H26   ) = input_MCM(:,INF_NC12H26   ); i=i+1
+    IF (INF_CHEX         > 0) CONC_MAT(:,INM_CHEX      ) = input_MCM(:,INF_CHEX      ); i=i+1
+    IF (INF_C2H4         > 0) CONC_MAT(:,INM_C2H4      ) = input_MCM(:,INF_C2H4      ); i=i+1
+    IF (INF_C3H6         > 0) CONC_MAT(:,INM_C3H6      ) = input_MCM(:,INF_C3H6      ); i=i+1
+    IF (INF_BUT1ENE      > 0) CONC_MAT(:,INM_BUT1ENE   ) = input_MCM(:,INF_BUT1ENE   ); i=i+1
+    IF (INF_CBUT2ENE     > 0) CONC_MAT(:,INM_CBUT2ENE  ) = input_MCM(:,INF_CBUT2ENE  ); i=i+1
+    IF (INF_TBUT2ENE     > 0) CONC_MAT(:,INM_TBUT2ENE  ) = input_MCM(:,INF_TBUT2ENE  ); i=i+1
+    IF (INF_MEPROPENE    > 0) CONC_MAT(:,INM_MEPROPENE ) = input_MCM(:,INF_MEPROPENE ); i=i+1
+    IF (INF_PENT1ENE     > 0) CONC_MAT(:,INM_PENT1ENE  ) = input_MCM(:,INF_PENT1ENE  ); i=i+1
+    IF (INF_CPENT2ENE    > 0) CONC_MAT(:,INM_CPENT2ENE ) = input_MCM(:,INF_CPENT2ENE ); i=i+1
+    IF (INF_TPENT2ENE    > 0) CONC_MAT(:,INM_TPENT2ENE ) = input_MCM(:,INF_TPENT2ENE ); i=i+1
+    IF (INF_ME2BUT1ENE   > 0) CONC_MAT(:,INM_ME2BUT1ENE) = input_MCM(:,INF_ME2BUT1ENE); i=i+1
+    IF (INF_ME3BUT1ENE   > 0) CONC_MAT(:,INM_ME3BUT1ENE) = input_MCM(:,INF_ME3BUT1ENE); i=i+1
+    IF (INF_ME2BUT2ENE   > 0) CONC_MAT(:,INM_ME2BUT2ENE) = input_MCM(:,INF_ME2BUT2ENE); i=i+1
+    IF (INF_HEX1ENE      > 0) CONC_MAT(:,INM_HEX1ENE   ) = input_MCM(:,INF_HEX1ENE   ); i=i+1
+    IF (INF_CHEX2ENE     > 0) CONC_MAT(:,INM_CHEX2ENE  ) = input_MCM(:,INF_CHEX2ENE  ); i=i+1
+    IF (INF_THEX2ENE     > 0) CONC_MAT(:,INM_THEX2ENE  ) = input_MCM(:,INF_THEX2ENE  ); i=i+1
+    IF (INF_DM23BU2ENE   > 0) CONC_MAT(:,INM_DM23BU2ENE) = input_MCM(:,INF_DM23BU2ENE); i=i+1
+    IF (INF_C2H2         > 0) CONC_MAT(:,INM_C2H2      ) = input_MCM(:,INF_C2H2      ); i=i+1
+    IF (INF_BENZENE      > 0) CONC_MAT(:,INM_BENZENE   ) = input_MCM(:,INF_BENZENE   ); i=i+1
+    IF (INF_TOLUENE      > 0) CONC_MAT(:,INM_TOLUENE   ) = input_MCM(:,INF_TOLUENE   ); i=i+1
+    IF (INF_OXYL         > 0) CONC_MAT(:,INM_OXYL      ) = input_MCM(:,INF_OXYL      ); i=i+1
+    IF (INF_MXYL         > 0) CONC_MAT(:,INM_MXYL      ) = input_MCM(:,INF_MXYL      ); i=i+1
+    IF (INF_PXYL         > 0) CONC_MAT(:,INM_PXYL      ) = input_MCM(:,INF_PXYL      ); i=i+1
+    IF (INF_EBENZ        > 0) CONC_MAT(:,INM_EBENZ     ) = input_MCM(:,INF_EBENZ     ); i=i+1
+    IF (INF_PBENZ        > 0) CONC_MAT(:,INM_PBENZ     ) = input_MCM(:,INF_PBENZ     ); i=i+1
+    IF (INF_IPBENZ       > 0) CONC_MAT(:,INM_IPBENZ    ) = input_MCM(:,INF_IPBENZ    ); i=i+1
+    IF (INF_TM123B       > 0) CONC_MAT(:,INM_TM123B    ) = input_MCM(:,INF_TM123B    ); i=i+1
+    IF (INF_TM124B       > 0) CONC_MAT(:,INM_TM124B    ) = input_MCM(:,INF_TM124B    ); i=i+1
+    IF (INF_TM135B       > 0) CONC_MAT(:,INM_TM135B    ) = input_MCM(:,INF_TM135B    ); i=i+1
+    IF (INF_OETHTOL      > 0) CONC_MAT(:,INM_OETHTOL   ) = input_MCM(:,INF_OETHTOL   ); i=i+1
+    IF (INF_METHTOL      > 0) CONC_MAT(:,INM_METHTOL   ) = input_MCM(:,INF_METHTOL   ); i=i+1
+    IF (INF_PETHTOL      > 0) CONC_MAT(:,INM_PETHTOL   ) = input_MCM(:,INF_PETHTOL   ); i=i+1
+    IF (INF_DIME35EB     > 0) CONC_MAT(:,INM_DIME35EB  ) = input_MCM(:,INF_DIME35EB  ); i=i+1
+    IF (INF_DIET35TOL    > 0) CONC_MAT(:,INM_DIET35TOL ) = input_MCM(:,INF_DIET35TOL ); i=i+1
+    IF (INF_STYRENE      > 0) CONC_MAT(:,INM_STYRENE   ) = input_MCM(:,INF_STYRENE   ); i=i+1
+    IF (INF_BENZAL       > 0) CONC_MAT(:,INM_BENZAL    ) = input_MCM(:,INF_BENZAL    ); i=i+1
+    IF (INF_CH3CL        > 0) CONC_MAT(:,INM_CH3CL     ) = input_MCM(:,INF_CH3CL     ); i=i+1
+    IF (INF_CH2CL2       > 0) CONC_MAT(:,INM_CH2CL2    ) = input_MCM(:,INF_CH2CL2    ); i=i+1
+    IF (INF_CHCL3        > 0) CONC_MAT(:,INM_CHCL3     ) = input_MCM(:,INF_CHCL3     ); i=i+1
+    IF (INF_CH3CCL3      > 0) CONC_MAT(:,INM_CH3CCL3   ) = input_MCM(:,INF_CH3CCL3   ); i=i+1
+    IF (INF_TCE          > 0) CONC_MAT(:,INM_TCE       ) = input_MCM(:,INF_TCE       ); i=i+1
+    IF (INF_TRICLETH     > 0) CONC_MAT(:,INM_TRICLETH  ) = input_MCM(:,INF_TRICLETH  ); i=i+1
+    IF (INF_CDICLETH     > 0) CONC_MAT(:,INM_CDICLETH  ) = input_MCM(:,INF_CDICLETH  ); i=i+1
+    IF (INF_TDICLETH     > 0) CONC_MAT(:,INM_TDICLETH  ) = input_MCM(:,INF_TDICLETH  ); i=i+1
+    IF (INF_CH2CLCH2CL   > 0) CONC_MAT(:,INM_CH2CLCH2CL) = input_MCM(:,INF_CH2CLCH2CL); i=i+1
+    IF (INF_CCL2CH2      > 0) CONC_MAT(:,INM_CCL2CH2   ) = input_MCM(:,INF_CCL2CH2   ); i=i+1
+    IF (INF_CL12PROP     > 0) CONC_MAT(:,INM_CL12PROP  ) = input_MCM(:,INF_CL12PROP  ); i=i+1
+    IF (INF_CHCL2CH3     > 0) CONC_MAT(:,INM_CHCL2CH3  ) = input_MCM(:,INF_CHCL2CH3  ); i=i+1
+    IF (INF_CH3CH2CL     > 0) CONC_MAT(:,INM_CH3CH2CL  ) = input_MCM(:,INF_CH3CH2CL  ); i=i+1
+    IF (INF_CHCL2CHCL2   > 0) CONC_MAT(:,INM_CHCL2CHCL2) = input_MCM(:,INF_CHCL2CHCL2); i=i+1
+    IF (INF_CH2CLCHCL2   > 0) CONC_MAT(:,INM_CH2CLCHCL2) = input_MCM(:,INF_CH2CLCHCL2); i=i+1
+    IF (INF_VINCL        > 0) CONC_MAT(:,INM_VINCL     ) = input_MCM(:,INF_VINCL     ); i=i+1
+    IF (INF_C4H6         > 0) CONC_MAT(:,INM_C4H6      ) = input_MCM(:,INF_C4H6      ); i=i+1
+    IF (INF_C5H8         > 0) CONC_MAT(:,INM_C5H8      ) = input_MCM(:,INF_C5H8      ); i=i+1
+    IF (INF_CH3OCHO      > 0) CONC_MAT(:,INM_CH3OCHO   ) = input_MCM(:,INF_CH3OCHO   ); i=i+1
+    IF (INF_METHACET     > 0) CONC_MAT(:,INM_METHACET  ) = input_MCM(:,INF_METHACET  ); i=i+1
+    IF (INF_ETHACET      > 0) CONC_MAT(:,INM_ETHACET   ) = input_MCM(:,INF_ETHACET   ); i=i+1
+    IF (INF_NPROACET     > 0) CONC_MAT(:,INM_NPROACET  ) = input_MCM(:,INF_NPROACET  ); i=i+1
+    IF (INF_IPROACET     > 0) CONC_MAT(:,INM_IPROACET  ) = input_MCM(:,INF_IPROACET  ); i=i+1
+    IF (INF_NBUTACET     > 0) CONC_MAT(:,INM_NBUTACET  ) = input_MCM(:,INF_NBUTACET  ); i=i+1
+    IF (INF_SBUTACET     > 0) CONC_MAT(:,INM_SBUTACET  ) = input_MCM(:,INF_SBUTACET  ); i=i+1
+    IF (INF_TBUACET      > 0) CONC_MAT(:,INM_TBUACET   ) = input_MCM(:,INF_TBUACET   ); i=i+1
+    IF (INF_CH3OCH3      > 0) CONC_MAT(:,INM_CH3OCH3   ) = input_MCM(:,INF_CH3OCH3   ); i=i+1
+    IF (INF_DIETETHER    > 0) CONC_MAT(:,INM_DIETETHER ) = input_MCM(:,INF_DIETETHER ); i=i+1
+    IF (INF_MTBE         > 0) CONC_MAT(:,INM_MTBE      ) = input_MCM(:,INF_MTBE      ); i=i+1
+    IF (INF_DIIPRETHER   > 0) CONC_MAT(:,INM_DIIPRETHER) = input_MCM(:,INF_DIIPRETHER); i=i+1
+    IF (INF_ETBE         > 0) CONC_MAT(:,INM_ETBE      ) = input_MCM(:,INF_ETBE      ); i=i+1
+    IF (INF_MO2EOL       > 0) CONC_MAT(:,INM_MO2EOL    ) = input_MCM(:,INF_MO2EOL    ); i=i+1
+    IF (INF_EOX2EOL      > 0) CONC_MAT(:,INM_EOX2EOL   ) = input_MCM(:,INF_EOX2EOL   ); i=i+1
+    IF (INF_PR2OHMOX     > 0) CONC_MAT(:,INM_PR2OHMOX  ) = input_MCM(:,INF_PR2OHMOX  ); i=i+1
+    IF (INF_BUOX2ETOH    > 0) CONC_MAT(:,INM_BUOX2ETOH ) = input_MCM(:,INF_BUOX2ETOH ); i=i+1
+    IF (INF_BOX2PROL     > 0) CONC_MAT(:,INM_BOX2PROL  ) = input_MCM(:,INF_BOX2PROL  ); i=i+1
+    IF (INF_CH3BR        > 0) CONC_MAT(:,INM_CH3BR     ) = input_MCM(:,INF_CH3BR     ); i=i+1
+    IF (INF_DIBRET       > 0) CONC_MAT(:,INM_DIBRET    ) = input_MCM(:,INF_DIBRET    ); i=i+1
+    IF (INF_CH3COCH3     > 0) CONC_MAT(:,INM_CH3COCH3  ) = input_MCM(:,INF_CH3COCH3  ); i=i+1
+    IF (INF_MEK          > 0) CONC_MAT(:,INM_MEK       ) = input_MCM(:,INF_MEK       ); i=i+1
+    IF (INF_MPRK         > 0) CONC_MAT(:,INM_MPRK      ) = input_MCM(:,INF_MPRK      ); i=i+1
+    IF (INF_DIEK         > 0) CONC_MAT(:,INM_DIEK      ) = input_MCM(:,INF_DIEK      ); i=i+1
+    IF (INF_MIPK         > 0) CONC_MAT(:,INM_MIPK      ) = input_MCM(:,INF_MIPK      ); i=i+1
+    IF (INF_HEX2ONE      > 0) CONC_MAT(:,INM_HEX2ONE   ) = input_MCM(:,INF_HEX2ONE   ); i=i+1
+    IF (INF_HEX3ONE      > 0) CONC_MAT(:,INM_HEX3ONE   ) = input_MCM(:,INF_HEX3ONE   ); i=i+1
+    IF (INF_MIBK         > 0) CONC_MAT(:,INM_MIBK      ) = input_MCM(:,INF_MIBK      ); i=i+1
+    IF (INF_MTBK         > 0) CONC_MAT(:,INM_MTBK      ) = input_MCM(:,INF_MTBK      ); i=i+1
+    IF (INF_CYHEXONE     > 0) CONC_MAT(:,INM_CYHEXONE  ) = input_MCM(:,INF_CYHEXONE  ); i=i+1
+    IF (INF_APINENE      > 0) CONC_MAT(:,INM_APINENE   ) = input_MCM(:,INF_APINENE   ); i=i+1
+    IF (INF_BPINENE      > 0) CONC_MAT(:,INM_BPINENE   ) = input_MCM(:,INF_BPINENE   ); i=i+1
+    IF (INF_LIMONENE     > 0) CONC_MAT(:,INM_LIMONENE  ) = input_MCM(:,INF_LIMONENE  ); i=i+1
+    IF (INF_BCARY        > 0) CONC_MAT(:,INM_BCARY     ) = input_MCM(:,INF_BCARY     ); i=i+1
+    IF (INF_HCOOH        > 0) CONC_MAT(:,INM_HCOOH     ) = input_MCM(:,INF_HCOOH     ); i=i+1
+    IF (INF_CH3CO2H      > 0) CONC_MAT(:,INM_CH3CO2H   ) = input_MCM(:,INF_CH3CO2H   ); i=i+1
+    IF (INF_PROPACID     > 0) CONC_MAT(:,INM_PROPACID  ) = input_MCM(:,INF_PROPACID  ); i=i+1
+    IF (INF_DMM          > 0) CONC_MAT(:,INM_DMM       ) = input_MCM(:,INF_DMM       ); i=i+1
+    IF (INF_DMC          > 0) CONC_MAT(:,INM_DMC       ) = input_MCM(:,INF_DMC       ); i=i+1
+    IF (INF_DMS          > 0) CONC_MAT(:,INM_DMS       ) = input_MCM(:,INF_DMS       ); i=i+1
+    IF (INF_ETHOX        > 0) CONC_MAT(:,INM_ETHOX     ) = input_MCM(:,INF_ETHOX     ); i=i+1
+  END IF
 
 
   ! As safety feature, check that here nothing is left out
