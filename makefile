@@ -1,0 +1,138 @@
+# ------------------Macro-Defs---------------------
+
+# compiler
+F90 = gfortran
+
+# Put .o and .mod files here:
+#OBJDIR = src#/build
+ OBJDIR  = build
+ SRCDIR  = src
+
+# When compiling, search for files in these directories:
+VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31
+
+# Options reminders:
+# -w suppresses warning messages
+
+# For programming (faster compiling):
+BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
+-Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all
+#BOX_OPTS = -ffree-line-length-none -cpp -DLINUX -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
+#-Warray-temporaries -Wtabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all
+
+CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR) -I$(OBJDIR)
+
+ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
+
+CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Monitor.o)
+
+#BOX_OBJECTS = constants.o auxillaries.o input.o output.o
+BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o input.o output.o)
+
+ACDC_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AN_ions.o monomer_settings_acdc_NH3_ions.o solution_settings.o driver_acdc_J_ions.o \
+             acdc_equations_AN_ions.o get_acdc_J_ions.o)
+
+ACDC_D_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AD_new.o monomer_settings_acdc_DMA.o solution_settings.o driver_acdc_D.o \
+                  acdc_equations_AD_new.o get_acdc_D.o)
+
+NETLIBS =  -I/usr/include -L/usr/lib/x86_64-linux-gnu/ -lnetcdf  -lnetcdff -lcurl
+
+all: superbox.exe
+
+# Here is the link step:
+superbox.exe: Superbox.o $(BOX_OBJECTS) $(CHEM_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
+	$(F90) $(BOX_OPTS) $^ -o $@ $(NETLIBS)
+
+
+# Here are the compile steps
+# Main program
+
+#$(OBJDIR)/Superbox.o: Superbox.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(UHMA_OBJECTS) $(MEGAN_OBJECTS)
+$(OBJDIR)/Superbox.o: src/Supermodel_main.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
+	 $(F90) $(BOX_OPTS) -c $< -o $@
+
+# # Chemistry
+$(OBJDIR)/%.o: $(SRCDIR)/chemistry/%.f90
+	$(F90) $(CHEM_OPTS) -c $< -o $@
+
+
+# # Uhma (aerosols)
+# $(OBJDIR)/uhma_datatypes.o: uhma/uhma_datatypes.f90
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+# $(OBJDIR)/uhma_io.o: uhma/uhma_io.f90 uhma_datatypes.o
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+# $(OBJDIR)/distribute.o: uhma/distribute.f90 uhma_datatypes.o
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+# $(OBJDIR)/nucleate.o: uhma/nucleate.f90 uhma_datatypes.o $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+# $(OBJDIR)/condense.o: uhma/condense.f90 uhma_datatypes.o
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+# $(OBJDIR)/coagulate.o: uhma/coagulate.f90 uhma_datatypes.o
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+# $(OBJDIR)/deposit.o: uhma/deposit.f90 uhma_datatypes.o
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+# $(OBJDIR)/uhma_misc.o: uhma/uhma_misc.f90 uhma_datatypes.o arbitrary_input.o
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+# $(OBJDIR)/gde_solver.o: uhma/gde_solver.f90 uhma_datatypes.o nucleate.o condense.o coagulate.o deposit.o distribute.o \
+# uhma_misc.o sorting.o
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+# $(OBJDIR)/output_netcdf.o: uhma/output_netcdf.f90 uhma_datatypes.o
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@ $(NETLIBS)
+# $(OBJDIR)/sorting.o: uhma/sorting.f90 uhma_datatypes.o
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+# $(OBJDIR)/arbitrary_input.o: uhma/arbitrary_input.f90 uhma_datatypes.o
+# 	$(F90) $(UHMA_OPTS) -c $< -o $@
+
+# ACDC
+##NH3
+$(OBJDIR)/%.o: $(SRCDIR)/ACDC/ACDC_module_ions_2018_08_31/%.f90
+	$(F90) $(ACDC_OPTS) -c $< -o $@
+
+#DMA
+$(OBJDIR)/%.o: $(SRCDIR)/ACDC/ACDC_module_2016_09_23/%.f90
+	$(F90) $(ACDC_OPTS) -c $< -o $@
+
+
+# Common solvers for ACDC
+$(OBJDIR)/solution_settings.o: ACDC/ACDC_module_ions_2018_08_31/solvers/solution_settings.f90
+	 $(F90) $(ACDC_OPTS) -c $< -o $@
+#
+$(OBJDIR)/vode.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vode.f
+	gfortran -std=legacy -O3 -c $< -o $@
+
+$(OBJDIR)/vodea.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vodea.f
+	gfortran -std=legacy -O3 -c $< -o $@
+
+# Actual model files
+$(OBJDIR)/%.o: $(SRCDIR)/%.f90
+	$(F90) $(BOX_OPTS) -c $< -o $@ $(NETLIBS)
+
+
+BOX_MODS = $(BOX_OBJECTS:.o=.mod)
+
+# UHMA_MODS = $(UHMA_OBJECTS:.o=.mod)
+CHEM_MODS = $(CHEM_OBJECTS:.o=.mod)
+ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
+ACDC_D_MODS = $(ACDC_D_OBJECTS:.o=.mod)
+
+# This entry allows you to type 'make clean' to get rid of all object and module files
+
+# With 'clean', don't remove chemistry object files, since it takes very long (30 min.) to compile them,
+# and there usually is no need to recompile them
+clean:
+	@cd $(OBJDIR) ; rm $(BOX_OBJECTS) $(BOX_MODS)       2>/dev/null || true
+	@cd $(OBJDIR) ; rm $(CHEM_OBJECTS) $(CHEM_MODS)       2>/dev/null || true
+	@cd $(OBJDIR) ; rm $(ACDC_OBJECTS) $(ACDC_MODS)     2>/dev/null || true
+	@cd $(OBJDIR) ; rm $(ACDC_D_OBJECTS) $(ACDC_D_MODS) 2>/dev/null || true
+	@cd $(OBJDIR) ; rm Superbox.o                       2>/dev/null || true
+	@rm superbox.exe                                    2>/dev/null || true
+	#@cd $(OBJDIR) ; rm *.mod *.o                        2>/dev/null || true ## added by carlton.. as some .mod files were not removed
+
+	# -@cd $(OBJDIR) ; rm $(UHMA_OBJECTS) $(UHMA_MODS)   2>/dev/null || true
+# If you really want to remove chemistry objects too, use this
+cleanall:
+	@cd $(OBJDIR) ; rm $(BOX_OBJECTS) $(BOX_MODS)       2>/dev/null || true
+	@cd $(OBJDIR) ; rm $(ACDC_OBJECTS) $(ACDC_MODS)      2>/dev/null || true
+	@cd $(OBJDIR) ; rm $(ACDC_D_OBJECTS) $(ACDC_D_MODS)  2>/dev/null || true
+	@cd $(OBJDIR) ; rm Superbox.o                        2>/dev/null || true
+	@rm superbox.exe                                     2>/dev/null || true
