@@ -144,7 +144,6 @@ real(dp)             :: H2SO4,NH3,DMA,IPR ! these are crated to make the unit co
     ! This will leave the last value for J stand - small enough to not count but not zero
     if (MODELTIME%printnow) print FMT_SUB, 'NH3 IGNORED'
   END IF
-
   ! Speed up program by ignoring nucleation when there is none
   if (DMA > 1d6 .or. J_ACDC_DMA > 1d-6) THEN
     CALL get_acdc_D(H2SO4,DMA,c_org,C(inm_CS),C(inm_TEMP),MODELTIME,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
