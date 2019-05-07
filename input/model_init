@@ -63,4 +63,9 @@ MODS(6)%shift = 3.0
   Description = 'NJ = Nanjing runs; K-xx:temperature changed by -x.x degrees, CS05: Cond sink multiplied by 0.5 Dxxx: DMA multiplied by xxx'
 /
 
-
+####### Vap stuff #####
+&NML_VAP
+  VAP_logical = .True.
+  Vap_names   = 'Vapour_names.dat'
+  Vap_props   = 'Vapour_properties.dat'
+/
