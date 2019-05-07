@@ -5,7 +5,7 @@ F90 = gfortran
 
 # Put .o and .mod files here:
 OBJDIR  = build
-SRCDIR = SRC
+SRCDIR  = SRC
 # When compiling, search for files in these directories:
 VPATH = $(OBJDIR):build:build/ACDC/ACDC_module_2016_09_23:build/ACDC/ACDC_module_ions_2018_08_31
 

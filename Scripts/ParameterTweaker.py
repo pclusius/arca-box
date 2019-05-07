@@ -4,7 +4,7 @@ from matplotlib.widgets import Slider, Button, RadioButtons, TextBox
 import string
 
 # only relevant value you might occasionally have to change in the code
-duration_in_hours = 24
+duration_in_hours = 3
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
 
