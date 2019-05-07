@@ -15,6 +15,8 @@ CHARACTER(86) :: FMT_MSG     = '("| ",t3,a,t100, "|")'
 CHARACTER(86) :: FMT_HDR     = '("+",t2, 98(".") t3,a,t100, "+")'
 CHARACTER(86) :: FMT_WARN0   = '("| WARNING:",t12,88("~"),"+", t12, a)'
 CHARACTER(86) :: FMT_WARN1   = '("| WARNING:",t12,88("~"),"+", t12, a,f0.4)'
+CHARACTER(86) :: FMT_NOTE0   = '("| NOTE:",t9,91("~"),"+", t9, a)'
+CHARACTER(86) :: FMT_NOTE1   = '("| NOTE:",t9,91("~"),"+", t9, a,f0.4)'
 CHARACTER(86) :: FMT_FAT0   = '("| FATAL ERROR:",t16,84("~"),"+", t16, a)'
 
 CONTAINS
@@ -229,7 +231,7 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
       do WHILE (now>=conctime(rw+1))
         rw = rw + 1
       end do
-      print FMT_WARN1,'real row is: ', REAL(rw)
+      print FMT_NOTE1,'real row is: ', REAL(rw)
     end if
   else
     do WHILE (now>=conctime(rw+1))
@@ -254,6 +256,14 @@ INTEGER FUNCTION CNTNONTYPESNML(NMLSTR)
   CNTNONTYPESNML = CNTNONTYPESNML - types
 END FUNCTION CNTNONTYPESNML
 
-
+INTEGER FUNCTION IndexFromName(name)
+  IMPLICIT NONE
+  character(*) :: name
+  integer :: i
+  DO i=1, size(MODS)
+    if (TRIM(NAME) == TRIM(MODS(I)%NAME)) EXIT
+  END DO
+  IndexFromName = i
+END FUNCTION IndexFromName
 
 end MODULE AUXILLARIES
