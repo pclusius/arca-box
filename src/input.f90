@@ -225,6 +225,8 @@ REAL(dp), allocatable, private :: INPUT_MCM(:,:)  ! will be of shape ( len(timev
 REAL(dp), allocatable :: timevec(:)     ! Whatever the times were for ALL measurements
 REAL(dp), allocatable :: CONC_MAT(:,:)  ! will be of shape ( len(timevec) : inm_last )
 real(dp), allocatable :: par_data(:,:)
+character, allocatable :: Vapour_names(:)
+real(dp), allocatable :: Vapour_properties(:,:)
 
 
 ! variable for storing init file name
@@ -247,6 +249,12 @@ Logical :: ACDC           = .true.
 Logical :: Extra_data     = .false.
 Logical :: Current_case   = .false.
 NAMELIST /NML_Flag/ Aerosol_flag, chemistry_flag, particle_flag,ACDC_solve_ss,NUCLEATION,ACDC,Extra_data, Current_case
+
+! Vapour_names and propeerties
+logical            :: Use_Vap     =.TRUE.
+character(len=100) :: Vap_names   = ''
+character(len=100) :: Vap_props   = ''
+NAMELIST /NML_VAP/ Vap_names, Vap_props
 
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0
@@ -295,7 +303,7 @@ subroutine read_input_data()
 
   character(len=256)  :: data_dir
   type(nrowcol)       :: rowcol_count
-  integer             :: ioi, N_indices
+  integer             :: ioi(3), N_indices
   character(6000)     :: buffer
   print'(a,t23,a)', achar(10),  '--~:| Gas and Aerosol Box Model - GABO v.0.1 |:~--'//achar(10)
   write(buffer,NML_ICOLS)
@@ -361,17 +369,39 @@ subroutine read_input_data()
   ! check IF dmps data is used or not. If no then do nothing
   IF (USE_DMPS) then
    write(*,FMT_SUB),'Reading DMPS file '// TRIM(DMPS_file)
-   OPEN(unit=51, File=TRIM(ADJUSTL(data_dir)) // '/' //TRIM(DMPS_dir)// '/'//TRIM(DMPS_file) ,STATUS='OLD', iostat=ioi)
-   IF (ioi /= 0) THEN
+   OPEN(unit=51, File=TRIM(ADJUSTL(data_dir)) // '/' //TRIM(DMPS_dir)// '/'//TRIM(DMPS_file) ,STATUS='OLD', iostat=ioi(1))
+   IF (ioi(1) /= 0) THEN
      print FMT_FAT0, 'DMPS file was defined but not readable, exiting. Check NML_DMPS in INIT file'
      STOP
    END IF
    rowcol_count%rows = ROWCOUNT(51,'#')
    rowcol_count%cols = COLCOUNT(51)
    allocate(par_data(rowcol_count%rows,rowcol_count%cols))
+   CLOSE(51)
   end if
 
-  CLOSE(51)
+  IF (Use_Vap) then
+   write(*,FMT_SUB),'Reading Vapour names file '// TRIM(Vap_names)
+   write(*,FMT_SUB),'Reading Vapour properties file '// TRIM(Vap_props)
+   OPEN(unit=51, File=TRIM(CASE_DIR)// '/'//TRIM(Vap_names) ,STATUS='OLD', iostat=ioi(2))
+   OPEN(unit=52, File=TRIM(CASE_DIR)// '/'//TRIM(Vap_props) ,STATUS='OLD', iostat=ioi(3))
+   IF (ioi(2) /= 0) THEN
+     print FMT_FAT0, 'Vap_names file was defined but not readable, exiting. Check NML_Vap in INIT file'
+     STOP
+   ELSEIF (ioi(3) /= 0) THEN
+     print FMT_FAT0, 'Vap_prop file was defined but not readable, exiting. Check NML_Vap in INIT file'
+     STOP
+   END IF
+
+   rowcol_count%rows = ROWCOUNT(51)
+   rowcol_count%cols = COLCOUNT(52)
+   allocate(Vapour_names(rowcol_count%rows))
+   allocate(Vapour_properties(rowcol_count%rows, rowcol_count%cols))
+
+   CLOSE(51)
+   CLOSE(52)
+
+  end if
 
 
   print FMT_LEND,
@@ -406,12 +436,14 @@ subroutine READ_INIT_FILE
     IF (IOS(6) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Temp, maybe some undefinded input?'
   READ(50,NML=NML_MCM,   IOSTAT= IOS(7)) ! MCM_file information
     IF (IOS(7) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MCM, maybe some undefinded input?'
-  READ(50,NML=NML_MODS,  IOSTAT= IOS(8)) ! modification parameters
-    IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MODS, maybe some undefinded input?'
-  READ(50,NML=NML_MISC,  IOSTAT= IOS(9)) ! misc input
-    IF (IOS(9) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MISC, maybe some undefinded input?'
-  READ(50,NML=NML_ICOLS,  IOSTAT= IOS(10)) ! indices input
-    IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_ICOLS, maybe some undefinded input?'
+  READ(50,NML=NML_VAP,   IOSTAT= IOS(8)) !VAP _file information
+      IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Vap, maybe some undefinded input?'
+  READ(50,NML=NML_MODS,  IOSTAT= IOS(9)) ! modification parameters
+    IF (IOS(9) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MODS, maybe some undefinded input?'
+  READ(50,NML=NML_MISC,  IOSTAT= IOS(10)) ! misc input
+    IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MISC, maybe some undefinded input?'
+  READ(50,NML=NML_ICOLS,  IOSTAT= IOS(11)) ! indices input
+    IF (IOS(11) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_ICOLS, maybe some undefinded input?'
   CLOSE(50)
   IF (SUM(IOS) /= 0) then
     write(*,FMT_MSG) 'Problems with the init file, exiting now. Good bye.'

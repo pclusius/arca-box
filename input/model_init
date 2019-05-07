@@ -18,7 +18,7 @@
 
 ####### TIME related user input #####
 &NML_TIME
- runtime        = 2.2
+ runtime        = 0.2
  PRINT_INTERVAL = 100
  FSAVE_INTERVAL = 300
  FSAVE_DIVISION = 0
@@ -38,9 +38,15 @@
 ####### MCM file read #####
 &NML_MCM
  MCM_path = '/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
- MCM_file = 
+ MCM_file =
 /
 
+####### VAP file read #####
+&NML_VAP
+ Use_Vap     =  .True.
+ Vap_names   =  'Vapour_names.dat'
+ Vap_props   =  'Vapour_properties.dat'
+/
 
 ####### MODS read #####
 &NML_MODS
@@ -60,4 +66,3 @@ MODS(7) = 1 1.000000d1 1.000000d5 0.308000d0 1.221818d0 1.425455d0 0.278182d0 0.
 &NML_ICOLS
 /
 #INF_DMM = 2
-
