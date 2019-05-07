@@ -4,7 +4,6 @@ USE second_Precision,  ONLY : dp ! KPP Numerical type
 USE second_Monitor, ONLY: SPC_NAMES
 USE constants
 USE AUXILLARIES
-USE Aerosol_auxillaries
 use INPUT
 use OUTPUT
 #ifdef ISACDC
@@ -14,7 +13,7 @@ use OUTPUT
 
 IMPLICIT NONE
 ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
-REAL(dp) :: TSTEP_CONC(inm_LAST) = 0d0
+REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)
 REAL(DP), ALLOCATABLE :: CH_GAS_DUMMY(:)
 REAL(dp) :: J_ACDC_NH3
 REAL(dp) :: J_ACDC_DMA
@@ -29,9 +28,8 @@ INTEGER  :: I
 
   CALL CHECK_INPUT_AGAINST_KPP
 
-  CALL set_speed()
-  print*, N_SPEED
-
+  ALLOCATE(TSTEP_CONC(N_VARS))
+  TSTEP_CONC = 0
   ALLOCATE(CH_GAS_DUMMY(size(SPC_NAMES)))
   CH_GAS_DUMMY = 0
 
@@ -47,8 +45,8 @@ INTEGER  :: I
 
 ! =================================================================================================
 ! Assign values to input variables
-  DO I = 1, inm_LAST ! <-- inm_last will cycle through all variables that user can provide or tamper, and leave zero if no input or mod was provided
-    IF ((INDRELAY(I)>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift-0d0) > 1d-100)) THEN
+  DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables that user can provide or tamper, and leave zero if no input or mod was provided
+    IF ((MODS(I)%col>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift-0d0) > 1d-100)) THEN
       TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I))  .mod. MODS(I)
       ! INDRELAY(I)>0 means that user must have provided a column from an input file; MODS(I)%MODE > 0 means NORMALD is in use
     END IF
@@ -56,7 +54,7 @@ INTEGER  :: I
 ! =================================================================================================
 
 ! Chemistry
-  DO I = 1, inm_LAST ! <-- inm_last will cycle through all variables
+  DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables
     IF (INDRELAY_CH(I)>0) THEN ! <-- this will pick those that were paired in CHECK_INPUT_AGAINST_KPP
       CH_GAS_DUMMY(INDRELAY_CH(I)) = TSTEP_CONC(I)
     END IF
@@ -131,15 +129,16 @@ SUBROUTINE ACDC_J(C)
 ! J_ACDC_DMA:        Particle formation rate due to DMA [1/s/m3]
 ! acdc_cluster_diam: Outgrowing cluster diameter [m]. The cluster typically has 5 to 6 H2SO4 in it
 ! =================================================================================================
-real(dp) :: c_org = 1d-12
-real(dp), intent(in) :: C(:)
-real(dp)             :: H2SO4,NH3,DMA,IPR ! these are crated to make the unit conversion
+  implicit none
+  real(dp) :: c_org = 1d-12
+  real(dp), intent(in) :: C(:)
+  real(dp)             :: H2SO4=0,NH3=0,DMA=0,IPR=0 ! these are created to make the unit conversion
 
 ! NUCLEATION BY S-ACID AND NH3 - NOTE: ingoing concentrations are assumed to be in 1/m3!!
-  H2SO4 = C(inm_H2SO4)*1d6
-  NH3   = C(inm_NH3)*1d6
-  DMA   = C(inm_DMA)*1d6
-  IPR   = C(inm_IPR)*1d6
+  IF (inm_H2SO4 /= 0) H2SO4 = C(inm_H2SO4)*1d6
+  IF (inm_NH3   /= 0) NH3   = C(inm_NH3)*1d6
+  IF (inm_DMA   /= 0) DMA   = C(inm_DMA)*1d6
+  IF (inm_IPR   /= 0) IPR   = C(inm_IPR)*1d6
   ! Speed up program by ignoring nucleation when there is none
   if (NH3 > 1d12 .or. J_ACDC_NH3 > 1d-6) THEN
     CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMP),IPR,MODELTIME,&
@@ -172,10 +171,11 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
   IMPLICIT NONE
   real(dp), intent(in) :: C(:)
   print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]', 'Temp:', C(inm_TEMP), 'Kelvin'
-  print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3*1d-6, ' [1/cm3]'
-  print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA*1d-6, ' [1/cm3]'
+  print FMT10_CVU,'APINE C: ', C(IndexFromName('APINENE')), ' [1/cm3]'
+  IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3*1d-6, ' [1/cm3]'
+  IF (inm_DMA   /= 0) print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA*1d-6, ' [1/cm3]'
   print FMT10_3CVU, 'Jion1:', J_NH3_BY_IONS(1)*1d-6 , ' [1/s/cm3]','Jion2:', J_NH3_BY_IONS(2)*1d-6 , ' [1/s/cm3]','Jion2:', J_NH3_BY_IONS(3)*1d-6 , ' [1/s/cm3]'
-  print FMT10_2CVU, 'C-sink:', C(inm_CS) , ' [1/s]','IPR:', C(inm_IPR) , ' [1/s/cm3]'
+  IF (inm_IPR   /= 0) print FMT10_2CVU, 'C-sink:', C(inm_CS) , ' [1/s]','IPR:', C(inm_IPR) , ' [1/s/cm3]'
   print FMT_LEND,
 END SUBROUTINE PRINT_KEY_INFORMATION
 
@@ -183,17 +183,18 @@ SUBROUTINE CHECK_MODIFIERS()
   IMPLICIT NONE
   type(input_mod) :: test
   integer         :: i,j=0
+  print FMT_HDR, 'Check input validity'
   do i=1,size(MODS)
   IF (MODS(i)%MODE > 0) THEN
-    print FMT_WARN0, 'Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
+    print FMT_NOTE0, 'Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
     j=1
   ELSE
     IF (ABS(MODS(i)%multi - test%multi) > 1d-9) THEN
-      print FMT_WARN1, 'Multiplying '//TRIM(MODS(i)%name)//' with: ',MODS(i)%multi
+      print FMT_NOTE1, 'Multiplying '//TRIM(MODS(i)%name)//' with: ',MODS(i)%multi
       j=1
     END IF
     if (ABS(MODS(i)%shift - test%shift) > 1d-9) THEN
-      print FMT_WARN1, 'Adding a constant to '//TRIM(MODS(i)%name)//', value is: ',MODS(i)%shift
+      print FMT_NOTE1, 'Adding a constant to '//TRIM(MODS(i)%name)//', value is: ',MODS(i)%shift
       j=1
     END IF
   END IF
@@ -205,6 +206,7 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 ! =================================================================================================
 ! If user had opted a save or print interval which does not concide with last timestep, we print
 ! and save the values at last timesteps
+  implicit none
   MODELTIME = ADD(MODELTIME, -MODELTIME%dt)
   print*
   print FMT_HDR, 'Main loop ended'
@@ -219,33 +221,36 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
 SUBROUTINE CHECK_INPUT_AGAINST_KPP
-integer :: i,j, check
-print FMT_MSG
-do i=1,INM_LAST
-  check = 0
-  IF (INDRELAY(I) > 0 .or. MODS(I)%MODE > 0 .or. ABS(MODS(I)%SHIFT - 0) > 1d-100) THEN
-    DO j=1,size(SPC_NAMES)
-      IF (MODS(i)%NAME == TRIM(SPC_NAMES(j))) THEN
-        check = 1
-        print FMT_MSG, 'Found '//TRIM(SPC_NAMES(j))//' from chemistry'
-        INDRELAY_CH(I) = J !store the key->value map for input and chemistry
-        exit
-      end if
-    END DO
-    IF (check == 0 .and. I>=20) THEN
-      print FMT_FAT0, 'You are using a compound which does not exist in chemistry: '//TRIM(MODS(i)%NAME)//' '
-      IF (INDRELAY(I) > 0) print FMT_SUB, 'In INITFILE; &NML_ICOLS'
-      IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS'
-      print FMT_MSG, 'Good bye.'
-      STOP
+  implicit none
+  integer :: i,j, check
+  print FMT_HDR, 'Checking against KPP for chemicals'
+  do i=1,N_VARS
+    check = 0
+    IF (MODS(I)%col > 0 .or. MODS(I)%MODE > 0 .or. ABS(MODS(I)%SHIFT - 0) > 1d-100) THEN
+      DO j=1,size(SPC_NAMES)
+        IF (MODS(i)%NAME == TRIM(SPC_NAMES(j))) THEN
+          check = 1
+          print FMT_MSG, 'Found '//TRIM(SPC_NAMES(j))//' from chemistry'
+          INDRELAY_CH(I) = J !store the key->value map for input and chemistry
+          exit
+        end if
+      END DO
+      IF (check == 0 .and. I>LENV) THEN
+        print FMT_FAT0, 'You are using a compound which does not exist in chemistry: '//TRIM(MODS(i)%NAME)//' '
+        IF (MODS(I)%COL > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (col) <- input from file.'
+        IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (shifters etc) <- modification of value.'
+        print FMT_MSG, 'Good bye.'
+        STOP
+      END IF
+      IF (check == 0 .and. I<LENV .and. &
+      ((I==inm_H2SO4) .or. (I==inm_NH3) .or. (I==inm_DMA) .or. (I==inm_SO2) &
+      .or. (I==inm_NO) .or. (I==inm_NO2) .or. (I==inm_CO) .or. (I==inm_H2) .or. (I==inm_O3))  ) THEN
+        print FMT_WARN0, 'A compound which does not exist in chemistry but could be used elsewhere: '//TRIM(MODS(i)%NAME)//' '
+        IF (MODS(I)%COL > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (col) <- input from file.'
+        IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (shifters etc) <- modification of value.'
+      END IF
     END IF
-    IF (check == 0 .and. I>=7 .and. I<20) THEN
-      print FMT_WARN0, 'A compound which does not exist in chemistry but could be used elsewhere: '//TRIM(MODS(i)%NAME)//' '
-      IF (INDRELAY(I) > 0) print FMT_SUB, 'In INITFILE; &NML_ICOLS'
-      IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS'
-    END IF
-  END IF
-END DO
+  END DO
 
 END SUBROUTINE CHECK_INPUT_AGAINST_KPP
 
