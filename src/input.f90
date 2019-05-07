@@ -99,13 +99,29 @@ real(dp)  :: lon
 CHARACTER(1000)  :: Description
 NAMELIST /NML_MISC/ lat, lon, Description
 
+
+Logical  :: VAP_logical = .False.
+character(len=256)  :: Vap_names
+character(len=256)  :: Vap_props
+NAMELIST /NML_VAP/ VAP_logical, Vap_names, Vap_props
+
+character(len=256), allocatable  :: Vapour_names(:)
+real(dp),allocatable :: vapour_properties(:,:)
+
+type :: vapours_info
+ integer :: vapour_number
+ integer :: vbs_bins
+end type vapours_info
+
+type(vapours_info) :: vapours
+
 contains
 
 subroutine READ_INPUT_DATA()
   IMPLICIT NONE
   character(len=256)  :: data_dir
   type(nrowcol)       :: rowcol_count
-  integer             :: ioi
+  integer             :: ioi,ioi2
 
   ! Welcoming message
   print'(a,t23,a)', achar(10),  '--~:| Gas and Aerosol Box Model - GAB v.0.1 |:~--'//achar(10)
@@ -188,6 +204,35 @@ subroutine READ_INPUT_DATA()
   CLOSE(51)
   print FMT_LEND,
 
+  IF (VAP_logical) then
+   write(*,FMT_SUB),'Reading Vapour name file '// TRIM(Vap_names)
+   write(*,FMT_SUB),'Reading Vapour prop file '// TRIM(Vap_props)
+   OPEN(unit=52, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
+   OPEN(unit=53, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_props) , STATUS='OLD', iostat=ioi2)
+
+   IF (ioi /= 0) THEN
+     print FMT_FAT0, 'Vap_names file was defined but not readable, exiting. Check NML_vap in INIT file'
+     STOP
+   ELSEIF (ioi2 /= 0) THEN
+       print FMT_FAT0, 'Vap_props was defined but not readable, exiting. Check NML_vap in INIT file'
+       STOP
+   END IF
+
+   rowcol_count%rows = ROWCOUNT(52)
+   rowcol_count%cols = COLCOUNT(53)
+
+   allocate(vapour_names(rowcol_count%rows))
+   allocate(vapour_properties(rowcol_count%rows,rowcol_count%cols))
+
+   vapours%vapour_number = rowcol_count%rows
+   vapours%vbs_bins      = rowcol_count%rows + 1
+   print*, vapours%vapour_number,'', vapours%vbs_bins
+   close(52)
+   close(53)
+
+  end if
+
+
 end subroutine READ_INPUT_DATA
 
 
@@ -234,6 +279,8 @@ subroutine READ_INIT_FILE
     IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MODS, maybe some undefinded INITFILE input?'
   READ(50,NML=NML_MISC,  IOSTAT= IOS(9)) ! misc input
     IF (IOS(9) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MISC, maybe some undefinded INITFILE input?'
+  READ(50,NML=NML_VAP,  IOSTAT= IOS(10)) ! misc input
+      IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_VAP, maybe some undefinded INITFILE input?'
   CLOSE(50)
 
   IF (SUM(IOS) /= 0) then
