@@ -4,6 +4,7 @@ USE second_Precision,  ONLY : dp ! KPP Numerical type
 USE second_Monitor, ONLY: SPC_NAMES
 USE constants
 USE AUXILLARIES
+USE Aerosol_auxillaries
 use INPUT
 use OUTPUT
 #ifdef ISACDC
@@ -27,6 +28,9 @@ INTEGER  :: I
   CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
 
   CALL CHECK_INPUT_AGAINST_KPP
+
+  CALL set_speed()
+  print*, N_SPEED
 
   ALLOCATE(CH_GAS_DUMMY(size(SPC_NAMES)))
   CH_GAS_DUMMY = 0

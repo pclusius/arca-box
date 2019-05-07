@@ -272,7 +272,7 @@ logical             :: use_dmps_special = .false.
 NAMELIST /NML_DMPS/ DMPS_dir, DMPS_file,read_in_time,dmps_upper_band_limit, dmps_lower_band_limit,&
 use_dmps,use_dmps_special
 
-! ENVIRONMENTAL INPUT
+! ENVIRONMENTAL PUT_INPUT_IN_THEIR_PLACES
 character(len=256)  :: ENV_path = ''
 character(len=256)  :: ENV_file = ''
 NAMELIST /NML_ENV/ ENV_path, ENV_file
@@ -979,6 +979,7 @@ SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
   END IF
 
 END SUBROUTINE PUT_INPUT_IN_THEIR_PLACES
+
 
 subroutine fill_input_buff(unit,rowcol_count, INPUT_BF,Input_file)
   implicit none
