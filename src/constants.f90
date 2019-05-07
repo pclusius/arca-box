@@ -21,18 +21,20 @@ integer(ik), parameter:: day_s = 24*hour_s
 type input_mod
   ! Mode of operation:
   INTEGER   :: MODE  = 0
-  ! 0 = use values that are read in, poissibly modifying by a factor or a constant
+  ! 0 = use values that are read in from column "col", possibly modifying by a factor or a constant
   ! 1 = Use NORMALD to create function in LINEAR mode
   ! 2 = Use NORMALD to create function in LOGARITMIC mode
-  real(dp)  :: min = 0d0     ! Minimum value for the parametrized concentration OR constant value if max <= min
-  real(dp)  :: max = 1d5     ! Peak value
-  real(dp)  :: sig = 1d0     ! Standard deviation for the Gaussian=sig of the bell curve
-  real(dp)  :: mju = 12d0    ! Time of peak value
-  real(dp)  :: fv  = 0d0    ! Angular frequency [hours] of modIFying sine function
-  real(dp)  :: ph  = 0d0    ! Angular frequency [hours] of modIFying sine function
-  real(dp)  :: am  = 1d0    ! Amplitude of modIFicaion
-  real(dp)  :: multi = 1d0   ! Multiplication factor in MODE0
-  real(dp)  :: shift = 0d0   ! Constant to be added in MODE0
+
+  integer   :: col = -1     ! Column for input in whatever file the value will be
+  real(dp)  :: min = 0d0    ! Minimum value for the parametrized concentration OR constant value if max <= min
+  real(dp)  :: max = 1d5    ! Peak value
+  real(dp)  :: sig = 1d0    ! Standard deviation for the Gaussian=sig of the bell curve
+  real(dp)  :: mju = 12d0   ! Time of peak value
+  real(dp)  :: fv  = 0d0    ! Angular frequency [hours] of modifying sine function
+  real(dp)  :: ph  = 0d0    ! Angular frequency [hours] of modifying sine function
+  real(dp)  :: am  = 1d0    ! Amplitude of modificaion
+  real(dp)  :: multi = 1d0  ! Multiplication factor in MODE0
+  real(dp)  :: shift = 0d0  ! Constant to be added in MODE0
   CHARACTER(16) :: NAME = 'NONAME'! Human readable name for modified variable
 end type input_mod
 
@@ -57,6 +59,7 @@ type timetype
 end type timetype
 
 type(timetype)  :: MODELTIME
+type(input_mod), allocatable :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
 
 !type for number of column and rows
 type nrowcol
