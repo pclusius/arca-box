@@ -4,7 +4,7 @@
  Work_Dir    =
  Case_Dir    =  'input/'
  Case_name   =  'NANJING'
- RUN_NAME    =  'NJ_Special'
+ RUN_NAME    =  'Test'
 /
 
 ####### Flags setup True or false #######
@@ -16,37 +16,44 @@
  Current_case   =   .True.,
 /
 
-####### TIME related user input #####
+!####### TIME related user input #####
 &NML_TIME
- runtime        = 2.2
- PRINT_INTERVAL = 100
+ runtime        = 1
+ PRINT_INTERVAL = 3600
  FSAVE_INTERVAL = 300
  FSAVE_DIVISION = 0
  JD             = 2
 /
 
 
-####### dmps file read #####
+!####### dmps file read #####
 &NML_DMPS
 /
 
 ####### ENV file read #####
 &NML_ENV
+ ENV_file         =  'case_Nanjing1.txt'
  ENV_path         =  '/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
 /
 
 ####### MCM file read #####
 &NML_MCM
  MCM_path = '/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
- MCM_file = 
+ MCM_file = 'case_Nanjing1.txt'
 /
 
 
 ####### MODS read #####
+#      mode   col     min        max        sig        mju         fv         ph         am multi shift name
 &NML_MODS
-MODS(1) = 1 2.730000d2 3.030000d2 1.500000d0 1.500000d0 0.000000d0 0.000000d0 1.000000d0 1d0 0d0 "temperature"
-MODS(9) = 1 1.000000d2 1.000000d6 0.150000d0 1.221818d0 1.425455d0 0.278182d0 0.836364d0 1d0 1d5 "DMA"
-MODS(7) = 1 1.000000d1 1.000000d5 0.308000d0 1.221818d0 1.425455d0 0.278182d0 0.836364d0 1d0 0d0 "H2SO4"
+MODS(1) = 0 3 2.730000d2 3.030000d2 1.500000d0 1.500000d0 0.000000d0 0.000000d0 1.000000d0 1d0 273d0 ! temperature
+MODS(9) = 1 -1 1.000000d2 1.000000d6 0.150000d0 1.221818d0 1.425455d0 0.278182d0 0.836364d0 1d0 1d5 ! DMA
+MODS(7) = 0 5 1.000000d1 1.000000d5 0.308000d0 1.221818d0 1.425455d0 0.278182d0 0.836364d0 1d0 0d0 ! H2SO4
+MODS(1)%col = 3
+MODS(4)%col = 4
+MODS(7)%col = 7
+MODS(149)%col = 4
+MODS(6)%shift = 3.0
 /
 
 ####### Misc stuff #####
@@ -56,8 +63,4 @@ MODS(7) = 1 1.000000d1 1.000000d5 0.308000d0 1.221818d0 1.425455d0 0.278182d0 0.
   Description = 'NJ = Nanjing runs; K-xx:temperature changed by -x.x degrees, CS05: Cond sink multiplied by 0.5 Dxxx: DMA multiplied by xxx'
 /
 
-####### indices #####
-&NML_ICOLS
-/
-#INF_DMM = 2
 
