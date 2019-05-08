@@ -339,11 +339,12 @@ subroutine FILL_INDRELAY_CH_WITH_INDICES
   integer::i
   character(4) :: buffer
   DO i=1,N_VARS
-    IF (I==1) print FMT_MSG, 'Values from '//TRIM(ENV_file)//':'
-    IF (I==LENV) print FMT_MSG, 'Values from '//TRIM(ENV_file)//':'
+    IF (I==1 .and. (TRIM(ENV_file) /= '')) print FMT_MSG, 'Values from '//TRIM(ENV_file)//':'
+    IF (I==LENV  .and. (TRIM(MCM_file) /= '')) print FMT_MSG, 'Values from '//TRIM(ENV_file)//':'
     IF (MODS(I)%col > -1) THEN
       write(buffer, '(i0)') MODS(I)%col
-      print FMT_SUB, 'Values for '//TRIM(MODS(I)%NAME)//' will be read from column: '//TRIM(buffer)
+      IF (I<LENV .and. (TRIM(ENV_file) /= '')) print FMT_SUB, 'Values for '//TRIM(MODS(I)%NAME)//' will be read from column: '//TRIM(buffer)
+      IF (I>LENV .and. (TRIM(MCM_file) /= '')) print FMT_SUB, 'Values for '//TRIM(MODS(I)%NAME)//' will be read from column: '//TRIM(buffer)
     END IF
   END DO
 
