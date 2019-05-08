@@ -65,8 +65,7 @@ real(dp)  :: runtime = 1d0
 real(dp)  :: FSAVE_INTERVAL = 300d0
 real(dp)  :: PRINT_INTERVAL = 15*60d0
 INTEGER   :: FSAVE_DIVISION = 0
-INTEGER   :: JD = -1
-NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, JD
+NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION
 
 ! MODIFIER OPTIONS
 ! MODS is declared in CONSTANTS.f90, in order to be more widely available
@@ -86,7 +85,8 @@ use_dmps,use_dmps_special
 ! ENVIRONMENTAL INPUT
 character(len=256)  :: ENV_path = ''
 character(len=256)  :: ENV_file = ''
-NAMELIST /NML_ENV/ ENV_path, ENV_file
+character(len=1)  :: TempUnit = 'K' ! or C
+NAMELIST /NML_ENV/ ENV_path, ENV_file, TempUnit
 
 ! MCM INPUT
 character(len=256)  :: MCM_path = ''
@@ -96,9 +96,9 @@ NAMELIST /NML_MCM / MCM_path, MCM_file
 ! MISC OPTIONS
 real(dp)  :: lat
 real(dp)  :: lon
+INTEGER   :: JD = -1
 CHARACTER(1000)  :: Description
-NAMELIST /NML_MISC/ lat, lon, Description
-
+NAMELIST /NML_MISC/ JD, lat, lon, Description
 
 Logical  :: VAP_logical = .False.
 character(len=256)  :: Vap_names
