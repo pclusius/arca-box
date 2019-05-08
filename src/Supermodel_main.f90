@@ -184,6 +184,9 @@ SUBROUTINE CHECK_MODIFIERS()
   type(input_mod) :: test
   integer         :: i,j=0
   print FMT_HDR, 'Check input validity'
+  
+  CALL CONVERT_TEMPS_TO_KELVINS
+
   do i=1,size(MODS)
   IF (MODS(i)%MODE > 0) THEN
     print FMT_NOTE0, 'Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
@@ -254,5 +257,21 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
 
 END SUBROUTINE CHECK_INPUT_AGAINST_KPP
 
+SUBROUTINE CONVERT_TEMPS_TO_KELVINS
+  IMPLICIT NONE
+  IF (TempUnit == 'K') THEN
+    print FMT_MSG, '- Temperature input in Kelvins.'
+  ELSEIF (TempUnit == 'C') THEN
+    print FMT_MSG, '- Converting temperature from degrees C -> K (as defined in INITFILE: TempUnit).'
+    MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
+    MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
+    CONC_MAT(:,inm_TempK) = CONC_MAT(:,inm_TempK) + 273.15d0
+  ELSE
+    print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
+  END IF
+  IF ((TempUnit == 'C') .and. (  ABS(MODS(inm_TempK)%shift - 273.15)<1d0  )) THEN
+    print FMT_WARN1, 'Temperature will be converted to Kelvins, but a suspicious constant is added: ',MODS(inm_TempK)%shift
+  END IF
+END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
 
 END PROGRAM SUPERMODEL
