@@ -22,7 +22,6 @@
  PRINT_INTERVAL = 3600
  FSAVE_INTERVAL = 300
  FSAVE_DIVISION = 0
- JD             = 2
 /
 
 
@@ -34,6 +33,7 @@
 &NML_ENV
  ENV_file         = ! 'case_Nanjing1.txt'
  ENV_path         = ! '/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
+ TempUnit         = 'C'
 /
 
 ####### MCM file read #####
@@ -60,6 +60,7 @@ MODS(6)%shift = 3.0
 &NML_MISC
   lat = 1
   lon = 7
+  JD  = 2
   Description = 'NJ = Nanjing runs; K-xx:temperature changed by -x.x degrees, CS05: Cond sink multiplied by 0.5 Dxxx: DMA multiplied by xxx'
 /
 
