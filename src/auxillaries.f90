@@ -17,7 +17,7 @@ CHARACTER(86) :: FMT_WARN0   = '("| WARNING:",t12,88("~"),"+", t12, a)'
 CHARACTER(86) :: FMT_WARN1   = '("| WARNING:",t12,88("~"),"+", t12, a,f0.4)'
 CHARACTER(86) :: FMT_NOTE0   = '("| NOTE:",t9,91("~"),"+", t9, a)'
 CHARACTER(86) :: FMT_NOTE1   = '("| NOTE:",t9,91("~"),"+", t9, a,f0.4)'
-CHARACTER(86) :: FMT_FAT0   = '("| FATAL ERROR:",t16,84("~"),"+", t16, a)'
+CHARACTER(86) :: FMT_FAT0    = '("| FATAL ERROR:",t16,84("~"),"+", t16, a)'
 
 CONTAINS
 
@@ -242,20 +242,14 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
   INTERP = (now-conctime(rw))/(conctime(rw+1)-conctime(rw))*(conc(rw+1)-conc(rw))+conc(rw)
 END  FUNCTION INTERP
 
-
-INTEGER FUNCTION CNTNONTYPESNML(NMLSTR)
-  IMPLICIT NONE
-  character(*):: NMLSTR
-  INTEGER I, types
-  types = 0
-  CNTNONTYPESNML = 0
-  DO I=1,LEN(TRIM(NMLSTR))
-    IF (NMLSTR(I:I) == '=') CNTNONTYPESNML = CNTNONTYPESNML + 1
-    IF (NMLSTR(I:I) == '%') types = types + 1
-  END DO
-  CNTNONTYPESNML = CNTNONTYPESNML - types
-END FUNCTION CNTNONTYPESNML
-
+!==============================================================================
+! Function finds out the internal index using the proper name. E.g. IndexFromName(APINENE)
+! will return 149 in current version.
+! Input:
+! name: the name (trimmed or untrimmed) of the variable. This name must match the name in NAMES.DAT exactly.
+! Output:
+! integer
+!..............................................................................
 INTEGER FUNCTION IndexFromName(name)
   IMPLICIT NONE
   character(*) :: name
