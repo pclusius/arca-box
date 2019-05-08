@@ -76,7 +76,7 @@ INTEGER  :: I
 ! =================================================================================================
 ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
   if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-  if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_temp), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
+  if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
                               TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), MODS)
 ! =================================================================================================
 
@@ -141,7 +141,7 @@ SUBROUTINE ACDC_J(C)
   IF (inm_IPR   /= 0) IPR   = C(inm_IPR)*1d6
   ! Speed up program by ignoring nucleation when there is none
   if (NH3 > 1d12 .or. J_ACDC_NH3 > 1d-6) THEN
-    CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMP),IPR,MODELTIME,&
+    CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMPK),IPR,MODELTIME,&
           ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
   ELSE
     ! This will leave the last value for J stand - small enough to not count but not zero
@@ -149,7 +149,7 @@ SUBROUTINE ACDC_J(C)
   END IF
   ! Speed up program by ignoring nucleation when there is none
   if (DMA > 1d6 .or. J_ACDC_DMA > 1d-6) THEN
-    CALL get_acdc_D(H2SO4,DMA,c_org,C(inm_CS),C(inm_TEMP),MODELTIME,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
+    CALL get_acdc_D(H2SO4,DMA,c_org,C(inm_CS),C(inm_TEMPK),MODELTIME,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
   ELSE
     ! This will leave the last value for J stand - small enough to not count but not zero
     if (MODELTIME%printnow) print FMT_SUB, 'DMA IGNORED'
@@ -170,7 +170,7 @@ END SUBROUTINE SOME_OTHER_NUCLEATION_TYPE
 SUBROUTINE PRINT_KEY_INFORMATION(C)
   IMPLICIT NONE
   real(dp), intent(in) :: C(:)
-  print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]', 'Temp:', C(inm_TEMP), 'Kelvin'
+  print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]', 'Temp:', C(inm_TempK), 'Kelvin'
   print FMT10_CVU,'APINE C: ', C(IndexFromName('APINENE')), ' [1/cm3]'
   IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3*1d-6, ' [1/cm3]'
   IF (inm_DMA   /= 0) print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA*1d-6, ' [1/cm3]'
@@ -184,7 +184,7 @@ SUBROUTINE CHECK_MODIFIERS()
   type(input_mod) :: test
   integer         :: i,j=0
   print FMT_HDR, 'Check input validity'
-  
+
   CALL CONVERT_TEMPS_TO_KELVINS
 
   do i=1,size(MODS)
@@ -219,7 +219,7 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
     print FMT_TIME, MODELTIME%hms
     CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
   END IF
-  if (.not. MODELTIME%savenow) call SAVE_GASES(TSTEP_CONC(inm_temp), TSTEP_CONC(inm_H2SO4), &
+  if (.not. MODELTIME%savenow) call SAVE_GASES(TSTEP_CONC(inm_tempK), TSTEP_CONC(inm_H2SO4), &
   TSTEP_CONC(inm_nh3), TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), MODS)
 END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
