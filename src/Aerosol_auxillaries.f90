@@ -1,9 +1,9 @@
-Module Aerosol_auxillaries
+Module aerosol_auxillaries
 
 Use constants
 Use SECOND_PRECISION, only:dp
 Use AUXILLARIES
-USE INPUT
+
 
 implicit NONE
 PUBLIC
@@ -13,9 +13,16 @@ real(dp),dimension(3)::N_speed !! nucleation, condensation,coagulation
 real(dp) :: precision
 logical :: first_time
 
-
-
-!print*, vap_details%vapour_number, '', vap_details%vbs_bins
+!!! This datatype contains all parameters for input vapours
+type :: vapour_ambient
+  real(dp), allocatable :: molar_mass(:), parameter_A(:), parameter_B(:)
+  character(len=256), allocatable :: vapour_names(:)
+  real(dp) :: alpha        = 1.0
+  real(dp) :: density      = 1400.0
+  real(dp) :: surf_tension = 0.05
+  integer :: vapour_number
+  integer :: vbs_bins
+end type vapour_ambient
 
 
 contains
@@ -29,5 +36,5 @@ end if
 
 end subroutine set_speed
 
-!subroutine
-End module Aerosol_auxillaries
+
+End module aerosol_auxillaries

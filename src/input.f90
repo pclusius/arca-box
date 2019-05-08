@@ -4,6 +4,7 @@ Module INPUT
 USE second_precision
 use constants
 USE auxillaries
+USE Aerosol_auxillaries
 
 Implicit none
 
@@ -108,12 +109,12 @@ NAMELIST /NML_VAP/ VAP_logical, Vap_names, Vap_props
 character(len=256), allocatable  :: Vapour_names(:)
 real(dp),allocatable :: vapour_properties(:,:)
 
-type :: vapours_info
- integer :: vapour_number
- integer :: vbs_bins
-end type vapours_info
+! type :: vapours_info
+!  integer :: vapour_number
+!  integer :: vbs_bins
+! end type vapours_info
 
-type(vapours_info) :: vapours
+type(vapour_ambient) :: vapours
 
 contains
 
@@ -121,7 +122,11 @@ subroutine READ_INPUT_DATA()
   IMPLICIT NONE
   character(len=256)  :: data_dir
   type(nrowcol)       :: rowcol_count
-  integer             :: ioi,ioi2
+  integer             :: ioi,ioi2, ii, iosp, ioprop
+  !!! for vapour FILES
+  character(len=256)  :: species_name
+  real(dp)            :: mol_mass, parameter_A, parameter_B
+
 
   ! Welcoming message
   print'(a,t23,a)', achar(10),  '--~:| Gas and Aerosol Box Model - GAB v.0.1 |:~--'//achar(10)
@@ -221,12 +226,33 @@ subroutine READ_INPUT_DATA()
    rowcol_count%rows = ROWCOUNT(52)
    rowcol_count%cols = COLCOUNT(53)
 
-   allocate(vapour_names(rowcol_count%rows))
-   allocate(vapour_properties(rowcol_count%rows,rowcol_count%cols))
+   allocate(vapours%Vapour_names(rowcol_count%rows + 1 ))
+   allocate(vapours%molar_mass(rowcol_count%rows + 1))
+   allocate(vapours%parameter_A(rowcol_count%rows + 1))
+   allocate(vapours%parameter_B(rowcol_count%rows + 1))
 
    vapours%vapour_number = rowcol_count%rows
    vapours%vbs_bins      = rowcol_count%rows + 1
-   print*, vapours%vapour_number,'', vapours%vbs_bins
+   print*, 'Vapours available= ',  vapours%vapour_number
+   print*, 'Vapour bins + H2SO4', vapours%vbs_bins
+   !!! reading the vap names and vap vapour_properties
+
+ do ii = 1, vapours%vapour_number+1
+   if (ii <= vapours%vapour_number) then !!! all compounds
+     read(52,*,iostat=iosp)   species_name
+     read(53,*,iostat=ioprop) mol_mass, parameter_A, parameter_B
+     vapours%molar_mass(ii)    = mol_mass
+     vapours%parameter_A(ii)   = parameter_A
+     vapours%parameter_B(ii)   = parameter_B
+     vapours%vapour_names(ii)  = TRIM(species_name)
+   else !! h2so4
+     vapours%molar_mass(ii)    = 98.0785
+     vapours%parameter_A(ii)   = 3.869717803774
+     vapours%parameter_B(ii)   = 313.607405085
+     vapours%vapour_names(ii)  = 'H2S04'
+   end if
+ end do
+
    close(52)
    close(53)
 
@@ -391,6 +417,8 @@ subroutine FILL_INPUT_BUFF(unit,rowcol_count, INPUT_BF,Input_file)
   END DO
   print FMT_MSG, 'Done filling input matrices...'
 end subroutine FILL_INPUT_BUFF
+
+
 
 
 end module INPUT
