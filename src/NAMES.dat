@@ -1,9 +1,9 @@
-temperature
-pressure
-relative_humid
-condens_sink
-shortwave_rad
-Ion_Prod_Rate
+TEMPK
+PRESSURE
+REL_HUMIDITY
+CONDENS_SINK
+SW_RADIATION
+ION_PROD_RATE
 H2SO4
 NH3
 DMA
