@@ -15,7 +15,7 @@ INTEGER :: LENV   ! This will store the number of named indices in this code
 ! IF YOU ADD VARIABLES HERE, YOU NEED TO UPDATE:
 ! - this list
 !------------------------------------------------------------------
-INTEGER :: inm_temp
+INTEGER :: inm_tempK
 INTEGER :: inm_pres
 INTEGER :: inm_RH
 INTEGER :: inm_CS
@@ -312,42 +312,25 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
   OPEN(2151, file='src/NAMES.dat', ACTION='READ', status='OLD')
   DO i = 1,N_VARS
     READ(2151, *) MODS(I)%NAME
-    IF (TRIM(MODS(I)%NAME) == 'temperature') inm_temp = i
-    IF (TRIM(MODS(I)%NAME) == 'pressure') inm_pres = i
-    IF (TRIM(MODS(I)%NAME) == 'relative_humid') inm_RH = i
-    IF (TRIM(MODS(I)%NAME) == 'condens_sink') inm_CS = i
-    IF (TRIM(MODS(I)%NAME) == 'shortwave_rad') inm_swr = i
-    IF (TRIM(MODS(I)%NAME) == 'Ion_Prod_Rate') inm_IPR = i
-    IF (TRIM(MODS(I)%NAME) == 'H2SO4') inm_H2SO4 = i
-    IF (TRIM(MODS(I)%NAME) == 'NH3') inm_NH3 = i
-    IF (TRIM(MODS(I)%NAME) == 'DMA') inm_DMA = i
-    IF (TRIM(MODS(I)%NAME) == 'SO2') inm_SO2 = i
-    IF (TRIM(MODS(I)%NAME) == 'NO') inm_NO = i
-    IF (TRIM(MODS(I)%NAME) == 'NO2') inm_NO2 = i
-    IF (TRIM(MODS(I)%NAME) == 'CO') inm_CO = i
-    IF (TRIM(MODS(I)%NAME) == 'H2') inm_H2 = i
-    IF (TRIM(MODS(I)%NAME) == 'O3') inm_O3 = i
-    IF (TRIM(MODS(I)%NAME) == '#') LENV = i
+    IF (TRIM(MODS(I)%NAME) == 'TEMPK'        ) inm_TempK = i
+    IF (TRIM(MODS(I)%NAME) == 'PRESSURE'     ) inm_pres = i
+    IF (TRIM(MODS(I)%NAME) == 'REL_HUMIDITY' ) inm_RH = i
+    IF (TRIM(MODS(I)%NAME) == 'CONDENS_SINK' ) inm_CS = i
+    IF (TRIM(MODS(I)%NAME) == 'SW_RADIATION' ) inm_swr = i
+    IF (TRIM(MODS(I)%NAME) == 'ION_PROD_RATE') inm_IPR = i
+    IF (TRIM(MODS(I)%NAME) == 'H2SO4'        ) inm_H2SO4 = i
+    IF (TRIM(MODS(I)%NAME) == 'NH3'          ) inm_NH3 = i
+    IF (TRIM(MODS(I)%NAME) == 'DMA'          ) inm_DMA = i
+    IF (TRIM(MODS(I)%NAME) == 'SO2'          ) inm_SO2 = i
+    IF (TRIM(MODS(I)%NAME) == 'NO'           ) inm_NO = i
+    IF (TRIM(MODS(I)%NAME) == 'NO2'          ) inm_NO2 = i
+    IF (TRIM(MODS(I)%NAME) == 'CO'           ) inm_CO = i
+    IF (TRIM(MODS(I)%NAME) == 'H2'           ) inm_H2 = i
+    IF (TRIM(MODS(I)%NAME) == 'O3'           ) inm_O3 = i
+    IF (TRIM(MODS(I)%NAME) == '#'            ) LENV = i
 
   END DO
   close(2151)
-!
-! print'(a,i0)', &
-! 'temperature ' ,inm_temp,&
-! 'pressure ' ,inm_pres,&
-! 'relative_humid ', inm_RH,&
-! 'condens_sink ', inm_CS,&
-! 'shortwave_rad ' ,inm_swr,&
-! 'Ion_Prod_Rate ' ,inm_IPR,&
-! 'H2SO4 ' ,inm_H2SO4,&
-! 'NH3 ' ,inm_NH3,&
-! 'DMA ' ,inm_DMA,&
-! 'SO2 ' ,inm_SO2,&
-! 'NO ', inm_NO,&
-! 'NO2 ' ,inm_NO2,&
-! 'CO ', inm_CO,&
-! 'H2 ', inm_H2,&
-! 'O3 ', inm_O3
 
 end subroutine NAME_MODS_SORT_NAMED_INDICES
 
