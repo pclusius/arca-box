@@ -106,14 +106,6 @@ character(len=256)  :: Vap_names
 character(len=256)  :: Vap_props
 NAMELIST /NML_VAP/ VAP_logical, Vap_names, Vap_props
 
-character(len=256), allocatable  :: Vapour_names(:)
-real(dp),allocatable :: vapour_properties(:,:)
-
-! type :: vapours_info
-!  integer :: vapour_number
-!  integer :: vbs_bins
-! end type vapours_info
-
 type(vapour_ambient) :: vapours
 
 contains
@@ -125,7 +117,7 @@ subroutine READ_INPUT_DATA()
   integer             :: ioi,ioi2, ii, iosp, ioprop
   !!! for vapour FILES
   character(len=256)  :: species_name
-  real(dp)            :: mol_mass, parameter_A, parameter_B
+  real(dp)            :: molar_mass, parameter_A, parameter_B
 
 
   ! Welcoming message
@@ -240,8 +232,8 @@ subroutine READ_INPUT_DATA()
  do ii = 1, vapours%vapour_number+1
    if (ii <= vapours%vapour_number) then !!! all compounds
      read(52,*,iostat=iosp)   species_name
-     read(53,*,iostat=ioprop) mol_mass, parameter_A, parameter_B
-     vapours%molar_mass(ii)    = mol_mass
+     read(53,*,iostat=ioprop) molar_mass, parameter_A, parameter_B
+     vapours%molar_mass(ii)    = molar_mass
      vapours%parameter_A(ii)   = parameter_A
      vapours%parameter_B(ii)   = parameter_B
      vapours%vapour_names(ii)  = TRIM(species_name)

@@ -22,6 +22,8 @@ type :: vapour_ambient
   real(dp) :: surf_tension = 0.05
   integer :: vapour_number
   integer :: vbs_bins
+  real(dp), allocatable :: molec_mass
+  real(dp), allocatable :: molec_vol
 end type vapour_ambient
 
 
@@ -35,6 +37,18 @@ if (First_time) THEN
 end if
 
 end subroutine set_speed
+
+pure elemental function calculate_molecular_mass(molecular_mass) result(mass)
+  real(dp), intent(in) :: molecular_mass
+  real(dp) :: mass
+  mass = molecular_mass / Na *1D-3
+end function calculate_molecular_mass
+
+pure elemental function calculate_molecular_volume(density, molecule_mass) result(volume)
+  real(dp), intent(in) :: molecule_mass, density
+  real(dp) :: volume
+  volume = molecule_mass / density
+end function calculate_molecular_volume
 
 
 End module aerosol_auxillaries
