@@ -222,6 +222,8 @@ subroutine READ_INPUT_DATA()
    allocate(vapours%molar_mass(rowcol_count%rows + 1))
    allocate(vapours%parameter_A(rowcol_count%rows + 1))
    allocate(vapours%parameter_B(rowcol_count%rows + 1))
+   allocate(vapours%molec_mass(rowcol_count%rows + 1))
+   allocate(vapours%molec_volume(rowcol_count%rows + 1))
 
    vapours%vapour_number = rowcol_count%rows
    vapours%vbs_bins      = rowcol_count%rows + 1
@@ -237,11 +239,15 @@ subroutine READ_INPUT_DATA()
      vapours%parameter_A(ii)   = parameter_A
      vapours%parameter_B(ii)   = parameter_B
      vapours%vapour_names(ii)  = TRIM(species_name)
+     vapours%molec_mass(ii)    = calculate_molecular_mass(molar_mass)
+     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density)
    else !! h2so4
      vapours%molar_mass(ii)    = 98.0785
      vapours%parameter_A(ii)   = 3.869717803774
      vapours%parameter_B(ii)   = 313.607405085
      vapours%vapour_names(ii)  = 'H2S04'
+     vapours%molec_mass(ii)    = calculate_molecular_mass(vapours%molar_mass(ii))
+     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density)
    end if
  end do
 

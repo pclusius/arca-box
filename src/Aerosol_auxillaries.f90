@@ -20,10 +20,9 @@ type :: vapour_ambient
   real(dp) :: alpha        = 1.0
   real(dp) :: density      = 1400.0
   real(dp) :: surf_tension = 0.05
-  integer :: vapour_number
-  integer :: vbs_bins
-  real(dp), allocatable :: molec_mass
-  real(dp), allocatable :: molec_vol
+  integer  :: vapour_number
+  integer  :: vbs_bins
+  real(dp),allocatable :: molec_mass(:), molec_volume(:) !!! molecule mass and molecule volume
 end type vapour_ambient
 
 
@@ -47,7 +46,7 @@ end function calculate_molecular_mass
 pure elemental function calculate_molecular_volume(density, molecule_mass) result(volume)
   real(dp), intent(in) :: molecule_mass, density
   real(dp) :: volume
-  volume = molecule_mass / density !! 
+  volume = molecule_mass / density !!
 end function calculate_molecular_volume
 
 
