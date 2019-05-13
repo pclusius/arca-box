@@ -41,13 +41,13 @@ end subroutine set_speed
 pure elemental function calculate_molecular_mass(molecular_mass) result(mass)
   real(dp), intent(in) :: molecular_mass
   real(dp) :: mass
-  mass = molecular_mass / Na *1D-3
+  mass = molecular_mass / Na *1D-3 !! convert to kg/#
 end function calculate_molecular_mass
 
 pure elemental function calculate_molecular_volume(density, molecule_mass) result(volume)
   real(dp), intent(in) :: molecule_mass, density
   real(dp) :: volume
-  volume = molecule_mass / density
+  volume = molecule_mass / density !! 
 end function calculate_molecular_volume
 
 
