@@ -20,10 +20,9 @@ type :: vapour_ambient
   real(dp) :: alpha        = 1.0
   real(dp) :: density      = 1400.0
   real(dp) :: surf_tension = 0.05
-  integer :: vapour_number
-  integer :: vbs_bins
-  real(dp), allocatable :: molec_mass
-  real(dp), allocatable :: molec_vol
+  integer  :: vapour_number
+  integer  :: vbs_bins
+  real(dp),allocatable :: molec_mass(:), molec_volume(:) !!! molecule mass and molecule volume
 end type vapour_ambient
 
 
@@ -38,17 +37,32 @@ end if
 
 end subroutine set_speed
 
+!!!! Calculate molecular mass in KG
+!!! input molar_mass
 pure elemental function calculate_molecular_mass(molecular_mass) result(mass)
   real(dp), intent(in) :: molecular_mass
   real(dp) :: mass
-  mass = molecular_mass / Na *1D-3
+  mass = molecular_mass / Na *1D-3 !! convert to kg/#
 end function calculate_molecular_mass
 
+!!! calculate molecular volume
 pure elemental function calculate_molecular_volume(density, molecule_mass) result(volume)
   real(dp), intent(in) :: molecule_mass, density
   real(dp) :: volume
-  volume = molecule_mass / density
+  volume = molecule_mass / density !!
 end function calculate_molecular_volume
 
+
+!!!! calculate saturation vapour PRESSURE
+!!! input parameter_A, parameter_B and temperature
+pure elemental function calculate_saturation_vp(A,B, Temperature) result(Vapour_concentration)
+  real(dp), intent(in) :: A, B, temperature
+  real(dp) :: Vapour_concentration, vapour_pressure
+
+!Using antoine equation log_10(p) = A- (B/T)
+  vapour_pressure      = 10 ** (A - (B/temperature)) ! in atm
+  Vapour_concentration = (vapour_pressure*101325)/(kb * temperature) ! #/m3
+
+end function calculate_saturation_vp
 
 End module aerosol_auxillaries
