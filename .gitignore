@@ -1,3 +1,6 @@
 *.o
 *.mod
 *.exe
+*.out
+*.nc
+*.dump
