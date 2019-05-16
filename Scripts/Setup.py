@@ -90,7 +90,7 @@ def add_variable_to_selected(x='x'):
         tk.Button(frames[i], text='remove', command=lambda : tuhoa(name)).grid(row=1, column=5, sticky=tk.E)
         # adding variable also to tab1 and tab3
         ModsEntry.insert(tk.END, mods[i].name)
-        SelectedEntry1.insert(tk.END, mods[i].name)
+        SelectedEntry1.insert(tk.END, '%s(%s)'%(mods[i].name, mods[i].Find))
 
 def onFrameConfigure(canvas):
     try:
@@ -171,6 +171,7 @@ def updatenorm(val='x'):
         amp = AmpSc.get()
         f = 1/np.sqrt(2*np.pi*sigma**2)
         D = peak + np.sin((x-peak)*freq)*amp + phase
+
         norm = 1/np.sqrt(2*np.pi*sigma**2)*np.exp(-(x-D)**2/(2*sigma**2))
 
         if yscale.get() == 1:
@@ -292,6 +293,12 @@ env = VARS[0:lastenv]
 mcm = VARS[lastenv+1:]
 
 # Create frame for common buttons
+toppen = tk.Frame(root)
+toppen.pack(side=tk.TOP)
+titleLabel = tk.Label(toppen, text='GAP Setup app',font=("Helvetica", 16),anchor=tk.W)
+titleLabel.grid(row=i, padx=1, pady=1,ipadx=2, ipady=2, column=1, columnspan=4, sticky=tk.E+tk.W)
+
+
 base = tk.Frame(root)
 base.pack(side=tk.BOTTOM)
 tk.Button(base, text='Print MODS only', command=printInit).pack(side=tk.LEFT,fill=tk.X)
@@ -323,7 +330,9 @@ PrInt  =    tk.StringVar();
 FSInt  =    tk.StringVar();
 case  =    tk.StringVar();
 run   =    tk.DoubleVar();
-MODS  =    tk.StringVar();
+ENVPATH  =    tk.StringVar();
+MCMPATH  =    tk.StringVar();
+PARPATH  =    tk.StringVar();
 TempUnit  = tk.IntVar();
 Aerosol_flag    = tk.IntVar();
 Chemistry_flag  = tk.IntVar()
@@ -349,71 +358,88 @@ Aerosol_flag.set(1)
 
 
 # Layout the GUI elements
-tk.Frame(tab1, height=12,width=850).grid(row=0)
+top=tk.Frame(tab1, height=12,width=850)
+top.grid(row=0)
 f1=tk.Frame(tab1, height=838-80,width=850)
 f1.grid(row=1)
 f1.grid_propagate(0)
 
+
+frameL1 = tk.LabelFrame(f1, text=" General options ", relief=tk.RIDGE)
+frameL1.grid(row=1, column=1, sticky=tk.E + tk.W + tk.N + tk.S, padx=30, pady=10,ipadx=10, ipady=10)
+
 i = 0
-
-
-i += 1
-titleLabel = tk.Label(f1, text='GAP Setup app',font=("Helvetica", 16),anchor=tk.W)
-titleLabel.grid(row=i, padx=1, pady=1,ipadx=2, ipady=2, column=1, columnspan=4, sticky=tk.E+tk.W)
-#
-i += 1
-runLabel = tk.Label(f1, text='Model run time in hours: ')
-runEntry = tk.Entry(f1, selectbackground=dark, textvariable=run)
-runLabel.grid(row=i, padx=1, pady=1,ipadx=2, ipady=2, column=1, sticky=tk.EW)
-runEntry.grid(row=i, padx=1, pady=1,ipadx=2, ipady=2, column=2)
+tk.Label(frameL1, text='Model run time in hours: ').grid(row=i,column=1, sticky=tk.EW)
+runEntry = tk.Entry(frameL1, selectbackground=dark, textvariable=run)
+runEntry.grid(row=i, column=2)
 
 i += 1
-runtimeLabel = tk.Label(f1, text='YEAR yyyy: ')
-runtimeEntry = tk.Entry(f1, selectbackground=dark, textvariable=runtime)
-runtimeLabel.grid(row=i, padx=1, pady=1,ipadx=2, ipady=2, column=1, sticky=tk.EW)
-runtimeEntry.grid(row=i, padx=1, pady=1,ipadx=2, ipady=2, column=2)
+tk.Label(frameL1, text='YEAR yyyy: ').grid(row=i, column=1, sticky=tk.EW)
+runtimeEntry = tk.Entry(frameL1, selectbackground=dark, textvariable=runtime)
+runtimeEntry.grid(row=i, column=2)
 
 i += 1
-PrIntLabel = tk.Label(f1, text='PrInt mmdd: ')
-PrIntEntry = tk.Entry(f1, selectbackground=dark, textvariable=PrInt)
-PrIntLabel.grid(row=i, padx=1, pady=1,ipadx=2, ipady=2, column=1, sticky=tk.EW)
-PrIntEntry.grid(row=i, padx=1, pady=1,ipadx=2, ipady=2, column=2)
+tk.Label(frameL1, text='PrInt mmdd: ').grid(row=i, column=1, sticky=tk.EW)
+PrIntEntry = tk.Entry(frameL1, selectbackground=dark, textvariable=PrInt)
+PrIntEntry.grid(row=i, column=2)
 
 i += 1
-caseLabel = tk.Label(f1, text='CASE [XX]: ')
-caseEntry = tk.Entry(f1, selectbackground=dark, textvariable=case)
-caseLabel.grid(row=i, padx=1, pady=1,ipadx=2, ipady=2, column=1, sticky=tk.EW)
-caseEntry.grid(row=i, padx=1, pady=1,ipadx=2, ipady=2, column=2)
-
-envz = range(1,len(env))
-mcmz = range(1,len(mcm))
-opts = {key: value for (key, value) in zip(env, envz)}
+tk.Label(frameL1, text='CASE [XX]: ').grid(row=i, column=1, sticky=tk.EW)
+caseEntry = tk.Entry(frameL1, selectbackground=dark, textvariable=case)
+caseEntry.grid(row=i, column=2)
 
 i += 1
+tk.Label(frameL1,  text="Temperature in Celsius: ").grid(row=i, column=1, sticky=tk.EW)
+StRadBox1 = tk.Checkbutton(frameL1, variable=TempUnit).grid(row=i,column=2, sticky=tk.W)
 
-StRadLabel1 = tk.Label(f1,  text="Temperature in Celsius: ").grid(row=i, column=1, sticky=tk.EW)
-StRadBox1   = tk.Checkbutton(f1, variable=TempUnit).grid(row=i,column=2, sticky=tk.W)
 
-i += 1
-StRadLabel2  = tk.Label(f1,  text="Use chemistry: ").grid(row=i, column=1, sticky=tk.EW)
-StRadBox2    = tk.Checkbutton(f1, variable=Chemistry_flag).grid(row=i,column=2, sticky=tk.W)
+frameL2 = tk.LabelFrame(f1, text=" Modules in use ", relief=tk.RIDGE)
+frameL2.grid(row=3, column=1, sticky=tk.E + tk.W + tk.N + tk.S, padx=30, pady=10,ipadx=10, ipady=10)
 
-i += 1
-StRadLabel2  = tk.Label(f1,  text="Use nucleation: ").grid(row=i, column=1, sticky=tk.EW)
-StRadBox2    = tk.Checkbutton(f1, variable=NUCLEATION).grid(row=i,column=2, sticky=tk.W)
-
-i += 1
-StRadLabel2  = tk.Label(f1,  text="Use ACDC: ").grid(row=i, column=1, sticky=tk.EW)
-StRadBox2    = tk.Checkbutton(f1, variable=ACDC).grid(row=i,column=2, sticky=tk.W)
+i =0
+tk.Label(frameL2,  text="Use chemistry: ").grid(row=i, column=1, sticky=tk.EW)
+StRadBox2 = tk.Checkbutton(frameL2, variable=Chemistry_flag).grid(row=i,column=2, sticky=tk.W)
 
 i += 1
-StRadLabel2  = tk.Label(f1,  text="Use aerosol: ").grid(row=i, column=1, sticky=tk.EW)
-StRadBox2    = tk.Checkbutton(f1, variable=Aerosol_flag).grid(row=i,column=2, sticky=tk.W)
+tk.Label(frameL2,  text="Use nucleation: ").grid(row=i, column=1, sticky=tk.EW)
+StRadBox2    = tk.Checkbutton(frameL2, variable=NUCLEATION).grid(row=i,column=2, sticky=tk.W)
 
-SelectedLabel = tk.Label(f1,  text='Variables selected \nin "Input"-tab:',).grid(row=2, column=3, sticky=tk.NSEW)
-SelectedEntry1 = tk.Listbox(f1, selectbackground=dark, selectmode=tk.BROWSE, height=30)
-SelectedEntry1.grid(row=3, padx=1, pady=1,ipadx=2, ipady=2, column=3, rowspan=40, sticky=tk.EW)#;i+=1
+i += 1
+tk.Label(frameL2,  text="Use ACDC: ").grid(row=i, column=1, sticky=tk.EW)
+StRadBox2 = tk.Checkbutton(frameL2, variable=ACDC).grid(row=i,column=2, sticky=tk.W)
 
+i += 1
+tk.Label(frameL2,  text="Use aerosol: ").grid(row=i, column=1, sticky=tk.EW)
+StRadBox2 = tk.Checkbutton(frameL2, variable=Aerosol_flag).grid(row=i,column=2, sticky=tk.W)
+
+frameR2 = tk.LabelFrame(f1, text=" Variables in use ", relief=tk.RIDGE)
+frameR2.grid(row=1, column=2, sticky=tk.E + tk.W + tk.N + tk.S,rowspan=30, padx=30, pady=10,ipadx=10, ipady=10)
+
+SelectedEntry1 = tk.Listbox(frameR2, selectbackground=dark, selectmode=tk.BROWSE, height=30, bd=0, relief=tk.FLAT)
+SelectedEntry1.grid(row=1, column=0, padx=10, sticky=tk.E+tk.W)#;i+=1
+
+
+frameL3 = tk.LabelFrame(f1, text=" Paths and files ", relief=tk.RIDGE, width=450, height=200)
+frameL3.grid(row=4, column=1, sticky=tk.E + tk.W + tk.N + tk.S, padx=30, pady=10,ipadx=10, ipady=10)
+frameL3.grid_propagate(0)
+frameL3.grid_columnconfigure(1,weight=3)
+
+def browse(f):
+    filename = tkf.askdirectory()
+    if filename != '':
+        f.set(filename)
+
+tk.Label(frameL3,text='ENV FILE', width=8).grid(row=0, column=0)
+tk.Entry(frameL3,textvariable=ENVPATH, selectbackground=dark).grid(row=0, column=1, sticky=tk.EW)
+tk.Button(frameL3,text="Browse for ENV", command=lambda f=ENVPATH:browse(f), width=10).grid(row=0, column=2)
+
+tk.Label(frameL3,text='MCM FILE', width=8).grid(row=1, column=0)
+tk.Entry(frameL3,textvariable=MCMPATH, selectbackground=dark).grid(row=1, column=1, sticky=tk.EW)
+tk.Button(frameL3,text="Browse for MCM", command=lambda f=MCMPATH:browse(f), width=10).grid(row=1, column=2)
+
+tk.Label(frameL3,text='PAR FILE', width=8).grid(row=2, column=0)
+tk.Entry(frameL3,textvariable=PARPATH, selectbackground=dark).grid(row=2, column=1, sticky=tk.EW)
+tk.Button(frameL3,text="Browse for PAR", command=lambda f=PARPATH:browse(f), width=10).grid(row=2, column=2)
 
 ###############################################################################################################
 # tab 2
@@ -429,44 +455,54 @@ f2=tk.Frame(tab2, height=838-80,width=850)
 f2.grid(row=1)
 f2.grid_propagate(0)
 
+tk.Label(f2, text='Double click the variables to pick them for the model:',font=("Helvetica", 14)).grid(row=1, column=1,  columnspan=3,sticky=tk.W,padx=20,pady=20)
+ttk.Separator(f2, orient=tk.HORIZONTAL).grid(column=1, row=2, columnspan=3)
+
 header = tk.Frame(f2)
-header.grid(row=3, column=3, sticky=tk.N+tk.W)
+header.grid(row=2, column=2, sticky=tk.N+tk.W)
 tk.Label(header, text='Variable name(IND)',width=20).grid(row=1, column=0, sticky=tk.W)
 tk.Label(header, text='PM\n in use',width=7).grid(row=1, column=1, sticky=tk.W)
 tk.Label(header, text='Column',width=8).grid(row=1, column=2, sticky=tk.W)
 tk.Label(header, text='Multipl.',width=8).grid(row=1, column=3, sticky=tk.W)
 tk.Label(header, text='Shift by',width=8).grid(row=1, column=4, sticky=tk.W)
 
-
-tk.Label(tab2, text='Pick the variables you want to send in the model:',font=("Helvetica", 14)).grid(row=1, column=1,  columnspan=3,sticky=tk.W)
-ttk.Separator(tab2, orient=tk.HORIZONTAL).grid(column=1, row=2, columnspan=3)#, sticky='ns')
-
 frameLeft = tk.Frame(f2)
-frameLeft.grid(row=3,column=1, sticky=tk.N, rowspan=30)
-list_all_vars = tk.Listbox(frameLeft, selectmode=tk.BROWSE,selectbackground=dark, height=33)
-list_all_vars.grid(row=4, column=1, sticky=tk.N+tk.S)
+frameLeft.grid(row=2,column=1, padx=20,sticky=tk.N, rowspan=30)
+list_all_vars = tk.Listbox(frameLeft, selectmode=tk.BROWSE,selectbackground=dark, height=35)
+list_all_vars.grid(row=1, column=1, sticky=tk.N+tk.S)
 
 for c in VARS:
     if c != '#':
         list_all_vars.insert(tk.END, c)
 
 list_all_vars.bind("<Double-Button-1>", add_variable_to_selected)
-ttk.Separator(f2, orient=tk.VERTICAL).grid(column=2, row=3, rowspan=100, padx=10, ipadx=1, sticky='ns')
+#ttk.Separator(f2, orient=tk.VERTICAL).grid(column=2, row=3, rowspan=100, padx=10, ipadx=1, sticky='ns')
 
-tk.Label(f2, text='Pick the variables you want to send in the model:',font=("Helvetica", 14)).grid(row=1, column=1,  columnspan=3,sticky=tk.W)
-ttk.Separator(f2, orient=tk.HORIZONTAL).grid(column=1, row=2, columnspan=3)#, sticky='ns')
-
-frameLeft = tk.Frame(f2)
-frameLeft.grid(row=3,column=1, sticky=tk.N, rowspan=30)
+# frameLeft = tk.Frame(f2)
+# frameLeft.grid(row=3,column=1, sticky=tk.N, rowspan=30)
 
 frameRight = tk.Frame(f2)
-frameRight.grid(row=4,column=3, sticky=tk.N, rowspan=30)
+frameRight.grid(row=3,column=2, sticky=tk.N, rowspan=30)
 
 ######
 canvas = tk.Canvas(frameRight, width=600, height=500)#, bg='white')
 ScFrame = tk.Frame(canvas)#, bg='white')
 vertscroll = tk.Scrollbar(canvas, orient='vertical', command=canvas.yview)
 canvas.configure(yscrollcommand=vertscroll.set)
+
+txtvar = 'Variable(IND) = Variable in the model. IND refers to input index, handy if you manually modify INITFILE.'
+txtpm = 'PM in use = Checked when the parametrization (PM) is first saved. Uncheck to override by column, check to use PM.'
+txtcol = 'Column = Column number of whichever file the variable will be read in. CANNOT BE 1, it is reserved for time.'
+txtmul = 'Multipl = Multiply values read from Column by this. If no input, will have no effect.'
+txtshift = 'Shift = Shift values read from Column by this. Unless PM is used, will always add (or subtract) a constant.'
+
+framebt = tk.Frame(f2)
+framebt.grid(row=38,column=1, padx=3,sticky=tk.N, columnspan=3)
+tk.Label(framebt, text=txtvar).pack(pady=3)
+tk.Label(framebt, text=txtpm).pack(pady=3)
+tk.Label(framebt, text=txtcol).pack(pady=3)
+tk.Label(framebt, text=txtmul).pack(pady=3)
+tk.Label(framebt, text=txtshift).pack(pady=3)
 
 
 root.bind('<Configure>', lambda event, canvas=canvas: onFrameConfigure(canvas))
@@ -478,6 +514,7 @@ canvas.grid(row=4, column=3, sticky=tk.N)
 canvas_frame = canvas.create_window((4, 4), window=ScFrame, anchor="nw")
 vertscroll.pack(side=tk.RIGHT, fill=tk.Y)
 canvas.bind('<Configure>', lambda event, canvas_frame=canvas_frame: canv_width(event, canvas_frame))
+
 
 ###############################################################################################################
 # tab 3
@@ -510,10 +547,10 @@ loglin = tk.Radiobutton(f3, text="log", variable=yscale, value=2, command=update
 
 i+=1
 
-fig = plt.figure()#figsize=(3, 7), dpi=100)
+fig = plt.figure(figsize=(3, 4.2), dpi=100)
 ax = fig.add_subplot(111)
 ax.set_title('First select input variables from "Input"-tab')
-fig.subplots_adjust(left=0.15, bottom=0.15, right=0.85)
+fig.subplots_adjust(left=0.15, bottom=0.15, right=0.95)
 
 canvas3 = FigureCanvasTkAgg(fig, master=f3)
 canvas3.get_tk_widget().grid(row=i, column=1, sticky=tk.EW, padx=1, pady=1,ipadx=2, ipady=2, columnspan=7);i+=1
@@ -550,23 +587,23 @@ l.set_xdata(x)
 ax.axis([0, rt, 0,maxi.get()*1.05])#, range.minimum*0.95, range.maximum*1.05])
 ax.set_yscale('linear')
 ax.grid(True)
-ax.set_xlabel('Time (h)')
-ax.set_ylabel('Concentration')
+ax.set_xlabel('Time (h)', fontsize=11)
+ax.set_ylabel('Numbers', fontsize=11)
 
 scrollbaru = tk.Scrollbar(f3)
 scrollbaru.grid(row=2, padx=1, pady=1,ipadx=2, ipady=2, column=9, sticky=tk.N+tk.S)
 
 tk.Label(f3, text='Select variable for setup \nby double clicking below').grid(row=1, sticky=tk.E+tk.W+tk.N+tk.S, padx=1, pady=1,ipadx=2, ipady=2, column=8)#;i+=1
 ModsEntry = tk.Listbox(f3,selectbackground=dark, selectmode=tk.BROWSE, yscrollcommand=scrollbaru.set)
-ModsEntry.grid(row=2, padx=1, pady=1,ipadx=2, ipady=2, column=8, rowspan=1, sticky=tk.N+tk.S+tk.E+tk.W);i+=1
+ModsEntry.grid(row=2, padx=1, pady=1,ipadx=2, ipady=2, column=8, rowspan=1, sticky=tk.N+tk.S+tk.E+tk.W)
 scrollbaru.config(command=ModsEntry.yview)
 
 SelectedBut = tk.Button(f3, text="Save values for\nselected variable", command=saveModPara)
-SelectedBut.grid(row=3, sticky=tk.E+tk.W+tk.N+tk.S, padx=1, pady=1,ipadx=2, ipady=2, column=8);i+=1
+SelectedBut.grid(row=3, sticky=tk.E+tk.W+tk.N+tk.S, padx=1, pady=1,ipadx=2, ipady=2, column=8)
 
 tk.Label(f3, text='Minimum').grid(row=1, padx=1, pady=1,ipadx=2, ipady=2, column=4)#;i+=1
 minEntry = tk.Entry(f3,selectbackground=dark, textvariable=mini, validate="focusout",  validatecommand=updatenorm)
-minEntry.grid(row=1, padx=1, pady=1,ipadx=2, ipady=2, column=5)#;i+=1
+minEntry.grid(row=1, padx=1, pady=1,ipadx=2, ipady=2, column=5)
 
 tk.Label(f3, text='Maximum').grid(row=1, padx=1, pady=1,ipadx=2, ipady=2, column=6)#;i+=1
 maxEntry = tk.Entry(f3,selectbackground=dark, textvariable=maxi, validate="focusout", validatecommand=updatenorm)
