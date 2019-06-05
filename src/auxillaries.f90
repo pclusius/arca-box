@@ -220,7 +220,6 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
     now = time%day
   END IF
   now = now + conctime(1)
-!  conctime = conctime - conctime(1)
   rw = 0
   if (PRESENT(row)) THEN
     rw = row
