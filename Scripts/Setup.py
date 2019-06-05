@@ -4,11 +4,12 @@ import tkinter.filedialog as tkf
 #from tkinter import filedialog
 import tkinter.messagebox as tkm
 
+import platform
 import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 
 
 ################################################################################
@@ -81,6 +82,7 @@ def add_variable_to_selected(x='x'):
         mods[i].name = name
         mods[i].Find = ind(name, VARS)+1
         print('Adding ', mods[i].name, ' to variables.')
+
         frames[i].grid(column=1, sticky=tk.W)
         tk.Label(frames[i], text='%s(%d)'%(name,mods[i].Find), width=20).grid(row=1, column=0, sticky=tk.W)
         tk.Checkbutton(frames[i], variable=ModsInUse[i], width=5).grid(row=1,column=1, sticky=tk.W)
@@ -105,8 +107,12 @@ def canv_width(event, canvas_frame):
     canvas.itemconfig(canvas_frame, width = canvas_width)
 
 def mouse_scroll(event, canvas):
+    os_name = platform.system()
     if event.delta:
-        canvas.yview_scroll(-1*(event.delta/120), 'units')
+        if os_name == 'Darwin':
+            canvas.yview_scroll(int(-1*(event.delta)), 'units') #MacOSX
+        else:
+            canvas.yview_scroll(int(-1*(event.delta/120)), 'units') #Windows, Linux
     else:
         if event.num == 5:
             move = 1
@@ -171,7 +177,6 @@ def updatenorm(val='x'):
         amp = AmpSc.get()
         f = 1/np.sqrt(2*np.pi*sigma**2)
         D = peak + np.sin((x-peak)*freq)*amp + phase
-
         norm = 1/np.sqrt(2*np.pi*sigma**2)*np.exp(-(x-D)**2/(2*sigma**2))
 
         if yscale.get() == 1:
@@ -236,8 +241,8 @@ def printInit():
         maxstr = maxstr.replace('e', 'd', 1)
         if ModsInUse[i].get() == 1: mode = m.mode
         else: mode = 0
-        strr = 'MODS(%d) = %d %d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 1d0 0d0 ! %s'%(
-        m.Find,m.col.get(), mode, multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, m.name)
+        strr = 'MODS(%d) = %d %d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 ! %s'%(
+        m.Find,mode,m.col.get(), multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, m.name)
         print(strr)
 
 def prnt():
@@ -267,8 +272,16 @@ def Stop():
 ###############################################################################
 # End Functions
 ###############################################################################
+# Find the system type (Windows, Linux, Darwin (MacOS)) for system specific configuration
+os_name = platform.system()
 
-rt = input('Please give runtime in hours (empty: 24 hours): ')
+# rt = input('Please give runtime in hours (empty: 24 hours): ')
+#
+# if rt == float():
+#     rt = float(rt)
+# else:
+#     rt = 24.0
+
 try:
     rt = float(rt)
 except:
@@ -278,13 +291,13 @@ print('Model runtime: ', rt, ' hours')
 
 
 root = tk.Tk()
-root.geometry("850x850")
+root.geometry("1024x850")
 root.title('Superbox configurator')
 
 dark = '#666666'
 
 # Read NAMES.DAT to find out the available variables
-VARS = np.loadtxt('../src/NAMES.dat', dtype=str, usecols=0, comments='!')
+VARS = np.genfromtxt('../src/NAMES.dat', dtype=str, usecols=0, comments='!')
 for i,v in enumerate(VARS):
     if v == '#':
         lastenv = i
@@ -304,7 +317,7 @@ base.pack(side=tk.BOTTOM)
 tk.Button(base, text='Print MODS only', command=printInit).pack(side=tk.LEFT,fill=tk.X)
 tk.Button(base, text="Print INITFILE", command=prnt).pack(side=tk.LEFT,fill=tk.X)
 tk.Button(base, text="Save INITFILE", command=saveInit).pack(side=tk.LEFT,fill=tk.X)
-#ttk.Separator(base, orient=tk.VERTICAL).pack(side=tk.LEFT,ipadx=10)
+ttk.Separator(base, orient=tk.VERTICAL).pack(side=tk.LEFT,ipadx=10)
 tk.Button(base, text='Exit without save', command=Stop).pack(side=tk.LEFT,fill=tk.X,padx=40)
 
 # Define tabs
@@ -431,15 +444,15 @@ def browse(f):
 
 tk.Label(frameL3,text='ENV FILE', width=8).grid(row=0, column=0)
 tk.Entry(frameL3,textvariable=ENVPATH, selectbackground=dark).grid(row=0, column=1, sticky=tk.EW)
-tk.Button(frameL3,text="Browse for ENV", command=lambda f=ENVPATH:browse(f), width=10).grid(row=0, column=2)
+tk.Button(frameL3,text="Browse for ENV", command=lambda f=ENVPATH:browse(f), width=13).grid(row=0, column=2)
 
 tk.Label(frameL3,text='MCM FILE', width=8).grid(row=1, column=0)
 tk.Entry(frameL3,textvariable=MCMPATH, selectbackground=dark).grid(row=1, column=1, sticky=tk.EW)
-tk.Button(frameL3,text="Browse for MCM", command=lambda f=MCMPATH:browse(f), width=10).grid(row=1, column=2)
+tk.Button(frameL3,text="Browse for MCM", command=lambda f=MCMPATH:browse(f), width=13).grid(row=1, column=2)
 
 tk.Label(frameL3,text='PAR FILE', width=8).grid(row=2, column=0)
 tk.Entry(frameL3,textvariable=PARPATH, selectbackground=dark).grid(row=2, column=1, sticky=tk.EW)
-tk.Button(frameL3,text="Browse for PAR", command=lambda f=PARPATH:browse(f), width=10).grid(row=2, column=2)
+tk.Button(frameL3,text="Browse for PAR", command=lambda f=PARPATH:browse(f), width=13).grid(row=2, column=2)
 
 ###############################################################################################################
 # tab 2
@@ -455,38 +468,40 @@ f2=tk.Frame(tab2, height=838-80,width=850)
 f2.grid(row=1)
 f2.grid_propagate(0)
 
-tk.Label(f2, text='Double click the variables to pick them for the model:',font=("Helvetica", 14)).grid(row=1, column=1,  columnspan=3,sticky=tk.W,padx=20,pady=20)
+tk.Label(f2, text='Key + Click the variables to pick them for the model:',font=("Helvetica", 14)).grid(row=1, column=1,  columnspan=3,sticky=tk.W,padx=20,pady=20)
 ttk.Separator(f2, orient=tk.HORIZONTAL).grid(column=1, row=2, columnspan=3)
 
 header = tk.Frame(f2)
 header.grid(row=2, column=2, sticky=tk.N+tk.W)
-tk.Label(header, text='Variable name(IND)',width=20).grid(row=1, column=0, sticky=tk.W)
-tk.Label(header, text='PM\n in use',width=7).grid(row=1, column=1, sticky=tk.W)
+tk.Label(header, text='Var. name (IND)',width=14).grid(row=1, column=0, sticky=tk.W,padx=20)
+tk.Label(header, text='PM\n in use',width=6).grid(row=1, column=1, sticky=tk.W)
 tk.Label(header, text='Column',width=8).grid(row=1, column=2, sticky=tk.W)
-tk.Label(header, text='Multipl.',width=8).grid(row=1, column=3, sticky=tk.W)
-tk.Label(header, text='Shift by',width=8).grid(row=1, column=4, sticky=tk.W)
+tk.Label(header, text='Multiply',width=9).grid(row=1, column=3, sticky=tk.W)
+tk.Label(header, text='Shift by',width=9).grid(row=1, column=4, sticky=tk.W)
 
 frameLeft = tk.Frame(f2)
 frameLeft.grid(row=2,column=1, padx=20,sticky=tk.N, rowspan=30)
-list_all_vars = tk.Listbox(frameLeft, selectmode=tk.BROWSE,selectbackground=dark, height=35)
+list_all_vars = tk.Listbox(frameLeft, selectmode=tk.BROWSE,selectbackground=dark, height=25)
 list_all_vars.grid(row=1, column=1, sticky=tk.N+tk.S)
 
 for c in VARS:
     if c != '#':
         list_all_vars.insert(tk.END, c)
 
-list_all_vars.bind("<Double-Button-1>", add_variable_to_selected)
-#ttk.Separator(f2, orient=tk.VERTICAL).grid(column=2, row=3, rowspan=100, padx=10, ipadx=1, sticky='ns')
-
-# frameLeft = tk.Frame(f2)
-# frameLeft.grid(row=3,column=1, sticky=tk.N, rowspan=30)
+if os_name == 'Darwin':
+    # Button Release is important, prevents clicking related issues
+    # "Command" is exclusive for Mac keyboards.
+    list_all_vars.bind("<Command-ButtonRelease-1>", add_variable_to_selected)
+else:
+    # Windows/Linux use Shift instead of Command, it doesn't matter as long as it is set to ButtonRelease
+    list_all_vars.bind("<Double-Button-1>", add_variable_to_selected)
 
 frameRight = tk.Frame(f2)
-frameRight.grid(row=3,column=2, sticky=tk.N, rowspan=30)
+frameRight.grid(row=3, column=2, sticky=tk.N, rowspan=25)
 
 ######
-canvas = tk.Canvas(frameRight, width=600, height=500)#, bg='white')
-ScFrame = tk.Frame(canvas)#, bg='white')
+canvas = tk.Canvas(frameRight, width=600, height=450)
+ScFrame = tk.Frame(canvas)
 vertscroll = tk.Scrollbar(canvas, orient='vertical', command=canvas.yview)
 canvas.configure(yscrollcommand=vertscroll.set)
 
@@ -504,26 +519,32 @@ tk.Label(framebt, text=txtcol).pack(pady=3)
 tk.Label(framebt, text=txtmul).pack(pady=3)
 tk.Label(framebt, text=txtshift).pack(pady=3)
 
-
-root.bind('<Configure>', lambda event, canvas=canvas: onFrameConfigure(canvas))
-root.bind_all('<MouseWheel>', lambda event, canvas=canvas: mouse_scroll(event, canvas))
-root.bind_all('<Button-4>', lambda event, canvas=canvas: mouse_scroll(event, canvas))
-root.bind_all('<Button-5>', lambda event, canvas=canvas: mouse_scroll(event, canvas))
+if os_name == 'Darwin':
+    # on MacOSX root.bind must use onFrameConfigure() otherwise it creates TclError in the background
+    root.bind('<Configure>', lambda event, canvas=canvas: onFrameConfigure(canvas))
+    root.bind_all('<MouseWheel>', lambda event, canvas=canvas: mouse_scroll(event, canvas))
+else:
+    root.bind('<Configure>', lambda event, canvas=canvas: onFrameConfigure(canvas))
+    root.bind_all('<MouseWheel>', lambda event, canvas=canvas: mouse_scroll(event, canvas))
+    # on MacOSX these are not needed since you can scroll with mousewheel/trackpad
+    # this part is needed for Linux/Windows
+    root.bind_all('<Button-4>', lambda event, canvas=canvas: mouse_scroll(event, canvas))
+    root.bind_all('<Button-5>', lambda event, canvas=canvas: mouse_scroll(event, canvas))
+    # on MacOSX this part hangs tab2, adds vertical scroll bar for Windows/Linux
+    # comment it if you don't want a fancy vertical scroll bar
+    vertscroll.pack(side=tk.RIGHT, fill=tk.Y)
+    # canvas.bind('<Configure>', lambda event, canvas_frame=canvas_frame: canv_width(event, canvas_frame))
 
 canvas.grid(row=4, column=3, sticky=tk.N)
-canvas_frame = canvas.create_window((4, 4), window=ScFrame, anchor="nw")
-vertscroll.pack(side=tk.RIGHT, fill=tk.Y)
-canvas.bind('<Configure>', lambda event, canvas_frame=canvas_frame: canv_width(event, canvas_frame))
-
+canvas_frame = canvas.create_window((4, 4), window=ScFrame, anchor="sw")
 
 ###############################################################################################################
 # tab 3
 ###############################################################################################################
-tk.Frame(tab3, height=12,width=850).grid(row=0)
-f3=tk.Frame(tab3, height=838-80,width=850)
+tk.Frame(tab3, height=12,width=1024).grid(row=0)
+f3=tk.Frame(tab3, height=850,width=1024)
 f3.grid(row=1)
 f3.grid_propagate(0)
-
 
 plt.style.use('ggplot')
 
@@ -594,7 +615,7 @@ scrollbaru = tk.Scrollbar(f3)
 scrollbaru.grid(row=2, padx=1, pady=1,ipadx=2, ipady=2, column=9, sticky=tk.N+tk.S)
 
 tk.Label(f3, text='Select variable for setup \nby double clicking below').grid(row=1, sticky=tk.E+tk.W+tk.N+tk.S, padx=1, pady=1,ipadx=2, ipady=2, column=8)#;i+=1
-ModsEntry = tk.Listbox(f3,selectbackground=dark, selectmode=tk.BROWSE, yscrollcommand=scrollbaru.set)
+ModsEntry = tk.Listbox(f3,selectbackground=dark, selectmode=tk.BROWSE, yscrollcommand=scrollbaru.set,)
 ModsEntry.grid(row=2, padx=1, pady=1,ipadx=2, ipady=2, column=8, rowspan=1, sticky=tk.N+tk.S+tk.E+tk.W)
 scrollbaru.config(command=ModsEntry.yview)
 
@@ -609,6 +630,12 @@ tk.Label(f3, text='Maximum').grid(row=1, padx=1, pady=1,ipadx=2, ipady=2, column
 maxEntry = tk.Entry(f3,selectbackground=dark, textvariable=maxi, validate="focusout", validatecommand=updatenorm)
 maxEntry.grid(row=1, padx=1, pady=1,ipadx=2, ipady=2, column=7)#;i+=1
 
-ModsEntry.bind("<Double-Button-1>", focus_on_variable)
+if os_name == 'Darwin':
+    # Button Release is important, prevents clicking related issues
+    # "Command" is exclusive for Mac keyboards.
+    ModsEntry.bind("<Command-ButtonRelease-1>", focus_on_variable)
+else:
+    # Windows/Linux use Shift instead of Command, it doesn't matter as long as it is set to ButtonRelease
+    ModsEntry.bind("<Double-Button-1>", focus_on_variable)
 
 tk.mainloop()

@@ -191,12 +191,13 @@ END FUNCTION getrow
 !..............................................................................
 REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
   IMPLICIT NONE
-  type(timetype), OPTIONAL  :: timein
+  type(timetype), OPTIONAL, intent(in)  :: timein
   type(timetype)  :: time
-  REAL(dp) :: conctime(:), conc(:), now
+  REAL(dp), intent(in) :: conctime(:), conc(:)
+  REAL(dp) :: now
   INTEGER, OPTIONAL :: row
   CHARACTER(*), OPTIONAL :: unit
-  INTEGER :: rw
+  INTEGER :: rw, i
   if (PRESENT(timein)) THEN
     time = timein
   ELSE
@@ -218,8 +219,8 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
   ELSE
     now = time%day
   END IF
-
-  conctime = conctime - conctime(1)
+  now = now + conctime(1)
+!  conctime = conctime - conctime(1)
   rw = 0
   if (PRESENT(row)) THEN
     rw = row
@@ -234,12 +235,30 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
       print FMT_NOTE1,'real row is: ', REAL(rw)
     end if
   else
-    do WHILE (now>=conctime(rw+1))
-      rw = rw + 1
+    rw=1
+    do i=1,size(conctime)
+      if (conctime(i) > now) exit
     end do
-
+    rw = i-1
+    if (rw==size(conctime)) THEN
+      rw = size(conctime)-1
+    end if
   end if
-  INTERP = (now-conctime(rw))/(conctime(rw+1)-conctime(rw))*(conc(rw+1)-conc(rw))+conc(rw)
+
+!  INTERP = (now-conctime(rw))/(conctime(rw+1)-conctime(rw))*(conc(rw+1)-conc(rw))+conc(rw)
+  INTERP = (conc(rw+1)-conc(rw)) / (conctime(rw+1)-conctime(rw)) * (now-conctime(rw)) + conc(rw)
+  if (INTERP<0) THEN
+    print*, now
+    print*, conctime(rw)
+    print*, conc(rw)
+    print*, conc(rw+1)
+    print*, rw
+    print*, (conc(rw+1)-conc(rw)) / (conctime(rw+1)-conctime(rw))
+    print*, (now-conctime(rw))
+    print*, conc(rw)
+    stop
+  ENDIF
+
 END  FUNCTION INTERP
 
 !==============================================================================

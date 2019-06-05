@@ -61,7 +61,7 @@ MODS(6)%shift = 3.0
   lat = 1
   lon = 7
   JD  = 2
-  Description = 'NJ = Nanjing runs; K-xx:temperature changed by -x.x degrees, CS05: Cond sink multiplied by 0.5 Dxxx: DMA multiplied by xxx'
+  Description = 'Just some testing'
 /
 
 ####### Vap stuff #####

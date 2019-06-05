@@ -21,10 +21,20 @@ def uniq(list):
         if element not in chk:
             chk.append(element)
     return chk
+pth = '/media/pecl/EE7B-B587/PC180416/N1/'
 pth = '../output/'
 files=(['001NJ_D100.nc','001NJ_K-35_D100.nc','001NJ_K-70_D100.nc'])
 files=(['001NJ_nominal.nc','001NJ_K-35.nc','001NJ_K-70.nc','001NJ_CS05.nc','001NJ_K-35_CS05.nc','001NJ_K-70_CS05.nc'])
-files=([ 'NANJING_NJ_Special.nc'])
+files=([ 'NANJING_check.nc'])
+files=([ 'particle.nc'])
+files=([ 'Hyde_tempSensi.nc'])
+files = (['Hyde_180404_low_nh3.nc', 'Hyde_180404.nc'])
+files = (['Hyde_180407_low_nh3.nc', 'Hyde_180407.nc'])
+files = (['Hyde_180412_low_nh3.nc', 'Hyde_180412.nc'])
+files = (['Hyde_180410_low_nh3.nc', 'Hyde_180410.nc'])
+files = (['Hyde_180423_low_nh3.nc', 'Hyde_180423.nc'])
+files = (['Hyde_180403_low_nh3.nc', 'Hyde_180403.nc'])
+
 N_f = len(files)
 ncs = []
 first_file = 0

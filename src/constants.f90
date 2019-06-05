@@ -60,6 +60,7 @@ end type timetype
 
 type(timetype)  :: MODELTIME
 type(input_mod), allocatable :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
+CHARACTER(len=12), allocatable :: UNITS(:) ! THIS VECTOR HOLDS ALL INPUT UNITS
 
 !type for number of column and rows
 type nrowcol

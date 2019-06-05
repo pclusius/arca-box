@@ -69,8 +69,9 @@ INTEGER   :: FSAVE_DIVISION = 0
 NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION
 
 ! MODIFIER OPTIONS
-! MODS is declared in CONSTANTS.f90, in order to be more widely available
+! MODS and UNITS are declared in CONSTANTS.f90, in order to be more widely available
 NAMELIST /NML_MODS/ MODS
+NAMELIST /NML_UNITS/ UNITS
 
 ! DMPS INPUT
 character(len=256)  :: DMPS_dir
@@ -134,6 +135,8 @@ subroutine READ_INPUT_DATA()
 
   ! BASED ON N_VARS, ALLOCATE VECTORS
   ALLOCATE(MODS(N_VARS))
+  ALLOCATE(UNITS(N_VARS))
+  UNITS = '#'
   ALLOCATE(INDRELAY_CH(N_VARS))
   INDRELAY_CH = 0
   CALL NAME_MODS_SORT_NAMED_INDICES
@@ -301,10 +304,12 @@ subroutine READ_INIT_FILE
     IF (IOS(7) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MCM, maybe some undefinded INITFILE input?'
   READ(50,NML=NML_MODS,  IOSTAT= IOS(8)) ! modification parameters
     IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MODS, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_MISC,  IOSTAT= IOS(9)) ! misc input
-    IF (IOS(9) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MISC, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_VAP,  IOSTAT= IOS(10)) ! misc input
-      IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_VAP, maybe some undefinded INITFILE input?'
+  READ(50,NML=NML_UNITS,  IOSTAT= IOS(9)) ! units
+    IF (IOS(9) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_UNITS, maybe some undefinded INITFILE input?'
+  READ(50,NML=NML_MISC,  IOSTAT= IOS(10)) ! misc input
+    IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MISC, maybe some undefinded INITFILE input?'
+  READ(50,NML=NML_VAP,  IOSTAT= IOS(11)) ! vapour input
+      IF (IOS(11) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_VAP, maybe some undefinded INITFILE input?'
   CLOSE(50)
 
   IF (SUM(IOS) /= 0) then
@@ -400,10 +405,11 @@ subroutine FILL_INPUT_BUFF(unit,rowcol_count, INPUT_BF,Input_file)
   real(dp), intent(inout) :: INPUT_BF(:,:)
   character(*) :: Input_file
   integer :: i,j,k, ioi, unit
+
   ! Reading data into the variable
   i = 1
   print FMT_MSG, 'Filling input matrices...'
-  DO k = 1, rowcol_count%rows
+  DO k = 1, ROWCOUNT(unit)
     READ(unit,*, iostat=ioi) (INPUT_BF(i,j),j=1,rowcol_count%cols)
     IF ((ioi /= 0) .and. (i==1)) THEN
       print FMT_SUB, 'First row omitted from file "'// TRIM(Input_file) //'".'

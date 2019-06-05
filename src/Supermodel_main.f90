@@ -15,9 +15,9 @@ IMPLICIT NONE
 ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
 REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)
 REAL(DP), ALLOCATABLE :: CH_GAS_DUMMY(:)
-REAL(dp) :: J_ACDC_NH3
-REAL(dp) :: J_ACDC_DMA
-REAL(dp) :: J_NH3_BY_IONS(3)
+REAL(dp) :: J_ACDC_NH3 = 0d0
+REAL(dp) :: J_ACDC_DMA = 0d0
+REAL(dp) :: J_NH3_BY_IONS(3) = 0d0
 REAL(dp) :: acdc_cluster_diam = 2.17d-9
 LOGICAL  :: precision_check_is_okay = .true.
 INTEGER  :: I
@@ -130,7 +130,7 @@ SUBROUTINE ACDC_J(C)
 ! acdc_cluster_diam: Outgrowing cluster diameter [m]. The cluster typically has 5 to 6 H2SO4 in it
 ! =================================================================================================
   implicit none
-  real(dp) :: c_org = 1d-12
+  real(dp) :: c_org = 0d0
   real(dp), intent(in) :: C(:)
   real(dp)             :: H2SO4=0,NH3=0,DMA=0,IPR=0 ! these are created to make the unit conversion
 
@@ -143,6 +143,12 @@ SUBROUTINE ACDC_J(C)
   if (NH3 > 1d12 .or. J_ACDC_NH3 > 1d-6) THEN
     CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMPK),IPR,MODELTIME,&
           ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
+    ! CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMPK),IPR,MODELTIME,&
+    !       ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
+    ! CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMPK),IPR,MODELTIME,&
+    !       ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
+    ! CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMPK),IPR,MODELTIME,&
+    !       ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
   ELSE
     ! This will leave the last value for J stand - small enough to not count but not zero
     if (MODELTIME%printnow) print FMT_SUB, 'NH3 IGNORED'
@@ -172,9 +178,10 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
   real(dp), intent(in) :: C(:)
   print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]', 'Temp:', C(inm_TempK), 'Kelvin'
   print FMT10_CVU,'APINE C: ', C(IndexFromName('APINENE')), ' [1/cm3]'
+  print FMT10_2CVU,'Pressure: ', C(inm_pres), ' []', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
   IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3*1d-6, ' [1/cm3]'
   IF (inm_DMA   /= 0) print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA*1d-6, ' [1/cm3]'
-  print FMT10_3CVU, 'Jion1:', J_NH3_BY_IONS(1)*1d-6 , ' [1/s/cm3]','Jion2:', J_NH3_BY_IONS(2)*1d-6 , ' [1/s/cm3]','Jion2:', J_NH3_BY_IONS(3)*1d-6 , ' [1/s/cm3]'
+  print FMT10_3CVU, 'Jion neutral:', J_NH3_BY_IONS(1)*1d-6 , ' [1/s/cm3]','Jion neg:', J_NH3_BY_IONS(2)*1d-6 , ' [1/s/cm3]','Jion pos:', J_NH3_BY_IONS(3)*1d-6 , ' [1/s/cm3]'
   IF (inm_IPR   /= 0) print FMT10_2CVU, 'C-sink:', C(inm_CS) , ' [1/s]','IPR:', C(inm_IPR) , ' [1/s/cm3]'
   print FMT_LEND,
 END SUBROUTINE PRINT_KEY_INFORMATION
@@ -186,7 +193,7 @@ SUBROUTINE CHECK_MODIFIERS()
   print FMT_HDR, 'Check input validity'
 
   CALL CONVERT_TEMPS_TO_KELVINS
-
+  CALL CONVERT_UNITS
   do i=1,size(MODS)
   IF (MODS(i)%MODE > 0) THEN
     print FMT_NOTE0, 'Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
@@ -273,5 +280,69 @@ SUBROUTINE CONVERT_TEMPS_TO_KELVINS
     print FMT_WARN1, 'Temperature will be converted to Kelvins, but a suspicious constant is added: ',MODS(inm_TempK)%shift
   END IF
 END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
+
+
+SUBROUTINE CONVERT_UNITS
+  IMPLICIT NONE
+  integer :: i,j
+  real(dp):: multiplyer
+  integer :: type
+
+  if (TRIM(UNITS(inm_pres)) == 'hPa' .or. TRIM(UNITS(inm_pres)) == 'mbar') THEN
+    CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 100d0
+    print FMT_MSG, '- Coverting pressure from hPa to Pascals.'
+  elseif (TRIM(UNITS(inm_pres)) == 'atm') THEN
+    CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1.01325d5
+    print FMT_MSG, '- Coverting pressure from atm to Pascals.'
+  elseif (TRIM(UNITS(inm_pres)) == 'Pa') THEN
+    print FMT_MSG, '- Pressure in Pascals.'
+    continue
+  else
+    if ((MODS(inm_pres)%MODE > 0) .or. (MODS(inm_pres)%col > 1)  .or. (ABS(MODS(inm_pres)%multi - 1d0)>1d-9) .or. (ABS(MODS(inm_pres)%shift)>1d-16)) THEN
+      print FMT_MSG, '- Assuming Pascals for pressure.'
+    end if
+  end if
+
+
+  do i=2,N_VARS
+    if (TRIM(UNITS(i)) /= '#' .and. i /= inm_pres) THEN
+      if (TRIM(UNITS(i)) == 'ppm') THEN
+        multiplyer = 1d-6
+        type = 1
+      elseif (TRIM(UNITS(i)) == 'ppb') THEN
+        multiplyer = 1d-9
+        type = 1
+      elseif (TRIM(UNITS(i)) == 'ppt') THEN
+        multiplyer = 1d-12
+        type = 1
+      elseif (TRIM(UNITS(i)) == 'ppq') THEN
+        multiplyer = 1d-15
+        type = 1
+      elseif (TRIM(UNITS(i)) == 'hPa' .or. TRIM(UNITS(i)) == 'mbar') THEN
+        multiplyer = 100d0
+        type = 2
+      elseif (TRIM(UNITS(i)) == 'atm') THEN
+        multiplyer = 1013.25d0
+        type = 2
+      elseif (TRIM(UNITS(i)) == 'Pa') THEN
+        multiplyer = 1d0
+        type = 2
+      else
+        print FMT_FAT0, 'Could not understand unit for '//TRIM(MODS(i)%name)
+        stop
+      END if
+
+      print FMT_MSG, '- Converting '//TRIM(MODS(i)%name)//' from '//TRIM(UNITS(i))
+
+      do j=1,size(TIMEVEC)
+        if (type == 1) THEN
+          CONC_MAT(j,i) = CONC_MAT(j,i) * multiplyer * C_AIR_cc(CONC_MAT(j,inm_TempK),CONC_MAT(j,inm_pres))
+        ELSEIF (TYPE == 2) THEN
+          CONC_MAT(j,i) = CONC_MAT(j,i) * multiplyer
+        END IF
+      end do
+    end if
+  end do
+END SUBROUTINE CONVERT_UNITS
 
 END PROGRAM SUPERMODEL

@@ -1,0 +1,77 @@
+####### model initialization setup ############
+
+&NML_path
+ Work_Dir    =
+ Case_Dir    =  'input'
+ Case_name   =  'Hyde'
+ RUN_NAME    =  'Check_Malte'
+/
+
+####### Flags setup True or false #######
+&NML_Flag
+ Aerosol_flag   =   .True.,
+ Chemistry_flag =   .True.,
+ Particle_flag  =   .False.,
+ Extra_data     =   .False.,
+ Current_case   =   .True.,
+/
+
+!####### TIME related user input #####
+&NML_TIME
+ runtime        = 24
+ PRINT_INTERVAL = 3600
+ FSAVE_INTERVAL = 300
+ FSAVE_DIVISION = 0
+/
+
+
+!####### dmps file read #####
+&NML_DMPS
+/
+
+####### ENV file read #####
+&NML_ENV
+ ENV_file         = 'env_combined.dat'
+ ENV_path         = '/home/pecl/APCAD/supermodel-phase-1/input'
+ TempUnit         = 'C'
+/
+
+####### MCM file read #####
+&NML_MCM
+ MCM_path = !'/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
+ MCM_file = !'case_Nanjing1.txt'
+/
+
+
+####### MODS read #####
+#      mode   col   multi shift  min        max        sig        mju         fv         ph         am  name
+&NML_MODS
+MODS(1) = 0 -1  1.00000d+00  1.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! TEMPK
+MODS(2) = 0 -1  1.00000d+00  1.00000d+5  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! PRESSURE
+MODS(3) = 0 -1  1.00000d+00  5.00000d+01  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! REL_HUMIDITY
+MODS(4) = 0 -1  1.00000d+00  2.00000d-03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! CONDENS_SINK
+MODS(6) = 0 -1  1.00000d+00  3.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! ION_PROD_RATE
+MODS(7) = 0 -1  1.00000d+00  4973422688819.7100e-6  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! H2SO4
+MODS(8) = 0 -1  1.00000d+00  2.11357E+09  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! NH3
+/
+
+####### Units #####
+&NML_UNITS
+UNITS(8) = 'ppt'
+UNITS(2) = 'Pa'
+/
+
+####### Misc stuff #####
+&NML_MISC
+  lat = 1
+  lon = 7
+  JD  = 2
+  Description = 'Just some testing'
+/
+
+####### Vap stuff #####
+&NML_VAP
+  Vap_logical = .True.
+  Vap_names   = 'Vapour_names.dat'
+  Vap_props   = 'Vapour_properties.dat'
+/
