@@ -244,7 +244,6 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
     end if
   end if
 
-!  INTERP = (now-conctime(rw))/(conctime(rw+1)-conctime(rw))*(conc(rw+1)-conc(rw))+conc(rw)
   INTERP = (conc(rw+1)-conc(rw)) / (conctime(rw+1)-conctime(rw)) * (now-conctime(rw)) + conc(rw)
   if (INTERP<0) THEN
     print*, now
