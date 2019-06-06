@@ -56,6 +56,11 @@ MODS(149)%col = 4
 MODS(6)%shift = 3.0
 /
 
+
+!####### UNITS file read #####
+&NML_UNITS
+/
+
 ####### Misc stuff #####
 &NML_MISC
   lat = 1
