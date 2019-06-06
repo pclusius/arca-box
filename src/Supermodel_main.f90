@@ -22,6 +22,19 @@ REAL(dp) :: acdc_cluster_diam = 2.17d-9
 LOGICAL  :: precision_check_is_okay = .true.
 INTEGER  :: I
 
+!speed_up: factor for increasing integration time step for individual prosesses
+!...(1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
+INTEGER :: speed_up(10) = 1
+!error type which is used to optimize computation speed at given simulatin precision
+TYPE error_type
+  LOGICAL :: error_state = .false.  !there is no error at the start
+  INTEGER :: error_process  !process where the error occurs
+  CHARACTER(150) :: error_specification  !specification on error type (e.g."particle conc" during coagulation)
+END TYPE error_type
+TYPE(error_type) :: error
+!Open error output file
+open(unit=333, file='error_output.txt')
+
   CALL read_input_data ! Declare most variables and read user input and options in input.f90
 
   CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
@@ -62,7 +75,7 @@ INTEGER  :: I
 
 ! =================================================================================================
 ! NUCLEATION
-  if (NUCLEATION) THEN
+  if (NUCLEATION .and. (.not. error%error_state)) THEN
 #ifdef ISACDC
     if (ACDC) CALL ACDC_J(TSTEP_CONC) ! SUBROUTINE in CONTAINS of this file
 #endif
@@ -73,18 +86,34 @@ INTEGER  :: I
 ! Coagulation
 ! Deposition
 
-! =================================================================================================
-! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
-  if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-  if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
-                              TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), MODS)
-! =================================================================================================
 
-! =================================================================================================
-  ! If the precision checks, add main timestep to modeltime
-  IF (precision_check_is_okay) MODELTIME = ADD(MODELTIME)
-! =================================================================================================
+IF (error%error_state) THEN !ERROR handling
+  CALL error_handling(error, speed_up,MODELTIME%dt,MODELTIME%sec)
 
+  !restore old state
+  !status = status_old
+
+  error%error_state = .false.
+ELSE !There was no error during the actual timestep
+  ! =================================================================================================
+
+    if (MODELTIME%printnow) print FMT_TIME, MODELTIME%hms ! Print time
+
+  ! =================================================================================================
+
+  ! =================================================================================================
+  ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
+    if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
+    if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
+                                TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), MODS)
+  ! =================================================================================================
+
+  ! =================================================================================================
+    ! Add main timestep to modeltime
+    MODELTIME = ADD(MODELTIME)
+  ! =================================================================================================
+
+END IF !ERROR hanldling
 ! =================================================================================================
   END DO	! Main loop ends
 ! =================================================================================================
@@ -97,6 +126,40 @@ INTEGER  :: I
 
 
 CONTAINS
+
+  SUBROUTINE error_handling(error,speed_up,dt_box,sim_time_sec)
+  !==================================================================================================
+  !Error handling for aerosol dynamics: In case any error appears during the calculation of
+  !dynamics, this subroutine is called to handle the error. This means adjusting the timestep (either
+  ! via speed_up or dt_box) for the process the error showed up
+  !Note that this only works if we calculate "future" changes not what happend in the last time step!
+  !INPUTS:  a) errors; b) speed_up; dt_box
+  !Outputs: a) updated speed_up or dt_box
+  !==================================================================================================
+  IMPLICIT none
+  INTEGER ::  i    , &
+              speed_up(10)
+  REAL(DP) :: dt_box  ,&
+              sim_time_sec
+  type(error_type) :: error
+
+  !Write some error informaiton to file
+  write(333,*) 'Precision error at simulation time [s]', sim_time_sec
+  write(333,*) '  ERROR TYPE: ', trim(error%error_specification)
+  !reduce the speed_up factor or, if necessary, the integration time step:
+  IF (speed_up(error%error_process) > 1) THEN
+    speed_up(error%error_process) = speed_up(error%error_process) / 2
+    write(333,*) '  => reduce speed_up:',speed_up(error%error_process)*2, '->',speed_up(error%error_process)
+  ELSE
+    dt_box = dt_box / 2.d0
+    write(333,*) '  => reduce dt [s]:', dt_box
+    DO i = 1,10
+      IF (i /= error%error_process) speed_up(i) = speed_up(i) * 2
+    END DO
+  END IF
+
+  END SUBROUTINE error_handling
+
 
 SUBROUTINE ACDC_J(C)
 ! =================================================================================================
