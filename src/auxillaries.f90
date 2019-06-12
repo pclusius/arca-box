@@ -144,7 +144,7 @@ INTEGER FUNCTION COLCOUNT(file_id, separator)
   OFFSET = FTELL(file_id)
   REWIND(file_id)
   do i=1,2
-    READ(file_id, '(a)', iostat=ioi), buffer
+    READ(file_id, '(a)', iostat=ioi) buffer
   end do
   if (ioi /= 0) THEN
     COLCOUNT = -9999
@@ -163,23 +163,6 @@ INTEGER FUNCTION COLCOUNT(file_id, separator)
   REWIND(file_id)
   CALL FSEEK(file_id, OFFSET, 0)
 END FUNCTION COLCOUNT
-
-!==============================================================================
-! Gets the current row in timearray [conctime] for which:
-! [conctime(getrow)] < time < [conctime(getrow+1)]
-! Can be used if for some reason we have different time intervals for different
-! inputs. The same  functionality is also incorporated in INTERP()
-!..............................................................................
-REAL(dp) FUNCTION getrow(time, conctime)
-  IMPLICIT NONE
-  INTEGER :: row = 0
-  REAL(dp) :: time, conctime(:)
-  conctime = conctime - conctime(1)
-  do WHILE (time/3600d0/24d0>=conctime(row+1))
-    row = row + 1
-  end do
-  getrow = row
-END FUNCTION getrow
 
 !==============================================================================
 ! Function that linearily interpolates any value at current [time] (of
@@ -245,19 +228,8 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
   end if
 
   INTERP = (conc(rw+1)-conc(rw)) / (conctime(rw+1)-conctime(rw)) * (now-conctime(rw)) + conc(rw)
-  if (INTERP<0) THEN
-    print*, now
-    print*, conctime(rw)
-    print*, conc(rw)
-    print*, conc(rw+1)
-    print*, rw
-    print*, (conc(rw+1)-conc(rw)) / (conctime(rw+1)-conctime(rw))
-    print*, (now-conctime(rw))
-    print*, conc(rw)
-    stop
-  ENDIF
 
-END  FUNCTION INTERP
+END FUNCTION INTERP
 
 !==============================================================================
 ! Function finds out the internal index using the proper name. E.g. IndexFromName(APINENE)
@@ -267,14 +239,16 @@ END  FUNCTION INTERP
 ! Output:
 ! integer
 !..............................................................................
-INTEGER FUNCTION IndexFromName(name)
+PURE INTEGER FUNCTION IndexFromName(name)
   IMPLICIT NONE
-  character(*) :: name
+  character(*), INTENT(IN) :: name
   integer :: i
   DO i=1, size(MODS)
     if (TRIM(NAME) == TRIM(MODS(I)%NAME)) EXIT
   END DO
   IndexFromName = i
 END FUNCTION IndexFromName
+
+
 
 end MODULE AUXILLARIES

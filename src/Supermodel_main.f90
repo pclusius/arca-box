@@ -49,7 +49,7 @@ open(unit=333, file='error_output.txt')
 ! =================================================================================================
 
   if (MODELTIME%printnow) print FMT_TIME, MODELTIME%hms ! Print time
-
+  C_AIR_NOW = C_AIR_cc(interp(timevec, CONC_MAT(:,inm_tempK))  .mod. MODS(inm_tempK), interp(timevec, CONC_MAT(:,inm_pres))  .mod. MODS(inm_pres))
 ! =================================================================================================
 ! Assign values to input variables
   DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables that user can provide or tamper, and leave zero if no input or mod was provided
@@ -82,9 +82,9 @@ open(unit=333, file='error_output.txt')
 
 ! =================================================================================================
 ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
-  if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-  if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
-                              TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
+  ! if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
+  ! if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
+  !                             TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
 ! =================================================================================================
 
 IF (error%error_state) THEN !ERROR handling
@@ -97,7 +97,7 @@ IF (error%error_state) THEN !ERROR handling
 ELSE !There was no error during the actual timestep
   ! =================================================================================================
 
-    if (MODELTIME%printnow) print FMT_TIME, MODELTIME%hms ! Print time
+    ! if (MODELTIME%printnow) print FMT_TIME, MODELTIME%hms ! Print time
 
   ! =================================================================================================
 
@@ -248,24 +248,30 @@ SUBROUTINE CHECK_MODIFIERS()
   IMPLICIT NONE
   type(input_mod) :: test
   integer         :: i,j=0
-  print FMT_HDR, 'Check input validity'
+  character(4)    :: cprf
 
+  print FMT_HDR, 'Check input validity'
   CALL CONVERT_TEMPS_TO_KELVINS
-  CALL CONVERT_UNITS
+  CALL CONVERT_PRESSURE
   do i=1,size(MODS)
-  IF (MODS(i)%MODE > 0) THEN
-    print FMT_NOTE0, 'Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
-    j=1
-  ELSE
-    IF (ABS(MODS(i)%multi - test%multi) > 1d-9) THEN
-      print FMT_NOTE1, 'Multiplying '//TRIM(MODS(i)%name)//' with: ',MODS(i)%multi
+    IF (MODS(i)%MODE > 0) THEN
+      print FMT_NOTE0, 'Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
       j=1
+    ELSE
+      IF (ABS(MODS(i)%multi - test%multi) > 1d-9) THEN
+        print FMT_NOTE1, 'Multiplying '//TRIM(MODS(i)%name)//' with: ',MODS(i)%multi
+        j=1
+      END IF
+      if (ABS(MODS(i)%shift - test%shift) > 1d-9) THEN
+        if (TRIM(MODS(i)%UNIT) == '#') THEN
+          cprf = '/cm3'
+        else
+          cprf = ''
+        end if
+        print FMT_NOTE1, 'Adding a constant to '//TRIM(MODS(i)%name)//', [in '//TRIM(MODS(i)%UNIT)//TRIM(cprf)//']: ',MODS(i)%shift
+        j=1
+      END IF
     END IF
-    if (ABS(MODS(i)%shift - test%shift) > 1d-9) THEN
-      print FMT_NOTE1, 'Adding a constant to '//TRIM(MODS(i)%name)//', value is: ',MODS(i)%shift
-      j=1
-    END IF
-  END IF
   END DO
   if (j == 1) print FMT_LEND
 END SUBROUTINE CHECK_MODIFIERS
@@ -323,10 +329,15 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
 END SUBROUTINE CHECK_INPUT_AGAINST_KPP
 
 SUBROUTINE CONVERT_TEMPS_TO_KELVINS
+  use constants, ONLY: UCASE
   IMPLICIT NONE
-  IF (TempUnit == 'K') THEN
+  if (TRIM(UCASE(TempUnit)) /= TRIM(UCASE(MODS(inm_TempK)%UNIT)) .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) /= '#') THEN
+    print FMT_NOTE0, 'For temperature, MODS%UNIT has no effect. Use TempUnit in NML_ENV'
+  END IF
+
+  IF (UCASE(TempUnit) == 'K') THEN
     print FMT_MSG, '- Temperature input in Kelvins.'
-  ELSEIF (TempUnit == 'C') THEN
+  ELSEIF (UCASE(TempUnit) == 'C') THEN
     print FMT_MSG, '- Converting temperature from degrees C -> K (as defined in INITFILE: TempUnit).'
     MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
     MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
@@ -340,67 +351,49 @@ SUBROUTINE CONVERT_TEMPS_TO_KELVINS
 END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
 
 
-SUBROUTINE CONVERT_UNITS
+SUBROUTINE CONVERT_PRESSURE
+  use constants, ONLY: UCASE
   IMPLICIT NONE
-  integer :: i,j
-  real(dp):: multiplyer
   integer :: type
+  character(5) :: buf
 
-  if (TRIM(UNITS(inm_pres)) == 'hPa' .or. TRIM(UNITS(inm_pres)) == 'mbar') THEN
+  buf = UCASE(TRIM(MODS(inm_pres)%UNIT))
+  if (TRIM(buf) == 'HPA' .or. TRIM(buf) == 'MBAR') THEN
     CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 100d0
-    print FMT_MSG, '- Coverting pressure from hPa to Pascals.'
-  elseif (TRIM(UNITS(inm_pres)) == 'atm') THEN
+    print FMT_MSG, '- Converting pressure from hPa (mbar) to Pascals.'
+  elseif (TRIM(buf) == 'KPA') THEN
+    CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1000d0
+    print FMT_MSG, '- Converting pressure from kPa to Pascals.'
+  elseif (TRIM(buf) == 'ATM') THEN
     CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1.01325d5
-    print FMT_MSG, '- Coverting pressure from atm to Pascals.'
-  elseif (TRIM(UNITS(inm_pres)) == 'Pa') THEN
+    print FMT_MSG, '- Converting pressure from atm to Pascals.'
+  elseif (TRIM(buf) == 'PA') THEN
     print FMT_MSG, '- Pressure in Pascals.'
     continue
   else
     if ((MODS(inm_pres)%MODE > 0) .or. (MODS(inm_pres)%col > 1)  .or. (ABS(MODS(inm_pres)%multi - 1d0)>1d-9) .or. (ABS(MODS(inm_pres)%shift)>1d-16)) THEN
-      print FMT_MSG, '- Assuming Pascals for pressure.'
+      if (TRIM(buf) == '#') THEN
+        print FMT_MSG, '- Assuming Pascals for pressure.'
+      else
+        print FMT_FAT0, 'Cannot recognize given unit "'//TRIM(MODS(inm_pres)%UNIT)//'" for pressure. Exiting. '
+        stop
+      end if
     end if
   end if
 
-
-  do i=2,N_VARS
-    if (TRIM(UNITS(i)) /= '#' .and. i /= inm_pres) THEN
-      if (TRIM(UNITS(i)) == 'ppm') THEN
-        multiplyer = 1d-6
-        type = 1
-      elseif (TRIM(UNITS(i)) == 'ppb') THEN
-        multiplyer = 1d-9
-        type = 1
-      elseif (TRIM(UNITS(i)) == 'ppt') THEN
-        multiplyer = 1d-12
-        type = 1
-      elseif (TRIM(UNITS(i)) == 'ppq') THEN
-        multiplyer = 1d-15
-        type = 1
-      elseif (TRIM(UNITS(i)) == 'hPa' .or. TRIM(UNITS(i)) == 'mbar') THEN
-        multiplyer = 100d0
-        type = 2
-      elseif (TRIM(UNITS(i)) == 'atm') THEN
-        multiplyer = 1013.25d0
-        type = 2
-      elseif (TRIM(UNITS(i)) == 'Pa') THEN
-        multiplyer = 1d0
-        type = 2
-      else
-        print FMT_FAT0, 'Could not understand unit for '//TRIM(MODS(i)%name)
+  do i=1,N_VARS
+    buf = UCASE(TRIM(MODS(i)%UNIT))
+    if (TRIM(buf) /= '#' .and. i /= inm_pres .and. i /= inm_tempK) THEN
+      IF (TRIM(buf) /= 'PPM' .and. TRIM(buf) /= 'PPB' .and. TRIM(buf) /= 'PPT' .and. TRIM(buf) /= 'PPQ') THEN
+        print FMT_FAT0, 'Cannot recognize unit "'//TRIM(MODS(i)%UNIT)//'" for '//TRIM(MODS(i)%name)//'. Exiting. '
         stop
-      END if
-
-      print FMT_MSG, '- Converting '//TRIM(MODS(i)%name)//' from '//TRIM(UNITS(i))
-
-      do j=1,size(TIMEVEC)
-        if (type == 1) THEN
-          CONC_MAT(j,i) = CONC_MAT(j,i) * multiplyer * C_AIR_cc(CONC_MAT(j,inm_TempK),CONC_MAT(j,inm_pres))
-        ELSEIF (TYPE == 2) THEN
-          CONC_MAT(j,i) = CONC_MAT(j,i) * multiplyer
-        END IF
-      end do
+      ELSE
+        if ((MODS(i)%MODE > 0) .or. (MODS(i)%col > 1)  .or. (ABS(MODS(i)%multi - 1d0)>1d-9) .or. (ABS(MODS(i)%shift)>1d-16)) THEN
+          print FMT_MSG, '- Converting '//TRIM(MODS(i)%name)//' from '//TRIM(MODS(i)%UNIT)
+        end if
+      END IF
     end if
   end do
-END SUBROUTINE CONVERT_UNITS
+END SUBROUTINE CONVERT_PRESSURE
 
 END PROGRAM SUPERMODEL

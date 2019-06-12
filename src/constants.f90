@@ -15,8 +15,7 @@ integer(ik), parameter:: day_s = 24*hour_s
 ! ----------------------------------------------------------------
 ! USER-DEFINED TYPES
 
-! Container for input parameters for creating simulated datapoints
-! Uses gaussian function as generator. Use ParameterTweaker.py for more complex functions
+! Container for input, name, unit and parameters for creating simulated datapoints
 
 type input_mod
   ! Mode of operation:
@@ -35,7 +34,21 @@ type input_mod
   real(dp)  :: fv  = 0d0    ! Angular frequency [hours] of modifying sine function
   real(dp)  :: ph  = 0d0    ! Angular frequency [hours] of modifying sine function
   real(dp)  :: am  = 1d0    ! Amplitude of modificaion
-  CHARACTER(16) :: NAME = 'NONAME'! Human readable name for modified variable
+  CHARACTER(5)  :: UNIT = '#'      ! Unit for the given number. CASE INSENSITIVE
+  CHARACTER(16) :: NAME = 'NONAME' ! Human readable name for modified variable
+  ! #      = number contentration in 1/cm3. DEFAULT ASSUMPTION
+  ! 'ppm'  = parts per million (1/1e6)
+  ! 'ppb'  = parts per billion (1/1e9)
+  ! 'ppt'  = parts per trillion (1/1e12)
+  ! 'ppq'  = parts per quadrillion (1/1e15)
+  ! 'Pa'   = Pascals
+  ! 'hPa'  = Hectopascals
+  ! 'kPa'  = Kilopascals
+  ! 'mbar' = millibars
+  ! 'atm'  = Atmosphere (101325 Pascals)
+  ! 'K'    = Kelvin
+  ! 'C'    = Celsius
+
 end type input_mod
 
 type timetype
@@ -58,10 +71,6 @@ type timetype
   logical       :: PRINTACDC      = .false.
 end type timetype
 
-type(timetype)  :: MODELTIME
-type(input_mod), allocatable :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
-CHARACTER(len=12), allocatable :: UNITS(:) ! THIS VECTOR HOLDS ALL INPUT UNITS
-
 !type for number of column and rows
 type nrowcol
   integer :: rows,cols
@@ -83,13 +92,17 @@ end interface operator(+)
 interface operator(.mod.)
   module procedure MOD_CONC
 end interface operator(.mod.)
+! ------------------------------------------------------------
 
+type(timetype)  :: MODELTIME
+type(input_mod), allocatable :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
+REAL(dp) :: C_AIR_NOW
 CONTAINS
 
 ! =================================================================================================
 ! Timetype update function.
 ! .................................................................................................
-type(timetype) function ADD(time, sec)
+PURE type(timetype) function ADD(time, sec)
   implicit none
   type(timetype), intent(in)            :: time
   real(dp),       intent(in), optional  :: sec
@@ -121,12 +134,25 @@ REAL(dp) FUNCTION MOD_CONC(c, MODS)
   IMPLICIT NONE
   type(input_mod), INTENT(in) :: MODS
   REAL(dp), INTENT(in)        :: c
+
   if (MODS%MODE == 0) THEN
     MOD_CONC = c * MODS%multi
     MOD_CONC = MOD_CONC + MODS%shift
+
   ELSE
     MOD_CONC = NORMALD(MODS)
   END IF
+
+  if (UCASE(TRIM(MODS%UNIT)) == 'PPM') THEN
+    MOD_CONC = MOD_CONC * 1d-6 * C_AIR_NOW
+  elseif (UCASE(TRIM(MODS%UNIT)) == 'PPB') THEN
+    MOD_CONC = MOD_CONC * 1d-9 * C_AIR_NOW
+  elseif (UCASE(TRIM(MODS%UNIT)) == 'PPT') THEN
+    MOD_CONC = MOD_CONC * 1d-12 * C_AIR_NOW
+  elseif (UCASE(TRIM(MODS%UNIT)) == 'PPQ') THEN
+    MOD_CONC = MOD_CONC * 1d-15 * C_AIR_NOW
+  END if
+
 END FUNCTION MOD_CONC
 
 !==============================================================================
@@ -135,7 +161,7 @@ END FUNCTION MOD_CONC
 ! and time of maximum at [mju]. Relies completely on the correct formulation
 ! of MODS (input_mod)
 !..............................................................................
-REAL(dp) FUNCTION NORMALD(MODS, timein)
+PURE REAL(dp) FUNCTION NORMALD(MODS, timein)
   IMPLICIT NONE
   type(input_mod), INTENT(in) :: MODS
   type(timetype), OPTIONAL, INTENT(in)  :: timein
@@ -163,5 +189,14 @@ REAL(dp) FUNCTION NORMALD(MODS, timein)
     END IF
   END IF
 end FUNCTION NORMALD
+
+PURE FUNCTION UCASE(word)
+  IMPLICIT NONE
+  character(*), INTENT(IN) :: word
+  character(len=len(word)) :: UCASE
+  integer :: i
+  UCASE = word
+  FORALL (i=1:len(word), ((ichar(word(i:i))>96) .and. (ichar(word(i:i))<123))) UCASE(i:i) = char(ichar(word(i:i))-32)
+END FUNCTION UCASE
 
 end MODULE constants
