@@ -23,12 +23,12 @@ CONTAINS
 
 ! concentration of air. Pressure P in [Pa], temperature T in [K] returns molecules/cm3
 real(dp) function C_AIR_cc(T,P)
-  REAL(dp) :: T, P
+  REAL(dp), INTENT(in) :: T, P
   C_AIR_cc = P/(kb*T)*1d-6
 end function C_AIR_cc
 ! concentration of air. Pressure P in [Pa], temperature T in [K] returns molecules/m3
 real(dp) function C_AIR_m3(T,P)
-  REAL(dp) :: T, P
+  REAL(dp), INTENT(in) :: T, P
   C_AIR_m3 = P/(kb*T)
 end function C_AIR_m3
 

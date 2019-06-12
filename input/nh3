@@ -6,11 +6,11 @@
  Case_name   =  'Hyde'
  RUN_NAME    =  'tempSensi'
   RUN_NAME = '180403_low_nh3'
-  RUN_NAME = '180404_low_nh3'
-  RUN_NAME = '180407_low_nh3'
-  RUN_NAME = '180410_low_nh3'
-  RUN_NAME = '180412_low_nh3'
-  RUN_NAME = '180423_low_nh3'
+!  RUN_NAME = '180404_low_nh3'
+!  RUN_NAME = '180407_low_nh3'
+!  RUN_NAME = '180410_low_nh3'
+!  RUN_NAME = '180412_low_nh3'
+!  RUN_NAME = '180423_low_nh3'
 /
 
 ####### Flags setup True or false #######
@@ -39,11 +39,11 @@
 ####### ENV file read #####
 &NML_ENV
   ENV_file = '180403.dat'
-  ENV_file = '180404.dat'
-  ENV_file = '180407.dat'
-  ENV_file = '180410.dat'
-  ENV_file = '180412.dat'
-  ENV_file = '180423.dat'
+!  ENV_file = '180404.dat'
+!  ENV_file = '180407.dat'
+!  ENV_file = '180410.dat'
+!  ENV_file = '180412.dat'
+!  ENV_file = '180423.dat'
   ENV_path         = '/home/pecl/APCAD/supermodel-phase-1/input'
   TempUnit         = 'C'
 /
@@ -64,7 +64,7 @@ MODS(3) = 0 3  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.
 MODS(4) = 0 4  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! CONDENS_SINK
 MODS(6) = 0 -1  1.00000d+00  3.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! ION_PROD_RATE
 MODS(7) = 0 6  1.00d+00  0.00000d+00  1.000000+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! H2SO4
-MODS(8) = 0 7  0.00000d+00  1.00000d+07  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! NH3
+MODS(8) = 0 7  0.00000d+00  1.00000d+08  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! NH3
 UNITS(8) = 'ppt'
 UNITS(2) = 'hPa'
 /

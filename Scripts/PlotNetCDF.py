@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import netCDF4
 from matplotlib.widgets import RadioButtons, Button
-import sys; import os; sys.path.append(os.path.abspath("/home/pecl/p_modules"))
-import custom_lib as c
+# import sys; import os; sys.path.append(os.path.abspath("/home/pecl/p_modules"))
+# import custom_lib as c
 
 
 def roundradios(radioax, bt, scale):
@@ -32,8 +32,8 @@ files = (['Hyde_180404_low_nh3.nc', 'Hyde_180404.nc'])
 files = (['Hyde_180407_low_nh3.nc', 'Hyde_180407.nc'])
 files = (['Hyde_180412_low_nh3.nc', 'Hyde_180412.nc'])
 files = (['Hyde_180410_low_nh3.nc', 'Hyde_180410.nc'])
-files = (['Hyde_180423_low_nh3.nc', 'Hyde_180423.nc'])
 files = (['Hyde_180403_low_nh3.nc', 'Hyde_180403.nc'])
+files = (['Hyde_180423_low_nh3.nc', 'Hyde_180423.nc'])
 
 N_f = len(files)
 ncs = []
@@ -58,8 +58,8 @@ hnames = []
 for i,v in enumerate(cache):
     if (len(np.shape(ncs[0].variables[v][:])) >1):
         hnames.append(v)
-    elif (len(uniq(ncs[0].variables[v][:]))>1):
-        hnames.append(v)
+    # elif (len(uniq(ncs[0].variables[v][:]))>1):
+    hnames.append(v)
 
 ax.set_title(file)
 plt.subplots_adjust(left=0.35, bottom=0.1)

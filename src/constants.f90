@@ -131,8 +131,8 @@ END FUNCTION MOD_CONC
 !..............................................................................
 REAL(dp) FUNCTION NORMALD(MODS, timein)
   IMPLICIT NONE
-  type(input_mod)   :: MODS
-  type(timetype), OPTIONAL  :: timein
+  type(input_mod), INTENT(in) :: MODS
+  type(timetype), OPTIONAL, INTENT(in)  :: timein
   type(timetype)            :: time
   REAL(dp) :: f, D
   if (PRESENT(timein)) THEN

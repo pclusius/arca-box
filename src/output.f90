@@ -176,7 +176,7 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
 
 end SUBROUTINE OPEN_GASFILE
 
-SUBROUTINE SAVE_GASES(temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, MODS, timein)
+SUBROUTINE SAVE_GASES(temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, PRES, MODS, timein)
   IMPLICIT NONE
   type(input_mod), INTENT(in)   :: MODS(:)
   type(timetype), optional        :: timein
@@ -188,6 +188,7 @@ SUBROUTINE SAVE_GASES(temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, MODS
   real(dp), INTENT(in)            :: J_NH3
   real(dp), INTENT(in)            :: J_DMA
   real(dp), INTENT(in)            :: CS
+  real(dp), INTENT(in)            :: pres
   integer                         :: i
 
   if (PRESENT(timein)) THEN
@@ -214,7 +215,7 @@ SUBROUTINE SAVE_GASES(temperature, C_H2SO4, C_NH3, C_DMA, J_NH3, J_DMA, CS, MODS
   call handler( nf90_put_var(gas_ncfile_id, gJ_out_NH3_id, J_NH3, (/MODELTIME%ind_netcdf/)) )
   call handler( nf90_put_var(gas_ncfile_id, gJ_out_DMA_id, J_DMA, (/MODELTIME%ind_netcdf/)) )
   call handler( nf90_put_var(gas_ncfile_id, gc_sink_id, CS, (/MODELTIME%ind_netcdf/)) )
-  call handler( nf90_put_var(gas_ncfile_id, gpressure_id, 101325d0, (/MODELTIME%ind_netcdf/)) )
+  call handler( nf90_put_var(gas_ncfile_id, gpressure_id, PRES, (/MODELTIME%ind_netcdf/)) )
   ! call handler( nf90_put_var(gas_ncfile_id, gas_concentrations_id, ([ C_H2SO4 ]), start=(/1, MODELTIME%ind_netcdf/), count=(/1/)))
   ! call handler( nf90_put_var(gas_ncfile_id, gcompounds_id, C_NH3, (/MODELTIME%ind_netcdf/), count=(/2, 1/)))
   ! call handler( nf90_put_var(gas_ncfile_id, gcompounds_id, C_DMA, (/MODELTIME%ind_netcdf/), count=(/3, 1/)))

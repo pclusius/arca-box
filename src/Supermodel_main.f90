@@ -77,7 +77,7 @@ INTEGER  :: I
 ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
   if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
   if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
-                              TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), MODS)
+                              TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
 ! =================================================================================================
 
 ! =================================================================================================
@@ -222,7 +222,7 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
     CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
   END IF
   if (.not. MODELTIME%savenow) call SAVE_GASES(TSTEP_CONC(inm_tempK), TSTEP_CONC(inm_H2SO4), &
-  TSTEP_CONC(inm_nh3), TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), MODS)
+  TSTEP_CONC(inm_nh3), TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
 END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
 SUBROUTINE CHECK_INPUT_AGAINST_KPP

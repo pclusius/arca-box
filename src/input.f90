@@ -70,8 +70,8 @@ NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION
 
 ! MODIFIER OPTIONS
 ! MODS and UNITS are declared in CONSTANTS.f90, in order to be more widely available
-NAMELIST /NML_MODS/ MODS
-NAMELIST /NML_UNITS/ UNITS
+NAMELIST /NML_MODS/ UNITS, MODS
+!NAMELIST /NML_UNITS/ UNITS
 
 ! DMPS INPUT
 character(len=256)  :: DMPS_dir
@@ -304,8 +304,7 @@ subroutine READ_INIT_FILE
     IF (IOS(7) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MCM, maybe some undefinded INITFILE input?'
   READ(50,NML=NML_MODS,  IOSTAT= IOS(8)) ! modification parameters
     IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MODS, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_UNITS,  IOSTAT= IOS(9)) ! units
-    IF (IOS(9) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_UNITS, maybe some undefinded INITFILE input?'
+
   READ(50,NML=NML_MISC,  IOSTAT= IOS(10)) ! misc input
     IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MISC, maybe some undefinded INITFILE input?'
   READ(50,NML=NML_VAP,  IOSTAT= IOS(11)) ! vapour input
