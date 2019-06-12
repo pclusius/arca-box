@@ -59,7 +59,8 @@ UNITS(2) = 'hPa'
 /
 
 
-
+&NML_UNITS
+/
 
 
 ####### Misc stuff #####
