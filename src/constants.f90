@@ -67,6 +67,12 @@ type nrowcol
   integer :: rows,cols
 end type nrowcol
 
+!error type which is used to optimize computation speed at given simulatin precision
+TYPE error_type
+  LOGICAL :: error_state = .false.  !there is no error at the start
+  INTEGER :: error_process  !process where the error occurs
+  CHARACTER(150) :: error_specification  !specification on error type (e.g."particle conc" during coagulation)
+END TYPE error_type
 
 ! ------------------------------------------------------------
 ! PROCEDURES

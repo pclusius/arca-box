@@ -19,18 +19,12 @@ REAL(dp) :: J_ACDC_NH3 = 0d0
 REAL(dp) :: J_ACDC_DMA = 0d0
 REAL(dp) :: J_NH3_BY_IONS(3) = 0d0
 REAL(dp) :: acdc_cluster_diam = 2.17d-9
-LOGICAL  :: precision_check_is_okay = .true.
+
 INTEGER  :: I
 
 !speed_up: factor for increasing integration time step for individual prosesses
 !...(1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
 INTEGER :: speed_up(10) = 1
-!error type which is used to optimize computation speed at given simulatin precision
-TYPE error_type
-  LOGICAL :: error_state = .false.  !there is no error at the start
-  INTEGER :: error_process  !process where the error occurs
-  CHARACTER(150) :: error_specification  !specification on error type (e.g."particle conc" during coagulation)
-END TYPE error_type
 TYPE(error_type) :: error
 !Open error output file
 open(unit=333, file='error_output.txt')
@@ -111,7 +105,7 @@ ELSE !There was no error during the actual timestep
   ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
     if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
     if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
-                                TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), MODS)
+                                TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
   ! =================================================================================================
 
   ! =================================================================================================
