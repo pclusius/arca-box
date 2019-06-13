@@ -86,7 +86,7 @@ use_dmps,use_dmps_special
 ! ENVIRONMENTAL INPUT
 character(len=256)  :: ENV_path = ''
 character(len=256)  :: ENV_file = ''
-character(len=1)  :: TempUnit = 'K' ! or C
+character(len=1)  :: TempUnit = '' ! K or C
 NAMELIST /NML_ENV/ ENV_path, ENV_file, TempUnit
 
 ! MCM INPUT
@@ -112,7 +112,7 @@ contains
 
 subroutine READ_INPUT_DATA()
   IMPLICIT NONE
-  character(len=256)  :: data_dir
+  character(len=256)  :: data_dir, buf
   type(nrowcol)       :: rowcol_count
   integer             :: ioi,ioi2, ii, iosp, ioprop
   !!! for vapour FILES
@@ -203,8 +203,8 @@ subroutine READ_INPUT_DATA()
   print FMT_LEND,
 
   IF (VAP_logical) then
-   write(*,FMT_SUB) 'Reading Vapour name file '// TRIM(Vap_names)
-   write(*,FMT_SUB) 'Reading Vapour prop file '// TRIM(Vap_props)
+   write(*,FMT_MSG) 'Reading Vapour name file '// TRIM(Vap_names)
+   write(*,FMT_MSG) 'Reading Vapour prop file '// TRIM(Vap_props)
    OPEN(unit=52, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
    OPEN(unit=53, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_props) , STATUS='OLD', iostat=ioi2)
 
@@ -228,8 +228,11 @@ subroutine READ_INPUT_DATA()
 
    vapours%vapour_number = rowcol_count%rows
    vapours%vbs_bins      = rowcol_count%rows + 1
-   print*, 'Vapours available= ',  vapours%vapour_number
-   print*, 'Vapour bins + H2SO4', vapours%vbs_bins
+
+   write(buf,'(i0)') vapours%vapour_number
+   print FMT_SUB, 'Vapours available = '//TRIM(buf)
+   write(buf,'(i0)') vapours%vbs_bins
+   print FMT_SUB, 'Vapour bins + H2SO4 = '//TRIM(buf)
    !!! reading the vap names and vap vapour_properties
 
  do ii = 1, vapours%vapour_number+1

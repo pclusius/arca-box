@@ -6,10 +6,8 @@ USE constants
 USE AUXILLARIES
 use INPUT
 use OUTPUT
-#ifdef ISACDC
-  USE ACDC_NH3
-  USE ACDC_DMA
-#endif
+USE ACDC_NH3
+USE ACDC_DMA
 
 IMPLICIT NONE
 ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
@@ -26,8 +24,6 @@ INTEGER  :: I
 !...(1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
 INTEGER :: speed_up(10) = 1
 TYPE(error_type) :: error
-!Open error output file
-open(unit=333, file='error_output.txt')
 
   CALL read_input_data ! Declare most variables and read user input and options in input.f90
 
@@ -40,6 +36,10 @@ open(unit=333, file='error_output.txt')
   ALLOCATE(CH_GAS_DUMMY(size(SPC_NAMES)))
   CH_GAS_DUMMY = 0
 
+  !Open error output file
+  open(unit=333, file='output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_error_output.txt')
+
+  !Open output file
   CALL OPEN_GASFILE(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'.nc'), MODS, Description)
 
   print*,;print FMT_HDR, 'Beginning simulation' ! Information to user
@@ -312,9 +312,10 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
         end if
       END DO
       IF (check == 0 .and. I>LENV) THEN
-        print FMT_FAT0, 'You are using a compound which does not exist in chemistry: '//TRIM(MODS(i)%NAME)//' '
+        print FMT_FAT0, 'You are using an (organic?) compound which does not exist in chemistry: '//TRIM(MODS(i)%NAME)//' '
         IF (MODS(I)%COL > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (col) <- input from file.'
-        IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (shifters etc) <- modification of value.'
+        IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS - a function for input in use.'
+        IF (ABS(MODS(I)%SHIFT - 0) > 1d-100) print FMT_SUB, 'In INITFILE; &NML_MODS (shift) <- modification of value.'
         print FMT_MSG, 'Good bye.'
         STOP
       END IF
@@ -323,7 +324,8 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
       .or. (I==inm_NO) .or. (I==inm_NO2) .or. (I==inm_CO) .or. (I==inm_H2) .or. (I==inm_O3))  ) THEN
         print FMT_WARN0, 'A compound which does not exist in chemistry but could be used elsewhere: '//TRIM(MODS(i)%NAME)//' '
         IF (MODS(I)%COL > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (col) <- input from file.'
-        IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (shifters etc) <- modification of value.'
+        IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS - a function for input in use.'
+        IF (ABS(MODS(I)%SHIFT - 0) > 1d-100) print FMT_SUB, 'In INITFILE; &NML_MODS (shift) <- modification of value.'
       END IF
     END IF
   END DO
@@ -333,23 +335,31 @@ END SUBROUTINE CHECK_INPUT_AGAINST_KPP
 SUBROUTINE CONVERT_TEMPS_TO_KELVINS
   use constants, ONLY: UCASE
   IMPLICIT NONE
-  if (TRIM(UCASE(TempUnit)) /= TRIM(UCASE(MODS(inm_TempK)%UNIT)) .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) /= '#') THEN
-    print FMT_NOTE0, 'For temperature, MODS%UNIT has no effect. Use TempUnit in NML_ENV'
+
+  if ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
+    print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins."
+    TempUnit = 'K'
+  elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'K') THEN
+    TempUnit = 'K'
+  elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C') THEN
+    TempUnit = 'C'
   END IF
 
   IF (UCASE(TempUnit) == 'K') THEN
     print FMT_MSG, '- Temperature input in Kelvins.'
   ELSEIF (UCASE(TempUnit) == 'C') THEN
-    print FMT_MSG, '- Converting temperature from degrees C -> K (as defined in INITFILE: TempUnit).'
+    print FMT_MSG, '- Converting temperature from degrees C -> K.'
     MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
     MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
     CONC_MAT(:,inm_TempK) = CONC_MAT(:,inm_TempK) + 273.15d0
   ELSE
     print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
+    TempUnit = 'K'
   END IF
   IF ((TempUnit == 'C') .and. (  ABS(MODS(inm_TempK)%shift - 273.15)<1d0  )) THEN
     print FMT_WARN1, 'Temperature will be converted to Kelvins, but a suspicious constant is added: ',MODS(inm_TempK)%shift
   END IF
+  MODS(inm_TempK)%UNIT = TempUnit
 END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
 
 
