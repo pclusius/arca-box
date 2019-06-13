@@ -130,7 +130,7 @@ PURE type(timetype) function ADD(time, sec)
   END IF
 end function ADD
 
-REAL(dp) FUNCTION MOD_CONC(c, MODS)
+PURE REAL(dp) FUNCTION MOD_CONC(c, MODS)
   IMPLICIT NONE
   type(input_mod), INTENT(in) :: MODS
   REAL(dp), INTENT(in)        :: c
@@ -143,6 +143,7 @@ REAL(dp) FUNCTION MOD_CONC(c, MODS)
     MOD_CONC = NORMALD(MODS)
   END IF
 
+  ! If the concentration is a mixing ratio, defined in MODS%UNIT, it will be converted to number concentration
   if (UCASE(TRIM(MODS%UNIT)) == 'PPM') THEN
     MOD_CONC = MOD_CONC * 1d-6 * C_AIR_NOW
   elseif (UCASE(TRIM(MODS%UNIT)) == 'PPB') THEN

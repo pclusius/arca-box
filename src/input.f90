@@ -139,7 +139,7 @@ subroutine READ_INPUT_DATA()
   INDRELAY_CH = 0
   CALL NAME_MODS_SORT_NAMED_INDICES
   CALL READ_INIT_FILE
-  CALL FILL_INDRELAY_CH_WITH_INDICES
+  CALL REPORT_INPUT_COLUMNS_TO_USER
   CALL PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
 
   ! ALLOCATE CONC_MAT
@@ -188,7 +188,7 @@ subroutine READ_INPUT_DATA()
 
   ! check IF dmps data is used or not. If no then do nothing
   IF (USE_DMPS) then
-   write(*,FMT_SUB),'Reading DMPS file '// TRIM(DMPS_file)
+   write(*,FMT_SUB) 'Reading DMPS file '// TRIM(DMPS_file)
    OPEN(unit=51, File=TRIM(ADJUSTL(data_dir)) // '/' //TRIM(DMPS_dir)// '/'//TRIM(DMPS_file) , STATUS='OLD', iostat=ioi)
    IF (ioi /= 0) THEN
      print FMT_FAT0, 'DMPS file was defined but not readable, exiting. Check NML_DMPS in INIT file'
@@ -203,8 +203,8 @@ subroutine READ_INPUT_DATA()
   print FMT_LEND,
 
   IF (VAP_logical) then
-   write(*,FMT_SUB),'Reading Vapour name file '// TRIM(Vap_names)
-   write(*,FMT_SUB),'Reading Vapour prop file '// TRIM(Vap_props)
+   write(*,FMT_SUB) 'Reading Vapour name file '// TRIM(Vap_names)
+   write(*,FMT_SUB) 'Reading Vapour prop file '// TRIM(Vap_props)
    OPEN(unit=52, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
    OPEN(unit=53, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_props) , STATUS='OLD', iostat=ioi2)
 
@@ -287,7 +287,7 @@ subroutine READ_INIT_FILE
     STOP
   END IF
   ! INITFILE was found, reading it. In case there is a problem in namelist filling, give en error.
-  write(*,FMT_HDR), 'READING USER DEFINED INTIAL VALUES FROM: '//TRIM(ADJUSTL(Fname_init))
+  write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM: '//TRIM(ADJUSTL(Fname_init))
   READ(50,NML=NML_Path,  IOSTAT= IOS(2)) ! directories and test cases
     IF (IOS(2) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Path, maybe some undefinded INITFILE input?'
   READ(50,NML=NML_Flag,  IOSTAT= IOS(3)) ! flags
@@ -360,20 +360,20 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
 
 end subroutine NAME_MODS_SORT_NAMED_INDICES
 
-subroutine FILL_INDRELAY_CH_WITH_INDICES
+subroutine REPORT_INPUT_COLUMNS_TO_USER
   implicit none
   integer::i
   character(4) :: buffer
   DO i=1,N_VARS
-    IF (I==1) print FMT_MSG, 'Values from '//TRIM(ENV_file)//':'
-    IF (I==LENV) print FMT_MSG, 'Values from '//TRIM(ENV_file)//':'
+    IF (I==1) print FMT_MSG, 'ENV values from '//TRIM(ENV_file)//':'
+    IF ((I==LENV) .and. (maxval(MODS(LENV:)%col)>-1)) print FMT_MSG, 'MCM values from '//TRIM(ENV_file)//':'
     IF (MODS(I)%col > -1) THEN
       write(buffer, '(i0)') MODS(I)%col
-      print FMT_SUB, 'Values for '//TRIM(MODS(I)%NAME)//' will be read from column: '//TRIM(buffer)
+      print FMT_SUB, TRIM(MODS(I)%NAME)//' will be read from column: '//TRIM(buffer)
     END IF
   END DO
 
-end subroutine FILL_INDRELAY_CH_WITH_INDICES
+end subroutine REPORT_INPUT_COLUMNS_TO_USER
 
 SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
   implicit none

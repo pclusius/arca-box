@@ -70,9 +70,11 @@ open(unit=333, file='error_output.txt')
 ! =================================================================================================
 ! NUCLEATION
   if (NUCLEATION .and. (.not. error%error_state)) THEN
-#ifdef ISACDC
-    if (ACDC) CALL ACDC_J(TSTEP_CONC) ! SUBROUTINE in CONTAINS of this file
-#endif
+    if (ACDC) THEN
+      CALL ACDC_J(TSTEP_CONC)
+    else
+      CALL SOME_OTHER_NUCLEATION_TYPE
+    END if
   END if
 ! =================================================================================================
 
@@ -224,7 +226,7 @@ SUBROUTINE ACDC_J(C)
   ! ================================================================================================
 END SUBROUTINE ACDC_J
 
-SUBROUTINE SOME_OTHER_NUCLEATION_TYPE(J1, J2)
+SUBROUTINE SOME_OTHER_NUCLEATION_TYPE()
   IMPLICIT NONE
   REAL(dp) :: J1, J2
   J1 = 1d0
@@ -354,7 +356,6 @@ END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
 SUBROUTINE CONVERT_PRESSURE
   use constants, ONLY: UCASE
   IMPLICIT NONE
-  integer :: type
   character(5) :: buf
 
   buf = UCASE(TRIM(MODS(inm_pres)%UNIT))
