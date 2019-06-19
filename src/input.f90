@@ -16,7 +16,7 @@ INTEGER :: LENV   ! This will store the number of named indices in this code
 ! IF YOU ADD VARIABLES HERE, YOU NEED TO UPDATE:
 ! - this list
 !------------------------------------------------------------------
-INTEGER :: inm_tempK
+INTEGER :: inm_TempK
 INTEGER :: inm_pres
 INTEGER :: inm_RH
 INTEGER :: inm_CS
