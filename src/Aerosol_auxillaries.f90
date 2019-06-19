@@ -25,6 +25,21 @@ type :: vapour_ambient
   real(dp),allocatable :: molec_mass(:), molec_volume(:) !!! molecule mass and molecule volume
 end type vapour_ambient
 
+type aerosol_setup
+!!!! Contains setup for size bins, number of condensable compounds, distribution method (moving avg fully stationary, moving sections )
+ integer             ::  sections,   &    !! size sections used
+                         n_noncond,  &    !! number of non-condensable species
+                         n_cond,     &    !! number of condensable species
+                         tot_spec          !!! total number of species, cond+noncond
+
+ character(len=4)    ::  dist_type
+end type aerosol_setup
+!
+! type particle_properties
+! !!! Contains particle properties such as particle number_concentration
+!  real(dp) ::
+
+! end type particle_properties
 
 contains
 
