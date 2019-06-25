@@ -9,11 +9,13 @@
 
 ####### Flags setup True or false #######
 &NML_Flag
- Aerosol_flag   =   .True.,
- Chemistry_flag =   .True.,
- Particle_flag  =   .False.,
- Extra_data     =   .False.,
- Current_case   =   .True.,
+ Aerosol_flag        =   .True.,
+ Chemistry_flag      =   .True.,
+ Particle_flag       =   .False.,
+ Extra_data          =   .False.,
+ Current_case        =   .True.,
+ Condensation        =   .False.,
+ Coagulation         =   .True.,
 /
 
 !####### TIME related user input #####

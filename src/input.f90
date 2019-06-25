@@ -8,6 +8,7 @@ USE Aerosol_auxillaries
 
 Implicit none
 
+
 INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
 INTEGER :: LENV   ! This will store the number of named indices in this code
 
@@ -51,15 +52,18 @@ character(len=30) :: RUN_NAME   = ''
 NAMELIST /NML_Path/ Work_dir, Case_Dir, Case_name, RUN_NAME
 
 ! MODULES IN USE OPTIONS
-Logical :: Aerosol_flag   = .false.
-Logical :: Chemistry_flag = .false.
-Logical :: Particle_flag  = .false.
-Logical :: ACDC_solve_ss  = .false.
-Logical :: NUCLEATION     = .true.
-Logical :: ACDC           = .true.
-Logical :: Extra_data     = .false.
-Logical :: Current_case   = .false.
-NAMELIST /NML_Flag/ Aerosol_flag, chemistry_flag, particle_flag,ACDC_solve_ss,NUCLEATION,ACDC,Extra_data, Current_case
+Logical :: Aerosol_flag        = .false.
+Logical :: Chemistry_flag      = .false.
+Logical :: Particle_flag       = .false.
+Logical :: ACDC_solve_ss       = .false.
+Logical :: NUCLEATION          = .true.
+Logical :: ACDC                = .true.
+Logical :: Condensation        = .true.
+Logical :: Coagulation         = .true.
+Logical :: Extra_data          = .false.
+Logical :: Current_case        = .false.
+NAMELIST /NML_Flag/ Aerosol_flag, chemistry_flag, particle_flag,ACDC_solve_ss,NUCLEATION,ACDC, &
+         Extra_data, Current_case, Condensation, Coagulation
 
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0
@@ -106,7 +110,8 @@ character(len=256)  :: Vap_names
 character(len=256)  :: Vap_props
 NAMELIST /NML_VAP/ VAP_logical, Vap_names, Vap_props
 
-type(vapour_ambient) :: vapours
+type(vapour_ambient)      :: vapours
+
 
 contains
 
@@ -114,6 +119,7 @@ subroutine READ_INPUT_DATA()
   IMPLICIT NONE
   character(len=256)  :: data_dir, buf
   type(nrowcol)       :: rowcol_count
+  type(nrowcol)       :: AER_rowcol_count
   integer             :: ioi,ioi2, ii, iosp, ioprop
   !!! for vapour FILES
   character(len=256)  :: species_name
@@ -216,6 +222,7 @@ subroutine READ_INPUT_DATA()
        STOP
    END IF
 
+
    rowcol_count%rows = ROWCOUNT(52)
    rowcol_count%cols = COLCOUNT(53)
 
@@ -225,6 +232,8 @@ subroutine READ_INPUT_DATA()
    allocate(vapours%parameter_B(rowcol_count%rows + 1))
    allocate(vapours%molec_mass(rowcol_count%rows + 1))
    allocate(vapours%molec_volume(rowcol_count%rows + 1))
+   allocate(vapours%density(rowcol_count%rows + 1))
+   allocate(vapours%surf_tension(rowcol_count%rows + 1))
 
    vapours%vapour_number = rowcol_count%rows
    vapours%vbs_bins      = rowcol_count%rows + 1
@@ -244,19 +253,24 @@ subroutine READ_INPUT_DATA()
      vapours%parameter_B(ii)   = parameter_B
      vapours%vapour_names(ii)  = TRIM(species_name)
      vapours%molec_mass(ii)    = calculate_molecular_mass(molar_mass)
-     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density)
+     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density(ii))
+     vapours%density(ii)       = 1400.0  !!! kg/m3
+     vapours%surf_tension(ii)  = 0.05
    else !! h2so4
      vapours%molar_mass(ii)    = 98.0785
      vapours%parameter_A(ii)   = 3.869717803774
      vapours%parameter_B(ii)   = 313.607405085
      vapours%vapour_names(ii)  = 'H2S04'
      vapours%molec_mass(ii)    = calculate_molecular_mass(vapours%molar_mass(ii))
-     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density)
+     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density(ii))
+     vapours%density(ii)       = 1819.3946 !!! kg/m3
+     vapours%surf_tension(ii)  = 0.07
    end if
  end do
 
    close(52)
    close(53)
+
 
   end if
 
@@ -421,6 +435,8 @@ subroutine FILL_INPUT_BUFF(unit,rowcol_count, INPUT_BF,Input_file)
   END DO
   print FMT_MSG, 'Done filling input matrices...'
 end subroutine FILL_INPUT_BUFF
+
+
 
 
 

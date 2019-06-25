@@ -5,6 +5,7 @@ Use SECOND_PRECISION, only:dp
 Use AUXILLARIES
 
 
+
 implicit NONE
 PUBLIC
 
@@ -12,17 +13,18 @@ PUBLIC
 real(dp),dimension(3)::N_speed !! nucleation, condensation,coagulation
 real(dp) :: precision
 logical :: first_time
-
+character(len=256)  :: buf
 !!! This datatype contains all parameters for input vapours
 type :: vapour_ambient
   real(dp), allocatable :: molar_mass(:), parameter_A(:), parameter_B(:)
   character(len=256), allocatable :: vapour_names(:)
   real(dp) :: alpha        = 1.0
-  real(dp) :: density      = 1400.0
-  real(dp) :: surf_tension = 0.05
+  real(dp),allocatable  :: density(:)
+  real(dp), allocatable :: surf_tension(:)
   integer  :: vapour_number
   integer  :: vbs_bins
   real(dp),allocatable :: molec_mass(:), molec_volume(:) !!! molecule mass and molecule volume
+  real(dp),allocatable :: c_sat, vap_conc, vapout_type(:), condensing_type(:)
 end type vapour_ambient
 
 type aerosol_setup
@@ -34,12 +36,45 @@ type aerosol_setup
 
  character(len=4)    ::  dist_type
 end type aerosol_setup
-!
-! type particle_properties
-! !!! Contains particle properties such as particle number_concentration
-!  real(dp) ::
 
-! end type particle_properties
+type particle_properties
+!!! Contains particle properties such as particle number_concentration
+!!! the following n_conc ----> orifinal radius is of dimension sections (dimension(sections))
+!!! volume concentration is of dimension (sections, n_noncond+n_cond) ---> (dimension(sections, n_noncond+n_cond))
+!!! order is of size sections (dimension(sections))
+ real(dp),dimension(:), allocatable :: n_conc,       &       !!! number conc
+                                       radius,       &       !!! radius
+                                       rdry,         &       !!! dry radius
+                                       rdry_orig,    &       !!! dry radius original
+                                       mass,         &       !!! mass in sections
+                                       core,         &       !!! core volume in sections
+                                       gr,           &       !!! growth rate
+                                       orig_radius           !!! original radius
+
+ real(dp),dimension(:,:), allocatable :: vol_conc ! um^3/m^3
+
+ integer, dimension(:), allocatable   :: order !!! used for rearranging in bins
+
+
+end type particle_properties
+
+
+type ambient_properties
+  !!! contains variables related to vapors and ambient conditions
+   real(dp) ::         temp,      &
+                       pres,      &
+                       rh
+end type ambient_properties
+
+
+! type(aerosol_setup)       :: AER_setup
+! type(particle_properties) :: AER_par_prop
+!type(vapour_ambient)      :: vapours
+
+!call READ_INPUT_DATA
+type(vapour_ambient)      :: vapours_amb
+type(aerosol_setup)       :: AER_setup_mod
+type(particle_properties) :: AER_par_prop_mod
 
 contains
 
@@ -79,5 +114,41 @@ pure elemental function calculate_saturation_vp(A,B, Temperature) result(Vapour_
   Vapour_concentration = (vapour_pressure*101325)/(kb * temperature) ! #/m3
 
 end function calculate_saturation_vp
+
+
+subroutine allocate_and_setup(AER_setup_mod, AER_par_prop_mod, vapours_mod)
+  !!!This subroutine allocates dimensions and setup options suh as distribution use_dmps
+  !!!  Setup number of sections and condesable and non-condesable compounds
+  IMPLICIT none
+  type(aerosol_setup)       :: AER_setup_mod
+  type(particle_properties) :: AER_par_prop_mod
+  type(vapour_ambient)      :: vapours_mod
+
+
+  AER_setup_mod%sections   = 40
+  AER_setup_mod%n_noncond  = 0
+  AER_setup_mod%n_cond     = vapours_mod%vbs_bins
+  AER_setup_mod%tot_spec   = AER_setup_mod%n_noncond + AER_setup_mod%n_cond
+  AER_setup_mod%dist_type  = 'MVFS'
+
+  !!! Now allocate particle properties
+
+  allocate(AER_par_prop_mod%n_conc(AER_setup_mod%sections))
+  allocate(AER_par_prop_mod%radius(AER_setup_mod%sections))
+  allocate(AER_par_prop_mod%rdry(AER_setup_mod%sections))
+  allocate(AER_par_prop_mod%rdry_orig(AER_setup_mod%sections))
+  allocate(AER_par_prop_mod%core(AER_setup_mod%sections))
+  allocate(AER_par_prop_mod%mass(AER_setup_mod%sections))
+  allocate(AER_par_prop_mod%gr(AER_setup_mod%sections))
+  allocate(AER_par_prop_mod%orig_radius(AER_setup_mod%sections))
+
+  allocate(AER_par_prop_mod%order(AER_setup_mod%sections))
+
+  allocate(AER_par_prop_mod%vol_conc(AER_setup_mod%sections, AER_setup_mod%tot_spec))
+  print * ,'Numeber of sections available for  particle concentration is=', size(AER_par_prop_mod%n_conc)
+  print * ,'Numeber of sections x compounds for volume concentration is=', shape(AER_par_prop_mod%vol_conc)
+
+
+end SUBROUTINE allocate_and_setup
 
 End module aerosol_auxillaries

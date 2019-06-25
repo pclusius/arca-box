@@ -8,6 +8,7 @@ use INPUT
 use OUTPUT
 USE ACDC_NH3
 USE ACDC_DMA
+USE aerosol_auxillaries
 
 IMPLICIT NONE
 ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
@@ -24,6 +25,9 @@ INTEGER  :: I
 !...(1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
 INTEGER :: speed_up(10) = 1
 TYPE(error_type) :: error
+
+type(aerosol_setup)       :: AER_setup
+type(particle_properties) :: AER_par_prop
 
   CALL read_input_data ! Declare most variables and read user input and options in input.f90
 
@@ -120,12 +124,15 @@ END IF !ERROR hanldling
   END DO	! Main loop ends
 ! =================================================================================================
 
-  CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
+  !CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
   CALL CLOSE_FILES() !Close output file netcdf
 
   print *, ACHAR(10)," SIMULATION HAS ENDED. SO LONG!",ACHAR(10)
 
+  if (VAP_logical) then
+  call allocate_and_setup(AER_setup, AER_par_prop, vapours)
+  end if
 
 CONTAINS
 
@@ -311,7 +318,7 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
           exit
         end if
       END DO
-      IF (check == 0 .and. I>LENV) THEN
+IF (check == 0 .and. I>LENV) THEN
         print FMT_FAT0, 'You are using an (organic?) compound which does not exist in chemistry: '//TRIM(MODS(i)%NAME)//' '
         IF (MODS(I)%COL > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (col) <- input from file.'
         IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS - a function for input in use.'
@@ -406,5 +413,10 @@ SUBROUTINE CONVERT_PRESSURE
     end if
   end do
 END SUBROUTINE CONVERT_PRESSURE
+
+
+
+
+
 
 END PROGRAM SUPERMODEL

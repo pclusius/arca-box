@@ -27,7 +27,7 @@ ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ff
 CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Monitor.o)
 
 #BOX_OBJECTS = constants.o auxillaries.o input.o output.o
-BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o  output.o)
+BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o  Aerosol_auxillaries.o input.o  output.o)
 
 ACDC_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AN_ions.o monomer_settings_acdc_NH3_ions.o solution_settings.o driver_acdc_J_ions.o \
              acdc_equations_AN_ions.o get_acdc_J_ions.o)
