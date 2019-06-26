@@ -134,7 +134,7 @@ END IF !ERROR hanldling
   print *, ACHAR(10)," SIMULATION HAS ENDED. SO LONG!",ACHAR(10)
 
   if (VAP_logical) then
-  call allocate_and_setup(AER_setup, AER_par_prop, vapours, AER_init_dist,ambient)
+  call Aerosol_intialization(AER_setup, AER_par_prop, vapours, AER_init_dist,ambient)
   print*, shape(vapours%c_sat)
 
   end if

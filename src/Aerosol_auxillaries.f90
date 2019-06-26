@@ -119,7 +119,7 @@ pure elemental function calculate_saturation_vp(A,B, Temperature) result(Vapour_
 end function calculate_saturation_vp
 
 
-subroutine allocate_and_setup(AER_setup_mod, AER_par_prop_mod, vapours_mod,AER_init_dist_mod, ambient_mod)
+subroutine Aerosol_intialization(AER_setup_mod, AER_par_prop_mod, vapours_mod,AER_init_dist_mod, ambient_mod)
   !!!This subroutine allocates dimensions and setup options such as distribution, number and radius modes, section size
   !!!  Setup number of sections and condesable and non-condesable compounds
   IMPLICIT none
@@ -178,6 +178,6 @@ subroutine allocate_and_setup(AER_setup_mod, AER_par_prop_mod, vapours_mod,AER_i
    vapours_mod%c_sat(ii) = calculate_saturation_vp(vapours_mod%parameter_A(ii),vapours_mod%parameter_B(ii), ambient_mod%temp)
   end do
 
-end SUBROUTINE allocate_and_setup
+end SUBROUTINE Aerosol_intialization
 
 End module aerosol_auxillaries

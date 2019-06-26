@@ -13,7 +13,7 @@ Contains
 
 Subroutine condensation_routine()
 !!! This contains the condensation scheme
-print*,'Here'
+
 
 end subroutine condensation_routine
 
