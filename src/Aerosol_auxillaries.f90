@@ -13,7 +13,8 @@ PUBLIC
 real(dp),dimension(3)::N_speed !! nucleation, condensation,coagulation
 real(dp) :: precision
 logical :: first_time
-character(len=256)  :: buf
+integer :: ii
+
 !!! This datatype contains all parameters for input vapours
 type :: vapour_ambient
   real(dp), allocatable :: molar_mass(:), parameter_A(:), parameter_B(:)
@@ -24,7 +25,7 @@ type :: vapour_ambient
   integer  :: vapour_number
   integer  :: vbs_bins
   real(dp),allocatable :: molec_mass(:), molec_volume(:) !!! molecule mass and molecule volume
-  real(dp),allocatable :: c_sat, vap_conc, vapout_type(:), condensing_type(:)
+  real(dp),allocatable :: c_sat(:), vap_conc(:)!, vapout_type(:), condensing_type(:)
 end type vapour_ambient
 
 type aerosol_setup
@@ -32,9 +33,11 @@ type aerosol_setup
  integer             ::  sections,   &    !! size sections used
                          n_noncond,  &    !! number of non-condensable species
                          n_cond,     &    !! number of condensable species
-                         tot_spec          !!! total number of species, cond+noncond
+                         tot_spec,   &    !!! total number of species, cond+noncond
+                         init_modes       !!! initial particle modes
 
  character(len=4)    ::  dist_type
+ logical             ::  Use_Raoult, quasistationary
 end type aerosol_setup
 
 type particle_properties
@@ -66,15 +69,15 @@ type ambient_properties
                        rh
 end type ambient_properties
 
+type initial_distribution
+!!!contains parameters for initial particle size distribution
+!!! n_mode, sigma_mode, r_mode is of dimension(init_mode)
+!!! mfractions is of dimension tot_spec
+    real(dp) :: r_min,r_max                                       !!! dry minimum and maximum radius
+    real(dp),dimension(:),allocatable :: n_mode,sigma_mode,r_mode   !!! dimension(init mode) mode conc, mode deivation and radius of mode
+    real(dp),dimension(:),allocatable :: mfractions                 !!! dimension(tot_spec) mole fractions
+end type initial_distribution
 
-! type(aerosol_setup)       :: AER_setup
-! type(particle_properties) :: AER_par_prop
-!type(vapour_ambient)      :: vapours
-
-!call READ_INPUT_DATA
-type(vapour_ambient)      :: vapours_amb
-type(aerosol_setup)       :: AER_setup_mod
-type(particle_properties) :: AER_par_prop_mod
 
 contains
 
@@ -116,23 +119,27 @@ pure elemental function calculate_saturation_vp(A,B, Temperature) result(Vapour_
 end function calculate_saturation_vp
 
 
-subroutine allocate_and_setup(AER_setup_mod, AER_par_prop_mod, vapours_mod)
-  !!!This subroutine allocates dimensions and setup options suh as distribution use_dmps
+subroutine allocate_and_setup(AER_setup_mod, AER_par_prop_mod, vapours_mod,AER_init_dist_mod, ambient_mod)
+  !!!This subroutine allocates dimensions and setup options such as distribution, number and radius modes, section size
   !!!  Setup number of sections and condesable and non-condesable compounds
   IMPLICIT none
   type(aerosol_setup)       :: AER_setup_mod
   type(particle_properties) :: AER_par_prop_mod
   type(vapour_ambient)      :: vapours_mod
+  type(initial_distribution):: AER_init_dist_mod
+  type(ambient_properties)  :: ambient_mod
 
-
-  AER_setup_mod%sections   = 40
-  AER_setup_mod%n_noncond  = 0
-  AER_setup_mod%n_cond     = vapours_mod%vbs_bins
-  AER_setup_mod%tot_spec   = AER_setup_mod%n_noncond + AER_setup_mod%n_cond
-  AER_setup_mod%dist_type  = 'MVFS'
+ !!!!!! Setup aerosol
+  AER_setup_mod%sections        = 40
+  AER_setup_mod%n_noncond       = 0
+  AER_setup_mod%n_cond          = vapours_mod%vbs_bins
+  AER_setup_mod%tot_spec        = AER_setup_mod%n_noncond + AER_setup_mod%n_cond
+  AER_setup_mod%dist_type       = 'MVFS'
+  AER_setup_mod%Use_Raoult      = .True.
+  AER_setup_mod%quasistationary = .True.
+  AER_setup_mod%init_modes      = 2
 
   !!! Now allocate particle properties
-
   allocate(AER_par_prop_mod%n_conc(AER_setup_mod%sections))
   allocate(AER_par_prop_mod%radius(AER_setup_mod%sections))
   allocate(AER_par_prop_mod%rdry(AER_setup_mod%sections))
@@ -145,9 +152,31 @@ subroutine allocate_and_setup(AER_setup_mod, AER_par_prop_mod, vapours_mod)
   allocate(AER_par_prop_mod%order(AER_setup_mod%sections))
 
   allocate(AER_par_prop_mod%vol_conc(AER_setup_mod%sections, AER_setup_mod%tot_spec))
-  print * ,'Numeber of sections available for  particle concentration is=', size(AER_par_prop_mod%n_conc)
-  print * ,'Numeber of sections x compounds for volume concentration is=', shape(AER_par_prop_mod%vol_conc)
+  print * ,'Number of sections available for  particle concentration is=', size(AER_par_prop_mod%n_conc)
+  print * ,'Number of sections x compounds for volume concentration is=', shape(AER_par_prop_mod%vol_conc)
 
+  !!! Now allocating the initial distribution
+  allocate(AER_init_dist_mod%n_mode(AER_setup_mod%init_modes))
+  allocate(AER_init_dist_mod%sigma_mode(AER_setup_mod%init_modes))
+  allocate(AER_init_dist_mod%r_mode(AER_setup_mod%init_modes))
+  allocate(AER_init_dist_mod%mfractions(AER_setup_mod%tot_spec))
+
+  print * ,'Size of n_modes is =',     size(AER_init_dist_mod%n_mode)
+  print * ,'Size of mfractions is =',  shape(AER_init_dist_mod%mfractions)
+
+  AER_init_dist_mod%r_min     = 0.5d-9
+  AER_init_dist_mod%r_max     = 1.0d-5
+  AER_init_dist_mod%r_mode    = (/2.0d-8,1.0d-7/)/2.0
+  AER_init_dist_mod%n_mode    = (/1.0d7, 1.0d7/)
+  AER_init_dist_mod%sigma_mode= (/1.5, 1.3/)
+
+  !!! ambient Properties
+  ambient_mod%temp = 293.15 !! K
+  ambient_mod%rh   = 60.0   !! %
+  !!! saturation vapour pressure
+  do ii = 1, AER_setup_mod%tot_spec
+   vapours_mod%c_sat(ii) = calculate_saturation_vp(vapours_mod%parameter_A(ii),vapours_mod%parameter_B(ii), ambient_mod%temp)
+  end do
 
 end SUBROUTINE allocate_and_setup
 

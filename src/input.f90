@@ -102,15 +102,15 @@ NAMELIST /NML_MCM / MCM_path, MCM_file
 real(dp)  :: lat
 real(dp)  :: lon
 INTEGER   :: JD = -1
-CHARACTER(1000)  :: Description
-NAMELIST /NML_MISC/ JD, lat, lon, Description
+CHARACTER(1000)  :: Description, Solver
+NAMELIST /NML_MISC/ JD, lat, lon, Description,Solver
 
 Logical  :: VAP_logical = .False.
 character(len=256)  :: Vap_names
 character(len=256)  :: Vap_props
 NAMELIST /NML_VAP/ VAP_logical, Vap_names, Vap_props
 
-type(vapour_ambient)      :: vapours
+type(vapour_ambient)  :: vapours
 
 
 contains
@@ -119,7 +119,7 @@ subroutine READ_INPUT_DATA()
   IMPLICIT NONE
   character(len=256)  :: data_dir, buf
   type(nrowcol)       :: rowcol_count
-  type(nrowcol)       :: AER_rowcol_count
+
   integer             :: ioi,ioi2, ii, iosp, ioprop
   !!! for vapour FILES
   character(len=256)  :: species_name
@@ -234,6 +234,8 @@ subroutine READ_INPUT_DATA()
    allocate(vapours%molec_volume(rowcol_count%rows + 1))
    allocate(vapours%density(rowcol_count%rows + 1))
    allocate(vapours%surf_tension(rowcol_count%rows + 1))
+   allocate(vapours%c_sat(rowcol_count%rows + 1))
+   allocate(vapours%vap_conc(rowcol_count%rows + 1))
 
    vapours%vapour_number = rowcol_count%rows
    vapours%vbs_bins      = rowcol_count%rows + 1

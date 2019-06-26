@@ -71,6 +71,7 @@
   lon = 7
   JD  = 2
   Description = 'Just some testing'
+  Solver      = 'rk4'
 /
 
 ####### Vap stuff #####

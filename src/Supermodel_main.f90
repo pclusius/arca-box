@@ -9,6 +9,7 @@ use OUTPUT
 USE ACDC_NH3
 USE ACDC_DMA
 USE aerosol_auxillaries
+USE Aerosol
 
 IMPLICIT NONE
 ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
@@ -28,6 +29,8 @@ TYPE(error_type) :: error
 
 type(aerosol_setup)       :: AER_setup
 type(particle_properties) :: AER_par_prop
+type(initial_distribution):: AER_init_dist
+type(ambient_properties)  :: ambient
 
   CALL read_input_data ! Declare most variables and read user input and options in input.f90
 
@@ -131,7 +134,9 @@ END IF !ERROR hanldling
   print *, ACHAR(10)," SIMULATION HAS ENDED. SO LONG!",ACHAR(10)
 
   if (VAP_logical) then
-  call allocate_and_setup(AER_setup, AER_par_prop, vapours)
+  call allocate_and_setup(AER_setup, AER_par_prop, vapours, AER_init_dist,ambient)
+  print*, shape(vapours%c_sat)
+
   end if
 
 CONTAINS
