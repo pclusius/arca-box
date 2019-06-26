@@ -4,11 +4,8 @@ Use constants
 Use SECOND_PRECISION, only:dp
 Use AUXILLARIES
 
-
-
 implicit NONE
 PUBLIC
-
 
 real(dp),dimension(3)::N_speed !! nucleation, condensation,coagulation
 real(dp) :: precision

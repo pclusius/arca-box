@@ -22,6 +22,10 @@ REAL(dp) :: acdc_cluster_diam = 2.17d-9
 
 INTEGER  :: I
 
+real(dp), dimension(:), allocatable :: values !vapours%vapour_number
+real(dp) :: timestep, end_time
+
+
 !speed_up: factor for increasing integration time step for individual prosesses
 !...(1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
 INTEGER :: speed_up(10) = 1
@@ -31,6 +35,7 @@ type(aerosol_setup)       :: AER_setup
 type(particle_properties) :: AER_par_prop
 type(initial_distribution):: AER_init_dist
 type(ambient_properties)  :: ambient
+
 
   CALL read_input_data ! Declare most variables and read user input and options in input.f90
 
@@ -135,6 +140,7 @@ END IF !ERROR hanldling
 
   if (VAP_logical) then
   call Aerosol_intialization(AER_setup, AER_par_prop, vapours, AER_init_dist,ambient)
+  call condensation_routine(values,timestep,end_time)
   print*, shape(vapours%c_sat)
 
   end if
