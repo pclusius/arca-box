@@ -43,6 +43,13 @@ type(ambient_properties)  :: ambient
 
   CALL CHECK_INPUT_AGAINST_KPP
 
+  if (VAP_logical) then
+  call Aerosol_intialization(AER_setup, AER_par_prop, vapours, AER_init_dist,ambient)
+  !call condensation_routine(values,timestep,end_time,AER_setup, AER_par_prop,ambient)
+  print*, shape(vapours%c_sat)
+
+  end if
+
   ALLOCATE(TSTEP_CONC(N_VARS))
   TSTEP_CONC = 0
   ALLOCATE(CH_GAS_DUMMY(size(SPC_NAMES)))
@@ -91,6 +98,12 @@ type(ambient_properties)  :: ambient
 ! =================================================================================================
 
 ! Condensation
+if (VAP_logical) then
+
+call condensation_routine(values,timestep,end_time,AER_setup, AER_par_prop,ambient,vapours)
+print*, shape(vapours%c_sat)
+
+end if
 ! Coagulation
 ! Deposition
 
@@ -138,12 +151,6 @@ END IF !ERROR hanldling
 
   print *, ACHAR(10)," SIMULATION HAS ENDED. SO LONG!",ACHAR(10)
 
-  if (VAP_logical) then
-  call Aerosol_intialization(AER_setup, AER_par_prop, vapours, AER_init_dist,ambient)
-  call condensation_routine(values,timestep,end_time)
-  print*, shape(vapours%c_sat)
-
-  end if
 
 CONTAINS
 

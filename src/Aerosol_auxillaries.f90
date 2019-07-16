@@ -170,6 +170,7 @@ subroutine Aerosol_intialization(AER_setup_mod, AER_par_prop_mod, vapours_mod,AE
   !!! ambient Properties
   ambient_mod%temp = 293.15 !! K
   ambient_mod%rh   = 60.0   !! %
+
   !!! saturation vapour pressure
   do ii = 1, AER_setup_mod%tot_spec
    vapours_mod%c_sat(ii) = calculate_saturation_vp(vapours_mod%parameter_A(ii),vapours_mod%parameter_B(ii), ambient_mod%temp)

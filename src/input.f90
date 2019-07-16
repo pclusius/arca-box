@@ -255,8 +255,8 @@ subroutine READ_INPUT_DATA()
      vapours%parameter_B(ii)   = parameter_B
      vapours%vapour_names(ii)  = TRIM(species_name)
      vapours%molec_mass(ii)    = calculate_molecular_mass(molar_mass)
-     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density(ii))
      vapours%density(ii)       = 1400.0  !!! kg/m3
+     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density(ii))
      vapours%surf_tension(ii)  = 0.05
    else !! h2so4
      vapours%molar_mass(ii)    = 98.0785
@@ -264,8 +264,8 @@ subroutine READ_INPUT_DATA()
      vapours%parameter_B(ii)   = 313.607405085
      vapours%vapour_names(ii)  = 'H2S04'
      vapours%molec_mass(ii)    = calculate_molecular_mass(vapours%molar_mass(ii))
-     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density(ii))
      vapours%density(ii)       = 1819.3946 !!! kg/m3
+     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density(ii))
      vapours%surf_tension(ii)  = 0.07
    end if
  end do

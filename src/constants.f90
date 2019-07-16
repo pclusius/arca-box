@@ -11,7 +11,7 @@ real(dp), parameter   :: K0 = 273.15d0        ! [K] Zero degree celcius in K
 integer(ik), parameter:: min_s = 60           ! [s] seconds in minute
 integer(ik), parameter:: hour_s  = 3600       ! [s] seconds in hour
 integer(ik), parameter:: day_s = 24*hour_s
-
+real(dp), parameter   :: um3_to_m3 = (1D-6)**3 ! used for  vol_concentration
 ! ----------------------------------------------------------------
 ! USER-DEFINED TYPES
 
