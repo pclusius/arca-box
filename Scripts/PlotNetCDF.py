@@ -22,18 +22,29 @@ def uniq(list):
             chk.append(element)
     return chk
 pth = '/media/pecl/EE7B-B587/PC180416/N1/'
+pth = ''
 pth = '../output/'
 files=(['001NJ_D100.nc','001NJ_K-35_D100.nc','001NJ_K-70_D100.nc'])
 files=(['001NJ_nominal.nc','001NJ_K-35.nc','001NJ_K-70.nc','001NJ_CS05.nc','001NJ_K-35_CS05.nc','001NJ_K-70_CS05.nc'])
 files=([ 'NANJING_check.nc'])
 files=([ 'particle.nc'])
 files=([ 'Hyde_tempSensi.nc'])
-files = (['Hyde_180404_low_nh3.nc', 'Hyde_180404.nc'])
 files = (['Hyde_180407_low_nh3.nc', 'Hyde_180407.nc'])
 files = (['Hyde_180412_low_nh3.nc', 'Hyde_180412.nc'])
-files = (['Hyde_180410_low_nh3.nc', 'Hyde_180410.nc'])
-files = (['Hyde_180403_low_nh3.nc', 'Hyde_180403.nc'])
 files = (['Hyde_180423_low_nh3.nc', 'Hyde_180423.nc'])
+files = (['Hyde_180403_low_nh3.nc'])
+files = (['clustering_HighCS_SA_e5.nc','clustering_HighCS_SA_e6.nc','clustering_HighCS_SA_e7.nc','clustering_HighCS_SA_e8.nc'])
+files = (['clustering_SA_e4.nc','clustering_SA_e5.nc','clustering_SA_e6.nc','clustering_SA_e7.nc','clustering_SA_e8.nc'])
+files = (['clustering_SA_sigma.nc','clustering_SA_mean.nc'])
+files = (['Hyde_180404_low_nh3.nc', 'Hyde_180404.nc'])
+files = (['Hyde_180410.nc', 'Hyde_180410_no_SS.nc'])
+
+files = (['Hyde_180410_SS.nc', 'Hyde_180410_FF.nc'])
+files = (['/home/pecl/malte/dMalte/Malte_out/Box/PC170408/XM/particle.nc','/home/pecl/malte/dMalte/Malte_out/Box/PC180410/N1/particle.nc'])
+files = (['clustering_TEMP_sensi.nc', 'clustering_TEMP_sensi_LotsaNH3.nc'])
+files = (['clustering_TEMP_sensi.nc', 'clustering_TEMP_sensi_LotsaNH3.nc', 'clustering_TEMP_sensi_evenmoreNH3.nc'])
+files = (['clustering_TEMP_sensi_evenmoreNH3SA.nc', 'clustering_TEMP_sensi_evenmoreNH3.nc'])
+
 
 N_f = len(files)
 ncs = []

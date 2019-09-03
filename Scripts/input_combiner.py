@@ -1,13 +1,13 @@
 import numpy as np
 import scipy as sc
 from scipy.misc import derivative
-
+import scipy.interpolate
 import matplotlib.pyplot as plt
 '''
 This script combines different files to create input for SMAC.
 The first file in input vector defines the time column; other files are interpolated to that time.
 '''
-date = '180423'
+date = '180411'
 data_folder = '../input'
 filename    = date+'.dat'
 

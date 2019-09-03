@@ -4,18 +4,19 @@
  Work_Dir    =
  Case_Dir    =  'input'
  Case_name   =  'Hyde'
- RUN_NAME    =  'tempSensi'
-  RUN_NAME = '180403_low_nh3'
+ !RUN_NAME    =  'dmaSensi'
+! RUN_NAME = '180403_low_nh3'
+ !RUN_NAME = '180411'
 !  RUN_NAME = '180404_low_nh3'
 !  RUN_NAME = '180407_low_nh3'
-!  RUN_NAME = '180410_low_nh3'
+RUN_NAME = '180410_FF'
 !  RUN_NAME = '180412_low_nh3'
 !  RUN_NAME = '180423_low_nh3'
 /
 
 ####### Flags setup True or false #######
 &NML_Flag
- ACDC_solve_ss  =   .True.
+ ACDC_solve_ss  =   .false.
  Aerosol_flag   =   .True.,
  Chemistry_flag =   .True.,
  Particle_flag  =   .False.,
@@ -38,10 +39,11 @@
 
 ####### ENV file read #####
 &NML_ENV
-  ENV_file = '180403.dat'
+!ENV_file = '180403.dat'
+! ENV_file = '180411.dat'
 !  ENV_file = '180404.dat'
 !  ENV_file = '180407.dat'
-!  ENV_file = '180410.dat'
+ENV_file = '180410.dat'
 !  ENV_file = '180412.dat'
 !  ENV_file = '180423.dat'
   ENV_path         = '/home/pecl/APCAD/supermodel-phase-1/input'
@@ -60,14 +62,12 @@
 &NML_MODS
 MODS(1) = 0 2  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! TEMPK
 MODS(2) = 0 5  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! PRESSURE
-MODS(129) = 0 -1  1.00000d+00  1.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! PRESSURE
 MODS(3) = 0 3  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! REL_HUMIDITY
 MODS(4) = 0 4  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! CONDENS_SINK
 MODS(6) = 0 -1  1.00000d+00  3.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! ION_PROD_RATE
-MODS(7) = 0 6  1.00d+00  1.00000d+00  1.000000+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! H2SO4
+MODS(7) = 0 6  1.0d+00  0.00000d+00  1.000000+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! H2SO4
 MODS(8) = 0 7  1.00000d+00  0.00000d+02  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! NH3
-MODS(9)%shift = 10
-MODS(9) = 1 -1  1.00000d+00  0.00000d+00  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! DMA
+MODS(9) = 0 7  0.00d+00  0.00000d+00  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! DMA
 MODS(9)%UNIT = 'ppt'
 MODS(8)%UNIT = 'ppt'
 MODS(2)%UNIT = 'hPa'

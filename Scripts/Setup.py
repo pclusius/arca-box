@@ -75,10 +75,10 @@ def add_variable_to_selected(x='x'):
         frames[i].grid(row=i)
         mods[i].col = tk.IntVar()
         mods[i].col.set(-1)
-        mods[i].multi = tk.IntVar()
-        mods[i].multi.set(1)
-        mods[i].shift = tk.IntVar()
-        mods[i].shift.set(0)
+        mods[i].multi = tk.DoubleVar()
+        mods[i].multi.set(1.0)
+        mods[i].shift = tk.DoubleVar()
+        mods[i].shift.set(0.0)
         mods[i].name = name
         mods[i].Find = ind(name, VARS)+1
         print('Adding ', mods[i].name, ' to variables.')
@@ -275,13 +275,13 @@ def Stop():
 # Find the system type (Windows, Linux, Darwin (MacOS)) for system specific configuration
 os_name = platform.system()
 
-# rt = input('Please give runtime in hours (empty: 24 hours): ')
-#
+rt = input('Please give runtime in hours (empty: 24 hours): ')
+
 # if rt == float():
 #     rt = float(rt)
 # else:
 #     rt = 24.0
-
+#
 try:
     rt = float(rt)
 except:
