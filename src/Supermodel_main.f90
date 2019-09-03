@@ -8,6 +8,8 @@ use INPUT
 use OUTPUT
 USE ACDC_NH3
 USE ACDC_DMA
+USE aerosol_auxillaries
+USE Aerosol
 
 IMPLICIT NONE
 ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
@@ -20,16 +22,33 @@ REAL(dp) :: acdc_cluster_diam = 2.17d-9
 
 INTEGER  :: I
 
+real(dp), dimension(:), allocatable :: values !vapours%vapour_number
+real(dp) :: timestep, end_time
+
+
 !speed_up: factor for increasing integration time step for individual prosesses
 !...(1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
 INTEGER :: speed_up(10) = 1
 TYPE(error_type) :: error
+
+type(aerosol_setup)       :: AER_setup
+type(particle_properties) :: AER_par_prop
+type(initial_distribution):: AER_init_dist
+type(ambient_properties)  :: ambient
+
 
   CALL read_input_data ! Declare most variables and read user input and options in input.f90
 
   CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
 
   CALL CHECK_INPUT_AGAINST_KPP
+
+  if (VAP_logical) then
+  call Aerosol_intialization(AER_setup, AER_par_prop, vapours, AER_init_dist,ambient)
+  !call condensation_routine(values,timestep,end_time,AER_setup, AER_par_prop,ambient)
+  print*, shape(vapours%c_sat)
+
+  end if
 
   ALLOCATE(TSTEP_CONC(N_VARS))
   TSTEP_CONC = 0
@@ -79,6 +98,12 @@ TYPE(error_type) :: error
 ! =================================================================================================
 
 ! Condensation
+if (VAP_logical) then
+
+call condensation_routine(values,timestep,end_time,AER_setup, AER_par_prop,ambient,vapours)
+print*, shape(vapours%c_sat)
+
+end if
 ! Coagulation
 ! Deposition
 
@@ -120,7 +145,7 @@ END IF !ERROR hanldling
   END DO	! Main loop ends
 ! =================================================================================================
 
-  CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
+  !CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
   CALL CLOSE_FILES() !Close output file netcdf
 
@@ -311,7 +336,7 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
           exit
         end if
       END DO
-      IF (check == 0 .and. I>LENV) THEN
+IF (check == 0 .and. I>LENV) THEN
         print FMT_FAT0, 'You are using an (organic?) compound which does not exist in chemistry: '//TRIM(MODS(i)%NAME)//' '
         IF (MODS(I)%COL > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (col) <- input from file.'
         IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS - a function for input in use.'
@@ -409,5 +434,10 @@ SUBROUTINE CONVERT_PRESSURE
     end if
   end do
 END SUBROUTINE CONVERT_PRESSURE
+
+
+
+
+
 
 END PROGRAM SUPERMODEL
