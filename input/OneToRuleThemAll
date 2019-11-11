@@ -1,0 +1,87 @@
+####### model initialization setup ############
+
+&NML_path
+ Work_Dir    =
+ Case_Dir    =  'input'
+ Case_name   =  'Hyde'
+ RUN_NAME = '180499_reference'
+/
+
+####### Flags setup True or false #######
+&NML_Flag
+ ACDC_solve_ss  =   .false.
+ Aerosol_flag   =   .True.,
+ Chemistry_flag =   .True.,
+ Particle_flag  =   .False.,
+ Extra_data     =   .False.,
+ Current_case   =   .True.,
+ RESOLVE_BASE   =   .false.,
+ RESOLVE_BASE   =   .True.,
+/
+
+!####### TIME related user input #####
+&NML_TIME
+ dt             = 600
+ runtime        = 720
+ PRINT_INTERVAL = 600
+ FSAVE_INTERVAL = 600
+ FSAVE_DIVISION = 0
+/
+
+
+!####### dmps file read #####
+&NML_DMPS
+/
+
+####### ENV file read #####
+&NML_ENV
+!ENV_file = '180403.dat'
+ENV_file = '180411.dat'
+!  ENV_file = '180404.dat'
+! ENV_file = '180410.dat'
+!  ENV_file = '180412.dat'
+
+!  ENV_file = '180407.dat'
+  ENV_file = '180499.dat'
+  ENV_path         = '/home/pecl/APCAD/supermodel-phase-1/input'
+  TempUnit         = 'C' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
+/
+
+####### MCM file read #####
+&NML_MCM
+ MCM_path = !'/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
+ MCM_file = !'case_Nanjing1.txt'
+/
+
+
+####### MODS read #####
+#    mode col  multi        shift        min          max         sig        mju         fv         ph         am           name
+&NML_MODS
+MODS(1) = 0 2  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! TEMPK
+MODS(2) = 0 5  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! PRESSURE
+MODS(3) = 0 3  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! REL_HUMIDITY
+MODS(4) = 0 4  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! CONDENS_SINK
+MODS(6) = 0 -1  1.00000d+00  3.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! ION_PROD_RATE
+MODS(7) = 0 6  1.0d+0  0.00000d+00  1.000000+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! H2SO4
+MODS(8) = 0 7  1.00000d+00  0.00000d+02  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! NH3
+!MODS(9) = 0 7  0.00d+00  0.00000d+00  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! DMA
+MODS(16) = 0 8  2.00000d+00  0.00000d+00  1.00000d-03  5.00000d+00 1.000000d0 9.240000d0 6.620000d0 1.280000d0 1.000000d0 ! FORMATION_RATE
+MODS(9)%UNIT = 'ppt'
+MODS(8)%UNIT = 'ppt'
+MODS(2)%UNIT = 'hPa'
+/
+
+####### Misc stuff #####
+&NML_MISC
+  lat = 1
+  lon = 7
+  JD  = 2
+  Description = 'Just some testing'
+/
+
+####### Vap stuff #####
+&NML_VAP
+  Vap_logical = .True.
+  Vap_names   = 'Vapour_names.dat'
+  Vap_props   = 'Vapour_properties.dat'
+/
