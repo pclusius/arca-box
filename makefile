@@ -24,10 +24,13 @@ CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,z
 
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 
-CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Monitor.o)
+#CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Monitor.o)
+CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Parameters.o second_Initialize.o second_Util.o second_Monitor.o second_JacobianSP.o \
+               second_LinearAlgebra.o second_Jacobian.o second_Global.o second_Rates.o second_Integrator.o second_Function.o \
+               second_Model.o second_Main.o)
 
 #BOX_OBJECTS = constants.o auxillaries.o input.o output.o
-BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o Aerosol.o output.o)
+BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o Chemistry.o Aerosol.o output.o)
 
 ACDC_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AN_ions.o monomer_settings_acdc_NH3_ions.o solution_settings.o driver_acdc_J_ions.o \
              acdc_equations_AN_ions.o get_acdc_J_ions.o)
@@ -36,6 +39,7 @@ ACDC_D_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AD_new.o mon
                   acdc_equations_AD_new.o get_acdc_D.o)
 
 NETLIBS =  -I/usr/include -L/usr/lib/x86_64-linux-gnu/ -lnetcdf  -lnetcdff -lcurl
+#NETLIBS = -I$(NETCDF_INCLUDE) -L$(NETCDF_LIB) -L$(H5_LIB) -lnetcdf -lnetcdff -lcurl -lhdf5 -lhdf5_hl
 
 all: superbox.exe
 
@@ -52,8 +56,43 @@ $(OBJDIR)/Superbox.o: src/Supermodel_main.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(A
 	 $(F90) $(BOX_OPTS) -c $< -o $@
 
 # # Chemistry
-$(OBJDIR)/%.o: $(SRCDIR)/chemistry/%.f90
-	$(F90) $(CHEM_OPTS) -c $< -o $@
+#$(OBJDIR)/%.o: $(SRCDIR)/chemistry/%.f90#
+#	$(F90) $(CHEM_OPTS) -c $< -o $@
+
+
+# Chemistry
+
+$(OBJDIR)/second_Precision.o: chemistry/second_Precision.f90
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Parameters.o: chemistry/second_Parameters.f90 second_Precision.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Global.o: chemistry/second_Global.f90 second_Parameters.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Initialize.o: chemistry/second_Initialize.f90 second_Parameters.o second_Global.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Util.o: chemistry/second_Util.f90 second_Parameters.o second_Monitor.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Monitor.o: chemistry/second_Monitor.f90
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_JacobianSP.o: chemistry/second_JacobianSP.f90
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_LinearAlgebra.o: chemistry/second_LinearAlgebra.f90 second_Parameters.o second_JacobianSP.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Jacobian.o: chemistry/second_Jacobian.f90 second_Parameters.o second_JacobianSP.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Rates.o: chemistry/second_Rates.f90 second_Parameters.o second_Global.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Integrator.o: chemistry/second_Integrator.f90 second_Precision.o second_Global.o second_Parameters.o second_JacobianSP.o \
+second_LinearAlgebra.o second_Function.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Function.o: chemistry/second_Function.f90 second_Parameters.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Model.o: chemistry/second_Model.f90 second_Precision.o second_Parameters.o second_Global.o second_Function.o \
+second_Integrator.o second_Rates.o second_Jacobian.o second_LinearAlgebra.o second_Monitor.o second_Util.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/second_Main.o: chemistry/second_Main.f90 second_Model.o second_Initialize.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+
 
 
 # # Uhma (aerosols)
@@ -103,6 +142,9 @@ $(OBJDIR)/vode.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vode.f
 $(OBJDIR)/vodea.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vodea.f
 	gfortran -std=legacy -O3 -c $< -o $@
 
+$(OBJDIR)/chemistry.o: Chemistry.f90 data_format.o second_Parameters.o settings.o second_Main.o
+	$(F90) $(BOX_OPTS) -c $< -o $@
+
 # Actual model files
 $(OBJDIR)/%.o: $(SRCDIR)/%.f90
 	$(F90) $(BOX_OPTS) -c $< -o $@ $(NETLIBS)
@@ -112,9 +154,10 @@ BOX_MODS = $(BOX_OBJECTS:.o=.mod)
 
 # UHMA_MODS = $(UHMA_OBJECTS:.o=.mod)
 # CHEM_MODS = $(CHEM_OBJECTS:.o=.mod)
-CHEM_MODS = second_precision.mod second_monitor.mod #\second_parameters.mod second_initialize.mod second_util.mod second_jacobiansp.mod \
-#                second_linearalgebra.mod second_jacobian.mod second_global.mod second_rates.mod second_integrator.mod second_function.mod \
-#                second_model.mod second_main.mod
+CHEM_MODS = second_precision.mod second_monitor.mod second_parameters.mod second_initialize.mod second_util.mod second_jacobiansp.mod \
+                second_linearalgebra.mod second_jacobian.mod second_global.mod second_rates.mod second_integrator.mod second_function.mod \
+                second_model.mod second_main.mod
+
 ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
 ACDC_D_MODS = $(ACDC_D_OBJECTS:.o=.mod)
 
