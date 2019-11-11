@@ -59,12 +59,13 @@ Logical :: Particle_flag       = .false.
 Logical :: ACDC_solve_ss       = .false.
 Logical :: NUCLEATION          = .true.
 Logical :: ACDC                = .true.
+Logical :: model_H2SO4         = .false.
 Logical :: Condensation        = .true.
 Logical :: Coagulation         = .true.
 Logical :: Extra_data          = .false.
 Logical :: Current_case        = .false.
 NAMELIST /NML_Flag/ Aerosol_flag, chemistry_flag, particle_flag,ACDC_solve_ss,NUCLEATION,ACDC, &
-         Extra_data, Current_case, Condensation, Coagulation
+         Extra_data, Current_case, Condensation, Coagulation, model_H2SO4
 
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0

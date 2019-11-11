@@ -47,7 +47,7 @@ type input_mod
   CHARACTER(5)  :: UNIT = '#'      ! Unit for the given number. CASE INSENSITIVE
   CHARACTER(16) :: NAME = 'NONAME' ! Human readable name for modified variable
 
-  ! UNITS FOR INPUT:
+  ! UNITS FOR INPUT (case insensitive):
   ! #      = number contentration in 1/cm3. DEFAULT ASSUMPTION
   ! 'ppm'  = parts per million (1/1e6)
   ! 'ppb'  = parts per billion (1/1e9)

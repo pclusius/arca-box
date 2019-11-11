@@ -139,6 +139,8 @@ PROGRAM Supermodel
             Call CHEMCALC(CH_GAS, CH_TIME_kpp, CH_END_kpp, TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_swr), CH_Beta,  &
                           CH_H2O, C_AIR_NOW, TSTEP_CONC(inm_CS), TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
+            if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_SA)
+
         END IF
 
         ! =================================================================================================
