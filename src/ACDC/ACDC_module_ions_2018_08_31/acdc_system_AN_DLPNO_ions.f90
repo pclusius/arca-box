@@ -230,4 +230,3 @@ end subroutine monomer_indices
 
 
 end module acdc_system
-

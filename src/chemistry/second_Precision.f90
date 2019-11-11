@@ -1,10 +1,15 @@
-MODULE SECOND_PRECISION
 
-IMPLICIT NONE
+MODULE second_Precision
 
-PUBLIC
+!
+! Definition of different levels of accuracy
+! for REAL variables using KIND parameterization
+!
+! KPP SP - Single precision kind
+  INTEGER, PARAMETER :: sp = SELECTED_REAL_KIND(6,30)
+! KPP DP - Double precision kind
+  INTEGER, PARAMETER :: dp = SELECTED_REAL_KIND(14,300)
+! KPP QP - Quadruple precision kind
+  INTEGER, PARAMETER :: qp = SELECTED_REAL_KIND(18,400)
 
-INTEGER, PARAMETER :: dp = SELECTED_REAL_KIND(p=14, r=300)
-INTEGER, PARAMETER :: ik = SELECTED_INT_KIND(24)
-
-end MODULE SECOND_PRECISION
+END MODULE second_Precision

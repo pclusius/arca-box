@@ -16,9 +16,7 @@ Subroutine condensation_routine(values,timestep, end_time, setup, particle,ambie
 !!! This contains the condensation scheme
 implicit NONE
 
-
  real(dp),intent(in) :: timestep, end_time
-
 
  type(aerosol_setup),intent(in)       :: setup
  type(particle_properties),intent(in) :: particle

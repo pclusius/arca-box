@@ -1,5 +1,5 @@
 MODULE constants
-USE SECOND_PRECISION,  ONLY : dp, ik
+USE SECOND_PRECISION,  ONLY : dp, sp
 IMPLICIT NONE
 PUBLIC
 
@@ -8,10 +8,20 @@ real(dp), parameter   :: R  = 8.3144598       ! [J/K/mol] Universal gas constant
 real(dp), parameter   :: kb = R/Na            ! [J/K] Boltzmann constant
 real(dp), parameter   :: pi = ACOS(-1d0)      ! pi
 real(dp), parameter   :: K0 = 273.15d0        ! [K] Zero degree celcius in K
-integer(ik), parameter:: min_s = 60           ! [s] seconds in minute
-integer(ik), parameter:: hour_s  = 3600       ! [s] seconds in hour
-integer(ik), parameter:: day_s = 24*hour_s
+integer(sp), parameter:: min_s = 60           ! [s] seconds in minute
+integer(sp), parameter:: hour_s  = 3600       ! [s] seconds in hour
+integer(sp), parameter:: day_s = 24*hour_s
 real(dp), parameter   :: um3_to_m3 = (1D-6)**3 ! used for  vol_concentration
+
+! Saturation vapour pressure of water in Pa
+REAL, PARAMETER       :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
+                         a1 = 4.436518524E-1,  &
+                         a2 = 1.428945805E-2,  &
+                         a3 = 2.650648471E-4,  &
+                         a4 = 3.031240396E-6,  &
+                         a5 = 2.034080948E-8,  &
+                         a6 = 6.136820929E-11
+
 ! ----------------------------------------------------------------
 ! USER-DEFINED TYPES
 
@@ -23,7 +33,7 @@ type input_mod
   ! 0 = use values that are read in from column "col", possibly modifying by a factor or a constant
   ! 1 = Use NORMALD to create function in LINEAR mode
   ! 2 = Use NORMALD to create function in LOGARITMIC mode
-  integer   :: col = -1     ! Column for input in whatever file the value will be
+  integer   :: col = -1     ! Column for input in whatever file the value will be. if -1, only modifiers are used
 
   real(dp)  :: multi = 1d0  ! Multiplication factor in MODE0
   real(dp)  :: shift = 0d0  ! Constant to be added in MODE0
@@ -36,6 +46,8 @@ type input_mod
   real(dp)  :: am  = 1d0    ! Amplitude of modificaion
   CHARACTER(5)  :: UNIT = '#'      ! Unit for the given number. CASE INSENSITIVE
   CHARACTER(16) :: NAME = 'NONAME' ! Human readable name for modified variable
+
+  ! UNITS FOR INPUT:
   ! #      = number contentration in 1/cm3. DEFAULT ASSUMPTION
   ! 'ppm'  = parts per million (1/1e6)
   ! 'ppb'  = parts per billion (1/1e9)
@@ -100,7 +112,8 @@ REAL(dp) :: C_AIR_NOW
 CONTAINS
 
 ! =================================================================================================
-! Timetype update function.
+! Timetype update function. When timestep is added, this will update all other time-related
+! variables accordingly
 ! .................................................................................................
 PURE type(timetype) function ADD(time, sec)
   implicit none
@@ -130,6 +143,10 @@ PURE type(timetype) function ADD(time, sec)
   END IF
 end function ADD
 
+
+! =================================================================================================
+! Function to calculate concentrations based on the input units and modifyers
+! .................................................................................................
 PURE REAL(dp) FUNCTION MOD_CONC(c, MODS)
   IMPLICIT NONE
   type(input_mod), INTENT(in) :: MODS
@@ -191,6 +208,11 @@ PURE REAL(dp) FUNCTION NORMALD(MODS, timein)
   END IF
 end FUNCTION NORMALD
 
+
+
+!==============================================================================
+! Change character string to uppercase
+!..............................................................................
 PURE FUNCTION UCASE(word)
   IMPLICIT NONE
   character(*), INTENT(IN) :: word

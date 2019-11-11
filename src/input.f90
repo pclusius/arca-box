@@ -1,7 +1,7 @@
 Module INPUT
 ! Module to read init file
 
-USE second_precision
+USE second_precision, ONLY: dp
 use constants
 USE auxillaries
 USE Aerosol_auxillaries
@@ -21,6 +21,7 @@ INTEGER :: inm_TempK
 INTEGER :: inm_pres
 INTEGER :: inm_RH
 INTEGER :: inm_CS
+INTEGER :: inm_CS_NA
 INTEGER :: inm_swr
 INTEGER :: inm_IPR
 INTEGER :: inm_H2SO4
@@ -53,7 +54,7 @@ NAMELIST /NML_Path/ Work_dir, Case_Dir, Case_name, RUN_NAME
 
 ! MODULES IN USE OPTIONS
 Logical :: Aerosol_flag        = .false.
-Logical :: Chemistry_flag      = .false.
+Logical :: Chemistry_flag      = .true.
 Logical :: Particle_flag       = .false.
 Logical :: ACDC_solve_ss       = .false.
 Logical :: NUCLEATION          = .true.
@@ -99,11 +100,12 @@ character(len=256)  :: MCM_file = ''
 NAMELIST /NML_MCM / MCM_path, MCM_file
 
 ! MISC OPTIONS
-real(dp)  :: lat
-real(dp)  :: lon
+real(dp)  :: lat              ! Latitude for Photochemistry
+real(dp)  :: lon              ! Longitude for Photochemistry
+real(dp)  :: CH_Albedo = 2d-1 ! Albedo
 INTEGER   :: JD = -1
 CHARACTER(1000)  :: Description, Solver
-NAMELIST /NML_MISC/ JD, lat, lon, Description,Solver
+NAMELIST /NML_MISC/ JD, lat, lon, Description,Solver, CH_Albedo
 
 Logical  :: VAP_logical = .False.
 character(len=256)  :: Vap_names
@@ -361,6 +363,7 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
     IF (TRIM(MODS(I)%NAME) == 'PRESSURE'     ) inm_pres = i
     IF (TRIM(MODS(I)%NAME) == 'REL_HUMIDITY' ) inm_RH = i
     IF (TRIM(MODS(I)%NAME) == 'CONDENS_SINK' ) inm_CS = i
+    IF (TRIM(MODS(I)%NAME) == 'CON_SIN_NITR' ) inm_CS_NA = i
     IF (TRIM(MODS(I)%NAME) == 'SW_RADIATION' ) inm_swr = i
     IF (TRIM(MODS(I)%NAME) == 'ION_PROD_RATE') inm_IPR = i
     IF (TRIM(MODS(I)%NAME) == 'H2SO4'        ) inm_H2SO4 = i
@@ -386,9 +389,16 @@ subroutine REPORT_INPUT_COLUMNS_TO_USER
   DO i=1,N_VARS
     IF (I==1) print FMT_MSG, 'ENV values from '//TRIM(ENV_file)//':'
     IF ((I==LENV) .and. (maxval(MODS(LENV:)%col)>-1)) print FMT_MSG, 'MCM values from '//TRIM(ENV_file)//':'
+
     IF (MODS(I)%col > -1) THEN
       write(buffer, '(i0)') MODS(I)%col
-      print FMT_SUB, TRIM(MODS(I)%NAME)//' will be read from column: '//TRIM(buffer)
+      IF ((TRIM(ENV_file) == '') .and. (I<LENV)) THEN
+        print FMT_SUB, TRIM(MODS(I)%NAME)//' should be read from column: '//TRIM(buffer)//' but no ENV_FILE. Using parametrisation?'
+      ELSE IF ((TRIM(MCM_file) == '') .and. (I>LENV)) THEN
+        print FMT_SUB, TRIM(MODS(I)%NAME)//' should be read from column: '//TRIM(buffer)//' but no MCM_FILE. Using parametrisation?'
+      ELSE
+        print FMT_SUB, TRIM(MODS(I)%NAME)//' will be read from column: '//TRIM(buffer)
+      END IF
     END IF
   END DO
 
