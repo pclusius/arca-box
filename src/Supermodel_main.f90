@@ -107,7 +107,7 @@ PROGRAM Supermodel
         ! Assign values to input variables
 
         DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables that user can provide or tamper, and leave zero if no input or mod was provided
-            IF ((I==inm_TempK) .or. (MODS(I)%col>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift-0d0) > 1d-100)) THEN
+            IF ((I==inm_TempK) .or. (MODS(I)%col>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift) > 1d-100)) THEN
 
                 TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I)) .mod. MODS(I)
               ! INDRELAY(I)>0 means that user must have provided a column from an input file; MODS(I)%MODE > 0 means NORMALD is in use
@@ -141,7 +141,7 @@ PROGRAM Supermodel
 
             if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_SA)
 
-        END IF
+        END IF ! IF (Chemistry_flag)
 
         ! =================================================================================================
         ! NUCLEATION
@@ -344,7 +344,7 @@ CONTAINS
 
 
   ! ================================================================================================
-  ! Print out which modifiers differ from default values. If SHIFTER or MULTIPLYER differe from their
+  ! Print out which modifiers differ from default values. If SHIFTER or MULTIPLYER differ from their
   ! null value, this subroutine will pick them and print them for the user before the main loop starts
   ! ================================================================================================
   SUBROUTINE CHECK_MODIFIERS()
