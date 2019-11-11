@@ -1,0 +1,79 @@
+####### model initialization setup ############
+
+&NML_path
+ Work_Dir    =
+ Case_Dir    = 'input'
+ Case_name   = 'TESTING'
+ RUN_NAME    = 'simple_run'
+/
+
+####### Flags setup True or false #######
+&NML_Flag
+ ACDC_solve_ss  =   .False.
+ Aerosol_flag   =   .False.,
+ Chemistry_flag =   .True.,
+ Particle_flag  =   .False.,
+ Extra_data     =   .False.,
+ Current_case   =   .True.,
+/
+
+!####### TIME related user input #####
+&NML_TIME
+ runtime        = 1
+ PRINT_INTERVAL = 600
+ FSAVE_INTERVAL = 300
+ FSAVE_DIVISION = 0
+/
+
+
+!####### dmps file read #####
+&NML_DMPS
+/
+
+####### ENV file read #####
+&NML_ENV
+  ENV_file         = 'meas.dat'
+  ENV_path         = 'input'
+  TempUnit         = 'C' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
+/
+
+####### MCM file read #####
+&NML_MCM
+ MCM_path = ''
+ MCM_file = ''
+/
+
+####### MODS read #####
+#    mode col  multi        shift        min          max         sig        mju         fv         ph         am           name
+&NML_MODS
+MODS(1) = 0 -1  1.00000d+00  0  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0  ! TEMPK
+MODS(2) = 0 5  1.00000d+00  0.00000d+03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! PRESSURE
+MODS(3) = 0 -1  0.00000d+00  35.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! REL_HUMIDITY
+MODS(4) = 0 -1  0.00000d+00  2.00000d-3  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! CONDENS_SINK
+MODS(7) = 0 -1  1.00000d+00  3.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! ION_PROD_RATE
+MODS(8) = 0 -1  0.0d+00  5.00000d+06  1.000000+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! H2SO4
+MODS(9) = 0 -1  0.00000d+00  2.00000d+02  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! NH3
+MODS(10) = 0 -1  0.00d+00  2.00000d+02  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! DMA
+MODS(150) = 0 -1  1.00d+00  2.120000d+09  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! APINENE
+MODS(11) = 0 -1  1.00d+00  3.120000d+08  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! SO2
+MODS(12) = 0 -1  1.00d+00  3.120000d+08  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! NO
+MODS(16) = 0 -1  1.00d+00  3.120000d+09  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! O3
+MODS(9)%UNIT = 'ppt'
+MODS(8)%UNIT = 'ppt'
+MODS(2)%UNIT = 'hPa'
+/
+
+####### Misc stuff #####
+&NML_MISC
+  lat = 60
+  lon = 25
+  JD  = 91
+  Description = 'Just some testing'
+/
+
+####### Vap stuff #####
+&NML_VAP
+  Vap_logical = .True.
+  Vap_names   = 'Vapour_names.dat'
+  Vap_props   = 'Vapour_properties.dat'
+/
