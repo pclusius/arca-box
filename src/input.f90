@@ -8,7 +8,6 @@ USE Aerosol_auxillaries
 
 Implicit none
 
-
 INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
 INTEGER :: LENV   ! This will store the number of named indices in this code
 
@@ -16,6 +15,7 @@ INTEGER :: LENV   ! This will store the number of named indices in this code
 ! ALL VARIABLES THAT ARE TIME DEPENDENT MUST BE HERE
 ! IF YOU ADD VARIABLES HERE, YOU NEED TO UPDATE:
 ! - this list
+! - subroutine NAME_MODS_SORT_NAMED_INDICES
 !------------------------------------------------------------------
 INTEGER :: inm_TempK
 INTEGER :: inm_pres
@@ -33,6 +33,8 @@ INTEGER :: inm_NO2
 INTEGER :: inm_CO
 INTEGER :: inm_H2
 INTEGER :: inm_O3
+INTEGER :: inm_JNH3
+INTEGER :: inm_JDMA
 
 INTEGER, ALLOCATABLE :: INDRELAY_CH(:)
 
@@ -41,6 +43,9 @@ REAL(dp), allocatable, private :: INPUT_MCM(:,:)  ! will be of same shape as the
 REAL(dp), allocatable :: timevec(:)     ! Whatever the times were for (currently) ALL measurements
 REAL(dp), allocatable :: CONC_MAT(:,:)  ! will be of shape ( len(timevec) : N_VARS )
 real(dp), allocatable :: par_data(:,:)
+real(dp), allocatable :: par_xtra(:,:,:)
+real(dp), allocatable :: par_xtra_properties(:,:)
+CHARACTER(16), allocatable :: par_xtra_names(:)
 
 ! variable for storing init file name
 character(len=256), private :: Fname_init ! init file names
@@ -78,16 +83,43 @@ NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION
 ! MODS and UNITS are declared in CONSTANTS.f90, in order to be more widely available
 NAMELIST /NML_MODS/ MODS
 
+! ----------------------------------------------------------------------------------------------------------------------
+! Particle related variables
+INTEGER             :: PSD_MODE = 1
+! PSD representation used
+! 0 = Lukas basic
+! 1 = Lukas advanced
+! 2 = Lukas premium
+INTEGER             :: n_bins_particle = 100    ! number of bins in the particle range
+REAL(dp)            :: min_particle_diam = 1d-9 ! lower limit of particle range [m]
+REAL(dp)            :: max_particle_diam = 1d-6 ! upper limit of particle range [m]
+
 ! DMPS INPUT
+REAL(dp)            :: DMPS_read_in_time = 0d0
+
+! 6) PSD input as discussed: real (time, total conc in first two columns, diameter in first row and concentration matrix) (nr_times + 1, nr_channels + 2)
 character(len=256)  :: DMPS_dir
 character(len=256)  :: DMPS_file
-REAL(dp)            :: read_in_time = 0d0 ![seconds] !for use_dmps_special, read dmps data above this cut_off_diameter(m)
-REAL(dp)            :: dmps_upper_band_limit = 18.*1d-9 !for use_dmps_special, read dmps data above this cut_off_diameter(m)
-REAL(dp)            :: dmps_lower_band_limit = 6.*1d-10 !for use_dmps_special, read dmps data below this take_in_diameter(m)
+
+! 4) name list of species making up the particle phase (we think that this will only be a few species that are measured in the particle phase): integer
+! 5) number of nonvolatile species considered: integer
+! 7) Composition of the particles: real (time: first column, diameter: first row, species mass fraction matrix [1]) (nr_times + 1, nr_channels)
+INTEGER             :: n_xpar_options = 3    ! number of options in the extra_particles file, not including path and name
+! The list is needed for every species in the read in particle phase (see "4) name list of species ...") or we make one long list
+! (nr_times + 1, nr_bins * particle phase species)
+! Note: the number of channels does not have to be the number of size bins
+character(len=256)  :: extra_particles = '' ! file containing paths to extra particle sumfile
+REAL(dp)            :: dmps_highband_lower_limit = 15d-9    !for use_dmps_special, read all dmps data above this diameter [m]
+REAL(dp)            :: dmps_lowband_upper_limit = 6.*1d-10  !for use_dmps_special, read all dmps data below this diameter [m]
 logical             :: use_dmps = .false.
 logical             :: use_dmps_special = .false.
-NAMELIST /NML_DMPS/ DMPS_dir, DMPS_file,read_in_time,dmps_upper_band_limit, dmps_lower_band_limit,&
-use_dmps,use_dmps_special
+NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_particle,min_particle_diam,max_particle_diam, DMPS_dir, DMPS_file,extra_particles,&
+                        DMPS_read_in_time,dmps_highband_lower_limit, dmps_lowband_upper_limit,use_dmps,use_dmps_special
+
+
+
+!
+
 
 ! ENVIRONMENTAL INPUT
 character(len=256)  :: ENV_path = ''
@@ -105,8 +137,9 @@ real(dp)  :: lat              ! Latitude for Photochemistry
 real(dp)  :: lon              ! Longitude for Photochemistry
 real(dp)  :: CH_Albedo = 2d-1 ! Albedo
 INTEGER   :: JD = -1
+INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value for fixed amount of seconds
 CHARACTER(1000)  :: Description, Solver
-NAMELIST /NML_MISC/ JD, lat, lon, Description,Solver, CH_Albedo
+NAMELIST /NML_MISC/ JD, lat, lon, wait_for, Description,Solver, CH_Albedo
 
 Logical  :: VAP_logical = .False.
 character(len=256)  :: Vap_names
@@ -120,14 +153,14 @@ contains
 
 subroutine READ_INPUT_DATA()
   IMPLICIT NONE
-  character(len=256)  :: data_dir, buf
+  character(len=256)  :: buf
   type(nrowcol)       :: rowcol_count
 
   integer             :: ioi,ioi2, ii, iosp, ioprop
+  integer             :: i, j, k, z, xp, yp, path_l(2)
   !!! for vapour FILES
   character(len=256)  :: species_name
   real(dp)            :: molar_mass, parameter_A, parameter_B
-
 
   ! Welcoming message
   print'(a,t23,a)', achar(10),  '--~:| Gas and Aerosol Box Model - GAB v.0.1 |:~--'//achar(10)
@@ -174,6 +207,7 @@ subroutine READ_INPUT_DATA()
     OPEN(unit=51, File=TRIM(ENV_path) //'/'//TRIM(ENV_file), ACTION='READ', STATUS='OLD')
     rowcol_count%rows = ROWCOUNT(51,'#')
     rowcol_count%cols = COLCOUNT(51)
+
     ALLOCATE(INPUT_ENV(rowcol_count%rows,rowcol_count%cols))
     INPUT_ENV = 0
     call FILL_INPUT_BUFF(51,rowcol_count,INPUT_ENV,ENV_file)
@@ -197,18 +231,92 @@ subroutine READ_INPUT_DATA()
 
   ! check IF dmps data is used or not. If no then do nothing
   IF (USE_DMPS) then
-   write(*,FMT_SUB) 'Reading DMPS file '// TRIM(DMPS_file)
-   OPEN(unit=51, File=TRIM(ADJUSTL(data_dir)) // '/' //TRIM(DMPS_dir)// '/'//TRIM(DMPS_file) , STATUS='OLD', iostat=ioi)
-   IF (ioi /= 0) THEN
-     print FMT_FAT0, 'DMPS file was defined but not readable, exiting. Check NML_DMPS in INIT file'
-     STOP
-   END IF
-   rowcol_count%rows = ROWCOUNT(51,'#')
-   rowcol_count%cols = COLCOUNT(51)
-   allocate(par_data(rowcol_count%rows,rowcol_count%cols))
-  end if
+    write(*,FMT_SUB) 'Reading DMPS files '// TRIM(DMPS_file)
+    OPEN(unit=51, File=TRIM(DMPS_dir)// '/'//TRIM(DMPS_file) , STATUS='OLD', iostat=ioi)
+    IF (ioi /= 0) THEN
+      print FMT_FAT0, 'DMPS file was defined but not readable, exiting. Check NML_PARTICLE in INIT file'
+      STOP
+    END IF
+    rowcol_count%rows = ROWCOUNT(51,'#')
+    rowcol_count%cols = COLCOUNT(51)
 
-  CLOSE(51)
+    allocate(par_data(rowcol_count%rows,rowcol_count%cols))
+    DO I = 1, rowcol_count%rows
+      read(51,*) par_data(I,:)
+    END DO
+    CLOSE(51)
+
+
+    IF (extra_particles /= '') THEN
+      ! First we open the extra particle files to count the dimensions needed for the matrix
+      OPEN(unit=51, File=TRIM(extra_particles) , STATUS='OLD', iostat=ioi)
+      xp = 0
+      yp = 0
+      Z = ROWCOUNT(51)
+      DO I=1,Z
+        read(51,'(a)') buf
+
+        DO J=1, LEN(TRIM(BUF))
+          if (BUF(J:J) == ' ') EXIT
+        END DO
+
+        OPEN(unit=51 + I, File=TRIM(buf(1:J-1)) , STATUS='OLD', iostat=ioi)
+        if (ioi == 0) THEN
+          if (ROWCOUNT(51 + I) > yp) yp = ROWCOUNT(51 + I)
+          if (COLCOUNT(51 + I) > xp) xp = COLCOUNT(51 + I)
+          CLOSE(51 + I)
+        ELSE
+          print FMT_FAT0, 'Could not open extra particles file: "'//TRIM(buf)//'"'
+          stop
+        END IF
+      END DO
+      ! Now we can allocate it
+      allocate(par_xtra(Z,yp,xp))
+      allocate(par_xtra_names(Z))
+      allocate(par_xtra_properties(Z,n_xpar_options+2))
+
+      par_xtra = -999d0
+      par_xtra_names = 'XXX'
+      par_xtra_properties = 0d0
+      ! Then we loop through the files again and fill the extra particles
+      REWIND(51)
+
+      DO I=1,Z
+        read(51,'(a)') buf
+
+        path_l = 0
+        k = 1
+        DO J=2, LEN(TRIM(BUF))
+          if (BUF(J:J) == ' ' .and. BUF(J-1:J-1) /= ' ' .and. k<3) THEN
+            path_l(k) = J
+            k = k+1
+          END IF
+        END DO
+
+        par_xtra_names(I) = ADJUSTL(TRIM(BUF(path_l(1):path_l(2))))
+        read(BUF(path_l(2):), *) par_xtra_properties(I, 1:n_xpar_options)
+
+        OPEN(unit=51 + I, File=TRIM(buf(1:path_l(1))) , STATUS='OLD', iostat=ioi)
+        if (ioi/=0) print FMT_FAT0, 'Something wrong with extra particle file. They were just here, now unopenable.'
+        yp = ROWCOUNT(51+I)
+        xp = COLCOUNT(51+I)
+        par_xtra_properties(I, 4) = yp
+        par_xtra_properties(I, 5) = xp
+
+        DO j=1,yp
+          read(51+I,*) par_xtra(I,J,1:xp)
+        END DO
+        CLOSE(51 + I)
+      END DO
+      CLOSE(51)
+    END IF
+  end if
+  do i=1,Z
+    print FMT_MSG, 'Extra particle input for '//par_xtra_names(i)
+  end do
+
+
+
   print FMT_LEND,
 
   IF (VAP_logical) then
@@ -224,7 +332,6 @@ subroutine READ_INPUT_DATA()
        print FMT_FAT0, 'Vap_props was defined but not readable, exiting. Check NML_vap in INIT file'
        STOP
    END IF
-
 
    rowcol_count%rows = ROWCOUNT(52)
    rowcol_count%cols = COLCOUNT(53)
@@ -316,15 +423,14 @@ subroutine READ_INIT_FILE
     IF (IOS(3) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Flag, maybe some undefinded INITFILE input?'
   READ(50,NML=NML_TIME,  IOSTAT= IOS(4)) ! time related stuff
     IF (IOS(4) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_TIME, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_DMPS,  IOSTAT= IOS(5)) ! dmps_file information
-    IF (IOS(5) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_DMPS, maybe some undefinded INITFILE input?'
+  READ(50,NML=NML_PARTICLE,  IOSTAT= IOS(5)) ! dmps_file information
+    IF (IOS(5) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_PARTICLE, maybe some undefinded INITFILE input?'
   READ(50,NML=NML_ENV,  IOSTAT= IOS(6)) ! environmental information
     IF (IOS(6) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Temp, maybe some undefinded INITFILE input?'
   READ(50,NML=NML_MCM,   IOSTAT= IOS(7)) ! MCM_file information
     IF (IOS(7) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MCM, maybe some undefinded INITFILE input?'
   READ(50,NML=NML_MODS,  IOSTAT= IOS(8)) ! modification parameters
     IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MODS, maybe some undefinded INITFILE input?'
-
   READ(50,NML=NML_MISC,  IOSTAT= IOS(10)) ! misc input
     IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MISC, maybe some undefinded INITFILE input?'
   READ(50,NML=NML_VAP,  IOSTAT= IOS(11)) ! vapour input
@@ -376,6 +482,8 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
     IF (TRIM(MODS(I)%NAME) == 'CO'           ) inm_CO = i
     IF (TRIM(MODS(I)%NAME) == 'H2'           ) inm_H2 = i
     IF (TRIM(MODS(I)%NAME) == 'O3'           ) inm_O3 = i
+    IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_NH3' ) inm_JNH3 = i
+    IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_DMA' ) inm_JDMA = i
     IF (TRIM(MODS(I)%NAME) == '#'            ) LENV = i
 
   END DO
