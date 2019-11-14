@@ -19,7 +19,7 @@ PROGRAM Supermodel
 
     IMPLICIT NONE
 
-    INTEGER  :: I
+    INTEGER  :: I, k
 
     ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
     REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)
@@ -86,6 +86,19 @@ PROGRAM Supermodel
 
     !Open output file
     CALL OPEN_GASFILE(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'.nc'), MODS, Description)
+
+
+    do i=1, 2
+      print*,
+      print*, XTRAS(I)%name
+
+      print'("           ", 38(es9.2))', XTRAS(I)%sections
+      do k=1, size(XTRAS(I)%time)
+        print'(39(es9.2))', XTRAS(I)%time(k),XTRAS(I)%binseries(K,:)
+      end do
+    end do
+
+    CALL PAUSE_FOR_WHILE(wait_for)
 
     print*,;print FMT_HDR, 'Beginning simulation' ! Information to user
 
@@ -384,7 +397,7 @@ CONTAINS
   ! This subroutine converts pressure from all possible input units to Pa
   ! ================================================================================================
   SUBROUTINE CONVERT_PRESSURE
-    use constants, ONLY: UCASE
+    !use constants, ONLY: UCASE
     IMPLICIT NONE
     character(5) :: buf
 
@@ -499,7 +512,7 @@ CONTAINS
   ! way to define unit for temperature, this routine tries to tackle with all of them.
   ! ================================================================================================
   SUBROUTINE CONVERT_TEMPS_TO_KELVINS
-    use constants, ONLY: UCASE
+    !use constants, ONLY: UCASE
     IMPLICIT NONE
 
     if ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
@@ -568,5 +581,37 @@ CONTAINS
     CH_Beta   = 90d0 - acos(ZSR) * 180d0/PI
     IF (CH_Beta < 0d0) CH_Beta = 0d0
   END SUBROUTINE BETA
+
+  ! ================================================================================================
+  ! Give the user time to read through the input stuff and continue upon Enter, or wait for amount
+  ! defined in Wait_for (in INITFILE)
+  ! ================================================================================================
+  SUBROUTINE PAUSE_FOR_WHILE(for)
+    INTEGER :: for, rof
+    CHARACTER(3) :: secs
+    rof = for
+    if (for == 0) THEN
+      do while(rof == for)
+        print FMT_LEND,
+        print '(a,20(" "),a)', ACHAR(10),'Press any key to start the run or Ctrl-C to abort'
+        read(*,*)
+        print FMT_LEND,
+        for = -1
+      end do
+    ELSE IF (for > 0) THEN
+      write(secs,'(i0)') for
+      print FMT_LEND,
+      write(*, FMT_MSG) 'Starting in '//TRIM(secs)//' seconds'
+      write(*, '("    ")', advance = 'no')
+      do while (for>0)
+        CALL SLEEP(1)
+        for = for - 1
+        write(*, '("..", i0)', advance='no') for
+        if (MODULO(rof-for, 20) == 0) write(*,'(a,"    ")', advance='no') ACHAR(10)
+      END DO
+      write(*,*)
+      print FMT_LEND,
+    END IF
+  END SUBROUTINE PAUSE_FOR_WHILE
 
 END PROGRAM SUPERMODEL

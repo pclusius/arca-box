@@ -133,8 +133,8 @@ INTEGER FUNCTION COLCOUNT(file_id, separator)
   CHARACTER(6000)     :: buffer
   CHARACTER,OPTIONAL  :: separator
   CHARACTER           :: sep
-  logical             :: invalue = .false.
-
+  logical             :: invalue
+  invalue = .false.
   if(present(separator)) then
     sep = separator
   else
@@ -164,6 +164,7 @@ INTEGER FUNCTION COLCOUNT(file_id, separator)
   REWIND(file_id)
   CALL FSEEK(file_id, OFFSET, 0)
 END FUNCTION COLCOUNT
+
 
 !==============================================================================
 ! Function that linearily interpolates any value at current [time] (of
@@ -233,8 +234,8 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
 END FUNCTION INTERP
 
 !==============================================================================
-! Function finds out the internal index using the proper name. E.g. IndexFromName(APINENE)
-! will return 149 in current version.
+! Function finds out the internal index using the proper name. E.g. IndexFromName('APINENE')
+! will return 150 in current version.
 ! Input:
 ! name: the name (trimmed or untrimmed) of the variable. This name must match the name in NAMES.DAT exactly.
 ! Output:

@@ -34,7 +34,7 @@ RUN_NAME = '180410_FF'
 
 
 !####### dmps file read #####
-&NML_DMPS
+&NML_PARTICLE
 /
 
 ####### ENV file read #####

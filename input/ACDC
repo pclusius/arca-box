@@ -30,7 +30,7 @@
 
 
 !####### dmps file read #####
-&NML_DMPS
+&NML_PARTICLE
 /
 
 ####### ENV file read #####

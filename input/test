@@ -28,7 +28,11 @@
 
 
 !####### dmps file read #####
-&NML_DMPS
+&NML_PARTICLE
+use_dmps = .true.
+dmps_dir = 'input'
+dmps_file = 'dm1804.dat'
+extra_particles = '/home/pecl/APCAD/supermodel-phase-1/input/xtra.dat'
 /
 
 ####### ENV file read #####
@@ -83,6 +87,7 @@ MODS(8) = 0 -1  0.0d+00  5.00000d+06  1.000000+01  1.00000d+05 1.000000d0 12.000
   lat = 60
   lon = 25
   JD  = 91
+  wait_for  = 0
   Description = 'Just some testing'
 /
 

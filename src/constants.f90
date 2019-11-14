@@ -95,6 +95,15 @@ TYPE error_type
   CHARACTER(150) :: error_specification  !specification on error type (e.g."particle conc" during coagulation)
 END TYPE error_type
 
+TYPE inert_particles
+  REAL(dp), ALLOCATABLE :: binseries(:,:)
+  REAL(dp), ALLOCATABLE :: options(:)
+  REAL(dp), ALLOCATABLE :: time(:)
+  REAL(dp), ALLOCATABLE :: sections(:)
+  CHARACTER(20) :: name  !specification on error type (e.g."particle conc" during coagulation)
+END TYPE inert_particles
+
+
 ! ------------------------------------------------------------
 ! PROCEDURES
 interface operator(+)
