@@ -88,16 +88,16 @@ PROGRAM Supermodel
     CALL OPEN_GASFILE(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'.nc'), MODS, Description)
 
 
-    do i=1, size(XTRAS)
-      print*,
-      print*, XTRAS(I)%name
-
-      print'("           ", 38(es9.2))', XTRAS(I)%sections
-      do k=1, size(XTRAS(I)%time)
-        print'(39(es9.2))', XTRAS(I)%time(k),XTRAS(I)%binseries(K,:)
-      end do
-    end do
-
+    ! do i=1, size(XTRAS)
+    !   print*,
+    !   print*, XTRAS(I)%name
+    !
+    !   print'("           ", 38(es9.2))', XTRAS(I)%sections
+    !   do k=1, size(XTRAS(I)%time)
+    !     print'(39(es9.2))', XTRAS(I)%time(k),XTRAS(I)%binseries(K,:)
+    !   end do
+    ! end do
+    !
     CALL PAUSE_FOR_WHILE(wait_for)
 
     print*,;print FMT_HDR, 'Beginning simulation' ! Information to user
