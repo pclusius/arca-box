@@ -382,6 +382,7 @@ subroutine READ_INPUT_DATA()
 
   end if
 
+  CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
 
 end subroutine READ_INPUT_DATA
 
@@ -553,6 +554,132 @@ subroutine FILL_INPUT_BUFF(unit,rowcol_count, INPUT_BF,Input_file)
   print FMT_MSG, 'Done filling input matrices...'
 end subroutine FILL_INPUT_BUFF
 
+
+! ================================================================================================
+! Print out which modifiers differ from default values. If SHIFTER or MULTIPLYER differ from their
+! null value, this subroutine will pick them and print them for the user before the main loop starts
+! ================================================================================================
+SUBROUTINE CHECK_MODIFIERS()
+  IMPLICIT NONE
+  type(input_mod) :: test
+  integer         :: i,j=0
+  character(4)    :: cprf
+
+  print FMT_HDR, 'Check input validity'
+
+  CALL CONVERT_TEMPS_TO_KELVINS
+  CALL CONVERT_PRESSURE
+  
+  do i=1,size(MODS)
+      IF (MODS(i)%MODE > 0) THEN
+          print FMT_NOTE0, 'Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
+          j=1
+      ELSE
+          IF (ABS(MODS(i)%multi - test%multi) > 1d-9) THEN
+              print FMT_NOTE1, 'Multiplying '//TRIM(MODS(i)%name)//' with: ',MODS(i)%multi
+              j=1
+          END IF
+          if (ABS(MODS(i)%shift - test%shift) > 1d-9) THEN
+              if (TRIM(MODS(i)%UNIT) == '#') THEN
+                  cprf = '/cm3'
+              else
+                  cprf = ''
+              end if
+              print FMT_NOTE1, 'Adding a constant to '//TRIM(MODS(i)%name)//', [in '//TRIM(MODS(i)%UNIT)//TRIM(cprf)//']: ',MODS(i)%shift
+              j=1
+          END IF
+      END IF
+  END DO
+  if (j == 1) print FMT_LEND
+END SUBROUTINE CHECK_MODIFIERS
+
+
+  ! ================================================================================================
+  ! Subroutine converts temperature to Kelvins based on the user input. Since there is more than one
+  ! way to define unit for temperature, this routine tries to tackle with all of them.
+  ! ================================================================================================
+  SUBROUTINE CONVERT_TEMPS_TO_KELVINS
+    !use constants, ONLY: UCASE
+    IMPLICIT NONE
+
+    if ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
+        print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins."
+        TempUnit = 'K'
+    elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'K') THEN
+        TempUnit = 'K'
+    elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C') THEN
+        TempUnit = 'C'
+    END IF
+
+    IF (UCASE(TempUnit) == 'K') THEN
+        print FMT_MSG, '- Temperature input in Kelvins.'
+    ELSEIF (UCASE(TempUnit) == 'C') THEN
+        print FMT_MSG, '- Converting temperature from degrees C -> K.'
+        MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
+        MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
+        CONC_MAT(:,inm_TempK) = CONC_MAT(:,inm_TempK) + 273.15d0
+    ELSE
+        print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
+        TempUnit = 'K'
+    END IF
+    ! Check if a double conversion is attempted
+    IF ((TempUnit == 'C') .and. (  ABS(MODS(inm_TempK)%shift - 273.15)<1d0  )) THEN
+        print FMT_WARN1, 'Temperature will be converted to Kelvins, but an additional constant is added: ',MODS(inm_TempK)%shift
+    END IF
+    MODS(inm_TempK)%UNIT = TempUnit
+  END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
+
+
+! ================================================================================================
+! This subroutine converts pressure from all possible input units to Pa
+! ================================================================================================
+SUBROUTINE CONVERT_PRESSURE
+  !use constants, ONLY: UCASE
+  IMPLICIT NONE
+  INTEGER      :: i
+  character(5) :: buf
+
+  buf = UCASE(TRIM(MODS(inm_pres)%UNIT))
+  if (TRIM(buf) == 'HPA' .or. TRIM(buf) == 'MBAR') THEN
+      CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 100d0
+      MODS(inm_pres)%shift = MODS(inm_pres)%shift *100d0
+      print FMT_MSG, '- Converting pressure from hPa (mbar) to Pascals.'
+  elseif (TRIM(buf) == 'KPA') THEN
+      CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1000d0
+      MODS(inm_pres)%shift = MODS(inm_pres)%shift *1000d0
+      print FMT_MSG, '- Converting pressure from kPa to Pascals.'
+  elseif (TRIM(buf) == 'ATM') THEN
+      CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1.01325d5
+      MODS(inm_pres)%shift = MODS(inm_pres)%shift * 1.01325d5
+      print FMT_MSG, '- Converting pressure from atm to Pascals.'
+  elseif (TRIM(buf) == 'PA') THEN
+      print FMT_MSG, '- Pressure is given in Pascals.'
+  continue
+  else
+      if ((MODS(inm_pres)%MODE > 0) .or. (MODS(inm_pres)%col > 1)  .or. (ABS(MODS(inm_pres)%multi - 1d0)>1d-9) .or. (ABS(MODS(inm_pres)%shift)>1d-16)) THEN
+          if (TRIM(buf) == '#') THEN
+              print FMT_MSG, '- Assuming Pascals for pressure.'
+          else
+              print FMT_FAT0, 'Cannot recognize given unit "'//TRIM(MODS(inm_pres)%UNIT)//'" for pressure. Exiting. '
+              stop
+          end if
+      end if
+  end if
+
+  do i=1,N_VARS
+      buf = UCASE(TRIM(MODS(i)%UNIT))
+      if (TRIM(buf) /= '#' .and. i /= inm_pres .and. i /= inm_tempK) THEN
+          IF (TRIM(buf) /= 'PPM' .and. TRIM(buf) /= 'PPB' .and. TRIM(buf) /= 'PPT' .and. TRIM(buf) /= 'PPQ') THEN
+              print FMT_FAT0, 'Cannot recognize unit "'//TRIM(MODS(i)%UNIT)//'" for '//TRIM(MODS(i)%name)//'. Exiting. '
+              stop
+          ELSE
+              if ((MODS(i)%MODE > 0) .or. (MODS(i)%col > 1)  .or. (ABS(MODS(i)%multi - 1d0)>1d-9) .or. (ABS(MODS(i)%shift)>1d-16)) THEN
+                  print FMT_MSG, '- Converting '//TRIM(MODS(i)%name)//' from '//TRIM(MODS(i)%UNIT)
+              end if
+          END IF
+      end if
+  end do
+END SUBROUTINE CONVERT_PRESSURE
 
 
 

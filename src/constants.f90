@@ -95,12 +95,13 @@ TYPE error_type
   CHARACTER(150) :: error_specification  !specification on error type (e.g."particle conc" during coagulation)
 END TYPE error_type
 
+! Type for storing the (currently only the extra) particles
 TYPE inert_particles
-  REAL(dp), ALLOCATABLE :: binseries(:,:)
-  REAL(dp), ALLOCATABLE :: options(:)
-  REAL(dp), ALLOCATABLE :: time(:)
-  REAL(dp), ALLOCATABLE :: sections(:)
-  CHARACTER(20) :: name  !specification on error type (e.g."particle conc" during coagulation)
+  REAL(dp), ALLOCATABLE :: binseries(:,:) ! the time series and bins
+  REAL(dp), ALLOCATABLE :: options(:)     ! Additional information, like molar mass, density etc.
+  REAL(dp), ALLOCATABLE :: time(:)        ! Time vector of the particles
+  REAL(dp), ALLOCATABLE :: sections(:)    ! diameters for the centers of the sections
+  CHARACTER(20) :: name  ! Name for the stuff
 END TYPE inert_particles
 
 
