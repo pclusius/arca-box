@@ -88,7 +88,7 @@ PROGRAM Supermodel
     CALL OPEN_GASFILE(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'.nc'), MODS, Description)
 
 
-    do i=1, 2
+    do i=1, size(XTRAS)
       print*,
       print*, XTRAS(I)%name
 
