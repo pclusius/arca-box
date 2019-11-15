@@ -72,6 +72,9 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
   ! settings for netCDF4-file compression. shuff=1 might improve compression but is slower
   integer:: shuff=1, compress=1, compression=9
 
+
+
+
   ALLOCATE(multipl_ind(size(MODS)))
   ALLOCATE(shifter_ind(size(MODS)))
   print FMT_HDR, 'PREPARING OUTPUT FILES'
