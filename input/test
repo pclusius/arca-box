@@ -32,7 +32,7 @@
 use_dmps = .true.
 dmps_dir = 'input'
 dmps_file = 'dm1804.dat'
-extra_particles = '/home/pecl/APCAD/supermodel-phase-1/input/xtra.dat'
+!extra_particles = '/home/pecl/APCAD/supermodel-phase-1/input/xtra.dat'
 /
 
 ####### ENV file read #####

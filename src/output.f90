@@ -1,6 +1,7 @@
 MODULE OUTPUT
 use netcdf
 use CONSTANTS
+use INPUT
 use AUXILLARIES
 IMPLICIT NONE
 private
@@ -72,9 +73,6 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
   ! settings for netCDF4-file compression. shuff=1 might improve compression but is slower
   integer:: shuff=1, compress=1, compression=9
 
-
-
-
   ALLOCATE(multipl_ind(size(MODS)))
   ALLOCATE(shifter_ind(size(MODS)))
   print FMT_HDR, 'PREPARING OUTPUT FILES'
@@ -104,6 +102,11 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
 
   !Identifying different shapes for arrays
   !Ambient:
+
+  print*, LENV
+  stop
+
+
 
   !Ambient:
   call handler(nf90_def_var(gas_ncfile_id, "time", NF90_DOUBLE, gtime_id, gtimearr_id))
