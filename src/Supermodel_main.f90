@@ -19,7 +19,7 @@ PROGRAM Supermodel
 
     IMPLICIT NONE
 
-    INTEGER  :: I, k
+    INTEGER  :: I
 
     ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
     REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)
@@ -83,8 +83,9 @@ PROGRAM Supermodel
     !Open error output file
     open(unit=333, file='output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_error_output.txt')
 
+    CALL OPEN_FILES(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)), Description, MODS, CH_GAS, VAPOURS)
+
     !Open output file
-    CALL OPEN_GASFILE(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'.nc'), MODS, Description)
 
 
     ! do i=1, size(XTRAS)
@@ -120,12 +121,10 @@ PROGRAM Supermodel
 
         DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables that user can provide or tamper, and leave zero if no input or mod was provided
             IF ((I==inm_TempK) .or. (MODS(I)%col>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift) > 1d-100)) THEN
-
                 TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I)) .mod. MODS(I)
               ! INDRELAY(I)>0 means that user must have provided a column from an input file; MODS(I)%MODE > 0 means NORMALD is in use
             END IF
         END DO
-
 
         ! =================================================================================================
 
@@ -180,8 +179,7 @@ PROGRAM Supermodel
         ! =================================================================================================
         ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
           ! if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-          ! if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
-          !                             TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
+          ! if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
         ! =================================================================================================
 
         IF (error%error_state) THEN !ERROR handling
@@ -201,8 +199,7 @@ PROGRAM Supermodel
             ! =================================================================================================
             ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
             if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-            if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
-                TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
+            if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
             ! =================================================================================================
 
             ! =================================================================================================
@@ -372,8 +369,7 @@ CONTAINS
           print FMT_TIME, MODELTIME%hms
           CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
       END IF
-      if (.not. MODELTIME%savenow) call SAVE_GASES(TSTEP_CONC(inm_tempK), TSTEP_CONC(inm_H2SO4), &
-          TSTEP_CONC(inm_nh3), TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
+      if (.not. MODELTIME%savenow)  CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
   END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
 

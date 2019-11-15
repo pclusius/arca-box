@@ -241,14 +241,26 @@ END FUNCTION INTERP
 ! Output:
 ! integer
 !..............................................................................
-PURE INTEGER FUNCTION IndexFromName(name)
+PURE INTEGER FUNCTION IndexFromName(name, list_of_names)
   IMPLICIT NONE
   character(*), INTENT(IN) :: name
-  integer :: i
-  DO i=1, size(MODS)
-    if (TRIM(NAME) == TRIM(MODS(I)%NAME)) EXIT
-  END DO
+  character(*), optional, INTENT(IN) :: list_of_names(:)
+  integer :: i,m
+  if (PRESENT(list_of_names)) then
+    m = size(list_of_names)
+    DO i=1, m
+      if (TRIM(NAME) == TRIM(list_of_names(I))) EXIT
+    END DO
+  ELSE
+    m = size(MODS)
+    DO i=1, m
+      if (TRIM(NAME) == TRIM(MODS(I)%NAME)) EXIT
+    END DO
+  END IF
+
+  if (i == m+1) i=0
   IndexFromName = i
+
 END FUNCTION IndexFromName
 
 

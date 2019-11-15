@@ -160,7 +160,7 @@ subroutine READ_INPUT_DATA()
   real(dp)            :: molar_mass, parameter_A, parameter_B, fl_buff(2)
 
   ! Welcoming message
-  print'(a,t23,a)', achar(10),  '--~:| Gas and Aerosol Box Model - GAB v.0.1 |:~--'//achar(10)
+  print'(a,t35,a)', achar(10),  '--~:| HLS-BOX v.0.1 |:~--'//achar(10)
 
   ! CHECK HOW MANY POSSIBLE INPUT VARIABLES (METEOROLOGICAL, MCM ETC.) THERE ARE IN THE MODEL
   OPEN(2151, file='src/NAMES.dat', ACTION='READ', status='OLD', iostat=ioi)
@@ -518,7 +518,6 @@ SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
   integer :: i
 
   DO i=1,N_VARS
-    IF (MODS(I)%NAME == '#') lenv = i
     IF ((I < lenv) .and. (ENV_file /= '') .and. (MODS(I)%col > -1)) THEN
       CONC_MAT(:,I) = input_ENV(:,MODS(I)%col)
     END IF
