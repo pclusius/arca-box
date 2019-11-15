@@ -305,11 +305,11 @@ subroutine READ_INPUT_DATA()
 
     END DO
     CLOSE(51)
+    do i=1,Z
+      print FMT_MSG, 'Extra particle input for '//XTRAS(i)%name
+    end do
   END IF
 
-  do i=1,Z
-    print FMT_MSG, 'Extra particle input for '//XTRAS(i)%name
-  end do
 
 
 
@@ -569,7 +569,7 @@ SUBROUTINE CHECK_MODIFIERS()
 
   CALL CONVERT_TEMPS_TO_KELVINS
   CALL CONVERT_PRESSURE
-  
+
   do i=1,size(MODS)
       IF (MODS(i)%MODE > 0) THEN
           print FMT_NOTE0, 'Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
