@@ -46,6 +46,10 @@ type(parsave), ALLOCATABLE :: savepar(:)
 CONTAINS
 
 
+  ! --------------------------------------------------------------------------------------------------------------------
+  ! CREATE (OR OVERWRITE OLD) THREE NETCDF-FILES TO STORE OUTPUT. PARTICLES IS STILL VERY ROUGH SINCE WE DON'T HAVE THEM
+  ! YET, BUT GENERAL AND CHEMISTRY ARE THERE ALREADY.
+  ! --------------------------------------------------------------------------------------------------------------------
   SUBROUTINE OPEN_FILES(filename, Description, MODS, CH_GAS, vapours)
     IMPLICIT NONE
 
@@ -175,30 +179,26 @@ CONTAINS
   call handler(nf90_put_att(ncfile_ids(I), gJ_out_DMA_id, 'unit' , '[1/s/m^3]'))
 
 
+
   I=2 ! Chemical file
-
   do j = 1,size(CH_GAS)
-
       call handler(nf90_def_var(ncfile_ids(I), TRIM(SPC_NAMES(j)), NF90_DOUBLE, dtime_id, chem_ind(j)) )
       call handler(nf90_def_var_deflate(ncfile_ids(I), chem_ind(j), shuff, compress, compression) )
       call handler(nf90_put_att(ncfile_ids(I), chem_ind(j), 'unit' , '1/cm^3'))
-
   end do
 
 
-  I=3 ! Paricle file
 
+  I=3 ! Paricle file. Currently only condensibles are stored here. Particles are added when we get them.
   do j = 1,size(savepar)
     if (savepar(J)%d == 0) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dconstant_id  , savepar(J)%i) )
     if (savepar(J)%d == 3) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dbins_id, dtime_id])  , savepar(J)%i) )
     if (savepar(J)%d == 4) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dcons_id  , savepar(J)%i) )
     if (savepar(J)%d == 5) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcons_id,dtime_id])  , savepar(J)%i) )
     if (savepar(J)%d == 7) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcons_id,dbins_id,dtime_id])  , savepar(J)%i) )
-
     call handler(nf90_def_var_deflate(ncfile_ids(I), savepar(J)%i, shuff, compress, compression) )
     call handler(nf90_put_att(ncfile_ids(I), savepar(J)%i, 'unit' , savepar(J)%u))
   end do
-
 
   do j = 1,size(vapours%vapour_names)
     k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
@@ -210,8 +210,7 @@ CONTAINS
   end do
 
 
-
-  !Ending definition
+  ! Ending definition mode
   DO I=1,N_FILES
     call handler( nf90_enddef(ncfile_ids(I)))
   END DO
@@ -241,17 +240,9 @@ END SUBROUTINE OPEN_FILES
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+! --------------------------------------------------------------------------------------------------------------------
+! Here the input is written to netcdf-files. Again, particles still rudimentary
+! --------------------------------------------------------------------------------------------------------------------
 SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
   IMPLICIT NONE
   type(input_mod), INTENT(in)     :: MODS(:)
@@ -281,23 +272,20 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
     END IF
   end do
 
-
   call handler( nf90_put_var(ncfile_ids(I), gJ_out_NH3_id, J_ACDC_NH3, (/MODELTIME%ind_netcdf/)) )
   call handler( nf90_put_var(ncfile_ids(I), gJ_out_DMA_id, J_ACDC_DMA, (/MODELTIME%ind_netcdf/)) )
 
 
   I=2 ! Chemical file
-
   do j = 1,size(CH_GAS)
     call handler( nf90_put_var(ncfile_ids(I), chem_ind(j), CH_GAS(j), (/MODELTIME%ind_netcdf/)) )
   end do
 
-  I=3 ! Particle file
 
+  I=3 ! Particle file
   do j = 1,size(vapours%vapour_names)
     k = IndexFromName( vapours%vapour_names(j),   SPC_NAMES )
     if (k>0) call handler(nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(k), (/MODELTIME%ind_netcdf/)) )
-
   end do
 
   ! do j = 1,size(savepar)
@@ -308,7 +296,7 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
 END SUBROUTINE SAVE_GASES
 
 
-
+! Closes netcdf-files at the end of the run
 subroutine CLOSE_FILES()
   IMPLICIT NONE
   INTEGER :: I
@@ -321,6 +309,7 @@ subroutine CLOSE_FILES()
 
 end subroutine CLOSE_FILES
 
+! handler for NETCDF-calls, monitors errors
 subroutine HANDLER(status)
   IMPLICIT NONE
   INTEGER, intent(in) :: status
@@ -330,9 +319,9 @@ subroutine HANDLER(status)
   end if
 end subroutine HANDLER
 
+! Basically a dictionary for unit names in MODS. Relates input units to output units
 PURE CHARACTER(10) FUNCTION UNITS(unit)
   CHARACTER(*), intent(in) :: unit
-
   IF (UNIT == '#'   ) UNITS = '[1/cm^3]'
   IF (UNIT == 'ppm' ) UNITS = '[1/cm^3]'
   IF (UNIT == 'ppb' ) UNITS = '[1/cm^3]'
