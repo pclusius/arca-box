@@ -65,16 +65,16 @@ CONTAINS
     ! time | bins | condensables
     !  1      1          0         => 011 => parbuf(i)%d = 3
     i=1
-    parbuf(i)%name = 'NUMBER_CONCENTRATION'  ; parbuf(i)%u = '[1/m^3]'    ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
+    parbuf(i)%name = 'NUMBER_CONCENTRATION'  ; parbuf(i)%u = '[1/cm^3]'   ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'DIAMETER'              ; parbuf(i)%u = '[m]'        ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'DRY_DIAMETER'          ; parbuf(i)%u = '[m]'        ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'ORIGINAL_DRY_DIAMETER' ; parbuf(i)%u = '[m]'        ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'GROWTH_RATE'           ; parbuf(i)%u = '[m/s]'      ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'CORE_VOLUME'           ; parbuf(i)%u = '[m^3]'      ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'MASS'                  ; parbuf(i)%u = '[kg]'       ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
-    parbuf(i)%name = 'VOLUME_CONCENTRATION'  ; parbuf(i)%u = '[um^3/m^3]' ; parbuf(i)%d = 7 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
-    parbuf(i)%name = 'VAPOR_CONCENTRATION'   ; parbuf(i)%u = '[#/m^3]'    ; parbuf(i)%d = 5 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'SURFACE_TENSION'       ; parbuf(i)%u = '[N/m]'      ; parbuf(i)%d = 4 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
+    parbuf(i)%name = 'VAPOR_CONCENTRATION'   ; parbuf(i)%u = '[#/m^3]'    ; parbuf(i)%d = 5 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
+!    parbuf(i)%name = 'VOLUME_CONCENTRATION'  ; parbuf(i)%u = '[um^3/m^3]' ; parbuf(i)%d = 7 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
 
     allocate(savepar(i-1))
     savepar = parbuf(1:i-1)
@@ -107,16 +107,14 @@ CONTAINS
       open(720+I, FILE=ncfile_names(I), ERR = 100)
       close(720+I)
       ! Added compression for particle.nc, so we need to use netCDF4-file. Here used in classic mode
-      ! call handler( nf90_create(ncfile_names(I), IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), ncfile_ids(I)) )
-      call handler( nf90_create(ncfile_names(I), NF90_NETCDF4, ncfile_ids(I)) )
+      ! call handler( nf90_create(ncfile_names(I), NF90_NETCDF4, ncfile_ids(I)) )
+      call handler( nf90_create(ncfile_names(I), IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), ncfile_ids(I)) )
 
       ! Defining dimensions: time(unlimited), size sections, vapor_species
       call handler(nf90_def_dim(ncfile_ids(I), "time",NINT(MODELTIME%SIM_TIME_S/MODELTIME%FSAVE_INTERVAL+1), dtime_id) )
       call handler(nf90_def_dim(ncfile_ids(I), "bins",n_bins_particle, dbins_id) )
       call handler(nf90_def_dim(ncfile_ids(I), "condensables",n_condensables, dcons_id) )
       call handler(nf90_def_dim(ncfile_ids(I), "Constant",1, dconstant_id) )
-
-      !call handler(nf90_def_dim(ncfile_ids(I), "StringL",16, gstrlen_id) )
 
       !Create attributes for general stuff
       CALL get_command_argument(0, PROGRAM_NAME)
@@ -126,7 +124,6 @@ CONTAINS
       call handler(nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Package_Name:', TRIM(PROGRAM_NAME(3:))))
       call handler(nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Notes', TRIM(Description)))
       call handler(nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'experiment', 'Experiment set here'))
-
       call handler(nf90_def_var(ncfile_ids(I), "Time_in_sec", NF90_DOUBLE, dtime_id, timearr_id))
       call handler(nf90_def_var(ncfile_ids(I), "time_in_hrs", NF90_DOUBLE, dtime_id, hrsarr_id))
       ! COMPRESSION
@@ -135,10 +132,7 @@ CONTAINS
       call handler(nf90_put_att(ncfile_ids(I), timearr_id, 'unit' , '[s]'))
       call handler(nf90_put_att(ncfile_ids(I), hrsarr_id, 'unit' , '[hrs]'))
 
-
     END DO
-
-
 
   ALLOCATE(multipl_ind(size(MODS)))
   ALLOCATE(shifter_ind(size(MODS)))
@@ -148,7 +142,6 @@ CONTAINS
 
 
   I=1 ! GENERAL FILE
-
   do j = 1,size(MODS)
     IF ((TRIM(MODS(j)%name) /= '#')) THEN
       IF (j<LENV .or. INDRELAY_CH(j)>0) THEN
@@ -224,7 +217,7 @@ CONTAINS
   END DO
   print FMT_LEND,
 
-
+  ! Also save all settings to initfile. Use this file to rerun if necessary
   open(9129, file=filename//'_INITFILE.txt', action='WRITE')
   write(9129,NML=NML_Path)! directories and test cases
   write(9129,NML=NML_Flag)! flags
@@ -236,9 +229,6 @@ CONTAINS
   write(9129,NML=NML_MISC)! misc input
   write(9129,NML=NML_VAP)! vapour input
   close(9129)
-
-
-
 
 
   RETURN
@@ -302,13 +292,17 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
     call handler( nf90_put_var(ncfile_ids(I), chem_ind(j), CH_GAS(j), (/MODELTIME%ind_netcdf/)) )
   end do
 
-  I=3 ! Chemical file
+  I=3 ! Particle file
 
   do j = 1,size(vapours%vapour_names)
     k = IndexFromName( vapours%vapour_names(j),   SPC_NAMES )
     if (k>0) call handler(nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(k), (/MODELTIME%ind_netcdf/)) )
 
   end do
+
+  ! do j = 1,size(savepar)
+  !   if (savepar(J)%d == 0) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dconstant_id  , savepar(J)%i) )
+  ! end do
 
 
 END SUBROUTINE SAVE_GASES

@@ -215,8 +215,7 @@ PROGRAM Supermodel
     CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
     CALL CLOSE_FILES() !Close output file netcdf
-
-    print *, ACHAR(10)," SIMULATION HAS ENDED. SO LONG!",ACHAR(10)
+    CALL FAREWELL ! Ask if *general.nc is plotted
 
 CONTAINS
 
@@ -486,5 +485,19 @@ CONTAINS
       print FMT_LEND,
     END IF
   END SUBROUTINE PAUSE_FOR_WHILE
+
+  SUBROUTINE FAREWELL
+    IMPLICIT NONE
+    character(1) :: buf
+
+    write(*,*)
+    write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. Plot general output (requires Python3). y? '
+    read(*,*) buf
+    if (UCASE(buf) == 'Y') CALL EXECUTE_COMMAND_LINE('python3 Scripts/PlotNetCDF.py '//'output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_general.nc')
+    write(*, '(a)') ' SO LONG!'
+    write(*,*)
+    write(*,*)
+
+  END SUBROUTINE FAREWELL
 
 END PROGRAM SUPERMODEL
