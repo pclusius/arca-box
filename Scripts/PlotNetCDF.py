@@ -44,7 +44,7 @@ files = (['/home/pecl/malte/dMalte/Malte_out/Box/PC170408/XM/particle.nc','/home
 files = (['clustering_TEMP_sensi.nc', 'clustering_TEMP_sensi_LotsaNH3.nc'])
 files = (['clustering_TEMP_sensi.nc', 'clustering_TEMP_sensi_LotsaNH3.nc', 'clustering_TEMP_sensi_evenmoreNH3.nc'])
 files = (['clustering_TEMP_sensi_evenmoreNH3SA.nc', 'clustering_TEMP_sensi_evenmoreNH3.nc'])
-files = (['TESTING_simple_run.nc'])
+files = (['TESTING_simple_run_general.nc'])
 
 
 N_f = len(files)

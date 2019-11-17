@@ -77,7 +77,7 @@ INTEGER   :: FSAVE_DIVISION = 0
 NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION
 
 ! MODIFIER OPTIONS
-! MODS and UNITS are declared in CONSTANTS.f90, in order to be more widely available
+! MODS is declared in CONSTANTS.f90, in order to be more widely available
 NAMELIST /NML_MODS/ MODS
 
 ! ----------------------------------------------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ real(dp)  :: lon              ! Longitude for Photochemistry
 real(dp)  :: CH_Albedo = 2d-1 ! Albedo
 INTEGER   :: JD = -1
 INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value for fixed amount of seconds
-CHARACTER(1000)  :: Description, Solver
+CHARACTER(1000)  :: Description='*', Solver=''
 NAMELIST /NML_MISC/ JD, lat, lon, wait_for, Description,Solver, CH_Albedo
 
 Logical  :: VAP_logical = .False.
@@ -612,19 +612,19 @@ END SUBROUTINE CHECK_MODIFIERS
 
     IF (UCASE(TempUnit) == 'K') THEN
         print FMT_MSG, '- Temperature input in Kelvins.'
-    ELSEIF (UCASE(TempUnit) == 'C') THEN
+      ELSEIF (UCASE(TempUnit) == 'C') THEN
         print FMT_MSG, '- Converting temperature from degrees C -> K.'
         MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
         MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
         CONC_MAT(:,inm_TempK) = CONC_MAT(:,inm_TempK) + 273.15d0
-    ELSE
+      ELSE
         print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
-        TempUnit = 'K'
     END IF
     ! Check if a double conversion is attempted
     IF ((TempUnit == 'C') .and. (  ABS(MODS(inm_TempK)%shift - 273.15)<1d0  )) THEN
         print FMT_WARN1, 'Temperature will be converted to Kelvins, but an additional constant is added: ',MODS(inm_TempK)%shift
     END IF
+    TempUnit = 'K'
     MODS(inm_TempK)%UNIT = TempUnit
   END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
 
@@ -643,18 +643,17 @@ SUBROUTINE CONVERT_PRESSURE
       CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 100d0
       MODS(inm_pres)%shift = MODS(inm_pres)%shift *100d0
       print FMT_MSG, '- Converting pressure from hPa (mbar) to Pascals.'
-  elseif (TRIM(buf) == 'KPA') THEN
+    elseif (TRIM(buf) == 'KPA') THEN
       CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1000d0
       MODS(inm_pres)%shift = MODS(inm_pres)%shift *1000d0
       print FMT_MSG, '- Converting pressure from kPa to Pascals.'
-  elseif (TRIM(buf) == 'ATM') THEN
+    elseif (TRIM(buf) == 'ATM') THEN
       CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1.01325d5
       MODS(inm_pres)%shift = MODS(inm_pres)%shift * 1.01325d5
       print FMT_MSG, '- Converting pressure from atm to Pascals.'
-  elseif (TRIM(buf) == 'PA') THEN
+    elseif (TRIM(buf) == 'PA') THEN
       print FMT_MSG, '- Pressure is given in Pascals.'
-  continue
-  else
+    else
       if ((MODS(inm_pres)%MODE > 0) .or. (MODS(inm_pres)%col > 1)  .or. (ABS(MODS(inm_pres)%multi - 1d0)>1d-9) .or. (ABS(MODS(inm_pres)%shift)>1d-16)) THEN
           if (TRIM(buf) == '#') THEN
               print FMT_MSG, '- Assuming Pascals for pressure.'
@@ -664,6 +663,7 @@ SUBROUTINE CONVERT_PRESSURE
           end if
       end if
   end if
+  MODS(inm_pres)%UNIT = 'Pa'
 
   do i=1,N_VARS
       buf = UCASE(TRIM(MODS(i)%UNIT))

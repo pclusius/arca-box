@@ -343,7 +343,7 @@ CONTAINS
     real(dp), intent(in) :: C(:)
     print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]', 'Temp:', C(inm_TempK), 'Kelvin'
     print FMT10_CVU,'APINE C: ', C(IndexFromName('APINENE')), ' [1/cm3]'
-    print FMT10_2CVU,'Pressure: ', C(inm_pres), ' []', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
+    print FMT10_2CVU,'Pressure: ', C(inm_pres), ' [Pa]', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
     IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3*1d-6, ' [1/cm3]'
     IF (inm_DMA   /= 0) print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA*1d-6, ' [1/cm3]'
     print FMT10_3CVU, 'Jion neutral:', J_NH3_BY_IONS(1)*1d-6 , ' [1/s/cm3]','Jion neg:', J_NH3_BY_IONS(2)*1d-6 , ' [1/s/cm3]','Jion pos:', J_NH3_BY_IONS(3)*1d-6 , ' [1/s/cm3]'
@@ -384,7 +384,7 @@ CONTAINS
       print FMT_HDR, 'Checking against KPP for chemicals'
       do i=1,N_VARS
           check = 0
-          IF (MODS(I)%col > 0 .or. MODS(I)%MODE > 0 .or. ABS(MODS(I)%SHIFT - 0) > 1d-100) THEN
+          IF (MODS(I)%col > 0 .or. MODS(I)%MODE > 0 .or. ABS(MODS(I)%SHIFT) > 1d-100) THEN
               DO j=1,size(SPC_NAMES)
                   IF (MODS(i)%NAME == TRIM(SPC_NAMES(j))) THEN
                       check = 1
