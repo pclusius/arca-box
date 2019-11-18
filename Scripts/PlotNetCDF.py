@@ -31,7 +31,7 @@ def uniq(list):
 pth = '/media/pecl/EE7B-B587/PC180416/N1/'
 pth = ''
 pth = '../output/'
-files = (['TESTING_simple_run_general.nc'])
+files = (['TESTING_simple_run_chemical.nc'])
 
 import sys
 cmdline = False
@@ -89,7 +89,7 @@ radio = RadioButtons(rax, ('linear','log'), active=0)
 axrads = plt.axes([0.05, 0.1, 0.2, 0.8], facecolor='w')
 radplt = RadioButtons(axrads, (hnames), active=0)
 
-roundradios(axrads, radplt,2)
+roundradios(axrads, radplt,1)
 roundradios(rax, radio,1)
 
 def scalefunc(scale):

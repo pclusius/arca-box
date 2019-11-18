@@ -31,7 +31,8 @@ INTEGER, allocatable        :: par_ind(:)
 
 INTEGER :: dtime_id
 INTEGER :: dbins_id
-INTEGER :: dcons_id
+INTEGER :: dcond_id
+INTEGER :: dstring_id
 INTEGER :: dconstant_id
 INTEGER :: timearr_id
 INTEGER :: hrsarr_id
@@ -60,15 +61,18 @@ CONTAINS
     REAL(dp), INTENT(IN)            :: CH_GAS(:)
     CHARACTER(255)                  :: PROGRAM_NAME
     INTEGER                         :: i,j,k,lenD, n_condensables=0
+    INTEGER, PARAMETER              :: textdim = len(SPC_NAMES(1))
+    CHARACTER(textdim), ALLOCATABLE :: COND_NAMES(:)
 
     ! ---------------------------
     ! ------dimension bits-------
-    ! time | bins | condensables
-    !  1      2          4
+    ! time | bins | condensables | name
+    !  1      2          4           8
     ! eg. number concentration:
     ! time | bins | condensables
     !  1      1          0         => 011 => parbuf(i)%d = 3
     i=1
+    parbuf(i)%name = 'CONDENSABLES'          ; parbuf(i)%u = '[]'         ; parbuf(i)%d = -12; parbuf(i)%type = NF90_CHAR  ; i=i+1
     parbuf(i)%name = 'NUMBER_CONCENTRATION'  ; parbuf(i)%u = '[1/cm^3]'   ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'DIAMETER'              ; parbuf(i)%u = '[m]'        ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'DRY_DIAMETER'          ; parbuf(i)%u = '[m]'        ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
@@ -87,7 +91,15 @@ CONTAINS
       k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
       if (k>0) n_condensables=n_condensables+1
     end do
-
+    ALLOCATE(COND_NAMES(n_condensables))
+    i=1
+    do j = 1,size(vapours%vapour_names)
+      k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
+      if (k>0) THEN
+        COND_NAMES(i) = vapours%vapour_names(j)
+        i = i + 1
+      END IF
+    end do
 
     ! Print run description
     lenD = LEN(TRIM(Description))
@@ -116,8 +128,9 @@ CONTAINS
 
       ! Defining dimensions: time(unlimited), size sections, vapor_species
       call handler(nf90_def_dim(ncfile_ids(I), "time",NINT(MODELTIME%SIM_TIME_S/MODELTIME%FSAVE_INTERVAL+1), dtime_id) )
+      IF (I==3) call handler(nf90_def_dim(ncfile_ids(I), "string",textdim, dstring_id) )
       call handler(nf90_def_dim(ncfile_ids(I), "bins",n_bins_particle, dbins_id) )
-      call handler(nf90_def_dim(ncfile_ids(I), "condensables",n_condensables, dcons_id) )
+      call handler(nf90_def_dim(ncfile_ids(I), "condensables",n_condensables, dcond_id) )
       call handler(nf90_def_dim(ncfile_ids(I), "Constant",1, dconstant_id) )
 
       !Create attributes for general stuff
@@ -189,31 +202,46 @@ CONTAINS
 
 
 
-  I=3 ! Paricle file. Currently only condensibles are stored here. Particles are added when we get them.
+  I=3 ! Particle file. Currently only condensibles are stored here. Particles are added when we get them.
   do j = 1,size(savepar)
+
     if (savepar(J)%d == 0) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dconstant_id  , savepar(J)%i) )
     if (savepar(J)%d == 3) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dbins_id, dtime_id])  , savepar(J)%i) )
-    if (savepar(J)%d == 4) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dcons_id  , savepar(J)%i) )
-    if (savepar(J)%d == 5) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcons_id,dtime_id])  , savepar(J)%i) )
-    if (savepar(J)%d == 7) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcons_id,dbins_id,dtime_id])  , savepar(J)%i) )
+    if (savepar(J)%d == 4) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dcond_id  , savepar(J)%i) )
+    if (savepar(J)%d == 5) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcond_id,dtime_id])  , savepar(J)%i) )
+    if (savepar(J)%d == 7) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcond_id,dbins_id,dtime_id])  , savepar(J)%i) )
+    if (savepar(J)%d == -12) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dstring_id,dcond_id])  , savepar(J)%i) )
     call handler(nf90_def_var_deflate(ncfile_ids(I), savepar(J)%i, shuff, compress, compression) )
     call handler(nf90_put_att(ncfile_ids(I), savepar(J)%i, 'unit' , savepar(J)%u))
   end do
 
-  do j = 1,size(vapours%vapour_names)
-    k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
-    if (k>0) THEN
-      call handler(nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(j)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
-      call handler(nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
-      call handler(nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
-    end if
-  end do
+  ! do j = 1,size(vapours%vapour_names)
+  !   k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
+  !   if (k>0) THEN
+  !     call handler(nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(j)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
+  !     call handler(nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
+  !     call handler(nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
+  !   end if
+  ! end do
 
 
   ! Ending definition mode
   DO I=1,N_FILES
     call handler( nf90_enddef(ncfile_ids(I)))
   END DO
+
+  I=1
+
+  do j = 1,size(vapours%vapour_names)
+    k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
+    if (k>0) THEN
+      call handler( nf90_put_var(ncfile_ids(3), savepar(1)%i, COND_NAMES))
+      i=i+1
+    END IF
+
+  end do
+
+
   print FMT_LEND,
 
   ! Also save all settings to initfile. Use this file to rerun if necessary
@@ -243,15 +271,14 @@ END SUBROUTINE OPEN_FILES
 ! --------------------------------------------------------------------------------------------------------------------
 ! Here the input is written to netcdf-files. Again, particles still rudimentary
 ! --------------------------------------------------------------------------------------------------------------------
-SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
+SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA)
   IMPLICIT NONE
   type(input_mod), INTENT(in)     :: MODS(:)
   real(dp), INTENT(in)            :: TSTEP_CONC(:)
   real(dp), INTENT(in)            :: CH_GAS(:)
-  TYPE(vapour_ambient),INTENT(IN) :: vapours
   real(dp), INTENT(in)            :: J_ACDC_NH3
   real(dp), INTENT(in)            :: J_ACDC_DMA
-  INTEGER                         :: i,j, k
+  INTEGER                         :: i,j
 
   DO I = 1,N_FILES
     call handler( nf90_put_var(ncfile_ids(I), timearr_id, MODELTIME%sec, (/MODELTIME%ind_netcdf/) ))
@@ -282,12 +309,12 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
   end do
 
 
-  I=3 ! Particle file
-  do j = 1,size(vapours%vapour_names)
-    k = IndexFromName( vapours%vapour_names(j),   SPC_NAMES )
-    if (k>0) call handler(nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(k), (/MODELTIME%ind_netcdf/)) )
-  end do
-
+  ! I=3 ! Particle file
+  ! do j = 1,size(vapours%vapour_names)
+  !   k = IndexFromName( vapours%vapour_names(j),   SPC_NAMES )
+  !   if (k>0) call handler(nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(k), (/MODELTIME%ind_netcdf/)) )
+  ! end do
+  !
   ! do j = 1,size(savepar)
   !   if (savepar(J)%d == 0) call handler(nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dconstant_id  , savepar(J)%i) )
   ! end do

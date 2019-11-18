@@ -199,7 +199,7 @@ PROGRAM Supermodel
             ! =================================================================================================
             ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
             if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-            if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
+            if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA)
             ! =================================================================================================
 
             ! =================================================================================================
@@ -354,7 +354,7 @@ CONTAINS
 
 
   ! =================================================================================================
-  ! If user had opted a save or print interval which does not concide with last timestep, we print
+    ! If user had opted a save or print interval which does not concide with last timestep, we print
   ! and save the values at last timesteps
   ! =================================================================================================
   SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
@@ -368,7 +368,7 @@ CONTAINS
           print FMT_TIME, MODELTIME%hms
           CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
       END IF
-      if (.not. MODELTIME%savenow)  CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
+      if (.not. MODELTIME%savenow)  CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA)
   END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
 
@@ -494,7 +494,7 @@ CONTAINS
     write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. Plot general output (requires Python3). y? '
     read(*,*) buf
     if (UCASE(buf) == 'Y') CALL EXECUTE_COMMAND_LINE('python3 Scripts/PlotNetCDF.py '//'output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_general.nc')
-    write(*, '(a)') ' SO LONG!'
+    write(*, '(a)') 'SO LONG!'
     write(*,*)
     write(*,*)
 

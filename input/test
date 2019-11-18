@@ -20,7 +20,7 @@
 
 !####### TIME related user input #####
 &NML_TIME
- runtime        = 1
+ runtime        = 5
  PRINT_INTERVAL = 600
  FSAVE_INTERVAL = 600
  FSAVE_DIVISION = 0
