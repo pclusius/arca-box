@@ -135,8 +135,10 @@ real(dp)  :: lon              ! Longitude for Photochemistry
 real(dp)  :: CH_Albedo = 2d-1 ! Albedo
 INTEGER   :: JD = -1
 INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value for fixed amount of seconds
-CHARACTER(1000)  :: Description='*', Solver=''
-NAMELIST /NML_MISC/ JD, lat, lon, wait_for, Description,Solver, CH_Albedo
+LOGICAL   :: python   = .false. ! 1 = the program will offer to plot the output file GENERAL
+CHARACTER(1000)  :: Description='*'
+CHARACTER(100)   :: Solver = ''
+NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo
 
 Logical  :: VAP_logical = .False.
 character(len=256)  :: Vap_names

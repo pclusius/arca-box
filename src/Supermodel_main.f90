@@ -491,9 +491,13 @@ CONTAINS
     character(1) :: buf
 
     write(*,*)
-    write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. Plot general output (requires Python3). y? '
-    read(*,*) buf
-    if (UCASE(buf) == 'Y') CALL EXECUTE_COMMAND_LINE('python3 Scripts/PlotNetCDF.py '//'output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_general.nc')
+    IF (python) THEN
+      write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. Plot general output (requires Python3). y? '
+      read(*,*) buf
+      if (UCASE(buf) == 'Y') CALL EXECUTE_COMMAND_LINE('python3 Scripts/PlotNetCDF.py '//'output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_general.nc')
+    ELSE
+      write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. '
+    END IF
     write(*, '(a)') 'SO LONG!'
     write(*,*)
     write(*,*)

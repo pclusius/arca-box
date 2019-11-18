@@ -20,7 +20,7 @@
 
 !####### TIME related user input #####
 &NML_TIME
- runtime        = 5
+ runtime        = 1
  PRINT_INTERVAL = 600
  FSAVE_INTERVAL = 600
  FSAVE_DIVISION = 0
@@ -88,6 +88,7 @@ MODS(152) = 0 -1  1.00d+00  2.120000d+09  1.00000d+01  2.00000d+02 2.710000d0 12
   lon = 25
   JD  = 91
   wait_for  = 0
+  python  = T
   Description = 'Just some testing'
 /
 
