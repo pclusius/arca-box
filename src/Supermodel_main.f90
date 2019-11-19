@@ -297,7 +297,7 @@ CONTAINS
     real(dp), intent(in) :: C(:)
     real(dp)             :: H2SO4=0,NH3=0,DMA=0,IPR=0 ! these are created to make the unit conversion
 
-    ! NUCLEATION BY S-ACID AND NH3 - NOTE: ingoing concentrations are assumed to be in 1/m3!!
+    ! NUCLEATION BY S-ACID AND NH3 - NOTE: in ACDC, ingoing concentrations are assumed to be in 1/m3!!
     IF (inm_H2SO4 /= 0) H2SO4 = C(inm_H2SO4)*1d6
     IF (inm_NH3   /= 0) NH3   = C(inm_NH3)*1d6
     IF (inm_DMA   /= 0) DMA   = C(inm_DMA)*1d6
@@ -306,6 +306,7 @@ CONTAINS
     if (NH3 > 1d12 .or. J_ACDC_NH3 > 1d-6) THEN
         CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMPK),IPR,MODELTIME,&
             ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
+        J_ACDC_NH3 = J_ACDC_NH3*1e-6
 
     ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
@@ -314,6 +315,7 @@ CONTAINS
     ! Speed up program by ignoring nucleation when there is none
     if (DMA > 1d6 .or. J_ACDC_DMA > 1d-6) THEN
         CALL get_acdc_D(H2SO4,DMA,c_org,C(inm_CS),C(inm_TEMPK),MODELTIME,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
+        J_ACDC_DMA = J_ACDC_DMA*1e-6
     ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
         if (MODELTIME%printnow) print FMT_SUB, 'DMA IGNORED'
@@ -343,8 +345,8 @@ CONTAINS
     print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]', 'Temp:', C(inm_TempK), 'Kelvin'
     print FMT10_CVU,'APINE C: ', C(IndexFromName('APINENE')), ' [1/cm3]'
     print FMT10_2CVU,'Pressure: ', C(inm_pres), ' [Pa]', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
-    IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3*1d-6, ' [1/cm3]'
-    IF (inm_DMA   /= 0) print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA*1d-6, ' [1/cm3]'
+    IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3, ' [1/cm3]'
+    IF (inm_DMA   /= 0) print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA, ' [1/cm3]'
     print FMT10_3CVU, 'Jion neutral:', J_NH3_BY_IONS(1)*1d-6 , ' [1/s/cm3]','Jion neg:', J_NH3_BY_IONS(2)*1d-6 , ' [1/s/cm3]','Jion pos:', J_NH3_BY_IONS(3)*1d-6 , ' [1/s/cm3]'
     IF (inm_IPR   /= 0) print FMT10_2CVU, 'C-sink:', C(inm_CS) , ' [1/s]','IPR:', C(inm_IPR) , ' [1/s/cm3]'
     print FMT_LEND,

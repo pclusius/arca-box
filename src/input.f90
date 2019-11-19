@@ -568,8 +568,12 @@ SUBROUTINE CHECK_MODIFIERS()
 
   print FMT_HDR, 'Check input validity'
 
+  ! Save input temperature and pressure for archive purpose
+  ORIGINAL_TEMP(1)  = MODS(inm_TempK)
+  ORIGINAL_press(1) = MODS(inm_pres)
+
   CALL CONVERT_TEMPS_TO_KELVINS
-  CALL CONVERT_PRESSURE
+  CALL CONVERT_PRESSURE_AND_VALIDATE_UNITS
 
   do i=1,size(MODS)
       IF (MODS(i)%MODE > 0) THEN
@@ -634,7 +638,7 @@ END SUBROUTINE CHECK_MODIFIERS
 ! ================================================================================================
 ! This subroutine converts pressure from all possible input units to Pa
 ! ================================================================================================
-SUBROUTINE CONVERT_PRESSURE
+SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
   !use constants, ONLY: UCASE
   IMPLICIT NONE
   INTEGER      :: i
@@ -680,7 +684,8 @@ SUBROUTINE CONVERT_PRESSURE
           END IF
       end if
   end do
-END SUBROUTINE CONVERT_PRESSURE
+
+END SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
 
 
 

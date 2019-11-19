@@ -20,7 +20,7 @@
 
 !####### TIME related user input #####
 &NML_TIME
- runtime        = 1
+ runtime        = 25
  PRINT_INTERVAL = 600
  FSAVE_INTERVAL = 600
  FSAVE_DIVISION = 0
@@ -37,7 +37,7 @@ dmps_file = 'dm150101.sum'
 
 ####### ENV file read #####
 &NML_ENV
-  ENV_file         = 'meas.dat'
+  ENV_file         = '180403.dat'
   ENV_path         = 'input'
   TempUnit         = 'C' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
 /
@@ -49,10 +49,10 @@ dmps_file = 'dm150101.sum'
 /
 
 ####### MODS read #####
-#    mode col  multi        shift        min          max         sig        mju         fv         ph         am           name
+#      mode col multi        shift        min          max         sig        mju         fv         ph         am        unit name
 &NML_MODS
-MODS(1) = 1 -1  1.00000d+00  0.00000d+00 -7.00000d+00  1.50000d+01 6.860000d0 9.960000d0 0.540000d0 2.980000d0 0.500000d0 'C'! TEMPK
-MODS(2) = 0 -1  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'MBAR'! PRESSURE
+MODS(1) = 0 -1  1.00000d+00  0.00000d+00 -7.00000d+00  1.50000d+01 6.860000d0 9.960000d0 0.540000d0 2.980000d0 0.500000d0 'C'! TEMPK
+MODS(2) = 0 5  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'MBAR'! PRESSURE
 MODS(3) = 0 -1  1.00000d+00  4.50000d+01  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! REL_HUMIDITY
 MODS(4) = 0 -1  1.00000d+00  2.00000d-02  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! CONDENS_SINK
 MODS(6) = 1 -1  1.00000d+00  1.00000d+00  4.00000d+00  5.00000d+02 2.070000d0 11.490000d0 0.220000d0 0.850000d0 2.060000d0 ! SW_RADIATION
@@ -89,7 +89,7 @@ MODS(152) = 0 -1  1.00d+00  2.120000d+09  1.00000d+01  2.00000d+02 2.710000d0 12
   JD  = 91
   wait_for  = 0
   python  = T
-  Description = 'Just some testing'
+  Description = 'Just some testing' ! THIS SHOULD BE MOVED TO THE TOP OF THE INITFILE (PC)
 /
 
 ####### Vap stuff #####

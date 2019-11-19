@@ -56,7 +56,7 @@ CONTAINS
 
     CHARACTER(LEN=*), INTENT(IN)    :: filename
     CHARACTER(*), INTENT(IN)        :: Description
-    TYPE(input_mod),INTENT(IN)      :: MODS(:)
+    TYPE(input_mod),INTENT(INOUT)   :: MODS(:)
     TYPE(vapour_ambient),INTENT(IN) :: vapours
     REAL(dp), INTENT(IN)            :: CH_GAS(:)
     CHARACTER(255)                  :: PROGRAM_NAME
@@ -244,6 +244,11 @@ CONTAINS
 
   print FMT_LEND,
 
+  ORIGINAL_TEMP(2)  = MODS(inm_TempK)
+  ORIGINAL_press(2) = MODS(inm_pres)
+  MODS(inm_TempK) = ORIGINAL_TEMP(1)
+  MODS(inm_pres)  = ORIGINAL_press(1)
+
   ! Also save all settings to initfile. Use this file to rerun if necessary
   open(9129, file=filename//'_INITFILE.txt', action='WRITE')
   write(9129,NML=NML_Path)! directories and test cases
@@ -256,6 +261,9 @@ CONTAINS
   write(9129,NML=NML_MISC)! misc input
   write(9129,NML=NML_VAP)! vapour input
   close(9129)
+
+  MODS(inm_TempK) = ORIGINAL_TEMP(2)
+  MODS(inm_pres)  = ORIGINAL_press(2)
 
 
   RETURN

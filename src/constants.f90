@@ -118,6 +118,8 @@ end interface operator(.mod.)
 
 type(timetype)  :: MODELTIME
 type(input_mod), allocatable :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
+TYPE(input_mod)              :: ORIGINAL_TEMP(2), ORIGINAL_press(2)
+
 REAL(dp) :: C_AIR_NOW
 CONTAINS
 
