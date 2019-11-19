@@ -73,7 +73,12 @@ for var in hnames:
     exec(strg)
 
 ax.set_title(file)
-plt.subplots_adjust(left=0.35, bottom=0.1)
+
+if len(hnames)<20:
+    plt.subplots_adjust(left=0.35, bottom=0.1)
+else:
+    plt.subplots_adjust(left=0.1, bottom=0.1)
+
 for jj in range(N_f):
     try:
         plt.plot(ncs[0].variables[ncs[0].variables[hnames[0]].dimensions[0]],
@@ -83,13 +88,18 @@ for jj in range(N_f):
 
 plt.legend(loc='upper right')
 
-rax = plt.axes([0.35, 0.78, 0.1, 0.1], facecolor='w', alpha=0.1)
+if len(hnames)<20:
+    rax = plt.axes([0.35, 0.78, 0.1, 0.1], facecolor='w', alpha=0.1)
+else:
+    rax = plt.axes([0.1, 0.78, 0.1, 0.1], facecolor='w', alpha=0.1)
+
 radio = RadioButtons(rax, ('linear','log'), active=0)
 
-axrads = plt.axes([0.05, 0.1, 0.2, 0.8], facecolor='w')
-radplt = RadioButtons(axrads, (hnames), active=0)
+if len(hnames)<20:
+    axrads = plt.axes([0.1, 0.1, 0.2, 0.8], facecolor='w')
+    radplt = RadioButtons(axrads, (hnames), active=0)
+    roundradios(axrads, radplt,1)
 
-roundradios(axrads, radplt,1)
 roundradios(rax, radio,1)
 
 def scalefunc(scale):
@@ -114,9 +124,15 @@ def update(val):
 radio.on_clicked(scalefunc)
 radio.on_clicked(update)
 
-radplt.on_clicked(plot_var)
-radplt.on_clicked(update)
+if len(hnames)<20:
+    radplt.on_clicked(plot_var)
+    radplt.on_clicked(update)
 
+def NAMES():
+    for i in range(len(hnames)//6 + 1):
+        print(hnames[i*5+0],'  ',hnames[i*5+1],'  ',hnames[i*5+2],'  ',hnames[i*5+3],'  ',hnames[i*5+4],'  ',hnames[i*5+5])
+    return
+print("use <variables>.pl() to plot any variable. E.g. O3.plot() for Ozone. NAMES() to show all variables")
 
 
 ax.grid(True)
