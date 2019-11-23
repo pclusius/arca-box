@@ -31,7 +31,7 @@ def uniq(list):
 pth = '/media/pecl/EE7B-B587/PC180416/N1/'
 pth = ''
 pth = '../output/'
-files = (['TESTING_simple_run_chemical.nc'])
+files = (['TESTING_simple_run_general.nc'])
 
 import sys
 cmdline = False
@@ -74,7 +74,7 @@ for var in hnames:
 
 ax.set_title(file)
 
-if len(hnames)<20:
+if len(hnames)<60:
     plt.subplots_adjust(left=0.35, bottom=0.1)
 else:
     plt.subplots_adjust(left=0.1, bottom=0.1)
@@ -88,14 +88,14 @@ for jj in range(N_f):
 
 plt.legend(loc='upper right')
 
-if len(hnames)<20:
+if len(hnames)<60:
     rax = plt.axes([0.35, 0.78, 0.1, 0.1], facecolor='w', alpha=0.1)
 else:
     rax = plt.axes([0.1, 0.78, 0.1, 0.1], facecolor='w', alpha=0.1)
 
 radio = RadioButtons(rax, ('linear','log'), active=0)
 
-if len(hnames)<20:
+if len(hnames)<60:
     axrads = plt.axes([0.1, 0.1, 0.2, 0.8], facecolor='w')
     radplt = RadioButtons(axrads, (hnames), active=0)
     roundradios(axrads, radplt,1)
@@ -124,7 +124,7 @@ def update(val):
 radio.on_clicked(scalefunc)
 radio.on_clicked(update)
 
-if len(hnames)<20:
+if len(hnames)<60:
     radplt.on_clicked(plot_var)
     radplt.on_clicked(update)
 

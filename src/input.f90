@@ -74,7 +74,8 @@ real(dp)  :: runtime = 1d0
 real(dp)  :: FSAVE_INTERVAL = 300d0
 real(dp)  :: PRINT_INTERVAL = 15*60d0
 INTEGER   :: FSAVE_DIVISION = 0
-NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION
+INTEGER   :: dt = -1
+NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION
 
 ! MODIFIER OPTIONS
 ! MODS is declared in CONSTANTS.f90, in order to be more widely available
@@ -446,6 +447,7 @@ end subroutine READ_INIT_FILE
 
 subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
   implicit none
+  !MODELTIME%dt = dt
   MODELTIME%SIM_TIME_H = runtime
   MODELTIME%SIM_TIME_S = runtime*3600d0
   ! figure out the correct save interval

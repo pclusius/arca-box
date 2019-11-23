@@ -7,7 +7,7 @@ F90 = gfortran
 #OBJDIR = src#/build
  OBJDIR  = build
  SRCDIR  = src
-
+ CHMDIR  = Hyde
 # When compiling, search for files in these directories:
 VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31
 
@@ -62,35 +62,35 @@ $(OBJDIR)/Superbox.o: src/Supermodel_main.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(A
 
 # Chemistry
 
-$(OBJDIR)/second_Precision.o: chemistry/second_Precision.f90
+$(OBJDIR)/second_Precision.o: chemistry/$(CHMDIR)/second_Precision.f90
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Parameters.o: chemistry/second_Parameters.f90 second_Precision.o
+$(OBJDIR)/second_Parameters.o: chemistry/$(CHMDIR)/second_Parameters.f90 second_Precision.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Global.o: chemistry/second_Global.f90 second_Parameters.o
+$(OBJDIR)/second_Global.o: chemistry/$(CHMDIR)/second_Global.f90 second_Parameters.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Initialize.o: chemistry/second_Initialize.f90 second_Parameters.o second_Global.o
+$(OBJDIR)/second_Initialize.o: chemistry/$(CHMDIR)/second_Initialize.f90 second_Parameters.o second_Global.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Util.o: chemistry/second_Util.f90 second_Parameters.o second_Monitor.o
+$(OBJDIR)/second_Util.o: chemistry/$(CHMDIR)/second_Util.f90 second_Parameters.o second_Monitor.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Monitor.o: chemistry/second_Monitor.f90
+$(OBJDIR)/second_Monitor.o: chemistry/$(CHMDIR)/second_Monitor.f90
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_JacobianSP.o: chemistry/second_JacobianSP.f90
+$(OBJDIR)/second_JacobianSP.o: chemistry/$(CHMDIR)/second_JacobianSP.f90
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_LinearAlgebra.o: chemistry/second_LinearAlgebra.f90 second_Parameters.o second_JacobianSP.o
+$(OBJDIR)/second_LinearAlgebra.o: chemistry/$(CHMDIR)/second_LinearAlgebra.f90 second_Parameters.o second_JacobianSP.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Jacobian.o: chemistry/second_Jacobian.f90 second_Parameters.o second_JacobianSP.o
+$(OBJDIR)/second_Jacobian.o: chemistry/$(CHMDIR)/second_Jacobian.f90 second_Parameters.o second_JacobianSP.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Rates.o: chemistry/second_Rates.f90 second_Parameters.o second_Global.o
+$(OBJDIR)/second_Rates.o: chemistry/$(CHMDIR)/second_Rates.f90 second_Parameters.o second_Global.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Integrator.o: chemistry/second_Integrator.f90 second_Precision.o second_Global.o second_Parameters.o second_JacobianSP.o \
+$(OBJDIR)/second_Integrator.o: chemistry/$(CHMDIR)/second_Integrator.f90 second_Precision.o second_Global.o second_Parameters.o second_JacobianSP.o \
 second_LinearAlgebra.o second_Function.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Function.o: chemistry/second_Function.f90 second_Parameters.o
+$(OBJDIR)/second_Function.o: chemistry/$(CHMDIR)/second_Function.f90 second_Parameters.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Model.o: chemistry/second_Model.f90 second_Precision.o second_Parameters.o second_Global.o second_Function.o \
+$(OBJDIR)/second_Model.o: chemistry/$(CHMDIR)/second_Model.f90 second_Precision.o second_Parameters.o second_Global.o second_Function.o \
 second_Integrator.o second_Rates.o second_Jacobian.o second_LinearAlgebra.o second_Monitor.o second_Util.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Main.o: chemistry/second_Main.f90 second_Model.o second_Initialize.o
+$(OBJDIR)/second_Main.o: chemistry/$(CHMDIR)/second_Main.f90 second_Model.o second_Initialize.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 
 

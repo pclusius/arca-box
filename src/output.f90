@@ -38,6 +38,7 @@ INTEGER :: timearr_id
 INTEGER :: hrsarr_id
 INTEGER :: gJ_out_NH3_id
 INTEGER :: gJ_out_DMA_id
+INTEGER :: gJ_out_SUM_id
 
 public :: OPEN_FILES, SAVE_GASES,CLOSE_FILES
 
@@ -184,12 +185,15 @@ CONTAINS
 
   call handler(nf90_def_var(ncfile_ids(I), 'J_ACDC_NH3', NF90_DOUBLE, dtime_id, gJ_out_NH3_id))
   call handler(nf90_def_var(ncfile_ids(I), 'J_ACDC_DMA', NF90_DOUBLE, dtime_id, gJ_out_DMA_id))
+  call handler(nf90_def_var(ncfile_ids(I), 'J_ACDC_SUM', NF90_DOUBLE, dtime_id, gJ_out_SUM_id))
 
   call handler(nf90_def_var_deflate(ncfile_ids(I), gJ_out_NH3_id,         shuff, compress, compression) )
   call handler(nf90_def_var_deflate(ncfile_ids(I), gJ_out_DMA_id,         shuff, compress, compression) )
+  call handler(nf90_def_var_deflate(ncfile_ids(I), gJ_out_SUM_id,         shuff, compress, compression) )
 
   call handler(nf90_put_att(ncfile_ids(I), gJ_out_NH3_id, 'unit' , '[1/s/m^3]'))
   call handler(nf90_put_att(ncfile_ids(I), gJ_out_DMA_id, 'unit' , '[1/s/m^3]'))
+  call handler(nf90_put_att(ncfile_ids(I), gJ_out_SUM_id, 'unit' , '[1/s/m^3]'))
 
 
 
@@ -309,6 +313,7 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA)
 
   call handler( nf90_put_var(ncfile_ids(I), gJ_out_NH3_id, J_ACDC_NH3, (/MODELTIME%ind_netcdf/)) )
   call handler( nf90_put_var(ncfile_ids(I), gJ_out_DMA_id, J_ACDC_DMA, (/MODELTIME%ind_netcdf/)) )
+  call handler( nf90_put_var(ncfile_ids(I), gJ_out_SUM_id, J_ACDC_DMA+J_ACDC_NH3, (/MODELTIME%ind_netcdf/)) )
 
 
   I=2 ! Chemical file
