@@ -89,14 +89,14 @@ for jj in range(N_f):
 plt.legend(loc='upper right')
 
 if len(hnames)<60:
-    rax = plt.axes([0.35, 0.78, 0.1, 0.1], facecolor='w', alpha=0.1)
+    rax = plt.axes([0.36, 0.78, 0.1, 0.1], facecolor='w', alpha=0.1)
 else:
     rax = plt.axes([0.1, 0.78, 0.1, 0.1], facecolor='w', alpha=0.1)
 
 radio = RadioButtons(rax, ('linear','log'), active=0)
 
 if len(hnames)<60:
-    axrads = plt.axes([0.1, 0.1, 0.2, 0.8], facecolor='w')
+    axrads = plt.axes([0.05, 0.1, 0.2, 0.8], facecolor='w')
     radplt = RadioButtons(axrads, (hnames), active=0)
     roundradios(axrads, radplt,1)
 

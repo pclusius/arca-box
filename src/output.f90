@@ -39,6 +39,7 @@ INTEGER :: hrsarr_id
 INTEGER :: gJ_out_NH3_id
 INTEGER :: gJ_out_DMA_id
 INTEGER :: gJ_out_SUM_id
+INTEGER :: gRES_BASE
 
 public :: OPEN_FILES, SAVE_GASES,CLOSE_FILES
 
@@ -191,9 +192,15 @@ CONTAINS
   call handler(nf90_def_var_deflate(ncfile_ids(I), gJ_out_DMA_id,         shuff, compress, compression) )
   call handler(nf90_def_var_deflate(ncfile_ids(I), gJ_out_SUM_id,         shuff, compress, compression) )
 
-  call handler(nf90_put_att(ncfile_ids(I), gJ_out_NH3_id, 'unit' , '[1/s/m^3]'))
-  call handler(nf90_put_att(ncfile_ids(I), gJ_out_DMA_id, 'unit' , '[1/s/m^3]'))
-  call handler(nf90_put_att(ncfile_ids(I), gJ_out_SUM_id, 'unit' , '[1/s/m^3]'))
+  call handler(nf90_put_att(ncfile_ids(I), gJ_out_NH3_id, 'unit' , '[1/s/cm^3]'))
+  call handler(nf90_put_att(ncfile_ids(I), gJ_out_DMA_id, 'unit' , '[1/s/cm^3]'))
+  call handler(nf90_put_att(ncfile_ids(I), gJ_out_SUM_id, 'unit' , '[1/s/cm^3]'))
+
+  IF (RESOLVE_BASE) THEN
+    call handler(nf90_def_var(ncfile_ids(I), 'Resolved_base', NF90_DOUBLE, dtime_id, gRES_BASE))
+    call handler(nf90_def_var_deflate(ncfile_ids(I), gRES_BASE, shuff, compress, compression) )
+    call handler(nf90_put_att(ncfile_ids(I), gRES_BASE, 'unit' , '[1/cm^3]'))
+  end if
 
 
 
@@ -314,6 +321,7 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA)
   call handler( nf90_put_var(ncfile_ids(I), gJ_out_NH3_id, J_ACDC_NH3, (/MODELTIME%ind_netcdf/)) )
   call handler( nf90_put_var(ncfile_ids(I), gJ_out_DMA_id, J_ACDC_DMA, (/MODELTIME%ind_netcdf/)) )
   call handler( nf90_put_var(ncfile_ids(I), gJ_out_SUM_id, J_ACDC_DMA+J_ACDC_NH3, (/MODELTIME%ind_netcdf/)) )
+  IF (RESOLVE_BASE) call handler( nf90_put_var(ncfile_ids(I), gRES_BASE, RESOLVED_BASE, (/MODELTIME%ind_netcdf/)) )
 
 
   I=2 ! Chemical file

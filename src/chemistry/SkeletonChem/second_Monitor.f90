@@ -26,7 +26,7 @@ MODULE second_Monitor
 
 
   CHARACTER(LEN=15), PARAMETER, DIMENSION(90) :: SPC_NAMES_0 = (/ &
-     'dummy          ','NA             ','SA             ', &
+     'dummy          ','NA             ','H2SO4          ', &
      'SO3            ','HSO3           ','O1D            ', &
      'CL             ','CH4            ','NC101O         ', &
      'N2O5           ','C812OH         ','C719OH         ', &
@@ -177,7 +177,7 @@ MODULE second_Monitor
      '            HSO3 --> SO3 + HO2                                                                      ', &
      '            HNO3 --> NA                                                                             ', &
      '            N2O5 --> 2 NA                                                                           ', &
-     '             SO3 --> SA                                                                             ', &
+     '             SO3 --> H2SO4                                                                          ', &
      '              O3 --> O1D                                                                            ', &
      '              O3 --> O                                                                              ', &
      '            H2O2 --> 2 OH                                                                           ', &

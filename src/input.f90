@@ -66,8 +66,9 @@ Logical :: Condensation        = .true.
 Logical :: Coagulation         = .true.
 Logical :: Extra_data          = .false.
 Logical :: Current_case        = .false.
+Logical :: RESOLVE_BASE        = .false.
 NAMELIST /NML_Flag/ Aerosol_flag, chemistry_flag, particle_flag,ACDC_solve_ss,NUCLEATION,ACDC, &
-         Extra_data, Current_case, Condensation, Coagulation, model_H2SO4
+         Extra_data, Current_case, Condensation, Coagulation, model_H2SO4, RESOLVE_BASE
 
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0
@@ -134,12 +135,14 @@ NAMELIST /NML_MCM / MCM_path, MCM_file
 real(dp)  :: lat              ! Latitude for Photochemistry
 real(dp)  :: lon              ! Longitude for Photochemistry
 real(dp)  :: CH_Albedo = 2d-1 ! Albedo
+real(dp)  :: DMA_f = 0
 INTEGER   :: JD = -1
 INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value for fixed amount of seconds
 LOGICAL   :: python   = .false. ! 1 = the program will offer to plot the output file GENERAL
 CHARACTER(1000)  :: Description='*'
 CHARACTER(100)   :: Solver = ''
-NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo
+real(dp)         :: resolve_NH3_precision = 1d-2
+NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_NH3_precision
 
 Logical  :: VAP_logical = .False.
 character(len=256)  :: Vap_names

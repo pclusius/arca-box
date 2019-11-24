@@ -8,6 +8,7 @@ F90 = gfortran
  OBJDIR  = build
  SRCDIR  = src
  CHMDIR  = Hyde
+ CHMDIR  = SkeletonChem
 # When compiling, search for files in these directories:
 VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31
 
@@ -30,7 +31,7 @@ CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Parameters.o se
                second_Model.o second_Main.o)
 
 #BOX_OBJECTS = constants.o auxillaries.o input.o output.o
-BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o Chemistry.o Aerosol.o output.o)
+BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o Chemistry.o Aerosol.o output.o solve_bases.o)
 
 ACDC_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AN_ions.o monomer_settings_acdc_NH3_ions.o solution_settings.o driver_acdc_J_ions.o \
              acdc_equations_AN_ions.o get_acdc_J_ions.o)

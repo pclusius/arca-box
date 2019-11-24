@@ -13,6 +13,7 @@ PROGRAM Supermodel
     use OUTPUT
     USE ACDC_NH3
     USE ACDC_DMA
+    USE SOLVEBASES
     USE aerosol_auxillaries
     USE Aerosol
 
@@ -156,7 +157,7 @@ PROGRAM Supermodel
 
         ! =================================================================================================
         ! NUCLEATION
-        IF (NUCLEATION .and. (.not. error%error_state)) THEN
+        IF (NUCLEATION .and. (.not. error%error_state) .and. .not. RESOLVE_BASE) THEN
             if (ACDC) THEN
                 CALL ACDC_J(TSTEP_CONC)
             else
@@ -164,6 +165,8 @@ PROGRAM Supermodel
               ! CALL SOME_OTHER_NUCLEATION_TYPE
             END if
         END if
+
+        if (MODELTIME%savenow .and. RESOLVE_BASE) CALL Get_BASE(TSTEP_CONC)
         ! =================================================================================================
 
         ! Condensation
