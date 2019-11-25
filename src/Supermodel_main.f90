@@ -21,77 +21,92 @@ PROGRAM Supermodel
 
     IMPLICIT NONE
 
-    INTEGER  :: I, k, &
-                in_channels  !,&           !number of diameters -> passed over to the fitting subroutine
-                !Z                       !number of components of read-in particle phase (from XTRAS -> inputs.f90)
+    ! Transient variables
+    CHARACTER(90) :: buf
+    INTEGER       :: in_channels !number of diameters -> passed over to the fitting subroutine
+    INTEGER       :: I
 
     ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
     REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)
     REAL(DP), ALLOCATABLE :: CH_GAS(:)
 
-    REAL(dp) ::                                &
-        CH_RO2,                                &   ! RO2 concentration in [molecules / cm^3]
-        CH_H2O,                                &   ! H20 concentration in [molecules / cm^3]
-        CH_TIME_kpp,                           &   ! Start time in KPP
-        CH_END_kpp,                            &   ! End time in KPP
-        CH_Beta,                               &   ! solar zenit angle
-        EW,ES                                      ! Water content in Pa, Saturation vapour pressure
+    REAL(dp) :: CH_RO2      ! RO2 concentration in [molecules / cm^3]
+    REAL(dp) :: CH_H2O      ! H20 concentration in [molecules / cm^3]
+    REAL(dp) :: CH_TIME_kpp ! Start time in KPP
+    REAL(dp) :: CH_END_kpp  ! End time in KPP
+    REAL(dp) :: CH_Beta     ! solar zenit angle
+    REAL(dp) :: EW,ES       ! Water content in Pa, Saturation vapour pressure
 
 
     REAL(dp), ALLOCATABLE :: dp_fit(:), y_fit(:)  !arrays: 1) dp  2)other property as input for fitting
-
     !speed_up: factor for increasing integration time step for individual prosesses
     !...(1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
-    INTEGER :: speed_up(10) = 1
+    INTEGER          :: speed_up(10) = 1
     TYPE(error_type) :: error
 
 
-    CALL read_input_data ! Declare most variables and read user input and options in input.f90
+    CALL READ_INPUT_DATA ! Declare most variables and read user input and options in input.f90
 
     CALL CHECK_INPUT_AGAINST_KPP ! Check that the input exists in chemistry, or if not, print warning
 
     !Particles are considered -> initialize a particle representation, set initial PSD and determine composition
     !  code: MODULE ParticleSizeDistribution (PSD.f90)
     IF (particle_flag) THEN
-    !Initialzie the Particle representation
-      CALL initialize_PSD
+      ! Initialzie the Particle representation
+      CALL INITIALIZE_PSD
+
+      ! Send par_data (from input): diameter and first time step for fitting of initial model PSD
       IF (current_PSD%PSD_style == 1) THEN !only defined procedure for fully stationary
-      !Send par_data (from input): diameter and first time step for fitting of initial model PSD
         in_channels = size(par_data(1,3:))
+
         ALLOCATE(dp_fit(in_channels))
         ALLOCATE(y_fit(in_channels))
+
         dp_fit = par_data(1,3:)
         y_fit = par_data(5,3:)
         dummy_property = 0.d0
+
         CALL GeneratePSDfromInput(dp_fit,y_fit)
+
         DEALLOCATE(dp_fit)
         DEALLOCATE(y_fit)
-        dummy_property = dummy_property * &
-        LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))
+
+        dummy_property = dummy_property * LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))
         current_PSD%conc_fs = dummy_property
-        PRINT*,'model dp: ', current_PSD%diameter_fs(1:6), '...'
-        PRINT*,'fitted model PSD: ',current_PSD%conc_fs(1:6), '...'
-      !Derive composition of the particles form input (XTRAS(I), I...# of noncond (nr_noncond))
+
+        print*,
+        print FMT_HDR, 'INITIALIZING PARTICLE STRUCTURES '
+        PRINT '("| ",a,6(es9.3," "),a,t100,"|")','model dp: ', current_PSD%diameter_fs(1:6), '...'
+        PRINT '("| ",a,6(es9.3," "),a,t100,"|")','fitted model PSD: ',current_PSD%conc_fs(1:6), '...'
+
+        ! Derive composition of the particles form input (XTRAS(I), I...# of noncond (nr_noncond))
         IF (extra_particles /= '') THEN
-          PRINT*,'initial particles are composed of:'
+          PRINT FMT_MSG,'initial particles are composed of:'
           DO I = 1,size(xtras(:))
-            PRINT*,xtras(I)%name,xtras(I)%options
+            write(buf, '(a,3(es12.3))') xtras(I)%name,xtras(I)%options
+            PRINT FMT_MSG, TRIM(buf)
+
             in_channels = size(XTRAS(I)%sections(:))
+
             ALLOCATE(dp_fit(in_channels))
             ALLOCATE(y_fit(in_channels))
-            dp_fit = xtras(I)%sections(:)  !get diameters
-            y_fit = xtras(I)%binseries(1,:)  !get property at first time step
+
+            dp_fit = xtras(I)%sections(:)   ! get diameters
+            y_fit = xtras(I)%binseries(1,:) ! get property at first time step
             dummy_property = 0.d0
+
             CALL GeneratePSDfromInput(dp_fit,y_fit)
+
             DEALLOCATE(dp_fit)
             DEALLOCATE(y_fit)
-          !determine the composition: density * volume * fraction
+            !determine the composition: density * volume * fraction
             !ind_species =  No plan yet how to get there
             !current_PSD%composition_fs(:,ind_species) = current_PSD%density_fs(ind_species) * current_PSD%volume_fs * dummy_property
             !print*,current_PSD%composition(:)
           END DO
         END IF
       END IF
+      print FMT_LEND,
     END IF
 
 
@@ -108,21 +123,11 @@ PROGRAM Supermodel
     !Open error output file
     open(unit=333, file='output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_error_output.txt')
 
+    !Open output file
+    print*,
+    print FMT_HDR, 'INITIALIZING OUTPUT '
     CALL OPEN_FILES(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)), Description, MODS, CH_GAS, VAPOURS)
 
-    !Open output file
-
-
-    ! do i=1, size(XTRAS)
-    !   print*,
-    !   print*, XTRAS(I)%name
-    !
-    !   print'("           ", 38(es9.2))', XTRAS(I)%sections
-    !   do k=1, size(XTRAS(I)%time)
-    !     print'(39(es9.2))', XTRAS(I)%time(k),XTRAS(I)%binseries(K,:)
-    !   end do
-    ! end do
-    !
     CALL PAUSE_FOR_WHILE(wait_for)
 
     print*,;print FMT_HDR, 'Beginning simulation' ! Information to user
@@ -433,6 +438,7 @@ CONTAINS
               END IF
           END IF
       END DO
+      print FMT_LEND,
 
   END SUBROUTINE CHECK_INPUT_AGAINST_KPP
 
@@ -487,7 +493,7 @@ CONTAINS
     rof = for
     if (for == 0) THEN
       do while(rof == for)
-        print FMT_LEND,
+        print *,
         print '(a,20(" "),a)', ACHAR(10),'Press any key to start the run or Ctrl-C to abort'
         read(*,*)
         print FMT_LEND,

@@ -257,12 +257,13 @@ subroutine READ_INPUT_DATA()
     ! First we open the extra particle files to count the dimensions needed for the matrix
     OPEN(unit=51, File=TRIM(extra_p_dir)//'/'//TRIM(extra_particles) , STATUS='OLD', iostat=ioi)
     Z = ROWCOUNT(51)
-    PRINT*, 'reading XTRAS:', Z
+    write(buf, '(a, i0, a)') 'reading XTRAS: ', Z,' lines'
+    PRINT FMT_SUB, TRIM(buf)
     ! Now we can allocate it
     allocate(XTRAS(Z))
 
     DO I=1,Z
-      PRINT*,'Z', Z
+      ! PRINT*,'Z', Z
       allocate(XTRAS(I)%options(n_xpar_options))
 
       read(51,'(a)') buf
@@ -490,7 +491,6 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
     IF (TRIM(MODS(I)%NAME) == 'H2'           ) inm_H2 = i
     IF (TRIM(MODS(I)%NAME) == 'O3'           ) inm_O3 = i
     IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_IN ' ) inm_JIN = i
-    IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_DMA' ) inm_JDMA = i
     IF (TRIM(MODS(I)%NAME) == '#'            ) LENV = i
 
   END DO
