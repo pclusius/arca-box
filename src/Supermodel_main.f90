@@ -14,12 +14,15 @@ PROGRAM Supermodel
     USE ACDC_NH3
     USE ACDC_DMA
     USE aerosol_auxillaries
-    USE Aerosol
+!    USE Aerosol
+    USE ParticleSizeDistribution
 
 
     IMPLICIT NONE
 
-    INTEGER  :: I, k
+    INTEGER  :: I, k, &
+                in_channels  !,&           !number of diameters -> passed over to the fitting subroutine
+                !Z                       !number of components of read-in particle phase (from XTRAS -> inputs.f90)
 
     ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
     REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)
@@ -37,38 +40,61 @@ PROGRAM Supermodel
         CH_Beta,                               &   ! solar zenit angle
         EW,ES                                      ! Water content in Pa, Saturation vapour pressure
 
-    ! Lukas (and others), these are leftovers from Michael that are defined otherwise but I didn't want to delete them yet (PC)
-    ! CH_RES1, CH_RES2, CS_H2SO4, CS_HNO3,   &   ! CS for H2SO4 and HNO3 for KPP
-    ! CH_AIR,                                &   ! AIR concentration
-    ! CH_Glo,                                &   ! Global shortwave radiation
-    ! dt_chem,                               &   ! Chem DT
 
-    ! Carlton, are these yours, I just commented them since they are not in use now (PC)
-    ! REAL(dp),DIMENSION(:), ALLOCATABLE :: values !vapours%vapour_number
-    ! REAL(dp) :: timestep, end_time
-
+    REAL(dp), ALLOCATABLE :: dp_fit(:), y_fit(:)  !arrays: 1) dp  2)other property as input for fitting
 
     !speed_up: factor for increasing integration time step for individual prosesses
     !...(1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
     INTEGER :: speed_up(10) = 1
     TYPE(error_type) :: error
 
-    TYPE(aerosol_setup)       :: AER_setup
-    TYPE(particle_properties) :: AER_par_prop
-    TYPE(initial_distribution):: AER_init_dist
-    TYPE(ambient_properties)  :: ambient
 
     CALL read_input_data ! Declare most variables and read user input and options in input.f90
 
     CALL CHECK_INPUT_AGAINST_KPP ! Check that the input exists in chemistry, or if not, print warning
 
+    !Particles are considered -> initialize a particle representation, set initial PSD and determine composition
+    !  code: MODULE ParticleSizeDistribution (PSD.f90)
+    IF (particle_flag) THEN
+    !Initialzie the Particle representation
+      CALL initialize_PSD
+      IF (current_PSD%PSD_style == 1) THEN !only defined procedure for fully stationary
+      !Send par_data (from input): diameter and first time step for fitting of initial model PSD
+        in_channels = size(par_data(1,3:))
+        ALLOCATE(dp_fit(in_channels))
+        ALLOCATE(y_fit(in_channels))
+        dp_fit = par_data(1,3:)
+        y_fit = par_data(5,3:)
+        dummy_property = 0.d0
+        CALL GeneratePSDfromInput(dp_fit,y_fit)
+        DEALLOCATE(dp_fit)
+        DEALLOCATE(y_fit)
+        current_PSD%conc_fs = dummy_property
+        PRINT*,'model dp: ', current_PSD%diameter_fs(1:6), '...'
+        PRINT*,'fitted model PSD: ',current_PSD%conc_fs(1:6), '...'
+      !Derive composition of the particles form input (XTRAS(I), I...# of noncond (nr_noncond))
+        IF (extra_particles /= '') THEN
+          PRINT*,'initial particles are composed of:'
+          DO I = 1,size(xtras(:))
+            PRINT*,xtras(I)%name,xtras(I)%options
+            in_channels = size(XTRAS(I)%sections(:))
+            ALLOCATE(dp_fit(in_channels))
+            ALLOCATE(y_fit(in_channels))
+            dp_fit = xtras(I)%sections(:)  !get diameters
+            y_fit = xtras(I)%binseries(1,:)  !get property at first time step
+            dummy_property = 0.d0
+            CALL GeneratePSDfromInput(dp_fit,y_fit)
+            DEALLOCATE(dp_fit)
+            DEALLOCATE(y_fit)
+          !determine the composition: density * volume * fraction
+            !ind_species =  No plan yet how to get there
+            !current_PSD%composition_fs(:,ind_species) = current_PSD%density_fs(ind_species) * current_PSD%volume_fs * dummy_property
+            !print*,current_PSD%composition(:)
+          END DO
+        END IF
+      END IF
+    END IF
 
-    ! ???
-    if (VAP_logical) then
-        call Aerosol_intialization(AER_setup, AER_par_prop, vapours, AER_init_dist,ambient)
-        !call condensation_routine(values,timestep,end_time,AER_setup, AER_par_prop,ambient)
-        print*, shape(vapours%c_sat)
-    end if
 
     ALLOCATE(TSTEP_CONC(N_VARS))
     TSTEP_CONC = 0
@@ -168,12 +194,6 @@ PROGRAM Supermodel
         ! =================================================================================================
 
         ! Condensation
-        if (VAP_logical) then
-
-      !      call condensation_routine(values,timestep,end_time,AER_setup, AER_par_prop,ambient,vapours)
-        !print*, shape(vapours%c_sat)
-
-        end if
         ! Coagulation
         ! Deposition
 
