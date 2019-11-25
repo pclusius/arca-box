@@ -2,10 +2,7 @@ MODULE OUTPUT
 use netcdf
 use CONSTANTS
 use INPUT
-<<<<<<< HEAD
-=======
 use second_Monitor
->>>>>>> Dev_PC
 use AUXILLARIES
 USE Aerosol_auxillaries, only: vapour_ambient
 IMPLICIT NONE
@@ -51,97 +48,6 @@ type(parsave) :: parbuf(20)
 type(parsave), ALLOCATABLE :: savepar(:)
 
 CONTAINS
-
-<<<<<<< HEAD
-SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
-  implicit none
-  CHARACTER(255)    :: PROGRAM_NAME
-  CHARACTER(*)      :: Description
-  type(input_mod) :: MODS(:)
-  integer :: i,lenD
-  character(len=*), intent(in)    :: filename
-  ! settings for netCDF4-file compression. shuff=1 might improve compression but is slower
-  integer:: shuff=1, compress=1, compression=9
-
-  ALLOCATE(multipl_ind(size(MODS)))
-  ALLOCATE(shifter_ind(size(MODS)))
-  print FMT_HDR, 'PREPARING OUTPUT FILES'
-  print FMT_SUB, 'NetCDF version: '//trim(nf90_inq_libvers())
-  print FMT_SUB, 'Create chemfile: '//TRIM(filename)
-
-  ! Print run description
-  lenD = LEN(TRIM(Description))
-  print FMT_SUB, 'Description for run:'
-  i=0
-  do while (i< 1+lenD/90)
-    print FMT_MSG, '    '//TRIM(Description(((i*90)+1):90*(i+1)))
-    i = i+1
-  end do
-  ! end print run description
-
-  !Clearing file; Opening file. Overwrites
-  open(999, FILE=filename, ERR = 100)
-  close(999)
-  ! Added compression for particle.nc, so we need to use netCDF4-file. Here used in classic mode
-  call handler( nf90_create(trim(filename), IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), gas_ncfile_id) )
-
-  ! Defining dimensions: time(unlimited), size sections, vapor_species
-  call handler(nf90_def_dim(gas_ncfile_id, "time",NINT(MODELTIME%SIM_TIME_S/MODELTIME%FSAVE_INTERVAL+1), gtime_id) )
-  call handler(nf90_def_dim(gas_ncfile_id, "Constant",1, gconstant_id) )
-  call handler(nf90_def_dim(gas_ncfile_id, "StringL",16, gstrlen_id) )
-
-  !Identifying different shapes for arrays
-  !Ambient:
-
-  print*, LENV
-  stop
-
-
-
-  !Ambient:
-  call handler(nf90_def_var(gas_ncfile_id, "time", NF90_DOUBLE, gtime_id, gtimearr_id))
-  call handler(nf90_def_var(gas_ncfile_id, "time_in_hrs", NF90_DOUBLE, gtime_id, ghrsarr_id))
-  call handler(nf90_def_var(gas_ncfile_id, "H2SO4", NF90_DOUBLE, gtime_id, H2SO4_id) )
-  call handler(nf90_def_var(gas_ncfile_id, "NH3", NF90_DOUBLE, gtime_id, NH3_id) )
-  call handler(nf90_def_var(gas_ncfile_id, "DMA", NF90_DOUBLE, gtime_id, DMA_id) )
-  call handler(nf90_def_var(gas_ncfile_id, "temperature", NF90_DOUBLE, gtime_id, gtemperature_id))
-  call handler(nf90_def_var(gas_ncfile_id, "pressure", NF90_DOUBLE, gtime_id, gpressure_id))
-  call handler(nf90_def_var(gas_ncfile_id, "J_out_NH3", NF90_DOUBLE, gtime_id, gJ_out_NH3_id))
-  call handler(nf90_def_var(gas_ncfile_id, "J_out_DMA", NF90_DOUBLE, gtime_id, gJ_out_DMA_id))
-  call handler(nf90_def_var(gas_ncfile_id, "c_sink", NF90_DOUBLE, gtime_id, gc_sink_id))
-  ! COMPRESSION
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gtimearr_id,           shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, ghrsarr_id,            shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, H2SO4_id,              shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, NH3_id,                shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, DMA_id,                shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gtemperature_id,       shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gpressure_id,          shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gJ_out_NH3_id,         shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gJ_out_DMA_id,         shuff, compress, compression) )
-  call handler(nf90_def_var_deflate(gas_ncfile_id, gc_sink_id,            shuff, compress, compression) )
-  ! END COMPRESSION
-
-  !Constants:
-
-  !Create attributes for general stuff
-  CALL get_command_argument(0, PROGRAM_NAME)
-  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Information', '(c) Atmospheric modelling group 2019 and (c) Simugroup 2019 (ACDC)'))
-  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Contact', 'michael.boy@helsinki.fi (Superbox), tinja.olenius@alumni.helsinki.fi (ACDC)'))
-  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Software', 'Superbox 0.0.1'))
-  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Package_Name:', TRIM(PROGRAM_NAME(3:))))
-  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'Notes', TRIM(Description)))
-  call handler(nf90_put_att(gas_ncfile_id, NF90_GLOBAL, 'experiment', 'Experiment set here'))
-  ! call output_options(options)
-
-  do i = 1,size(MODS)
-    IF ((TRIM(MODS(i)%name) /= 'NONAME') .and. (TRIM(MODS(i)%name) /= 'RESERVE')) THEN
-      IF ((ABS(MODS(i)%shift-0d0) > 1d-100) .or. (ABS(MODS(i)%multi-1d0) > 1d-100)) THEN
-        call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Multipl', NF90_DOUBLE, gtime_id, multipl_ind(i)))
-        call handler(nf90_def_var(gas_ncfile_id, TRIM(MODS(i)%name)//'_Shifter', NF90_DOUBLE, gtime_id, shifter_ind(i)))
-        call handler(nf90_put_att(gas_ncfile_id, multipl_ind(i), 'units' , '[]'))
-        call handler(nf90_put_att(gas_ncfile_id, shifter_ind(i), 'units' , '[same]'))
-=======
 
   ! --------------------------------------------------------------------------------------------------------------------
   ! CREATE (OR OVERWRITE OLD) THREE NETCDF-FILES TO STORE OUTPUT. PARTICLES IS STILL VERY ROUGH SINCE WE DON'T HAVE THEM
@@ -261,7 +167,6 @@ SUBROUTINE OPEN_GASFILE(filename, MODS, Description)
         call handler(nf90_def_var(ncfile_ids(I), TRIM(MODS(j)%name), NF90_DOUBLE, dtime_id, mods_ind(j)) )
         call handler(nf90_def_var_deflate(ncfile_ids(I), mods_ind(j), shuff, compress, compression) )
         call handler(nf90_put_att(ncfile_ids(I), mods_ind(j), 'unit' , TRIM(UNITS(MODS(I)%UNIT))))
->>>>>>> Dev_PC
       END IF
 
       IF ((ABS(MODS(j)%shift-0d0) > 1d-100) .or. (ABS(MODS(j)%multi-1d0) > 1d-100)) THEN

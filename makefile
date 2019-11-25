@@ -31,13 +31,10 @@ CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Parameters.o se
                second_Model.o second_Main.o)
 
 #BOX_OBJECTS = constants.o auxillaries.o input.o output.o
-<<<<<<< HEAD
-BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o Chemistry.o output.o PSD.o)
+
+BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o solve_bases.o Chemistry.o output.o PSD.o)
 
 PSD_OBJECTS = $(addprefix $(OBJDIR)/, constants.o Aerosol_auxillaries.o input.o Chemistry.o)
-=======
-BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o solve_bases.o Chemistry.o Aerosol.o output.o)
->>>>>>> Dev_PC
 
 ACDC_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AN_ions.o monomer_settings_acdc_NH3_ions.o solution_settings.o driver_acdc_J_ions.o \
              acdc_equations_AN_ions.o get_acdc_J_ions.o)
@@ -66,12 +63,11 @@ $(OBJDIR)/Superbox.o: src/Supermodel_main.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(A
 #$(OBJDIR)/%.o: $(SRCDIR)/chemistry/%.f90#
 #	$(F90) $(CHEM_OPTS) -c $< -o $@
 
-<<<<<<< HEAD
 #PSD representation
 $(OBJDIR)/PSD.o: src/PSD.f90 $(PSD_OBJECTS)
-=======
+	$(F90) $(BOX_OPTS) -c $< -o $@
+
 $(OBJDIR)/solve_bases.o: src/solve_bases.f90 $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
->>>>>>> Dev_PC
 	 $(F90) $(BOX_OPTS) -c $< -o $@
 
 # Chemistry

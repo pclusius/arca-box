@@ -254,13 +254,8 @@ PURE INTEGER FUNCTION IndexFromName(name, list_of_names)
   ELSE
     m = size(MODS)
     DO i=1, m
-<<<<<<< HEAD
-    if (TRIM(NAME) == TRIM(MODS(I)%NAME)) EXIT
-  END DO
-=======
       if (TRIM(NAME) == TRIM(MODS(I)%NAME)) EXIT
     END DO
->>>>>>> Dev_PC
   END IF
 
   if (i == m+1) i=0

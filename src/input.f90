@@ -667,11 +667,7 @@ SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
       print FMT_MSG, '- Converting pressure from atm to Pascals.'
     elseif (TRIM(buf) == 'PA') THEN
       print FMT_MSG, '- Pressure is given in Pascals.'
-<<<<<<< HEAD
-  else
-=======
     else
->>>>>>> Dev_PC
       if ((MODS(inm_pres)%MODE > 0) .or. (MODS(inm_pres)%col > 1)  .or. (ABS(MODS(inm_pres)%multi - 1d0)>1d-9) .or. (ABS(MODS(inm_pres)%shift)>1d-16)) THEN
           if (TRIM(buf) == '#') THEN
               print FMT_MSG, '- Assuming Pascals for pressure.'

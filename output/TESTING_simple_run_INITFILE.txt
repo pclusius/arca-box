@@ -7,7 +7,7 @@
 &NML_FLAG
  AEROSOL_FLAG=F,
  CHEMISTRY_FLAG=T,
- PARTICLE_FLAG=F,
+ PARTICLE_FLAG=T,
  ACDC_SOLVE_SS=F,
  NUCLEATION=T,
  ACDC=T,
@@ -31,8 +31,9 @@
  MIN_PARTICLE_DIAM=  1.0000000000000001E-009,
  MAX_PARTICLE_DIAM=  9.9999999999999995E-007,
  DMPS_DIR="input                                                                                                                                                                                                                                                           ",
- DMPS_FILE="dm150101.sum                                                                                                                                                                                                                                                    ",
- EXTRA_PARTICLES="                                                                                                                                                                                                                                                                ",
+ EXTRA_P_DIR="input                                                                                                                                                                                                                                                           ",
+ DMPS_FILE="dm1804.dat                                                                                                                                                                                                                                                      ",
+ EXTRA_PARTICLES="xtra.dat                                                                                                                                                                                                                                                        ",
  DMPS_READ_IN_TIME=  0.0000000000000000     ,
  DMPS_HIGHBAND_LOWER_LIMIT=  1.4999999999999999E-008,
  DMPS_LOWBAND_UPPER_LIMIT=  6.0000000000000000E-010,
@@ -41,7 +42,7 @@
  /
 &NML_ENV
  ENV_PATH="input                                                                                                                                                                                                                                                           ",
- ENV_FILE="180403.dat                                                                                                                                                                                                                                                      ",
+ ENV_FILE="meas.dat                                                                                                                                                                                                                                                        ",
  TEMPUNIT="K",
  /
 &NML_MCM
