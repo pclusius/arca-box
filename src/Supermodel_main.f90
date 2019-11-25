@@ -13,6 +13,7 @@ PROGRAM Supermodel
     use OUTPUT
     USE ACDC_NH3
     USE ACDC_DMA
+    USE SOLVEBASES
     USE aerosol_auxillaries
 !    USE Aerosol
     USE ParticleSizeDistribution
@@ -27,10 +28,6 @@ PROGRAM Supermodel
     ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
     REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)
     REAL(DP), ALLOCATABLE :: CH_GAS(:)
-    REAL(dp) :: J_ACDC_NH3 = 0d0
-    REAL(dp) :: J_ACDC_DMA = 0d0
-    REAL(dp) :: J_NH3_BY_IONS(3) = 0d0
-    REAL(dp) :: acdc_cluster_diam = 2.17d-9
 
     REAL(dp) ::                                &
         CH_RO2,                                &   ! RO2 concentration in [molecules / cm^3]
@@ -70,7 +67,7 @@ PROGRAM Supermodel
         DEALLOCATE(dp_fit)
         DEALLOCATE(y_fit)
         dummy_property = dummy_property * &
-        LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))        
+        LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))
         current_PSD%conc_fs = dummy_property
         PRINT*,'model dp: ', current_PSD%diameter_fs(1:6), '...'
         PRINT*,'fitted model PSD: ',current_PSD%conc_fs(1:6), '...'
@@ -111,8 +108,9 @@ PROGRAM Supermodel
     !Open error output file
     open(unit=333, file='output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_error_output.txt')
 
+    CALL OPEN_FILES(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)), Description, MODS, CH_GAS, VAPOURS)
+
     !Open output file
-    CALL OPEN_GASFILE(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'.nc'), MODS, Description)
 
 
     ! do i=1, size(XTRAS)
@@ -148,12 +146,10 @@ PROGRAM Supermodel
 
         DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables that user can provide or tamper, and leave zero if no input or mod was provided
             IF ((I==inm_TempK) .or. (MODS(I)%col>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift) > 1d-100)) THEN
-
                 TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I)) .mod. MODS(I)
               ! INDRELAY(I)>0 means that user must have provided a column from an input file; MODS(I)%MODE > 0 means NORMALD is in use
             END IF
         END DO
-
 
         ! =================================================================================================
 
@@ -179,13 +175,13 @@ PROGRAM Supermodel
             Call CHEMCALC(CH_GAS, CH_TIME_kpp, CH_END_kpp, TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_swr), CH_Beta,  &
                           CH_H2O, C_AIR_NOW, TSTEP_CONC(inm_CS), TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
-            if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_SA)
+            if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
 
         END IF ! IF (Chemistry_flag)
 
         ! =================================================================================================
         ! NUCLEATION
-        IF (NUCLEATION .and. (.not. error%error_state)) THEN
+        IF (NUCLEATION .and. (.not. error%error_state) ) THEN
             if (ACDC) THEN
                 CALL ACDC_J(TSTEP_CONC)
             else
@@ -193,6 +189,8 @@ PROGRAM Supermodel
               ! CALL SOME_OTHER_NUCLEATION_TYPE
             END if
         END if
+
+        if (MODELTIME%savenow .and. RESOLVE_BASE) CALL Get_BASE(TSTEP_CONC, RESOLVED_BASE, RESOLVED_J)
         ! =================================================================================================
 
         ! Condensation
@@ -202,8 +200,7 @@ PROGRAM Supermodel
         ! =================================================================================================
         ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
           ! if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-          ! if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
-          !                             TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
+          ! if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, vapours)
         ! =================================================================================================
 
         IF (error%error_state) THEN !ERROR handling
@@ -223,8 +220,7 @@ PROGRAM Supermodel
             ! =================================================================================================
             ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
             if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-            if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_H2SO4), TSTEP_CONC(inm_nh3),&
-                TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
+            if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA)
             ! =================================================================================================
 
             ! =================================================================================================
@@ -240,8 +236,7 @@ PROGRAM Supermodel
     CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
     CALL CLOSE_FILES() !Close output file netcdf
-
-    print *, ACHAR(10)," SIMULATION HAS ENDED. SO LONG!",ACHAR(10)
+    CALL FAREWELL ! Ask if *general.nc is plotted
 
 CONTAINS
 
@@ -323,7 +318,7 @@ CONTAINS
     real(dp), intent(in) :: C(:)
     real(dp)             :: H2SO4=0,NH3=0,DMA=0,IPR=0 ! these are created to make the unit conversion
 
-    ! NUCLEATION BY S-ACID AND NH3 - NOTE: ingoing concentrations are assumed to be in 1/m3!!
+    ! NUCLEATION BY S-ACID AND NH3 - NOTE: in ACDC, ingoing concentrations are assumed to be in 1/m3!!
     IF (inm_H2SO4 /= 0) H2SO4 = C(inm_H2SO4)*1d6
     IF (inm_NH3   /= 0) NH3   = C(inm_NH3)*1d6
     IF (inm_DMA   /= 0) DMA   = C(inm_DMA)*1d6
@@ -332,6 +327,7 @@ CONTAINS
     if (NH3 > 1d12 .or. J_ACDC_NH3 > 1d-6) THEN
         CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMPK),IPR,MODELTIME,&
             ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
+        J_ACDC_NH3 = J_ACDC_NH3*1e-6
 
     ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
@@ -340,6 +336,7 @@ CONTAINS
     ! Speed up program by ignoring nucleation when there is none
     if (DMA > 1d6 .or. J_ACDC_DMA > 1d-6) THEN
         CALL get_acdc_D(H2SO4,DMA,c_org,C(inm_CS),C(inm_TEMPK),MODELTIME,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
+        J_ACDC_DMA = J_ACDC_DMA*1e-6
     ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
         if (MODELTIME%printnow) print FMT_SUB, 'DMA IGNORED'
@@ -368,9 +365,9 @@ CONTAINS
     real(dp), intent(in) :: C(:)
     print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]', 'Temp:', C(inm_TempK), 'Kelvin'
     print FMT10_CVU,'APINE C: ', C(IndexFromName('APINENE')), ' [1/cm3]'
-    print FMT10_2CVU,'Pressure: ', C(inm_pres), ' []', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
-    IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3*1d-6, ' [1/cm3]'
-    IF (inm_DMA   /= 0) print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA*1d-6, ' [1/cm3]'
+    print FMT10_2CVU,'Pressure: ', C(inm_pres), ' [Pa]', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
+    IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3, ' [1/cm3]'
+    IF (inm_DMA   /= 0) print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA, ' [1/cm3]'
     print FMT10_3CVU, 'Jion neutral:', J_NH3_BY_IONS(1)*1d-6 , ' [1/s/cm3]','Jion neg:', J_NH3_BY_IONS(2)*1d-6 , ' [1/s/cm3]','Jion pos:', J_NH3_BY_IONS(3)*1d-6 , ' [1/s/cm3]'
     IF (inm_IPR   /= 0) print FMT10_2CVU, 'C-sink:', C(inm_CS) , ' [1/s]','IPR:', C(inm_IPR) , ' [1/s/cm3]'
     print FMT_LEND,
@@ -394,8 +391,7 @@ CONTAINS
           print FMT_TIME, MODELTIME%hms
           CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
       END IF
-      if (.not. MODELTIME%savenow) call SAVE_GASES(TSTEP_CONC(inm_tempK), TSTEP_CONC(inm_H2SO4), &
-          TSTEP_CONC(inm_nh3), TSTEP_CONC(inm_dma),J_ACDC_NH3, J_ACDC_DMA, TSTEP_CONC(inm_cs), TSTEP_CONC(inm_pres), MODS)
+      if (.not. MODELTIME%savenow)  CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA)
   END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
 
@@ -410,7 +406,7 @@ CONTAINS
       print FMT_HDR, 'Checking against KPP for chemicals'
       do i=1,N_VARS
           check = 0
-          IF (MODS(I)%col > 0 .or. MODS(I)%MODE > 0 .or. ABS(MODS(I)%SHIFT - 0) > 1d-100) THEN
+          IF (MODS(I)%col > 0 .or. MODS(I)%MODE > 0 .or. ABS(MODS(I)%SHIFT) > 1d-100) THEN
               DO j=1,size(SPC_NAMES)
                   IF (MODS(i)%NAME == TRIM(SPC_NAMES(j))) THEN
                       check = 1
@@ -512,5 +508,23 @@ CONTAINS
       print FMT_LEND,
     END IF
   END SUBROUTINE PAUSE_FOR_WHILE
+
+  SUBROUTINE FAREWELL
+    IMPLICIT NONE
+    character(1) :: buf
+
+    write(*,*)
+    IF (python) THEN
+      write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. Plot general output (requires Python3). y? '
+      read(*,*) buf
+      if (UCASE(buf) == 'Y') CALL EXECUTE_COMMAND_LINE('python3 Scripts/PlotNetCDF.py '//'output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_general.nc')
+    ELSE
+      write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. '
+    END IF
+    write(*, '(a)') 'SO LONG!'
+    write(*,*)
+    write(*,*)
+
+  END SUBROUTINE FAREWELL
 
 END PROGRAM SUPERMODEL
