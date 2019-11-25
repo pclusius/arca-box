@@ -33,7 +33,7 @@ INTEGER :: inm_NO2
 INTEGER :: inm_CO
 INTEGER :: inm_H2
 INTEGER :: inm_O3
-INTEGER :: inm_JNH3
+INTEGER :: inm_JIN
 INTEGER :: inm_JDMA
 
 INTEGER, ALLOCATABLE :: INDRELAY_CH(:)
@@ -66,18 +66,20 @@ Logical :: Condensation        = .true.
 Logical :: Coagulation         = .true.
 Logical :: Extra_data          = .false.
 Logical :: Current_case        = .false.
+Logical :: RESOLVE_BASE        = .false.
 NAMELIST /NML_Flag/ Aerosol_flag, chemistry_flag, particle_flag,ACDC_solve_ss,NUCLEATION,ACDC, &
-         Extra_data, Current_case, Condensation, Coagulation, model_H2SO4
+         Extra_data, Current_case, Condensation, Coagulation, model_H2SO4, RESOLVE_BASE
 
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0
 real(dp)  :: FSAVE_INTERVAL = 300d0
 real(dp)  :: PRINT_INTERVAL = 15*60d0
 INTEGER   :: FSAVE_DIVISION = 0
-NAMELIST /NML_TIME/ runtime, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION
+INTEGER   :: dt = -1
+NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION
 
 ! MODIFIER OPTIONS
-! MODS and UNITS are declared in CONSTANTS.f90, in order to be more widely available
+! MODS is declared in CONSTANTS.f90, in order to be more widely available
 NAMELIST /NML_MODS/ MODS
 
 ! ----------------------------------------------------------------------------------------------------------------------
@@ -98,7 +100,6 @@ REAL(dp)            :: DMPS_read_in_time = 0d0
 character(len=256)  :: DMPS_dir
 character(len=256)  :: DMPS_file
 character(len=256)  :: extra_p_dir
-
 
 ! 4) name list of species making up the particle phase (we think that this will only be a few species that are measured in the particle phase): integer
 ! 5) number of nonvolatile species considered: integer
@@ -135,10 +136,15 @@ NAMELIST /NML_MCM / MCM_path, MCM_file
 real(dp)  :: lat              ! Latitude for Photochemistry
 real(dp)  :: lon              ! Longitude for Photochemistry
 real(dp)  :: CH_Albedo = 2d-1 ! Albedo
+real(dp)  :: DMA_f = 0
+real(dp)  :: resolve_BASE_precision = 1d-2
+CHARACTER(3) :: Fill_formation_with = ''
 INTEGER   :: JD = -1
 INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value for fixed amount of seconds
-CHARACTER(1000)  :: Description, Solver
-NAMELIST /NML_MISC/ JD, lat, lon, wait_for, Description,Solver, CH_Albedo
+LOGICAL   :: python   = .false. ! 1 = the program will offer to plot the output file GENERAL
+CHARACTER(1000)  :: Description='*'
+CHARACTER(100)   :: Solver = ''
+NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
 
 Logical  :: VAP_logical = .False.
 character(len=256)  :: Vap_names
@@ -162,7 +168,7 @@ subroutine READ_INPUT_DATA()
   real(dp)            :: molar_mass, parameter_A, parameter_B, fl_buff(2)
 
   ! Welcoming message
-  print'(a,t23,a)', achar(10),  '--~:| Gas and Aerosol Box Model - GAB v.0.1 |:~--'//achar(10)
+  print'(a,t35,a)', achar(10),  '--~:| HLS-BOX v.0.1 |:~--'//achar(10)
 
   ! CHECK HOW MANY POSSIBLE INPUT VARIABLES (METEOROLOGICAL, MCM ETC.) THERE ARE IN THE MODEL
   OPEN(2151, file='src/NAMES.dat', ACTION='READ', status='OLD', iostat=ioi)
@@ -483,7 +489,7 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
     IF (TRIM(MODS(I)%NAME) == 'CO'           ) inm_CO = i
     IF (TRIM(MODS(I)%NAME) == 'H2'           ) inm_H2 = i
     IF (TRIM(MODS(I)%NAME) == 'O3'           ) inm_O3 = i
-    IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_NH3' ) inm_JNH3 = i
+    IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_IN ' ) inm_JIN = i
     IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_DMA' ) inm_JDMA = i
     IF (TRIM(MODS(I)%NAME) == '#'            ) LENV = i
 
@@ -522,7 +528,6 @@ SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
   integer :: i
 
   DO i=1,N_VARS
-    IF (MODS(I)%NAME == '#') lenv = i
     IF ((I < lenv) .and. (ENV_file /= '') .and. (MODS(I)%col > -1)) THEN
       CONC_MAT(:,I) = input_ENV(:,MODS(I)%col)
     END IF
@@ -571,8 +576,12 @@ SUBROUTINE CHECK_MODIFIERS()
 
   print FMT_HDR, 'Check input validity'
 
+  ! Save input temperature and pressure for archive purpose
+  ORIGINAL_TEMP(1)  = MODS(inm_TempK)
+  ORIGINAL_press(1) = MODS(inm_pres)
+
   CALL CONVERT_TEMPS_TO_KELVINS
-  CALL CONVERT_PRESSURE
+  CALL CONVERT_PRESSURE_AND_VALIDATE_UNITS
 
   do i=1,size(MODS)
       IF (MODS(i)%MODE > 0) THEN
@@ -624,12 +633,12 @@ END SUBROUTINE CHECK_MODIFIERS
         CONC_MAT(:,inm_TempK) = CONC_MAT(:,inm_TempK) + 273.15d0
     ELSE
         print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
-        TempUnit = 'K'
     END IF
     ! Check if a double conversion is attempted
     IF ((TempUnit == 'C') .and. (  ABS(MODS(inm_TempK)%shift - 273.15)<1d0  )) THEN
         print FMT_WARN1, 'Temperature will be converted to Kelvins, but an additional constant is added: ',MODS(inm_TempK)%shift
     END IF
+    TempUnit = 'K'
     MODS(inm_TempK)%UNIT = TempUnit
   END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
 
@@ -637,7 +646,7 @@ END SUBROUTINE CHECK_MODIFIERS
 ! ================================================================================================
 ! This subroutine converts pressure from all possible input units to Pa
 ! ================================================================================================
-SUBROUTINE CONVERT_PRESSURE
+SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
   !use constants, ONLY: UCASE
   IMPLICIT NONE
   INTEGER      :: i
@@ -658,7 +667,6 @@ SUBROUTINE CONVERT_PRESSURE
       print FMT_MSG, '- Converting pressure from atm to Pascals.'
   elseif (TRIM(buf) == 'PA') THEN
       print FMT_MSG, '- Pressure is given in Pascals.'
-  continue
   else
       if ((MODS(inm_pres)%MODE > 0) .or. (MODS(inm_pres)%col > 1)  .or. (ABS(MODS(inm_pres)%multi - 1d0)>1d-9) .or. (ABS(MODS(inm_pres)%shift)>1d-16)) THEN
           if (TRIM(buf) == '#') THEN
@@ -669,6 +677,7 @@ SUBROUTINE CONVERT_PRESSURE
           end if
       end if
   end if
+  MODS(inm_pres)%UNIT = 'Pa'
 
   do i=1,N_VARS
       buf = UCASE(TRIM(MODS(i)%UNIT))
@@ -683,8 +692,8 @@ SUBROUTINE CONVERT_PRESSURE
           END IF
       end if
   end do
-END SUBROUTINE CONVERT_PRESSURE
 
+END SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
 
 
 
