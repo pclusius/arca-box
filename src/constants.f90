@@ -48,7 +48,7 @@ type input_mod
   CHARACTER(16) :: NAME = 'NONAME' ! Human readable name for modified variable
 
   ! UNITS FOR INPUT (case insensitive):
-  ! #      = number contentration in 1/cm3. DEFAULT ASSUMPTION
+  ! #      = number concentration in 1/cm3. DEFAULT ASSUMPTION
   ! 'ppm'  = parts per million (1/1e6)
   ! 'ppb'  = parts per billion (1/1e9)
   ! 'ppt'  = parts per trillion (1/1e12)
@@ -117,8 +117,14 @@ end interface operator(.mod.)
 ! ------------------------------------------------------------
 
 type(timetype)  :: MODELTIME
-type(input_mod), allocatable :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
-REAL(dp) :: C_AIR_NOW
+type(input_mod), allocatable  :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
+TYPE(input_mod)               :: ORIGINAL_TEMP(2), ORIGINAL_press(2)
+REAL(dp)                      :: J_ACDC_NH3 = 0d0
+REAL(dp)                      :: J_ACDC_DMA = 0d0
+REAL(dp)                      :: J_NH3_BY_IONS(3) = 0d0
+REAL(dp)                      :: acdc_cluster_diam = 2.17d-9
+
+REAL(dp) :: C_AIR_NOW, RESOLVED_BASE, RESOLVED_J
 CONTAINS
 
 ! =================================================================================================
