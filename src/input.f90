@@ -626,12 +626,12 @@ END SUBROUTINE CHECK_MODIFIERS
 
     IF (UCASE(TempUnit) == 'K') THEN
         print FMT_MSG, '- Temperature input in Kelvins.'
-    ELSEIF (UCASE(TempUnit) == 'C') THEN
+      ELSEIF (UCASE(TempUnit) == 'C') THEN
         print FMT_MSG, '- Converting temperature from degrees C -> K.'
         MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
         MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
         CONC_MAT(:,inm_TempK) = CONC_MAT(:,inm_TempK) + 273.15d0
-    ELSE
+      ELSE
         print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
     END IF
     ! Check if a double conversion is attempted
@@ -657,17 +657,21 @@ SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
       CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 100d0
       MODS(inm_pres)%shift = MODS(inm_pres)%shift *100d0
       print FMT_MSG, '- Converting pressure from hPa (mbar) to Pascals.'
-  elseif (TRIM(buf) == 'KPA') THEN
+    elseif (TRIM(buf) == 'KPA') THEN
       CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1000d0
       MODS(inm_pres)%shift = MODS(inm_pres)%shift *1000d0
       print FMT_MSG, '- Converting pressure from kPa to Pascals.'
-  elseif (TRIM(buf) == 'ATM') THEN
+    elseif (TRIM(buf) == 'ATM') THEN
       CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1.01325d5
       MODS(inm_pres)%shift = MODS(inm_pres)%shift * 1.01325d5
       print FMT_MSG, '- Converting pressure from atm to Pascals.'
-  elseif (TRIM(buf) == 'PA') THEN
+    elseif (TRIM(buf) == 'PA') THEN
       print FMT_MSG, '- Pressure is given in Pascals.'
+<<<<<<< HEAD
   else
+=======
+    else
+>>>>>>> Dev_PC
       if ((MODS(inm_pres)%MODE > 0) .or. (MODS(inm_pres)%col > 1)  .or. (ABS(MODS(inm_pres)%multi - 1d0)>1d-9) .or. (ABS(MODS(inm_pres)%shift)>1d-16)) THEN
           if (TRIM(buf) == '#') THEN
               print FMT_MSG, '- Assuming Pascals for pressure.'

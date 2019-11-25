@@ -66,7 +66,11 @@ for i,v in enumerate(cache):
         hnames.append(v)
     # elif (len(uniq(ncs[0].variables[v][:]))>1):
     if not 'Shifter' in v and not 'Multipl' in v:
-    hnames.append(v)
+        hnames.append(v)
+
+for var in hnames:
+    strg = var+"=compound('%s')"%(var)
+    exec(strg)
 
 for var in hnames:
     strg = var+"=compound('%s')"%(var)
@@ -75,7 +79,7 @@ for var in hnames:
 ax.set_title(file)
 
 if len(hnames)<60:
-plt.subplots_adjust(left=0.35, bottom=0.1)
+    plt.subplots_adjust(left=0.35, bottom=0.1)
 else:
     plt.subplots_adjust(left=0.1, bottom=0.1)
 
@@ -96,8 +100,8 @@ else:
 radio = RadioButtons(rax, ('linear','log'), active=0)
 
 if len(hnames)<60:
-axrads = plt.axes([0.05, 0.1, 0.2, 0.8], facecolor='w')
-radplt = RadioButtons(axrads, (hnames), active=0)
+    axrads = plt.axes([0.05, 0.1, 0.2, 0.8], facecolor='w')
+    radplt = RadioButtons(axrads, (hnames), active=0)
     roundradios(axrads, radplt,1)
 
 roundradios(rax, radio,1)
@@ -125,8 +129,8 @@ radio.on_clicked(scalefunc)
 radio.on_clicked(update)
 
 if len(hnames)<60:
-radplt.on_clicked(plot_var)
-radplt.on_clicked(update)
+    radplt.on_clicked(plot_var)
+    radplt.on_clicked(update)
 
 def NAMES():
     for i in range(len(hnames)//6 + 1):
