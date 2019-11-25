@@ -72,10 +72,6 @@ for var in hnames:
     strg = var+"=compound('%s')"%(var)
     exec(strg)
 
-for var in hnames:
-    strg = var+"=compound('%s')"%(var)
-    exec(strg)
-
 ax.set_title(file)
 
 if len(hnames)<60:
