@@ -1,30 +1,37 @@
+# NML_Path
+# NML_Flag
+# NML_TIME
+# NML_PARTICLE
+# NML_Temp
+# NML_MCM
+# NML_MODS
+# NML_MISC
+# NML_VAP
+
 ####### model initialization setup ############
 
 &NML_path
  Work_Dir    =
  Case_Dir    =  'input'
- Case_name   =  'Hyde'
- RUN_NAME = 'ACDC'
+ Case_name   =  'ACDC'
+ RUN_NAME    =  'RH45'
 /
 
 ####### Flags setup True or false #######
 &NML_Flag
  ACDC_solve_ss  =   .true.
  Aerosol_flag   =   .True.,
- Chemistry_flag =   .True.,
+ Chemistry_flag =   .False.,
  Particle_flag  =   .False.,
  Extra_data     =   .False.,
  Current_case   =   .True.,
- RESOLVE_BASE   =   .True.,
- RESOLVE_BASE   =   .false.,
 /
 
 !####### TIME related user input #####
 &NML_TIME
- runtime        = 0.2
- dt        = 600
+runtime        = 12
  PRINT_INTERVAL = 600
- FSAVE_INTERVAL = 600
+FSAVE_INTERVAL = 300
  FSAVE_DIVISION = 0
 /
 
@@ -35,15 +42,9 @@
 
 ####### ENV file read #####
 &NML_ENV
-!ENV_file = '180403.dat'
-!ENV_file = '180411.dat'
-!  ENV_file = '180404.dat'
-! ENV_file = '180410.dat'
-!  ENV_file = '180412.dat'
-!  ENV_file = '180407.dat'
-!  ENV_file = '180499.dat'
-!  ENV_path         = '/home/pecl/APCAD/supermodel-phase-1/input'
-  TempUnit         = 'C' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
+ENV_path         = '/home/pecl/APCAD/supermodel-phase-1/input'
+ENV_file = 'nh3_ts.txt'
+TempUnit         = 'K' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
 /
 
 ####### MCM file read #####
@@ -58,14 +59,13 @@
 &NML_MODS
 MODS(1) = 0 -1  0.00000d+00  278.100000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! TEMPK
 MODS(2) = 0 -1  0.00000d+00  1000.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! PRESSURE
-MODS(3) = 0 -1  0.00000d+00  50.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! REL_HUMIDITY
-MODS(4) = 0 -1  0.00000d+00  1.0000d-03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! CONDENS_SINK
-MODS(6) = 0 -1  0.00000d+00  3.00000d+0  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! ION_PROD_RATE
-MODS(7) = 0 -1  0.0d+0  4e+6   1.000000+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! H2SO4
-MODS(8) = 0 -1  0.00000d+00  200.0  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! NH3
-MODS(9) = 0 -1  0.00d+00  0.00000d+00  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! DMA
-MODS(8)%UNIT = 'ppt'
-MODS(9)%UNIT = 'ppt'
+MODS(3) = 0 -1  0.00000d+00  45.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! REL_HUMIDITY
+MODS(4) = 0 -1  0.00000d+00  1.0000d-02  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! CONDENS_SINK
+MODS(7) = 0 -1  0.00000d+00  3.00000d+0  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! ION_PROD_RATE
+MODS(8) = 0 -1  0.0d+0  6e+7   1.000000+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! H2SO4
+MODS(9) = 0 2  1.00000d+00  0.0  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppt' ! NH3
+MODS(10) = 0 2  1.00d-2  0.00000d+00  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppt' ! DMA
+MODS(8)%UNIT = '#'
 MODS(2)%UNIT = 'hPa'
 /
 
@@ -75,6 +75,7 @@ MODS(2)%UNIT = 'hPa'
   lon = 7
   JD  = 2
   Description = 'Just some testing'
+  python = .true.
 /
 
 ####### Vap stuff #####
