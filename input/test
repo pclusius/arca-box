@@ -13,7 +13,7 @@
  Aerosol_flag   =   .False.
  Chemistry_flag =   .True.
  Model_H2SO4    =   .true.
- Particle_flag  =   .False.
+ Particle_flag  =   .true.
  Extra_data     =   .False.
  Current_case   =   .True.
  RESOLVE_BASE   =   .True.
@@ -32,13 +32,14 @@
 &NML_PARTICLE
 use_dmps = .true.
 dmps_dir = 'input'
-dmps_file = 'dm150101.sum'
-!extra_particles = '/home/pecl/APCAD/supermodel-phase-1/input/xtra.dat'
+dmps_file = 'dm1804.dat'
+extra_p_dir = 'input'
+extra_particles = 'xtra.dat'
 /
 
 ####### ENV file read #####
 &NML_ENV
-  ENV_file         = '180403.dat'
+  ENV_file         = 'meas.dat'
   ENV_path         = 'input'
   TempUnit         = 'C' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
 /
