@@ -33,7 +33,7 @@ INTEGER :: inm_NO2
 INTEGER :: inm_CO
 INTEGER :: inm_H2
 INTEGER :: inm_O3
-INTEGER :: inm_JNH3
+INTEGER :: inm_JIN
 INTEGER :: inm_JDMA
 
 INTEGER, ALLOCATABLE :: INDRELAY_CH(:)
@@ -136,13 +136,14 @@ real(dp)  :: lat              ! Latitude for Photochemistry
 real(dp)  :: lon              ! Longitude for Photochemistry
 real(dp)  :: CH_Albedo = 2d-1 ! Albedo
 real(dp)  :: DMA_f = 0
+real(dp)  :: resolve_BASE_precision = 1d-2
+CHARACTER(3) :: Fill_formation_with = ''
 INTEGER   :: JD = -1
 INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value for fixed amount of seconds
 LOGICAL   :: python   = .false. ! 1 = the program will offer to plot the output file GENERAL
 CHARACTER(1000)  :: Description='*'
 CHARACTER(100)   :: Solver = ''
-real(dp)         :: resolve_NH3_precision = 1d-2
-NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_NH3_precision
+NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
 
 Logical  :: VAP_logical = .False.
 character(len=256)  :: Vap_names
@@ -486,7 +487,7 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
     IF (TRIM(MODS(I)%NAME) == 'CO'           ) inm_CO = i
     IF (TRIM(MODS(I)%NAME) == 'H2'           ) inm_H2 = i
     IF (TRIM(MODS(I)%NAME) == 'O3'           ) inm_O3 = i
-    IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_NH3' ) inm_JNH3 = i
+    IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_IN ' ) inm_JIN = i
     IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_DMA' ) inm_JDMA = i
     IF (TRIM(MODS(I)%NAME) == '#'            ) LENV = i
 

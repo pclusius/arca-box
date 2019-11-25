@@ -25,10 +25,6 @@ PROGRAM Supermodel
     ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
     REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)
     REAL(DP), ALLOCATABLE :: CH_GAS(:)
-    REAL(dp) :: J_ACDC_NH3 = 0d0
-    REAL(dp) :: J_ACDC_DMA = 0d0
-    REAL(dp) :: J_NH3_BY_IONS(3) = 0d0
-    REAL(dp) :: acdc_cluster_diam = 2.17d-9
 
     REAL(dp) ::                                &
         CH_RO2,                                &   ! RO2 concentration in [molecules / cm^3]
@@ -157,7 +153,7 @@ PROGRAM Supermodel
 
         ! =================================================================================================
         ! NUCLEATION
-        IF (NUCLEATION .and. (.not. error%error_state) .and. .not. RESOLVE_BASE) THEN
+        IF (NUCLEATION .and. (.not. error%error_state) ) THEN
             if (ACDC) THEN
                 CALL ACDC_J(TSTEP_CONC)
             else
@@ -166,7 +162,7 @@ PROGRAM Supermodel
             END if
         END if
 
-        if (MODELTIME%savenow .and. RESOLVE_BASE) CALL Get_BASE(TSTEP_CONC)
+        if (MODELTIME%savenow .and. RESOLVE_BASE) CALL Get_BASE(TSTEP_CONC, RESOLVED_BASE, RESOLVED_J)
         ! =================================================================================================
 
         ! Condensation
