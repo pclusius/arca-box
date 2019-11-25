@@ -13,7 +13,7 @@
  Aerosol_flag   =   .False.
  Chemistry_flag =   .True.
  Model_H2SO4    =   .true.
- Particle_flag  =   .False.
+ Particle_flag  =   .true.
  Extra_data     =   .False.
  Current_case   =   .True.
 /
@@ -32,7 +32,8 @@
 use_dmps = .true.
 dmps_dir = 'input'
 dmps_file = 'dm1804.dat'
-!extra_particles = '/home/pecl/APCAD/supermodel-phase-1/input/xtra.dat'
+extra_p_dir = 'input'
+extra_particles = 'xtra.dat'
 /
 
 ####### ENV file read #####

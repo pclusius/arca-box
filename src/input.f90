@@ -97,6 +97,8 @@ REAL(dp)            :: DMPS_read_in_time = 0d0
 ! 6) PSD input as discussed: real (time, total conc in first two columns, diameter in first row and concentration matrix) (nr_times + 1, nr_channels + 2)
 character(len=256)  :: DMPS_dir
 character(len=256)  :: DMPS_file
+character(len=256)  :: extra_p_dir
+
 
 ! 4) name list of species making up the particle phase (we think that this will only be a few species that are measured in the particle phase): integer
 ! 5) number of nonvolatile species considered: integer
@@ -110,7 +112,7 @@ REAL(dp)            :: dmps_highband_lower_limit = 15d-9    !for use_dmps_specia
 REAL(dp)            :: dmps_lowband_upper_limit = 6.*1d-10  !for use_dmps_special, read all dmps data below this diameter [m]
 logical             :: use_dmps = .false.
 logical             :: use_dmps_special = .false.
-NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_particle,min_particle_diam,max_particle_diam, DMPS_dir, DMPS_file,extra_particles,&
+NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_particle,min_particle_diam,max_particle_diam, DMPS_dir,extra_p_dir, DMPS_file,extra_particles,&
                         DMPS_read_in_time,dmps_highband_lower_limit, dmps_lowband_upper_limit,use_dmps,use_dmps_special
 
 type(inert_particles), ALLOCATABLE :: xtras(:)
@@ -247,13 +249,14 @@ subroutine READ_INPUT_DATA()
 
   IF (extra_particles /= '') THEN
     ! First we open the extra particle files to count the dimensions needed for the matrix
-    OPEN(unit=51, File=TRIM(extra_particles) , STATUS='OLD', iostat=ioi)
+    OPEN(unit=51, File=TRIM(extra_p_dir)//'/'//TRIM(extra_particles) , STATUS='OLD', iostat=ioi)
     Z = ROWCOUNT(51)
-
+    PRINT*, 'reading XTRAS:', Z
     ! Now we can allocate it
     allocate(XTRAS(Z))
 
     DO I=1,Z
+      PRINT*,'Z', Z
       allocate(XTRAS(I)%options(n_xpar_options))
 
       read(51,'(a)') buf
@@ -305,12 +308,13 @@ subroutine READ_INPUT_DATA()
 
     END DO
     CLOSE(51)
-
     do i=1,Z
       print FMT_MSG, 'Extra particle input for '//XTRAS(i)%name
     end do
-
   END IF
+
+
+
 
 
   print FMT_LEND,
