@@ -69,6 +69,8 @@ PROGRAM Supermodel
         CALL GeneratePSDfromInput(dp_fit,y_fit)
         DEALLOCATE(dp_fit)
         DEALLOCATE(y_fit)
+        dummy_property = dummy_property * &
+        LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))        
         current_PSD%conc_fs = dummy_property
         PRINT*,'model dp: ', current_PSD%diameter_fs(1:6), '...'
         PRINT*,'fitted model PSD: ',current_PSD%conc_fs(1:6), '...'
