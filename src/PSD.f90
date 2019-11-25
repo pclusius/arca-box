@@ -304,8 +304,8 @@ MODULE ParticleSizeDistribution
         END IF
 
         !Convert from dNdlogdo to concentration:
-        dummy_property(j) = dummy_property(j) * &
-        LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))
+        !dummy_property(j) = dummy_property(j) * &
+        !LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))
       END DO
     ELSE
       print*,'choose other form of representation:'
