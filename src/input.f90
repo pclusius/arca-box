@@ -49,21 +49,21 @@ character(len=256), private :: Fname_init ! init file names
 
 ! MAIN PATHS
 character(len=256):: WORK_DIR   = ''
-character(len=256):: CASE_DIR   = ''
-character(len=256):: CASE_NAME  = ''
-character(len=30) :: RUN_NAME   = ''
+character(len=256):: CASE_DIR   = 'input'
+character(len=256):: CASE_NAME  = 'DEFAULT'
+character(len=30) :: RUN_NAME   = 'RUN'
 NAMELIST /NML_Path/ Work_dir, Case_Dir, Case_name, RUN_NAME
 
 ! MODULES IN USE OPTIONS
 Logical :: Aerosol_flag        = .false.
-Logical :: Chemistry_flag      = .true.
+Logical :: Chemistry_flag      = .false.
 Logical :: Particle_flag       = .false.
 Logical :: ACDC_solve_ss       = .false.
-Logical :: NUCLEATION          = .true.
+Logical :: NUCLEATION          = .false.
 Logical :: ACDC                = .true.
 Logical :: model_H2SO4         = .false.
-Logical :: Condensation        = .true.
-Logical :: Coagulation         = .true.
+Logical :: Condensation        = .false.
+Logical :: Coagulation         = .false.
 Logical :: Extra_data          = .false.
 Logical :: Current_case        = .false.
 Logical :: RESOLVE_BASE        = .false.

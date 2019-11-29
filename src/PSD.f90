@@ -115,7 +115,7 @@ MODULE ParticleSizeDistribution
 
     !input particle size distribution:
     nr_times = size(par_data(2:,1))
-    nr_channels = size(par_data(1,3:))
+    nr_channels = size(par_data(1,2:))
     !write(*,*) current_PSD%PSD_style, current_PSD%nr_bins, current_PSD%dp_range
     !write(*,*) nr_species_P, nr_noncond, nr_times, nr_channels
     !PAUSE

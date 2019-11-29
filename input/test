@@ -10,14 +10,18 @@ FSAVE_DIVISION = 0
 
 ####### MODULE settings #######
 &NML_Flag
-ACDC_solve_ss  =   .False.
-Aerosol_flag   =   .False.
-Chemistry_flag =   .True.
-Model_H2SO4    =   .true.
-Particle_flag  =   .true.
-Extra_data     =   .False.
-Current_case   =   .True.
-RESOLVE_BASE   =   .false.
+Aerosol_flag        = .true.
+Chemistry_flag      = .true.
+Particle_flag       = .true.
+ACDC_solve_ss       = .true.
+NUCLEATION          = .true.
+ACDC                = .true.
+model_H2SO4         = .false.
+Condensation        = .true.
+Coagulation         = .true.
+Extra_data          = .false.
+Current_case        = .false.
+RESOLVE_BASE        = .false.
 /
 
 ####### PATH settings ############
