@@ -117,8 +117,8 @@ NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_particle,min_particle_diam,max_particle_
                         DMPS_read_in_time,dmps_highband_lower_limit, dmps_lowband_upper_limit,use_dmps,use_dmps_special
 
 type(inert_particles), ALLOCATABLE :: xtras(:)
-
-!
+! BG_PAR is here in case you want to use it Carlton and Lukas, in the end we remove either BG_PAR or par_data mmkay.
+type(inert_particles) :: BG_PAR
 
 
 ! ENVIRONMENTAL INPUT
@@ -144,7 +144,7 @@ INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value
 LOGICAL   :: python   = .false. ! 1 = the program will offer to plot the output file GENERAL
 CHARACTER(1000)  :: Description='*'
 CHARACTER(100)   :: Solver = ''
-NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
+NAMELIST /NML_General_opts/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
 
 Logical  :: VAP_logical = .False.
 character(len=256)  :: Vap_names
@@ -245,13 +245,39 @@ subroutine READ_INPUT_DATA()
     rowcol_count%rows = ROWCOUNT(51,'#')
     rowcol_count%cols = COLCOUNT(51)
 
-    allocate(par_data(rowcol_count%rows,rowcol_count%cols))
-    DO I = 1, rowcol_count%rows
-      read(51,*) par_data(I,:)
+    ! Allocate par_data, for this we find out if the particle file has the total particle number as second column in
+    ! which case it gets omitted
+    read(51,*) fl_buff
+    IF (fl_buff(2) > 0d0) THEN
+      allocate(par_data(rowcol_count%rows,rowcol_count%cols))
+    ELSE
+      allocate(par_data(rowcol_count%rows,rowcol_count%cols-1))
+    END IF
+    REWIND(51)
+
+    DO I=1,rowcol_count%rows
+      IF (fl_buff(2) > 0d0) then
+        read(51,*) par_data(I,:)
+      END IF
+      IF (fl_buff(2) < 1d-200) THEN
+        read(51,*) par_data(I,1), fl_buff(1), par_data(I,2:)
+      END IF
     END DO
     CLOSE(51)
 
-  end if
+    ! BG_PAR is here in case you want to use it Carlton and Lukas, in the end we remove either BG_PAR or par_data mmkay.
+    allocate(BG_PAR%binseries(size(par_data(:,1))-1, size(par_data(1,:))-1))
+    allocate(BG_PAR%options(1))
+    allocate(BG_PAR%time(size(par_data(:,1))-1))
+    allocate(BG_PAR%sections(size(par_data(1,:))-1))
+    BG_PAR%name = 'BACKGROUND_CONC'
+    BG_PAR%time = par_data(2:, 1)
+    BG_PAR%sections = par_data(1, 2:)
+    BG_PAR%binseries = par_data(2:, 2:)
+
+  END IF
+
+
 
   IF (extra_particles /= '') THEN
     ! First we open the extra particle files to count the dimensions needed for the matrix
@@ -268,7 +294,7 @@ subroutine READ_INPUT_DATA()
 
       read(51,'(a)') buf
 
-      ! Get the indexes for slicing separating path, name and options from eac line of the input file
+      ! Get the indexes for slicing, path, name and options from each line of the input file
       path_l = 0
       k = 1
       DO J=2, LEN(TRIM(BUF))
@@ -403,7 +429,7 @@ subroutine READ_INIT_FILE
 ! Reads the init file and fills user-provided variables
 !-------------------------------------------------------------------------------
   implicit none
-  integer :: IOS(20)
+  integer :: IOS(20)=0, i=1, k
   CALL GETARG(1,Fname_init)
   ! Advice user if no INITFILE was provided
   IF (Fname_init == '') THEN
@@ -415,41 +441,54 @@ subroutine READ_INIT_FILE
     STOP
   END IF
 
-  ! Handle file not found error
-  IOS = 0
   OPEN(UNIT=50, FILE=TRIM(ADJUSTL(Fname_init)), STATUS='OLD', ACTION='READ', iostat=IOS(1))
+  ! Handle file not found error
   IF (IOS(1) /= 0) THEN
     write(*,FMT_FAT0) 'No INITFILE called '//TRIM(ADJUSTL(Fname_init))//', exiting. Good bye.'
     write(*,FMT_LEND)
     STOP
   END IF
-  ! INITFILE was found, reading it. In case there is a problem in namelist filling, give en error.
+
+  ! if INITFILE was found, we read it. In case there is a problem in namelist filling, give en error.
   write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM: '//TRIM(ADJUSTL(Fname_init))
-  READ(50,NML=NML_Path,  IOSTAT= IOS(2)) ! directories and test cases
-    IF (IOS(2) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Path, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_Flag,  IOSTAT= IOS(3)) ! flags
-    IF (IOS(3) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Flag, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_TIME,  IOSTAT= IOS(4)) ! time related stuff
-    IF (IOS(4) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_TIME, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_PARTICLE,  IOSTAT= IOS(5)) ! dmps_file information
-    IF (IOS(5) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_PARTICLE, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_ENV,  IOSTAT= IOS(6)) ! environmental information
-    IF (IOS(6) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_Temp, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_MCM,   IOSTAT= IOS(7)) ! MCM_file information
-    IF (IOS(7) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MCM, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_MODS,  IOSTAT= IOS(8)) ! modification parameters
-    IF (IOS(8) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MODS, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_MISC,  IOSTAT= IOS(10)) ! misc input
-    IF (IOS(10) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_MISC, maybe some undefinded INITFILE input?'
-  READ(50,NML=NML_VAP,  IOSTAT= IOS(11)) ! vapour input
-      IF (IOS(11) /= 0) write(*,FMT_FAT0) 'Problem in INITFILE; NML_VAP, maybe some undefinded INITFILE input?'
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_TIME, IOSTAT=IOS(i))
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_Flag, IOSTAT=IOS(i))
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_Flag, IOSTAT=IOS(i))
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_Path, IOSTAT=IOS(i))
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_General_opts, IOSTAT=IOS(i))
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_VAP, IOSTAT=IOS(i))
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_PARTICLE, IOSTAT=IOS(i))
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_ENV, IOSTAT=IOS(i))
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_MCM, IOSTAT=IOS(i))
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_MODS, IOSTAT=IOS(i))
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
   CLOSE(50)
 
-  IF (SUM(IOS) /= 0) then
-    write(*,FMT_MSG) 'There was a problem with INITFILE. Check the file and refer to manual. Exiting now.'
-    write(*,FMT_LEND)
-    STOP
-  end if
+  ! IF (SUM(ABS(IOS)) /= 0) then
+  !   write(*,FMT_MSG) 'There was a problem with INITFILE. Check the file and refer to manual. Exiting now.'
+  !   write(*,FMT_LEND)
+    ! STOP
+  ! end if
 
 end subroutine READ_INIT_FILE
 
