@@ -16,7 +16,7 @@
  CONDENSATION=T,
  COAGULATION=T,
  MODEL_H2SO4=T,
- RESOLVE_BASE=T,
+ RESOLVE_BASE=F,
  /
 &NML_TIME
  RUNTIME=  20.000000000000000     ,
@@ -32,7 +32,7 @@
  MAX_PARTICLE_DIAM=  9.9999999999999995E-007,
  DMPS_DIR="input                                                                                                                                                                                                                                                           ",
  EXTRA_P_DIR="input                                                                                                                                                                                                                                                           ",
- DMPS_FILE="dm1804.dat                                                                                                                                                                                                                                                      ",
+ DMPS_FILE="dm150101.sum                                                                                                                                                                                                                                                    ",
  EXTRA_PARTICLES="xtra.dat                                                                                                                                                                                                                                                        ",
  DMPS_READ_IN_TIME=  0.0000000000000000     ,
  DMPS_HIGHBAND_LOWER_LIMIT=  1.4999999999999999E-008,

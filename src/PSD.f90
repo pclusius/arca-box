@@ -23,8 +23,7 @@ MODULE ParticleSizeDistribution
               nr_times, &      !number of points in time for PSD_in
               nr_channels, &   !number of diameter channels for PSD_in
               nr_species_P  !number of species that can go to the particle phase
-  REAL(dp), ALLOCATABLE :: &
-                          PSD_in(:,:)
+  REAL(dp), ALLOCATABLE :: PSD_in(:,:)
   !END variables that will be defined outside
 
   REAL(dp), ALLOCATABLE :: &
@@ -91,7 +90,6 @@ MODULE ParticleSizeDistribution
     IMPLICIT NONE
 
     INTEGER :: &
-                Z ,&            !number of components from xtras
                 nr_noncond      !number of species on the particle that are non-volatile
 
     !SET mode of particle size distribution representation:
@@ -112,7 +110,7 @@ MODULE ParticleSizeDistribution
     !H2SO4 is added to the particle phase => +1
     !non condensables initially on the particle phase
     !vapour_number is the stuff that has a quatifiable vapour pressure > 0
-    nr_noncond = Z  !this will have to be derived from input: XTRAS -> don't know how at the moment
+    nr_noncond = size(XTRAS)  !this will have to be derived from input: XTRAS -> don't know how at the moment
     nr_species_P = vapours%vapour_number + 1 + nr_noncond
 
     !input particle size distribution:
@@ -133,7 +131,7 @@ MODULE ParticleSizeDistribution
     IMPLICIT NONE
 
 
-    IF (current_PSD%PSD_style == 1) THEN 
+    IF (current_PSD%PSD_style == 1) THEN
       ! FULLY STATIONARY representation !
       ALLOCATE(current_PSD%diameter_fs(current_PSD%nr_bins))
       ALLOCATE(current_PSD%volume_fs(current_PSD%nr_bins))
@@ -198,16 +196,16 @@ MODULE ParticleSizeDistribution
     !if dNdlogdp(i) > 0. and dNdlogdp(i +1 or -1) = 0. then the fit in between is 0!
     !Note this routine is not tested for cases where input size resolution is higher than in model
     IMPLICIT NONE
-    LOGICAL :: mono, &  !if mono is true -> capture monodisperse peak, else: ignore (to avoid to capture it several times)
-               warn_range   !if false, checks whether the range for simulation and input fit -> otherwise we might loose data from input distribution
-    INTEGER :: &
-               !i,  & !position in PSD_in -> 2 ... initial; 3 ... after 1 time interval (1 is the diamter array)
-               nr_channels, &  !Dimensions of the input PSD
-               j,k, &    !some integers for loops
-               channel, &    !bin number which is close and smaller than to input diameter
-               nr_fitted     !number of bins for fitted array (at the moment -> always nr_bins)
-    REAL(dp) :: &
-               ddNdlogdp  !difference in dNdlogdp between two channels
+    LOGICAL :: mono         ! if mono is true -> capture monodisperse peak, else: ignore (to avoid to capture it several times)
+    LOGICAL :: warn_range   ! if false, checks whether the range for simulation and input fit -> otherwise we might loose data from input distribution
+
+    ! INTEGER :: i            ! position in PSD_in -> 2 ... initial; 3 ... after 1 time interval (1 is the diamter array)
+    INTEGER :: nr_channels  ! Dimensions of the input PSD
+    INTEGER :: j,k          ! some integers for loops
+    INTEGER :: channel      ! bin number which is close and smaller than to input diameter
+    ! INTEGER :: nr_fitted    ! number of bins for fitted array (at the moment -> always nr_bins)
+
+    REAL(dp) :: ddNdlogdp   !difference in dNdlogdp between two channels
     REAL(dp),ALLOCATABLE :: &
                             dp_diff(:), &  !parameter to capture difference between model diameter array and input diameter
                             input_dp_y(:,:)    !input array consisting of diameter in first row and property y (e.g.: particle concentration) for semilog fitting
@@ -244,7 +242,7 @@ MODULE ParticleSizeDistribution
             PRINT*, 'max input diameter:', input_dp_y(1,nr_channels)
             PRINT*,current_PSD%diameter_fs(current_PSD%nr_bins) < input_dp_y(1,nr_channels),warn_range
             warn_range = .true.
-            PAUSE
+            ! PAUSE ! Lukas, this is a deprecated feature
           END IF
         END IF
         !PRINT*, current_PSD%diameter_fs(j),input_dp_y(1,1:),dp_diff
@@ -330,8 +328,7 @@ MODULE ParticleSizeDistribution
     !Subroutine input is change-array dconc_dep_mix(nr_bins) or dconc_coag(nr_bins,nr_bins) for number
     IMPLICIT NONE
     CHARACTER(len=15),INTENT(IN)  :: process
-    INTEGER :: &
-            i     !some integer for looping
+    ! INTEGER :: i     !some integer for looping
 
     IF (current_PSD%PSD_style == 1) THEN
       !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -368,11 +365,8 @@ MODULE ParticleSizeDistribution
     !ATTENTION: The composition in the largest bin is wrong if growth happens via a==0!!
     !           This might cause errors -> find some solution at some point
     IMPLICIT NONE
-    INTEGER :: &
-            i,j, &     !some integer for looping
-            a     !bin number where the new concentration moves to
-    REAL(dp) :: &
-            r1,r2    !contration fractions that move to bin a and a-1, respectively
+    INTEGER   :: i     !some integer for looping
+    ! REAL(dp)  :: r1,r2    !contration fractions that move to bin a and a-1, respectively
 
     IF (current_PSD%PSD_style == 1) THEN
       !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -409,9 +403,7 @@ MODULE ParticleSizeDistribution
     !Result is the new particle size distribution and composition: new_PSD%conc_fs and new_PSD%composition_fs
 
     IMPLICIT NONE
-    INTEGER :: &
-               i,j  !some integer for incrementation
-
+    INTEGER :: i,j  !some integer for incrementation
 
     IF (current_PSD%PSD_style == 1) THEN
       !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -462,9 +454,7 @@ MODULE ParticleSizeDistribution
     !mix_ratio dtermines the ratio between present and added volume
 
     IMPLICIT NONE
-    INTEGER :: &
-               i,j  !some integer for incrementation
-
+    INTEGER :: i ! some integer for incrementation
 
     IF (current_PSD%PSD_style == 1) THEN
       !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -511,11 +501,9 @@ MODULE ParticleSizeDistribution
     IMPLICIT NONE
 
     INTEGER, INTENT(IN) ::   i  !the bin which is to be redistributed -> it generally has different diameter than in diameter_fs!
-    INTEGER :: &
-               j,k,  &!some integer for incrementation
-               a     !a and (a+-1): bin number where the new concentration moves to
-    REAL(dp) :: &
-               r1,r2   !contration fractions that move to bin a and a-1, respectively
+    INTEGER   :: j      ! some integer for incrementation
+    INTEGER   :: a      ! a and (a+-1): bin number where the new concentration moves to
+    REAL(dp)  :: r1,r2 !contration fractions that move to bin a and a-1, respectively
 
 
     !Find the bin numbers (a-1, a) where the content goes to

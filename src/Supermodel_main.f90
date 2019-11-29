@@ -127,7 +127,6 @@ PROGRAM Supermodel
     print*,
     print FMT_HDR, 'INITIALIZING OUTPUT '
     CALL OPEN_FILES(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)), Description, MODS, CH_GAS, VAPOURS)
-
     CALL PAUSE_FOR_WHILE(wait_for)
 
     print*,;print FMT_HDR, 'Beginning simulation' ! Information to user
@@ -424,7 +423,7 @@ CONTAINS
                   print FMT_FAT0, 'You are using an (organic?) compound which does not exist in chemistry: '//TRIM(MODS(i)%NAME)//' '
                   IF (MODS(I)%COL > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (col) <- input from file.'
                   IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS - a function for input in use.'
-                  IF (ABS(MODS(I)%SHIFT - 0) > 1d-100) print FMT_SUB, 'In INITFILE; &NML_MODS (shift) <- modification of value.'
+                  IF (ABS(MODS(I)%SHIFT) > 1d-100) print FMT_SUB, 'In INITFILE; &NML_MODS (shift) <- modification of value.'
                   print FMT_MSG, 'Good bye.'
                   STOP
               END IF
@@ -434,7 +433,7 @@ CONTAINS
                   print FMT_WARN0, 'A compound which does not exist in chemistry but could be used elsewhere: '//TRIM(MODS(i)%NAME)//' '
                   IF (MODS(I)%COL > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (col) <- input from file.'
                   IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS - a function for input in use.'
-                  IF (ABS(MODS(I)%SHIFT - 0) > 1d-100) print FMT_SUB, 'In INITFILE; &NML_MODS (shift) <- modification of value.'
+                  IF (ABS(MODS(I)%SHIFT) > 1d-100) print FMT_SUB, 'In INITFILE; &NML_MODS (shift) <- modification of value.'
               END IF
           END IF
       END DO

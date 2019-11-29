@@ -1,12 +1,12 @@
-# NML_Path
-# NML_Flag
-# NML_TIME
-# NML_PARTICLE
-# NML_Temp
-# NML_MCM
-# NML_MODS
-# NML_MISC
-# NML_VAP
+!# NML_Path
+!# NML_Flag
+!# NML_TIME
+!# NML_PARTICLE
+!# NML_Temp
+!# NML_MCM
+!# NML_MODS
+!# NML_MISC
+!# NML_VAP
 
 ####### model initialization setup ############
 
@@ -27,7 +27,105 @@
  Current_case   =   .True.,
 /
 
-!####### TIME related user input #####
+!####### TIME related!####### TIME related user input #####
+&NML_TIME
+runtime        = 20
+PRINT_INTERVAL = 600
+FSAVE_INTERVAL = 300
+FSAVE_DIVISION = 0
+/
+
+
+####### Flags setup True or false #######
+&NML_Flag
+ACDC_solve_ss  =   .False.
+Aerosol_flag   =   .False.
+Chemistry_flag =   .True.
+Model_H2SO4    =   .true.
+Particle_flag  =   .true.
+Extra_data     =   .False.
+Current_case   =   .True.
+RESOLVE_BASE   =   .false.
+/
+
+
+####### model initialization setup ############
+&NML_path
+ Work_Dir    =
+ Case_Dir    = 'input'
+ Case_name   = 'TESTING'
+ RUN_NAME    = 'simple_run'
+/
+
+
+####### Misc stuff #####
+&NML_General_opts
+  lat = 60
+  lon = 25
+  JD  = 91
+  wait_for  = 0
+  python  = T
+  dma_f = 0.0
+  resolve_BASE_precision = 0.01
+  Fill_formation_with = ''
+  Description = 'Just some testing' ! THIS SHOULD BE MOVED TO THE TOP OF THE INITFILE (PC)
+/
+
+
+####### Vap stuff #####
+&NML_VAP
+  Vap_logical = .True.
+  Vap_names   = 'Vapour_names.dat'
+  Vap_props   = 'Vapour_properties.dat'
+/
+
+
+!####### dmps file read #####
+&NML_PARTICLE
+use_dmps = .true.
+dmps_dir = 'input'
+dmps_file = 'dm1804.dat'
+extra_p_dir = 'input'
+extra_particles = 'xtra.dat'
+/
+
+
+####### ENV file read #####
+&NML_ENV
+  ENV_file         = 'meas.dat'
+  ENV_path         = 'input'
+  TempUnit         = 'C' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
+/
+
+
+####### MCM file read #####
+&NML_MCM
+ MCM_path = ''
+ MCM_file = ''
+/
+
+
+####### MODS read #####
+#      mode col multi        shift        min          max         sig        mju         fv         ph         am        unit name
+&NML_MODS
+MODS(1) = 0 -1  1.00000d+00  0.00000d+00 -7.00000d+00  1.50000d+01 6.860000d0 9.960000d0 0.540000d0 2.980000d0 0.500000d0 'C'! TEMPK
+MODS(2) = 0 -1  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'MBAR'! PRESSURE
+MODS(3) = 0 -1  1.00000d+00  4.50000d+01  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! REL_HUMIDITY
+MODS(4) = 0 -1  1.00000d+00  2.00000d-02  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! CONDENS_SINK
+MODS(6) = 1 -1  1.00000d+00  1.00000d+00  4.00000d+00  5.00000d+02 2.070000d0 11.490000d0 0.220000d0 0.850000d0 2.060000d0 ! SW_RADIATION
+MODS(7) = 0 -1  1.00000d+00  3.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! ION_PROD_RATE
+MODS(8) = 0 -1  0.0d+00  5.00000d+06  1.000000+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! H2SO4
+MODS(9) = 1 -1  1.00000d+00  1.00000d-1  4.00000d-01  2.00000d+01 2.070000d0 11.490000d0 0.220000d0 0.850000d0 2.060000d0 'ppb'! NH3
+!MODS(10) = 0 -1  0.00d+00  2.00000d+02  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! DMA
+MODS(11) = 1 -1  1.00000d+00  0.00000d+00  1.00000d+01  2.00000d+02 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppt'! SO2
+MODS(12) = 1 -1  1.00000d+00  1.00000d+08  1.00000d+01  2.00000d+02 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppt'! NO
+MODS(13) = 1 -1  1.00000d+00  2.00000d+08  1.00000d+00  2.00000d+01 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppt'! NO2
+MODS(16) = 1 -1  1.00000d+00  1.00000d+11  1.00000d+00  2.00000d+01 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppb'! O3
+MODS(17) = 1 -1  1.00000d+00  0.00000d+00  4.50000d-02  1.00000d+00 2.610000d0 13.700000d0 1.670000d0 -2.840000d0 1.000000d0 ! NUC_RATE_IN
+MODS(151) = 0 -1  1.00d+00  2.120000d+09  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! APINENE
+
+/
+ user input #####
 &NML_TIME
 runtime        = 12
 PRINT_INTERVAL = 600
