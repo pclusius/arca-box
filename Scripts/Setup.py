@@ -30,6 +30,7 @@ class Comp:
         self.ph  = 0e0      # Angular frequency [hours] of modifying sine function
         self.am  = 1e0      # Amplitude of modificaion
         self.name = 'NONAME'# Human readable name for modified variable
+        self.unit = '#'     # unit name
         self.Find = 1
 
 class indix:
@@ -337,7 +338,7 @@ tabControl.pack(expand=1, fill="both")  # Pack to make visible
 # Tab 1
 #################################################################################
 
-# Variables primarily used in Tab 1
+# Variables primarily used inAerosol_flagAerosol_flag Tab 1
 runtime  =    tk.StringVar();
 PrInt  =    tk.StringVar();
 FSInt  =    tk.StringVar();

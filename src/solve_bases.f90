@@ -105,7 +105,7 @@ contains
     end if
     ! inform the result
     if (MODELTIME%printnow) THEN
-      if (UCASE(Fill_formation_with) == '') THEN
+      if (TRIM(UCASE(Fill_formation_with)) == '') THEN
         write(buf,'(4(a,es8.2),a,i0,a)') 'target J: ',target_J*1d-6, ' resolved J: ', iterJ*1d-6, '. NH3 ',testbase*1d-6, ' DMA:', testbase*DMA_f*1d-6, ' (',i,' iterations)'
       ELSE IF (UCASE(Fill_formation_with) == 'DMA') THEN
         write(buf,'(3(a,es8.2),a,i0,a)') 'target J: ',target_J*1d-6, ' resolved J: ', iterJ*1d-6, '. DMA:', testbase*1d-6, ' (',i,' iterations)'
