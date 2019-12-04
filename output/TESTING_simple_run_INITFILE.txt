@@ -19,7 +19,7 @@
  RESOLVE_BASE=F,
  /
 &NML_TIME
- RUNTIME=  20.000000000000000     ,
+ RUNTIME=  2.0000000000000000     ,
  DT=         -1,
  FSAVE_INTERVAL=  300.00000000000000     ,
  PRINT_INTERVAL=  600.00000000000000     ,
@@ -2162,7 +2162,7 @@
  LAT=  60.000000000000000     ,
  LON=  25.000000000000000     ,
  WAIT_FOR=          3,
- PYTHON=T,
+ PYTHON=F,
  DESCRIPTION="Just some testing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ",
  SOLVER="                                                                                                    ",
  CH_ALBEDO= 0.20000000000000001     ,

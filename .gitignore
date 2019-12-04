@@ -4,3 +4,4 @@
 *.out
 *.nc
 *.dump
+__pycache__

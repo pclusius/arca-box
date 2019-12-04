@@ -2,7 +2,7 @@
 
 !####### TIME settings #####
 &NML_TIME
-runtime        = 20
+runtime        = 2
 PRINT_INTERVAL = 600
 FSAVE_INTERVAL = 300
 FSAVE_DIVISION = 0
@@ -38,7 +38,7 @@ RESOLVE_BASE        = .false.
   lon = 25
   JD  = 91
   wait_for  = 3
-  python  = T
+  python  = F
   dma_f = 0.0
   resolve_BASE_precision = 0.01
   Fill_formation_with = ''
