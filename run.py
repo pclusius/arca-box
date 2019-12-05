@@ -1,5 +1,6 @@
 try:
-    from PySide2 import QtCore, QtWidgets
+    from PySide2 import QtCore, QtWidgets, QtGui
+    #from PySide2.QtCore import QProcess
 except:
     try:
         from PyQt5 import QtCore, QtWidgets
@@ -125,6 +126,7 @@ class MyQtApp(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
         self.checkBox_che_4.clicked.connect(lambda: self.toggle_gray(self.checkBox_che_4,self.gridLayout_4))
         self.checkBox_acd_7.clicked.connect(lambda: self.toggle_gray(self.checkBox_acd_7,self.gridLayout_11))
         self.spinBox.valueChanged.connect(self.toggle_printtime)
+        self.frameStop.setEnabled(False)
 
         self.readOut.clicked.connect(self.startBox)
         self.readOut_2.clicked.connect(self.stopBox)
@@ -132,6 +134,7 @@ class MyQtApp(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
         self.r = 0
         self.Timer = QtCore.QTimer(self);
         self.Timer.timeout.connect(self.updateOutput)
+        self.superbox = 0
 
     def browse_folder(self, target):
         dialog = QtWidgets.QFileDialog()
@@ -181,6 +184,12 @@ class MyQtApp(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
         self.selected_vars.setCellWidget(row, i+1, unit )
         self.selected_vars.setCellWidget(row, i+2, close )
 
+    def toggle_frame(self, frame):
+        if frame.isEnabled() == True:
+            frame.setEnabled(False)
+        else:
+            frame.setEnabled(True)
+
 
     def toggle_gray(self, guard, group):
         index = group.count()
@@ -191,7 +200,7 @@ class MyQtApp(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
             else:
                 grayWidget.setEnabled(False)
 
-    def toggle_frame(self, guard, frame):
+    def grayIfNotChecked(self, guard, frame):
         if guard.isChecked() == True:
             frame.setEnabled(True)
         else:
@@ -217,20 +226,49 @@ class MyQtApp(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
         self.boxProcess.kill()
         tout = self.boxProcess.wait(timeout=10)
         self.boxProcess.poll()
+        self.toggle_frame(self.frameStop)
+        self.toggle_frame(self.frameStart)
+        try:
+            self.r.close()
+        except:
+            pass
+
+    # def startBox(self):
+    #     tmpfile = subprocess.Popen(['tee', 'process_diary.txt'], stdin=subprocess.PIPE, stdout=None).stdin
+    #     self.boxProcess = subprocess.Popen(["./superbox.exe", " input/test"], stdout=tmpfile,stdin=subprocess.PIPE)
+    #     self.Timer.start(10)
+    #     self.r = open('process_diary.txt', 'r')
+    #     self.plainTextEdit_2.clear()
+    #
+    #
+    # def updateOutput(self):
+    #     text2=self.r.readlines()
+    #     fulltext = ''.join(text2)
+    #     self.plainTextEdit_2.insertPlainText(fulltext)
+    #     self.plainTextEdit_2.verticalScrollBar().setSliderPosition(self.plainTextEdit_2.verticalScrollBar().maximum());
+    #
+    #     if 'SIMULATION HAS ENDED' in fulltext[-50:]:
+    #         self.plainTextEdit_2.setPlainText(self.plainTextEdit_2.toPlainText())
+    #         self.plainTextEdit_2.verticalScrollBar().setSliderPosition(self.plainTextEdit_2.verticalScrollBar().maximum());
+    #         self.stopBox()
+
 
     def startBox(self):
-        tmpfile = subprocess.Popen(['tee', 'process_diary.txt'], stdin=subprocess.PIPE, stdout=None).stdin
-        self.boxProcess = subprocess.Popen(["./superbox.exe", " input/test"], stdout=tmpfile,stdin=subprocess.PIPE)
+        self.boxProcess = subprocess.Popen(["./superbox.exe", " input/test"], stdout=subprocess.PIPE,stdin=None)
+        self.plainTextEdit_2.clear()
         self.Timer.start(10)
-        self.r = open('process_diary.txt', 'r')
-
+        self.toggle_frame(self.frameStart)
+        self.toggle_frame(self.frameStop)
 
     def updateOutput(self):
-        text2=self.r.readlines()
-        # f.close()
-        # self.plainTextEdit_2.clear()
-        self.plainTextEdit_2.insertPlainText(''.join(text2))
-        self.plainTextEdit_2.ensureCursorVisible()
+        fulltext = self.boxProcess.stdout.readline().decode("utf-8")
+        self.plainTextEdit_2.insertPlainText(fulltext)
+        self.plainTextEdit_2.verticalScrollBar().setSliderPosition(self.plainTextEdit_2.verticalScrollBar().maximum());
+
+        if 'SIMULATION HAS ENDED' in str(fulltext)[-50:]:
+            self.plainTextEdit_2.setPlainText(self.plainTextEdit_2.toPlainText())
+            self.plainTextEdit_2.verticalScrollBar().setSliderPosition(self.plainTextEdit_2.verticalScrollBar().maximum());
+            self.stopBox()
 
 
 if __name__ == '__main__':

@@ -612,6 +612,7 @@ SUBROUTINE CHECK_MODIFIERS()
   type(input_mod) :: test
   integer         :: i,j=0
   character(4)    :: cprf
+  character(20)    :: buf
 
   print FMT_HDR, 'Check input validity'
 
@@ -624,11 +625,12 @@ SUBROUTINE CHECK_MODIFIERS()
 
   do i=1,size(MODS)
       IF (MODS(i)%MODE > 0) THEN
-          print FMT_NOTE0, 'Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
+          print FMT_MSG, '- Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
           j=1
       ELSE
           IF (ABS(MODS(i)%multi - test%multi) > 1d-9) THEN
-              print FMT_NOTE1, 'Multiplying '//TRIM(MODS(i)%name)//' with: ',MODS(i)%multi
+              write(buf, '(es9.3)') MODS(i)%multi
+              print FMT_MSG, '- Multiplying '//TRIM(MODS(i)%name)//' with: '//TRIM(buf)
               j=1
           END IF
           if (ABS(MODS(i)%shift - test%shift) > 1d-9) THEN
@@ -637,7 +639,8 @@ SUBROUTINE CHECK_MODIFIERS()
               else
                   cprf = ''
               end if
-              print FMT_NOTE1, 'Adding a constant to '//TRIM(MODS(i)%name)//', [in '//TRIM(MODS(i)%UNIT)//TRIM(cprf)//']: ',MODS(i)%shift
+              write(buf, '(es9.3)') MODS(i)%shift
+              print FMT_MSG, '- Adding a constant to '//TRIM(MODS(i)%name)//', [in '//TRIM(MODS(i)%UNIT)//TRIM(cprf)//']: '//TRIM(buf)
               j=1
           END IF
       END IF

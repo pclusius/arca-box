@@ -2161,7 +2161,7 @@
  JD=         91,
  LAT=  60.000000000000000     ,
  LON=  25.000000000000000     ,
- WAIT_FOR=          3,
+ WAIT_FOR=         -1,
  PYTHON=F,
  DESCRIPTION="Just some testing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ",
  SOLVER="                                                                                                    ",
