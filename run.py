@@ -6,7 +6,7 @@ except:
         from PyQt5 import QtCore, QtWidgets
     except:
         print("You need PySide2 or PyQt5 to run this program")
-from gui import guitest
+from gui import guitest, vars
 import subprocess
 
 import matplotlib
@@ -26,15 +26,16 @@ from matplotlib.figure import Figure
 #         print("You need PySide2 or PyQt5 to run this program")
 # #
 
+## All variables stored here ---------------------------------
+
 ## Some constants --------------------------------------------
 X = linspace(0,3,100)
 Y = sin(X)
 ## -----------------------------------------------------------
 
 ## Some constants --------------------------------------------
-cw = [140,80,80,80,70,50,60]
-all_units = [['K','C'],['Pa','hPa','bar','kPa', 'mbar'],['#','ppm','ppb','ppt','ppq']]
-
+column_widths = [140,70,70,70,70,50,60, 10]
+all_units = [['K','C'],['Pa','hPa','bar','kPa', 'mbar'],['#','ppm','ppb','ppt','ppq'], ['as is']]
 ## Read model names--------------------------------------------
 path_to_names = 'src/NAMES.dat'
 f = open(path_to_names)
@@ -55,6 +56,8 @@ for line in f:
     k = k+1
 f.close()
 ## -----------------------------------------------------------
+nml = vars.INITFILE(NAMES)
+
 
 class MyMplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
@@ -78,63 +81,116 @@ class MyMplCanvas(FigureCanvas):
     #     pass
 
 
+
 class MyStaticMplCanvas(MyMplCanvas):
     """Simple canvas with a sine plot."""
     def compute_initial_figure(self):
         self.axes.plot(X, Y)
 
 
-class MyQtApp(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
+class Comp:
+    def __init__(self):
+        self.index  = 0
+        self.mode  = 0
+        self.col  = -1
+        self.multi = 1e0    # Multiplication factor in MODE0
+        self.shift = 0e0    # Constant to be addded in MODE0
+        self.min = 1e1      # Minimum value for the parametrized concentration OR constant value if max <= min
+        self.max = 1e5      # Peak value
+        self.sig = 1e0      # Standard deviation for the Gaussian=sig of the bell curve
+        self.mju = 12e0     # Time of peak value
+        self.fv  = 0e0      # Angular frequency [hours] of modifying sine function
+        self.ph  = 0e0      # Angular frequency [hours] of modifying sine function
+        self.am  = 1e0      # Amplitude of modificaion
+        self.name = 'NONAME'# Human readable name for modified variable
+        self.unit = '#'     # unit name
+        self.Find = 1
+        self.pmInUse = 'no'
+
+class QtBoxGui(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
     """Main program window."""
     def __init__(self):
-        super(MyQtApp,self).__init__()
+        super(QtBoxGui,self).__init__()
         self.setupUi(self)
-        self.setWindowTitle('Superbox configurator')
-        self.get_Names()
-        # self.create_plot_area()
-        # self.showMaximized()
-        l = QtWidgets.QVBoxLayout(self.PLOT)
-        sc = MyStaticMplCanvas(self.PLOT, width=5, height=4, dpi=100)
-        l.addWidget(sc)
 
-        self.pushButton_10.clicked.connect(self.select_compounds)
-        for i in range(7):
-            self.selected_vars.setColumnWidth(i, cw[i])
-
-        self.add_new_line('TEMPK', 0)
-        self.add_new_line('PRESSURE', 1)
-        self.list_of_input = [self.lineEdit, self.lineEdit_2,self.lineEdit_3,self.lineEdit_4,self.lineEdit_5, self.spinBox_2]
-        self.pushButton_2.clicked.connect(self.print_values)
-
-        self.toolButton_4.clicked.connect(lambda: self.browse_folder(self.lineEdit_12))
-        self.toolButton_5.clicked.connect(lambda: self.browse_folder(self.lineEdit_13))
-
-        self.toolButton_2.clicked.connect(lambda: self.browse_file(self.lineEdit_10))
-        self.toolButton_3.clicked.connect(lambda: self.browse_file(self.lineEdit_11))
-        self.toolButton_6.clicked.connect(lambda: self.browse_file(self.lineEdit_14))
-        self.toolButton_9.clicked.connect(lambda: self.browse_file(self.lineEdit_17))
-
-        self.toolButton_7.clicked.connect(lambda: self.browse_file(self.lineEdit_15))
-        self.toolButton_8.clicked.connect(lambda: self.browse_file(self.lineEdit_16))
-        self.pushButton_3.clicked.connect(self.save_file)
+    # -----------------------
+    # Common actions
+    # -----------------------
+        self.setWindowTitle('Superbox utility')
+        self.prints = 1
+        self.printButton.clicked.connect(self.print_values)
+        self.saveButton.clicked.connect(self.save_file)
+        self.loadButton.clicked.connect(self.load_file)
         self.actionSave_2.triggered.connect(self.save_file)
         self.actionPrint.triggered.connect(self.print_values)
         self.actionOpen.triggered.connect(self.browse_file)
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
 
-        self.checkBox_aer.clicked.connect(lambda: self.toggle_frame(self.checkBox_aer,self.frame_4))
-        self.checkBox_che_4.clicked.connect(lambda: self.toggle_gray(self.checkBox_che_4,self.gridLayout_4))
-        self.checkBox_acd_7.clicked.connect(lambda: self.toggle_gray(self.checkBox_acd_7,self.gridLayout_11))
-        self.spinBox.valueChanged.connect(self.toggle_printtime)
-        self.frameStop.setEnabled(False)
+    # -----------------------
+    # tab General options
+    # -----------------------
+        self.namesdat.clear()
+        self.namesdat.addItems(NAMES)
 
-        self.readOut.clicked.connect(self.startBox)
-        self.readOut_2.clicked.connect(self.stopBox)
-        self.boxProcess = 0
-        self.r = 0
+        # Prepare the variable table
+        for i in range(len(column_widths)):
+            self.selected_vars.setColumnWidth(i, column_widths[i])
+
+        # add minimum requirements
+        self.add_new_line('TEMPK', 0)
+        self.add_new_line('PRESSURE', 1)
+
+        self.browseCommonIn.clicked.connect(lambda: self.browse_folder(self.case_dir))
+        self.browseCommonOut.clicked.connect(lambda: self.browse_folder(self.lineEdit_13))
+        self.browseEnv.clicked.connect(lambda: self.browse_file(self.env_file))
+        self.browseMcm.clicked.connect(lambda: self.browse_file(self.mcm_file))
+        self.browsePar.clicked.connect(lambda: self.browse_file(self.dmps_file))
+        self.browseXtr.clicked.connect(lambda: self.browse_file(self.extra_particles))
+        self.checkBox_aer.clicked.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.frame_4))
+        self.fsave_division.valueChanged.connect(self.toggle_printtime)
+
+    # -----------------------
+    # tab Input variables
+    # -----------------------
+        self.butMoveToSelVars.clicked.connect(self.select_compounds)
+        self.butRemoveSelVars.clicked.connect(self.remv_item)
+        self.selected_vars.setColumnHidden(7, True)
+
+    # -----------------------
+    # tab Function creator
+    # -----------------------
+        plt_layout = QtWidgets.QVBoxLayout(self.PLOT)
+        scanvas = MyStaticMplCanvas(self.PLOT, width=5, height=4, dpi=100)
+        plt_layout.addWidget(scanvas)
+        self.list_of_input = [self.runtime, self.run_name,self.case_dir]
+
+    # -----------------------
+    # tab Advanced
+    # -----------------------
+        self.frameBase.setEnabled(False)
+        self.butVapourNames.clicked.connect(lambda: self.browse_file(self.vap_names))
+        self.butVapour.clicked.connect(lambda: self.browse_file(self.vap_props))
+        self.vap_logical.clicked.connect(lambda: self.grayIfNotChecked(self.vap_logical,self.frameVap))
+        self.resolve_base.clicked.connect(lambda: self.grayIfNotChecked(self.resolve_base,self.frameBase))
+        self.use_dmps_special.clicked.connect(lambda: self.toggle_gray(self.use_dmps_special,self.gridLayout_11))
+    # -----------------------
+    # tab Process Monitor
+    # -----------------------
+        self.frameStop.setEnabled(False)
+        self.startButton.clicked.connect(self.startBox)
+        self.stopButton.clicked.connect(self.stopBox)
+        self.boxProcess = 0 # Superbox run handle
+        # self.r = 0 # Superbox output file handle
         self.Timer = QtCore.QTimer(self);
         self.Timer.timeout.connect(self.updateOutput)
-        self.superbox = 0
+
+
+    # -----------------------
+    # Class methods
+    # -----------------------
+    def load_file(self):
+        print('loads file')
+        pass
 
     def browse_folder(self, target):
         dialog = QtWidgets.QFileDialog()
@@ -143,7 +199,9 @@ class MyQtApp(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
         options = dialog.Options()
         options |= dialog.DontUseNativeDialog
         directory = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
-        target.insert(directory)
+        if directory != '':
+            target.clear()
+            target.insert(directory)
 
     def browse_file(self, target):
         dialog = QtWidgets.QFileDialog()
@@ -151,38 +209,75 @@ class MyQtApp(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
         options |= dialog.DontUseNativeDialog
         file = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
         if file != '':
+            target.clear()
             target.insert(file)
 
     def save_file(self):
+        self.update_nml()
         dialog = QtWidgets.QFileDialog()
         options = dialog.Options()
         options |= dialog.DontUseNativeDialog
         file = dialog.getSaveFileName(self, 'Save INITFILE', options=options)[0]
         if file != '':
-            f = open(file, 'w')
-            f.write('Hello World!')
-            f.close()
+            self.print_values(file)
 
-    def get_Names(self):
-        self.namesdat.clear()
-        self.namesdat.addItems(NAMES)
+    def remv_item(self):
+        """removes items from variable table"""
+        self.selected_vars.setSortingEnabled(False)
+        for i in reversed(range(self.selected_vars.rowCount())):
+            if self.selected_vars.cellWidget(i,6).isChecked():
+                name = self.selected_vars.item(i,0).text()
+                item = self.namesdat.item(namesPyInds[name])
+                item.setFlags(item.flags() | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
+                item.setSelected(False)
+                self.selected_vars.removeRow(i)
+                vars.mods.pop(name)
+                namesPyInds['PRESSURE']
+        self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)
+        self.selected_vars.setSortingEnabled(True)
+        self.updateOtherTabs()
+
+    def updateOtherTabs(self):
+        """updates variable lists in other tabs"""
+        self.names_sel.clear()
+        self.names_sel_2.clear()
+        for i in range(self.selected_vars.rowCount()):
+            self.names_sel.addItem(self.selected_vars.item(i,0).text())
+            self.names_sel_2.addItem(self.selected_vars.item(i,0).text())
+
 
     def add_new_line(self, name, unit_ind):
+        """adds items to variable table"""
+        self.selected_vars.setSortingEnabled(False);
         row = self.selected_vars.rowCount()
         self.selected_vars.insertRow(row)
         item = self.namesdat.item(namesPyInds[name])
         item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
-        text = '%s(%d)'%(name, namesFoInds[name] )
+
+        text = '%s'%(name)
+        pmInUse = QtWidgets.QComboBox()
+        pmInUse.addItems(['No','Yes'])
         unit = QtWidgets.QComboBox()
         unit.addItems(all_units[unit_ind])
         close = QtWidgets.QPushButton()
         close.setFixedSize(60,30)
+        close.setCheckable(True)
+
         close.setText('remove')
-        cols = [text, '-1','0', '1.0','no']
-        for i in range(5):
+        cols = [text, '-1','1.0', '0.0','no']
+        for i in range(4):
             self.selected_vars.setItem(row, i, QtWidgets.QTableWidgetItem(cols[i]))
-        self.selected_vars.setCellWidget(row, i+1, unit )
-        self.selected_vars.setCellWidget(row, i+2, close )
+        self.selected_vars.setCellWidget(row, i+1, pmInUse )
+        self.selected_vars.setCellWidget(row, i+2, unit )
+        self.selected_vars.setCellWidget(row, i+3, close )
+        self.selected_vars.setItem(row, i+4, QtWidgets.QTableWidgetItem('%03d'%(namesFoInds[name])))
+
+        self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)
+        self.selected_vars.setSortingEnabled(True)
+        self.updateOtherTabs()
+        vars.mods[name] = Comp()
+        vars.mods[name].Find = namesFoInds[name]
+        vars.mods[name].name = name# Human readable name for modified variable
 
     def toggle_frame(self, frame):
         if frame.isEnabled() == True:
@@ -207,14 +302,27 @@ class MyQtApp(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
             frame.setEnabled(False)
 
     def toggle_printtime(self):
-        if self.spinBox.value() != 0:
-            self.spinBox_3.setEnabled(False)
+        if self.fsave_division.value() != 0:
+            self.fsave_interval.setEnabled(False)
         else:
-            self.spinBox_3.setEnabled(True)
+            self.fsave_interval.setEnabled(True)
 
-    def print_values(self):
-        for i,v in enumerate(self.list_of_input):
-            print(v.text())
+    def print_values(self, file=None):
+        self.update_nml()
+        self.prints += 1
+        if (file):
+            f = open(file, 'w')
+            f.write('#'+('-')*50+'\n')
+            f.write('#      Superbox setting file: %s\n'%('file name'))
+            f.write('#'+('-')*50+'\n\n')
+            nml.printall(vars.mods, target='f',f=f)
+            f.close()
+        else:
+            print(('\n')*10, )
+            print('#',('-')*50)
+            print('#              Superbox setting file #%d'%(self.prints))
+            print('#',('-')*50, '\n')
+            nml.printall(vars.mods, target='p')
 
     def select_compounds(self):
         compounds = self.namesdat.selectedItems()
@@ -228,52 +336,139 @@ class MyQtApp(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
         self.boxProcess.poll()
         self.toggle_frame(self.frameStop)
         self.toggle_frame(self.frameStart)
-        try:
-            self.r.close()
-        except:
-            pass
+        # try:
+        #     self.r.close()
+        # except:
+        #     pass
 
     # def startBox(self):
     #     tmpfile = subprocess.Popen(['tee', 'process_diary.txt'], stdin=subprocess.PIPE, stdout=None).stdin
     #     self.boxProcess = subprocess.Popen(["./superbox.exe", " input/test"], stdout=tmpfile,stdin=subprocess.PIPE)
     #     self.Timer.start(10)
     #     self.r = open('process_diary.txt', 'r')
-    #     self.plainTextEdit_2.clear()
+    #     self.MonitorWindow.clear()
     #
     #
     # def updateOutput(self):
     #     text2=self.r.readlines()
     #     fulltext = ''.join(text2)
-    #     self.plainTextEdit_2.insertPlainText(fulltext)
-    #     self.plainTextEdit_2.verticalScrollBar().setSliderPosition(self.plainTextEdit_2.verticalScrollBar().maximum());
+    #     self.MonitorWindow.insertPlainText(fulltext)
+    #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
     #
     #     if 'SIMULATION HAS ENDED' in fulltext[-50:]:
-    #         self.plainTextEdit_2.setPlainText(self.plainTextEdit_2.toPlainText())
-    #         self.plainTextEdit_2.verticalScrollBar().setSliderPosition(self.plainTextEdit_2.verticalScrollBar().maximum());
+    #         self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
+    #         self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
     #         self.stopBox()
 
 
     def startBox(self):
-        self.boxProcess = subprocess.Popen(["./superbox.exe", " input/test"], stdout=subprocess.PIPE,stdin=None)
-        self.plainTextEdit_2.clear()
+        self.print_values('temp')
+
+        self.boxProcess = subprocess.Popen(["./superbox.exe", " temp"], stdout=subprocess.PIPE,stdin=None)
+        self.MonitorWindow.clear()
         self.Timer.start(10)
         self.toggle_frame(self.frameStart)
         self.toggle_frame(self.frameStop)
 
     def updateOutput(self):
         fulltext = self.boxProcess.stdout.readline().decode("utf-8")
-        self.plainTextEdit_2.insertPlainText(fulltext)
-        self.plainTextEdit_2.verticalScrollBar().setSliderPosition(self.plainTextEdit_2.verticalScrollBar().maximum());
+        self.MonitorWindow.insertPlainText(fulltext)
+        self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
 
         if 'SIMULATION HAS ENDED' in str(fulltext)[-50:]:
-            self.plainTextEdit_2.setPlainText(self.plainTextEdit_2.toPlainText())
-            self.plainTextEdit_2.verticalScrollBar().setSliderPosition(self.plainTextEdit_2.verticalScrollBar().maximum());
+            self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
+            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
             self.stopBox()
+
+    def checkbox(self, widget):
+        if widget.isChecked() == True:
+            return '.TRUE.'
+        else:
+            return '.FALSE.'
+
+    def update_nml(self):
+        # class _PATH:
+        nml.PATH.CASE_DIR=self.case_dir.text()
+        nml.PATH.CASE_NAME=self.case_name.text()
+        nml.PATH.RUN_NAME = self.run_name.text()
+        # class _FLAG:
+        nml.FLAG.CHEMISTRY_FLAG=self.checkbox(self.checkBox_che)
+        nml.FLAG.AEROSOL_FLAG=self.checkbox(self.checkBox_aer)
+        nml.FLAG.ACDC_SOLVE_SS=self.checkbox(self.acdc_solve_ss)
+        nml.FLAG.NUCLEATION='T'
+        nml.FLAG.ACDC=self.checkbox(self.checkBox_acd)
+        nml.FLAG.EXTRA_DATA='F'
+        nml.FLAG.CURRENT_CASE='F'
+        nml.FLAG.CONDENSATION=self.checkbox(self.condensation)
+        nml.FLAG.COAGULATION=self.checkbox(self.coagulation)
+        nml.FLAG.MODEL_H2SO4=self.checkbox(self.model_h2so4)
+        nml.FLAG.RESOLVE_BASE=self.checkbox(self.resolve_base)
+        # class _TIME:
+        nml.TIME.RUNTIME=self.runtime.value()
+        nml.TIME.DT=self.dt.value()
+        nml.TIME.FSAVE_INTERVAL=self.fsave_interval.value()
+        nml.TIME.PRINT_INTERVAL=self.print_interval.value()
+        nml.TIME.FSAVE_DIVISION=self.fsave_division.value()
+        # class _PARTICLE:
+        nml.PARTICLE.PSD_MODE=self.psd_mode.currentIndex()+1
+        nml.PARTICLE.N_BINS_PARTICLE=self.n_bins_particle.value()
+        nml.PARTICLE.MIN_PARTICLE_DIAM=self.min_particle_diam.text()
+        nml.PARTICLE.MAX_PARTICLE_DIAM=self.max_particle_diam.text()
+        # nml.PARTICLE.DMPS_DIR=self.dmps_dir.text()
+        nml.PARTICLE.EXTRA_P_DIR=''
+        nml.PARTICLE.DMPS_FILE=self.dmps_file.text()
+        nml.PARTICLE.EXTRA_PARTICLES=self.extra_particles.text()
+        nml.PARTICLE.DMPS_READ_IN_TIME=self.dmps_read_in_time.value()
+        nml.PARTICLE.DMPS_HIGHBAND_LOWER_LIMIT=self.dmps_highband_lower_limit.text()
+        nml.PARTICLE.DMPS_LOWBAND_UPPER_LIMIT=self.dmps_lowband_upper_limit.text()
+        nml.PARTICLE.USE_DMPS=self.checkbox(self.use_dmps)
+        nml.PARTICLE.USE_DMPS_SPECIAL=self.checkbox(self.use_dmps_special)
+        # class _ENV:
+        nml.ENV.ENV_PATH=self.case_dir.text()
+        nml.ENV.ENV_FILE=self.env_file.text()
+        # nml.ENV.TEMPUNIT=0
+        # class _MCM:
+        nml.MCM.MCM_PATH=self.case_dir.text()
+        nml.MCM.MCM_FILE=self.mcm_file.text()
+        # class _MISC:
+        nml.MISC.LAT=self.lat.value()
+        nml.MISC.LON=self.lon.value()
+        nml.MISC.WAIT_FOR=self.wait_for.value()
+        nml.MISC.PYTHON=self.checkbox(self.python)
+        nml.MISC.DESCRIPTION=self.description.toPlainText()
+        nml.MISC.CH_ALBEDO=self.ch_albedo.value()
+        nml.MISC.DMA_F=self.dma_f.value()
+        nml.MISC.RESOLVE_BASE_PRECISION=self.resolve_base_precision.value()
+        nml.MISC.FILL_FORMATION_WITH=self.resolveHelper()
+        # class _VAP:
+        nml.VAP.VAP_LOGICAL=self.checkbox(self.vap_logical)
+        nml.VAP.VAP_NAMES=self.vap_names.text()
+        nml.VAP.VAP_PROPS=self.vap_props.text()
+
+        for i in range(self.selected_vars.rowCount()):
+            name = self.selected_vars.item(i,0).text()
+            vars.mods[name].col = int(self.selected_vars.item(i,1).text())
+            vars.mods[name].multi = float(self.selected_vars.item(i,2).text())
+            vars.mods[name].shift = float(self.selected_vars.item(i,3).text())
+            vars.mods[name].pmInUse = self.selected_vars.cellWidget(i,4).currentText()
+            vars.mods[name].unit = self.selected_vars.cellWidget(i,5).currentText()
+
+        return
+
+    def resolveHelper(self):
+        text = self.fill_formation_with.currentText()
+        if text == 'Fixed ratio':
+            return ''
+        elif 'NH3' in text:
+            return 'NH3'
+        elif 'DMA' in text:
+            return 'DMA'
+
 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
-    qt_app = MyQtApp()
-    qt_app.show()
+    qt_box = QtBoxGui()
+    qt_box.show()
     app.exec_()
     # sys.exit(app.exec_())

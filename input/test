@@ -33,7 +33,7 @@ RESOLVE_BASE        = .false.
 /
 
 ####### Misc stuff #####
-&NML_General_opts
+&NML_MISC
   lat = 60
   lon = 25
   JD  = 91

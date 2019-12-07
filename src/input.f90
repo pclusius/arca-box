@@ -55,9 +55,8 @@ character(len=30) :: RUN_NAME   = 'RUN'
 NAMELIST /NML_Path/ Work_dir, Case_Dir, Case_name, RUN_NAME
 
 ! MODULES IN USE OPTIONS
-Logical :: Aerosol_flag        = .false.
 Logical :: Chemistry_flag      = .false.
-Logical :: Particle_flag       = .false.
+Logical :: Aerosol_flag       = .false.
 Logical :: ACDC_solve_ss       = .false.
 Logical :: NUCLEATION          = .false.
 Logical :: ACDC                = .true.
@@ -67,7 +66,7 @@ Logical :: Coagulation         = .false.
 Logical :: Extra_data          = .false.
 Logical :: Current_case        = .false.
 Logical :: RESOLVE_BASE        = .false.
-NAMELIST /NML_Flag/ Aerosol_flag, chemistry_flag, particle_flag,ACDC_solve_ss,NUCLEATION,ACDC, &
+NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, NUCLEATION, ACDC, &
          Extra_data, Current_case, Condensation, Coagulation, model_H2SO4, RESOLVE_BASE
 
 ! TIME OPTIONS
@@ -144,7 +143,7 @@ INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value
 LOGICAL   :: python   = .false. ! 1 = the program will offer to plot the output file GENERAL
 CHARACTER(1000)  :: Description='*'
 CHARACTER(100)   :: Solver = ''
-NAMELIST /NML_General_opts/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
+NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
 
 Logical  :: VAP_logical = .False.
 character(len=256)  :: Vap_names
@@ -458,13 +457,10 @@ subroutine READ_INIT_FILE
   do k=1, ROWCOUNT(50); READ(50,NML = NML_Flag, IOSTAT=IOS(i))
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_Flag, IOSTAT=IOS(i))
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
-
   do k=1, ROWCOUNT(50); READ(50,NML = NML_Path, IOSTAT=IOS(i))
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_General_opts, IOSTAT=IOS(i))
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_MISC, IOSTAT=IOS(i))
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
   do k=1, ROWCOUNT(50); READ(50,NML = NML_VAP, IOSTAT=IOS(i))

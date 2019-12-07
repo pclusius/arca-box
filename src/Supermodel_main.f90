@@ -51,7 +51,7 @@ PROGRAM Supermodel
 
     !Particles are considered -> initialize a particle representation, set initial PSD and determine composition
     !  code: MODULE ParticleSizeDistribution (PSD.f90)
-    IF (particle_flag) THEN
+    IF (Aerosol_flag) THEN
       ! Initialzie the Particle representation
       CALL INITIALIZE_PSD
 
@@ -127,6 +127,7 @@ PROGRAM Supermodel
     print*,
     print FMT_HDR, 'INITIALIZING OUTPUT '
     CALL OPEN_FILES(('output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)), Description, MODS, CH_GAS, VAPOURS)
+
     CALL PAUSE_FOR_WHILE(wait_for)
 
     print*,;print FMT_HDR, 'Beginning simulation' ! Information to user

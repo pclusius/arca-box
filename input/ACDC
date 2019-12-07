@@ -22,7 +22,7 @@
  ACDC_solve_ss  =   .true.
  Aerosol_flag   =   .True.,
  Chemistry_flag =   .False.,
- Particle_flag  =   .False.,
+ Aerosol_flag  =   .False.,
  Extra_data     =   .False.,
  Current_case   =   .True.,
 /
@@ -42,7 +42,7 @@ ACDC_solve_ss  =   .False.
 Aerosol_flag   =   .False.
 Chemistry_flag =   .True.
 Model_H2SO4    =   .true.
-Particle_flag  =   .true.
+Aerosol_flag  =   .true.
 Extra_data     =   .False.
 Current_case   =   .True.
 RESOLVE_BASE   =   .false.
@@ -59,7 +59,7 @@ RESOLVE_BASE   =   .false.
 
 
 ####### Misc stuff #####
-&NML_General_opts
+&NML_MISC
   lat = 60
   lon = 25
   JD  = 91
