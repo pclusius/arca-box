@@ -363,12 +363,14 @@ class QtBoxGui(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
 
     def startBox(self):
         self.print_values('temp')
-
-        self.boxProcess = subprocess.Popen(["./superbox.exe", " temp"], stdout=subprocess.PIPE,stdin=None)
-        self.MonitorWindow.clear()
-        self.Timer.start(10)
-        self.toggle_frame(self.frameStart)
-        self.toggle_frame(self.frameStop)
+        try:
+            self.boxProcess = subprocess.Popen(["./superbox.exe", " temp"], stdout=subprocess.PIPE,stdin=None)
+            self.MonitorWindow.clear()
+            self.Timer.start(10)
+            self.toggle_frame(self.frameStart)
+            self.toggle_frame(self.frameStop)
+        except:
+            self.MonitorWindow.appendPlainText('\n    Could not start model executatble, is it compiled?')
 
     def updateOutput(self):
         fulltext = self.boxProcess.stdout.readline().decode("utf-8")
