@@ -715,7 +715,6 @@ SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
           end if
       end if
   end if
-  MODS(inm_pres)%UNIT = 'Pa'
 
   do i=1,N_VARS
       buf = UCASE(TRIM(MODS(i)%UNIT))

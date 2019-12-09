@@ -188,7 +188,8 @@ class INITFILE:
                         minstr = minstr.replace('e', 'd', 1)
                         maxstr = '%12.5e'%(m.max)
                         maxstr = maxstr.replace('e', 'd', 1)
-                        if m.pmInUse == 'yes': mode = m.mode
+                        if m.pmInUse == 'Yes' or m.pmInUse == 'yes':
+                            mode = m.mode
                         else: mode = 0
                         strr = "MODS(%d)%s= %d %3d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 %s%s%s ! %s"%(
                         m.Find,' '*(4-len(str(m.Find))),mode,m.col, multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, "\\'", m.unit,"\\'", m.name)
