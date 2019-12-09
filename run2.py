@@ -1,20 +1,25 @@
-try:
-    from PySide2 import QtCore, QtWidgets, QtGui
-    #from PySide2.QtCore import QProcess
-except:
-    try:
-        from PyQt5 import QtCore, QtWidgets
-    except:
-        print("You need PySide2 or PyQt5 to run this program")
-from gui import guitest, vars
+# try:
+#     from PySide2 import QtCore, QtWidgets, QtGui
+#     #from PySide2.QtCore import QProcess
+# except:
+#     try:
+#         from PyQt5 import QtCore, QtWidgets
+#     except:
+#         print("You need PySide2 or PyQt5 to run this program")
+#
+from PyQt5 import QtCore, QtWidgets, QtGui, uic
+import pyqtgraph as pg
+from gui import vars, gui5
 import subprocess
+from numpy import linspace,log10,sqrt,exp,pi,sin
 
-import matplotlib
-# Make sure that we are using QT5
-matplotlib.use('Qt5Agg')
-from numpy import linspace, sin
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
+#
+# import matplotlib
+# # Make sure that we are using QT5
+# matplotlib.use('Qt5Agg')
+# from numpy import linspace, sin
+# from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+# from matplotlib.figure import Figure
 
 # For guitest.py:
 # try:
@@ -29,9 +34,9 @@ from matplotlib.figure import Figure
 ## All variables stored here ---------------------------------
 
 ## Some constants --------------------------------------------
-X = linspace(0,3,100)
-Y = sin(X)
-## -----------------------------------------------------------
+# X = linspace(0,3,100)
+# Y = sin(X)
+# ## -----------------------------------------------------------
 
 ## Some constants --------------------------------------------
 column_widths = [140,70,70,70,70,50,60, 10]
@@ -59,34 +64,34 @@ f.close()
 nml = vars.INITFILE(NAMES)
 
 
-class MyMplCanvas(FigureCanvas):
-    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
-
-    def __init__(self, parent, width, height, dpi):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        # self.axes.set_yscale('log')
-        self.axes.set_position([0.1, 0.1, 0.88, 0.88])
-        self.axes.grid()
-        self.compute_initial_figure()
-
-        FigureCanvas.__init__(self, fig)
-        self.setParent(parent)
-        FigureCanvas.setSizePolicy(self,
-               QtWidgets.QSizePolicy.Expanding,
-               QtWidgets.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-
-    # def compute_initial_figure(self):
-    #     pass
-
-
-
-class MyStaticMplCanvas(MyMplCanvas):
-    """Simple canvas with a sine plot."""
-    def compute_initial_figure(self):
-        self.axes.plot(X, Y)
-
+# class MyMplCanvas(FigureCanvas):
+#     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
+#
+#     def __init__(self, parent, width, height, dpi):
+#         fig = Figure(figsize=(width, height), dpi=dpi)
+#         self.axes = fig.add_subplot(111)
+#         # self.axes.set_yscale('log')
+#         self.axes.set_position([0.1, 0.1, 0.88, 0.88])
+#         self.axes.grid()
+#         self.compute_initial_figure()
+#
+#         FigureCanvas.__init__(self, fig)
+#         self.setParent(parent)
+#         FigureCanvas.setSizePolicy(self,
+#                QtWidgets.QSizePolicy.Expanding,
+#                QtWidgets.QSizePolicy.Expanding)
+#         FigureCanvas.updateGeometry(self)
+#
+#     # def compute_initial_figure(self):
+#     #     pass
+#
+#
+#
+# class MyStaticMplCanvas(MyMplCanvas):
+#     """Simple canvas with a sine plot."""
+#     def compute_initial_figure(self):
+#         self.axes.plot(X, Y)
+#
 
 class Comp:
     def __init__(self):
@@ -107,17 +112,26 @@ class Comp:
         self.Find = 1
         self.pmInUse = 'no'
 
-class QtBoxGui(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
+class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     """Main program window."""
     def __init__(self):
         super(QtBoxGui,self).__init__()
+        # pg.mkPen('y', width=3, style=QtCore.Qt.DashLine)          ## Make a dashed yellow line 2px wide
+        # pg.mkPen(0.5)                                             ## solid grey line 1px wide
+        # pg.mkPen(color=(200, 200, 255), style=QtCore.Qt.DotLine)  ## Dotted pale-blue line
+        # pg.setConfigOption('foreground', 'r')
+
         self.setupUi(self)
+        # uic.loadUi('gui/LSD.ui', self)
+
 
     # -----------------------
-    # Common actions
+    # Common stuff
     # -----------------------
         self.setWindowTitle('Superbox utility')
         self.prints = 1
+        self.plots  = 0
+        self.show_extra_plots = ''
         self.printButton.clicked.connect(self.print_values)
         self.saveButton.clicked.connect(self.save_file)
         self.loadButton.clicked.connect(self.load_file)
@@ -159,20 +173,31 @@ class QtBoxGui(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
     # -----------------------
     # tab Function creator
     # -----------------------
-        plt_layout = QtWidgets.QVBoxLayout(self.PLOT)
-        scanvas = MyStaticMplCanvas(self.PLOT, width=5, height=4, dpi=100)
-        plt_layout.addWidget(scanvas)
+        # plt_layout = QtWidgets.QVBoxLayout(self.PLOT)
+        # scanvas = MyStaticMplCanvas(self.PLOT, width=5, height=4, dpi=100)
+        # plt_layout.addWidget(scanvas)
         self.list_of_input = [self.runtime, self.run_name,self.case_dir]
+        self.plotTo.clicked.connect(self.select_compounds_for_plot)
+        self.plotTo_clear.clicked.connect(self.clearPlot)
         self.fMin.editingFinished.connect(self.updteGraph)
         self.fMax.editingFinished.connect(self.updteGraph)
         self.fLog.clicked.connect(self.updteGraph)
         self.fLin.clicked.connect(self.updteGraph)
         self.fWidth.valueChanged.connect(self.updteGraph)
+        self.resW.clicked.connect(lambda: self.resetSlider(self.fWidth, 50))
+        self.resP.clicked.connect(lambda: self.resetSlider(self.fPeak, 83))
+        self.resA.clicked.connect(lambda: self.resetSlider(self.fFreq, 0))
+        self.resPh.clicked.connect(lambda: self.resetSlider(self.fPhase, 0))
+        self.resAm.clicked.connect(lambda: self.resetSlider(self.fAmp, 20))
+        self.resG.clicked.connect(lambda: self.resetSlider(self.gain, 50))
         self.fPeak.valueChanged.connect(self.updteGraph)
         self.fFreq.valueChanged.connect(self.updteGraph)
         self.fPhase.valueChanged.connect(self.updteGraph)
         self.fAmp.valueChanged.connect(self.updteGraph)
-
+        self.gain.valueChanged.connect(self.updteGraph)
+        self.PLOT.showGrid(x=True,y=True)
+        self.PLOT.showButtons()
+        self.updteGraph()
     # -----------------------
     # tab Advanced
     # -----------------------
@@ -199,27 +224,101 @@ class QtBoxGui(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
     # -----------------------
     # Class methods
     # -----------------------
+    def resetSlider(self, slider, pos):
+        slider.setProperty("value", pos)
+
     def updteGraph(self):
+        gain = 10**(self.gain.value()/50.-1)
+        rt = self.runtime.value()
+        wScale = rt/2/200.0 * gain
+        pScale = rt*1.2/200.0 * gain
+        aScale = 0.1 * gain
+        phScale = rt/0.2/200.0 * gain
+        ampScale = 1/20.0 * gain
+
+        x = linspace(0,rt,200)
+        yscale = self.radio(self.fLin, self.fLog)
+
+        sigma = self.fWidth.value()*wScale
+        if abs(sigma)<0.01: sigma = 0.01
         try:
-            print((self.fMin.text()))
-            print(self.radio(self.fLin, self.fLog))
-            print(self.fWidth.value())
-            print(self.fPeak.value())
-            print(self.fFreq.value())
-            print(self.fPhase.value())
-            print(self.fAmp.value())
-
+            mini = float(self.fMin.text())
         except:
-            print('Please give a number')
+            mini = 0
+        try:
+            maxi = float(self.fMax.text())
+        except:
+            maxi=0
+        peak = self.fPeak.value()*pScale
+        freq = self.fFreq.value()*aScale
+        phase = self.fPhase.value()*phScale
+        amp = self.fAmp.value()*ampScale
+        self.monW.setValue(sigma)
+        self.monP.setValue(peak)
+        self.monA.setValue(freq)
+        self.monPh.setValue(phase)
+        self.monAm.setValue(amp)
+        mini  = dummy.min
+        maxi  = dummy.max
+        sigma = dummy.sig
+        peak  = dummy.mju
+        freq  = dummy.fv
+        phase = dummy.ph
+        amp   = dummy.am
 
+        f = 1/sqrt(2*pi*sigma**2)
+        D = peak + sin((x-peak)*freq)*amp + phase
+        norm = 1/sqrt(2*pi*sigma**2)*exp(-(x-D)**2/(2*sigma**2))
+        if yscale == 'lin':
+            f = (maxi-mini)/f
+            norm = norm*f + mini
+        else:
+            f = (log10(maxi-mini+1))/f
+            norm = 10**(norm*f)-1 + mini
+
+        try: # delete old legend if it exists:
+            if self.plots > 0:
+                self.legend.scene().removeItem(self.legend)
+            self.plots = 1
+        except Exception as e:
+            print(e)
+
+        self.legend = self.PLOT.addLegend()
+        self.PLOT.plot(x,norm,pen=pg.mkPen('y', width=2), clear=True, name='work')
+        if self.show_extra_plots != '':
+            y=self.gauss(vars.mods[self.show_extra_plots], yscale,rt)
+            self.PLOT.plot(x,y,pen=pg.mkPen(color=(200, 200, 255), width=1,style=QtCore.Qt.DotLine), name=self.show_extra_plots)
+
+    def gauss(self,comp,ysc,rt):
+        x = linspace(0,rt,200)
+        mini = comp.min
+        maxi = comp.max
+        sigma = comp.sig
+        peak = comp.mju
+        freq = comp.fv
+        phase = comp.ph
+        amp = comp.am
+
+        f = 1/sqrt(2*pi*sigma**2)
+        D = peak + sin((x-peak)*freq)*amp + phase
+        norm = 1/sqrt(2*pi*sigma**2)*exp(-(x-D)**2/(2*sigma**2))
+        if ysc == 'lin':
+            f = (maxi-mini)/f
+            norm = norm*f + mini
+        else:
+            f = (log10(maxi-mini+1))/f
+            norm = 10**(norm*f)-1 + mini
+        return norm
 
 
     def radio(self,*buts):
         for but in buts:
             if but.isChecked():
                 if but.text() == 'Linear':
-                    return 'linear'
+                    self.PLOT.setLogMode(y=False)
+                    return 'lin'
                 if but.text() == 'Logarithmic':
+                    self.PLOT.setLogMode(y=True)
                     return 'log'
 
     def load_file(self):
@@ -363,6 +462,15 @@ class QtBoxGui(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
         for c in compounds:
             self.add_new_line(c.text(), 2)
 
+    def clearPlot(self):
+        self.show_extra_plots = ''
+        self.updteGraph()
+
+    def select_compounds_for_plot(self):
+        compound = self.names_sel_2.selectedItems()[0]
+        self.show_extra_plots = compound.text()
+        self.updteGraph()
+
     def stopBox(self):
         self.Timer.stop()
         self.boxProcess.kill()
@@ -396,9 +504,9 @@ class QtBoxGui(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
     def startBox(self):
-        self.print_values('tmp_b65d729f784bc8fcfb4beb009ac7a31d')
+        self.print_values('input/tmp_b65d729f784bc8fcfb4beb009ac7a31d')
         try:
-            self.boxProcess = subprocess.Popen(["./superbox.exe", " tmp_b65d729f784bc8fcfb4beb009ac7a31d"], stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+            self.boxProcess = subprocess.Popen(["./superbox.exe", " input/tmp_b65d729f784bc8fcfb4beb009ac7a31d"], stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
             self.MonitorWindow.clear()
             self.Timer.start(10)
             self.pollTimer.start(1500)
@@ -508,6 +616,7 @@ class QtBoxGui(guitest.Ui_MainWindow, QtWidgets.QMainWindow):
             return 'DMA'
 
 
+dummy = Comp()
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
