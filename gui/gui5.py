@@ -107,10 +107,6 @@ class Ui_MainWindow(object):
         self.label_2.setObjectName("label_2")
         self.gridLayout_2.addWidget(self.label_2, 0, 0, 1, 1)
         self.runtime = QtWidgets.QDoubleSpinBox(self.layoutWidget1)
-        font = QtGui.QFont()
-        font.setBold(False)
-        font.setWeight(50)
-        self.runtime.setFont(font)
         self.runtime.setProperty("value", 24.0)
         self.runtime.setObjectName("runtime")
         self.gridLayout_2.addWidget(self.runtime, 0, 1, 1, 1)
@@ -1102,7 +1098,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
