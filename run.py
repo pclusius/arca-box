@@ -400,10 +400,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         markBut.setCheckable(True)
         if name == 'TEMPK' or name == 'PRESSURE' :
             markBut.setEnabled(False)
-
+            markBut.setToolTip("Temperature and pressure are always required and cannot be removed from this list")
+        else:
+            markBut.setToolTip("Mark variable for removal")
         markBut.setText('mark')
         cols = [text, '-1','1.0', '0.0','no']
-        self.selected_vars.horizontalHeader().setStretchLastSection(True);
+        self.selected_vars.horizontalHeader().setStretchLastSection(True)
+
         for i in range(4):
             self.selected_vars.setItem(row, i, QtWidgets.QTableWidgetItem(cols[i]))
 
