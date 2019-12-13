@@ -6,7 +6,7 @@ from numpy import linspace,log10,sqrt,exp,pi,sin
 
 ## Some constants --------------------------------------------
 column_widths = [140,70,70,70,70,70,60,3]
-all_units = [['K','C'],['Pa','hPa','bar','kPa', 'mbar'],['#','ppm','ppb','ppt','ppq'], ['as is']]
+all_units = [['C','K'],['Pa','hPa','bar','kPa', 'mbar'],['#','ppm','ppb','ppt','ppq'], ['as is']]
 ## Read model names--------------------------------------------
 path_to_names = 'src/NAMES.dat'
 f = open(path_to_names)
@@ -152,7 +152,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # tab Process Monitor
     # -----------------------
         fixedFont = QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
-        fixedFont.setPointSize(11)
+        fixedFont.setPointSize(10)
         self.MonitorWindow.setFont(fixedFont)
         self.frameStop.setEnabled(False)
         self.startButton.clicked.connect(self.startBox)
@@ -400,16 +400,18 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         markBut.setCheckable(True)
         if name == 'TEMPK' or name == 'PRESSURE' :
             markBut.setEnabled(False)
-            markBut.setToolTip("Temperature and pressure are always required and cannot be removed from this list")
+            markBut.setToolTip("Temperature and pressure are always required and cannot be marked for removal")
         else:
             markBut.setToolTip("Mark variable for removal")
+
         markBut.setText('mark')
         cols = [text, '-1','1.0', '0.0','no']
         self.selected_vars.horizontalHeader().setStretchLastSection(True)
 
         for i in range(4):
             self.selected_vars.setItem(row, i, QtWidgets.QTableWidgetItem(cols[i]))
-
+        if name == 'PRESSURE' :
+            self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem('1e5'))
         self.selected_vars.setCellWidget(row, i+1, pmInUse )
         self.selected_vars.setCellWidget(row, i+2, unit )
         self.selected_vars.setCellWidget(row, i+3, markBut )
