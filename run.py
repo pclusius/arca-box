@@ -5,7 +5,7 @@ import subprocess
 from numpy import linspace,log10,sqrt,exp,pi,sin
 
 ## Some constants --------------------------------------------
-column_widths = [140,70,70,70,70,70,60,3]
+column_widths = [140,70,70,70,70,80,60,3]
 all_units = [['C','K'],['Pa','hPa','bar','kPa', 'mbar'],['#','ppm','ppb','ppt','ppq'], ['as is']]
 ## Read model names--------------------------------------------
 path_to_names = 'src/NAMES.dat'
