@@ -5,7 +5,7 @@ import subprocess
 from numpy import linspace,log10,sqrt,exp,pi,sin
 
 ## Some constants --------------------------------------------
-column_widths = [140,70,70,70,70,50,60,10]
+column_widths = [140,70,70,70,70,60,60,3]
 all_units = [['K','C'],['Pa','hPa','bar','kPa', 'mbar'],['#','ppm','ppb','ppt','ppq'], ['as is']]
 ## Read model names--------------------------------------------
 path_to_names = 'src/NAMES.dat'
@@ -80,6 +80,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
         self.namesdat.clear()
         self.namesdat.addItems(NAMES)
+        self.runtime.valueChanged.connect(self.updteGraph)
 
         # Prepare the variable table
         for i in range(len(column_widths)):
@@ -394,17 +395,20 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         pmInUse.addItems(['No','Yes'])
         unit = QtWidgets.QComboBox()
         unit.addItems(all_units[unit_ind])
-        close = QtWidgets.QPushButton()
-        close.setFixedSize(60,30)
-        close.setCheckable(True)
+        markBut = QtWidgets.QPushButton()
+        # markBut.setFixedSize(column_widths[6],30)
+        markBut.setCheckable(True)
+        if name == 'TEMPK' or name == 'PRESSURE' :
+            markBut.setEnabled(False)
 
-        close.setText('mark')
+        markBut.setText('mark')
         cols = [text, '-1','1.0', '0.0','no']
         for i in range(4):
             self.selected_vars.setItem(row, i, QtWidgets.QTableWidgetItem(cols[i]))
         self.selected_vars.setCellWidget(row, i+1, pmInUse )
         self.selected_vars.setCellWidget(row, i+2, unit )
-        self.selected_vars.setCellWidget(row, i+3, close )
+        self.selected_vars.setCellWidget(row, i+3, markBut )
+
         self.selected_vars.setItem(row, i+4, QtWidgets.QTableWidgetItem('%03d'%(namesFoInds[name])))
 
         self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)

@@ -42,7 +42,7 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -218,7 +218,6 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>9</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -253,6 +252,9 @@
              <weight>50</weight>
              <bold>false</bold>
             </font>
+           </property>
+           <property name="maximum">
+            <double>999.990000000000009</double>
            </property>
            <property name="value">
             <double>24.000000000000000</double>
@@ -535,7 +537,7 @@
           <rect>
            <x>10</x>
            <y>99</y>
-           <width>191</width>
+           <width>190</width>
            <height>131</height>
           </rect>
          </property>
@@ -580,29 +582,6 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QDoubleSpinBox" name="dmps_read_in_time">
-            <property name="font">
-             <font>
-              <weight>50</weight>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="maximum">
-             <double>99.989999999999995</double>
-            </property>
-            <property name="value">
-             <double>2.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1" colspan="2">
-           <widget class="QLabel" name="label_42">
-            <property name="text">
-             <string>hours</string>
-            </property>
-           </widget>
-          </item>
           <item row="4" column="0" colspan="3">
            <widget class="QLabel" name="label_38">
             <property name="font">
@@ -618,6 +597,29 @@
             </property>
             <property name="wordWrap">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QDoubleSpinBox" name="dmps_read_in_time">
+            <property name="font">
+             <font>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="maximum">
+             <double>999.990000000000009</double>
+            </property>
+            <property name="value">
+             <double>2.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2">
+           <widget class="QLabel" name="label_42">
+            <property name="text">
+             <string>hours</string>
             </property>
            </widget>
           </item>
