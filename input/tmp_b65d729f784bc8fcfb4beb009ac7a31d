@@ -49,7 +49,7 @@
 &NML_ENV
  ENV_PATH = 'input'
  ENV_FILE = ''
- TEMPUNIT = '#'
+ TEMPUNIT = 'C'
 / 
 
 &NML_MCM

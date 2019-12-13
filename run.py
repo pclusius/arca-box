@@ -96,7 +96,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.browseMcm.clicked.connect(lambda: self.browse_file(self.mcm_file))
         self.browsePar.clicked.connect(lambda: self.browse_file(self.dmps_file))
         self.browseXtr.clicked.connect(lambda: self.browse_file(self.extra_particles))
-        self.checkBox_aer.clicked.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.frame_4))
+        self.checkBox_aer.clicked.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.groupBox_8))
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
 
     # -----------------------
