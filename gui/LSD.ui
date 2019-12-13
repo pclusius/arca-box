@@ -42,7 +42,7 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -631,9 +631,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>320</y>
+         <y>330</y>
          <width>441</width>
-         <height>291</height>
+         <height>280</height>
         </rect>
        </property>
        <property name="font">
@@ -649,7 +649,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>30</y>
+          <y>20</y>
           <width>411</width>
           <height>251</height>
          </rect>
