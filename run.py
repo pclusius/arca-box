@@ -5,7 +5,7 @@ import subprocess
 from numpy import linspace,log10,sqrt,exp,pi,sin
 
 ## Some constants --------------------------------------------
-column_widths = [140,70,70,70,70,50,60, 10]
+column_widths = [140,70,70,70,70,50,60,10]
 all_units = [['K','C'],['Pa','hPa','bar','kPa', 'mbar'],['#','ppm','ppb','ppt','ppq'], ['as is']]
 ## Read model names--------------------------------------------
 path_to_names = 'src/NAMES.dat'
@@ -398,7 +398,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         close.setFixedSize(60,30)
         close.setCheckable(True)
 
-        close.setText('remove')
+        close.setText('mark')
         cols = [text, '-1','1.0', '0.0','no']
         for i in range(4):
             self.selected_vars.setItem(row, i, QtWidgets.QTableWidgetItem(cols[i]))
