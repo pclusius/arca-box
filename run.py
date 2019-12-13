@@ -103,6 +103,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # tab Input variables
     # -----------------------
         self.butMoveToSelVars.clicked.connect(self.select_compounds)
+        self.markAll.clicked.connect(lambda: self.markReverseSelection('all'))
+        self.invertMarks.clicked.connect(lambda: self.markReverseSelection('inv'))
         self.butRemoveSelVars.clicked.connect(self.remv_item)
         self.selected_vars.setColumnHidden(7, True)
 
@@ -257,7 +259,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             vars.mods[target].sl_4 = dummy.sl_4
             vars.mods[target].sl_5 = dummy.sl_5
             vars.mods[target].pmInUse = 'Yes'
-            confirmText = 'Parameters saved to ' + target
+            confirmText = 'Saved to ' + target
             self.confirm.setText(confirmText)
             self.confirm.show()
             QtCore.QTimer.singleShot(2000, lambda : self.confirm.hide())
@@ -356,6 +358,17 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         file = dialog.getSaveFileName(self, 'Save INITFILE', options=options)[0]
         if file != '':
             self.print_values(file)
+
+    def markReverseSelection(self, op):
+        """marks all variables or inverts selection"""
+        for i in range(self.selected_vars.rowCount()):
+            if i>1:
+                if op == 'inv':
+                    status = self.selected_vars.cellWidget(i,6).isChecked()
+                    self.selected_vars.cellWidget(i,6).setChecked(not status)
+                if op == 'all':
+                    self.selected_vars.cellWidget(i,6).setChecked(True)
+
 
     def remv_item(self):
         """removes items from variable table"""
