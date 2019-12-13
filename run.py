@@ -150,6 +150,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # tab Process Monitor
     # -----------------------
+        fixedFont = QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
+        fixedFont.setPointSize(11)
+        self.MonitorWindow.setFont(fixedFont)
         self.frameStop.setEnabled(False)
         self.startButton.clicked.connect(self.startBox)
         self.stopButton.clicked.connect(self.stopBox)
@@ -564,7 +567,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         # class _ENV:
         nml.ENV.ENV_PATH=self.case_dir.text()
         nml.ENV.ENV_FILE=self.env_file.text()
-        # nml.ENV.TEMPUNIT=0
+        nml.ENV.TEMPUNIT=vars.mods['TEMPK'].unit
         # class _MCM:
         nml.MCM.MCM_PATH=self.case_dir.text()
         nml.MCM.MCM_FILE=self.mcm_file.text()
