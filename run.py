@@ -107,6 +107,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.invertMarks.clicked.connect(lambda: self.markReverseSelection('inv'))
         self.butRemoveSelVars.clicked.connect(self.remv_item)
         self.selected_vars.setColumnHidden(7, True)
+        self.selected_vars.verticalHeader().setVisible(False);
+
 
     # -----------------------
     # tab Function creator
