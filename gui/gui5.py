@@ -1162,7 +1162,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1235,7 +1235,7 @@ class Ui_MainWindow(object):
         self.label_54.setText(_translate("MainWindow", "Select input variables:"))
         self.butMoveToSelVars.setText(_translate("MainWindow", "<---"))
         item = self.selected_vars.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "Variable(IND)"))
+        item.setText(_translate("MainWindow", "Variable"))
         item = self.selected_vars.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "Column"))
         item = self.selected_vars.horizontalHeaderItem(2)

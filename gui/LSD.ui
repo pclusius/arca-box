@@ -42,7 +42,7 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -1054,7 +1054,7 @@
        </property>
        <column>
         <property name="text">
-         <string>Variable(IND)</string>
+         <string>Variable</string>
         </property>
         <property name="font">
          <font>
