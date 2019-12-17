@@ -42,7 +42,7 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -2528,7 +2528,7 @@
             <double>1.000000000000000</double>
            </property>
            <property name="singleStep">
-            <double>1.000000000000000</double>
+            <double>0.010000000000000</double>
            </property>
            <property name="value">
             <double>0.200000000000000</double>

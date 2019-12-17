@@ -991,7 +991,7 @@ class Ui_MainWindow(object):
         self.ch_albedo.setDecimals(3)
         self.ch_albedo.setMinimum(0.0)
         self.ch_albedo.setMaximum(1.0)
-        self.ch_albedo.setSingleStep(1.0)
+        self.ch_albedo.setSingleStep(0.01)
         self.ch_albedo.setProperty("value", 0.2)
         self.ch_albedo.setObjectName("ch_albedo")
         self.gridLayout_7.addWidget(self.ch_albedo, 0, 1, 1, 1)
@@ -1162,7 +1162,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
