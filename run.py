@@ -3,7 +3,7 @@ import pyqtgraph as pg
 from gui import vars, gui5
 import subprocess
 from numpy import linspace,log10,sqrt,exp,pi,sin
-
+# https://send.firefox.com/download/b4e1456853810398/#Se3eTfhb-WROzlUuZJYYIw
 ## Some constants --------------------------------------------
 column_widths = [140,70,70,70,70,80,60,3]
 all_units = [['C','K'],['Pa','hPa','bar','kPa', 'mbar'],['#','ppm','ppb','ppt','ppq'], ['as is']]
