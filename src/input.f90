@@ -692,16 +692,16 @@ SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
 
   buf = UCASE(TRIM(MODS(inm_pres)%UNIT))
   if (TRIM(buf) == 'HPA' .or. TRIM(buf) == 'MBAR') THEN
-      CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 100d0
-      MODS(inm_pres)%shift = MODS(inm_pres)%shift *100d0
+      ! CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 100d0
+      ! MODS(inm_pres)%shift = MODS(inm_pres)%shift *100d0
       print FMT_MSG, '- Converting pressure from hPa (mbar) to Pascals.'
     elseif (TRIM(buf) == 'KPA') THEN
-      CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1000d0
-      MODS(inm_pres)%shift = MODS(inm_pres)%shift *1000d0
+      ! CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1000d0
+      ! MODS(inm_pres)%shift = MODS(inm_pres)%shift *1000d0
       print FMT_MSG, '- Converting pressure from kPa to Pascals.'
     elseif (TRIM(buf) == 'ATM') THEN
-      CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1.01325d5
-      MODS(inm_pres)%shift = MODS(inm_pres)%shift * 1.01325d5
+      ! CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1.01325d5
+      ! MODS(inm_pres)%shift = MODS(inm_pres)%shift * 1.01325d5
       print FMT_MSG, '- Converting pressure from atm to Pascals.'
     elseif (TRIM(buf) == 'PA') THEN
       print FMT_MSG, '- Pressure is given in Pascals.'

@@ -59,6 +59,7 @@ contains
     i=0 ! reset counter for total number of ACDC runs
 
     ! Here the limits for formation is establised. The min/max for dma_f is trying to handle DMA_f = 0 and DMA_f > 1
+
     J_limits(1) = JACDC(MIN(conc_limits(1), conc_limits(1)/max(1d0,DMA_f)))
     J_limits(2) = JACDC(conc_limits(2))
 
@@ -67,20 +68,20 @@ contains
 
     ! show messages only when other printouts are shown, even if sub is run at filesaves
     if (MODELTIME%printnow) THEN
-      print FMT_HDR
-      write(buf, '(a,f5.2,a)') 'SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within ',100*resolve_BASE_precision,'% of target):'
-      print FMT_MSG, TRIM(buf)
+      if (MODELTIME%printnow) print FMT_HDR
+      if (MODELTIME%printnow) write(buf, '(a,f5.2,a)') 'SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within ',100*resolve_BASE_precision,'% of target):'
+      if (MODELTIME%printnow) print FMT_MSG, TRIM(buf)
     END IF
 
     ! if target J is smaller than lower limits would produce, don't bother iterating further
     if (target_J < J_limits(1)) THEN
-      write(buf,'(a,es9.3,a)') 'Target J (',target_J,') is smaller than what lower limits produce'
-      print FMT_MSG, TRIM(buf)
+      if (MODELTIME%printnow) write(buf,'(a,es9.3,a)') 'Target J (',target_J,') is smaller than what lower limits produce'
+      if (MODELTIME%printnow) print FMT_MSG, TRIM(buf)
       testbase = 0
 
     ! if target J is larger than upper limits can produce, don't bother iterating further
     else if (target_J > J_limits(2)) THEN
-      print'(es12.3,a,es12.3,es12.3)', target_J,' Target J is too large for current upper limits of bases', conc_limits(2), conc_limits(2)*DMA_f
+      if (MODELTIME%printnow) print'(es12.3,a,es12.3,es12.3)', target_J,' Target J is too large for current upper limits of bases', conc_limits(2), conc_limits(2)*DMA_f
       testbase = C_AIR_NOW*1d6*2
 
     ! if target J reasonable, iterate the concentrations
@@ -138,7 +139,7 @@ contains
         JACDC = testJ
       END IF
       IF (UCASE(Fill_formation_with) /= 'NH3') THEN
-        if (DMA_f > 0) THEN
+        if (DMA_f > 0 .or. UCASE(Fill_formation_with) == 'DMA') THEN
           i = i+1
           BASE = test*DMA_f
           IF (UCASE(Fill_formation_with) == 'DMA') THEN
