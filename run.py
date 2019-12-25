@@ -7,7 +7,7 @@ from numpy import linspace,log10,sqrt,exp,pi,sin
 ## Some constants --------------------------------------------
 column_widths = [140,70,70,70,70,90,50,3]
 
-units ={
+units = {
 'TEMPK': ['C','K'],
 'PRESSURE': ['Pa','hPa','bar','kPa', 'mbar'],
 'REL_HUMIDITY': ['%'],
@@ -18,6 +18,7 @@ units ={
 'NUC_RATE_IN':['1/cm3 s'],
 'REST':['#/cm3','ppm','ppb','ppt','ppq']
 }
+
 ## Read model names--------------------------------------------
 path_to_names = 'src/NAMES.dat'
 f = open(path_to_names)
@@ -655,6 +656,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     def load_file(self,file):
         self.markReverseSelection('all')
         self.remv_item()
+        if self.plotTo.isChecked() == True:
+            self.plotTo.setChecked(False)
+            self.show_extra_plots = ''
+            self.updteGraph()
+
 
         def solve_for_parser(query):
             if query.upper() == 'NH3':
