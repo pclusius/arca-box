@@ -14,7 +14,7 @@
 ! 
 ! File                 : second_Integrator.f90
 ! Time                 : Sat Nov 23 02:04:31 2019
-! Working directory    : /home/pecl/APCAD/CreateChemistry/MyChem
+! 
 ! Equation file        : second.kpp
 ! Output root filename : second
 ! 

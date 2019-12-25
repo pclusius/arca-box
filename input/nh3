@@ -46,13 +46,13 @@ RUN_NAME = '180410_FF'
 ENV_file = '180410.dat'
 !  ENV_file = '180412.dat'
 !  ENV_file = '180423.dat'
-  ENV_path         = '/home/pecl/APCAD/supermodel-phase-1/input'
+  ENV_path         = '/home/pecl/05-APCAD/supermodel-phase-1/input'
   TempUnit         = 'C' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
 /
 
 ####### MCM file read #####
 &NML_MCM
- MCM_path = !'/home/pecl/APCAD/supermodel-phase-1/input/NANJING'
+ MCM_path = !'/home/pecl/05-APCAD/supermodel-phase-1/input/NANJING'
  MCM_file = !'case_Nanjing1.txt'
 /
 

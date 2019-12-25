@@ -5,14 +5,26 @@ import subprocess
 from numpy import linspace,log10,sqrt,exp,pi,sin
 
 ## Some constants --------------------------------------------
-column_widths = [140,70,70,70,70,80,60,3]
-all_units = [['C','K'],['Pa','hPa','bar','kPa', 'mbar'],['#','ppm','ppb','ppt','ppq'], ['as is']]
+column_widths = [140,70,70,70,70,90,50,3]
+
+units ={
+'TEMPK': ['C','K'],
+'PRESSURE': ['Pa','hPa','bar','kPa', 'mbar'],
+'REL_HUMIDITY': ['%'],
+'CONDENS_SINK':['1/s'],
+'CON_SIN_NITR':['1/s'],
+'SW_RADIATION':['W/m2'],
+'ION_PROD_RATE':['ip/cm3 s'],
+'NUC_RATE_IN':['1/cm3 s'],
+'REST':['[-]','ppm','ppb','ppt','ppq']
+}
 ## Read model names--------------------------------------------
 path_to_names = 'src/NAMES.dat'
 f = open(path_to_names)
 NAMES = []
 namesPyInds = {}
 namesFoInds = {}
+
 ## -----------------------------------------------------------
 
 ## Create lists and dictionaries related to NAMES-------------
@@ -44,7 +56,7 @@ class Comp:
         self.ph  = 0e0      # Angular frequency [hours] of modifying sine function
         self.am  = 1e0      # Amplitude of modificaion
         self.name = 'NONAME'# Human readable name for modified variable
-        self.unit = '#'     # unit name
+        self.unit = '[-]'     # unit name
         self.Find = 1
         self.pmInUse = 'No'
         self.sl_1 = 39
@@ -72,7 +84,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.loadButton.clicked.connect(self.load_file)
         self.actionSave_2.triggered.connect(self.save_file)
         self.actionPrint.triggered.connect(self.print_values)
-        self.actionOpen.triggered.connect(self.browse_file)
+        self.actionOpen.triggered.connect(self.browse_path)
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
 
     # -----------------------
@@ -90,13 +102,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.add_new_line('TEMPK', 0)
         self.add_new_line('PRESSURE', 1)
 
-        self.browseCommonIn.clicked.connect(lambda: self.browse_folder(self.case_dir))
-        self.browseCommonOut.clicked.connect(lambda: self.browse_folder(self.lineEdit_13))
-        self.browseEnv.clicked.connect(lambda: self.browse_file(self.env_file))
-        self.browseMcm.clicked.connect(lambda: self.browse_file(self.mcm_file))
-        self.browsePar.clicked.connect(lambda: self.browse_file(self.dmps_file))
-        self.browseXtr.clicked.connect(lambda: self.browse_file(self.extra_particles))
-        self.checkBox_aer.clicked.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.groupBox_8))
+        self.browseCommonIn.clicked.connect(lambda: self.browse_path(self.case_dir, 'dir'))
+        self.browseCommonOut.clicked.connect(lambda: self.browse_path(self.lineEdit_13, 'dir'))
+        self.browseEnv.clicked.connect(lambda: self.browse_path(self.env_file, 'file'))
+        self.browseMcm.clicked.connect(lambda: self.browse_path(self.mcm_file, 'file'))
+        self.browsePar.clicked.connect(lambda: self.browse_path(self.dmps_file, 'file'))
+        self.browseXtr.clicked.connect(lambda: self.browse_path(self.extra_particles, 'file'))
+        self.checkBox_aer.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.groupBox_8))
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
 
     # -----------------------
@@ -147,11 +159,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # tab Advanced
     # -----------------------
         self.frameBase.setEnabled(False)
-        self.butVapourNames.clicked.connect(lambda: self.browse_file(self.vap_names))
-        self.butVapour.clicked.connect(lambda: self.browse_file(self.vap_props))
-        self.vap_logical.clicked.connect(lambda: self.grayIfNotChecked(self.vap_logical,self.frameVap))
-        self.resolve_base.clicked.connect(lambda: self.grayIfNotChecked(self.resolve_base,self.frameBase))
-        self.use_dmps_special.clicked.connect(lambda: self.toggle_gray(self.use_dmps_special,self.gridLayout_11))
+        self.butVapourNames.clicked.connect(lambda: self.browse_path(self.vap_names, 'file'))
+        self.butVapour.clicked.connect(lambda: self.browse_path(self.vap_props, 'file'))
+        self.vap_logical.stateChanged.connect(lambda: self.grayIfNotChecked(self.vap_logical,self.frameVap))
+        self.resolve_base.stateChanged.connect(lambda: self.grayIfNotChecked(self.resolve_base,self.frameBase))
+        self.use_dmps_special.stateChanged.connect(lambda: self.toggle_gray(self.use_dmps_special,self.gridLayout_11))
     # -----------------------
     # tab Process Monitor
     # -----------------------
@@ -328,29 +340,19 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                     self.PLOT.setLogMode(y=True)
                     return 'log'
 
-    def load_file(self):
-        print('loads file')
-        pass
 
-    def browse_folder(self, target):
+    def browse_path(self, target, mode):
+        """Browse for file or folder (depending on 'mode' and write the outcome to 'target')"""
         dialog = QtWidgets.QFileDialog()
-        dialog.setFileMode(QtWidgets.QFileDialog.Directory)
-        dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly)
+        if mode == 'dir': dialog.setFileMode(QtWidgets.QFileDialog.Directory)
+        if mode == 'dir': dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly)
         options = dialog.Options()
         options |= dialog.DontUseNativeDialog
-        directory = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
-        if directory != '':
+        if mode == 'dir': path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
+        if mode == 'file': path = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
+        if path != '':
             target.clear()
-            target.insert(directory)
-
-    def browse_file(self, target):
-        dialog = QtWidgets.QFileDialog()
-        options = dialog.Options()
-        options |= dialog.DontUseNativeDialog
-        file = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
-        if file != '':
-            target.clear()
-            target.insert(file)
+            target.insert(path)
 
     def save_file(self):
         self.update_nml()
@@ -397,7 +399,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.names_sel_2.addItem(self.selected_vars.item(i,0).text())
 
 
-    def add_new_line(self, name, unit_ind):
+    def add_new_line(self, name, unit_ind, cols=[],createNew=True):
         """adds items to variable table"""
         self.selected_vars.setSortingEnabled(False);
         row = self.selected_vars.rowCount()
@@ -409,7 +411,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         pmInUse = QtWidgets.QComboBox()
         pmInUse.addItems(['No','Yes'])
         unit = QtWidgets.QComboBox()
-        unit.addItems(all_units[unit_ind])
+        if name in units:
+            unit.addItems(units[name])
+        else:
+            unit.addItems(units['REST'])
+
         markBut = QtWidgets.QPushButton()
         # markBut.setFixedSize(column_widths[6],30)
         markBut.setCheckable(True)
@@ -420,7 +426,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             markBut.setToolTip("Mark variable for removal")
 
         markBut.setText('mark')
-        cols = [text, '-1','1.0', '0.0','no']
+        if cols==[]:
+            cols = [text, '-1','1.0', '0.0',0]
+        pmInUse.setCurrentIndex(cols[4])
         self.selected_vars.horizontalHeader().setStretchLastSection(True)
 
         for i in range(4):
@@ -436,9 +444,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)
         self.selected_vars.setSortingEnabled(True)
         self.updateOtherTabs()
-        vars.mods[name] = Comp()
-        vars.mods[name].Find = namesFoInds[name]
-        vars.mods[name].name = name# Human readable name for modified variable
+        if createNew:
+            vars.mods[name] = Comp()
+            vars.mods[name].Find = namesFoInds[name]
+            vars.mods[name].name = name# Human readable name for modified variable
 
     def toggle_frame(self, frame):
         if frame.isEnabled() == True:
@@ -630,6 +639,150 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             return 'NH3'
         elif 'DMA' in text:
             return 'DMA'
+
+
+    def load_file(self):
+        self.markReverseSelection('all')
+        self.remv_item()
+
+        def solve_for_parser(query):
+            if query.upper() == 'NH3':
+                return 1
+            elif query.upper() == 'DMA':
+                return 2
+            else:
+                return 0
+        # class _PATH:
+        file = '/home/pecl/05-APCAD/supermodel-phase-1/input/ACDC'
+        f = open(file, 'r')
+
+        for line in f:
+            i = line.find('=')
+            x = line.find('!')
+            if i<x or (x==-1 and i!=-1):
+                key = line[:i].upper().strip()
+                strng = line[i+1:x].strip()
+                if len(strng) > 0:
+                    # remove end comma if exists
+                    if strng[-1] == ",":
+                        strng = strng[:-1]
+                    # remove apostrophes if exists
+                    if (strng[0] == "\'" and strng[-1] == "\'") or (strng[0] == "\"" and strng[-1] == "\""):
+                        strng = strng[1:-1]
+                    # change boolean to python boolean
+                    if strng == "T" or strng.upper() == ".TRUE." or strng == "F" or strng.upper() == ".FALSE.":
+                        if strng == "T" or strng.upper() == ".TRUE.":
+                            strng = True
+                        elif strng == "F" or strng.upper() == ".FALSE.":
+                            strng = False
+                    # Check if srtng is a number
+                    try:
+                        float(strng)
+                        isFl = True
+                    except:
+                        isFl = False
+
+                    if key[:5]=='MODS(':
+                        y = key.find(')')
+                        index = int(key[5:y])
+                        name = NAMES[index-1]
+                        if not name in vars.mods:
+                            vars.mods[name] = Comp()
+                            vars.mods[name].Find = namesFoInds[name]
+                            vars.mods[name].name = name
+                        if len(key)>y+1:
+                            print(key, y+1)
+                            prop = key[y+2:].lower()
+                            cmd = 'vars.mods[\'%s\'].%s'%(NAMES[index-1],prop)
+                            if isFl:
+                                exec("%s = %s"%(cmd, strng))
+                            else:
+                                exec("%s = \'%s\'"%(cmd, strng))
+                        else:
+                            props = strng.split()
+                            i = 0
+                            n=len(props)
+                            print(name)
+                            if i< n: vars.mods[name].mode   = int(props[i])  ;i=i+1
+                            if i< n: vars.mods[name].col    = int(props[i])  ;i=i+1
+                            if i< n: vars.mods[name].multi  = float(props[i].replace('d','e',1));i=i+1
+                            if i< n: vars.mods[name].shift  = float(props[i].replace('d','e',1));i=i+1
+                            if i< n: vars.mods[name].min    = float(props[i].replace('d','e',1));i=i+1
+                            if i< n: vars.mods[name].max    = float(props[i].replace('d','e',1));i=i+1
+                            if i< n: vars.mods[name].sig    = float(props[i].replace('d','e',1));i=i+1
+                            if i< n: vars.mods[name].mju    = float(props[i].replace('d','e',1));i=i+1
+                            if i< n: vars.mods[name].fv     = float(props[i].replace('d','e',1));i=i+1
+                            if i< n: vars.mods[name].ph     = float(props[i].replace('d','e',1));i=i+1
+                            if i< n: vars.mods[name].am     = float(props[i].replace('d','e',1));i=i+1
+                            if i< n: vars.mods[name].unit   = props[i][1:-1]       ;i=i+1
+
+
+            else:
+                continue
+
+            if   'WORK_DIR' == key: self.case_dir.setText(strng)
+            elif 'CASE_DIR' == key: self.case_dir.setText(strng)
+            elif 'CASE_NAME' == key: self.case_name.setText(strng)
+            elif 'RUN_NAME' == key: self.run_name.setText(strng)
+            elif 'CHEMISTRY_FLAG' == key: self.checkBox_che.setChecked(strng)
+            elif 'AEROSOL_FLAG' == key: self.checkBox_aer.setChecked(strng)
+            elif 'ACDC_SOLVE_SS' == key: self.acdc_solve_ss.setChecked(strng)
+            # elif 'NUCLEATION' == key: self.      .setChecked(strng)
+            elif 'ACDC' == key: self.checkBox_acd.setChecked(strng)
+            # elif 'EXTRA_DATA' == key: self.      .setChecked(strng)
+            # elif 'CURRENT_CASE' == key: self.      .setChecked(strng)
+            elif 'CONDENSATION' == key: self.condensation.setChecked(strng)
+            elif 'COAGULATION' == key: self.coagulation.setChecked(strng)
+            elif 'MODEL_H2SO4' == key: self.model_h2so4.setChecked(strng)
+            elif 'RESOLVE_BASE' == key: self.resolve_base.setChecked(strng)
+            elif 'RUNTIME' == key and isFl: self.runtime.setValue(float(strng))
+            # elif 'DT' == key: print(strng)#          -1,
+            elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(float(strng))
+            elif 'PRINT_INTERVAL' == key and isFl: self.print_interval.setValue(float(strng))
+            elif 'FSAVE_DIVISION' == key and isFl: self.fsave_division.setValue(float(strng))
+            elif 'PSD_MODE' == key and isFl: self.psd_mode.setCurrentIndex(int(strng))
+            elif 'N_BINS_PARTICLE' == key and isFl: self.n_bins_particle.setValue(int(strng))
+            elif 'MIN_PARTICLE_DIAM' == key: self.min_particle_diam.setText(strng)#   1.0000000000000001E-009,
+            elif 'MAX_PARTICLE_DIAM' == key: self.max_particle_diam.setText(strng)#   9.9999999999999995E-007,
+            # elif 'DMPS_DIR' == key: print(strng)# "
+            # elif 'EXTRA_P_DIR' == key: self.extra_p_dir.setText(strng)
+            elif 'DMPS_FILE' == key: self.dmps_file.setText(strng)
+            elif 'EXTRA_PARTICLES' == key: self.extra_particles.setText(strng)
+            elif 'DMPS_READ_IN_TIME' == key and isFl: self.dmps_read_in_time.setValue(float(strng))
+            elif 'DMPS_HIGHBAND_LOWER_LIMIT' == key: self.dmps_highband_lower_limit.setText(strng)
+            elif 'DMPS_LOWBAND_UPPER_LIMIT' == key: self.dmps_lowband_upper_limit.setText(strng)
+            elif 'USE_DMPS' == key: self.use_dmps.setChecked(strng)
+            elif 'USE_DMPS_SPECIAL' == key: self.use_dmps_special.setChecked(strng)
+            # elif 'ENV_PATH' == key: self.case_dir.setText(strng)
+            elif 'ENV_FILE' == key: self.env_file.setText(strng)
+            # elif 'TEMPUNIT' == key: print(strng)# "K
+            # elif 'MCM_PATH' == key: print(strng)# "
+            elif 'MCM_FILE' == key: self.mcm_file.setText(strng)# "
+            # elif 'JD' == key: print(strng)#           2,
+            elif 'LAT' == key and isFl: self.lat.setValue(float(strng))
+            elif 'LON' == key and isFl: self.lon.setValue(float(strng))
+            elif 'WAIT_FOR' == key and isFl: self.wait_for.setValue(int(strng))
+            elif 'PYTHON' == key: self.python.setChecked(strng)
+            elif 'DESCRIPTION' == key: self.description.setPlainText(strng)# "Just some keying
+            # elif 'SOLVER' == key: print(strng)# "
+            elif 'CH_ALBEDO' == key and isFl: self.ch_albedo.setValue(float(strng))#  0.20000000000000001     ,
+            elif 'DMA_F' == key and isFl: self.dma_f.setValue(float(strng))
+            elif 'RESOLVE_BASE_PRECISION' == key and isFl: self.resolve_base_precision.setValue(float(strng))
+            elif 'FILL_FORMATION_WITH' == key: self.fill_formation_with.setCurrentIndex(solve_for_parser(strng))
+            elif 'VAP_LOGICAL' == key: self.vap_logical.setChecked(strng)
+            elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
+            elif 'VAP_PROPS' == key: self.vap_props.setText(strng)
+
+
+        for key in vars.mods:
+            pm = 0
+            if vars.mods[key].mode > 0: pm = 1
+
+            if key == 'TEMPK' or key == 'PRESSURE':
+                pass
+            else:
+                cols = [key,str(vars.mods[key].col),str(vars.mods[key].multi),str(vars.mods[key].shift),pm]
+                self.add_new_line(key,2,cols=cols,createNew=False)
 
 
 dummy = Comp()

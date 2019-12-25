@@ -31,7 +31,7 @@ def uniq(list):
 pth = '/media/pecl/EE7B-B587/PC180416/N1/'
 pth = ''
 pth = '../output/'
-files = (['TESTING_simple_run_general.nc'])
+files = (['Test_01_general.nc'])
 
 import sys
 cmdline = False

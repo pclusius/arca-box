@@ -15,7 +15,7 @@
 #         self.ph  = 0e0      # Angular frequency [hours] of modifying sine function
 #         self.am  = 1e0      # Amplitude of modificaion
 #         self.name = 'NONAME'# Human readable name for modified variable
-#         self.unit = '#'     # unit name
+#         self.unit = '[-]'     # unit name
 #         self.Find = 1
 #         self.pmInUse = 'no'
 

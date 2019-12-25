@@ -7,20 +7,12 @@ Case_name   = 'TESTING'
 RUN_NAME    = 'simple_run'
 /
 
-####### MODULE settings #######
-&NML_Flag
-Aerosol_flag        = .true.
-Chemistry_flag      = .true.
-Aerosol_flag       = .true.
-ACDC_solve_ss       = .true.
-NUCLEATION          = .true.
-ACDC                = .true.
-model_H2SO4         = .false.
-Condensation        = .true.
-Coagulation         = .true.
-Extra_data          = .false.
-Current_case        = .false.
-RESOLVE_BASE        = .false.
+
+####### ENV file read #####
+&NML_ENV
+ENV_file         = 'meas.dat'
+ENV_path         = 'input'
+TempUnit         = 'C' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
 /
 
 ####### TIME settings #####
@@ -38,18 +30,26 @@ dmps_file = 'dm150101.sum'
 extra_p_dir = 'input'
 extra_particles = 'xtra.dat'
 /
-
-####### ENV file read #####
-&NML_ENV
-ENV_file         = 'meas.dat'
-ENV_path         = 'input'
-TempUnit         = 'C' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
-/
-
 ####### CHEMICAL settings #####
 &NML_MCM
 MCM_path = ''
 MCM_file = ''
+/
+
+####### MODULE settings #######
+&NML_Flag
+Aerosol_flag        = .true.
+Chemistry_flag      = .true.
+Aerosol_flag       = .true.
+ACDC_solve_ss       = .true.
+NUCLEATION          = .true.
+ACDC                = .true.
+model_H2SO4         = .false.
+Condensation        = .true.
+Coagulation         = .true.
+Extra_data          = .false.
+Current_case        = .false.
+RESOLVE_BASE        = .false.
 /
 
 
