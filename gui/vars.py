@@ -175,11 +175,18 @@ class INITFILE:
             self.names = names
             pass
         def printall(self,cmd,f,eol, mods=None):
+            units =['C','K','Pa','hPa','bar','kPa','mbar','#','ppm','ppb','ppt','ppq']
+
             exec("%s('&NML_MODS%s')"%(cmd, eol))
             if mods != None:
                 for v in self.names:
                     if v in mods:
                         m = mods[v]
+                        unit = m.unit
+                        if unit in units:
+                            pass
+                        else:
+                            unit='#'
                         multistr = '%12.5e'%(m.multi)
                         multistr = multistr.replace('e', 'd', 1)
                         shiftstr = '%12.5e'%(m.shift)
@@ -192,7 +199,7 @@ class INITFILE:
                             mode = m.mode
                         else: mode = 0
                         strr = "MODS(%d)%s= %d %3d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 %s%s%s ! %s"%(
-                        m.Find,' '*(4-len(str(m.Find))),mode,m.col, multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, "\\'", m.unit,"\\'", m.name)
+                        m.Find,' '*(4-len(str(m.Find))),mode,m.col, multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, "\\'", unit,"\\'", m.name)
                         exec("%s(' %s%s')"%(cmd,strr,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 

@@ -16,7 +16,7 @@ units ={
 'SW_RADIATION':['W/m2'],
 'ION_PROD_RATE':['ip/cm3 s'],
 'NUC_RATE_IN':['1/cm3 s'],
-'REST':['[-]','ppm','ppb','ppt','ppq']
+'REST':['#/cm3','ppm','ppb','ppt','ppq']
 }
 ## Read model names--------------------------------------------
 path_to_names = 'src/NAMES.dat'
@@ -56,7 +56,7 @@ class Comp:
         self.ph  = 0e0      # Angular frequency [hours] of modifying sine function
         self.am  = 1e0      # Amplitude of modificaion
         self.name = 'NONAME'# Human readable name for modified variable
-        self.unit = '[-]'     # unit name
+        self.unit = '#/cm3'     # unit name
         self.Find = 1
         self.pmInUse = 'No'
         self.sl_1 = 39
@@ -81,10 +81,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.show_extra_plots = ''
         self.printButton.clicked.connect(self.print_values)
         self.saveButton.clicked.connect(self.save_file)
-        self.loadButton.clicked.connect(self.load_file)
+        self.loadButton.clicked.connect(lambda: self.browse_path(None, 'load'))
         self.actionSave_2.triggered.connect(self.save_file)
         self.actionPrint.triggered.connect(self.print_values)
-        self.actionOpen.triggered.connect(self.browse_path)
+        self.actionOpen.triggered.connect(lambda: self.browse_path(None, 'load'))
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
 
     # -----------------------
@@ -193,14 +193,24 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     def resetSlider(self, slider, pos):
         slider.setProperty("value", pos)
 
+    def scales(self):
+        rt = self.runtime.value()
+        wScale = rt/2/200.0
+        pScale = rt*1.1905/200.0
+        aScale = 0.1
+        phScale = rt/0.2/200.0
+        ampScale = 1/20.0
+        return wScale,pScale,aScale,phScale,ampScale
+
     def updteGraph(self):
         gain = 10**(self.gain.value()/50.-1)
         rt = self.runtime.value()
-        wScale = rt/2/200.0 * gain
-        pScale = rt*1.1905/200.0 * gain
-        aScale = 0.1 * gain
-        phScale = rt/0.2/200.0 * gain
-        ampScale = 1/20.0 * gain
+        wScale,pScale,aScale,phScale,ampScale = self.scales()
+        wScale   = wScale   * gain
+        pScale   = pScale   * gain
+        aScale   = aScale   * gain
+        phScale  = phScale  * gain
+        ampScale = ampScale * gain
 
         x = linspace(0,rt,200)
         yscale = self.radio(self.fLin, self.fLog)
@@ -225,7 +235,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         dummy.sl_3 = self.fFreq.value()
         dummy.sl_4 = self.fPhase.value()
         dummy.sl_5 = self.fAmp.value()
-
 
         if yscale == 'lin':
             dummy.mode = 1
@@ -349,10 +358,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         options = dialog.Options()
         options |= dialog.DontUseNativeDialog
         if mode == 'dir': path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
-        if mode == 'file': path = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
+        if mode == 'file' or mode == 'load': path = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
         if path != '':
-            target.clear()
-            target.insert(path)
+            if mode == 'load':
+                self.load_file(path)
+            else:
+                target.clear()
+                target.insert(path)
 
     def save_file(self):
         self.update_nml()
@@ -399,7 +411,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.names_sel_2.addItem(self.selected_vars.item(i,0).text())
 
 
-    def add_new_line(self, name, unit_ind, cols=[],createNew=True):
+    def add_new_line(self, name, unit_ind, cols=[],createNew=True, unt=0):
         """adds items to variable table"""
         self.selected_vars.setSortingEnabled(False);
         row = self.selected_vars.rowCount()
@@ -411,11 +423,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         pmInUse = QtWidgets.QComboBox()
         pmInUse.addItems(['No','Yes'])
         unit = QtWidgets.QComboBox()
-        if name in units:
-            unit.addItems(units[name])
-        else:
-            unit.addItems(units['REST'])
-
+        unit.addItems(units.get(name,units['REST']))
+        unit.setCurrentIndex(unt)
         markBut = QtWidgets.QPushButton()
         # markBut.setFixedSize(column_widths[6],30)
         markBut.setCheckable(True)
@@ -640,8 +649,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         elif 'DMA' in text:
             return 'DMA'
 
+    def openFileForLoad(self):
+        pass
 
-    def load_file(self):
+    def load_file(self,file):
         self.markReverseSelection('all')
         self.remv_item()
 
@@ -653,7 +664,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             else:
                 return 0
         # class _PATH:
-        file = '/home/pecl/05-APCAD/supermodel-phase-1/input/ACDC'
+
         f = open(file, 'r')
 
         for line in f:
@@ -691,7 +702,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                             vars.mods[name].Find = namesFoInds[name]
                             vars.mods[name].name = name
                         if len(key)>y+1:
-                            print(key, y+1)
                             prop = key[y+2:].lower()
                             cmd = 'vars.mods[\'%s\'].%s'%(NAMES[index-1],prop)
                             if isFl:
@@ -702,7 +712,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                             props = strng.split()
                             i = 0
                             n=len(props)
-                            print(name)
                             if i< n: vars.mods[name].mode   = int(props[i])  ;i=i+1
                             if i< n: vars.mods[name].col    = int(props[i])  ;i=i+1
                             if i< n: vars.mods[name].multi  = float(props[i].replace('d','e',1));i=i+1
@@ -714,7 +723,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                             if i< n: vars.mods[name].fv     = float(props[i].replace('d','e',1));i=i+1
                             if i< n: vars.mods[name].ph     = float(props[i].replace('d','e',1));i=i+1
                             if i< n: vars.mods[name].am     = float(props[i].replace('d','e',1));i=i+1
-                            if i< n: vars.mods[name].unit   = props[i][1:-1]       ;i=i+1
+                            if i< n:
+                                unt = props[i][1:-1]
+                                if unt == '#': unt = '#/cm3'
+                                vars.mods[name].unit = unt
 
 
             else:
@@ -773,16 +785,39 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
             elif 'VAP_PROPS' == key: self.vap_props.setText(strng)
 
-
+        # manage different units
         for key in vars.mods:
             pm = 0
-            if vars.mods[key].mode > 0: pm = 1
+            if vars.mods[key].mode > 0:
+                pm = 1
+            unts = units.get(key,units['REST'])
+            ui = 0
+            for unit in unts:
+                if unit.upper() == vars.mods[key].unit.upper():
+                    break
+                else:
+                    ui=ui+1
+            if ui==len(unts): ui=0
 
             if key == 'TEMPK' or key == 'PRESSURE':
-                pass
+                if key == 'TEMPK': row = 0
+                if key == 'PRESSURE': row = 1
+                self.selected_vars.setItem(row, 1, QtWidgets.QTableWidgetItem(str(vars.mods[key].col)))
+                self.selected_vars.setItem(row, 2, QtWidgets.QTableWidgetItem(str(vars.mods[key].multi)))
+                self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem(str(vars.mods[key].shift)))
+                self.selected_vars.cellWidget(row,4).setCurrentIndex(pm)
+                self.selected_vars.cellWidget(row,5).setCurrentIndex(ui)
+
             else:
                 cols = [key,str(vars.mods[key].col),str(vars.mods[key].multi),str(vars.mods[key].shift),pm]
-                self.add_new_line(key,2,cols=cols,createNew=False)
+                self.add_new_line(key,2,cols=cols,createNew=False, unt=ui)
+
+            wScale,pScale,aScale,phScale,ampScale = self.scales()
+            vars.mods[key].sl_1 = int(round(vars.mods[key].sig /wScale,0))
+            vars.mods[key].sl_2 = int(round(vars.mods[key].mju /pScale,0))
+            vars.mods[key].sl_3 = int(round(vars.mods[key].fv  /aScale,0))
+            vars.mods[key].sl_4 = int(round(vars.mods[key].ph  /phScale,0))
+            vars.mods[key].sl_5 = int(round(vars.mods[key].am  /ampScale,0))
 
 
 dummy = Comp()
