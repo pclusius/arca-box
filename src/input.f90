@@ -75,7 +75,8 @@ real(dp)  :: FSAVE_INTERVAL = 300d0
 real(dp)  :: PRINT_INTERVAL = 15*60d0
 INTEGER   :: FSAVE_DIVISION = 0
 INTEGER   :: dt = -1
-NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION
+character(len=10)  :: DATE = '1800-01-01'
+NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, DATE
 
 ! MODIFIER OPTIONS
 ! MODS is declared in CONSTANTS.f90, in order to be more widely available
@@ -490,6 +491,10 @@ end subroutine READ_INIT_FILE
 
 subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
   implicit none
+  INTEGER :: days(12), non_leap_year(12) = ([31,28,31,30,31,30,31,31,30,31,30,31])
+  INTEGER :: leap_year(12) = ([31,29,31,30,31,30,31,31,30,31,30,31])
+  INTEGER :: y,m,d
+
   MODELTIME%SIM_TIME_H = runtime
   MODELTIME%SIM_TIME_S = runtime*3600d0
   ! figure out the correct save interval
@@ -501,6 +506,25 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
   MODELTIME%PRINT_INTERVAL = PRINT_INTERVAL
   ! IF julian day was provided, use it
   IF (JD > 0) MODELTIME%JD = JD
+  if (TRIM(DATE) /= '1800-01-01') THEN
+
+    read(date(1:4),*) y
+    read(date(6:7),*) m
+    read(date(9:) ,*) d
+
+    if (MODULO(y,4) == 0) THEN
+      if ((MODULO(y,100) == 0) .and. (MODULO(y,400) /= 0)) THEN
+        days = non_leap_year
+      ELSE
+        days = leap_year
+      END IF
+    ELSE
+        days = non_leap_year
+    END IF
+
+    MODELTIME%JD = sum(days(:m-1)) + d
+    print*, 'Julian Day: ', MODELTIME%JD
+  END if
 end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
 
 subroutine NAME_MODS_SORT_NAMED_INDICES

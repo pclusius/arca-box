@@ -103,6 +103,7 @@ class INITFILE:
             self.FSAVE_INTERVAL=0
             self.PRINT_INTERVAL=0
             self.FSAVE_DIVISION=0
+            self.DATE='2000-01-01'
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_TIME%s')"%(cmd, eol))
@@ -111,6 +112,7 @@ class INITFILE:
             exec("%s(' FSAVE_INTERVAL = %s%s')"%(cmd,self.FSAVE_INTERVAL,eol))
             exec("%s(' PRINT_INTERVAL = %s%s')"%(cmd,self.PRINT_INTERVAL,eol))
             exec("%s(' FSAVE_DIVISION = %s%s')"%(cmd,self.FSAVE_DIVISION,eol))
+            exec("%s(' DATE = \\'%s\\'%s')"%(cmd,self.DATE,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _PARTICLE:

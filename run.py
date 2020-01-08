@@ -196,17 +196,18 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def scales(self):
         rt = self.runtime.value()
-        wScale = rt/2/200.0
-        pScale = rt*1.1905/200.0
+        # rt=24
+        scf = 24
+        wScale = scf/2/200.0
+        pScale = scf*1.1905/200.0
         aScale = 0.1
-        phScale = rt/0.2/200.0
+        phScale = scf/0.2/200.0
         ampScale = 1/20.0
-        return wScale,pScale,aScale,phScale,ampScale
+        return wScale,pScale,aScale,phScale,ampScale,rt
 
     def updteGraph(self):
         gain = 10**(self.gain.value()/50.-1)
-        rt = self.runtime.value()
-        wScale,pScale,aScale,phScale,ampScale = self.scales()
+        wScale,pScale,aScale,phScale,ampScale,rt = self.scales()
         wScale   = wScale   * gain
         pScale   = pScale   * gain
         aScale   = aScale   * gain
@@ -420,14 +421,12 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         item = self.namesdat.item(namesPyInds[name])
         item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
 
-        text = '%s'%(name)
         pmInUse = QtWidgets.QComboBox()
         pmInUse.addItems(['No','Yes'])
         unit = QtWidgets.QComboBox()
         unit.addItems(units.get(name,units['REST']))
         unit.setCurrentIndex(unt)
         markBut = QtWidgets.QPushButton()
-        # markBut.setFixedSize(column_widths[6],30)
         markBut.setCheckable(True)
         if name == 'TEMPK' or name == 'PRESSURE' :
             markBut.setEnabled(False)
@@ -437,7 +436,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
         markBut.setText('mark')
         if cols==[]:
-            cols = [text, '-1','1.0', '0.0',0]
+            cols = [name, '-1','1.0', '0.0',0]
         pmInUse.setCurrentIndex(cols[4])
         self.selected_vars.horizontalHeader().setStretchLastSection(True)
 
@@ -595,6 +594,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.TIME.FSAVE_INTERVAL=self.fsave_interval.value()
         nml.TIME.PRINT_INTERVAL=self.print_interval.value()
         nml.TIME.FSAVE_DIVISION=self.fsave_division.value()
+        nml.TIME.DATE=self.dateEdit.text()
         # class _PARTICLE:
         nml.PARTICLE.PSD_MODE=self.psd_mode.currentIndex()+1
         nml.PARTICLE.N_BINS_PARTICLE=self.n_bins_particle.value()
@@ -669,7 +669,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 return 2
             else:
                 return 0
-        # class _PATH:
+
+        def parse_date(str):
+            y = int(str[0:4] )
+            m = int(str[5:7])
+            d = int(str[8:10])
+            return QtCore.QDate(y, m, d)
+
 
         f = open(file, 'r')
 
@@ -758,6 +764,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(float(strng))
             elif 'PRINT_INTERVAL' == key and isFl: self.print_interval.setValue(float(strng))
             elif 'FSAVE_DIVISION' == key and isFl: self.fsave_division.setValue(float(strng))
+            elif 'DATE' == key: self.dateEdit.setDate(parse_date(strng))
             elif 'PSD_MODE' == key and isFl: self.psd_mode.setCurrentIndex(int(strng))
             elif 'N_BINS_PARTICLE' == key and isFl: self.n_bins_particle.setValue(int(strng))
             elif 'MIN_PARTICLE_DIAM' == key: self.min_particle_diam.setText(strng)#   1.0000000000000001E-009,
@@ -818,7 +825,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 cols = [key,str(vars.mods[key].col),str(vars.mods[key].multi),str(vars.mods[key].shift),pm]
                 self.add_new_line(key,2,cols=cols,createNew=False, unt=ui)
 
-            wScale,pScale,aScale,phScale,ampScale = self.scales()
+            wScale,pScale,aScale,phScale,ampScale,_ = self.scales()
             vars.mods[key].sl_1 = int(round(vars.mods[key].sig /wScale,0))
             vars.mods[key].sl_2 = int(round(vars.mods[key].mju /pScale,0))
             vars.mods[key].sl_3 = int(round(vars.mods[key].fv  /aScale,0))

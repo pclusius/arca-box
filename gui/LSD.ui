@@ -35,14 +35,14 @@
        <x>0</x>
        <y>0</y>
        <width>951</width>
-       <height>661</height>
+       <height>670</height>
       </rect>
      </property>
      <property name="accessibleName">
       <string/>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -54,7 +54,7 @@
          <x>690</x>
          <y>10</y>
          <width>241</width>
-         <height>531</height>
+         <height>600</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -69,7 +69,7 @@
           <x>10</x>
           <y>30</y>
           <width>221</width>
-          <height>491</height>
+          <height>560</height>
          </rect>
         </property>
         <property name="verticalScrollBarPolicy">
@@ -337,6 +337,13 @@
              <weight>50</weight>
              <bold>false</bold>
             </font>
+           </property>
+           <property name="date">
+            <date>
+             <year>2025</year>
+             <month>1</month>
+             <day>1</day>
+            </date>
            </property>
            <property name="displayFormat">
             <string>yyyy-MM-dd</string>
@@ -984,7 +991,7 @@
          <x>690</x>
          <y>10</y>
          <width>241</width>
-         <height>531</height>
+         <height>600</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -996,7 +1003,7 @@
           <x>10</x>
           <y>30</y>
           <width>221</width>
-          <height>491</height>
+          <height>560</height>
          </rect>
         </property>
         <property name="verticalScrollBarPolicy">
@@ -1049,7 +1056,7 @@
          <x>10</x>
          <y>29</y>
          <width>590</width>
-         <height>531</height>
+         <height>570</height>
         </rect>
        </property>
        <column>
@@ -1154,9 +1161,9 @@
        <property name="geometry">
         <rect>
          <x>530</x>
-         <y>570</y>
+         <y>605</y>
          <width>70</width>
-         <height>25</height>
+         <height>20</height>
         </rect>
        </property>
        <property name="palette">
@@ -1206,10 +1213,10 @@
       <widget class="QPushButton" name="invertMarks">
        <property name="geometry">
         <rect>
-         <x>390</x>
-         <y>570</y>
-         <width>140</width>
-         <height>25</height>
+         <x>370</x>
+         <y>605</y>
+         <width>120</width>
+         <height>20</height>
         </rect>
        </property>
        <property name="palette">
@@ -1799,9 +1806,9 @@
           <colorrole role="WindowText">
            <brush brushstyle="SolidPattern">
             <color alpha="255">
-             <red>255</red>
+             <red>170</red>
              <green>255</green>
-             <blue>0</blue>
+             <blue>127</blue>
             </color>
            </brush>
           </colorrole>
@@ -1828,9 +1835,9 @@
           <colorrole role="WindowText">
            <brush brushstyle="SolidPattern">
             <color alpha="255">
-             <red>255</red>
+             <red>170</red>
              <green>255</green>
-             <blue>0</blue>
+             <blue>127</blue>
             </color>
            </brush>
           </colorrole>
@@ -1886,7 +1893,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>20</pointsize>
+         <pointsize>14</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -2870,7 +2877,7 @@
      <property name="geometry">
       <rect>
        <x>100</x>
-       <y>680</y>
+       <y>690</y>
        <width>221</width>
        <height>30</height>
       </rect>
@@ -2883,7 +2890,7 @@
      <property name="geometry">
       <rect>
        <x>370</x>
-       <y>680</y>
+       <y>690</y>
        <width>221</width>
        <height>30</height>
       </rect>
@@ -2896,7 +2903,7 @@
      <property name="geometry">
       <rect>
        <x>640</x>
-       <y>680</y>
+       <y>690</y>
        <width>221</width>
        <height>30</height>
       </rect>
