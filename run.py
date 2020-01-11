@@ -3,6 +3,12 @@ import pyqtgraph as pg
 from gui import vars, gui5
 import subprocess
 from numpy import linspace,log10,sqrt,exp,pi,sin
+import numpy as np
+try:
+    import netCDF4
+    netcdf = True
+except:
+    netcdf = False
 
 ## Some constants --------------------------------------------
 column_widths = [140,70,70,70,70,90,50,3]
@@ -32,10 +38,13 @@ namesFoInds = {}
 i = 0;k=1
 for line in f:
     name = line[:-1]
-    if not '#' in line:
+    if '#' in line:
+        NAMES.append('MCM compounds start here')
+        divider_i=i
+    else:
         NAMES.append(name)
-        namesPyInds[name] = i
-        i = i+1
+    namesPyInds[name] = i
+    i = i+1
     namesFoInds[name] = k
     k = k+1
 f.close()
@@ -93,6 +102,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
         self.namesdat.clear()
         self.namesdat.addItems(NAMES)
+        item = self.namesdat.item(divider_i)
+        item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
+
         self.runtime.valueChanged.connect(self.updteGraph)
 
         # Prepare the variable table
@@ -121,7 +133,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.butRemoveSelVars.clicked.connect(self.remv_item)
         self.selected_vars.setColumnHidden(7, True)
         self.selected_vars.verticalHeader().setVisible(False);
-
+        self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed'))
 
     # -----------------------
     # tab Function creator
@@ -182,6 +194,32 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.pollTimer.timeout.connect(self.pollMonitor)
         self.pauseScroll.clicked.connect(self.checkPauseScroll)
         self.pauseScrolling = False
+
+    # -----------------------
+    # tab Plot Monitor
+    # -----------------------
+
+        if netcdf:
+            self.show_netcdf.hide()
+            self.loadNetcdf.setEnabled(True)
+            self.availableVars.clicked.connect(self.showOutputUpdate)
+            self.fLog_2.clicked.connect(self.showOutputUpdate)
+            self.fLin_2.clicked.connect(self.showOutputUpdate)
+
+        else:
+            self.show_netcdf.show()
+            self.loadNetcdf.setEnabled(False)
+            self.fLin_2.setEnabled(False)
+            self.fLog_2.setEnabled(False)
+
+        self.plotResultWindow.showGrid(x=True,y=True)
+        self.plotResultWindow.setBackground('w')
+        pen = pg.mkPen(color=(0,0,0), width=1)
+        self.plotResultWindow.getAxis('left').setPen(pen)
+        self.plotResultWindow.getAxis('bottom').setPen(pen)
+        self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
+
+
     # -----------------------
     # Class methods
     # -----------------------
@@ -340,7 +378,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             norm = 10**(norm*f)-1 + mini
         return norm
 
-
     def radio(self,*buts):
         for but in buts:
             if but.isChecked():
@@ -351,19 +388,33 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                     self.PLOT.setLogMode(y=True)
                     return 'log'
 
-
-    def browse_path(self, target, mode):
+    def browse_path(self, target, mode, ftype=None):
         """Browse for file or folder (depending on 'mode' and write the outcome to 'target')"""
         dialog = QtWidgets.QFileDialog()
+        if ftype != None:
+            dialog.setNameFilter(ftype)
+
         if mode == 'dir': dialog.setFileMode(QtWidgets.QFileDialog.Directory)
         if mode == 'dir': dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly)
         options = dialog.Options()
         options |= dialog.DontUseNativeDialog
-        if mode == 'dir': path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
-        if mode == 'file' or mode == 'load': path = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
+        if mode == 'dir':
+            path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
+        # if mode == 'file' or mode == 'load' or mode == 'fixed': path = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
+        else:
+            dialog.setOption(QtWidgets.QFileDialog.DontUseNativeDialog)
+            dialog.setWindowTitle('Choose File')
+            if dialog.exec() == 1:
+                path = dialog.selectedFiles()[0]
+            else: path=''
+            # path = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
         if path != '':
             if mode == 'load':
                 self.load_file(path)
+            elif mode == 'fixed':
+                self.loadFixedFile(path)
+            elif mode == 'plot':
+                self.showOutput(path)
             else:
                 target.clear()
                 target.insert(path)
@@ -412,6 +463,20 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.names_sel.addItem(self.selected_vars.item(i,0).text())
             self.names_sel_2.addItem(self.selected_vars.item(i,0).text())
 
+    def loadFixedFile(self, path):
+        f = open(path, 'r')
+        indef = False
+        for line in f:
+            if '#DEFFIX' in line.upper():
+                indef = True
+                continue
+            if indef and '#' in line and not '#DEFFIX' in line.upper():
+                break
+            if indef and '=' in line and '//' not in line:
+                i = line.find('=')
+                comp = line[:i].strip()
+                if comp not in vars.mods:
+                    self.namesdat.item(namesPyInds[comp]).setSelected(True)
 
     def add_new_line(self, name, unit_ind, cols=[],createNew=True, unt=0):
         """adds items to variable table"""
@@ -549,6 +614,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         except:
             self.MonitorWindow.appendPlainText('\n    Could not start model executable, is it compiled?')
 
+
     def pollMonitor(self):
         status = self.boxProcess.poll()
         if status != None:
@@ -564,6 +630,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
             self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
             self.stopBox()
+
 
     def checkbox(self, widget):
         if widget.isChecked() == True:
@@ -650,9 +717,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         elif 'DMA' in text:
             return 'DMA'
 
-    def openFileForLoad(self):
-        pass
-
     def load_file(self,file):
         self.markReverseSelection('all')
         self.remv_item()
@@ -692,7 +756,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                     # remove apostrophes if exists
                     if (strng[0] == "\'" and strng[-1] == "\'") or (strng[0] == "\"" and strng[-1] == "\""):
                         strng = strng[1:-1]
-                    # change boolean to python boolean
+                    # change fortran boolean to python boolean
                     if strng == "T" or strng.upper() == ".TRUE." or strng == "F" or strng.upper() == ".FALSE.":
                         if strng == "T" or strng.upper() == ".TRUE.":
                             strng = True
@@ -708,6 +772,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                     if key[:5]=='MODS(':
                         y = key.find(')')
                         index = int(key[5:y])
+                        if index-1 == divider_i:
+                            continue
                         name = NAMES[index-1]
                         if not name in vars.mods:
                             vars.mods[name] = Comp()
@@ -831,6 +897,80 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             vars.mods[key].sl_3 = int(round(vars.mods[key].fv  /aScale,0))
             vars.mods[key].sl_4 = int(round(vars.mods[key].ph  /phScale,0))
             vars.mods[key].sl_5 = int(round(vars.mods[key].am  /ampScale,0))
+
+    def showOutput(self, file):
+        if netcdf:
+            try:
+                self.ncs = netCDF4.Dataset(file, 'r')
+            except:
+                self.popup('Bummer...', 'Not a valid output file')
+                return
+
+            self.hnames = [i for i in self.ncs.variables]
+            dims = [i for i in self.ncs.dimensions]
+
+
+            # remove string variables and constants
+            cache = []
+            for i,v in enumerate(self.hnames):
+                try:
+                    int(self.ncs.variables[v][0])
+                    cache.append(v)
+                except:
+                    pass
+            self.hnames = []
+            for i,v in enumerate(cache):
+                if (len(np.shape(self.ncs.variables[v][:])) >1):
+                    self.hnames.append(v)
+                # elif (len(uniq(ncs[0].variables[v][:]))>1):
+                if not 'Shifter' in v and not 'Multipl' in v:
+                    self.hnames.append(v)
+            try:
+                self.plotResultWindow.plot(
+                self.ncs.variables[self.hnames[0]][:]/3600,
+                self.ncs.variables[self.hnames[2]][:],
+                pen={'color':'b','width': 1.0}
+                )
+                self.availableVars.clear()
+                self.availableVars.addItems(self.hnames)
+            except:
+                self.popup('Bummer...', "Output file does not contain valid data")
+                return
+
+            self.plotResultWindow.setLabel('bottom', 'Time (h)')
+
+        else:
+            return
+
+
+    def showOutputUpdate(self):
+        scale = self.radio(self.fLin_2, self.fLog_2)
+
+        i = self.availableVars.currentRow()
+        self.plotResultWindow.clear()
+        x = self.ncs.variables[self.hnames[i]][:]
+        positive = all(x>=0)
+        zeros = all(x==0)
+        if scale=='log' and positive and not zeros:
+            if not all(x>0):
+                x[x==0] = np.unique(x)[1]
+            self.plotResultWindow.setLogMode(y=True)
+
+        else:
+            self.plotResultWindow.setLogMode(y=False)
+        self.plotResultWindow.plot(
+        self.ncs.variables[self.hnames[0]][:]/3600,
+        x,
+        pen={'color':'b','width': 1.0}
+        )
+
+
+    def popup(self,title,message):
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Warning)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        retval = msg.exec_()
 
 
 dummy = Comp()
