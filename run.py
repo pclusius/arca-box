@@ -13,8 +13,10 @@ except:
 ## Some constants --------------------------------------------
 column_widths = [140,70,70,70,70,90,50,3]
 
+# available units for variables
+# used to fill the tables and graphs with appropriate units
 units = {
-'TEMPK': ['C','K'],
+'TEMPK': ['K','C'],
 'PRESSURE': ['Pa','hPa','bar','kPa', 'mbar'],
 'REL_HUMIDITY': ['%'],
 'CONDENS_SINK':['1/s'],
@@ -31,7 +33,7 @@ f = open(path_to_names)
 NAMES = []
 namesPyInds = {}
 namesFoInds = {}
-
+default_path = 'gui/defaults'
 ## -----------------------------------------------------------
 
 ## Create lists and dictionaries related to NAMES-------------
@@ -90,12 +92,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.plots  = 0
         self.show_extra_plots = ''
         self.printButton.clicked.connect(self.print_values)
-        self.saveButton.clicked.connect(self.save_file)
+        self.saveButton.clicked.connect(lambda: self.save_file())
         self.loadButton.clicked.connect(lambda: self.browse_path(None, 'load'))
         self.actionSave_2.triggered.connect(self.save_file)
         self.actionPrint.triggered.connect(self.print_values)
         self.actionOpen.triggered.connect(lambda: self.browse_path(None, 'load'))
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
+        self.saveDefaults.clicked.connect(lambda: self.save_file(file=default_path))
 
     # -----------------------
     # tab General options
@@ -105,7 +108,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         item = self.namesdat.item(divider_i)
         item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
 
-        self.runtime.valueChanged.connect(self.updteGraph)
+        self.runtime.valueChanged.connect(lambda: self.updteGraph())
 
         # Prepare the variable table
         for i in range(len(column_widths)):
@@ -133,20 +136,24 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.butRemoveSelVars.clicked.connect(self.remv_item)
         self.selected_vars.setColumnHidden(7, True)
         self.selected_vars.verticalHeader().setVisible(False);
-        self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed'))
+        self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed', ftype="KPP def (*.def)"))
 
     # -----------------------
     # tab Function creator
     # -----------------------
+        self.PLOT.setBackground('w')
+        self.PLOT.setLabel('bottom','time',units='h')
+        self.PLOT.getAxis('left').setStyle(autoExpandTextSpace=False)
+        self.PLOT.getAxis('left').setWidth(w=60)
         self.confirm.hide()
         self.plotTo.clicked.connect(self.select_compounds_for_plot)
         self.saveParams.clicked.connect(self.saveParamValues)
         self.loadParams.clicked.connect(self.loadParamValues)
-        self.fMin.editingFinished.connect(self.updteGraph)
-        self.fMax.editingFinished.connect(self.updteGraph)
-        self.fLog.clicked.connect(self.updteGraph)
-        self.fLin.clicked.connect(self.updteGraph)
-        self.fWidth.valueChanged.connect(self.updteGraph)
+        self.fMin.editingFinished.connect(lambda: self.updteGraph())
+        self.fMax.editingFinished.connect(lambda: self.updteGraph())
+        self.fLog.clicked.connect(lambda: self.updteGraph())
+        self.fLin.clicked.connect(lambda: self.updteGraph())
+        self.fWidth.valueChanged.connect(lambda: self.updteGraph())
         self.resetSlider(self.fWidth, default.sl_1)
         self.resetSlider(self.fPeak,  default.sl_2)
         self.resetSlider(self.fFreq,  default.sl_3)
@@ -160,11 +167,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.resPh.clicked.connect(lambda: self.resetSlider(self.fPhase,default.sl_4))
         self.resAm.clicked.connect(lambda: self.resetSlider(self.fAmp,  default.sl_5))
         self.resG.clicked.connect(lambda: self.resetSlider(self.gain,   default.gain))
-        self.fPeak.valueChanged.connect(self.updteGraph)
-        self.fFreq.valueChanged.connect(self.updteGraph)
-        self.fPhase.valueChanged.connect(self.updteGraph)
-        self.fAmp.valueChanged.connect(self.updteGraph)
-        self.gain.valueChanged.connect(self.updteGraph)
+        self.fPeak.valueChanged.connect(lambda: self.updteGraph())
+        self.fFreq.valueChanged.connect(lambda: self.updteGraph())
+        self.fPhase.valueChanged.connect(lambda: self.updteGraph())
+        self.fAmp.valueChanged.connect(lambda: self.updteGraph())
+        self.gain.valueChanged.connect(lambda: self.updteGraph())
         self.PLOT.showGrid(x=True,y=True)
         self.PLOT.showButtons()
         self.updteGraph()
@@ -202,7 +209,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         if netcdf:
             self.show_netcdf.hide()
             self.loadNetcdf.setEnabled(True)
-            self.availableVars.clicked.connect(self.showOutputUpdate)
             self.fLog_2.clicked.connect(self.showOutputUpdate)
             self.fLin_2.clicked.connect(self.showOutputUpdate)
 
@@ -218,7 +224,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.plotResultWindow.getAxis('left').setPen(pen)
         self.plotResultWindow.getAxis('bottom').setPen(pen)
         self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
-
+        self.load_initfile(default_path)
 
     # -----------------------
     # Class methods
@@ -243,7 +249,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         ampScale = 1/20.0
         return wScale,pScale,aScale,phScale,ampScale,rt
 
-    def updteGraph(self):
+    def updteGraph(self, label='Current edit'):
         gain = 10**(self.gain.value()/50.-1)
         wScale,pScale,aScale,phScale,ampScale,rt = self.scales()
         wScale   = wScale   * gain
@@ -297,11 +303,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             print(e)
 
         self.legend = self.PLOT.addLegend()
-        self.PLOT.plot(x,norm,pen=pg.mkPen('y', width=2), clear=True, name='Current edit')
+        self.PLOT.plot(x,norm,pen=pg.mkPen('r', width=4), clear=True, name=label)
 
         if self.show_extra_plots != '':
             y=self.gauss(vars.mods[self.show_extra_plots], yscale,rt)
-            self.PLOT.plot(x,y,pen=pg.mkPen(color=(200, 200, 255), width=1,style=QtCore.Qt.DotLine), name=self.show_extra_plots)
+            self.PLOT.plot(x,y,pen=pg.mkPen(color='k', width=3,style=QtCore.Qt.DotLine), name=self.show_extra_plots)
 
     def saveParamValues(self):
         compound = self.names_sel_2.selectedItems()
@@ -326,7 +332,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.confirm.setText(confirmText)
             self.confirm.show()
             QtCore.QTimer.singleShot(2000, lambda : self.confirm.hide())
-            self.updteGraph()
+            self.updteGraph(label=target)
             for i in range(self.selected_vars.rowCount()):
                 if self.selected_vars.item(i,0).text() == target:
                     self.selected_vars.cellWidget(i, 4).setCurrentIndex(1)
@@ -350,7 +356,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             else:
                 self.fLin.setChecked(False)
                 self.fLog.setChecked(True)
-            self.updteGraph()
+            self.updteGraph(label = target)
             confirmText = 'Loaded parameters from ' + target
             self.confirm.setText(confirmText)
             self.confirm.show()
@@ -410,7 +416,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             # path = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
         if path != '':
             if mode == 'load':
-                self.load_file(path)
+                self.load_initfile(path)
             elif mode == 'fixed':
                 self.loadFixedFile(path)
             elif mode == 'plot':
@@ -419,12 +425,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 target.clear()
                 target.insert(path)
 
-    def save_file(self):
+    def save_file(self, file=None):
         self.update_nml()
-        dialog = QtWidgets.QFileDialog()
-        options = dialog.Options()
-        options |= dialog.DontUseNativeDialog
-        file = dialog.getSaveFileName(self, 'Save INITFILE', options=options)[0]
+        if file==None:
+            dialog = QtWidgets.QFileDialog()
+            options = dialog.Options()
+            options |= dialog.DontUseNativeDialog
+            file = dialog.getSaveFileName(self, 'Save INITFILE', options=options)[0]
         if file != '':
             self.print_values(file)
 
@@ -466,6 +473,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     def loadFixedFile(self, path):
         f = open(path, 'r')
         indef = False
+        count = 0
         for line in f:
             if '#DEFFIX' in line.upper():
                 indef = True
@@ -477,6 +485,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 comp = line[:i].strip()
                 if comp not in vars.mods:
                     self.namesdat.item(namesPyInds[comp]).setSelected(True)
+                    count = count +1
+        self.popup('File parsed', 'Selected %d variables'%count)
 
     def add_new_line(self, name, unit_ind, cols=[],createNew=True, unt=0):
         """adds items to variable table"""
@@ -494,6 +504,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         markBut = QtWidgets.QPushButton()
         markBut.setCheckable(True)
         if name == 'TEMPK' or name == 'PRESSURE' :
+            unit.setCurrentIndex(1)
             markBut.setEnabled(False)
             markBut.setToolTip("Temperature and pressure are always required and cannot be marked for removal")
         else:
@@ -561,6 +572,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             f.write('#'+('-')*50+'\n\n')
             nml.printall(vars.mods, target='f',f=f)
             f.close()
+            if file == default_path:
+                self.popup('', 'Defaults saved')
+            else:
+                self.popup('Saved settings to', file)
         else:
             print(('\n')*10, )
             print('#',('-')*50)
@@ -594,6 +609,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.toggle_frame(self.frameStart)
 
     def startBox(self):
+        self.closenetcdf()
+
         currentWait = self.wait_for.value()
         if self.python.isChecked():
             currentPython = True
@@ -717,7 +734,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         elif 'DMA' in text:
             return 'DMA'
 
-    def load_file(self,file):
+    def load_initfile(self,file):
         self.markReverseSelection('all')
         self.remv_item()
         if self.plotTo.isChecked() == True:
@@ -900,17 +917,25 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def showOutput(self, file):
         if netcdf:
+            # First set plot mode to linear in order to avoid errors with zero values
+            self.fLin_2.setChecked(True)
+            self.fLog_2.setChecked(False)
+            self.plotResultWindow.setLogMode(y=False)
+
+            # Close all previus netcdf-files and clear plot
+            self.closenetcdf()
+            # Try to open netCDF-file
             try:
                 self.ncs = netCDF4.Dataset(file, 'r')
             except:
                 self.popup('Bummer...', 'Not a valid output file')
                 return
 
+            # collect all variables and dimensions from netCDF-dataset to hnames
             self.hnames = [i for i in self.ncs.variables]
             dims = [i for i in self.ncs.dimensions]
 
-
-            # remove string variables and constants
+            # remove string variables (non-numbers and thus not plottable)
             cache = []
             for i,v in enumerate(self.hnames):
                 try:
@@ -918,51 +943,70 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                     cache.append(v)
                 except:
                     pass
+            # remove constants
             self.hnames = []
             for i,v in enumerate(cache):
                 if (len(np.shape(self.ncs.variables[v][:])) >1):
                     self.hnames.append(v)
-                # elif (len(uniq(ncs[0].variables[v][:]))>1):
+                # Shifter ands multiplyers are left off for clarity
                 if not 'Shifter' in v and not 'Multipl' in v:
                     self.hnames.append(v)
+            # Now try plot first the third line, which is the first non-time variable
             try:
-                self.plotResultWindow.plot(
+                self.outplot = self.plotResultWindow.plot(
                 self.ncs.variables[self.hnames[0]][:]/3600,
                 self.ncs.variables[self.hnames[2]][:],
-                pen={'color':'b','width': 1.0}
+                pen={'color':'b','width': 2.0}
                 )
                 self.availableVars.clear()
                 self.availableVars.addItems(self.hnames)
+                self.availableVars.item(2).setSelected(True)
+                self.availableVars.itemSelectionChanged.connect(self.showOutputUpdate)
+
+            # If fails, give information and return
             except:
-                self.popup('Bummer...', "Output file does not contain valid data")
+                self.popup('Bummer...', "Output file does not contain any plottable data")
                 return
 
-            self.plotResultWindow.setLabel('bottom', 'Time (h)')
+            # All's well, decorate plot
+            self.plotResultWindow.setLabel('bottom', 'Time', units='h')
+            self.plotResultWindow.setTitle(self.hnames[2]+' '+units.get(self.hnames[2],units['REST'])[0])
 
+        # if netCDF is not installed, return and do nothing
         else:
             return
 
-
+    # This function is inwoked when lin/log radio button or any variable in the list is changed:
     def showOutputUpdate(self):
+        # find out which y-scale should be used
         scale = self.radio(self.fLin_2, self.fLog_2)
-
+        # find out which variable should be plotted
         i = self.availableVars.currentRow()
-        self.plotResultWindow.clear()
-        x = self.ncs.variables[self.hnames[i]][:]
-        positive = all(x>=0)
-        zeros = all(x==0)
+        # Exctract that variable from netCDF-dataset and save to Y
+        Y = self.ncs.variables[self.hnames[i]][:]
+        # Are the values non-negative?
+        positive = all(Y>=0)
+        # Are all the values zeros?
+        zeros = all(Y==0)
+        # if non-negative and not all zeros, and log-scale is possible
         if scale=='log' and positive and not zeros:
-            if not all(x>0):
-                x[x==0] = np.unique(x)[1]
+            # To avoid very small exponentials, zeros are changed to nearest small number
+            if not all(Y>0):
+                uniqs = np.unique(Y)
+                if len(uniqs)>1:
+                    Y[Y==0] = uniqs[1]
+                # if the above fails, use linear scale
+                else:
+                    self.plotResultWindow.setLogMode(y=False)
+            # if everything ok, use log scale
             self.plotResultWindow.setLogMode(y=True)
-
+        # if linear scale was chosen, or negative values, or all zeros, use lin-scale
         else:
             self.plotResultWindow.setLogMode(y=False)
-        self.plotResultWindow.plot(
-        self.ncs.variables[self.hnames[0]][:]/3600,
-        x,
-        pen={'color':'b','width': 1.0}
-        )
+        # update data
+        self.outplot.setData(self.ncs.variables[self.hnames[0]][:]/3600,Y)
+        # update title
+        self.plotResultWindow.setTitle(self.hnames[i]+' '+units.get(self.hnames[i],units['REST'])[0])
 
 
     def popup(self,title,message):
@@ -971,6 +1015,18 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         msg.setWindowTitle(title)
         msg.setText(message)
         retval = msg.exec_()
+
+    def closenetcdf(self):
+        try: self.ncs.close()
+        except: pass
+        try:
+            while True:
+                try: self.availableVars.itemSelectionChanged.disconnect(self.showOutputUpdate)
+                except TypeError: break
+            self.availableVars.clear()
+            self.plotResultWindow.clear()
+        except:
+            pass
 
 
 dummy = Comp()
