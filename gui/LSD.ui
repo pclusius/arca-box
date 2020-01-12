@@ -34,7 +34,7 @@
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>951</width>
+       <width>960</width>
        <height>670</height>
       </rect>
      </property>
@@ -42,7 +42,7 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -51,7 +51,7 @@
       <widget class="QFrame" name="frame">
        <property name="geometry">
         <rect>
-         <x>690</x>
+         <x>700</x>
          <y>10</y>
          <width>241</width>
          <height>600</height>
@@ -988,7 +988,7 @@
       <widget class="QFrame" name="frame_2">
        <property name="geometry">
         <rect>
-         <x>690</x>
+         <x>700</x>
          <y>10</y>
          <width>241</width>
          <height>600</height>
@@ -1263,6 +1263,62 @@
         <bool>true</bool>
        </property>
       </widget>
+      <widget class="QPushButton" name="loadFixed">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>605</y>
+         <width>180</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>170</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>170</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>136</red>
+             <green>136</green>
+             <blue>136</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="toolTip">
+        <string>Loads fixed variables from KPP def-file. These are variables under the #DEFFIX header.</string>
+       </property>
+       <property name="text">
+        <string>Load fixed variables</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
@@ -1273,7 +1329,7 @@
         <rect>
          <x>10</x>
          <y>10</y>
-         <width>670</width>
+         <width>680</width>
          <height>611</height>
         </rect>
        </property>
@@ -1288,8 +1344,8 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>650</width>
-          <height>411</height>
+          <width>660</width>
+          <height>420</height>
          </rect>
         </property>
        </widget>
@@ -1612,7 +1668,7 @@
       <widget class="QFrame" name="frame_3">
        <property name="geometry">
         <rect>
-         <x>690</x>
+         <x>700</x>
          <y>10</y>
          <width>241</width>
          <height>521</height>
@@ -1672,7 +1728,7 @@
       <widget class="QPushButton" name="saveParams">
        <property name="geometry">
         <rect>
-         <x>780</x>
+         <x>790</x>
          <y>540</y>
          <width>150</width>
          <height>25</height>
@@ -1765,7 +1821,7 @@
       <widget class="QPushButton" name="plotTo">
        <property name="geometry">
         <rect>
-         <x>690</x>
+         <x>700</x>
          <y>540</y>
          <width>80</width>
          <height>25</height>
@@ -1781,7 +1837,7 @@
       <widget class="QPushButton" name="loadParams">
        <property name="geometry">
         <rect>
-         <x>780</x>
+         <x>790</x>
          <y>570</y>
          <width>150</width>
          <height>25</height>
@@ -1806,9 +1862,9 @@
           <colorrole role="WindowText">
            <brush brushstyle="SolidPattern">
             <color alpha="255">
-             <red>170</red>
-             <green>255</green>
-             <blue>127</blue>
+             <red>193</red>
+             <green>193</green>
+             <blue>193</blue>
             </color>
            </brush>
           </colorrole>
@@ -1835,9 +1891,9 @@
           <colorrole role="WindowText">
            <brush brushstyle="SolidPattern">
             <color alpha="255">
-             <red>170</red>
-             <green>255</green>
-             <blue>127</blue>
+             <red>193</red>
+             <green>193</green>
+             <blue>193</blue>
             </color>
            </brush>
           </colorrole>
@@ -2099,7 +2155,7 @@
       <widget class="QGroupBox" name="groupBox_3">
        <property name="geometry">
         <rect>
-         <x>720</x>
+         <x>730</x>
          <y>30</y>
          <width>201</width>
          <height>150</height>
@@ -2224,7 +2280,7 @@
       <widget class="QGroupBox" name="groupBox_4">
        <property name="geometry">
         <rect>
-         <x>720</x>
+         <x>730</x>
          <y>330</y>
          <width>201</width>
          <height>210</height>
@@ -2408,7 +2464,7 @@
       <widget class="QGroupBox" name="groupBox_6">
        <property name="geometry">
         <rect>
-         <x>720</x>
+         <x>730</x>
          <y>200</y>
          <width>201</width>
          <height>111</height>
@@ -2724,7 +2780,7 @@
      </widget>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
-       <string>Process Monitor</string>
+       <string>Test run</string>
       </attribute>
       <widget class="QFrame" name="frame_5">
        <property name="geometry">
@@ -2872,26 +2928,222 @@
        </property>
       </widget>
      </widget>
+     <widget class="QWidget" name="tab_6">
+      <attribute name="title">
+       <string>Output graph</string>
+      </attribute>
+      <widget class="PlotWidget" name="plotResultWindow" native="true">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>690</width>
+         <height>540</height>
+        </rect>
+       </property>
+       <widget class="QLabel" name="show_netcdf">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>220</y>
+          <width>440</width>
+          <height>70</height>
+         </rect>
+        </property>
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>255</red>
+              <green>255</green>
+              <blue>255</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="Text">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>0</red>
+              <green>85</green>
+              <blue>0</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="ButtonText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>255</red>
+              <green>255</green>
+              <blue>255</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="Text">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>0</red>
+              <green>85</green>
+              <blue>0</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="ButtonText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>136</red>
+              <green>136</green>
+              <blue>136</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="Text">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>136</red>
+              <green>136</green>
+              <blue>136</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="ButtonText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>136</red>
+              <green>136</green>
+              <blue>136</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>This feature needs NetCDF for Python</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QListWidget" name="availableVars">
+       <property name="geometry">
+        <rect>
+         <x>710</x>
+         <y>40</y>
+         <width>221</width>
+         <height>540</height>
+        </rect>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAsNeeded</enum>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="showDropIndicator" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="batchSize">
+        <number>100</number>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="loadNetcdf">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>600</y>
+         <width>221</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Load Box output file</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="fLog_2">
+       <property name="geometry">
+        <rect>
+         <x>600</x>
+         <y>600</y>
+         <width>101</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Logarithmic</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="fLin_2">
+       <property name="geometry">
+        <rect>
+         <x>530</x>
+         <y>600</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Linear</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
     </widget>
     <widget class="QPushButton" name="printButton">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>10</x>
        <y>690</y>
        <width>221</width>
        <height>30</height>
       </rect>
      </property>
      <property name="text">
-      <string>Print only model input</string>
+      <string>Print model input</string>
      </property>
     </widget>
     <widget class="QPushButton" name="saveButton">
      <property name="geometry">
       <rect>
-       <x>370</x>
+       <x>260</x>
        <y>690</y>
-       <width>221</width>
+       <width>210</width>
        <height>30</height>
       </rect>
      </property>
@@ -2902,14 +3154,27 @@
     <widget class="QPushButton" name="loadButton">
      <property name="geometry">
       <rect>
-       <x>640</x>
+       <x>500</x>
        <y>690</y>
-       <width>221</width>
+       <width>210</width>
        <height>30</height>
       </rect>
      </property>
      <property name="text">
       <string>Load INITFILE</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="saveDefaults">
+     <property name="geometry">
+      <rect>
+       <x>740</x>
+       <y>690</y>
+       <width>210</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Save settings as defaults</string>
      </property>
     </widget>
    </widget>
