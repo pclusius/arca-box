@@ -224,7 +224,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.plotResultWindow.getAxis('left').setPen(pen)
         self.plotResultWindow.getAxis('bottom').setPen(pen)
         self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
-        self.load_initfile(default_path)
+        try: self.load_initfile(default_path)
+        except: self.save_file(file=default_path)
+
 
     # -----------------------
     # Class methods
