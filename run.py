@@ -34,6 +34,7 @@ NAMES = []
 namesPyInds = {}
 namesFoInds = {}
 default_path = 'gui/defaults'
+tempfile = 'input/tmp_b65d729f784bc8fcfb4beb009ac7a31d'
 ## -----------------------------------------------------------
 
 ## Create lists and dictionaries related to NAMES-------------
@@ -91,11 +92,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.prints = 1
         self.plots  = 0
         self.show_extra_plots = ''
-        self.printButton.clicked.connect(self.print_values)
+        self.printButton.clicked.connect(lambda: self.print_values())
         self.saveButton.clicked.connect(lambda: self.save_file())
         self.loadButton.clicked.connect(lambda: self.browse_path(None, 'load'))
         self.actionSave_2.triggered.connect(self.save_file)
-        self.actionPrint.triggered.connect(self.print_values)
+        self.actionPrint.triggered.connect(lambda: self.print_values())
         self.actionOpen.triggered.connect(lambda: self.browse_path(None, 'load'))
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=default_path))
@@ -576,7 +577,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             f.close()
             if file == default_path:
                 self.popup('', 'Defaults saved')
-            else:
+            elif file != tempfile:
                 self.popup('Saved settings to', file)
         else:
             print(('\n')*10, )
@@ -604,6 +605,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def stopBox(self):
         self.Timer.stop()
+        self.pollTimer.stop()
         self.boxProcess.kill()
         tout = self.boxProcess.wait(timeout=10)
         self.boxProcess.poll()
@@ -620,14 +622,15 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         else:
             currentPython = False
         self.wait_for.setValue(-1)
-        self.print_values('input/tmp_b65d729f784bc8fcfb4beb009ac7a31d')
+        self.print_values(tempfile)
         self.python.setChecked(currentPython)
         self.wait_for.setValue(currentWait)
+
         try:
-            self.boxProcess = subprocess.Popen(["./superbox.exe", " input/tmp_b65d729f784bc8fcfb4beb009ac7a31d"], stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+            self.boxProcess = subprocess.Popen(["./superbox.exe", " %s"%tempfile], stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
             self.MonitorWindow.clear()
             self.Timer.start(10)
-            self.pollTimer.start(150000)
+            self.pollTimer.start(1000)
             self.toggle_frame(self.frameStart)
             self.toggle_frame(self.frameStop)
         except:
@@ -637,7 +640,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     def pollMonitor(self):
         status = self.boxProcess.poll()
         if status != None:
-            self.pollTimer.stop()
             self.stopBox()
 
     def updateOutput(self):
@@ -698,7 +700,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         # class _ENV:
         nml.ENV.ENV_PATH=self.case_dir.text()
         nml.ENV.ENV_FILE=self.env_file.text()
-        nml.ENV.TEMPUNIT=vars.mods['TEMPK'].unit
         # class _MCM:
         nml.MCM.MCM_PATH=self.case_dir.text()
         nml.MCM.MCM_FILE=self.mcm_file.text()
@@ -724,6 +725,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             vars.mods[name].shift = float(self.selected_vars.item(i,3).text())
             vars.mods[name].pmInUse = self.selected_vars.cellWidget(i,4).currentText()
             vars.mods[name].unit = self.selected_vars.cellWidget(i,5).currentText()
+        nml.ENV.TEMPUNIT=vars.mods['TEMPK'].unit
 
         return
 
