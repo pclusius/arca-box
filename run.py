@@ -29,7 +29,6 @@ units = {
 
 ## Read model names--------------------------------------------
 path_to_names = 'src/NAMES.dat'
-f = open(path_to_names)
 NAMES = []
 namesPyInds = {}
 namesFoInds = {}
@@ -38,19 +37,19 @@ tempfile = 'input/tmp_b65d729f784bc8fcfb4beb009ac7a31d'
 ## -----------------------------------------------------------
 
 ## Create lists and dictionaries related to NAMES-------------
-i = 0;k=1
-for line in f:
-    name = line[:-1]
-    if '#' in line:
-        NAMES.append('MCM compounds start here')
-        divider_i=i
-    else:
-        NAMES.append(name)
-    namesPyInds[name] = i
-    i = i+1
-    namesFoInds[name] = k
-    k = k+1
-f.close()
+i = 0
+with open(path_to_names) as f:
+    for line in f:
+        name = line[:-1]
+        if '#' in line:
+            NAMES.append('MCM compounds start here')
+            divider_i=i
+        else:
+            NAMES.append(name)
+        namesPyInds[name] = i
+        namesFoInds[name] = i+1
+        i += 1
+
 ## -----------------------------------------------------------
 nml = vars.INITFILE(NAMES)
 
@@ -226,7 +225,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.plotResultWindow.getAxis('bottom').setPen(pen)
         self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
         try: self.load_initfile(default_path)
-        except: self.save_file(file=default_path)
+        except: self.save_file(file=default_path, mode='silent')
 
 
     # -----------------------
@@ -428,7 +427,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 target.clear()
                 target.insert(path)
 
-    def save_file(self, file=None):
+    def save_file(self, file=None, mode=None):
         self.update_nml()
         if file==None:
             dialog = QtWidgets.QFileDialog()
@@ -436,7 +435,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             options |= dialog.DontUseNativeDialog
             file = dialog.getSaveFileName(self, 'Save INITFILE', options=options)[0]
         if file != '':
-            self.print_values(file)
+            self.print_values(file, mode)
 
     def markReverseSelection(self, op):
         """marks all variables or inverts selection"""
@@ -473,22 +472,23 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.names_sel.addItem(self.selected_vars.item(i,0).text())
             self.names_sel_2.addItem(self.selected_vars.item(i,0).text())
 
+
     def loadFixedFile(self, path):
-        f = open(path, 'r')
         indef = False
         count = 0
-        for line in f:
-            if '#DEFFIX' in line.upper():
-                indef = True
-                continue
-            if indef and '#' in line and not '#DEFFIX' in line.upper():
-                break
-            if indef and '=' in line and '//' not in line:
-                i = line.find('=')
-                comp = line[:i].strip()
-                if comp not in vars.mods:
-                    self.namesdat.item(namesPyInds[comp]).setSelected(True)
-                    count = count +1
+        with open(path, 'r') as f:
+            for line in f:
+                if '#DEFFIX' in line.upper():
+                    indef = True
+                    continue
+                if indef and '#' in line and not '#DEFFIX' in line.upper():
+                    break
+                if indef and '=' in line and '//' not in line:
+                    i = line.find('=')
+                    comp = line[:i].strip()
+                    if comp not in vars.mods:
+                        self.namesdat.item(namesPyInds[comp]).setSelected(True)
+                        count = count +1
         self.popup('File parsed', 'Selected %d variables'%count)
 
     def add_new_line(self, name, unit_ind, cols=[],createNew=True, unt=0):
@@ -565,7 +565,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         else:
             self.fsave_interval.setEnabled(True)
 
-    def print_values(self, file=None):
+    def print_values(self, file=None, mode=None):
         self.update_nml()
         self.prints += 1
         if (file):
@@ -576,7 +576,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             nml.printall(vars.mods, target='f',f=f)
             f.close()
             if file == default_path:
-                self.popup('', 'Defaults saved')
+                if not mode=='silent':
+                    self.popup('', 'Defaults saved')
             elif file != tempfile:
                 self.popup('Saved settings to', file)
         else:
@@ -746,87 +747,76 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.show_extra_plots = ''
             self.updteGraph()
 
-
         def solve_for_parser(query):
-            if query.upper() == 'NH3':
-                return 1
-            elif query.upper() == 'DMA':
-                return 2
-            else:
-                return 0
+            if query.upper() == 'NH3': return 1
+            elif query.upper() == 'DMA': return 2
+            else: return 0
 
         def parse_date(str):
-            y = int(str[0:4] )
+            y = int(str[0:4])
             m = int(str[5:7])
             d = int(str[8:10])
             return QtCore.QDate(y, m, d)
 
-
         f = open(file, 'r')
-
         for line in f:
             i = line.find('=')
             x = line.find('!')
+
             if i<x or (x==-1 and i!=-1):
                 key = line[:i].upper().strip()
-                strng = line[i+1:x].strip()
-                if len(strng) > 0:
-                    # remove end comma if exists
-                    if strng[-1] == ",":
-                        strng = strng[:-1]
-                    # remove apostrophes if exists
-                    if (strng[0] == "\'" and strng[-1] == "\'") or (strng[0] == "\"" and strng[-1] == "\""):
-                        strng = strng[1:-1]
-                    # change fortran boolean to python boolean
-                    if strng == "T" or strng.upper() == ".TRUE." or strng == "F" or strng.upper() == ".FALSE.":
-                        if strng == "T" or strng.upper() == ".TRUE.":
-                            strng = True
-                        elif strng == "F" or strng.upper() == ".FALSE.":
-                            strng = False
-                    # Check if srtng is a number
-                    try:
-                        float(strng)
-                        isFl = True
-                    except:
-                        isFl = False
+                # remove comma and excess whitespace
+                strng = line[i+1:x].strip(' ,')
+                if len(strng) == 0:
+                    continue
 
-                    if key[:5]=='MODS(':
-                        y = key.find(')')
-                        index = int(key[5:y])
-                        if index-1 == divider_i:
-                            continue
-                        name = NAMES[index-1]
-                        if not name in vars.mods:
-                            vars.mods[name] = Comp()
-                            vars.mods[name].Find = namesFoInds[name]
-                            vars.mods[name].name = name
-                        if len(key)>y+1:
-                            prop = key[y+2:].lower()
-                            cmd = 'vars.mods[\'%s\'].%s'%(NAMES[index-1],prop)
-                            if isFl:
-                                exec("%s = %s"%(cmd, strng))
-                            else:
-                                exec("%s = \'%s\'"%(cmd, strng))
+                # remove apostrophes from ends if they exist
+                if (strng[0] == "\'" and strng[-1] == "\'") or (strng[0] == "\"" and strng[-1] == "\""):
+                    strng = strng[1:-1]
+                # change fortran boolean to python boolean
+                if strng == "T" or strng.upper() == ".TRUE.": strng = True
+                elif strng == "F" or strng.upper() == ".FALSE.": strng = False
+                # Check if srtng is a number
+                try:
+                    float(strng)
+                    isFl = True
+                except: isFl = False
+
+                if key[:5]=='MODS(':
+                    y = key.find(')')
+                    index = int(key[5:y])
+                    if index-1 == divider_i:
+                        continue
+                    name = NAMES[index-1]
+                    if not name in vars.mods:
+                        vars.mods[name] = Comp()
+                        vars.mods[name].Find = namesFoInds[name]
+                        vars.mods[name].name = name
+                    if len(key)>y+1:
+                        prop = key[y+2:].lower()
+                        cmd = 'vars.mods[\'%s\'].%s'%(NAMES[index-1],prop)
+                        if isFl:
+                            exec("%s = %s"%(cmd, strng))
                         else:
-                            props = strng.split()
-                            i = 0
-                            n=len(props)
-                            if i< n: vars.mods[name].mode   = int(props[i])  ;i=i+1
-                            if i< n: vars.mods[name].col    = int(props[i])  ;i=i+1
-                            if i< n: vars.mods[name].multi  = float(props[i].replace('d','e',1));i=i+1
-                            if i< n: vars.mods[name].shift  = float(props[i].replace('d','e',1));i=i+1
-                            if i< n: vars.mods[name].min    = float(props[i].replace('d','e',1));i=i+1
-                            if i< n: vars.mods[name].max    = float(props[i].replace('d','e',1));i=i+1
-                            if i< n: vars.mods[name].sig    = float(props[i].replace('d','e',1));i=i+1
-                            if i< n: vars.mods[name].mju    = float(props[i].replace('d','e',1));i=i+1
-                            if i< n: vars.mods[name].fv     = float(props[i].replace('d','e',1));i=i+1
-                            if i< n: vars.mods[name].ph     = float(props[i].replace('d','e',1));i=i+1
-                            if i< n: vars.mods[name].am     = float(props[i].replace('d','e',1));i=i+1
-                            if i< n:
-                                unt = props[i][1:-1]
-                                if unt == '#': unt = '#/cm3'
-                                vars.mods[name].unit = unt
-
+                            exec("%s = \'%s\'"%(cmd, strng))
+                    else:
+                        props = strng.replace('d','e').split()
+                        i = 0
+                        n=len(props)
+                        if i< n: vars.mods[name].mode   = int(props[i])   ; i=i+1
+                        if i< n: vars.mods[name].col    = int(props[i])   ; i=i+1
+                        if i< n: vars.mods[name].multi  = float(props[i]) ; i=i+1
+                        if i< n: vars.mods[name].shift  = float(props[i]) ; i=i+1
+                        if i< n: vars.mods[name].min    = float(props[i]) ; i=i+1
+                        if i< n: vars.mods[name].max    = float(props[i]) ; i=i+1
+                        if i< n: vars.mods[name].sig    = float(props[i]) ; i=i+1
+                        if i< n: vars.mods[name].mju    = float(props[i]) ; i=i+1
+                        if i< n: vars.mods[name].fv     = float(props[i]) ; i=i+1
+                        if i< n: vars.mods[name].ph     = float(props[i]) ; i=i+1
+                        if i< n: vars.mods[name].am     = float(props[i]) ; i=i+1
+                        if i< n:
+                            unt = props[i].strip('\'\"').replace('#','#/cm3')
+                            vars.mods[name].unit = unt
 
             else:
                 continue
@@ -887,17 +877,15 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
         # manage different units
         for key in vars.mods:
-            pm = 0
+            pmInUse = 0
             if vars.mods[key].mode > 0:
-                pm = 1
+                pmInUse = 1
             unts = units.get(key,units['REST'])
-            ui = 0
+            unitIndex = 0
             for unit in unts:
-                if unit.upper() == vars.mods[key].unit.upper():
-                    break
-                else:
-                    ui=ui+1
-            if ui==len(unts): ui=0
+                if unit.upper() == vars.mods[key].unit.upper(): break
+                else: unitIndex += 1
+            if unitIndex==len(unts): unitIndex=0
 
             if key == 'TEMPK' or key == 'PRESSURE':
                 if key == 'TEMPK': row = 0
@@ -905,19 +893,19 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 self.selected_vars.setItem(row, 1, QtWidgets.QTableWidgetItem(str(vars.mods[key].col)))
                 self.selected_vars.setItem(row, 2, QtWidgets.QTableWidgetItem(str(vars.mods[key].multi)))
                 self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem(str(vars.mods[key].shift)))
-                self.selected_vars.cellWidget(row,4).setCurrentIndex(pm)
-                self.selected_vars.cellWidget(row,5).setCurrentIndex(ui)
-
+                self.selected_vars.cellWidget(row,4).setCurrentIndex(pmInUse)
+                self.selected_vars.cellWidget(row,5).setCurrentIndex(unitIndex)
             else:
-                cols = [key,str(vars.mods[key].col),str(vars.mods[key].multi),str(vars.mods[key].shift),pm]
-                self.add_new_line(key,2,cols=cols,createNew=False, unt=ui)
+                cols = [key,str(vars.mods[key].col),str(vars.mods[key].multi),str(vars.mods[key].shift),pmInUse]
+                self.add_new_line(key,2,cols=cols,createNew=False, unt=unitIndex)
 
             wScale,pScale,aScale,phScale,ampScale,_ = self.scales()
-            vars.mods[key].sl_1 = int(round(vars.mods[key].sig /wScale,0))
-            vars.mods[key].sl_2 = int(round(vars.mods[key].mju /pScale,0))
-            vars.mods[key].sl_3 = int(round(vars.mods[key].fv  /aScale,0))
-            vars.mods[key].sl_4 = int(round(vars.mods[key].ph  /phScale,0))
-            vars.mods[key].sl_5 = int(round(vars.mods[key].am  /ampScale,0))
+            vars.mods[key].sl_1 = int(round(vars.mods[key].sig /wScale))
+            vars.mods[key].sl_2 = int(round(vars.mods[key].mju /pScale))
+            vars.mods[key].sl_3 = int(round(vars.mods[key].fv  /aScale))
+            vars.mods[key].sl_4 = int(round(vars.mods[key].ph  /phScale))
+            vars.mods[key].sl_5 = int(round(vars.mods[key].am  /ampScale))
+
 
     def showOutput(self, file):
         if netcdf:
