@@ -21,7 +21,7 @@ INTEGER, PARAMETER :: N_FILES = 3
 INTEGER, PARAMETER :: shuff=1, compress=1, compression=9
 
 INTEGER       :: ncfile_ids(N_FILES)
-CHARACTER(200) :: ncfile_names(N_FILES) = (['general ', 'chemical', 'particle'])
+CHARACTER(200) :: ncfile_names(N_FILES) = (['general ', 'chemistry', 'particle'])
 
 INTEGER, allocatable        :: shifter_ind(:)
 INTEGER, allocatable        :: multipl_ind(:)
@@ -115,7 +115,7 @@ CONTAINS
 
     print FMT_HDR, 'PREPARING OUTPUT FILES'
     print FMT_SUB, 'NetCDF version: '//trim(nf90_inq_libvers())
-    print FMT_SUB, 'Create chemfiles: '//TRIM(filename)//'_*.nc'
+    print FMT_SUB, 'Create files: '//TRIM(filename)//'_*.nc'
 
     DO I=1, N_FILES
 

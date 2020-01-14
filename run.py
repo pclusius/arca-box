@@ -679,6 +679,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         else:
             return '.FALSE.'
 
+
     def update_nml(self):
         # class _PATH:
         nml.PATH.CASE_DIR=self.case_dir.text()
@@ -749,6 +750,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
         return
 
+
     def resolveHelper(self):
         text = self.fill_formation_with.currentText()
         if text == 'Fixed ratio':
@@ -757,6 +759,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             return 'NH3'
         elif 'DMA' in text:
             return 'DMA'
+
 
     def load_initfile(self,file):
         self.markReverseSelection('all')
