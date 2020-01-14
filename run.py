@@ -573,7 +573,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def toggle_printtime(self):
-        if self.fsave_division.value() != 0:
+        if self.fsave_division.value() != 0 :
             self.fsave_interval.setEnabled(False)
         else:
             self.fsave_interval.setEnabled(True)
