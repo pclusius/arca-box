@@ -21,7 +21,7 @@ INTEGER, PARAMETER :: N_FILES = 3
 INTEGER, PARAMETER :: shuff=1, compress=1, compression=9
 
 INTEGER       :: ncfile_ids(N_FILES)
-CHARACTER(200) :: ncfile_names(N_FILES) = (['general ', 'chemistry', 'particle'])
+CHARACTER(200) :: ncfile_names(N_FILES) = (['general  ', 'chemistry', 'particle '])
 
 INTEGER, allocatable        :: shifter_ind(:)
 INTEGER, allocatable        :: multipl_ind(:)

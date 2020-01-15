@@ -42,7 +42,7 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -2095,7 +2095,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>420</y>
+         <y>400</y>
          <width>671</width>
          <height>21</height>
         </rect>
@@ -2108,7 +2108,7 @@
        <property name="geometry">
         <rect>
          <x>24</x>
-         <y>450</y>
+         <y>430</y>
          <width>50</width>
          <height>21</height>
         </rect>
@@ -2127,7 +2127,7 @@
        <property name="geometry">
         <rect>
          <x>85</x>
-         <y>450</y>
+         <y>430</y>
          <width>611</width>
          <height>21</height>
         </rect>
@@ -2140,7 +2140,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>480</y>
+         <y>460</y>
          <width>671</width>
          <height>20</height>
         </rect>
@@ -2158,7 +2158,7 @@
          <x>730</x>
          <y>30</y>
          <width>201</width>
-         <height>150</height>
+         <height>170</height>
         </rect>
        </property>
        <property name="font">
@@ -2189,6 +2189,9 @@
          </item>
          <item row="0" column="1">
           <widget class="QDoubleSpinBox" name="lat">
+           <property name="toolTip">
+            <string>Negative values = South</string>
+           </property>
            <property name="decimals">
             <number>3</number>
            </property>
@@ -2215,6 +2218,9 @@
          </item>
          <item row="1" column="1">
           <widget class="QDoubleSpinBox" name="lon">
+           <property name="toolTip">
+            <string>Negative values = East</string>
+           </property>
            <property name="decimals">
             <number>3</number>
            </property>
@@ -2234,54 +2240,50 @@
          </item>
         </layout>
        </widget>
-       <widget class="QLabel" name="label_29">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>100</y>
-          <width>161</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <italic>true</italic>
-         </font>
-        </property>
-        <property name="text">
-         <string>Negative values =</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_30">
+       <widget class="QWidget" name="layoutWidget_5">
         <property name="geometry">
          <rect>
           <x>10</x>
           <y>120</y>
-          <width>161</width>
-          <height>20</height>
+          <width>181</width>
+          <height>30</height>
          </rect>
         </property>
-        <property name="font">
-         <font>
-          <italic>true</italic>
-         </font>
-        </property>
-        <property name="text">
-         <string>East and South</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_33">
+           <property name="text">
+            <string>Surface albedo</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QDoubleSpinBox" name="ch_albedo">
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>0.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.200000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
       <widget class="QGroupBox" name="groupBox_4">
        <property name="geometry">
         <rect>
          <x>730</x>
-         <y>330</y>
+         <y>230</y>
          <width>201</width>
          <height>210</height>
         </rect>
@@ -2461,146 +2463,6 @@
         </widget>
        </widget>
       </widget>
-      <widget class="QGroupBox" name="groupBox_6">
-       <property name="geometry">
-        <rect>
-         <x>730</x>
-         <y>200</y>
-         <width>201</width>
-         <height>111</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="title">
-        <string>Miscellanious</string>
-       </property>
-       <widget class="QGroupBox" name="groupBox_7">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>110</y>
-          <width>181</width>
-          <height>61</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="title">
-         <string>Location</string>
-        </property>
-        <widget class="QWidget" name="layoutWidget_4">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>22</y>
-           <width>166</width>
-           <height>71</height>
-          </rect>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_31">
-            <property name="text">
-             <string>Latitude</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox_7">
-            <property name="decimals">
-             <number>3</number>
-            </property>
-            <property name="minimum">
-             <double>-90.000000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>90.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>1.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>60.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_32">
-            <property name="text">
-             <string>Longitude</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox_8">
-            <property name="decimals">
-             <number>3</number>
-            </property>
-            <property name="minimum">
-             <double>-180.000000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>180.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>1.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>-25.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="layoutWidget_5">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>22</y>
-          <width>181</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_7">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_33">
-           <property name="text">
-            <string>Surface albedo</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="ch_albedo">
-           <property name="decimals">
-            <number>3</number>
-           </property>
-           <property name="minimum">
-            <double>0.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.200000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
       <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
@@ -2671,7 +2533,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>530</y>
+         <y>510</y>
          <width>420</width>
          <height>30</height>
         </rect>
@@ -2687,7 +2549,7 @@
        <property name="geometry">
         <rect>
          <x>30</x>
-         <y>560</y>
+         <y>540</y>
          <width>470</width>
          <height>60</height>
         </rect>
@@ -2776,6 +2638,89 @@
          </item>
         </layout>
        </widget>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_10">
+       <property name="geometry">
+        <rect>
+         <x>730</x>
+         <y>470</y>
+         <width>201</width>
+         <height>130</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="title">
+        <string>Chemistry module</string>
+       </property>
+       <widget class="QComboBox" name="chemistryModules">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>50</y>
+          <width>178</width>
+          <height>21</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_39">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>160</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Available modules</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="recompile">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>90</y>
+          <width>180</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Recompile program</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QProgressBar" name="compileProgressBar">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>610</y>
+         <width>921</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+       <property name="textVisible">
+        <bool>false</bool>
+       </property>
+       <property name="invertedAppearance">
+        <bool>false</bool>
+       </property>
       </widget>
      </widget>
      <widget class="QWidget" name="tab_5">

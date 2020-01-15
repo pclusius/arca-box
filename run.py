@@ -184,6 +184,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.vap_logical.stateChanged.connect(lambda: self.grayIfNotChecked(self.vap_logical,self.frameVap))
         self.resolve_base.stateChanged.connect(lambda: self.grayIfNotChecked(self.resolve_base,self.frameBase))
         self.use_dmps_special.stateChanged.connect(lambda: self.toggle_gray(self.use_dmps_special,self.gridLayout_11))
+        self.recompile.clicked.connect(self.remake)
+        self.TimerCompile = QtCore.QTimer(self);
+        self.TimerCompile.timeout.connect(self.progress)
+        self.compileProgressBar.hide()
+        self.running = 0
     # -----------------------
     # tab Process Monitor
     # -----------------------
@@ -227,6 +232,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         try: self.load_initfile(default_path)
         except: self.save_file(file=default_path, mode='silent')
 
+        self.get_available_chemistry()
 
     # -----------------------
     # Class methods
@@ -482,6 +488,35 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.names_sel_2.addItem(self.selected_vars.item(i,0).text())
 
 
+    def get_available_chemistry(self):
+        from os import walk
+
+        with open('makefile','r') as mk:
+            for line in mk:
+                if 'CHMDIR' in line and not '$' in line:
+                    a,dir = line.replace('=','').split()
+        for (dirpath, dirnames, filenames) in walk('src/chemistry'):
+            break
+        for i,d in enumerate(dirnames):
+            self.chemistryModules.addItem(d)
+            if d == dir:
+                self.chemistryModules.setCurrentIndex(i)
+
+
+
+    def editMakefile(self,mod):
+        import re
+        replacement = 'CHMDIR = '+mod
+        f = open('makefile','r')
+        data = f.read()
+        f.close()
+        pattern = '(CHMDIR)( )*(=)( )*[a-z|A-Z|0-9]*'
+        data = re.sub(pattern,replacement, data)
+        f = open('makefile','w')
+        f.write(data)
+        f.close()
+
+
     def loadFixedFile(self, path):
         indef = False
         count = 0
@@ -646,7 +681,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.wait_for.setValue(currentWait)
 
         try:
-            self.boxProcess = subprocess.Popen(["./superbox.exe", " %s"%tempfile], stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+            self.boxProcess = subprocess.Popen(["./superbox.exe", "%s"%tempfile], stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
             self.MonitorWindow.clear()
             self.Timer.start(10)
             self.pollTimer.start(1000)
@@ -1030,6 +1065,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         msg.setText(message)
         retval = msg.exec_()
 
+
     def closenetcdf(self):
         try: self.ncs.close()
         except: pass
@@ -1041,6 +1077,39 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.plotResultWindow.clear()
         except:
             pass
+
+    def progress(self):
+        i = self.compileProgressBar.value()
+        if i==100 or i==0:
+            if self.inv == -1:
+                self.compileProgressBar.setInvertedAppearance(True)
+                self.inv = 1
+            else:
+                self.compileProgressBar.setInvertedAppearance(False)
+                self.inv = -1
+        self.compileProgressBar.setValue(i-self.inv)
+        self.running = self.compile.poll()
+        if self.running != None:
+            self.TimerCompile.stop()
+            self.compileProgressBar.hide()
+            if self.running == 0:
+                self.popup('', 'Compiled succesfully')
+            else:
+                self.popup('', 'Error in compiling, see output from terminal')
+
+
+    def remake(self):
+        if self.running != None:
+            self.editMakefile(mod=self.chemistryModules.currentText())
+            self.compile = subprocess.Popen(["make", "clean"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+            while True:
+                self.running = self.compile.poll()
+                if self.running != None: break
+            self.compile = subprocess.Popen(["make"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+            self.compileProgressBar.show()
+            self.inv = 1
+            self.compileProgressBar.setValue(0)
+            self.TimerCompile.start(10)
 
 
 dummy = Comp()
