@@ -13,8 +13,8 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : second_Main.f90
-! Time                 : Sat Nov 23 02:04:31 2019
-! 
+! Time                 : Thu Jan 16 13:25:36 2020
+! Working directory    : /home/pecl/05-APCAD/ChemistryPackage
 ! Equation file        : second.kpp
 ! Output root filename : second
 ! 

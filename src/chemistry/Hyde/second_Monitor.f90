@@ -13,8 +13,8 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : second_Monitor.f90
-! Time                 : Sat Nov 23 02:04:31 2019
-! 
+! Time                 : Thu Jan 16 13:25:36 2020
+! Working directory    : /home/pecl/05-APCAD/ChemistryPackage
 ! Equation file        : second.kpp
 ! Output root filename : second
 ! 
@@ -26,675 +26,678 @@ MODULE second_Monitor
 
 
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_0 = (/ &
-     'Emi1            ','OLIGOMER1       ','OLIGOMER2       ', &
-     'OLIGOMER3       ','OLIGOMER4       ','FRAG1           ', &
-     'FRAG2           ','FRAG3           ','FRAG4           ', &
-     'FRAG5           ','DUMMY           ','NA              ', &
-     'P_H2SO4         ','H2SO4           ','SO3             ', &
-     'P_HNO3          ','HOA             ','dummy_hcooh     ', &
-     'dummy_ch3cooh   ','HOM_O3          ','HOM_O4          ', &
-     'HOM_O5          ','HOM_O6          ','HOM_O7          ', &
-     'HOM_O8          ','HOM_O9          ','HOM_O10         ', &
-     'HOM_O11         ','HOM_O12         ','HOM_O13         ', &
-     'HOM_O14         ','HOM_O3CBN       ','HOM_O4CBN       ', &
-     'HOM_O5CBN       ','HOM_O6CBN       ','HOM_O7CBN       ', &
-     'HOM_O8CBN       ','HOM_O9CBN       ','HOM_O10CBN      ', &
-     'HOM_O11CBN      ','HOM_O12CBN      ','HOM_O13CBN      ', &
-     'RHOM_O13        ','HOM_NO5         ','HOM_NO6         ', &
-     'HOM_NO7         ','HOM_NO8         ','HOM_NO9         ', &
-     'HOM_NO10        ','HOM_NO11        ','HOM_NO12        ', &
-     'HOM_NO13        ','HOM_NO14        ','HOM_NO15        ', &
-     'HOM20_O5        ','HOM20_O6        ','HOM20_O7        ', &
-     'HOM20_O8        ','HOM20_O9        ','HOM20_O10       ', &
-     'HOM20_O11       ','HOM20_O12       ','HOM20_O13       ', &
-     'HOM20_O14       ','HOM20_O15       ','HOM20_O16       ', &
-     'HOM20_O17       ','HOM20_NO7       ','HOM20_NO8       ', &
-     'HOM20_NO9       ','HOM20_NO10      ','HOM20_NO11      ', &
-     'HOM20_NO12      ','HOM20_NO13      ','HOM20_NO14      ', &
-     'HOM20_NO15      ','HOM20_NO16      ','HOM20_NO17      ', &
-     'HOM20_NO18      ','HOM20_OH_O6     ','HOM20_OH_O7     ', &
-     'HOM20_OH_O8     ','HOM20_OH_O9     ','HOM20_OH_O10    ', &
-     'HOM20_OH_O11    ','HOM20_OH_O12    ','HOM20_OH_O13    ', &
-     'HOM20_OH_NO8    ','HOM20_OH_NO9    ','HOM20_OH_NO10   ' /)
+     'MACROOA         ','MACROO          ','O1D             ', &
+     'LIMOOB          ','CL              ','MVKOOA          ', &
+     'CH2OOG          ','CH2OOE          ','LIMOOA          ', &
+     'MVKOO           ','MGLYOOB         ','Emi1            ', &
+     'OLIGOMER1       ','OLIGOMER2       ','OLIGOMER3       ', &
+     'OLIGOMER4       ','FRAG1           ','FRAG2           ', &
+     'FRAG3           ','FRAG4           ','FRAG5           ', &
+     'NA              ','P_H2SO4         ','H2SO4           ', &
+     'SO3             ','P_HNO3          ','dummy           ', &
+     'HOA             ','dummy_hcooh     ','dummy_ch3cooh   ', &
+     'HOM_O3          ','HOM_O4          ','HOM_O5          ', &
+     'HOM_O6          ','HOM_O7          ','HOM_O8          ', &
+     'HOM_O9          ','HOM_O10         ','HOM_O11         ', &
+     'HOM_O12         ','HOM_O13         ','HOM_O14         ', &
+     'HOM_O3CBN       ','HOM_O4CBN       ','HOM_O5CBN       ', &
+     'HOM_O6CBN       ','HOM_O7CBN       ','HOM_O8CBN       ', &
+     'HOM_O9CBN       ','HOM_O10CBN      ','HOM_O11CBN      ', &
+     'HOM_O12CBN      ','HOM_O13CBN      ','RHOM_O13        ', &
+     'HOM_NO5         ','HOM_NO6         ','HOM_NO7         ', &
+     'HOM_NO8         ','HOM_NO9         ','HOM_NO10        ', &
+     'HOM_NO11        ','HOM_NO12        ','HOM_NO13        ', &
+     'HOM_NO14        ','HOM_NO15        ','HOM20_O5        ', &
+     'HOM20_O6        ','HOM20_O7        ','HOM20_O8        ', &
+     'HOM20_O9        ','HOM20_O10       ','HOM20_O11       ', &
+     'HOM20_O12       ','HOM20_O13       ','HOM20_O14       ', &
+     'HOM20_O15       ','HOM20_O16       ','HOM20_O17       ', &
+     'HOM20_NO7       ','HOM20_NO8       ','HOM20_NO9       ', &
+     'HOM20_NO10      ','HOM20_NO11      ','HOM20_NO12      ', &
+     'HOM20_NO13      ','HOM20_NO14      ','HOM20_NO15      ', &
+     'HOM20_NO16      ','HOM20_NO17      ','HOM20_NO18      ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_1 = (/ &
-     'HOM20_OH_NO11   ','HOM20_OH_NO12   ','HOM20_OH_NO13   ', &
-     'HOM20_OH_NO14   ','HOM_OH_O4CBN    ','HOM_OH_O5CBN    ', &
-     'HOM_OH_O6CBN    ','HOM_OH_O7CBN    ','HOM_OH_O8CBN    ', &
-     'HOM_OH_O9CBN    ','HOM_OH_O4       ','HOM_OH_O5       ', &
-     'HOM_OH_O6       ','HOM_OH_O7       ','HOM_OH_O8       ', &
-     'HOM_OH_O9       ','HOM_OH_O10      ','HOM_OH_NO6      ', &
-     'HOM_OH_NO7      ','HOM_OH_NO8      ','HOM_OH_NO9      ', &
-     'HOM_OH_NO10     ','HOM_OH_NO11     ','HOM19_O5        ', &
-     'HOM19_O6        ','HOM19_O7        ','HOM19_O8        ', &
-     'HOM19_O9        ','HOM19_O10       ','HOM19_O11       ', &
-     'HOM19_O12       ','HOM19_O13       ','HOM19_O14       ', &
-     'HOM19_O15       ','HOM19_O16       ','HOM19_O17       ', &
-     'HOM19_O18       ','HOM19_NO8       ','HOM19_NO9       ', &
-     'HOM19_NO10      ','HOM19_NO11      ','HOM19_NO12      ', &
-     'HOM19_NO13      ','HOM19_NO14      ','HOM19_NO15      ', &
-     'HOM19_NO16      ','HOM19_NO17      ','HOM19_NO18      ', &
-     'HOM19_OH_O6     ','HOM19_OH_O7     ','HOM19_OH_O8     ', &
-     'HOM19_OH_O9     ','HOM19_OH_O10    ','HOM19_OH_O11    ', &
-     'HOM19_OH_O12    ','HOM19_OH_O13    ','HOM19_OH_O14    ', &
-     'HOM19_OH_NO9    ','HOM19_OH_NO10   ','HOM19_OH_NO11   ', &
-     'HOM19_OH_NO12   ','HOM19_OH_NO13   ','HOM19_OH_NO14   ', &
-     'HOM18_O4        ','HOM18_O5        ','HOM18_O6        ', &
-     'HOM18_O7        ','HOM18_O8        ','HOM18_O9        ', &
-     'HOM18_O10       ','HOM18_O11       ','HOM18_O12       ', &
-     'HOM18_O13       ','HOM18_O14       ','HOM18_O15       ', &
-     'HOM18_O16       ','HOM18_O17       ','HOM18_O18       ', &
-     'HOM18_NO9       ','HOM18_NO10      ','HOM18_NO11      ', &
-     'HOM18_NO12      ','HOM18_NO13      ','HOM18_NO14      ', &
-     'HOM18_NO15      ','HOM18_NO16      ','HOM18_NO17      ', &
-     'HOM18_NO18      ','HOM18_NO19      ','HOM18_OH_O5     ' /)
+     'HOM20_OH_O6     ','HOM20_OH_O7     ','HOM20_OH_O8     ', &
+     'HOM20_OH_O9     ','HOM20_OH_O10    ','HOM20_OH_O11    ', &
+     'HOM20_OH_O12    ','HOM20_OH_O13    ','HOM20_OH_NO8    ', &
+     'HOM20_OH_NO9    ','HOM20_OH_NO10   ','HOM20_OH_NO11   ', &
+     'HOM20_OH_NO12   ','HOM20_OH_NO13   ','HOM20_OH_NO14   ', &
+     'HOM_OH_O4CBN    ','HOM_OH_O5CBN    ','HOM_OH_O6CBN    ', &
+     'HOM_OH_O7CBN    ','HOM_OH_O8CBN    ','HOM_OH_O9CBN    ', &
+     'HOM_OH_O4       ','HOM_OH_O5       ','HOM_OH_O6       ', &
+     'HOM_OH_O7       ','HOM_OH_O8       ','HOM_OH_O9       ', &
+     'HOM_OH_O10      ','HOM_OH_NO6      ','HOM_OH_NO7      ', &
+     'HOM_OH_NO8      ','HOM_OH_NO9      ','HOM_OH_NO10     ', &
+     'HOM_OH_NO11     ','HOM19_O5        ','HOM19_O6        ', &
+     'HOM19_O7        ','HOM19_O8        ','HOM19_O9        ', &
+     'HOM19_O10       ','HOM19_O11       ','HOM19_O12       ', &
+     'HOM19_O13       ','HOM19_O14       ','HOM19_O15       ', &
+     'HOM19_O16       ','HOM19_O17       ','HOM19_O18       ', &
+     'HOM19_NO8       ','HOM19_NO9       ','HOM19_NO10      ', &
+     'HOM19_NO11      ','HOM19_NO12      ','HOM19_NO13      ', &
+     'HOM19_NO14      ','HOM19_NO15      ','HOM19_NO16      ', &
+     'HOM19_NO17      ','HOM19_NO18      ','HOM19_OH_O6     ', &
+     'HOM19_OH_O7     ','HOM19_OH_O8     ','HOM19_OH_O9     ', &
+     'HOM19_OH_O10    ','HOM19_OH_O11    ','HOM19_OH_O12    ', &
+     'HOM19_OH_O13    ','HOM19_OH_O14    ','HOM19_OH_NO9    ', &
+     'HOM19_OH_NO10   ','HOM19_OH_NO11   ','HOM19_OH_NO12   ', &
+     'HOM19_OH_NO13   ','HOM19_OH_NO14   ','HOM18_O4        ', &
+     'HOM18_O5        ','HOM18_O6        ','HOM18_O7        ', &
+     'HOM18_O8        ','HOM18_O9        ','HOM18_O10       ', &
+     'HOM18_O11       ','HOM18_O12       ','HOM18_O13       ', &
+     'HOM18_O14       ','HOM18_O15       ','HOM18_O16       ', &
+     'HOM18_O17       ','HOM18_O18       ','HOM18_NO9       ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_2 = (/ &
-     'HOM18_OH_O6     ','HOM18_OH_O7     ','HOM18_OH_O8     ', &
-     'HOM18_OH_O9     ','HOM18_OH_O10    ','HOM18_OH_O11    ', &
-     'HOM18_OH_O12    ','HOM18_OH_O13    ','HOM18_OH_O14    ', &
-     'HOM18_OH_NO10   ','HOM18_OH_NO11   ','HOM18_OH_NO12   ', &
-     'HOM18_OH_NO13   ','HOM18_OH_NO14   ','HOM18_OH_NO15   ', &
-     'HOM_nucl        ','DiEstC20O7      ','DiEstC20O6      ', &
-     'DiEstC19O8      ','DiEstC19O7      ','DiEstC19O6      ', &
-     'DiEstC18NO10    ','DiEstC18NO8     ','DiEstC18O9      ', &
-     'DiEstC18O8_1    ','DiEstC18O8_2    ','DiEstC18O8_3    ', &
-     'DiEstC18O7_1    ','DiEstC18O7_2    ','DiEstC18O7_3    ', &
-     'DiEstC18O6_1    ','DiEstC18O6_2    ','DiEstC17O8_1    ', &
-     'DiEstC17O8_2    ','DiEstC17O7      ','DiEstC15O9      ', &
-     'DiEstC15O7      ','DiEstC14O8      ','DiEstC14O7      ', &
-     'DiEstC13O6      ','HSO3            ','CL              ', &
-     'C51OH           ','RHOM_O4         ','RHOM_O5         ', &
-     'RHOM_O6         ','RHOM_O7         ','RHOM_O8         ', &
-     'RHOM_O9         ','RHOM_O10        ','RHOM_O11        ', &
-     'RHOM_O12        ','RHOM_OH_O4      ','RHOM_OH_O5      ', &
-     'RHOM_OH_O6      ','RHOM_OH_O7      ','RHOM_OH_O8      ', &
-     'O1D             ','INB1HPCO2H      ','PROPALO         ', &
-     'RHOM_O3         ','CO2C3CO2H       ','C735OOA         ', &
-     'NOPINCOH        ','PGAOOB          ','C721O           ', &
-     'TLFUOH          ','NC101O          ','IEB1CHO         ', &
-     'C520OOA         ','C88O            ','PXYFUOH         ', &
-     'C914O           ','C719OH          ','N2O5            ', &
-     'C57OH           ','PPGAOOB         ','C58OH           ', &
-     'NC4DCO2         ','C917OH          ','IEB4CHO         ', &
-     'NC4MDCO2        ','CH3O2NO2        ','PHENOH          ', &
-     'APINCOH         ','C629OOA         ','PBZQO           ', &
-     'BPINCOH         ','ISOPBOH         ','MMALNHY2OH      ' /)
+     'HOM18_NO10      ','HOM18_NO11      ','HOM18_NO12      ', &
+     'HOM18_NO13      ','HOM18_NO14      ','HOM18_NO15      ', &
+     'HOM18_NO16      ','HOM18_NO17      ','HOM18_NO18      ', &
+     'HOM18_NO19      ','HOM18_OH_O5     ','HOM18_OH_O6     ', &
+     'HOM18_OH_O7     ','HOM18_OH_O8     ','HOM18_OH_O9     ', &
+     'HOM18_OH_O10    ','HOM18_OH_O11    ','HOM18_OH_O12    ', &
+     'HOM18_OH_O13    ','HOM18_OH_O14    ','HOM18_OH_NO10   ', &
+     'HOM18_OH_NO11   ','HOM18_OH_NO12   ','HOM18_OH_NO13   ', &
+     'HOM18_OH_NO14   ','HOM18_OH_NO15   ','HOM_nucl        ', &
+     'DiEstC20O7      ','DiEstC20O6      ','DiEstC19O8      ', &
+     'DiEstC19O7      ','DiEstC19O6      ','DiEstC18NO10    ', &
+     'DiEstC18NO8     ','DiEstC18O9      ','DiEstC18O8_1    ', &
+     'DiEstC18O8_2    ','DiEstC18O8_3    ','DiEstC18O7_1    ', &
+     'DiEstC18O7_2    ','DiEstC18O7_3    ','DiEstC18O6_1    ', &
+     'DiEstC18O6_2    ','DiEstC17O8_1    ','DiEstC17O8_2    ', &
+     'DiEstC17O7      ','DiEstC15O9      ','DiEstC15O7      ', &
+     'DiEstC14O8      ','DiEstC14O7      ','DiEstC13O6      ', &
+     'N2O5            ','HSO3            ','CH3O2NO2        ', &
+     'PROPALO         ','O               ','RHOM_O4         ', &
+     'RHOM_O5         ','RHOM_O6         ','RHOM_O7         ', &
+     'RHOM_O8         ','RHOM_O9         ','RHOM_O10        ', &
+     'RHOM_O11        ','RHOM_O12        ','RHOM_OH_O4      ', &
+     'RHOM_OH_O5      ','RHOM_OH_O6      ','RHOM_OH_O7      ', &
+     'RHOM_OH_O8      ','HONO            ','LINALOOL        ', &
+     'C735OOA         ','PGAOOB          ','C520OOA         ', &
+     'C51OH           ','C628OOA         ','PPGAOOB         ', &
+     'NC4DCO2         ','NC4MDCO2        ','C629OOA         ', &
+     'CH3CHOO         ','PPACLOOA        ','LIMALOOA        ', &
+     'RHOM_O3         ','PACLOOA         ','BIACETO         ', &
+     'C55O            ','NC623O          ','NC728O          ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_3 = (/ &
-     'NOPINDO         ','NC72O           ','CO14O3CO2H      ', &
-     'C511CHO         ','METACETHO       ','INANCOCHO       ', &
-     'C619O           ','C24O3CCO2H      ','PPACLOOA        ', &
-     'CRESOH          ','MALANHYO        ','C8BC            ', &
-     'LIMALOOA        ','C85O            ','C920O           ', &
-     'PACLOOA         ','C628OOA         ','MAE             ', &
-     'C510OH          ','PTLQO           ','C921O           ', &
-     'CH4             ','C8BCO           ','C823O           ', &
-     'C817O           ','C822O           ','C729O           ', &
-     'C811O           ','MMALANHYO       ','ISOPAO          ', &
-     'C626O           ','C732O           ','C923O           ', &
-     'C9DCO           ','C731O           ','BENZENE         ', &
-     'NOPINBO         ','C720OH          ','C825OH          ', &
-     'C624CO2H        ','NOPINCO         ','H2              ', &
-     'INB2O           ','NC524OH         ','C517OH          ', &
-     'C914OH          ','C96O            ','C23O3CCO2H      ', &
-     'C732OH          ','C518CO2H        ','C97O            ', &
-     'CO2C4CO2H       ','LMKOOA          ','INDOH           ', &
-     'C9DCOH          ','BZFUOH          ','MALANHY2OH      ', &
-     'CHOC2CO2H       ','C826OH          ','C822OH          ', &
-     'NBZFUONE        ','C810OH          ','NOPINAOH        ', &
-     'CH3OH           ','C8BCOH          ','C812O           ', &
-     'C88OH           ','C108OH          ','BZBIPER2OH      ', &
-     'TLBIPER2OH      ','C918OH          ','C107OH          ', &
-     'C107O           ','C734OH          ','M3FOOA          ', &
-     'C97OH           ','NOPINBOH        ','C824OH          ', &
-     'C923OH          ','C918O           ','HOC2H4CO2H      ', &
-     'C2OHOCO2H       ','TOLUENE         ','C919OH          ', &
-     'C915OH          ','C519CO2H        ','MEK             ', &
-     'C89OH           ','C89O            ','C624OH          ' /)
+     'C721O           ','NC3OOA          ','NC730O          ', &
+     'NC102O          ','CHOC3COO        ','NC101O          ', &
+     'MCOCOMOXO       ','INB1HPCO2H      ','APINOOB         ', &
+     'NLIMALO         ','C88O            ','LMKOOA          ', &
+     'LMKOOB          ','NOAOOA          ','C914O           ', &
+     'NC41OO          ','LMLKBO          ','MEKCO           ', &
+     'ISOP34O         ','NLIMO           ','C722O           ', &
+     'MEKBO           ','NLMKAO          ','C618O           ', &
+     'CHOCOCH2O       ','PRNO3CO2H       ','TBUTOLO         ', &
+     'NC3OO           ','NAPINAO         ','NC51O           ', &
+     'CO235C6O        ','MVKO            ','ACLOO           ', &
+     'M3FOOA          ','MGLYOO          ','H3C25C6O        ', &
+     'HMGLYOOA        ','PBZQO           ','LIMALBO         ', &
+     'NTLFUO          ','NC4OOA          ','GLYOOB          ', &
+     'C627O           ','H1C23C4O        ','NOPINDO         ', &
+     'NC72O           ','IPROPOLO        ','HYPROPO         ', &
+     'NOAOO           ','NPXYFUO         ','C619O           ', &
+     'TLFUONOOA       ','C922O           ','C531O           ', &
+     'NBPINBO         ','C86O            ','M2PROPAL2O      ', &
+     'MALANHYO        ','CO2C3OOB        ','NBPINAO         ', &
+     'C515O           ','NC4OO           ','C85O            ', &
+     'C920O           ','NC2OOA          ','M3FOO           ', &
+     'HO1CO3C4O       ','NBZQO           ','BZFUONOOA       ', &
+     'MECOACETO       ','PTLQO           ','NPTLQO          ', &
+     'C87O            ','C921O           ','HMGLYOO         ', &
+     'C2H5NO3         ','TLFUOH          ','H2              ', &
+     'INB2O           ','NO3CH2PAN       ','C4PAN5          ', &
+     'C8BCO           ','NLIMALOH        ','HO2NO2          ', &
+     'PHAN            ','IEB1CHO         ','C2H5O           ', &
+     'APINOOA         ','PXYFUOH         ','C623NO3         ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_4 = (/ &
-     'PROPACID        ','CO2C4DIAL       ','C622CO2H        ', &
-     'C822CO2H        ','INAOH           ','IBUTOLOHB       ', &
-     'LIMONIC         ','INCOH           ','NOPINDOH        ', &
-     'NOPINDCO        ','NOPINDOOH       ','C87OH           ', &
-     'C823OH          ','C731OH          ','C733OH          ', &
-     'PINALOH         ','PINALO          ','OCCOHCOH        ', &
-     'C517CO2H        ','HMVKBCO2H       ','C6H5CH2OH       ', &
-     'CO2C3OOB        ','C731CO2H        ','C916OH          ', &
-     'HOCH2COCO2H     ','C914CO          ','C914OOH         ', &
-     'C106OH          ','NC826OH         ','ETHGLY          ', &
-     'HONO            ','C622OH          ','IEPOXA          ', &
-     'PHCOOH          ','KLIMONIC        ','C98OH           ', &
-     'C88CO2H         ','PBZQOH          ','PBZQCO          ', &
-     'PBZQOOH         ','PTLQOH          ','PTLQCO          ', &
-     'HIEPOXB         ','C619OH          ','C924OH          ', &
-     'C524OH          ','PTLQOOH         ','TLEMUCOH        ', &
-     'C625OH          ','NC102O          ','C511O           ', &
-     'CHOC3COO        ','NC71CO          ','NLIMALOH        ', &
-     'MCOCOMOXO       ','LMKBO           ','C734O           ', &
-     'A2PANO          ','TISOPA          ','TISOPC          ', &
-     'LMKOOB          ','NOAOOA          ','CATECOOA        ', &
-     'C717OH          ','C525O           ','LMLKBO          ', &
-     'MEKCO           ','C531CO          ','MCATECOOA       ', &
-     'NLIMO           ','LIMBO           ','NOPINOOA        ', &
-     'LIMALOH         ','C722O           ','MEKBO           ', &
-     'NLMKAO          ','C623OH          ','C618O           ', &
-     'NOPINBCO        ','NOPINBOOH       ','C55O            ', &
-     'CHOCOCH2O       ','C825O           ','MVKOHBO         ', &
-     'C513OH          ','C818O           ','MALANHY         ', &
-     'CH2OOG          ','CHOC2H4O        ','NAPINAO         ' /)
+     'C719OH          ','LMKBOO          ','GAOO            ', &
+     'OCCOHCO         ','INB1HPPAN       ','C57OH           ', &
+     'IPROPOLPAN      ','BZFUONOO        ','MCATECOOA       ', &
+     'LIMALNO3        ','C728NO3         ','C45NO3          ', &
+     'LIMANO3         ','NBZFUONE        ','C58OH           ', &
+     'NOPINOOA        ','CO1M22PAN       ','LIMCNO3         ', &
+     'C823O           ','INAHPPAN        ','C917OH          ', &
+     'IEB4CHO         ','TBUTOLNO3       ','LMKANO3         ', &
+     'C817O           ','PRNO3PAN        ','CH3NO3          ', &
+     'C822O           ','CO2N3PAN        ','CH3O            ', &
+     'MACRNOO         ','PHENOH          ','ISOPDO          ', &
+     'APINCOH         ','NC623OH         ','C729O           ', &
+     'C730NO3         ','BPINCOH         ','ISOPBOH         ', &
+     'C811O           ','MMALNHY2OH      ','NO3CH2CO2H      ', &
+     'NOPINCOH        ','M3BU3EPAN       ','MMALANHYO       ', &
+     'CO14O3CO2H      ','MVKOHANO3       ','C511CHO         ', &
+     'CO2C4DIAL       ','METACETHO       ','MGLOOA          ', &
+     'NC730OH         ','INANCOCHO       ','ISOPAO          ', &
+     'C626O           ','C719NO3         ','C24O3CCO2H      ', &
+     'HMGLOO          ','C732O           ','CRESOH          ', &
+     'HCOCH2O         ','C826NO3         ','NC728OH         ', &
+     'C923O           ','PPN             ','C9DCO           ', &
+     'C45O            ','C8BC            ','C731O           ', &
+     'NC2OO           ','PAN             ','CATECOOA        ', &
+     'CO2C3CO2H       ','MYRCENE         ','SABINENE        ', &
+     'OCIMENE         ','OMT             ','FARNESENE       ', &
+     'OSQ             ','CINEOLE         ','MAE             ', &
+     'C510OH          ','HC4PAN          ','NOPINBO         ', &
+     'C617O           ','C96O            ','C97O            ', &
+     'C917O           ','CH3COCH2O       ','NC826O          ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_5 = (/ &
-     'CO235C6O        ','HMVKBO          ','LMLKAO          ', &
-     'MVKO            ','C625O           ','CH2OOE          ', &
-     'C727O           ','C730OH          ','H3C25C6O        ', &
-     'C617OH          ','C615OH          ','NC623OH         ', &
-     'C8BCCO          ','C8BCOOH         ','HMGLYOOA        ', &
-     'C88CO           ','C88OOH          ','LIMALBO         ', &
-     'LIMONONIC       ','NTLFUO          ','LIMOOA          ', &
-     'NC4OOA          ','C519O           ','C924O           ', &
-     'C820O           ','C627O           ','LIMALAO         ', &
-     'LIMAO           ','NPXYFUO         ','C819O           ', &
-     'NC730OH         ','NC41OOA         ','C718OH          ', &
-     'MGLYOOB         ','BZFUO           ','TLFUONOOA       ', &
-     'C922O           ','MALDIALO        ','C531O           ', &
-     'APINBO          ','LMKAO           ','BZEMUCOH        ', &
-     'C86O            ','C728OH          ','NC728OH         ', &
-     'C9DCCO          ','C9DCOOH         ','CH3CO2H         ', &
-     'NC2OOA          ','C817OH          ','HO1CO3C4O       ', &
-     'CISOPA          ','CISOPC          ','NBZQO           ', &
-     'BZFUONOOA       ','MECOACETO       ','IEPOXC          ', &
-     'C716O           ','C512OH          ','NPTLQO          ', &
-     'C514OH          ','MACO2H          ','C44O            ', &
-     'C620OH          ','C87O            ','LIMCOH          ', &
-     'C96OH           ','LIMOOB          ','C616OH          ', &
-     'C614OH          ','MMALANHY        ','NC3OOA          ', &
-     'APINAO          ','C85CO3H         ','BPINBOOH        ', &
-     'C530OOH         ','INAHPCO3H       ','HO2NO2          ', &
-     'NC72OOH         ','NNCATECOOH      ','CHOC2CO3H       ', &
-     'CRESOOH         ','TLFUOOH         ','C517OOH         ', &
-     'C618CO2H        ','C825CO          ','NC524NO3        ', &
-     'DNPHENOOH       ','NC730OOH        ','C515OOH         ' /)
+     'C812O           ','BPINCO          ','C107O           ', &
+     'NOPINCO         ','CH3CHOOA        ','APINCO          ', &
+     'CO2C3OOA        ','TLFUONOO        ','C517OH          ', &
+     'C5DIALO         ','LIMALO          ','C4PAN6          ', &
+     'C914OH          ','C3MCODBPAN      ','C511O           ', &
+     'INB1NBCO2H      ','C5COO2NO2       ','NC71CO          ', &
+     'C614NO3         ','C10PAN2         ','C3DIALO         ', &
+     'TLBIPERNO3      ','LMKBO           ','C627PAN         ', &
+     'C6H5CH2NO3      ','H3C25C6PAN      ','C23O3CCO2H      ', &
+     'C732OH          ','INB1O           ','NC6PAN1         ', &
+     'INANPAN         ','C823PAN         ','C624PAN         ', &
+     'ACO2H           ','C89PAN          ','C734O           ', &
+     'A2PANO          ','NC524NO3        ','BZBIPERNO3      ', &
+     'TISOPA          ','TISOPC          ','C518CO2H        ', &
+     'DNCRESO         ','C518PAN         ','CO2C4CO2H       ', &
+     'C526NO3         ','INDOH           ','C9DCOH          ', &
+     'NOPINBNO3       ','C525O           ','MALANHY2OH      ', &
+     'ACCOMEPAN       ','IECPAN          ','NC41OOA         ', &
+     'MNNCATECO       ','CHOC2CO2H       ','LIMCOH          ', &
+     'C531CO          ','C514NO3         ','BPINAO          ', &
+     'C5PAN18         ','C512NO3         ','C826OH          ', &
+     'C98O            ','C822OH          ','C5PAN11         ', &
+     'C916O           ','MALNHYOHCO      ','HPC52PAN        ', &
+     'NDNCRESO        ','LMKAO           ','C727PAN         ', &
+     'LIMBO           ','C810OH          ','C810O           ', &
+     'LIMALOH         ','NOPINAOH        ','C87PAN          ', &
+     'INB1NAPAN       ','APINBNO3        ','C8BCOH          ', &
+     'MEKANO3         ','NOPINCNO3       ','CH2CHCH2NO3     ', &
+     'INB1NBPAN       ','C527NO3         ','C623OH          ', &
+     'LIMBNO3         ','HMVKBO          ','LIMCO           ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_6 = (/ &
-     'MVKOHANO3       ','ISOP34OOH       ','MALDALCO3H      ', &
-     'NC623OOH        ','C822OOH         ','NC728OOH        ', &
-     'C923CO3H        ','C235C6CO3H      ','C620OOH         ', &
-     'MMALNHYOOH      ','TLEMUCOOH       ','INB1HPCO3H      ', &
-     'C107OOH         ','C517CO3H        ','HOCHOCOOH       ', &
-     'C826OOH         ','OCCOHCO         ','C624CO3H        ', &
-     'BZEMUCOOH       ','C618CO3H        ','PHENOOH         ', &
-     'C717OOH         ','APINBOH         ','BZFUCO          ', &
-     'C719OOH         ','C730OOH         ','C729CO3H        ', &
-     'C97OOH          ','MALNHYOHCO      ','LIMANO3         ', &
-     'C720OOH         ','INAHPCO2H       ','C729CO2H        ', &
-     'MNNCATCOOH      ','PERPINONIC      ','NCATECOOH       ', &
-     'C8BCNO3         ','PRNO3CO2H       ','C624OOH         ', &
-     'NBZFUOOH        ','IEACO3H         ','C513OOH         ', &
-     'C920OOH         ','TBUTOLNO3       ','C515CO3H        ', &
-     'CO2C3CO3H       ','LMKANO3         ','C718CO2H        ', &
-     'C67CO3H         ','PERPROACID      ','C918OOH         ', &
-     'C824OOH         ','C916OOH         ','CO2N3PAN        ', &
-     'BPINAOOH        ','CO25C6CO2H      ','C108OOH         ', &
-     'CO23C4CO3H      ','INANCO2H        ','BZEMUCCO2H      ', &
-     'C98OOH          ','PINALOOH        ','MVKOHAOOH       ', &
-     'INB1NACO2H      ','CO25C6CO3H      ','INDHPCO3H       ', &
-     'C823CO3H        ','C23O3CCO3H      ','C816OOH         ', &
-     'NORLIMOOH       ','C734CO          ','NC101OOH        ', &
-     'NISOPOOH        ','C817OOH         ','NBPINAOOH       ', &
-     'C51OOH          ','HMACO2H         ','ACCOMECO3H      ', &
-     'CATEC1OOH       ','C9DCNO3         ','M3BU3ECO3H      ', &
-     'BZEMUCCO3H      ','INAHCO2H        ','HMVKAOOH        ', &
-     'BPINAOH         ','C615CO3H        ','C89OOH          ', &
-     'C537O           ','NC51OOH         ','TLBIPEROOH      ' /)
+     'C88OH           ','C825O           ','C915NO3         ', &
+     'MVKOHBO         ','HCOCOHPAN       ','C108OH          ', &
+     'C108O           ','BZBIPER2OH      ','LIMONIC         ', &
+     'ETHENO3O        ','CHOCOHCO        ','C811PAN         ', &
+     'TLBIPER2OH      ','C918OH          ','C918O           ', &
+     'CHOC2H4O        ','C107OH          ','C106O           ', &
+     'C728O           ','C813O           ','C519PAN         ', &
+     'C732NO3         ','C515PAN         ','LMKBNO3         ', &
+     'C626NO3         ','PRNO3CO3H       ','PRONO3AO        ', &
+     'C511PAN         ','C4CO2DBPAN      ','MACRO           ', &
+     'C23O3CPAN       ','MVKOHAO         ','LMLKAO          ', &
+     'C734OH          ','NC91PAN         ','C625O           ', &
+     'BPINBO          ','C718NO3         ','C810NO3         ', &
+     'C89O            ','IPRHOCO2H       ','CH2OOA          ', &
+     'NISOPNO3        ','APINCNO3        ','C727O           ', &
+     'C97OH           ','C730OH          ','C312COPAN       ', &
+     'INB1NACO2H      ','IEAPAN          ','C626PAN         ', &
+     'C923NO3         ','C823NO3         ','DNC524CO        ', &
+     'NOPINBOH        ','NOPINBCO        ','C821O           ', &
+     'C824OH          ','C622NO3         ','C106NO3         ', &
+     'C923OH          ','ETHOHNO3        ','C96NO3          ', &
+     'CO2C3PAN        ','C731PAN         ','C88PAN          ', &
+     'C98NO3          ','HOCH2CH2O       ','HMACO2H         ', &
+     'C2OHOCO2H       ','ETHGLY          ','NO3CH2CO3H      ', &
+     'C9DCNO3         ','C9DCCO          ','C9DCOOH         ', &
+     'C729NO3         ','C919O           ','C524NO3         ', &
+     'C519O           ','C822PAN         ','C924O           ', &
+     'C108NO3         ','C820O           ','C919OH          ', &
+     'C915OH          ','INANCO2H        ','C537O           ', &
+     'NNCATECO        ','CH3COPAN        ','C89NO3          ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_7 = (/ &
-     'C619OOH         ','C729OOH         ','C616OOH         ', &
-     'HC23C4CO3H      ','C614OOH         ','C812OH          ', &
-     'C622CO3H        ','HCOCH2CO3H      ','HC4CCO2H        ', &
-     'C822CO3H        ','C718CO3H        ','C732OOH         ', &
-     'C6H5CH2OOH      ','C615CO2H        ','C536O           ', &
-     'C727CO3H        ','C926OOH         ','TLEMUCCO3H      ', &
-     'C718OOH         ','H1C23C4OOH      ','NBPINBOOH       ', &
-     'NC526OOH        ','C810OOH         ','NOPINBNO3       ', &
-     'H2M2C3CO3H      ','NDNCRESOOH      ','CO1M22CO3H      ', &
-     'C511CO3H        ','PXYFUOOH        ','C623OOH         ', &
-     'C519CO3H        ','OXYL1OOH        ','LMKAOH          ', &
-     'C533OOH         ','IECCO3H         ','C626CO3H        ', &
-     'C514OOH         ','INB1NBCO2H      ','C719NO3         ', &
-     'C58NO3CO2H      ','C617CO2H        ','NOPINAOOH       ', &
-     'NPHEN1OOH       ','C512OOH         ','MCATEC1OOH      ', &
-     'BZBIPEROOH      ','C510OOH         ','C45OOH          ', &
-     'C626CO2H        ','C816CO3H        ','NDNPHENOOH      ', &
-     'MNCATECOOH      ','INCNCO2H        ','LIMCOOH         ', &
-     'NOPINCOOH       ','CO2C4CO3H       ','C5CO14OOH       ', &
-     'NC71OOH         ','C915OOH         ','HMVKBCO3H       ', &
-     'C57NO3CO2H      ','C732CO3H        ','C512CO3H        ', &
-     'C87CO3H         ','C919OOH         ','EPXDLCO3H       ', &
-     'LIMALOOH        ','NLIMALOOH       ','NCRES1OOH       ', &
-     'C615OOH         ','C617CO3H        ','H3C2C4CO3H      ', &
-     'C921OOH         ','C88CO3H         ','C2OHOCOOH       ', &
-     'C626OOH         ','CHOC3COOOH      ','C87CO2H         ', &
-     'C617OOH         ','IPRHOCO2H       ','C3DIOLOOH       ', &
-     'EPXDLCO2H       ','LIMAOH          ','C733OOH         ', &
-     'CH2CHCH2OOH     ','APINCOOH        ','BPINCOOH        ', &
-     'C920CO3H        ','C731OOH         ','C512CO2H        ' /)
+     'C519CO2H        ','C517PAN         ','LIMALAO         ', &
+     'HMVKBPAN        ','C720OH          ','C89OH           ', &
+     'C5CO2OHPAN      ','C721PAN         ','NDNPHENO        ', &
+     'C624OH          ','C615CO2O        ','LIMAO           ', &
+     'C536O           ','C517NO3         ','PROPACID        ', &
+     'PINALO          ','C916NO3         ','PRONO3BO        ', &
+     'C530NO3         ','C925O           ','C622CO2H        ', &
+     'C6PAN9          ','PROLNO3         ','C5CO2DBPAN      ', &
+     'MACRNBPAN       ','C819O           ','C822CO2H        ', &
+     'INAOH           ','IBUTOLOHB       ','C3DIOLO         ', &
+     'INCOH           ','NOPINDOH        ','NOPINDCO        ', &
+     'NOPINDOOH       ','C918NO3         ','BPINBNO3        ', &
+     'BZFUO           ','C5PAN9          ','BPINANO3        ', &
+     'C5PAN2          ','BPINCNO3        ','NOPINANO3       ', &
+     'PINALNO3        ','C733O           ','C512PAN         ', &
+     'C87OH           ','NORLIMO         ','MALDIALO        ', &
+     'PBZN            ','C823OH          ','C109O           ', &
+     'DNPHENO         ','C731OH          ','C6CO2OHPAN      ', &
+     'C733OH          ','APINBO          ','PINALOH         ', &
+     'OCCOHCOH        ','C45OOH          ','C816PAN         ', &
+     'C517CO2H        ','BZEMUCPAN       ','C822NO3         ', &
+     'INCNCO2H        ','C825OH          ','C728OH          ', &
+     'MC3CODBPAN      ','C618PAN         ','C718PAN         ', &
+     'NOPINBOOH       ','C516O           ','HMVKBCO2H       ', &
+     'CHOC2PAN        ','C731NO3         ','C9PAN2          ', &
+     'NC524OH         ','C6H5CH2OH       ','C4PAN10         ', &
+     'C731CO2H        ','C916OH          ','HOC2H4CO2H      ', &
+     'CHOMOHPAN       ','HOCH2COCO2H     ','C824O           ', &
+     'C914CO          ','C914OOH         ','MALDIALPAN      ', &
+     'C732PAN         ','C8BCNO3         ','C8BCCO          ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_8 = (/ &
-     'C925OOH         ','C89CO3H         ','C518CO3H        ', &
-     'CH3CO3H         ','C728OOH         ','NC826OOH        ', &
-     'C6H5CO3H        ','C821OOH         ','C622OOH         ', &
-     'C817CO3H        ','H3C25CCO3H      ','ISOPDOH         ', &
-     'C923OOH         ','C823OOH         ','C312COCO3H      ', &
-     'C917OOH         ','HOC2H4CO3H      ','ALLYLOH         ', &
-     'C106OOH         ','C731CO3H        ','TLEMUCCO2H      ', &
-     'DNCRESOOH       ','C621OOH         ','CO1M22CO2H      ', &
-     'LIMALAOH        ','INDHPCHO        ','C615CO2OH       ', &
-     'C9DC            ','PXYFUO          ','C731CO2         ', &
-     'LMLKBOH         ','INB1HPCHO       ','HVMK            ', &
-     'C4M2AL2OH       ','CH3O            ','BUT2OLO         ', &
-     'BIACET          ','C627OH          ','MEKAOH          ', &
-     'MEKCOH          ','C818CO          ','NCRESOH         ', &
-     'C514CO23OH      ','GLYOOB          ','TLFUO           ', &
-     'APINBCO         ','INAHCHO         ','C619CO          ', &
-     'CH3CHOOA        ','C822CO2         ','HOHOC4DIAL      ', &
-     'INAHPCHO        ','C513O           ','C628OH          ', &
-     'C719O           ','C628O           ','LIMALBOH        ', &
-     'C5DIALOH        ','HO14CO2C4       ','LMLKAOH         ', &
-     'C620O           ','C2H5OH          ','C818OH          ', &
-     'C617O           ','C59O            ','HO13CO4C5       ', &
-     'INB1NACHO       ','C735OH          ','LMKBCO          ', &
-     'C926OH          ','C926O           ','C735O           ', &
-     'LIMBCO          ','HMVKNGLYOX      ','C728NO3         ', &
-     'C413COOOH       ','HIEB2O          ','APINBNO3        ', &
-     'C718O           ','INB1OH          ','NBZQOOH         ', &
-     'MEKANO3         ','C5DICARBO       ','LIMCNO3         ', &
-     'CH2CHCH2NO3     ','CH2CHCH2O       ','C513CO          ', &
-     'LIMBNO3         ','C527O           ','C534OOH         ' /)
-  CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_9 = (/ &
-     'C625OOH         ','PINIC           ','INB1NBCO3H      ', &
-     'C915NO3         ','ACO2H           ','INAHPPAN        ', &
-     'NORPINIC        ','TBUTOLO         ','LMLKBCO         ', &
-     'C5CO2DCO3H      ','C57AO           ','C627OOH         ', &
-     'INB1NACO3H      ','NC61CO3H        ','C716OOH         ', &
-     'LIMBOOH         ','ALCOCH2OOH      ','BPINCO          ', &
-     'C106O           ','NLMKAOOH        ','MEKAOOH         ', &
-     'LMKBNO3         ','C626NO3         ','PRNO3CO3H       ', &
-     'MVKOHBOOH       ','CHOMOHCO3H      ','C2H5O           ', &
-     'INCO            ','MACRO           ','APINOOB         ', &
-     'CH3NO3          ','HPC52CO3H       ','APINOOA         ', &
-     'H1CO23CHO       ','NAPINAOOH       ','BZBIPERNO3      ', &
-     'C811OH          ','C535O           ','C6125CO         ', &
-     'C718NO3         ','C2H5NO3         ','LIMALBOOH       ', &
-     'CH2OOA          ','NISOPNO3        ','NISOPO          ', &
-     'NC102OOH        ','H14CO23C4       ','CH3OOH          ', &
-     'C45NO3          ','C45O            ','C511OOH         ', &
-     'NPXYFUOOH       ','NPTLQOOH        ','C810O           ', &
-     'C923NO3         ','C819OOH         ','C823NO3         ', &
-     'NLIMOOH         ','LIMALAOOH       ','C924OOH         ', &
-     'C622NO3         ','C622O           ','GAOOB           ', &
-     'BZFUOOH         ','C918CO3H        ','ETHOHNO3        ', &
-     'C730NO3         ','APINAOOH        ','CO2N3CO3H       ', &
-     'C96NO3          ','MECOACEOOH      ','H13CO2CO3H      ', &
-     'C55OOH          ','MACROHO         ','H3C25C6OOH      ', &
-     'CH3COCH2O       ','HOCH2CH2O       ','MALANHYOOH      ', &
-     'C85OOH          ','C526O           ','INAO            ', &
-     'NO3CH2CO3H      ','CISOPAO         ','C824CO          ', &
-     'INB1NBCHO       ','C729NO3         ','C919O           ', &
-     'C5DIALO         ','C524NO3         ','LMLKAOOH        ' /)
-  CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_10 = (/ &
-     'C820OOH         ','C2H5OOH         ','HOCH2CO3H       ', &
-     'PR2O2HNO3       ','NO3CH2CO2H      ','HPC52O          ', &
-     'INAHCO3H        ','C623NO3         ','CO235C6OOH      ', &
-     'C818OOH         ','MCOCOMOOOH      ','IPROPOLO        ', &
-     'C96OOH          ','C615CO2O        ','C108O           ', &
-     'C58OOH          ','INB1GLYOX       ','C517NO3         ', &
-     'C517O           ','INANCHO         ','HMML            ', &
-     'C727CO          ','HYPROPO         ','ISOPBOOH        ', &
-     'C922OOH         ','PROLNO3         ','MACRNBPAN       ', &
-     'C524CO          ','C924CO          ','BPINBNO3        ', &
-     'HMGLOOA         ','NOPINANO3       ','C825OOH         ', &
-     'NPHENOH         ','C6H5CH2O        ','C6H5CH2NO3      ', &
-     'ACLOOA          ','C109O           ','HIEB1O          ', &
-     'C916O           ','INANCO3H        ','INDHCO3H        ', &
-     'C57OOH          ','HC4ACO2H        ','INCGLYOX        ', &
-     'KLIMONONIC      ','HPNC524CO       ','C822NO3         ', &
-     'INB1HPPAN       ','NC91CO3H        ','C826NO3         ', &
-     'H3C25C6OH       ','C516O           ','M2PROPAL2O      ', &
-     'BIACETO         ','C735OOH         ','C58AOOH         ', &
-     'HC4CO3H         ','C731NO3         ','HCOCOHCO3H      ', &
-     'C817CO          ','APINCO          ','NC4CO2H         ', &
-     'LIMALACO        ','CO2C3OOA        ','INCNCO3H        ', &
-     'PR1O2HNO3       ','C525OOH         ','C813OH          ', &
-     'C717O           ','C5DIALCO        ','LIMAOOH         ', &
-     'NTLFUOOH        ','C47CHO          ','C618OOH         ', &
-     'C720NO3         ','C720O           ','NAPINBOOH       ', &
-     'C514NO3         ','C514O           ','C732NO3         ', &
-     'C917O           ','C51NO3          ','C628OOH         ', &
-     'C733CO          ','ETHO2HNO3       ','PTLQONE         ', &
-     'APINBOOH        ','C512NO3         ','PBZQONE         ' /)
-  CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_11 = (/ &
-     'C614NO3         ','C98O            ','C717NO3         ', &
-     'C6H5OOH         ','C3MDIALO        ','C624NO3         ', &
-     'LIMALBCO        ','INB1O           ','C519OOH         ', &
-     'C3DIALO         ','C86OOH          ','TLBIPERNO3      ', &
-     'APINANO3        ','IPROPOLPER      ','LMLKACO         ', &
-     'C87OOH          ','IPRHOCO3H       ','CHOC2H4OOH      ', &
-     'LMKAOOH         ','PROPGLY         ','C817NO3         ', &
-     'HOCH2CO2H       ','LIMALNO3        ','C89CO2          ', &
-     'C734OOH         ','LMKBOOH         ','HCC7CO          ', &
-     'MGLOOA          ','C520OH          ','C813O           ', &
-     'MACRNOOA        ','C4M2ALOHNO3     ','C629OH          ', &
-     'MACROOA         ','HNC524CO        ','C823PAN         ', &
-     'APINCNO3        ','NLIMALO         ','LIMCO           ', &
-     'C621O           ','OCCOHCOOH       ','C627PAN         ', &
-     'IEAPAN          ','C531OOH         ','INANCOPAN       ', &
-     'ISOPDO          ','C626PAN         ','MNCATECO        ', &
-     'DNC524CO        ','C4PAN10         ','C821O           ', &
-     'NO3CH2PAN       ','C624PAN         ','IBUTALO2H       ', &
-     'NC4CO3H         ','HMAC            ','HCOCOHPAN       ', &
-     'C106NO3         ','C534O           ','C622PAN         ', &
-     'INANCOCO3H      ','NC623O          ','C731PAN         ', &
-     'DNCRESO         ','C98NO3          ','PAN             ', &
-     'MEKBOOH         ','CO2C3PAN        ','C518PAN         ', &
-     'CHOCOHCO        ','C811PAN         ','NCATECO         ', &
-     'C822PAN         ','C4PAN5          ','C108NO3         ', &
-     'C510O           ','C4PAN6          ','LIMALO          ', &
-     'C916NO3         ','C3PAN1          ','NNCATECO        ', &
-     'NCRESOOH        ','HPC52PAN        ','CO1M22PAN       ', &
-     'C517PAN         ','HMVKBPAN        ','H1C23C4O        ', &
-     'M3BU3EPAN       ','C4M2ALOHO       ','NC728O          ' /)
-  CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_12 = (/ &
-     'C721PAN         ','NOPINCNO3       ','MEKAO           ', &
-     'C109OOH         ','DNPHENO         ','C57NO3PAN       ', &
-     'NC730O          ','C530NO3         ','C6PAN9          ', &
-     'H3C2C4PAN       ','C89NO3          ','C5CO2DBPAN      ', &
-     'C58O            ','C5CO2OHPAN      ','C3DIOLO         ', &
-     'C3MCODBPAN      ','NPHENO          ','C6COOHCO3H      ', &
-     'C512PAN         ','C5PAN9          ','C5PAN2          ', &
-     'ACCOMEPAN       ','BPINCNO3        ','C3PAN2          ', &
-     'PINALNO3        ','C5DIALOOH       ','C733O           ', &
-     'C826O           ','C88PAN          ','IECPAN          ', &
-     'C6CO2OHPAN      ','C728O           ','INANCOCO2H      ', &
-     'H3C25C6PAN      ','BPINBO          ','C5COO2NO2       ', &
-     'HC4ACO3H        ','C816PAN         ','C614O           ', &
-     'BZEMUCPAN       ','NBPINBO         ','C519PAN         ', &
-     'HCOCH2O         ','C732CO          ','LMLKBOOH        ', &
-     'C530O           ','C718PAN         ','MACRNBCO2H      ', &
-     'HMACROH         ','NC51O           ','MNNCATECO       ', &
-     'PPN             ','C727OOH         ','CHOC2PAN        ', &
-     'C515PAN         ','C57O            ','NBPINAO         ', &
-     'C615O           ','CHOMOHPAN       ','C824O           ', &
-     'INDHPAN         ','C515O           ','HOCO3C4OOH      ', &
-     'MALDIALPAN      ','IPROPOLPAN      ','PRNO3PAN        ', &
-     'C511PAN         ','TLEMUCPAN       ','INB1NBPAN       ', &
-     'C58AO           ','C58NO3CO3H      ','HYETHO2H        ', &
-     'C4CO2DBPAN      ','MACRNPAN        ','BPINAO          ', &
-     'C533O           ','HC4CCO3H        ','NPHENOOH        ', &
-     'C5COOHCO3H      ','INB2OOH         ','INDHPPAN        ', &
-     'C23O3CPAN       ','C918NO3         ','ISOP34O         ', &
+     'C8BCOOH         ','TLEMUCPAN       ','C106OH          ', &
+     'C720NO3         ','C818O           ','BZFUOH          ', &
+     'C3PAN2          ','C3PAN1          ','MACROHO         ', &
      'C623O           ','C617PAN         ','C817PAN         ', &
-     'C915O           ','CHOC3COPAN      ','C51O            ' /)
+     'C622PAN         ','CHOC3COPAN      ','CISOPA          ', &
+     'CISOPC          ','C919NO3         ','C624CO2H        ', &
+     'C622OH          ','IEPOXA          ','NC826OH         ', &
+     'C716O           ','C7PAN3          ','C621O           ', &
+     'MACO2H          ','C917NO3         ','C44O            ', &
+     'C730O           ','PHCOOH          ','EPXDLPAN        ', &
+     'KLIMONIC        ','C98OH           ','C923PAN         ', &
+     'C88CO2H         ','C717NO3         ','C3MDIALO        ', &
+     'H1C23C4PAN      ','C624NO3         ','PBZQOH          ', &
+     'PBZQCO          ','PBZQOOH         ','C918PAN         ', &
+     'PTLQOH          ','PTLQCO          ','HIEPOXB         ', &
+     'C619OH          ','APINANO3        ','C924OH          ', &
+     'C920PAN         ','C729PAN         ','A2PAN           ', &
+     'APINAO          ','H3C2C4PAN       ','HMVKNGLYOX      ', &
+     'C817NO3         ','C615PAN         ','C524OH          ', &
+     'PTLQOOH         ','C51NO3          ','HMGLOOA         ', &
+     'INDHPCHO        ','INCNPAN         ','C615CO2OH       ', &
+     'C51O            ','C57NO3PAN       ','PROPOLNO3       ', &
+     'MACRNOOA        ','NCRESOH         ','INAHPAN         ', &
+     'C513OH          ','HMPAN           ','MALANHY         ', &
+     'C9DC            ','PXYFUO          ','ACRPAN          ', &
+     'C926O           ','INB1HPCHO       ','C58NO3PAN       ', &
+     'C4M2AL2OH       ','NCRESO          ','BUT2OLO         ', &
+     'HVMK            ','INANCOPAN       ','C617OH          ', &
+     'C615OH          ','C5DIALOH        ','MEKCOH          ', &
+     'C88CO           ','C88OOH          ','LIMONONIC       ' /)
+  CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_9 = (/ &
+     'HOHOC4DIAL      ','CISOPAO         ','C514CO23OH      ', &
+     'C47PAN          ','INB1NBCHO       ','TLFUO           ', &
+     'INAHCHO         ','TLEMUCOH        ','C717OH          ', &
+     'MGLOOB          ','LMLKBOH         ','C718OH          ', &
+     'C627OH          ','C517O           ','C826O           ', &
+     'HPNC524CO       ','BZEMUCOH        ','INDHPPAN        ', &
+     'C625OH          ','LIMALBOH        ','C530O           ', &
+     'C524O           ','C6H5CH2O        ','C620O           ', &
+     'C532CO          ','C5PAN19         ','NISOPO          ', &
+     'C615O           ','INDHPAN         ','C718O           ', &
+     'C717O           ','MACRNPAN        ','C817OH          ', &
+     'C5PAN17         ','C513O           ','C719O           ', &
+     'C59O            ','CH2CHCH2O       ','IEPOXC          ', &
+     'C512OH          ','C514OH          ','HMVKAO          ', &
+     'INB1NACHO       ','INAHPCHO        ','C96OH           ', &
+     'INANCHO         ','C616OH          ','C614OH          ', &
+     'C614O           ','MMALANHY        ','C926OH          ', &
+     'C622O           ','C31PAN          ','HOCH2CO2H       ', &
+     'C720O           ','C514O           ','INANCO3H        ', &
+     'C624OOH         ','CRESOOH         ','LMLKBCO         ', &
+     'C57AO           ','C627OOH         ','C524CO          ', &
+     'NBZFUOOH        ','INB1NACO3H      ','IEACO3H         ', &
+     'ALCOCH2OOH      ','C920OOH         ','C816O           ', &
+     'C515CO3H        ','C624CO3H        ','NLMKAOOH        ', &
+     'C413COOOH       ','C718CO2H        ','C67CO3H         ', &
+     'INCO            ','PERPROACID      ','C918OOH         ', &
+     'H1CO23CHO       ','C916OOH         ','INB1NBCO3H      ', &
+     'NBPINAOOH       ','LIMAOH          ','C535O           ', &
+     'NC61CO3H        ','C517OOH         ','NOPINAOOH       ', &
+     'LIMALBOOH       ','C618CO2H        ','CH2OOC          ' /)
+  CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_10 = (/ &
+     'C825CO          ','CO23C4CO3H      ','H14CO23C4       ', &
+     'CH3OOH          ','HOCH2CO3H       ','HIEB2O          ', &
+     'BZEMUCCO2H      ','NPTLQOOH        ','C98OOH          ', &
+     'TLEMUCCO3H      ','PINALOOH        ','C89CO3H         ', &
+     'NC102OOH        ','NLIMOOH         ','NC730OOH        ', &
+     'IBUTALO2H       ','NAPINBO         ','BZFUCO          ', &
+     'MNCATECO        ','C534O           ','CO25C6CO2H      ', &
+     'C823CO3H        ','C515OOH         ','CO2N3CO3H       ', &
+     'MECOACEOOH      ','ISOP34OOH       ','CO1M22CO3H      ', &
+     'C55OOH          ','C734CO          ','NC101OOH        ', &
+     'NISOPOOH        ','C817OOH         ','MALDALCO3H      ', &
+     'MALANHYOOH      ','NC623OOH        ','HOC2H4CO3H      ', &
+     'ACCOMECO3H      ','CATEC1OOH       ','C822OOH         ', &
+     'M3BU3ECO3H      ','BZEMUCCO3H      ','INAHCO2H        ', &
+     'NCRES1OOH       ','NCATECO         ','C729OOH         ', &
+     'C824CO          ','BPINAOH         ','C718OOH         ', &
+     'INAO            ','GLYOOA          ','C921OOH         ', &
+     'NC728OOH        ','C615CO3H        ','C923CO3H        ', &
+     'C89OOH          ','NC51OOH         ','C235C6CO3H      ', &
+     'TLBIPEROOH      ','C729CO2H        ','C619OOH         ', &
+     'C2H5OOH         ','C616OOH         ','HC23C4CO3H      ', &
+     'C622CO3H        ','HCOCH2CO3H      ','HPC52O          ', &
+     'C822CO3H        ','C822CO2         ','C718CO3H        ', &
+     'H1C23C4OOH      ','C617CO3H        ','CO235C6OOH      ', &
+     'C527O           ','C732OOH         ','C6H5CH2OOH      ', &
+     'C733CO          ','C615CO2H        ','INB1GLYOX       ', &
+     'C727CO3H        ','MMALNHYOOH      ','C922OOH         ', &
+     'NBPINBOOH       ','NC526OOH        ','H2M2C3CO3H      ', &
+     'TLEMUCOOH       ','C519CO3H        ','OXYL1OOH        ', &
+     'LMKAOH          ','HIEB1O          ','C533OOH         ' /)
+  CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_11 = (/ &
+     'INB1HPCO3H      ','IECCO3H         ','C107OOH         ', &
+     'C626CO3H        ','C517CO3H        ','C920CO3H        ', &
+     'C514OOH         ','BPINCOOH        ','C87CO3H         ', &
+     'C511CO3H        ','LMLKBOOH        ','C58NO3CO2H      ', &
+     'BZEMUCOOH       ','NPHEN1OOH       ','C512OOH         ', &
+     'MCATEC1OOH      ','BZBIPEROOH      ','C57OOH          ', &
+     'C810OOH         ','INCGLYOX        ','C618CO3H        ', &
+     'C510OOH         ','CONM2PAN        ','PHENOOH         ', &
+     'C626CO2H        ','C816CO3H        ','BIACET          ', &
+     'NC72OOH         ','NC91CO3H        ','NOPINCOOH       ', &
+     'CO2C4CO3H       ','C5CO14OOH       ','HC4ACO2H        ', &
+     'C58AOOH         ','NC71OOH         ','C915OOH         ', &
+     'HC4CO3H         ','C97OOH          ','C57NO3CO2H      ', &
+     'C717OOH         ','C817CO3H        ','C732CO3H        ', &
+     'C531OOH         ','C518CO3H        ','CO25C6CO3H      ', &
+     'NC4CO2H         ','CHOC2CO3H       ','C512CO3H        ', &
+     'INCNCO3H        ','C919OOH         ','EPXDLCO3H       ', &
+     'INAHPCO2H       ','NLIMALOOH       ','INDHPCO3H       ', &
+     'APINBOH         ','C5DIALCO        ','HC4CCO2H        ', &
+     'NTLFUOOH        ','C618OOH         ','H3C2C4CO3H      ', &
+     'C88CO3H         ','C6125CO         ','C2OHOCOOH       ', &
+     'C513CO          ','HMVKBCO3H       ','C729CO3H        ', &
+     'C617CO2H        ','CO2C3CO3H       ','EPXDLCO2H       ', &
+     'PERPINONIC      ','CH2CHCH2OOH     ','C108OOH         ', &
+     'APINCOOH        ','C23O3CCO3H      ','C617OOH         ', &
+     'NAPINAOOH       ','C731OOH         ','C512CO2H        ', &
+     'C5DICARBO       ','NPXYFUOOH       ','LIMALBCO        ', &
+     'CH3CO3H         ','H3C25C6OOH      ','NC826OOH        ', &
+     'MCOCOMOOOH      ','C6H5CO3H        ','C622OOH         ', &
+     'H3C25CCO3H      ','ISOPDOH         ','C923OOH         ' /)
+  CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_12 = (/ &
+     'C823OOH         ','NBZQOOH         ','C312COCO3H      ', &
+     'C917OOH         ','C720OOH         ','C86OOH          ', &
+     'C85CO3H         ','IPROPOLPER      ','ALLYLOH         ', &
+     'C87OOH          ','IPRHOCO3H       ','C106OOH         ', &
+     'C731CO3H        ','C731CO2         ','C812OH          ', &
+     'TLEMUCCO2H      ','INAHPCO3H       ','CO1M22CO2H      ', &
+     'C626OOH         ','CHOC3COOOH      ','C526O           ', &
+     'C87CO2H         ','HMACRO          ','HMACROH         ', &
+     'CO2C3OO         ','LIMALAOH        ','NPHEN1O         ', &
+     'APINBCO         ','C89CO2          ','NISOPO2         ', &
+     'ISOPBO          ','C619CO          ','BZEMUCNO3       ', &
+     'TLEMUCNO3       ','NCRES1O         ','NPHENOH         ', &
+     'NPHENO          ','C6H5O           ','CATEC1O         ', &
+     'C628OH          ','C628O           ','MCATEC1O        ', &
+     'HO14CO2C4       ','LMLKAOH         ','C47CHO          ', &
+     'C818OH          ','MEKAOH          ','C735O           ', &
+     'C735OH          ','LIMBCO          ','HO13CO4C5       ', &
+     'C620OH          ','CH3C2H2O2       ','LMKBCO          ', &
+     'TOL1O           ','HNC524CO        ','C512O           ', &
+     'HIEB2OOH        ','C624O           ','C42AOH          ', &
+     'C51OOH          ','MEKBOOH         ','C85OOH          ', &
+     'HMVKNO3         ','HMVKAOOH        ','C510O           ', &
+     'NC524O          ','INCNCHO         ','C735OOH         ', &
+     'GAOOB           ','MVKOHBOOH       ','BZFUOOH         ', &
+     'C820OOH         ','CH2CHCH2O2      ','TLOBIPEROH      ', &
+     'INANCOCO3H      ','C614OOH         ','BZOBIPEROH      ', &
+     'INAHCO3H        ','NORPINIC        ','PXYFUOOH        ', &
+     'TLFUOOH         ','C4M2ALOHO       ','CHOMOHCO3H      ', &
+     'HMACO3H         ','C57O            ','C915O           ', &
+     'HPC52CO3H       ','C31CO3H         ','CHOOCHO         ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_13 = (/ &
-     'C919NO3         ','C810NO3         ','C5PAN18         ', &
-     'C4CO2DCO3H      ','PHAN            ','MVKOHAO         ', &
-     'C917NO3         ','C524O           ','C730O           ', &
-     'NC826O          ','C87PAN          ','EPXDLPAN        ', &
-     'C10PAN2         ','NCRESO          ','C312COPAN       ', &
-     'C923PAN         ','MEKCOOH         ','C918PAN         ', &
-     'MVKOOH          ','NC6PAN1         ','C5PAN11         ', &
-     'HC4PAN          ','C31CO3H         ','C920PAN         ', &
-     'NC91PAN         ','INANPAN         ','C729PAN         ', &
-     'A2PAN           ','C615CO2OOH      ','INB1NAPAN       ', &
-     'C58NO3PAN       ','INCNPAN         ','C615PAN         ', &
-     'C7PAN3          ','C3DIALOOH       ','DNPHEN          ', &
-     'O               ','NC101CO         ','BZOBIPEROH      ', &
-     'DNCRES          ','C109CO          ','CRESOL          ', &
-     'HCOCH2CO2H      ','C811OOH         ','MNCATECH        ', &
-     'BPINANO3        ','INANCO          ','C721CO3H        ', &
-     'HOC6H4NO2       ','CH2OOC          ','H3C25CCO2H      ', &
-     'TLOBIPEROH      ','CH3COOH         ','TOL1OHNO2       ', &
-     'PHENOL          ','HOPINONIC       ','NCATECHOL       ', &
-     'C811CO3H        ','PINONIC         ','H3C2C4CO2H      ', &
-     'INCNCHO         ','MVKOOA          ','C812OOH         ', &
-     'MACRNBCO3H      ','ISOPBO          ','CO24C4CHO       ', &
-     'HMACO3H         ','CO12C4CHO       ','INCOOH          ', &
-     'MGLOOB          ','INAHPAN         ','C526NO3         ', &
-     'C89PAN          ','PROPOLNO3       ','HMACROOH        ', &
-     'BZEMUCNO3       ','C515CHO         ','PBZN            ', &
-     'C57NO3CO3H      ','ACO3H           ','C57AOOH         ', &
-     'C31PAN          ','MC3CODBPAN      ','C618PAN         ', &
-     'HIEB1OOH        ','HYPROPO2H       ','ACRPAN          ', &
-     'C47CO3H         ','C9PAN2          ','HMPAN           ' /)
+     'C58OOH          ','C926OOH         ','HMML            ', &
+     'C918CO3H        ','C727CO          ','C3DIOLOOH       ', &
+     'HC4CCO3H        ','C824OOH         ','HC4CHO          ', &
+     'C6COOHCO3H      ','C530OOH         ','C924CO          ', &
+     'C58O            ','C3MCODBCO2      ','NDNCRESOOH      ', &
+     'C623OOH         ','H3C25C6OH       ','BPINAOOH        ', &
+     'C5DIALOOH       ','C825OOH         ','C5CO2DCO3H      ', &
+     'NC526O          ','C826OOH         ','MGLOO           ', &
+     'MMALNBPAN       ','PR2O2HNO3       ','C520OH          ', &
+     'APINAOOH        ','C811NO3         ','INDHCO3H        ', &
+     'PR1O2HNO3       ','CO2C4GLYOX      ','KLIMONONIC      ', &
+     'H3C25C5CHO      ','NDNPHENOOH      ','INANCOCO2H      ', &
+     'CH3CHOHCO3      ','NNCATECOOH      ','HMACROOH        ', &
+     'C732CO          ','HYETHO2H        ','INANCO          ', &
+     'LIMCOOH         ','HC4ACO3H        ','MACRNBCO2H      ', &
+     'ACO3H           ','INB1OH          ','C4CO2DCO3H      ', &
+     'MEKAO           ','HCOCOHCO3H      ','C2H5O2          ', &
+     'C109OOH         ','C511OOH         ','C87CO           ', &
+     'INDO            ','C818CO          ','LIMALACO        ', &
+     'C6H5CH2O2       ','LIMALOOH        ','OCCOHCOOH       ', &
+     'MNNCATCOOH      ','ACLOOA          ','MVKOOH          ', &
+     'HOCO3C4OOH      ','C813OH          ','COHM2PAN        ', &
+     'C4M2ALOHNO3     ','C519OOH         ','MVKOHAOOH       ', &
+     'LIMAOOH         ','C719OOH         ','C58AO           ', &
+     'C816OOH         ','C615OOH         ','C615CO2OOH      ', &
+     'C533O           ','ETHO2HNO3       ','PRNO3CO3        ', &
+     'C730OOH         ','C620OOH         ','NBZFUO          ', &
+     'C3DIALOOH       ','PINIC           ','C813NO3         ', &
+     'LIMBOOH         ','H13CO2CO3H      ','PTLQONE         ', &
+     'APINBOOH        ','C734OOH         ','C58ANO3         ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_14 = (/ &
-     'C732PAN         ','HC4CHO          ','MACRNCO3H       ', &
-     'HIEB2OOH        ','C527NO3         ','C5DICAROOH      ', &
-     'C823CO          ','C5PAN19         ','C59OOH          ', &
-     'C527OOH         ','TBUTOLOOH       ','HMVKAO          ', &
-     'H1C23C4PAN      ','C54CO           ','C47PAN          ', &
-     'C5PAN17         ','HMACRO          ','IPROPOLO2H      ', &
-     'NDNPHENO        ','C925O           ','H3C25C5CHO      ', &
-     'ISOPAOH         ','C3MCODBCO2      ','MGLYOOA         ', &
-     'COHM2CO2H       ','NDNCRESO        ','CH3COPAN        ', &
-     'NORLIMO         ','C811NO3         ','NBZFUO          ', &
-     'CO2C4GLYOX      ','C44OOH          ','TLEMUCCO        ', &
-     'TLEMUCNO3       ','MMALNBPAN       ','BZEMUCCO        ', &
-     'C816O           ','C532CO          ','GLYOOA          ', &
-     'C89CO2H         ','C512O           ','C813OOH         ', &
-     'C624O           ','C42AOH          ','BZBIPERO        ', &
-     'IEPOXB          ','MACROOH         ','C87CO           ', &
-     'ETHENO3O        ','MACRNCO2H       ','COHM2PAN        ', &
-     'C4CO2O          ','C722OOH         ','C515CO          ', &
-     'NOPINAO         ','C58ANO3         ','C526OOH         ', &
-     'C727PAN         ','MALDIALOOH      ','HPC52OOH        ', &
-     'MACROHOOH       ','IEACHO          ','CHOOCHO         ', &
-     'IECCHO          ','C67CHO          ','CH3COCO2H       ', &
-     'DHPMEK          ','C629OOH         ','EGLYOX          ', &
-     'C23O3CHO        ','INAOOH          ','CATECHOL        ', &
-     'CONM2PAN        ','C520OOH         ','CRESO2          ', &
-     'MMALNACO2H      ','MACO3H          ','MMALNAPAN       ', &
-     'C537OOH         ','MCATECHOL       ','NC4DCO2H        ', &
-     'INDHCHO         ','NC4MDCO2H       ','CH2CHCH2O2      ', &
-     'C6H5CH2O2       ','GLYOOC          ','HMVKBOOH        ', &
-     'C516OOH         ','MMALNBCO2H      ','INDO            ' /)
+     'C728OOH         ','C629OH          ','C733OOH         ', &
+     'C811OH          ','DNPHENOOH       ','TBUTOLOOH       ', &
+     'PBZQONE         ','C625OOH         ','MEKCOOH         ', &
+     'C819OOH         ','C109CO          ','C109OH          ', &
+     'C925OOH         ','C716OOH         ','C818OOH         ', &
+     'HCC7CO          ','HC4CO3          ','C6H5OOH         ', &
+     'C513OOH         ','NORLIMOOH       ','C817CO          ', &
+     'C823CO          ','C821OOH         ','C4CO2O          ', &
+     'LIMALAOOH       ','HYPROPO2H       ','NC4CO3H         ', &
+     'C515CO          ','BPINBOOH        ','LMLKACO         ', &
+     'C531O2          ','C31CO3          ','C525OOH         ', &
+     'IPROPOLO2H      ','CHOC2H4OOH      ','LMKAOOH         ', &
+     'PROPGLY         ','HMAC            ','NC101CO         ', &
+     'TLEMUCCO        ','LMLKAOOH        ','DNCRESOOH       ', &
+     'C621OOH         ','LMKBOOH         ','C96OOH          ', &
+     'HOCHOCOOH       ','NPHENOOH        ','C5COOHCO3H      ', &
+     'C628OOH         ','LIMBOO          ','ISOPBOOH        ', &
+     'INB2OOH         ','NOPINOO         ','MACRNBCO3H      ', &
+     'IPRHOCO3        ','C55O2           ','C57NO3CO3H      ', &
+     'C47CO3H         ','MEKCO2          ','C2H5CO3         ', &
+     'EGLYOX          ','NMGLYOX         ','MNCATECOOH      ', &
+     'NC4MDCO2H       ','MMALNAPAN       ','MEKBO2          ', &
+     'GLYOOC          ','C67CHO          ','MACROHOOH       ', &
+     'C727OOH         ','C45O2           ','M3BU3ECO3       ', &
+     'BZEMUCCO        ','INDHCHO         ','NCRESOOH        ', &
+     'MACRNCO3H       ','HIEB1OOH        ','MEKAOOH         ', &
+     'PXYFUONE        ','C57AOOH         ','C527OOH         ', &
+     'MACROOH         ','C527O2          ','NCATECOOH       ', &
+     'NC4DCO2H        ','C54CO           ','C515CHO         ', &
+     'ISOPDOOH        ','C924OOH         ','CO24C4CHO       ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_15 = (/ &
-     'CISOPCO         ','NC524O          ','C109OH          ', &
-     'PHENO2          ','CONM2CO3H       ','MMALNBCO3H      ', &
-     'CO2H3CO3H       ','MMALNACO3H      ','COHM2CO3H       ', &
-     'C721OOH         ','IEC2OOH         ','VGLYOX          ', &
-     'C6CO4DB         ','PRONO3BO        ','NC526O          ', &
-     'TLEMUCO         ','MVKOHAOH        ','C629O           ', &
-     'BZEMUCO         ','MC3ODBCO2H      ','PRONO3AO        ', &
-     'C520O           ','HMVKNO3         ','C524OOH         ', &
-     'NC524OOH        ','INB1OOH         ','C535OOH         ', &
-     'CH2OOF          ','MIBKHO4CHO      ','INB1CO          ', &
-     'INCCO           ','NPHENO2         ','HCOCO           ', &
-     'C813NO3         ','PHENO           ','PBZQO2          ', &
-     'HOCOC4DIAL      ','NISOPO2         ','CH2OOB          ', &
-     'PXYFUONE        ','BENZAL          ','C816CO          ', &
-     'C624CO          ','CH3C2H2O2       ','C615CO          ', &
-     'NAPINBO         ','C718O2          ','NC41OO          ', &
-     'PTLQO2          ','NBZFUO2         ','HCOC5           ', &
-     'TLFUO2          ','C3MDIALOOH      ','C732O2          ', &
-     'C514O2          ','MALDIALCO2      ','C536OOH         ', &
-     'BIACETOOH       ','NTLFUO2         ','NOAOO           ', &
-     'BZFUO2          ','CHOC2H4O2       ','NC4OO           ', &
-     'C7CO4DB         ','MVKOO           ','NC71O2          ', &
-     'NC71O           ','NC3OO           ','HMGLYOO         ', &
-     'INDOOH          ','CONM2CO2H       ','C619O2          ', &
-     'C4MALOHOOH      ','NC72O2          ','NC91CHO         ', &
-     'NCRESO2         ','CO13C3CO2H      ','HO1CO24C5       ', &
-     'MEKBO2          ','NMGLYOX         ','NBZQO2          ', &
-     'TLBIPERO2       ','TLBIPERO        ','C33CO           ', &
-     'C4CO2DBCO3      ','ISOPDOOH        ','INCNO3          ', &
-     'C731O2          ','C730O2          ','C519CHO         ' /)
+     'CO12C4CHO       ','C23O3CHO        ','IEC2OOH         ', &
+     'C58NO3CO3H      ','C718O2          ','C67CO3          ', &
+     'C732O2          ','C730O2          ','INCNCO3         ', &
+     'PTLQO2          ','NC72O2          ','CHOMOHCO3       ', &
+     'NC61CO3         ','C721CO3H        ','C533O2          ', &
+     'PXYFUO2         ','IECCO3          ','IECCHO          ', &
+     'NBZFUO2         ','NC51O2          ','C813OOH         ', &
+     'C4CO2DBCO3      ','TLFUO2          ','NTLFUO2         ', &
+     'C722OOH         ','CHOPRNO3        ','CRESO2          ', &
+     'NC728O2         ','C5CO2OHCO3      ','C728O2          ', &
+     'C811OOH         ','HCOCH2CO2H      ','C6CO2OHCO3      ', &
+     'COHM2CO2H       ','HOPINONIC       ','INB1NACO3       ', &
+     'ISOPDNO3        ','HPC52CO3        ','C629O           ', &
+     'MC3ODBCO2H      ','C623O2          ','C530O2          ', &
+     'PHENO2          ','INANCO3         ','C520O           ', &
+     'NCRES1O2        ','NC730O2         ','BZBIPERO        ', &
+     'BZFUO2          ','INB1NBCO3       ','NBZQO2          ', &
+     'NPHEN1O2        ','MCATEC1O2       ','INB1HPCO3       ', &
+     'ISOP34NO3       ','BIACETOOH       ','NC71O2          ', &
+     'IEACO3          ','IEACHO          ','H13CO2CO3       ', &
+     'CO2N3CO3        ','H3C25CCO2H      ','CATEC1O2        ', &
+     'NCATECHOL       ','PINONIC         ','NOPINAO         ', &
+     'PBZQO2          ','DNCRES          ','MACRNCO2H       ', &
+     'H3C2C4CO2H      ','NPTLQO2         ','NPXYFUO2        ', &
+     'NC623O2         ','C3DIOLO2        ','MNCATECH        ', &
+     'DNPHEN          ','CO235C6O2       ','C621O2          ', &
+     'NC4CO3          ','OXYL1O2         ','C6CO4DB         ', &
+     'HMACRO2         ','C514O2          ','C811CO3H        ', &
+     'C812OOH         ','CONM2CO3H       ','C619O2          ', &
+     'CHOC2H4O2       ','INDHPCO3        ','CRESOL          ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_16 = (/ &
-     'CO13C4OH        ','C616O2          ','CO123C5CHO      ', &
-     'NC728O2         ','CO2N3CHO        ','C88CHO          ', &
-     'C728O2          ','C2H5O2          ','C4CO2OOH        ', &
-     'C530O2          ','C525O2          ','C621O2          ', &
-     'NC623O2         ','MACROH          ','CO1M22CHO       ', &
-     'C616O           ','C3DIOLO2        ','C510O2          ', &
-     'C5CO2OHCO3      ','CO2C4CHO        ','HOC2H4CHO       ', &
-     'NC51O2          ','CO25C6CHO       ','CO235C6O2       ', &
-     'HMACRO2         ','MACRNB          ','C623O2          ', &
-     'C622O2          ','CRESO           ','C5CO14OH        ', &
-     'C5CO14CO2       ','NPTLQO2         ','C6CO2OHCO3      ', &
-     'C2H4            ','BZBIPERO2       ','CATEC1O2        ', &
-     'C45O2           ','MALDALCO2H      ','NPHEN1O2        ', &
-     'MCATEC1O2       ','INB1NO3         ','C517O2          ', &
-     'HO1CO3CHO       ','PXYFUO2         ','NCRES1O2        ', &
-     'NORLIMAL        ','NPXYFUO2        ','C720O2          ', &
-     'C719O2          ','MEKCO2          ','OXYL1O2         ', &
-     'ACLOO           ','MC3CODBCO2      ','INDHPCO3        ', &
-     'MVKOH           ','BZEPOXMUC       ','TLEPOXMUC       ', &
-     'C614CO          ','C513O2          ','CO23C4NO3       ', &
-     'C531O2          ','C733O2          ','C5CO2DBCO3      ', &
-     'NC2OO           ','C534O2          ','CH3COCO3H       ', &
-     'CH3CHOO         ','BZFUONOO        ','CHOPRNO3        ', &
-     'NC730O2         ','HIEB2O2         ','IBUTALOH        ', &
-     'C32OH13CO       ','MALDIALO2       ','ISOPAOOH        ', &
-     'HO1CO34C5       ','TLFUONOO        ','NCATECO2        ', &
-     'HPC52CO3        ','DNCRESO2        ','CHOC3COO2       ', &
-     'IECCO3          ','H13CO2CO3       ','DNPHENO2        ', &
-     'NC61CO3         ','C511O2          ','CHOMOHCO3       ', &
-     'C55O2           ','C729O2          ','MNNCATECO2      ' /)
+     'MPAN            ','MCATECHOL       ','MNCATECO2       ', &
+     'MNNCATECO2      ','C537OOH         ','INCOOH          ', &
+     'INB2O2          ','CH2OOF          ','ME3BU3ECHO      ', &
+     'C2H4            ','NAPINBOOH       ','MVKO2           ', &
+     'VGLYOX          ','ACO3            ','CH2OOB          ', &
+     'TOL1OHNO2       ','DNCRESO2        ','NDNCRESO2       ', &
+     'HOCOC4DIAL      ','PHENOL          ','NPHENO2         ', &
+     'CATECHOL        ','NCATECO2        ','NNCATECO2       ', &
+     'C520OOH         ','C33CO           ','C7CO4DB         ', &
+     'C5CO2DBCO3      ','C312COCO3       ','CHOCOCH2O2      ', &
+     'PHENO           ','MALDALCO2H      ','MALDIALCO2      ', &
+     'TLBIPERO2       ','NC526O2         ','C629OOH         ', &
+     'MALDIALOOH      ','NCRESO2         ','C534OOH         ', &
+     'HPC52OOH        ','BENZAL          ','C6H5CO3         ', &
+     'C6H5O2          ','NC524OOH        ','INCNO3          ', &
+     'INCCO           ','IBUTALOH        ','IBUTALCO2       ', &
+     'TBUTOLO2        ','H2M2C3CO3       ','MIBKHO4CHO      ', &
+     'C5DICAROOH      ','CO1M22CO3       ','CO1M22CHO       ', &
+     'HCOCO           ','C536OOH         ','HOC6H4NO2       ', &
+     'DNPHENO2        ','NDNPHENO2       ','C615CO          ', &
+     'C617O2          ','C617CO3         ','C615O2          ', &
+     'HMACO3          ','C816CO          ','C516OOH         ', &
+     'MMALNACO2H      ','ETHENO3O2       ','C44OOH          ', &
+     'HYPROPO2        ','C628O2          ','CHOC3COO2       ', &
+     'A2PANOO         ','H1C23C4O2       ','H1C23C4CO3      ', &
+     'ACCOMECO3       ','C624O2          ','C624CO          ', &
+     'MGLYOOA         ','CO14O3CHO       ','C513O2          ', &
+     'HCOC5           ','INDHCO3         ','C51O2           ', &
+     'PRONO3AO2       ','EPXDLCO3        ','ACRO2           ', &
+     'C615CO3         ','CHOC2CO3        ','MMALANHYO2      ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_17 = (/ &
-     'M3BU3ECO3       ','C58NO3          ','C312COCO3       ', &
-     'CH3CHOHCO3      ','CO2N3CO3        ','NNCATECO2       ', &
-     'C734O2          ','C44O2           ','INDHCO3         ', &
-     'HC4CO3          ','C735O2          ','C23O3CCHO       ', &
-     'MNCATECO2       ','C5134CO2OH      ','LIMONENE        ', &
-     'C526O2          ','IPROPOLO2       ','C716O2          ', &
-     'C624O2          ','C625O2          ','H13CO2C3        ', &
-     'C2H5CO3         ','APINENE         ','C615O2          ', &
-     'LMKBOO          ','M3FOO           ','C57NO3          ', &
-     'C6H5CO3         ','C6H5O2          ','NC526O2         ', &
-     'CARENE          ','HYPROPO2        ','PRONO3BO2       ', &
-     'CH3CHOHCHO      ','HPC52O2         ','HYPERACET       ', &
-     'ACRO2           ','H1C23C4CHO      ','CO14O3CHO       ', &
-     'CO2C3OO         ','ACCOMECO3       ','C516O2          ', &
-     'C627O2          ','MPAN            ','IBUTALCO2       ', &
-     'INB1HPCO3       ','C615CO2O2       ','MCATEC1O        ', &
-     'C617O2          ','PRNO3CO3        ','INANCO3         ', &
-     'CHOCOCH2O2      ','C31CO3          ','H1C23C4CO3      ', &
-     'NDNPHENO2       ','C626O2          ','C515CO3         ', &
-     'C620O2          ','INCNCO3         ','C6H5O           ', &
-     'NDNCRESO2       ','H1C23C4O2       ','CHOC2CO3        ', &
-     'C515O2          ','NC4CO3          ','CONM2CHO        ', &
-     'TOL1O           ','HCOCH2OOH       ','C5DIALO2        ', &
-     'CATEC1O         ','HCOCO2H         ','ETHENO3O2       ', &
-     'NORPINAL        ','C918CHO         ','IEACO3          ', &
-     'EPXC4DIAL       ','MCOCOMOXO2      ','MACROO          ', &
-     'HIEB1O2         ','C614O2          ','HO12CO3C4       ', &
-     'NC524O2         ','BPINENE         ','C537O2          ', &
-     'HCOCO3H         ','ISOPBNO3        ','COHM2CO3        ', &
-     'GAOO            ','TLEMUCCO3       ','C3MCODBCO3      ' /)
+     'CO25C6CO3       ','C627O2          ','CO25C6CHO       ', &
+     'ISOPAOH         ','C89CO2H         ','C515CO3         ', &
+     'C515O2          ','C721OOH         ','HIEB2O2         ', &
+     'MMALNACO3H      ','C625O2          ','PRONO3BO2       ', &
+     'C620O2          ','IPROPOLO2       ','CH3CHOHCHO      ', &
+     'C734O2          ','C618CO3         ','INAHCO3         ', &
+     'IEPOXB          ','C618O2          ','C519CHO         ', &
+     'TLEMUCO         ','C510O2          ','C3MDIALO2       ', &
+     'BZEPOXMUC       ','BZEMUCCO3       ','C5DIALO2        ', &
+     'C511CO3         ','C616O2          ','CO123C5CHO      ', &
+     'C622O2          ','MMALNBCO3H      ','MECOACETO2      ', &
+     'ACCOMECHO       ','C735O2          ','TLEMUCCO3       ', &
+     'C615CO2O2       ','BZEMUCO         ','C517O2          ', &
+     'C517CO3         ','C614O2          ','CONM2CO2H       ', &
+     'HMVKBCO3        ','CO23C4NO3       ','C733O2          ', &
+     'INAHPCO3        ','MACRNB          ','COHM2CO3H       ', &
+     'NORLIMAL        ','MALANHYO2       ','C720O2          ', &
+     'C719O2          ','MMALNBCO2H      ','INAOOH          ', &
+     'CRESO           ','C5CO14OH        ','C535OOH         ', &
+     'C536O2          ','INB1NO3         ','C59OOH          ', &
+     'C526OOH         ','HMVKBOOH        ','MACO3H          ', &
+     'BZBIPERO2       ','C537O2          ','MACROHO2        ', &
+     'HCOCO2H         ','COHM2CO3        ','MALDIALCO3      ', &
+     'PE4E2CO         ','C4CO2O2         ','HO1CO24C5       ', &
+     'CO2C3CO3        ','HC4ACO3         ','C5134CO2OH      ', &
+     'TLBIPERO        ','MACRNBCO3       ','NOA             ', &
+     'NC524O2         ','C23O3CCHO       ','MCOCOMOXO2      ', &
+     'C23O3CCO3       ','C534O2          ','CO2H3CO3H       ', &
+     'BZFUONE         ','MVKOHAO2        ','MACRO2          ', &
+     'BZEMUCO2        ','C47CO3          ','C3MCODBCO3      ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_18 = (/ &
-     'CO25C6CO3       ','NPHEN1O         ','H2M2C3CO3       ', &
-     'TBUTOLO2        ','C617CO3         ','MVKOHBO2        ', &
-     'INAHCO3         ','INAHPCO3        ','MMALANHYO2      ', &
-     'MGLYOO          ','BZEMUCCO3       ','HMGLOO          ', &
-     'HMVKBCO3        ','C520O2          ','HCOOH           ', &
-     'NCRES1O         ','C727O2          ','C519O2          ', &
-     'C57AO2          ','BZEMUCO2        ','PRONO3AO2       ', &
-     'HO1CO3C4O2      ','C535O2          ','CO2C3CO3        ', &
-     'C536O2          ','INB1NACO3       ','ISOPDNO3        ', &
-     'C721O2          ','C527O2          ','EPXDLCO3        ', &
-     'DHPMPAL         ','C517CO3         ','INB1NBCO3       ', &
-     'C3DIALO2        ','MALANHYO2       ','C716OH          ', &
-     'C533O2          ','MVKOHAO2        ','C47CO3          ', &
-     'INANCOCO3       ','C629O2          ','CO235C5CHO      ', &
-     'HC4ACO3         ','ISOPCOOH        ','C512O2          ', &
-     'C51O2           ','ISOP34NO3       ','C4CO2O2         ', &
-     'C618CO3         ','TLFUONE         ','HMACO3          ', &
-     'BZFUONE         ','C67CO3          ','C5DICARBO2      ', &
-     'CO1M22CO3       ','A2PANOO         ','H13CO2CHO       ', &
-     'CO235C6CO3      ','MECOACETO2      ','MALDIALCO3      ', &
-     'C511CO3         ','C4M2ALOHO2      ','CHOC3COCO3      ', &
-     'ACO3            ','C722O2          ','TLEMUCO2        ', &
-     'HCOCOHCO3       ','NOA             ','MACROHO2        ', &
-     'OCCOHCO2        ','HC4CCO3         ','MACRNOO         ', &
-     'C618O2          ','IPRHOCO3        ','C615CO3         ', &
-     'C58O2           ','C628O2          ','HMVKANO3        ', &
-     'NOPINONE        ','H2O2            ','MGLOO           ', &
-     'ME3BU3ECHO      ','C5HPALD1        ','ISOPANO3        ', &
-     'H3C2C4CO3       ','C23O3CCO3       ','C617CHO         ', &
-     'HMACR           ','HOCH2COCHO      ','MACRO2          ' /)
+     'C629O2          ','C616O           ','TLFUONE         ', &
+     'HPC52O2         ','TLEPOXMUC       ','EPXC4DIAL       ', &
+     'C3DIALO2        ','C5CO14O2        ','HIEB1O2         ', &
+     'CONM2CHO        ','CO13C4OH        ','CO2C4CHO        ', &
+     'MALDIALO2       ','HCOCOHCO3       ','NC91CHO         ', &
+     'HOC2H4CHO       ','C32OH13CO       ','TLEMUCO2        ', &
+     'MALDIAL         ','H3C25C6CO3      ','MC3CODBCO2      ', &
+     'NO3CH2CO3       ','C520O2          ','C5CO14CO2       ', &
+     'C88CHO          ','C526O2          ','H1C23C4CHO      ', &
+     'C617CHO         ','C58NO3CO3       ','INDOOH          ', &
+     'C731O2          ','MVKOHBO2        ','NC71O           ', &
+     'MACROH          ','C525O2          ','H13CO2C3        ', &
+     'C512CO3         ','C519CO3         ','C729O2          ', &
+     'C511O2          ','CO235C6CO3      ','DHPMPAL         ', &
+     'HYPERACET       ','C44O2           ','CHOC3COCO3      ', &
+     'C516O2          ','CO13C3CO2H      ','HO1CO3CHO       ', &
+     'MVKOHAOH        ','INB1CO          ','C4MALOHOOH      ', &
+     'C626CO3         ','CARENE          ','CH3O2           ', &
+     'M3F             ','C3H6            ','HO1CO3C4O2      ', &
+     'OCCOHCO2        ','HCOCH2OOH       ','NO3CH2CHO       ', &
+     'HMVKANO3        ','MC3CODBCO3      ','INANCOCO3       ', &
+     'C518CO3         ','C716O2          ','HC4CCO3         ', &
+     'H13CO2CHO       ','CAMPHENE        ','C721O2          ', &
+     'CO235C5CHO      ','C4CO2OOH        ','ISOPANO3        ', &
+     'INB1OOH         ','C524OOH         ','CO2N3CHO        ', &
+     'MVKOH           ','ACR             ','HOCH2CH2O2      ', &
+     'HCOCO3H         ','HOCH2COCHO      ','HMACR           ', &
+     'MMALNACO3       ','C722O2          ','HO1CO34C5       ', &
+     'NORPINAL        ','H3C2C4CO3       ','ISOPBNO3        ', &
+     'C535O2          ','DHPMEK          ','C57AO2          ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_19 = (/ &
-     'MALDIAL         ','ACCOMECHO       ','C3MDIALO2       ', &
-     'CO2C4CO3        ','C518CO3         ','C5HPALD2        ', &
-     'C3H6            ','INANO3          ','PE4E2CO         ', &
-     'C5CO14O2        ','HOCH2CH2O2      ','MVKO2           ', &
-     'MC3CODBCO3      ','MMALNACO3       ','CH3CHO          ', &
-     'MMALNBCO3       ','INCO2           ','CO2H3CO3        ', &
-     'HMVKBO2         ','LIMKET          ','C626CO3         ', &
-     'INDO2           ','MACRNBCO3       ','C58AO2          ', &
-     'C721CHO         ','H3C25C6CO3      ','NO3CH2CO3       ', &
-     'PINAL           ','CO23C4CO3       ','C624CHO         ', &
-     'INB1O2          ','ACR             ','NC4CHO          ', &
-     'C4CODIAL        ','GLYOO           ','C512CO3         ', &
-     'C624CO3         ','C57NO3CO3       ','C524O2          ', &
-     'BIACETOH        ','C622CO3         ','CH3O2           ', &
-     'M3F             ','C5DICARB        ','C5PACALD1       ', &
-     'C5PACALD2       ','C517CHO         ','C5H8            ', &
-     'CH3COCH2O2      ','NO3CH2CHO       ','HOC2H4CO3       ', &
-     'C519CO3         ','ISOP34O2        ','C3MDIALOH       ', &
-     'C58NO3CO3       ','INB2O2          ','HCOCH2CHO       ', &
-     'LMLKET          ','MACRNCO3        ','ISOPCNO3        ', &
-     'BIACETO2        ','ACETOL          ','CO2C3CHO        ', &
-     'CONM2CO3        ','INAO2           ','CH3COCO3        ', &
-     'C57O2           ','C59O2           ','LIMBOO          ', &
-     'MEKAO2          ','CO13C4CHO       ','CO23C4CHO       ', &
-     'HMVKAO2         ','CISOPCO2        ','ISOPCO2         ', &
-     'C4MDIAL         ','HC4ACHO         ','MACRNO3         ', &
-     'C717O2          ','CISOPAO2        ','ISOPAO2         ', &
-     'ISOPBO2         ','HC4CCHO         ','MVKNO3          ', &
-     'GLYOX           ','MVK             ','ISOPDO2         ', &
-     'CO2H3CHO        ','NOPINOO         ','H3C25C6O2       ' /)
+     'C727O2          ','CO2C4CO3        ','ISOPAOOH        ', &
+     'CH3COCO3H       ','HCOCO3          ','C4CODIAL        ', &
+     'CO2H3CO3        ','NC4CHO          ','C5DICARB        ', &
+     'C5DICARBO2      ','CH3COCO2H       ','C3MDIALOOH      ', &
+     'MMALNBCO3       ','GLYOO           ','CO23C4CO3       ', &
+     'C624CO3         ','HOC2H4CO3       ','C519O2          ', &
+     'C4M2ALOHO2      ','C918CHO         ','C622CO3         ', &
+     'HMVKBCHO        ','C57NO3CO3       ','CH3COCO3        ', &
+     'CONM2CO3        ','INDO2           ','C5HPALD2        ', &
+     'CH3COCH2O2      ','C5HPALD1        ','ISOP34O2        ', &
+     'C58O2           ','C626O2          ','H3C25C6O2       ', &
+     'HMVKAO2         ','C512O2          ','HCOCH2O2        ', &
+     'C624CHO         ','C3MDIALOH       ','C5PACALD2       ', &
+     'INCO2           ','INAO2           ','C57NO3          ', &
+     'C58AO2          ','MACO3           ','C721CHO         ', &
+     'C5PACALD1       ','H2O2            ','CISOPCO         ', &
+     'C524O2          ','LIMKET          ','MACRNCO3        ', &
+     'MVK             ','HO12CO3C4       ','CH3COOH         ', &
+     'INB1O2          ','C517CHO         ','BIACETO2        ', &
+     'MACRNO3         ','C58NO3          ','C59O2           ', &
+     'CO13C4CHO       ','HOCH2CO3        ','C614CO          ', &
+     'ISOPCNO3        ','ISOPCOOH        ','CO2C3CHO        ', &
+     'MVKNO3          ','PINAL           ','INANO3          ', &
+     'NOPINONE        ','C57O2           ','MEKAO2          ', &
+     'C4MDIAL         ','HC4ACHO         ','CISOPCO2        ', &
+     'ISOPCO2         ','ISOPDO2         ','CO2H3CHO        ', &
+     'HC4CCHO         ','ACETOL          ','CISOPAO2        ', &
+     'ISOPAO2         ','ISOPBO2         ','GLYOX           ', &
+     'CO23C3CHO       ','CO23C4CHO       ','C716OH          ', &
+     'LMLKET          ','CO235C6CHO      ','HMVKBO2         ' /)
   CHARACTER(LEN=16), PARAMETER, DIMENSION(90) :: SPC_NAMES_20 = (/ &
-     'MGLYOX          ','MACR            ','CO23C3CHO       ', &
-     'HMVKBCHO        ','C622CHO         ','C626CHO         ', &
-     'C729CHO         ','LIMAL           ','HNO3            ', &
-     'C518CHO         ','HCOCH2O2        ','HOCH2CO3        ', &
-     'CH3CO3          ','CO235C6CHO      ','HOCH2CHO        ', &
-     'MACO3           ','HCHO            ','CH3COCH3        ', &
-     'HCOCO3          ','HCOCH2CO3       ','CH2OO           ', &
-     'C823O2          ','C9DCO2          ','NC101O2         ', &
-     'C97O2           ','C107O2          ','C8BCO2          ', &
-     'C914O2          ','C921O2          ','LIMALBO2        ', &
-     'C87O2           ','C925O2          ','C88O2           ', &
-     'C98O2           ','C106O2          ','BPINCO2         ', &
-     'APINCO2         ','C818O2          ','C919O2          ', &
-     'C917O2          ','C922O2          ','C916O2          ', &
-     'C810O2          ','C918O2          ','C108O2          ', &
-     'NC102O2         ','C821O2          ','C820O2          ', &
-     'C812O2          ','C732CO3         ','C87CO3          ', &
-     'LMLKBO2         ','C109O2          ','APINAO2         ', &
-     'NAPINAO2        ','APINBO2         ','C813O2          ', &
-     'C85O2           ','C88CO3          ','C915O2          ', &
-     'C718CO3         ','C823CO3         ','C819O2          ', &
-     'C85CO3          ','NORLIMO2        ','NLMKAO2         ', &
-     'LMKBO2          ','C811O2          ','LMKAO2          ', &
-     'C86O2           ','C89O2           ','C721CO3         ', &
-     'C811CO3         ','BPINBO2         ','BPINAO2         ', &
-     'NAPINBO2        ','NBPINBO2        ','NBPINAO2        ', &
-     'C920CO3         ','C920O2          ','C89CO3          ', &
-     'NC91CO3         ','C918CO3         ','C727CO3         ', &
-     'PINALO2         ','LIMCO2          ','C96CO3          ', &
-     'C96O2           ','NLIMO2          ','C924O2          ' /)
-  CHARACTER(LEN=16), PARAMETER, DIMENSION(51) :: SPC_NAMES_21 = (/ &
-     'LMLKAO2         ','C824O2          ','LIMAO2          ', &
-     'LIMBO2          ','C825O2          ','C731CO3         ', &
-     'NOPINCO2        ','LIMALAO2        ','NOPINDO2        ', &
-     'C822O2          ','NOPINBO2        ','C729CO3         ', &
-     'NOPINAO2        ','NC826O2         ','C822CO3         ', &
-     'C826O2          ','C926O2          ','NLIMALO2        ', &
+     'C622CHO         ','C518CHO         ','HCOCH2CHO       ', &
+     'C626CHO         ','C729CHO         ','HCOOH           ', &
+     'CH3CO3          ','MGLYOX          ','BIACETOH        ', &
+     'C717O2          ','LIMAL           ','HOCH2CHO        ', &
+     'HNO3            ','HCOCH2CO3       ','CH2OO           ', &
+     'LIMALBO2        ','C8BCO2          ','C107O2          ', &
+     'C108O2          ','BPINCO2         ','APINCO2         ', &
+     'C87O2           ','C732CO3         ','C87CO3          ', &
+     'C914O2          ','C821O2          ','C9DCO2          ', &
+     'C819O2          ','C820O2          ','C818O2          ', &
+     'C925O2          ','C916O2          ','C810O2          ', &
+     'C106O2          ','C98O2           ','C922O2          ', &
+     'C917O2          ','C921O2          ','NC102O2         ', &
+     'C97O2           ','LMLKBO2         ','C823O2          ', &
+     'NC101O2         ','C919O2          ','C918O2          ', &
+     'C823CO3         ','APINBO2         ','C727CO3         ', &
+     'NORLIMO2        ','APINAO2         ','C109O2          ', &
+     'C920CO3         ','C920O2          ','NAPINAO2        ', &
+     'C89O2           ','C718CO3         ','C88CO3          ', &
+     'C88O2           ','C915O2          ','PINALO2         ', &
+     'NAPINBO2        ','C813O2          ','C812O2          ', &
+     'C86O2           ','C89CO3          ','C721CO3         ', &
+     'C811O2          ','C811CO3         ','NLMKAO2         ', &
+     'LMKAO2          ','LMKBO2          ','C85O2           ', &
+     'C85CO3          ','C96O2           ','C96CO3          ', &
+     'NBPINAO2        ','BPINAO2         ','BPINBO2         ', &
+     'C918CO3         ','NBPINBO2        ','NC91CO3         ', &
+     'LIMCO2          ','NLIMO2          ','LMLKAO2         ', &
+     'LIMBO2          ','LIMAO2          ','C731CO3         ', &
+     'LIMALAO2        ','NOPINCO2        ','C824O2          ' /)
+  CHARACTER(LEN=16), PARAMETER, DIMENSION(60) :: SPC_NAMES_21 = (/ &
+     'NOPINDO2        ','C825O2          ','NOPINBO2        ', &
+     'C924O2          ','NOPINAO2        ','C729CO3         ', &
+     'C926O2          ','C826O2          ','C822CO3         ', &
+     'C822O2          ','NC826O2         ','NLIMALO2        ', &
      'C817O2          ','C817CO3         ','LIMALO2         ', &
-     'C816CO3         ','C816O2          ','R_HOM_O12       ', &
-     'C923O2          ','R_HOM_O10       ','R_HOM_OH_O5     ', &
-     'HO2             ','CO              ','R_HOM_O8        ', &
-     'APINBOO         ','R_HOM_OH_O7     ','R_HOM_O13       ', &
-     'R_HOM_OH_O10    ','OH              ','O3              ', &
-     'R_HOM_O4        ','R_HOM_O11       ','R_HOM_O6        ', &
-     'R_HOM_OH_O6     ','R_HOM_O7        ','R_HOM_OH_O8     ', &
-     'R_HOM_O14       ','NO2             ','C923CO3         ', &
-     'R_HOM_O9        ','R_HOM_OH_O9     ','R_HOM_O5        ', &
-     'NO3             ','NO              ','SO2             ' /)
-  CHARACTER(LEN=16), PARAMETER, DIMENSION(1941) :: SPC_NAMES = (/&
+     'APINBOO         ','C816O2          ','R_HOM_OH_O7     ', &
+     'R_HOM_OH_O8     ','R_HOM_OH_O9     ','OH              ', &
+     'R_HOM_O11       ','C816CO3         ','R_HOM_O6        ', &
+     'R_HOM_OH_O10    ','R_HOM_OH_O6     ','R_HOM_O7        ', &
+     'R_HOM_O8        ','NO3             ','R_HOM_OH_O5     ', &
+     'C923CO3         ','R_HOM_O4        ','R_HOM_O13       ', &
+     'HO2             ','R_HOM_O9        ','R_HOM_O14       ', &
+     'R_HOM_O5        ','R_HOM_O10       ','C923O2          ', &
+     'R_HOM_O12       ','SO2             ','NO              ', &
+     'NO2             ','CO              ','O3              ', &
+     'CH3OH           ','C2H5OH          ','HCHO            ', &
+     'MACR            ','CH3CHO          ','C5H8            ', &
+     'CH4             ','CH3COCH3        ','MEK             ', &
+     'CH3CO2H         ','BENZENE         ','TOLUENE         ', &
+     'APINENE         ','BPINENE         ','LIMONENE        ' /)
+  CHARACTER(LEN=16), PARAMETER, DIMENSION(1950) :: SPC_NAMES = (/&
     SPC_NAMES_0, SPC_NAMES_1, SPC_NAMES_2, SPC_NAMES_3, SPC_NAMES_4, &
     SPC_NAMES_5, SPC_NAMES_6, SPC_NAMES_7, SPC_NAMES_8, SPC_NAMES_9, &
     SPC_NAMES_10, SPC_NAMES_11, SPC_NAMES_12, SPC_NAMES_13, SPC_NAMES_14, &
@@ -706,24 +709,22 @@ MODULE second_Monitor
   CHARACTER(LEN=16), DIMENSION(1) :: SMASS
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_0 = (/ &
      '                      O --> O3                                                                      ', &
-     '                 O + O3 --> DUMMY                                                                   ', &
      '                 O + NO --> NO2                                                                     ', &
      '                O + NO2 --> NO                                                                      ', &
      '                O + NO2 --> NO3                                                                     ', &
      '                    O1D --> O                                                                       ', &
-     '                O3 + NO --> NO2                                                                     ', &
-     '               O3 + NO2 --> NO3                                                                     ', &
+     '                NO + O3 --> NO2                                                                     ', &
+     '               NO2 + O3 --> NO3                                                                     ', &
      '                   2 NO --> 2 NO2                                                                   ', &
      '               NO3 + NO --> 2 NO2                                                                   ', &
-     '              NO2 + NO3 --> NO2 + NO                                                                ', &
-     '              NO2 + NO3 --> N2O5                                                                    ', &
+     '              NO3 + NO2 --> NO + NO2                                                                ', &
+     '              NO3 + NO2 --> N2O5                                                                    ', &
      '                    O1D --> 2 OH                                                                    ', &
      '                OH + O3 --> HO2                                                                     ', &
      '                H2 + OH --> HO2                                                                     ', &
-     '                CO + OH --> HO2                                                                     ', &
+     '                OH + CO --> HO2                                                                     ', &
      '              H2O2 + OH --> HO2                                                                     ', &
      '               HO2 + O3 --> OH                                                                      ', &
-     '               HO2 + OH --> DUMMY                                                                   ', &
      '                  2 HO2 --> H2O2                                                                    ', &
      '                OH + NO --> HONO                                                                    ', &
      '               OH + NO2 --> HNO3                                                                    ', &
@@ -731,13 +732,13 @@ MODULE second_Monitor
      '               HO2 + NO --> OH + NO2                                                                ', &
      '              HO2 + NO2 --> HO2NO2                                                                  ', &
      '            HO2NO2 + OH --> NO2                                                                     ', &
-     '              HO2 + NO3 --> OH + NO2                                                                ', &
+     '              NO3 + HO2 --> OH + NO2                                                                ', &
      '              HONO + OH --> NO2                                                                     ', &
      '              HNO3 + OH --> NO3                                                                     ', &
-     '                O + SO2 --> SO3                                                                     ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_1 = (/ &
+     '                O + SO2 --> SO3                                                                     ', &
      '               OH + SO2 --> HSO3                                                                    ', &
-     '                   HSO3 --> SO3 + HO2                                                               ', &
+     '                   HSO3 --> SO3 + HO2                                                               ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_1 = (/ &
      '                   HNO3 --> NA                                                                      ', &
      '                   N2O5 --> 2 NA                                                                    ', &
      '                    SO3 --> H2SO4                                                                   ', &
@@ -749,77 +750,79 @@ MODULE second_Monitor
      '                    NO3 --> O + NO2                                                                 ', &
      '                   HONO --> OH + NO                                                                 ', &
      '                   HNO3 --> OH + NO2                                                                ', &
-     '                   N2O5 --> NO2 + NO3                                                               ', &
+     '                   N2O5 --> NO3 + NO2                                                               ', &
      '                 HO2NO2 --> HO2 + NO2                                                               ', &
-     '             CH3OH + OH --> HCHO + HO2                                                              ', &
-     '            C2H5OH + OH --> C2H5O                                                                   ', &
-     '            C2H5OH + OH --> CH3CHO + HO2                                                            ', &
-     '            C2H5OH + OH --> HOCH2CH2O2                                                              ', &
+     '             OH + CH3OH --> HO2 + HCHO                                                              ', &
+     '            OH + C2H5OH --> C2H5O                                                                   ', &
+     '            OH + C2H5OH --> HO2 + CH3CHO                                                            ', &
+     '            OH + C2H5OH --> HOCH2CH2O2                                                              ', &
      '                   HCHO --> 2 HO2 + CO                                                              ', &
      '                   HCHO --> H2 + CO                                                                 ', &
-     '             HCHO + NO3 --> HNO3 + HO2 + CO                                                         ', &
-     '              HCHO + OH --> HO2 + CO                                                                ', &
-     '                 CH3CHO --> CH3O2 + HO2 + CO                                                        ', &
-     '           CH3CHO + NO3 --> HNO3 + CH3CO3                                                           ', &
-     '            CH3CHO + OH --> CH3CO3                                                                  ', &
-     '            CH3CHO + OH --> HCOCH2O2                                                                ', &
+     '             NO3 + HCHO --> HNO3 + HO2 + CO                                                         ', &
+     '              OH + HCHO --> HO2 + CO                                                                ', &
      '                   MACR --> CH3C2H2O2 + HO2 + CO                                                    ', &
      '                   MACR --> MACO3 + HO2                                                             ', &
-     '             MACR + NO3 --> HNO3 + MACO3                                                            ' /)
+     '             NO3 + MACR --> MACO3 + HNO3                                                            ', &
+     '              O3 + MACR --> MGLYOOB + HCHO                                                          ', &
+     '              O3 + MACR --> CH2OOG + MGLYOX                                                         ', &
+     '              OH + MACR --> MACO3                                                                   ', &
+     '              OH + MACR --> MACRO2                                                                  ', &
+     '              OH + MACR --> MACROHO2                                                                ', &
+     '                 CH3CHO --> CH3O2 + HO2 + CO                                                        ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_2 = (/ &
-     '              MACR + O3 --> MGLYOOB + HCHO                                                          ', &
-     '              MACR + O3 --> CH2OOG + MGLYOX                                                         ', &
-     '              MACR + OH --> MACO3                                                                   ', &
-     '              MACR + OH --> MACRO2                                                                  ', &
-     '              MACR + OH --> MACROHO2                                                                ', &
-     '             C5H8 + NO3 --> NISOPO2                                                                 ', &
-     '              C5H8 + O3 --> CH2OOE + MACR                                                           ', &
-     '              C5H8 + O3 --> CH2OOE + MVK                                                            ', &
-     '              C5H8 + O3 --> MACROOA + HCHO                                                          ', &
-     '              C5H8 + O3 --> MVKOOA + HCHO                                                           ', &
-     '              C5H8 + OH --> CISOPA                                                                  ', &
-     '              C5H8 + OH --> CISOPC                                                                  ', &
-     '              C5H8 + OH --> ISOP34O2                                                                ', &
-     '              C5H8 + OH --> ME3BU3ECHO + HO2                                                        ', &
-     '              C5H8 + OH --> PE4E2CO + HO2                                                           ', &
-     '              C5H8 + OH --> TISOPA                                                                  ', &
-     '              C5H8 + OH --> TISOPC                                                                  ', &
-     '          CH3COCH3 + OH --> CH3COCH2O2                                                              ', &
+     '           NO3 + CH3CHO --> CH3CO3 + HNO3                                                           ', &
+     '            OH + CH3CHO --> CH3CO3                                                                  ', &
+     '            OH + CH3CHO --> HCOCH2O2                                                                ', &
+     '             NO3 + C5H8 --> NISOPO2                                                                 ', &
+     '              O3 + C5H8 --> CH2OOE + MACR                                                           ', &
+     '              O3 + C5H8 --> CH2OOE + MVK                                                            ', &
+     '              O3 + C5H8 --> MACROOA + HCHO                                                          ', &
+     '              O3 + C5H8 --> MVKOOA + HCHO                                                           ', &
+     '              OH + C5H8 --> CISOPA                                                                  ', &
+     '              OH + C5H8 --> CISOPC                                                                  ', &
+     '              OH + C5H8 --> ISOP34O2                                                                ', &
+     '              OH + C5H8 --> ME3BU3ECHO + HO2                                                        ', &
+     '              OH + C5H8 --> PE4E2CO + HO2                                                           ', &
+     '              OH + C5H8 --> TISOPA                                                                  ', &
+     '              OH + C5H8 --> TISOPC                                                                  ', &
+     '               CL + CH4 --> CH3O2                                                                   ', &
+     '               OH + CH4 --> CH3O2                                                                   ', &
+     '          OH + CH3COCH3 --> CH3COCH2O2                                                              ', &
      '               CH3COCH3 --> CH3O2 + CH3CO3                                                          ', &
-     '               MEK + OH --> MEKAO2                                                                  ', &
-     '               MEK + OH --> MEKBO2                                                                  ', &
-     '               MEK + OH --> MEKCO2                                                                  ', &
+     '               OH + MEK --> MEKAO2                                                                  ', &
+     '               OH + MEK --> MEKBO2                                                                  ', &
+     '               OH + MEK --> MEKCO2                                                                  ', &
      '                    MEK --> C2H5O2 + CH3CO3                                                         ', &
-     '           CH3CO2H + OH --> CH3O2                                                                   ', &
-     '           BENZENE + OH --> BZBIPERO2                                                               ', &
-     '           BENZENE + OH --> BZEPOXMUC + HO2                                                         ', &
-     '           BENZENE + OH --> PHENOL + HO2                                                            ', &
-     '           TOLUENE + OH --> C6H5CH2O2                                                               ', &
-     '           TOLUENE + OH --> CRESOL + HO2                                                            ', &
-     '           TOLUENE + OH --> TLBIPERO2                                                               ' /)
+     '           OH + CH3CO2H --> CH3O2                                                                   ', &
+     '           OH + BENZENE --> BZBIPERO2                                                               ', &
+     '           OH + BENZENE --> BZEPOXMUC + HO2                                                         ', &
+     '           OH + BENZENE --> PHENOL + HO2                                                            ', &
+     '           OH + TOLUENE --> C6H5CH2O2                                                               ', &
+     '           OH + TOLUENE --> CRESOL + HO2                                                            ', &
+     '           OH + TOLUENE --> TLBIPERO2                                                               ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_3 = (/ &
-     '           TOLUENE + OH --> TLEPOXMUC + HO2                                                         ', &
-     '          APINENE + NO3 --> NAPINAO2                                                                ', &
-     '          APINENE + NO3 --> NAPINBO2                                                                ', &
-     '           APINENE + O3 --> APINOOA                                                                 ', &
-     '           APINENE + O3 --> APINOOB                                                                 ', &
-     '           APINENE + OH --> APINAO2                                                                 ', &
-     '           APINENE + OH --> APINBO2                                                                 ', &
-     '           APINENE + OH --> APINCO2                                                                 ', &
-     '          BPINENE + NO3 --> NBPINAO2                                                                ', &
-     '          BPINENE + NO3 --> NBPINBO2                                                                ', &
-     '           BPINENE + O3 --> CH2OOF + NOPINONE                                                       ', &
-     '           BPINENE + O3 --> NOPINOOA + HCHO                                                         ', &
-     '           BPINENE + OH --> BPINAO2                                                                 ', &
-     '           BPINENE + OH --> BPINBO2                                                                 ', &
-     '           BPINENE + OH --> BPINCO2                                                                 ', &
-     '         LIMONENE + NO3 --> NLIMO2                                                                  ', &
-     '          LIMONENE + O3 --> LIMOOA                                                                  ', &
-     '          LIMONENE + O3 --> LIMOOB                                                                  ', &
-     '          LIMONENE + OH --> LIMAO2                                                                  ', &
-     '          LIMONENE + OH --> LIMBO2                                                                  ', &
-     '          LIMONENE + OH --> LIMCO2                                                                  ', &
-     '                  C2H5O --> CH3CHO + HO2                                                            ', &
+     '           OH + TOLUENE --> TLEPOXMUC + HO2                                                         ', &
+     '          NO3 + APINENE --> NAPINAO2                                                                ', &
+     '          NO3 + APINENE --> NAPINBO2                                                                ', &
+     '           O3 + APINENE --> APINOOA                                                                 ', &
+     '           O3 + APINENE --> APINOOB                                                                 ', &
+     '           OH + APINENE --> APINAO2                                                                 ', &
+     '           OH + APINENE --> APINBO2                                                                 ', &
+     '           OH + APINENE --> APINCO2                                                                 ', &
+     '          NO3 + BPINENE --> NBPINAO2                                                                ', &
+     '          NO3 + BPINENE --> NBPINBO2                                                                ', &
+     '           O3 + BPINENE --> CH2OOF + NOPINONE                                                       ', &
+     '           O3 + BPINENE --> NOPINOOA + HCHO                                                         ', &
+     '           OH + BPINENE --> BPINAO2                                                                 ', &
+     '           OH + BPINENE --> BPINBO2                                                                 ', &
+     '           OH + BPINENE --> BPINCO2                                                                 ', &
+     '         NO3 + LIMONENE --> NLIMO2                                                                  ', &
+     '          O3 + LIMONENE --> LIMOOA                                                                  ', &
+     '          O3 + LIMONENE --> LIMOOB                                                                  ', &
+     '          OH + LIMONENE --> LIMAO2                                                                  ', &
+     '          OH + LIMONENE --> LIMBO2                                                                  ', &
+     '          OH + LIMONENE --> LIMCO2                                                                  ', &
+     '                  C2H5O --> HO2 + CH3CHO                                                            ', &
      '       HOCH2CH2O2 + HO2 --> HYETHO2H                                                                ', &
      '        HOCH2CH2O2 + NO --> ETHOHNO3                                                                ', &
      '        HOCH2CH2O2 + NO --> HOCH2CH2O + NO2                                                         ', &
@@ -827,8 +830,41 @@ MODULE second_Monitor
      '             HOCH2CH2O2 --> ETHGLY                                                                  ', &
      '             HOCH2CH2O2 --> HOCH2CH2O                                                               ', &
      '             HOCH2CH2O2 --> HOCH2CHO                                                                ', &
-     '            CH3O2 + HO2 --> CH3OOH                                                                  ' /)
+     '              CH3C2H2O2 --> CH3CO3 + HCHO                                                           ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_4 = (/ &
+     '              CH3C2H2O2 --> CH3O2 + CO + HCHO                                                       ', &
+     '            MACO3 + HO2 --> CH3C2H2O2 + OH                                                          ', &
+     '            MACO3 + HO2 --> MACO2H + O3                                                             ', &
+     '            MACO3 + HO2 --> MACO3H                                                                  ', &
+     '             MACO3 + NO --> CH3C2H2O2 + NO2                                                         ', &
+     '            MACO3 + NO2 --> MPAN                                                                    ', &
+     '            MACO3 + NO3 --> CH3C2H2O2 + NO2                                                         ', &
+     '                  MACO3 --> CH3C2H2O2                                                               ', &
+     '                  MACO3 --> MACO2H                                                                  ', &
+     '                MGLYOOB --> MGLYOO                                                                  ', &
+     '                MGLYOOB --> CH3CO3 + OH + CO                                                        ', &
+     '                 MGLYOX --> CH3CO3 + HO2 + CO                                                       ', &
+     '           MGLYOX + NO3 --> CH3CO3 + HNO3 + CO                                                      ', &
+     '            MGLYOX + OH --> CH3CO3 + CO                                                             ', &
+     '                 CH2OOG --> CH2OO                                                                   ', &
+     '                 CH2OOG --> CO                                                                      ', &
+     '                 CH2OOG --> OH + HO2 + CO                                                           ', &
+     '           MACRO2 + HO2 --> MACROOH                                                                 ', &
+     '            MACRO2 + NO --> MACRNO3                                                                 ', &
+     '            MACRO2 + NO --> MACRO + NO2                                                             ', &
+     '           MACRO2 + NO3 --> MACRO + NO2                                                             ', &
+     '                 MACRO2 --> ACETOL + OH + CO                                                        ', &
+     '                 MACRO2 --> MACRO                                                                   ', &
+     '                 MACRO2 --> MACROH                                                                  ', &
+     '         MACROHO2 + HO2 --> MACROHOOH                                                               ', &
+     '          MACROHO2 + NO --> MACRNB                                                                  ', &
+     '          MACROHO2 + NO --> MACROHO + NO2                                                           ', &
+     '         MACROHO2 + NO3 --> MACROHO + NO2                                                           ', &
+     '               MACROHO2 --> C3MDIALOH                                                               ', &
+     '               MACROHO2 --> MACROH                                                                  ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_5 = (/ &
+     '               MACROHO2 --> MACROHO                                                                 ', &
+     '            CH3O2 + HO2 --> CH3OOH                                                                  ', &
      '            CH3O2 + HO2 --> HCHO                                                                    ', &
      '             CH3O2 + NO --> CH3NO3                                                                  ', &
      '             CH3O2 + NO --> CH3O + NO2                                                              ', &
@@ -837,7 +873,7 @@ MODULE second_Monitor
      '                  CH3O2 --> CH3O                                                                    ', &
      '                  CH3O2 --> CH3OH                                                                   ', &
      '                  CH3O2 --> HCHO                                                                    ', &
-     '           CH3CO3 + HO2 --> CH3CO2H + O3                                                            ', &
+     '           CH3CO3 + HO2 --> O3 + CH3CO2H                                                            ', &
      '           CH3CO3 + HO2 --> CH3CO3H                                                                 ', &
      '           CH3CO3 + HO2 --> CH3O2 + OH                                                              ', &
      '            CH3CO3 + NO --> CH3O2 + NO2                                                             ', &
@@ -851,39 +887,6 @@ MODULE second_Monitor
      '               HCOCH2O2 --> GLYOX                                                                   ', &
      '               HCOCH2O2 --> HCOCH2O                                                                 ', &
      '               HCOCH2O2 --> HOCH2CHO                                                                ', &
-     '              CH3C2H2O2 --> CH3CO3 + HCHO                                                           ', &
-     '              CH3C2H2O2 --> CH3O2 + HCHO + CO                                                       ', &
-     '            MACO3 + HO2 --> CH3C2H2O2 + OH                                                          ', &
-     '            MACO3 + HO2 --> MACO2H + O3                                                             ', &
-     '            MACO3 + HO2 --> MACO3H                                                                  ', &
-     '             MACO3 + NO --> CH3C2H2O2 + NO2                                                         ', &
-     '            MACO3 + NO2 --> MPAN                                                                    ', &
-     '            MACO3 + NO3 --> CH3C2H2O2 + NO2                                                         ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_5 = (/ &
-     '                  MACO3 --> CH3C2H2O2                                                               ', &
-     '                  MACO3 --> MACO2H                                                                  ', &
-     '                MGLYOOB --> MGLYOO                                                                  ', &
-     '                MGLYOOB --> CH3CO3 + CO + OH                                                        ', &
-     '                 MGLYOX --> CH3CO3 + HO2 + CO                                                       ', &
-     '           MGLYOX + NO3 --> HNO3 + CH3CO3 + CO                                                      ', &
-     '            MGLYOX + OH --> CH3CO3 + CO                                                             ', &
-     '                 CH2OOG --> CH2OO                                                                   ', &
-     '                 CH2OOG --> CO                                                                      ', &
-     '                 CH2OOG --> HO2 + CO + OH                                                           ', &
-     '           MACRO2 + HO2 --> MACROOH                                                                 ', &
-     '            MACRO2 + NO --> MACRNO3                                                                 ', &
-     '            MACRO2 + NO --> MACRO + NO2                                                             ', &
-     '           MACRO2 + NO3 --> MACRO + NO2                                                             ', &
-     '                 MACRO2 --> ACETOL + CO + OH                                                        ', &
-     '                 MACRO2 --> MACRO                                                                   ', &
-     '                 MACRO2 --> MACROH                                                                  ', &
-     '         MACROHO2 + HO2 --> MACROHOOH                                                               ', &
-     '          MACROHO2 + NO --> MACRNB                                                                  ', &
-     '          MACROHO2 + NO --> MACROHO + NO2                                                           ', &
-     '         MACROHO2 + NO3 --> MACROHO + NO2                                                           ', &
-     '               MACROHO2 --> C3MDIALOH                                                               ', &
-     '               MACROHO2 --> MACROH                                                                  ', &
-     '               MACROHO2 --> MACROHO                                                                 ', &
      '          NISOPO2 + HO2 --> NISOPOOH                                                                ', &
      '           NISOPO2 + NO --> NISOPNO3                                                                ', &
      '           NISOPO2 + NO --> NISOPO + NO2                                                            ', &
@@ -894,19 +897,19 @@ MODULE second_Monitor
      '                NISOPO2 --> NISOPO                                                                  ', &
      '                 CH2OOE --> CH2OO                                                                   ', &
      '                 CH2OOE --> CO                                                                      ', &
-     '                 CH2OOE --> HO2 + CO + OH                                                           ', &
+     '                 CH2OOE --> OH + HO2 + CO                                                           ', &
      '                    MVK --> C3H6 + CO                                                               ', &
-     '                    MVK --> CH3CO3 + HCHO + HO2 + CO                                                ', &
+     '                    MVK --> CH3CO3 + HO2 + CO + HCHO                                                ', &
      '               MVK + O3 --> MGLOOA + HCHO                                                           ', &
      '               MVK + O3 --> CH2OOB + MGLYOX                                                         ', &
      '               MVK + OH --> HMVKAO2                                                                 ', &
      '               MVK + OH --> HMVKBO2                                                                 ', &
      '                MACROOA --> C3H6                                                                    ', &
-     '                MACROOA --> CH3CO3 + HCHO + HO2                                                     ', &
+     '                MACROOA --> CH3CO3 + HO2 + HCHO                                                     ', &
      '                MACROOA --> MACROO                                                                  ', &
-     '                MACROOA --> CH3CO3 + HCHO + CO + OH                                                 ', &
+     '                MACROOA --> CH3CO3 + OH + CO + HCHO                                                 ', &
      '                 MVKOOA --> C3H6                                                                    ', &
-     '                 MVKOOA --> CH3O2 + HCHO + HO2 + CO                                                 ', &
+     '                 MVKOOA --> CH3O2 + HO2 + CO + HCHO                                                 ', &
      '                 MVKOOA --> MVKOO                                                                   ', &
      '                 MVKOOA --> MVKO2 + OH                                                              ', &
      '                 CISOPA --> CISOPAO2                                                                ', &
@@ -1030,7 +1033,7 @@ MODULE second_Monitor
      '                APINOOA --> C107O2 + OH                                                             ', &
      '                APINOOA --> C109O2 + OH                                                             ', &
      '                APINOOB --> APINBOO                                                                 ', &
-     '                APINOOB --> C96O2 + CO + OH                                                         ', &
+     '                APINOOB --> C96O2 + OH + CO                                                         ', &
      '          APINAO2 + HO2 --> APINAOOH                                                                ', &
      '           APINAO2 + NO --> APINANO3                                                                ', &
      '           APINAO2 + NO --> APINAO + NO2                                                            ', &
@@ -1068,7 +1071,7 @@ MODULE second_Monitor
      '          NOPINONE + OH --> NOPINDO2                                                                ', &
      '                 CH2OOF --> CH2OO                                                                   ', &
      '                 CH2OOF --> CO                                                                      ', &
-     '                 CH2OOF --> HO2 + CO + OH                                                           ', &
+     '                 CH2OOF --> OH + HO2 + CO                                                           ', &
      '               NOPINOOA --> C8BC                                                                    ', &
      '               NOPINOOA --> NOPINDO2 + OH                                                           ', &
      '               NOPINOOA --> NOPINOO                                                                 ', &
@@ -1099,7 +1102,7 @@ MODULE second_Monitor
      '                 NLIMO2 --> NLIMO                                                                   ', &
      '                 LIMOOA --> LIMALAO2 + OH                                                           ', &
      '                 LIMOOA --> LIMALBO2 + OH                                                           ', &
-     '                 LIMOOB --> C923O2 + CO + OH                                                        ', &
+     '                 LIMOOB --> OH + C923O2 + CO                                                        ', &
      '                 LIMOOB --> LIMBOO                                                                  ', &
      '           LIMAO2 + HO2 --> LIMAOOH                                                                 ', &
      '            LIMAO2 + NO --> LIMANO3                                                                 ', &
@@ -1125,76 +1128,76 @@ MODULE second_Monitor
      '          HYETHO2H + OH --> HOCH2CHO + OH                                                           ', &
      '               HYETHO2H --> HOCH2CH2O + OH                                                          ', &
      '          ETHOHNO3 + OH --> HOCH2CHO + NO2                                                          ', &
-     '              HOCH2CH2O --> 2 HCHO + HO2                                                            ', &
+     '              HOCH2CH2O --> HO2 + 2 HCHO                                                            ', &
      '              HOCH2CH2O --> HOCH2CHO + HO2                                                          ', &
      '            ETHGLY + OH --> HOCH2CHO + HO2                                                          ', &
-     '         HOCH2CHO + NO3 --> HNO3 + HOCH2CO3                                                         ', &
+     '         HOCH2CHO + NO3 --> HOCH2CO3 + HNO3                                                         ', &
      '          HOCH2CHO + OH --> GLYOX + HO2                                                             ', &
      '          HOCH2CHO + OH --> HOCH2CO3                                                                ', &
-     '               HOCH2CHO --> HCHO + 2 HO2 + CO                                                       ', &
-     '                 CH3OOH --> CH3O + OH                                                               ', &
-     '            CH3OOH + OH --> CH3O2                                                                   ', &
-     '            CH3OOH + OH --> HCHO + OH                                                               ', &
-     '                 CH3NO3 --> CH3O + NO2                                                              ', &
-     '            CH3NO3 + OH --> HCHO + NO2                                                              ', &
-     '                   CH3O --> HCHO + HO2                                                              ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_14 = (/ &
-     '               CH3O2NO2 --> CH3O2 + NO2                                                             ', &
-     '           CH3CO3H + OH --> CH3CO3                                                                  ', &
-     '                CH3CO3H --> CH3O2 + OH                                                              ', &
-     '               PAN + OH --> HCHO + CO + NO2                                                         ', &
-     '                    PAN --> CH3CO3 + NO2                                                            ', &
-     '         HCOCH2OOH + OH --> GLYOX + OH                                                              ', &
-     '         HCOCH2OOH + OH --> HCOCH2O2                                                                ', &
-     '              HCOCH2OOH --> HCOCH2O + OH                                                            ', &
-     '              HCOCH2OOH --> HCHO + HO2 + CO + OH                                                    ', &
-     '                HCOCH2O --> HCHO + HO2 + CO                                                         ', &
-     '                  GLYOX --> H2 + 2 CO                                                               ', &
-     '                  GLYOX --> 2 HO2 + 2 CO                                                            ', &
-     '                  GLYOX --> HCHO + CO                                                               ', &
-     '            GLYOX + NO3 --> HCOCO + HNO3                                                            ', &
-     '             GLYOX + OH --> HCOCO                                                                   ', &
+     '               HOCH2CHO --> 2 HO2 + CO + HCHO                                                       ', &
      '            MACO2H + OH --> CH3C2H2O2                                                               ', &
      '                 MACO3H --> CH3C2H2O2 + OH                                                          ', &
-     '            MACO3H + OH --> ACETOL + CO + OH                                                        ', &
+     '            MACO3H + OH --> ACETOL + OH + CO                                                        ', &
      '            MACO3H + OH --> HMML + OH                                                               ', &
      '            MACO3H + OH --> MACO3                                                                   ', &
-     '                   MPAN --> MACO3 + NO2                                                             ', &
-     '              MPAN + O3 --> CH3CO3 + HCHO + NO3                                                     ', &
-     '              MPAN + OH --> ACETOL + CO + NO3                                                       ', &
+     '                   MPAN --> MACO3 + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_14 = (/ &
+     '              MPAN + O3 --> CH3CO3 + NO3 + HCHO                                                     ', &
+     '              MPAN + OH --> ACETOL + NO3 + CO                                                       ', &
      '              MPAN + OH --> HMML + NO3                                                              ', &
      '              MPAN + OH --> MAE + NO3                                                               ', &
      '            MGLYOO + CO --> MGLYOX                                                                  ', &
      '            MGLYOO + NO --> MGLYOX + NO2                                                            ', &
      '           MGLYOO + NO2 --> MGLYOX + NO3                                                            ', &
      '           MGLYOO + SO2 --> SO3 + MGLYOX                                                            ', &
-     '                 MGLYOO --> H2O2 + MGLYOX                                                           ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_15 = (/ &
+     '                 MGLYOO --> H2O2 + MGLYOX                                                           ', &
      '             CH2OO + CO --> HCHO                                                                    ', &
-     '             CH2OO + NO --> HCHO + NO2                                                              ', &
-     '            CH2OO + NO2 --> HCHO + NO3                                                              ', &
+     '             CH2OO + NO --> NO2 + HCHO                                                              ', &
+     '            CH2OO + NO2 --> NO3 + HCHO                                                              ', &
      '            CH2OO + SO2 --> SO3 + HCHO                                                              ', &
      '                  CH2OO --> H2O2 + HCHO                                                             ', &
      '                  CH2OO --> HCOOH                                                                   ', &
-     '                MACROOH --> ACETOL + HO2 + CO + OH                                                  ', &
+     '                MACROOH --> ACETOL + OH + HO2 + CO                                                  ', &
      '                MACROOH --> MACRO + OH                                                              ', &
-     '           MACROOH + OH --> ACETOL + CO + OH                                                        ', &
+     '           MACROOH + OH --> ACETOL + OH + CO                                                        ', &
      '           MACRNO3 + OH --> CONM2CHO + HO2                                                          ', &
      '           MACRNO3 + OH --> MACRNCO3                                                                ', &
-     '                MACRNO3 --> ACETOL + HO2 + CO + NO2                                                 ', &
+     '                MACRNO3 --> ACETOL + HO2 + NO2 + CO                                                 ', &
      '                  MACRO --> ACETOL + HO2 + CO                                                       ', &
      '            ACETOL + OH --> MGLYOX + HO2                                                            ', &
-     '                 ACETOL --> CH3CO3 + HCHO + HO2                                                     ', &
+     '                 ACETOL --> CH3CO3 + HO2 + HCHO                                                     ', &
      '                 MACROH --> ACETOL + 2 HO2 + CO                                                     ', &
      '            MACROH + OH --> C3MDIALOH + HO2                                                         ', &
      '         MACROHOOH + OH --> C3MDIALOH + OH                                                          ', &
-     '              MACROHOOH --> IBUTALOH + HO2 + CO + OH                                                ', &
+     '              MACROHOOH --> IBUTALOH + OH + HO2 + CO                                                ', &
      '              MACROHOOH --> MACROHO + OH                                                            ', &
-     '                 MACRNB --> C3MDIALOH + HO2 + NO2                                                   ', &
+     '                 MACRNB --> C3MDIALOH + HO2 + NO2                                                   ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_15 = (/ &
      '            MACRNB + OH --> MACRNBCO3                                                               ', &
-     '                MACROHO --> MGLYOX + HCHO + HO2                                                     ', &
+     '                MACROHO --> MGLYOX + HO2 + HCHO                                                     ', &
      '         C3MDIALOH + OH --> CHOMOHCO3                                                               ', &
      '              C3MDIALOH --> MGLYOX + 2 HO2 + CO                                                     ', &
+     '                 CH3OOH --> CH3O + OH                                                               ', &
+     '            CH3OOH + OH --> CH3O2                                                                   ', &
+     '            CH3OOH + OH --> OH + HCHO                                                               ', &
+     '                 CH3NO3 --> CH3O + NO2                                                              ', &
+     '            CH3NO3 + OH --> NO2 + HCHO                                                              ', &
+     '                   CH3O --> HO2 + HCHO                                                              ', &
+     '               CH3O2NO2 --> CH3O2 + NO2                                                             ', &
+     '           CH3CO3H + OH --> CH3CO3                                                                  ', &
+     '                CH3CO3H --> CH3O2 + OH                                                              ', &
+     '               PAN + OH --> NO2 + CO + HCHO                                                         ', &
+     '                    PAN --> CH3CO3 + NO2                                                            ', &
+     '         HCOCH2OOH + OH --> GLYOX + OH                                                              ', &
+     '         HCOCH2OOH + OH --> HCOCH2O2                                                                ', &
+     '              HCOCH2OOH --> HCOCH2O + OH                                                            ', &
+     '              HCOCH2OOH --> OH + HO2 + CO + HCHO                                                    ', &
+     '                HCOCH2O --> HO2 + CO + HCHO                                                         ', &
+     '                  GLYOX --> H2 + 2 CO                                                               ', &
+     '                  GLYOX --> 2 HO2 + 2 CO                                                            ', &
+     '                  GLYOX --> CO + HCHO                                                               ', &
+     '            GLYOX + NO3 --> HCOCO + HNO3                                                            ', &
+     '             GLYOX + OH --> HCOCO                                                                   ', &
      '               NISOPOOH --> NISOPO + OH                                                             ', &
      '          NISOPOOH + OH --> NC4CHO + OH                                                             ', &
      '               NISOPNO3 --> NISOPO + NO2                                                            ', &
@@ -1205,8 +1208,8 @@ MODULE second_Monitor
      '          ISOPCNO3 + O3 --> GAOOB + NOA                                                             ', &
      '          ISOPCNO3 + O3 --> NC3OOA + HOCH2CHO                                                       ', &
      '          ISOPCNO3 + OH --> INCO2                                                                   ', &
-     '                 NC4CHO --> ACETOL + HO2 + 2 CO + NO2                                               ', &
-     '                 NC4CHO --> HMAC + CO + OH + NO2                                                    ', &
+     '                 NC4CHO --> ACETOL + HO2 + NO2 + 2 CO                                               ', &
+     '                 NC4CHO --> HMAC + OH + NO2 + CO                                                    ', &
      '           NC4CHO + NO3 --> NC4CO3 + HNO3                                                           ', &
      '            NC4CHO + O3 --> GLYOOC + NOA                                                            ', &
      '            NC4CHO + O3 --> NOAOOA + GLYOX                                                          ', &
@@ -1219,12 +1222,12 @@ MODULE second_Monitor
      '              C3H6 + OH --> HYPROPO2                                                                ', &
      '              C3H6 + OH --> IPROPOLO2                                                               ', &
      '                 MGLOOA --> CH3CHO                                                                  ', &
-     '                 MGLOOA --> CH3CO3 + HCHO + HO2                                                     ', &
+     '                 MGLOOA --> CH3CO3 + HO2 + HCHO                                                     ', &
      '                 MGLOOA --> MGLOO                                                                   ', &
-     '                 MGLOOA --> CH3CO3 + CO + OH                                                        ', &
+     '                 MGLOOA --> CH3CO3 + OH + CO                                                        ', &
      '                 CH2OOB --> CH2OO                                                                   ', &
      '                 CH2OOB --> CO                                                                      ', &
-     '                 CH2OOB --> HO2 + CO + OH                                                           ', &
+     '                 CH2OOB --> OH + HO2 + CO                                                           ', &
      '          HMVKAO2 + HO2 --> HMVKAOOH                                                                ', &
      '           HMVKAO2 + NO --> HMVKANO3                                                                ', &
      '           HMVKAO2 + NO --> HMVKAO + NO2                                                            ', &
@@ -1241,8 +1244,8 @@ MODULE second_Monitor
      '                HMVKBO2 --> HMVKBO                                                                  ', &
      '                HMVKBO2 --> HO12CO3C4                                                               ', &
      '            MACROO + CO --> MACR                                                                    ', &
-     '            MACROO + NO --> MACR + NO2                                                              ', &
-     '           MACROO + NO2 --> MACR + NO3                                                              ', &
+     '            MACROO + NO --> NO2 + MACR                                                              ', &
+     '           MACROO + NO2 --> NO3 + MACR                                                              ', &
      '           MACROO + SO2 --> SO3 + MACR                                                              ', &
      '                 MACROO --> MACO2H                                                                  ', &
      '                 MACROO --> H2O2 + MACR                                                             ', &
@@ -1275,7 +1278,7 @@ MODULE second_Monitor
      '                ISOPBO2 --> CISOPA                                                                  ', &
      '                ISOPBO2 --> ISOPBO                                                                  ', &
      '                ISOPBO2 --> ISOPBOH                                                                 ', &
-     '                ISOPBO2 --> MVK + HCHO + OH                                                         ', &
+     '                ISOPBO2 --> MVK + OH + HCHO                                                         ', &
      '                ISOPBO2 --> TISOPA                                                                  ', &
      '         CISOPCO2 + HO2 --> ISOPCOOH                                                                ', &
      '          CISOPCO2 + NO --> CISOPCO + NO2                                                           ', &
@@ -1296,24 +1299,24 @@ MODULE second_Monitor
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_19 = (/ &
      '                ISOPDO2 --> ISOPDO                                                                  ', &
      '                ISOPDO2 --> ISOPDOH                                                                 ', &
-     '                ISOPDO2 --> MACR + HCHO + OH                                                        ', &
+     '                ISOPDO2 --> OH + HCHO + MACR                                                        ', &
      '                ISOPDO2 --> TISOPC                                                                  ', &
      '         ISOP34OOH + OH --> HC4CHO + OH                                                             ', &
      '              ISOP34OOH --> ISOP34O + OH                                                            ', &
      '         ISOP34NO3 + OH --> INAO2                                                                   ', &
      '         ISOP34NO3 + O3 --> CH2OOC + HMVKANO3                                                       ', &
      '         ISOP34NO3 + O3 --> NC41OOA + HCHO                                                          ', &
-     '                ISOP34O --> MACR + HCHO + HO2                                                       ', &
+     '                ISOP34O --> HO2 + HCHO + MACR                                                       ', &
      '            HC4CHO + OH --> C58O2                                                                   ', &
      '            HC4CHO + OH --> HC4CO3                                                                  ', &
-     '                 HC4CHO --> MACR + 2 HO2 + CO                                                       ', &
+     '                 HC4CHO --> 2 HO2 + CO + MACR                                                       ', &
      '           ISOPDOH + OH --> HCOC5 + HO2                                                             ', &
      '          NC526O2 + HO2 --> NC526OOH                                                                ', &
      '           NC526O2 + NO --> NC526O + NO2                                                            ', &
      '          NC526O2 + NO3 --> NC526O + NO2                                                            ', &
      '                NC526O2 --> NC526O                                                                  ', &
      '                 CH2OOC --> CH2OO                                                                   ', &
-     '                 CH2OOC --> HO2 + CO + OH                                                           ', &
+     '                 CH2OOC --> OH + HO2 + CO                                                           ', &
      '         CO2C3CHO + NO3 --> CO2C3CO3 + HNO3                                                         ', &
      '          CO2C3CHO + OH --> CO2C3CO3                                                                ', &
      '               CO2C3CHO --> CH3COCH2O2 + HCHO                                                       ', &
@@ -1378,7 +1381,7 @@ MODULE second_Monitor
      '              CH3COCH2O --> CH3CO3 + HCHO                                                           ', &
      '         HYPERACET + OH --> CH3COCH2O2                                                              ', &
      '         HYPERACET + OH --> MGLYOX + OH                                                             ', &
-     '              HYPERACET --> CH3CO3 + HCHO + OH                                                      ', &
+     '              HYPERACET --> CH3CO3 + OH + HCHO                                                      ', &
      '              HYPERACET --> CH3COCH2O + OH                                                          ', &
      '           MEKAOOH + OH --> CO2C3CHO + OH                                                           ', &
      '           MEKAOOH + OH --> MEKAO2                                                                  ', &
@@ -1392,28 +1395,28 @@ MODULE second_Monitor
      '                 MEKAOH --> HOCH2CH2O2 + CH3CO3                                                     ', &
      '           MEKBOOH + OH --> BIACET + OH                                                             ', &
      '           MEKBOOH + OH --> MEKBO2                                                                  ', &
-     '                MEKBOOH --> CH3CHO + CH3CO3 + OH                                                    ', &
+     '                MEKBOOH --> CH3CO3 + OH + CH3CHO                                                    ', &
      '                MEKBOOH --> MEKBO + OH                                                              ', &
-     '                  MEKBO --> CH3CHO + CH3CO3                                                         ', &
+     '                  MEKBO --> CH3CO3 + CH3CHO                                                         ', &
      '                 BIACET --> 2 CH3CO3                                                                ', &
      '            BIACET + OH --> BIACETO2                                                                ', &
      '           BUT2OLO + OH --> BIACET + HO2                                                            ', &
-     '                BUT2OLO --> CH3CHO + CH3CO3 + HO2                                                   ', &
+     '                BUT2OLO --> CH3CO3 + HO2 + CH3CHO                                                   ', &
      '           MEKCOOH + OH --> EGLYOX + OH                                                             ', &
      '           MEKCOOH + OH --> MEKCO2                                                                  ', &
-     '                MEKCOOH --> C2H5CO3 + HCHO + OH                                                     ', &
+     '                MEKCOOH --> C2H5CO3 + OH + HCHO                                                     ', &
      '                MEKCOOH --> MEKCO + OH                                                              ', &
      '                  MEKCO --> C2H5CO3 + HCHO                                                          ', &
      '                 EGLYOX --> C2H5CO3 + HO2 + CO                                                      ', &
      '           EGLYOX + NO3 --> C2H5CO3 + HNO3 + CO                                                     ', &
      '            EGLYOX + OH --> C2H5CO3 + CO                                                            ', &
      '            MEKCOH + OH --> EGLYOX + HO2                                                            ', &
-     '                 MEKCOH --> C2H5CO3 + HCHO + HO2                                                    ', &
+     '                 MEKCOH --> C2H5CO3 + HO2 + HCHO                                                    ', &
      '                C2H5OOH --> C2H5O + OH                                                              ', &
      '           C2H5OOH + OH --> C2H5O2                                                                  ', &
-     '           C2H5OOH + OH --> CH3CHO + OH                                                             ', &
+     '           C2H5OOH + OH --> OH + CH3CHO                                                             ', &
      '                C2H5NO3 --> C2H5O + NO2                                                             ', &
-     '           C2H5NO3 + OH --> CH3CHO + NO2                                                            ', &
+     '           C2H5NO3 + OH --> NO2 + CH3CHO                                                            ', &
      '        BZBIPEROOH + OH --> BZOBIPEROH + OH                                                         ', &
      '             BZBIPEROOH --> BZBIPERO + OH                                                           ', &
      '        BZBIPERNO3 + OH --> BZOBIPEROH + NO2                                                        ' /)
@@ -1438,7 +1441,7 @@ MODULE second_Monitor
      '                 GLYOOA --> GLYOO                                                                   ', &
      '                 GLYOOA --> HCHO                                                                    ', &
      '                 GLYOOA --> 2 HO2 + CO                                                              ', &
-     '                 GLYOOA --> HO2 + 2 CO + OH                                                         ', &
+     '                 GLYOOA --> OH + HO2 + 2 CO                                                         ', &
      '         BZEMUCO2 + HO2 --> BZEMUCOOH                                                               ', &
      '          BZEMUCO2 + NO --> BZEMUCNO3                                                               ', &
      '          BZEMUCO2 + NO --> BZEMUCO + NO2                                                           ', &
@@ -1522,7 +1525,7 @@ MODULE second_Monitor
      '              TLEMUCCO3 --> C615CO2O2                                                               ', &
      '              TLEMUCCO3 --> TLEMUCCO2H                                                              ', &
      '                 MGLOOB --> CH3CHO                                                                  ', &
-     '                 MGLOOB --> CH3CO3 + CO + OH                                                        ', &
+     '                 MGLOOB --> CH3CO3 + OH + CO                                                        ', &
      '                 MGLOOB --> CH3CO3 + HO2                                                            ', &
      '                 MGLOOB --> MGLOO                                                                   ', &
      '         TLEMUCO2 + HO2 --> TLEMUCOOH                                                               ', &
@@ -1562,7 +1565,7 @@ MODULE second_Monitor
      '                 C109O2 --> C109CO                                                                  ', &
      '                 C109O2 --> C109O                                                                   ', &
      '                 C109O2 --> C109OH                                                                  ', &
-     '           CO + APINBOO --> PINAL                                                                   ', &
+     '           APINBOO + CO --> PINAL                                                                   ', &
      '           APINBOO + NO --> PINAL + NO2                                                             ', &
      '          APINBOO + NO2 --> PINAL + NO3                                                             ', &
      '          APINBOO + SO2 --> SO3 + PINAL                                                             ', &
@@ -1586,21 +1589,21 @@ MODULE second_Monitor
      '           APINBCO + OH --> C96CO3                                                                  ', &
      '          APINCOOH + OH --> APINCO2                                                                 ', &
      '               APINCOOH --> APINCO + OH                                                             ', &
-     '          APINCNO3 + OH --> HCC7CO + CH3COCH3 + NO2                                                 ', &
+     '          APINCNO3 + OH --> HCC7CO + NO2 + CH3COCH3                                                 ', &
      '               APINCNO3 --> APINCO + NO2                                                            ', &
      '                 APINCO --> C720O2 + CH3COCH3                                                       ', &
      '           APINCOH + OH --> APINCO                                                                  ', &
      '         NBPINAOOH + OH --> NBPINAO2                                                                ', &
      '              NBPINAOOH --> NBPINAO + OH                                                            ', &
-     '                NBPINAO --> NOPINONE + HCHO + NO2                                                   ', &
+     '                NBPINAO --> NOPINONE + NO2 + HCHO                                                   ', &
      '          BPINBNO3 + OH --> C918CHO + NO2                                                           ', &
      '         NBPINBOOH + OH --> NC91CHO + OH                                                            ', &
      '              NBPINBOOH --> NBPINBO + OH                                                            ', &
-     '                NBPINBO --> NOPINONE + HCHO + NO2                                                   ', &
-     '          BPINANO3 + OH --> NOPINONE + HCHO + NO2                                                   ', &
+     '                NBPINBO --> NOPINONE + NO2 + HCHO                                                   ', &
+     '          BPINANO3 + OH --> NOPINONE + NO2 + HCHO                                                   ', &
      '          NC91CHO + NO3 --> HNO3 + NC91CO3                                                          ', &
      '           NC91CHO + OH --> NC91CO3                                                                 ', &
-     '                NC91CHO --> NOPINONE + HO2 + CO + NO2                                               ', &
+     '                NC91CHO --> NOPINONE + HO2 + NO2 + CO                                               ', &
      '         NOPINAO2 + HO2 --> NOPINAOOH                                                               ', &
      '          NOPINAO2 + NO --> NOPINANO3                                                               ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_29 = (/ &
@@ -1633,21 +1636,21 @@ MODULE second_Monitor
      '           NOPINOO + NO --> NOPINONE + NO2                                                          ', &
      '          NOPINOO + NO2 --> NOPINONE + NO3                                                          ', &
      '          NOPINOO + SO2 --> SO3 + NOPINONE                                                          ', &
-     '                NOPINOO --> NOPINONE + H2O2                                                         ' /)
+     '                NOPINOO --> H2O2 + NOPINONE                                                         ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_30 = (/ &
      '          BPINAOOH + OH --> BPINAO2                                                                 ', &
      '               BPINAOOH --> BPINAO + OH                                                             ', &
-     '                 BPINAO --> NOPINONE + HCHO + HO2                                                   ', &
+     '                 BPINAO --> NOPINONE + HO2 + HCHO                                                   ', &
      '           BPINAOH + OH --> C918CHO + HO2                                                           ', &
      '          BPINBOOH + OH --> C918CHO + OH                                                            ', &
      '               BPINBOOH --> BPINBO + OH                                                             ', &
-     '                 BPINBO --> NOPINONE + HCHO + HO2                                                   ', &
+     '                 BPINBO --> NOPINONE + HO2 + HCHO                                                   ', &
      '          C918CHO + NO3 --> HNO3 + C918CO3                                                          ', &
      '           C918CHO + OH --> C918CO3                                                                 ', &
      '                C918CHO --> NOPINONE + 2 HO2 + CO                                                   ', &
      '          BPINCOOH + OH --> BPINCO2                                                                 ', &
      '               BPINCOOH --> BPINCO + OH                                                             ', &
-     '          BPINCNO3 + OH --> HCC7CO + CH3COCH3 + NO2                                                 ', &
+     '          BPINCNO3 + OH --> HCC7CO + NO2 + CH3COCH3                                                 ', &
      '               BPINCNO3 --> BPINCO + NO2                                                            ', &
      '                 BPINCO --> C720O2 + CH3COCH3                                                       ', &
      '           BPINCOH + OH --> BPINCO                                                                  ', &
@@ -1668,10 +1671,10 @@ MODULE second_Monitor
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_31 = (/ &
      '               LIMALBO2 --> LIMALBO                                                                 ', &
      '               LIMALBO2 --> LIMALBOH                                                                ', &
-     '           C923O2 + HO2 --> C923OOH                                                                 ', &
+     '           HO2 + C923O2 --> C923OOH                                                                 ', &
      '            C923O2 + NO --> C923NO3                                                                 ', &
      '            C923O2 + NO --> C923O + NO2                                                             ', &
-     '           C923O2 + NO3 --> C923O + NO2                                                             ', &
+     '           NO3 + C923O2 --> C923O + NO2                                                             ', &
      '                 C923O2 --> C923O                                                                   ', &
      '                 C923O2 --> C923OH                                                                  ', &
      '                 C923O2 --> NORLIMAL                                                                ', &
@@ -1692,27 +1695,24 @@ MODULE second_Monitor
      '            LIMBCO + OH --> C923CO3                                                                 ', &
      '           LIMCOOH + OH --> LIMCO2                                                                  ', &
      '                LIMCOOH --> LIMCO + OH                                                              ', &
-     '           LIMCNO3 + OH --> LIMKET + HCHO + NO2                                                     ', &
-     '                  LIMCO --> LIMKET + HCHO + HO2                                                     ', &
-     '            LIMCOH + OH --> LIMKET + HCHO + HO2                                                     ', &
-     '         HOCH2CO3 + HO2 --> HCHO + HO2 + OH                                                         ' /)
+     '           LIMCNO3 + OH --> LIMKET + NO2 + HCHO                                                     ', &
+     '                  LIMCO --> LIMKET + HO2 + HCHO                                                     ', &
+     '            LIMCOH + OH --> LIMKET + HO2 + HCHO                                                     ', &
+     '         HOCH2CO3 + HO2 --> OH + HO2 + HCHO                                                         ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_32 = (/ &
      '         HOCH2CO3 + HO2 --> HOCH2CO2H + O3                                                          ', &
      '         HOCH2CO3 + HO2 --> HOCH2CO3H                                                               ', &
-     '          HOCH2CO3 + NO --> HCHO + HO2 + NO2                                                        ', &
+     '          HOCH2CO3 + NO --> HO2 + NO2 + HCHO                                                        ', &
      '         HOCH2CO3 + NO2 --> PHAN                                                                    ', &
-     '         HOCH2CO3 + NO3 --> HCHO + HO2 + NO2                                                        ', &
-     '               HOCH2CO3 --> HCHO + HO2                                                              ', &
+     '         HOCH2CO3 + NO3 --> HO2 + NO2 + HCHO                                                        ', &
+     '               HOCH2CO3 --> HO2 + HCHO                                                              ', &
      '               HOCH2CO3 --> HOCH2CO2H                                                               ', &
-     '                  HCOCO --> HO2 + 2 CO                                                              ', &
-     '                  HCOCO --> CO + OH                                                                 ', &
-     '                  HCOCO --> HCOCO3                                                                  ', &
      '              HMML + OH --> HCOOH + CH3CO3                                                          ', &
      '              HMML + OH --> MGLYOX + OH                                                             ', &
      '               MAE + OH --> CH3COCH2O2                                                              ', &
      '             HCOOH + OH --> HO2                                                                     ', &
      '          CONM2CHO + OH --> CONM2CO3                                                                ', &
-     '               CONM2CHO --> MGLYOX + HO2 + CO + NO2                                                 ', &
+     '               CONM2CHO --> MGLYOX + HO2 + NO2 + CO                                                 ', &
      '         MACRNCO3 + HO2 --> ACETOL + OH + NO2                                                       ', &
      '         MACRNCO3 + HO2 --> MACRNCO2H + O3                                                          ', &
      '         MACRNCO3 + HO2 --> MACRNCO3H                                                               ', &
@@ -1722,27 +1722,30 @@ MODULE second_Monitor
      '               MACRNCO3 --> ACETOL + NO2                                                            ', &
      '               MACRNCO3 --> MACRNCO2H                                                               ', &
      '          IBUTALOH + OH --> IPRHOCO3                                                                ', &
-     '               IBUTALOH --> CH3COCH3 + 2 HO2 + CO                                                   ', &
+     '               IBUTALOH --> 2 HO2 + CO + CH3COCH3                                                   ', &
      '        MACRNBCO3 + HO2 --> MACRNBCO2H + O3                                                         ', &
      '        MACRNBCO3 + HO2 --> MACRNBCO3H                                                              ', &
-     '        MACRNBCO3 + HO2 --> NOA + HO2 + OH                                                          ', &
-     '         MACRNBCO3 + NO --> NOA + HO2 + NO2                                                         ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_33 = (/ &
+     '        MACRNBCO3 + HO2 --> NOA + OH + HO2                                                          ', &
+     '         MACRNBCO3 + NO --> NOA + HO2 + NO2                                                         ', &
      '        MACRNBCO3 + NO2 --> MACRNBPAN                                                               ', &
      '        MACRNBCO3 + NO3 --> NOA + HO2 + NO2                                                         ', &
-     '              MACRNBCO3 --> MACRNBCO2H                                                              ', &
+     '              MACRNBCO3 --> MACRNBCO2H                                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_33 = (/ &
      '              MACRNBCO3 --> NOA + HO2                                                               ', &
      '        CHOMOHCO3 + HO2 --> CHOMOHCO3H                                                              ', &
-     '        CHOMOHCO3 + HO2 --> MGLYOX + HO2 + OH                                                       ', &
+     '        CHOMOHCO3 + HO2 --> MGLYOX + OH + HO2                                                       ', &
      '         CHOMOHCO3 + NO --> MGLYOX + HO2 + NO2                                                      ', &
      '        CHOMOHCO3 + NO2 --> CHOMOHPAN                                                               ', &
      '        CHOMOHCO3 + NO3 --> MGLYOX + HO2 + NO2                                                      ', &
      '              CHOMOHCO3 --> MGLYOX + HO2                                                            ', &
+     '                  HCOCO --> HO2 + 2 CO                                                              ', &
+     '                  HCOCO --> OH + CO                                                                 ', &
+     '                  HCOCO --> HCOCO3                                                                  ', &
      '                CISOPCO --> C527O2                                                                  ', &
      '                CISOPCO --> HC4ACHO + HO2                                                           ', &
      '                CISOPCO --> M3F + HO2                                                               ', &
      '                  GAOOB --> GAOO                                                                    ', &
-     '                  GAOOB --> GLYOX + HO2 + OH                                                        ', &
+     '                  GAOOB --> GLYOX + OH + HO2                                                        ', &
      '               NOA + OH --> MGLYOX + NO2                                                            ', &
      '                    NOA --> CH3COCH2O + NO2                                                         ', &
      '                 NC3OOA --> NC3OO                                                                   ', &
@@ -1755,18 +1758,18 @@ MODULE second_Monitor
      '                  INCO2 --> INCO                                                                    ', &
      '                  INCO2 --> INCOH                                                                   ', &
      '              HMAC + OH --> C3MDIALOH + HO2                                                         ', &
-     '                   HMAC --> MGLYOX + HO2 + CO + OH                                                  ', &
+     '                   HMAC --> MGLYOX + OH + HO2 + CO                                                  ', &
      '           NC4CO3 + HO2 --> NC4CO2H + O3                                                            ', &
      '           NC4CO3 + HO2 --> NC4CO3H                                                                 ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_34 = (/ &
-     '           NC4CO3 + HO2 --> NOA + HO2 + CO + OH                                                     ', &
-     '            NC4CO3 + NO --> NOA + HO2 + CO + NO2                                                    ', &
+     '           NC4CO3 + HO2 --> NOA + OH + HO2 + CO                                                     ', &
+     '            NC4CO3 + NO --> NOA + HO2 + NO2 + CO                                                    ', &
      '           NC4CO3 + NO2 --> C5PAN18                                                                 ', &
-     '           NC4CO3 + NO3 --> NOA + HO2 + CO + NO2                                                    ', &
+     '           NC4CO3 + NO3 --> NOA + HO2 + NO2 + CO                                                    ', &
      '                 NC4CO3 --> NC4CO2H                                                                 ', &
      '                 NC4CO3 --> NOA + HO2 + CO                                                          ', &
      '                 GLYOOC --> GLYOO                                                                   ', &
-     '                 GLYOOC --> HO2 + 2 CO + OH                                                         ', &
+     '                 GLYOOC --> OH + HO2 + 2 CO                                                         ', &
      '                 NOAOOA --> NOAOO                                                                   ', &
      '                 NOAOOA --> MGLYOX + OH + NO2                                                       ', &
      '           C510O2 + HO2 --> C510OOH                                                                 ', &
@@ -1787,7 +1790,7 @@ MODULE second_Monitor
      '              PRONO3BO2 --> PROLNO3                                                                 ', &
      '              PRONO3BO2 --> PRONO3BO                                                                ', &
      '               CH3CHOOA --> CH3CHOO                                                                 ', &
-     '               CH3CHOOA --> CH3O2 + CO + OH                                                         ', &
+     '               CH3CHOOA --> CH3O2 + OH + CO                                                         ', &
      '               CH3CHOOA --> CH3O2 + HO2                                                             ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_35 = (/ &
      '               CH3CHOOA --> CH4                                                                     ', &
@@ -1815,7 +1818,7 @@ MODULE second_Monitor
      '          HMVKAOOH + OH --> CO2H3CHO + OH                                                           ', &
      '               HMVKANO3 --> HMVKAO + NO2                                                            ', &
      '          HMVKANO3 + OH --> CO2H3CHO + NO2                                                          ', &
-     '                 HMVKAO --> MGLYOX + HCHO + HO2                                                     ', &
+     '                 HMVKAO --> MGLYOX + HO2 + HCHO                                                     ', &
      '               CO2H3CHO --> MGLYOX + 2 HO2 + CO                                                     ', &
      '         CO2H3CHO + NO3 --> CO2H3CO3 + HNO3                                                         ', &
      '          CO2H3CHO + OH --> CO2H3CO3                                                                ', &
@@ -1830,7 +1833,7 @@ MODULE second_Monitor
      '                 HMVKBO --> CH3CO3 + HOCH2CHO                                                       ', &
      '               BIACETOH --> HOCH2CO3 + CH3CO3                                                       ', &
      '          BIACETOH + OH --> CO23C3CHO + HO2                                                         ', &
-     '                 MVKOOH --> ACO3 + HCHO + OH                                                        ', &
+     '                 MVKOOH --> ACO3 + OH + HCHO                                                        ', &
      '                 MVKOOH --> MVKO + OH                                                               ', &
      '            MVKOOH + OH --> MVKO2                                                                   ', &
      '            MVKOOH + OH --> VGLYOX + OH                                                             ', &
@@ -1840,7 +1843,7 @@ MODULE second_Monitor
      '             MVKOH + OH --> MVKOHAO2                                                                ', &
      '             MVKOH + OH --> MVKOHBO2                                                                ', &
      '                  MVKOH --> ALLYLOH + CO                                                            ', &
-     '                  MVKOH --> HOCH2CO3 + HCHO + HO2 + CO                                              ', &
+     '                  MVKOH --> HOCH2CO3 + HO2 + CO + HCHO                                              ', &
      '           VGLYOX + NO3 --> ACO3 + HNO3 + CO                                                        ', &
      '            VGLYOX + OH --> ACO3 + CO                                                               ', &
      '                 VGLYOX --> ACO3 + HO2 + CO                                                         ', &
@@ -1860,15 +1863,15 @@ MODULE second_Monitor
      '            C536O2 + NO --> C536O + NO2                                                             ', &
      '           C536O2 + NO3 --> C536O + NO2                                                             ', &
      '                 C536O2 --> C536O                                                                   ', &
-     '                 C536O2 --> DHPMEK + CO + OH                                                        ', &
+     '                 C536O2 --> DHPMEK + OH + CO                                                        ', &
      '         C5HPALD1 + NO3 --> C5PACALD1 + HNO3 + OH                                                   ', &
      '          C5HPALD1 + O3 --> MGLYOOA + HCOCH2OOH                                                     ', &
      '          C5HPALD1 + O3 --> PGAOOB + MGLYOX                                                         ', &
      '          C5HPALD1 + OH --> C4MALOHOOH + OH                                                         ', &
      '          C5HPALD1 + OH --> C4MDIAL + OH                                                            ', &
      '          C5HPALD1 + OH --> C5PACALD1 + OH                                                          ', &
-     '               C5HPALD1 --> CH3CO3 + HOCH2CHO + CO + OH                                             ', &
-     '               C5HPALD1 --> HVMK + CO + 2 OH                                                        ', &
+     '               C5HPALD1 --> CH3CO3 + HOCH2CHO + OH + CO                                             ', &
+     '               C5HPALD1 --> HVMK + 2 OH + CO                                                        ', &
      '                HC4ACHO --> ACETOL + 2 HO2 + 2 CO                                                   ', &
      '                HC4ACHO --> HC4ACO3 + HO2                                                           ', &
      '          HC4ACHO + NO3 --> HC4ACO3 + HNO3                                                          ', &
@@ -1889,7 +1892,7 @@ MODULE second_Monitor
      '          ISOPBNO3 + O3 --> CH2OOB + MACRNO3                                                        ', &
      '          ISOPBNO3 + OH --> INB1O2                                                                  ', &
      '          ISOPBNO3 + OH --> INB2O2                                                                  ', &
-     '                 ISOPBO --> MVK + HCHO + HO2                                                        ', &
+     '                 ISOPBO --> MVK + HO2 + HCHO                                                        ', &
      '           ISOPBOH + OH --> ISOPBO                                                                  ', &
      '               ISOPCOOH --> CISOPCO + OH                                                            ', &
      '          ISOPCOOH + OH --> HC4CCHO + OH                                                            ', &
@@ -1899,15 +1902,15 @@ MODULE second_Monitor
      '            C537O2 + NO --> C537O + NO2                                                             ', &
      '           C537O2 + NO3 --> C537O + NO2                                                             ', &
      '                 C537O2 --> C537O                                                                   ', &
-     '                 C537O2 --> DHPMPAL + CO + OH                                                       ', &
+     '                 C537O2 --> DHPMPAL + OH + CO                                                       ', &
      '         C5HPALD2 + NO3 --> C5PACALD2 + HNO3 + OH                                                   ', &
      '          C5HPALD2 + O3 --> GLYOOC + HYPERACET                                                      ', &
      '          C5HPALD2 + O3 --> PACLOOA + GLYOX                                                         ', &
      '          C5HPALD2 + OH --> C4MDIAL + OH                                                            ', &
      '          C5HPALD2 + OH --> C5PACALD2 + OH                                                          ', &
      '          C5HPALD2 + OH --> HPC52O2                                                                 ', &
-     '               C5HPALD2 --> ACETOL + HO2 + 2 CO + OH                                                ', &
-     '               C5HPALD2 --> HMAC + CO + 2 OH                                                        ', &
+     '               C5HPALD2 --> ACETOL + OH + HO2 + 2 CO                                                ', &
+     '               C5HPALD2 --> HMAC + 2 OH + CO                                                        ', &
      '                HC4CCHO --> CH3CO3 + HOCH2CHO + HO2 + CO                                            ', &
      '                HC4CCHO --> HC4CCO3 + HO2                                                           ', &
      '          HC4CCHO + NO3 --> HC4CCO3 + HNO3                                                          ', &
@@ -1926,7 +1929,7 @@ MODULE second_Monitor
      '          ISOPDNO3 + O3 --> CH2OOC + MVKNO3                                                         ', &
      '          ISOPDNO3 + O3 --> NC4OOA + HCHO                                                           ', &
      '          ISOPDNO3 + OH --> INDO2                                                                   ', &
-     '                 ISOPDO --> MACR + HCHO + HO2                                                       ', &
+     '                 ISOPDO --> HO2 + HCHO + MACR                                                       ', &
      '                  HCOC5 --> HOCH2CO3 + CH3CO3 + HCHO                                                ', &
      '             HCOC5 + OH --> C59O2                                                                   ', &
      '            INAO2 + HO2 --> INAOOH                                                                  ', &
@@ -1935,7 +1938,7 @@ MODULE second_Monitor
      '            INAO2 + NO3 --> INAO + NO2                                                              ', &
      '                  INAO2 --> INAO                                                                    ', &
      '                  INAO2 --> INAOH                                                                   ', &
-     '                NC41OOA --> CO23C4NO3 + HO2 + OH                                                    ', &
+     '                NC41OOA --> CO23C4NO3 + OH + HO2                                                    ', &
      '                NC41OOA --> NC41OO                                                                  ', &
      '            C58O2 + HO2 --> C58OOH                                                                  ', &
      '             C58O2 + NO --> C58NO3                                                                  ', &
@@ -1945,14 +1948,14 @@ MODULE second_Monitor
      '                  C58O2 --> C58OH                                                                   ', &
      '           HC4CO3 + HO2 --> HC4CO3H                                                                 ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_40 = (/ &
-     '           HC4CO3 + HO2 --> MACR + HO2 + OH                                                         ', &
-     '            HC4CO3 + NO --> MACR + HO2 + NO2                                                        ', &
+     '           HC4CO3 + HO2 --> OH + HO2 + MACR                                                         ', &
+     '            HC4CO3 + NO --> HO2 + NO2 + MACR                                                        ', &
      '           HC4CO3 + NO2 --> HC4PAN                                                                  ', &
-     '           HC4CO3 + NO3 --> MACR + HO2 + NO2                                                        ', &
-     '                 HC4CO3 --> MACR + HO2                                                              ', &
+     '           HC4CO3 + NO3 --> HO2 + NO2 + MACR                                                        ', &
+     '                 HC4CO3 --> HO2 + MACR                                                              ', &
      '          NC526OOH + OH --> NC526O2                                                                 ', &
      '               NC526OOH --> NC526O + OH                                                             ', &
-     '                 NC526O --> CO2C3CHO + HCHO + NO2                                                   ', &
+     '                 NC526O --> CO2C3CHO + NO2 + HCHO                                                   ', &
      '                 NC526O --> NOA + HCOCH2O2                                                          ', &
      '         CO2C3CO3 + HO2 --> CH3COCH2O2 + OH                                                         ', &
      '         CO2C3CO3 + HO2 --> CO2C3CO3H                                                               ', &
@@ -1972,27 +1975,27 @@ MODULE second_Monitor
      '                CO2C3OO --> CO2C3CO2H                                                               ', &
      '           C530OOH + OH --> C530O2                                                                  ', &
      '                C530OOH --> C530O + OH                                                              ', &
-     '           C530NO3 + OH --> CO2C3CHO + HCHO + NO2                                                   ', &
+     '           C530NO3 + OH --> CO2C3CHO + NO2 + HCHO                                                   ', &
      '                C530NO3 --> C530O + NO2                                                             ', &
-     '                  C530O --> CO2C3CHO + HCHO + HO2                                                   ' /)
+     '                  C530O --> CO2C3CHO + HO2 + HCHO                                                   ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_41 = (/ &
      '        M3BU3ECO3H + OH --> M3BU3ECO3                                                               ', &
      '             M3BU3ECO3H --> C45O2 + OH                                                              ', &
-     '         M3BU3EPAN + OH --> MACR + CO + NO2                                                         ', &
+     '         M3BU3EPAN + OH --> NO2 + CO + MACR                                                         ', &
      '              M3BU3EPAN --> M3BU3ECO3 + NO2                                                         ', &
-     '            C45OOH + OH --> MACR + OH                                                               ', &
+     '            C45OOH + OH --> OH + MACR                                                               ', &
      '                 C45OOH --> C45O + OH                                                               ', &
-     '            C45NO3 + OH --> MACR + NO2                                                              ', &
+     '            C45NO3 + OH --> NO2 + MACR                                                              ', &
      '                 C45NO3 --> C45O + NO2                                                              ', &
-     '                   C45O --> MACR + HO2                                                              ', &
+     '                   C45O --> HO2 + MACR                                                              ', &
      '           NC51OOH + OH --> NC51O2                                                                  ', &
      '                NC51OOH --> NC51O + OH                                                              ', &
-     '                  NC51O --> CO2C3CHO + HCHO + NO2                                                   ', &
+     '                  NC51O --> CO2C3CHO + NO2 + HCHO                                                   ', &
      '                 C51OOH --> C51O + OH                                                               ', &
      '            C51OOH + OH --> HO1CO24C5 + OH                                                          ', &
      '                 C51NO3 --> C51O + NO2                                                              ', &
      '            C51NO3 + OH --> HO1CO24C5 + NO2                                                         ', &
-     '                   C51O --> CO2C3CHO + HCHO + HO2                                                   ', &
+     '                   C51O --> CO2C3CHO + HO2 + HCHO                                                   ', &
      '             C51OH + OH --> HO1CO24C5 + OH                                                          ', &
      '              HO1CO24C5 --> CH3COCH2O2 + HOCH2CO3                                                   ', &
      '         HO1CO24C5 + OH --> CO24C4CHO + HO2                                                         ', &
@@ -2008,7 +2011,7 @@ MODULE second_Monitor
      '                    ACR --> ACO3                                                                    ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_42 = (/ &
      '                    ACR --> C2H4 + CO                                                               ', &
-     '                    ACR --> HCHO + HO2 + CO                                                         ', &
+     '                    ACR --> HO2 + CO + HCHO                                                         ', &
      '               ACR + O3 --> CH2OOB + GLYOX                                                          ', &
      '               ACR + O3 --> GLYOOB + HCHO                                                           ', &
      '           ALLYLOH + OH --> ACR + HO2                                                               ', &
@@ -2049,7 +2052,7 @@ MODULE second_Monitor
      '             BZEMUCCO2H --> C5DIALO2 + HO2                                                          ', &
      '        BZEMUCCO3H + OH --> BZEMUCCO3                                                               ', &
      '             BZEMUCCO3H --> C5DIALO2 + OH                                                           ', &
-     '         BZEMUCPAN + OH --> MALDIAL + CO + NO2                                                      ', &
+     '         BZEMUCPAN + OH --> MALDIAL + NO2 + CO                                                      ', &
      '              BZEMUCPAN --> BZEMUCCO3 + NO2                                                         ', &
      '         EPXDLCO3 + HO2 --> C3DIALO2 + OH                                                           ', &
      '         EPXDLCO3 + HO2 --> EPXDLCO2H + O3                                                          ', &
@@ -2076,7 +2079,7 @@ MODULE second_Monitor
      '              BZEMUCOOH --> BZEMUCO + OH                                                            ', &
      '         BZEMUCNO3 + OH --> BZEMUCCO + NO2                                                          ', &
      '              BZEMUCNO3 --> EPXC4DIAL + GLYOX + HO2 + NO2                                           ', &
-     '                BZEMUCO --> C32OH13CO + C3DIALO2                                                    ', &
+     '                BZEMUCO --> C3DIALO2 + C32OH13CO                                                    ', &
      '                BZEMUCO --> EPXC4DIAL + GLYOX + HO2                                                 ', &
      '          BZEMUCCO + OH --> EPXDLCO3 + GLYOX                                                        ', &
      '               BZEMUCCO --> C3DIALO2 + HCOCOHCO3                                                    ', &
@@ -2084,7 +2087,7 @@ MODULE second_Monitor
      '               BZEMUCOH --> BZEMUCO + HO2                                                           ', &
      '         C5DIALOOH + OH --> C5DIALCO + OH                                                           ', &
      '              C5DIALOOH --> C5DIALO + OH                                                            ', &
-     '              C5DIALOOH --> MALDIAL + HO2 + CO + OH                                                 ', &
+     '              C5DIALOOH --> MALDIAL + OH + HO2 + CO                                                 ', &
      '                C5DIALO --> MALDIAL + HO2 + CO                                                      ', &
      '          C5DIALCO + OH --> MALDIALCO3 + CO                                                         ', &
      '               C5DIALCO --> MALDIALCO3 + HO2 + CO                                                   ', &
@@ -2111,7 +2114,7 @@ MODULE second_Monitor
      '                NPHENOH --> MALDALCO2H + GLYOX + HO2 + NO2                                          ', &
      '          CATEC1O + NO2 --> NCATECHOL                                                               ', &
      '           CATEC1O + O3 --> CATEC1O2                                                                ', &
-     '               CATECOOA --> MALDALCO2H + HCOCO2H + HO2 + OH                                         ', &
+     '               CATECOOA --> MALDALCO2H + HCOCO2H + OH + HO2                                         ', &
      '           PHENOOH + OH --> PHENO2                                                                  ', &
      '                PHENOOH --> PHENO + OH                                                              ', &
      '                  PHENO --> MALDALCO2H + GLYOX + HO2                                                ', &
@@ -2145,7 +2148,7 @@ MODULE second_Monitor
      '                OXYL1O2 --> TOL1O                                                                   ', &
      '         MCATEC1O + NO2 --> MNCATECH                                                                ', &
      '          MCATEC1O + O3 --> MCATEC1O2                                                               ', &
-     '              MCATECOOA --> MC3ODBCO2H + HCOCO2H + HO2 + OH                                         ', &
+     '              MCATECOOA --> MC3ODBCO2H + HCOCO2H + OH + HO2                                         ', &
      '          C4MDIAL + NO3 --> C3MCODBCO3 + HNO3                                                       ', &
      '          C4MDIAL + NO3 --> MC3CODBCO3 + HNO3                                                       ', &
      '           C4MDIAL + O3 --> MGLYOOA + GLYOX                                                         ', &
@@ -2179,12 +2182,12 @@ MODULE second_Monitor
      '             TLEMUCCO2H --> C615CO2O2 + HO2                                                         ', &
      '        TLEMUCCO3H + OH --> TLEMUCCO3                                                               ', &
      '             TLEMUCCO3H --> C615CO2O2 + OH                                                          ', &
-     '         TLEMUCPAN + OH --> C5DICARB + CO + NO2                                                     ', &
+     '         TLEMUCPAN + OH --> C5DICARB + NO2 + CO                                                     ', &
      '              TLEMUCPAN --> TLEMUCCO3 + NO2                                                         ', &
      '         TLEMUCOOH + OH --> TLEMUCCO + OH                                                           ', &
      '              TLEMUCOOH --> TLEMUCO + OH                                                            ', &
      '         TLEMUCNO3 + OH --> TLEMUCCO + NO2                                                          ', &
-     '              TLEMUCNO3 --> EPXC4DIAL + CH3CO3 + HO2 + CO + NO2                                     ', &
+     '              TLEMUCNO3 --> EPXC4DIAL + CH3CO3 + HO2 + NO2 + CO                                     ', &
      '                TLEMUCO --> C3DIALO2 + CO2H3CHO                                                     ', &
      '                TLEMUCO --> EPXC4DIAL + MGLYOX + HO2                                                ', &
      '          TLEMUCCO + OH --> EPXC4DIAL + CH3CO3 + CO                                                 ', &
@@ -2193,7 +2196,7 @@ MODULE second_Monitor
      '               TLEMUCOH --> TLEMUCO + HO2                                                           ', &
      '        C615CO2OOH + OH --> C6125CO + OH                                                            ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_48 = (/ &
-     '             C615CO2OOH --> C5DICARB + HO2 + CO + OH                                                ', &
+     '             C615CO2OOH --> C5DICARB + OH + HO2 + CO                                                ', &
      '             C615CO2OOH --> C615CO2O + OH                                                           ', &
      '               C615CO2O --> C5DICARB + HO2 + CO                                                     ', &
      '           C6125CO + OH --> C5CO14O2 + CO                                                           ', &
@@ -2224,13 +2227,13 @@ MODULE second_Monitor
      '           C109OOH + OH --> C109CO + OH                                                             ', &
      '                C109OOH --> C109O + OH                                                              ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_49 = (/ &
-     '                C109OOH --> HCHO + C89CO3 + OH                                                      ', &
-     '                  C109O --> HCHO + C89CO3                                                           ', &
+     '                C109OOH --> C89CO3 + OH + HCHO                                                      ', &
+     '                  C109O --> C89CO3 + HCHO                                                           ', &
      '                  C109O --> C920CO3                                                                 ', &
      '            C109CO + OH --> C89CO3 + CO                                                             ', &
      '                 C109CO --> C89CO3 + HO2 + CO                                                       ', &
      '            C109OH + OH --> C109CO + HO2                                                            ', &
-     '                 C109OH --> HCHO + C89CO3 + HO2                                                     ', &
+     '                 C109OH --> C89CO3 + HO2 + HCHO                                                     ', &
      '                 C109OH --> C920O2 + HO2 + CO                                                       ', &
      '           PINONIC + OH --> C96O2                                                                   ', &
      '                PINONIC --> C96O2 + HO2                                                             ', &
@@ -2277,7 +2280,7 @@ MODULE second_Monitor
      '          NOPINBOH + OH --> NOPINBCO + HO2                                                          ', &
      '         NOPINCOOH + OH --> NOPINCO2                                                                ', &
      '              NOPINCOOH --> NOPINCO + OH                                                            ', &
-     '         NOPINCNO3 + OH --> C619CO + CH3COCH3 + NO2                                                 ', &
+     '         NOPINCNO3 + OH --> C619CO + NO2 + CH3COCH3                                                 ', &
      '              NOPINCNO3 --> NOPINCO + NO2                                                           ', &
      '                NOPINCO --> C917O2                                                                  ', &
      '          NOPINCOH + OH --> NOPINCO                                                                 ', &
@@ -2295,7 +2298,7 @@ MODULE second_Monitor
      '                 C8BCO2 --> C8BCO                                                                   ', &
      '                 C8BCO2 --> C8BCOH                                                                  ', &
      '          C918CO3 + HO2 --> C918CO3H                                                                ', &
-     '          C918CO3 + HO2 --> NOPINONE + HO2 + OH                                                     ', &
+     '          C918CO3 + HO2 --> NOPINONE + OH + HO2                                                     ', &
      '           C918CO3 + NO --> NOPINONE + HO2 + NO2                                                    ', &
      '          C918CO3 + NO2 --> C918PAN                                                                 ', &
      '          C918CO3 + NO3 --> NOPINONE + HO2 + NO2                                                    ', &
@@ -2306,7 +2309,7 @@ MODULE second_Monitor
      '             LIMAL + O3 --> CH2OOF + LMLKET                                                         ', &
      '             LIMAL + OH --> C923CO3                                                                 ', &
      '             LIMAL + OH --> LIMALO2                                                                 ', &
-     '                  LIMAL --> C923O2 + HO2 + CO                                                       ', &
+     '                  LIMAL --> HO2 + C923O2 + CO                                                       ', &
      '         LIMALAOOH + OH --> LIMALACO + OH                                                           ', &
      '              LIMALAOOH --> C729CHO + CH3CO3 + OH                                                   ', &
      '              LIMALAOOH --> LIMALAO + OH                                                            ', &
@@ -2317,13 +2320,13 @@ MODULE second_Monitor
      '               LIMALAOH --> C729CHO + CH3CO3 + HO2                                                  ', &
      '         LIMALBOOH + OH --> LIMALBCO + OH                                                           ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_52 = (/ &
-     '              LIMALBOOH --> HCHO + C822CO3 + OH                                                     ', &
+     '              LIMALBOOH --> C822CO3 + OH + HCHO                                                     ', &
      '              LIMALBOOH --> LIMALBO + OH                                                            ', &
-     '                LIMALBO --> HCHO + C822CO3                                                          ', &
+     '                LIMALBO --> C822CO3 + HCHO                                                          ', &
      '          LIMALBCO + OH --> C822CO3 + CO                                                            ', &
      '               LIMALBCO --> C822CO3 + HO2 + CO                                                      ', &
      '          LIMALBOH + OH --> LIMALBCO + HO2                                                          ', &
-     '               LIMALBOH --> HCHO + C822CO3 + HO2                                                    ', &
+     '               LIMALBOH --> C822CO3 + HO2 + HCHO                                                    ', &
      '           C923OOH + OH --> NORLIMAL + OH                                                           ', &
      '                C923OOH --> C923O + OH                                                              ', &
      '           C923NO3 + OH --> NORLIMAL + NO2                                                          ', &
@@ -2334,12 +2337,12 @@ MODULE second_Monitor
      '          NORLIMAL + OH --> NORLIMO2                                                                ', &
      '               NORLIMAL --> C816O2 + HO2 + CO                                                       ', &
      '         LIMONONIC + OH --> C923O2                                                                  ', &
-     '          HO2 + C923CO3 --> C923CO3H                                                                ', &
-     '          HO2 + C923CO3 --> C923O2 + OH                                                             ', &
-     '          HO2 + C923CO3 --> LIMONONIC + O3                                                          ', &
+     '          C923CO3 + HO2 --> C923CO3H                                                                ', &
+     '          C923CO3 + HO2 --> OH + C923O2                                                             ', &
+     '          C923CO3 + HO2 --> LIMONONIC + O3                                                          ', &
      '           C923CO3 + NO --> C923O2 + NO2                                                            ', &
-     '          NO2 + C923CO3 --> C923PAN                                                                 ', &
-     '          C923CO3 + NO3 --> C923O2 + NO2                                                            ', &
+     '          C923CO3 + NO2 --> C923PAN                                                                 ', &
+     '          NO3 + C923CO3 --> C923O2 + NO2                                                            ', &
      '                C923CO3 --> C923O2                                                                  ', &
      '                C923CO3 --> LIMONONIC                                                               ', &
      '           LIMKET + NO3 --> NLMKAO2                                                                 ', &
@@ -2348,19 +2351,11 @@ MODULE second_Monitor
      '            LIMKET + OH --> LMKAO2                                                                  ', &
      '            LIMKET + OH --> LMKBO2                                                                  ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_53 = (/ &
-     '         HOCH2CO2H + OH --> HCHO + HO2                                                              ', &
+     '         HOCH2CO2H + OH --> HO2 + HCHO                                                              ', &
      '         HOCH2CO3H + OH --> HOCH2CO3                                                                ', &
-     '              HOCH2CO3H --> HCHO + HO2 + OH                                                         ', &
-     '              PHAN + OH --> HCHO + CO + NO2                                                         ', &
+     '              HOCH2CO3H --> OH + HO2 + HCHO                                                         ', &
+     '              PHAN + OH --> NO2 + CO + HCHO                                                         ', &
      '                   PHAN --> HOCH2CO3 + NO2                                                          ', &
-     '           HCOCO3 + HO2 --> HCOCO2H + O3                                                            ', &
-     '           HCOCO3 + HO2 --> HCOCO3H                                                                 ', &
-     '           HCOCO3 + HO2 --> HO2 + CO + OH                                                           ', &
-     '            HCOCO3 + NO --> HO2 + CO + NO2                                                          ', &
-     '           HCOCO3 + NO2 --> HO2 + CO + NO3                                                          ', &
-     '           HCOCO3 + NO3 --> HO2 + CO + NO2                                                          ', &
-     '                 HCOCO3 --> HO2 + CO                                                                ', &
-     '                 HCOCO3 --> HCOCO2H                                                                 ', &
      '         CONM2CO3 + HO2 --> CONM2CO2H + O3                                                          ', &
      '         CONM2CO3 + HO2 --> CONM2CO3H                                                               ', &
      '         CONM2CO3 + HO2 --> MGLYOX + OH + NO2                                                       ', &
@@ -2376,32 +2371,40 @@ MODULE second_Monitor
      '              MACRNCO3H --> ACETOL + OH + NO2                                                       ', &
      '          MACRNPAN + OH --> CONM2PAN + HO2                                                          ', &
      '               MACRNPAN --> MACRNCO3 + NO2                                                          ', &
-     '         IPRHOCO3 + HO2 --> CH3COCH3 + HO2 + OH                                                     ', &
-     '         IPRHOCO3 + HO2 --> IPRHOCO2H + O3                                                          ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_54 = (/ &
+     '         IPRHOCO3 + HO2 --> OH + HO2 + CH3COCH3                                                     ', &
+     '         IPRHOCO3 + HO2 --> IPRHOCO2H + O3                                                          ', &
      '         IPRHOCO3 + HO2 --> IPRHOCO3H                                                               ', &
-     '          IPRHOCO3 + NO --> CH3COCH3 + HO2 + NO2                                                    ', &
+     '          IPRHOCO3 + NO --> HO2 + NO2 + CH3COCH3                                                    ', &
      '         IPRHOCO3 + NO2 --> C4PAN5                                                                  ', &
-     '         IPRHOCO3 + NO3 --> CH3COCH3 + HO2 + NO2                                                    ', &
-     '               IPRHOCO3 --> CH3COCH3 + HO2                                                          ', &
+     '         IPRHOCO3 + NO3 --> HO2 + NO2 + CH3COCH3                                                    ', &
+     '               IPRHOCO3 --> HO2 + CH3COCH3                                                          ', &
      '               IPRHOCO3 --> IPRHOCO2H                                                               ', &
      '        MACRNBCO2H + OH --> COHM2CO2H + NO2                                                         ', &
-     '        MACRNBCO2H + OH --> NOA + HO2                                                               ', &
+     '        MACRNBCO2H + OH --> NOA + HO2                                                               ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_54 = (/ &
      '        MACRNBCO3H + OH --> COHM2CO3H + NO2                                                         ', &
      '        MACRNBCO3H + OH --> MACRNBCO3                                                               ', &
-     '             MACRNBCO3H --> NOA + HO2 + OH                                                          ', &
+     '             MACRNBCO3H --> NOA + OH + HO2                                                          ', &
      '         MACRNBPAN + OH --> COHM2PAN + NO2                                                          ', &
      '              MACRNBPAN --> MACRNBCO3 + NO2                                                         ', &
      '        CHOMOHCO3H + OH --> CHOMOHCO3                                                               ', &
-     '             CHOMOHCO3H --> MGLYOX + HO2 + OH                                                       ', &
-     '         CHOMOHPAN + OH --> MGLYOX + CO + NO2                                                       ', &
+     '             CHOMOHCO3H --> MGLYOX + OH + HO2                                                       ', &
+     '         CHOMOHPAN + OH --> MGLYOX + NO2 + CO                                                       ', &
      '              CHOMOHPAN --> CHOMOHCO3 + NO2                                                         ', &
+     '           HCOCO3 + HO2 --> HCOCO2H + O3                                                            ', &
+     '           HCOCO3 + HO2 --> HCOCO3H                                                                 ', &
+     '           HCOCO3 + HO2 --> OH + HO2 + CO                                                           ', &
+     '            HCOCO3 + NO --> HO2 + NO2 + CO                                                          ', &
+     '           HCOCO3 + NO2 --> NO3 + HO2 + CO                                                          ', &
+     '           HCOCO3 + NO3 --> HO2 + NO2 + CO                                                          ', &
+     '                 HCOCO3 --> HO2 + CO                                                                ', &
+     '                 HCOCO3 --> HCOCO2H                                                                 ', &
      '           C527O2 + HO2 --> C527OOH                                                                 ', &
      '            C527O2 + NO --> C527NO3                                                                 ', &
      '            C527O2 + NO --> C527O + NO2                                                             ', &
      '           C527O2 + NO3 --> C527O + NO2                                                             ', &
      '                 C527O2 --> C527O                                                                   ', &
-     '                 C527O2 --> MACROOH + CO + OH                                                       ', &
+     '                 C527O2 --> MACROOH + OH + CO                                                       ', &
      '              M3F + NO3 --> C4MDIAL + NO2                                                           ', &
      '               M3F + O3 --> M3FOOA                                                                  ', &
      '               M3F + OH --> C4MDIAL + HO2                                                           ', &
@@ -2428,10 +2431,10 @@ MODULE second_Monitor
      '             INCCO + OH --> INCGLYOX + HO2                                                          ', &
      '             INCOH + OH --> INCCO + HO2                                                             ', &
      '           NC4CO2H + OH --> NOA + HO2 + CO                                                          ', &
-     '                NC4CO3H --> NOA + HO2 + CO + OH                                                     ', &
+     '                NC4CO3H --> NOA + OH + HO2 + CO                                                     ', &
      '           NC4CO3H + OH --> NC4CO3                                                                  ', &
      '                C5PAN18 --> NC4CO3 + NO2                                                            ', &
-     '           C5PAN18 + OH --> NOA + 2 CO + NO2                                                        ', &
+     '           C5PAN18 + OH --> NOA + NO2 + 2 CO                                                        ', &
      '             NOAOO + CO --> NOA                                                                     ', &
      '             NOAOO + NO --> NOA + NO2                                                               ', &
      '            NOAOO + NO2 --> NOA + NO3                                                               ', &
@@ -2446,7 +2449,7 @@ MODULE second_Monitor
      '         PR1O2HNO3 + OH --> PRONO3AO2                                                               ', &
      '              PR1O2HNO3 --> PRONO3AO + OH                                                           ', &
      '               PRONO3AO --> CHOPRNO3 + HO2                                                          ', &
-     '               PRONO3AO --> CH3CHO + HCHO + NO2                                                     ', &
+     '               PRONO3AO --> NO2 + HCHO + CH3CHO                                                     ', &
      '         CHOPRNO3 + NO3 --> PRNO3CO3 + HNO3                                                         ', &
      '          CHOPRNO3 + OH --> PRNO3CO3                                                                ', &
      '               CHOPRNO3 --> PROPALO + NO2                                                           ', &
@@ -2454,35 +2457,33 @@ MODULE second_Monitor
      '         PR2O2HNO3 + OH --> NOA + OH                                                                ', &
      '         PR2O2HNO3 + OH --> PRONO3BO2                                                               ', &
      '              PR2O2HNO3 --> PRONO3BO + OH                                                           ', &
-     '               PRONO3BO --> CH3CHO + HCHO + NO2                                                     ', &
+     '               PRONO3BO --> NO2 + HCHO + CH3CHO                                                     ', &
      '               PRONO3BO --> NOA + HO2                                                               ', &
      '           PROLNO3 + OH --> CH3CHOHCHO + NO2                                                        ', &
      '           CH3CHOO + CO --> CH3CHO                                                                  ', &
-     '           CH3CHOO + NO --> CH3CHO + NO2                                                            ', &
-     '          CH3CHOO + NO2 --> CH3CHO + NO3                                                            ', &
+     '           CH3CHOO + NO --> NO2 + CH3CHO                                                            ', &
+     '          CH3CHOO + NO2 --> NO3 + CH3CHO                                                            ', &
      '          CH3CHOO + SO2 --> SO3 + CH3CHO                                                            ', &
      '                CH3CHOO --> H2O2 + CH3CHO                                                           ', &
      '                CH3CHOO --> CH3CO2H                                                                 ', &
-     '               CL + CH4 --> CH3O2                                                                   ', &
-     '               CH4 + OH --> CH3O2                                                                   ', &
      '         HYPROPO2H + OH --> ACETOL + OH                                                             ', &
      '         HYPROPO2H + OH --> HYPROPO2                                                                ', &
      '              HYPROPO2H --> HYPROPO + OH                                                            ', &
-     '                HYPROPO --> CH3CHO + HCHO + HO2                                                     ', &
+     '                HYPROPO --> HO2 + HCHO + CH3CHO                                                     ', &
      '           PROPGLY + OH --> ACETOL + HO2                                                            ', &
-     '           PROPGLY + OH --> CH3CHOHCHO + HO2                                                        ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_57 = (/ &
+     '           PROPGLY + OH --> CH3CHOHCHO + HO2                                                        ', &
      '        IPROPOLO2H + OH --> CH3CHOHCHO + OH                                                         ', &
-     '        IPROPOLO2H + OH --> IPROPOLO2                                                               ', &
+     '        IPROPOLO2H + OH --> IPROPOLO2                                                               ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_57 = (/ &
      '             IPROPOLO2H --> IPROPOLO + OH                                                           ', &
-     '               IPROPOLO --> CH3CHO + HCHO + HO2                                                     ', &
+     '               IPROPOLO --> HO2 + HCHO + CH3CHO                                                     ', &
      '       CH3CHOHCHO + NO3 --> CH3CHOHCO3 + HNO3                                                       ', &
      '        CH3CHOHCHO + OH --> CH3CHOHCO3                                                              ', &
-     '             CH3CHOHCHO --> CH3CHO + 2 HO2 + CO                                                     ', &
+     '             CH3CHOHCHO --> 2 HO2 + CO + CH3CHO                                                     ', &
      '              CH3COCO2H --> CH3CO3 + HO2                                                            ', &
      '         CH3COCO2H + OH --> CH3CO3                                                                  ', &
      '         CO2H3CO3 + HO2 --> CO2H3CO3H                                                               ', &
-     '         CO2H3CO3 + HO2 --> MGLYOX + HO2 + OH                                                       ', &
+     '         CO2H3CO3 + HO2 --> MGLYOX + OH + HO2                                                       ', &
      '          CO2H3CO3 + NO --> MGLYOX + HO2 + NO2                                                      ', &
      '         CO2H3CO3 + NO2 --> C4PAN6                                                                  ', &
      '         CO2H3CO3 + NO3 --> MGLYOX + HO2 + NO2                                                      ', &
@@ -2491,23 +2492,23 @@ MODULE second_Monitor
      '               CO2N3CHO --> GLYOX + CH3CO3 + NO2                                                    ', &
      '              CO23C3CHO --> CH3CO3 + HO2 + 2 CO                                                     ', &
      '              CO23C3CHO --> HCOCO + CH3CO3                                                          ', &
-     '        CO23C3CHO + NO3 --> HNO3 + CH3CO3 + 2 CO                                                    ', &
+     '        CO23C3CHO + NO3 --> CH3CO3 + HNO3 + 2 CO                                                    ', &
      '         CO23C3CHO + OH --> CH3CO3 + 2 CO                                                           ', &
      '             ACO3 + HO2 --> ACO2H + O3                                                              ', &
      '             ACO3 + HO2 --> ACO3H                                                                   ', &
-     '             ACO3 + HO2 --> HCHO + HO2 + CO + OH                                                    ', &
-     '              ACO3 + NO --> HCHO + HO2 + CO + NO2                                                   ', &
+     '             ACO3 + HO2 --> OH + HO2 + CO + HCHO                                                    ', &
+     '              ACO3 + NO --> HO2 + NO2 + CO + HCHO                                                   ', &
      '             ACO3 + NO2 --> ACRPAN                                                                  ', &
-     '             ACO3 + NO3 --> HCHO + HO2 + CO + NO2                                                   ', &
+     '             ACO3 + NO3 --> HO2 + NO2 + CO + HCHO                                                   ', &
      '                   ACO3 --> ACO2H                                                                   ', &
-     '                   ACO3 --> HCHO + HO2 + CO                                                         ', &
-     '                HMGLOOA --> HMGLOO                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_58 = (/ &
+     '                   ACO3 --> HO2 + CO + HCHO                                                         ', &
+     '                HMGLOOA --> HMGLOO                                                                  ', &
      '                HMGLOOA --> HOCH2CHO                                                                ', &
-     '                HMGLOOA --> HOCH2CO3 + HO2                                                          ', &
-     '                HMGLOOA --> HOCH2CO3 + CO + OH                                                      ', &
+     '                HMGLOOA --> HOCH2CO3 + HO2                                                          ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_58 = (/ &
+     '                HMGLOOA --> HOCH2CO3 + OH + CO                                                      ', &
      '             HOCH2COCHO --> HOCH2CO3 + HO2 + CO                                                     ', &
-     '       HOCH2COCHO + NO3 --> HNO3 + HOCH2CO3 + CO                                                    ', &
+     '       HOCH2COCHO + NO3 --> HOCH2CO3 + HNO3 + CO                                                    ', &
      '        HOCH2COCHO + OH --> HOCH2CO3 + CO                                                           ', &
      '         MVKOHAO2 + HO2 --> MVKOHAOOH                                                               ', &
      '          MVKOHAO2 + NO --> MVKOHANO3                                                               ', &
@@ -2528,58 +2529,58 @@ MODULE second_Monitor
      '            C526O2 + NO --> C526O + NO2                                                             ', &
      '           C526O2 + NO3 --> C526O + NO2                                                             ', &
      '                 C526O2 --> C526O                                                                   ', &
-     '                 C526O2 --> HMVKBOOH + CO + OH                                                      ', &
+     '                 C526O2 --> HMVKBOOH + OH + CO                                                      ', &
      '                 NC2OOA --> NC2OO                                                                   ', &
      '                 NC2OOA --> GLYOX + OH + NO2                                                        ', &
      '                 ACLOOA --> ACLOO                                                                   ', &
-     '                 ACLOOA --> MGLYOX + HO2 + OH                                                       ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_59 = (/ &
+     '                 ACLOOA --> MGLYOX + OH + HO2                                                       ', &
      '        NO3CH2CHO + NO3 --> NO3CH2CO3 + HNO3                                                        ', &
-     '         NO3CH2CHO + OH --> NO3CH2CO3                                                               ', &
+     '         NO3CH2CHO + OH --> NO3CH2CO3                                                               ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_59 = (/ &
      '              NO3CH2CHO --> HCOCH2O + NO2                                                           ', &
-     '           C536OOH + OH --> DHPMEK + CO + OH                                                        ', &
-     '                C536OOH --> C3MDIALOOH + HCHO + 2 OH                                                ', &
-     '                C536OOH --> DHPMEK + HO2 + CO + OH                                                  ', &
+     '           C536OOH + OH --> DHPMEK + OH + CO                                                        ', &
+     '                C536OOH --> C3MDIALOOH + 2 OH + HCHO                                                ', &
+     '                C536OOH --> DHPMEK + OH + HO2 + CO                                                  ', &
      '                C536OOH --> HCOCH2OOH + MGLYOX + 2 OH                                               ', &
      '                  C536O --> HCOCH2OOH + MGLYOX + OH                                                 ', &
      '            DHPMEK + OH --> BIACETOOH + OH                                                          ', &
      '            DHPMEK + OH --> C4CO2OOH + OH                                                           ', &
      '                 DHPMEK --> HCOCH2OOH + CH3CO3 + OH                                                 ', &
-     '                 DHPMEK --> MGLYOX + HCHO + 2 OH                                                    ', &
+     '                 DHPMEK --> MGLYOX + 2 OH + HCHO                                                    ', &
      '         C5PACALD1 + O3 --> GLYOOC + CH3COCO3H                                                      ', &
      '         C5PACALD1 + O3 --> PPACLOOA + GLYOX                                                        ', &
      '         C5PACALD1 + OH --> C534O2                                                                  ', &
      '              C5PACALD1 --> GLYOX + CH3CO3 + OH                                                     ', &
      '                MGLYOOA --> MGLYOO                                                                  ', &
-     '                MGLYOOA --> CH3CO3 + CO + OH                                                        ', &
+     '                MGLYOOA --> CH3CO3 + OH + CO                                                        ', &
      '                 PGAOOB --> GLYOX + 2 OH                                                            ', &
-     '        C4MALOHOOH + OH --> CO2H3CHO + CO + OH                                                      ', &
+     '        C4MALOHOOH + OH --> CO2H3CHO + OH + CO                                                      ', &
      '             C4MALOHOOH --> C4M2ALOHO + OH                                                          ', &
-     '             C4MALOHOOH --> CO2H3CHO + HO2 + CO + OH                                                ', &
+     '             C4MALOHOOH --> CO2H3CHO + OH + HO2 + CO                                                ', &
      '              HVMK + OH --> CO2H3CHO + HO2                                                          ', &
-     '                   HVMK --> MGLYOX + HO2 + CO + OH                                                  ', &
-     '          HC4ACO3 + HO2 --> ACETOL + HO2 + CO + OH                                                  ', &
+     '                   HVMK --> MGLYOX + OH + HO2 + CO                                                  ', &
+     '          HC4ACO3 + HO2 --> ACETOL + OH + HO2 + CO                                                  ', &
      '          HC4ACO3 + HO2 --> HC4ACO2H + O3                                                           ', &
      '          HC4ACO3 + HO2 --> HC4ACO3H                                                                ', &
-     '           HC4ACO3 + NO --> ACETOL + HO2 + CO + NO2                                                 ', &
+     '           HC4ACO3 + NO --> ACETOL + HO2 + NO2 + CO                                                 ', &
      '          HC4ACO3 + NO2 --> C5PAN17                                                                 ', &
-     '          HC4ACO3 + NO3 --> ACETOL + HO2 + CO + NO2                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_60 = (/ &
+     '          HC4ACO3 + NO3 --> ACETOL + HO2 + NO2 + CO                                                 ', &
      '                HC4ACO3 --> ACETOL + HO2 + CO                                                       ', &
-     '                HC4ACO3 --> C5PACALD2 + HO2                                                         ', &
+     '                HC4ACO3 --> C5PACALD2 + HO2                                                         ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_60 = (/ &
      '                HC4ACO3 --> HC4ACO2H                                                                ', &
      '           C58AO2 + HO2 --> C58AOOH                                                                 ', &
      '            C58AO2 + NO --> C58ANO3                                                                 ', &
      '            C58AO2 + NO --> C58AO + NO2                                                             ', &
      '           C58AO2 + NO3 --> C58AO + NO2                                                             ', &
      '                 C58AO2 --> C58AO                                                                   ', &
-     '                 C58AO2 --> MACROH + CO + OH                                                        ', &
+     '                 C58AO2 --> MACROH + OH + CO                                                        ', &
      '            IEPOXB + OH --> C57O2                                                                   ', &
      '            IEPOXB + OH --> C58AO2                                                                  ', &
      '            IEPOXB + OH --> C59O2                                                                   ', &
      '            IEPOXB + OH --> IEB1CHO                                                                 ', &
      '            IEPOXB + OH --> IEB4CHO                                                                 ', &
-     '               MACRNOOA --> ACETOL + CO + OH + NO2                                                  ', &
+     '               MACRNOOA --> ACETOL + OH + NO2 + CO                                                  ', &
      '               MACRNOOA --> ACETOL + HO2 + NO2                                                      ', &
      '               MACRNOOA --> MACRNOO                                                                 ', &
      '               MACRNOOA --> PROPOLNO3                                                               ', &
@@ -2594,25 +2595,25 @@ MODULE second_Monitor
      '            INB2O2 + NO --> INANO3                                                                  ', &
      '            INB2O2 + NO --> INB2O + NO2                                                             ', &
      '                 INB2O2 --> C58NO3                                                                  ', &
-     '                 INB2O2 --> INB1OH                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_61 = (/ &
+     '                 INB2O2 --> INB1OH                                                                  ', &
      '                 INB2O2 --> INB2O                                                                   ', &
-     '            IEPOXC + OH --> C59O2                                                                   ', &
+     '            IEPOXC + OH --> C59O2                                                                   ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_61 = (/ &
      '            IEPOXC + OH --> IECCHO + HO2                                                            ', &
-     '           C537OOH + OH --> DHPMPAL + CO + OH                                                       ', &
-     '                C537OOH --> C4CO2OOH + HCHO + 2 OH                                                  ', &
-     '                C537OOH --> DHPMPAL + HO2 + CO + OH                                                 ', &
+     '           C537OOH + OH --> DHPMPAL + OH + CO                                                       ', &
+     '                C537OOH --> C4CO2OOH + 2 OH + HCHO                                                  ', &
+     '                C537OOH --> DHPMPAL + OH + HO2 + CO                                                 ', &
      '                C537OOH --> HYPERACET + GLYOX + 2 OH                                                ', &
      '                  C537O --> HYPERACET + GLYOX + OH                                                  ', &
      '           DHPMPAL + OH --> C3MDIALOOH + OH                                                         ', &
-     '           DHPMPAL + OH --> HYPERACET + CO + OH                                                     ', &
+     '           DHPMPAL + OH --> HYPERACET + OH + CO                                                     ', &
      '                DHPMPAL --> C3MDIALOOH + OH                                                         ', &
-     '                DHPMPAL --> HYPERACET + HO2 + CO + OH                                               ', &
-     '                DHPMPAL --> MGLYOX + HCHO + 2 OH                                                    ', &
+     '                DHPMPAL --> HYPERACET + OH + HO2 + CO                                               ', &
+     '                DHPMPAL --> MGLYOX + 2 OH + HCHO                                                    ', &
      '         C5PACALD2 + O3 --> MGLYOOA + HCOCO3H                                                       ', &
      '         C5PACALD2 + O3 --> PPGAOOB + MGLYOX                                                        ', &
      '         C5PACALD2 + OH --> C535O2                                                                  ', &
-     '              C5PACALD2 --> MGLYOX + HO2 + CO + OH                                                  ', &
+     '              C5PACALD2 --> MGLYOX + OH + HO2 + CO                                                  ', &
      '                PACLOOA --> MGLYOX + 2 OH                                                           ', &
      '          HPC52O2 + HO2 --> HPC52OOH                                                                ', &
      '           HPC52O2 + NO --> HPC52O + NO2                                                            ', &
@@ -2625,10 +2626,10 @@ MODULE second_Monitor
      '          HC4CCO3 + NO2 --> C5PAN19                                                                 ', &
      '          HC4CCO3 + NO3 --> CH3CO3 + HOCH2CHO + NO2                                                 ', &
      '                HC4CCO3 --> C5PACALD1 + HO2                                                         ', &
-     '                HC4CCO3 --> CH3CO3 + HOCH2CHO                                                       ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_62 = (/ &
+     '                HC4CCO3 --> CH3CO3 + HOCH2CHO                                                       ', &
      '                HC4CCO3 --> HC4CCO2H                                                                ', &
-     '           C57AO2 + HO2 --> C57AOOH                                                                 ', &
+     '           C57AO2 + HO2 --> C57AOOH                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_62 = (/ &
      '            C57AO2 + NO --> C57AO + NO2                                                             ', &
      '            C57AO2 + NO --> INDHCHO                                                                 ', &
      '           C57AO2 + NO3 --> C57AO + NO2                                                             ', &
@@ -2639,7 +2640,7 @@ MODULE second_Monitor
      '            C57O2 + NO3 --> C57O + NO2                                                              ', &
      '                  C57O2 --> C57O                                                                    ', &
      '                  C57O2 --> C57OH                                                                   ', &
-     '                  C57O2 --> HO12CO3C4 + CO + OH                                                     ', &
+     '                  C57O2 --> HO12CO3C4 + OH + CO                                                     ', &
      '                 NC4OOA --> NC4OO                                                                   ', &
      '                 NC4OOA --> BIACETOH + OH + NO2                                                     ', &
      '            INDO2 + HO2 --> INDOOH                                                                  ', &
@@ -2656,10 +2657,10 @@ MODULE second_Monitor
      '            INAOOH + OH --> INAHPCHO + HO2                                                          ', &
      '            INAOOH + OH --> INAO2                                                                   ', &
      '            INANO3 + OH --> NO3CH2CHO + ACETOL + NO2                                                ', &
-     '            INANO3 + OH --> C58NO3 + NO2                                                            ' /)
+     '            INANO3 + OH --> C58NO3 + NO2                                                            ', &
+     '            INANO3 + OH --> HMVKANO3 + NO2 + HCHO                                                   ', &
+     '            INANO3 + OH --> INANCHO + HO2                                                           ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_63 = (/ &
-     '            INANO3 + OH --> HMVKANO3 + HCHO + NO2                                                   ', &
-     '            INANO3 + OH --> INANCHO + HO2                                                           ', &
      '            INANO3 + OH --> INANCO + HO2                                                            ', &
      '                   INAO --> NO3CH2CHO + ACETOL + HO2                                                ', &
      '             INAOH + OH --> INAHCHO + HO2                                                           ', &
@@ -2677,20 +2678,20 @@ MODULE second_Monitor
      '                   C58O --> ACETOL + GLYOX + HO2                                                    ', &
      '             C58OH + OH --> C58O                                                                    ', &
      '           HC4CO3H + OH --> HC4CO3                                                                  ', &
-     '                HC4CO3H --> MACR + HO2 + OH                                                         ', &
-     '            HC4PAN + OH --> MACR + CO + NO2                                                         ', &
+     '                HC4CO3H --> OH + HO2 + MACR                                                         ', &
+     '            HC4PAN + OH --> NO2 + CO + MACR                                                         ', &
      '                 HC4PAN --> HC4CO3 + NO2                                                            ', &
      '         CO2C3CO3H + OH --> CO2C3CO3                                                                ', &
      '              CO2C3CO3H --> CH3COCH2O2 + OH                                                         ', &
-     '          CO2C3PAN + OH --> MGLYOX + CO + NO2                                                       ', &
+     '          CO2C3PAN + OH --> MGLYOX + NO2 + CO                                                       ', &
      '               CO2C3PAN --> CO2C3CO3 + NO2                                                          ', &
      '          C4CO2OOH + OH --> CO23C3CHO + OH                                                          ', &
      '               C4CO2OOH --> C4CO2O + OH                                                             ', &
      '               C4CO2OOH --> GLYOX + CH3CO3 + OH                                                     ', &
-     '               C4CO2OOH --> MGLYOX + HO2 + CO + OH                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_64 = (/ &
+     '               C4CO2OOH --> MGLYOX + OH + HO2 + CO                                                  ', &
      '                 C4CO2O --> GLYOX + CH3CO3                                                          ', &
-     '                 C4CO2O --> MGLYOX + HO2 + CO                                                       ', &
+     '                 C4CO2O --> MGLYOX + HO2 + CO                                                       ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_64 = (/ &
      '         CO2C3CO2H + OH --> CH3COCH2O2                                                              ', &
      '              CO24C4CHO --> CO2C3CO3 + HO2 + CO                                                     ', &
      '        CO24C4CHO + NO3 --> CO2C3CO3 + HNO3 + CO                                                    ', &
@@ -2699,7 +2700,7 @@ MODULE second_Monitor
      '             ACRO2 + NO --> CHOCOHCO + NO2                                                          ', &
      '            ACRO2 + NO3 --> CHOCOHCO + NO2                                                          ', &
      '                  ACRO2 --> CHOCOHCO                                                                ', &
-     '                  ACRO2 --> HOCH2CHO + CO + OH                                                      ', &
+     '                  ACRO2 --> HOCH2CHO + OH + CO                                                      ', &
      '                  ACRO2 --> HOCH2COCHO                                                              ', &
      '                  ACRO2 --> OCCOHCOH                                                                ', &
      '         OCCOHCO2 + HO2 --> C32OH13CO + O3                                                          ', &
@@ -2716,16 +2717,16 @@ MODULE second_Monitor
      '                 GLYOOB --> GLYOO                                                                   ', &
      '                 GLYOOB --> HCHO                                                                    ', &
      '                 GLYOOB --> 2 HO2 + CO                                                              ', &
-     '                 GLYOOB --> HO2 + 2 CO + OH                                                         ', &
+     '                 GLYOOB --> OH + HO2 + 2 CO                                                         ', &
      '           C524O2 + HO2 --> C524OOH                                                                 ', &
-     '            C524O2 + NO --> C524NO3                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_65 = (/ &
+     '            C524O2 + NO --> C524NO3                                                                 ', &
      '            C524O2 + NO --> C524O + NO2                                                             ', &
-     '           C524O2 + NO3 --> C524O + NO2                                                             ', &
+     '           C524O2 + NO3 --> C524O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_65 = (/ &
      '                 C524O2 --> C524CO                                                                  ', &
      '                 C524O2 --> C524O                                                                   ', &
      '                 C524O2 --> C524OH                                                                  ', &
-     '                 C524O2 --> HMACR + HCHO + OH                                                       ', &
+     '                 C524O2 --> HMACR + OH + HCHO                                                       ', &
      '        HOCO3C4OOH + OH --> HO1CO3C4O2                                                              ', &
      '        HOCO3C4OOH + OH --> HO1CO3CHO + OH                                                          ', &
      '             HOCO3C4OOH --> HO1CO3C4O + OH                                                          ', &
@@ -2738,21 +2739,21 @@ MODULE second_Monitor
      '              BIACETOOH --> BIACETO + OH                                                            ', &
      '         BIACETOOH + OH --> BIACETO2                                                                ', &
      '         BIACETOOH + OH --> CO23C3CHO + OH                                                          ', &
-     '                BIACETO --> CH3CO3 + HCHO + CO                                                      ', &
+     '                BIACETO --> CH3CO3 + CO + HCHO                                                      ', &
      '        PERPROACID + OH --> C2H5CO3                                                                 ', &
      '             PERPROACID --> C2H5O2 + OH                                                             ', &
      '          PROPACID + OH --> C2H5O2                                                                  ', &
-     '               PPN + OH --> CH3CHO + CO + NO2                                                       ', &
+     '               PPN + OH --> NO2 + CO + CH3CHO                                                       ', &
      '                    PPN --> C2H5CO3 + NO2                                                           ', &
      '          NBZFUO2 + HO2 --> NBZFUOOH                                                                ', &
      '           NBZFUO2 + NO --> NBZFUO + NO2                                                            ', &
      '          NBZFUO2 + NO3 --> NBZFUO + NO2                                                            ', &
      '                NBZFUO2 --> NBZFUO                                                                  ', &
      '              BZFUONOOA --> BZFUONOO                                                                ', &
-     '              BZFUONOOA --> HCOCH2O2 + CO + OH                                                      ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_66 = (/ &
+     '              BZFUONOOA --> HCOCH2O2 + OH + CO                                                      ', &
      '           BZFUO2 + HO2 --> BZFUOOH                                                                 ', &
-     '            BZFUO2 + NO --> BZFUO + NO2                                                             ', &
+     '            BZFUO2 + NO --> BZFUO + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_66 = (/ &
      '           BZFUO2 + NO3 --> BZFUO + NO2                                                             ', &
      '                 BZFUO2 --> BZFUCO                                                                  ', &
      '                 BZFUO2 --> BZFUO                                                                   ', &
@@ -2763,34 +2764,34 @@ MODULE second_Monitor
      '             MALDALCO3H --> MALDIALCO2 + OH                                                         ', &
      '             MALDIALCO2 --> GLYOX + HO2 + CO                                                        ', &
      '             MALDIALCO2 --> MALANHY + HO2                                                           ', &
-     '        MALDIALPAN + OH --> GLYOX + 2 CO + NO2                                                      ', &
+     '        MALDIALPAN + OH --> GLYOX + NO2 + 2 CO                                                      ', &
      '             MALDIALPAN --> MALDIALCO3 + NO2                                                        ', &
      '         EPXDLCO2H + OH --> C3DIALO2                                                                ', &
      '              EPXDLCO2H --> C3DIALO2 + HO2                                                          ', &
      '         EPXDLCO3H + OH --> EPXDLCO3                                                                ', &
      '              EPXDLCO3H --> C3DIALO2 + OH                                                           ', &
-     '          EPXDLPAN + OH --> C33CO + CO + NO2                                                        ', &
+     '          EPXDLPAN + OH --> C33CO + NO2 + CO                                                        ', &
      '               EPXDLPAN --> EPXDLCO3 + NO2                                                          ', &
      '         C3DIALOOH + OH --> C33CO + OH                                                              ', &
      '              C3DIALOOH --> C3DIALO + OH                                                            ', &
-     '              C3DIALOOH --> GLYOX + HO2 + CO + OH                                                   ', &
+     '              C3DIALOOH --> GLYOX + OH + HO2 + CO                                                   ', &
      '                C3DIALO --> GLYOX + HO2 + CO                                                        ', &
      '         C32OH13CO + OH --> HCOCOHCO3                                                               ', &
      '              C32OH13CO --> GLYOX + 2 HO2 + CO                                                      ', &
      '             C33CO + OH --> HO2 + 3 CO                                                              ', &
      '                  C33CO --> 2 HO2 + 3 CO                                                            ', &
      '                HCOCO2H --> 2 HO2 + CO                                                              ', &
-     '           HCOCO2H + OH --> HO2 + CO                                                                ' /)
+     '           HCOCO2H + OH --> HO2 + CO                                                                ', &
+     '        HCOCOHCO3 + HO2 --> GLYOX + OH + HO2                                                        ', &
+     '        HCOCOHCO3 + HO2 --> HCOCOHCO3H                                                              ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_67 = (/ &
-     '        HCOCOHCO3 + HO2 --> GLYOX + HO2 + OH                                                        ', &
-     '        HCOCOHCO3 + HO2 --> HCOCOHCO3H                                                              ', &
      '         HCOCOHCO3 + NO --> GLYOX + HO2 + NO2                                                       ', &
      '        HCOCOHCO3 + NO2 --> HCOCOHPAN                                                               ', &
      '        HCOCOHCO3 + NO3 --> GLYOX + HO2 + NO2                                                       ', &
      '              HCOCOHCO3 --> GLYOX + HO2                                                             ', &
      '        MALDIALOOH + OH --> HOCOC4DIAL + OH                                                         ', &
      '        MALDIALOOH + OH --> MALDIALO2                                                               ', &
-     '             MALDIALOOH --> C32OH13CO + HO2 + CO + OH                                               ', &
+     '             MALDIALOOH --> C32OH13CO + OH + HO2 + CO                                               ', &
      '             MALDIALOOH --> MALDIALO + OH                                                           ', &
      '               MALDIALO --> 2 GLYOX + HO2                                                           ', &
      '        HOCOC4DIAL + OH --> CO2C4DIAL + HO2                                                         ', &
@@ -2811,10 +2812,10 @@ MODULE second_Monitor
      '           PBZQONE + OH --> PBZQO2                                                                  ', &
      '          C6H5CO3H + OH --> C6H5CO3                                                                 ', &
      '               C6H5CO3H --> C6H5O2 + OH                                                             ', &
-     '            PHCOOH + OH --> C6H5O2                                                                  ' /)
+     '            PHCOOH + OH --> C6H5O2                                                                  ', &
+     '              PBZN + OH --> C6H5OOH + NO2 + CO                                                      ', &
+     '                   PBZN --> C6H5CO3 + NO2                                                           ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_68 = (/ &
-     '              PBZN + OH --> C6H5OOH + CO + NO2                                                      ', &
-     '                   PBZN --> C6H5CO3 + NO2                                                           ', &
      '          C5CO14OH + OH --> C5CO14CO2                                                               ', &
      '               C5CO14OH --> HCOCO2H + CH3CO3 + HO2 + CO                                             ', &
      '          PTLQONE + NO3 --> NPTLQO2                                                                 ', &
@@ -2842,17 +2843,17 @@ MODULE second_Monitor
      '       MC3CODBCO3 + HO2 --> MC3ODBCO2H + O3                                                         ', &
      '        MC3CODBCO3 + NO --> MC3CODBCO2 + NO2                                                        ', &
      '       MC3CODBCO3 + NO2 --> MC3CODBPAN                                                              ', &
-     '       MC3CODBCO3 + NO3 --> MC3CODBCO2 + NO2                                                        ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_69 = (/ &
+     '       MC3CODBCO3 + NO3 --> MC3CODBCO2 + NO2                                                        ', &
      '             MC3CODBCO3 --> MC3CODBCO2                                                              ', &
-     '             MC3CODBCO3 --> MC3ODBCO2H                                                              ', &
+     '             MC3CODBCO3 --> MC3ODBCO2H                                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_69 = (/ &
      '       C4M2ALOHO2 + HO2 --> C4MALOHOOH                                                              ', &
      '        C4M2ALOHO2 + NO --> C4M2ALOHO + NO2                                                         ', &
      '       C4M2ALOHO2 + NO3 --> C4M2ALOHO + NO2                                                         ', &
      '             C4M2ALOHO2 --> C4M2AL2OH                                                               ', &
      '             C4M2ALOHO2 --> C4M2ALOHO                                                               ', &
      '         PXYFUONE + NO3 --> NPXYFUO2                                                                ', &
-     '          PXYFUONE + O3 --> MCOCOMOXO2 + CO + OH                                                    ', &
+     '          PXYFUONE + O3 --> MCOCOMOXO2 + OH + CO                                                    ', &
      '          PXYFUONE + OH --> PXYFUO2                                                                 ', &
      '       C5DICARBO2 + HO2 --> C5DICAROOH                                                              ', &
      '        C5DICARBO2 + NO --> C5DICARBO + NO2                                                         ', &
@@ -2864,7 +2865,7 @@ MODULE second_Monitor
      '           NTLFUO2 + NO --> NTLFUO + NO2                                                            ', &
      '          NTLFUO2 + NO3 --> NTLFUO + NO2                                                            ', &
      '                NTLFUO2 --> NTLFUO                                                                  ', &
-     '              TLFUONOOA --> MECOACETO2 + CO + OH                                                    ', &
+     '              TLFUONOOA --> MECOACETO2 + OH + CO                                                    ', &
      '              TLFUONOOA --> TLFUONOO                                                                ', &
      '           TLFUO2 + HO2 --> TLFUOOH                                                                 ', &
      '            TLFUO2 + NO --> TLFUO + NO2                                                             ', &
@@ -2873,10 +2874,10 @@ MODULE second_Monitor
      '                 TLFUO2 --> TLFUOH                                                                  ', &
      '              C5CO14CO2 --> MALANHY + CH3O2                                                         ', &
      '              C5CO14CO2 --> MGLYOX + HO2 + CO                                                       ', &
-     '         C5CO14OOH + OH --> C5CO14O2                                                                ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_70 = (/ &
+     '         C5CO14OOH + OH --> C5CO14O2                                                                ', &
      '              C5CO14OOH --> C5CO14CO2 + OH                                                          ', &
-     '         C5COO2NO2 + OH --> MGLYOX + 2 CO + NO2                                                     ', &
+     '         C5COO2NO2 + OH --> MGLYOX + NO2 + 2 CO                                                     ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_70 = (/ &
      '              C5COO2NO2 --> C5CO14O2 + NO2                                                          ', &
      '          PINALO2 + HO2 --> PINALOOH                                                                ', &
      '           PINALO2 + NO --> PINALNO3                                                                ', &
@@ -2889,7 +2890,7 @@ MODULE second_Monitor
      '                 NC101O --> NC102O2                                                                 ', &
      '        PERPINONIC + OH --> C96CO3                                                                  ', &
      '             PERPINONIC --> C96O2 + OH                                                              ', &
-     '           C10PAN2 + OH --> NORPINAL + CO + NO2                                                     ', &
+     '           C10PAN2 + OH --> NORPINAL + NO2 + CO                                                     ', &
      '                C10PAN2 --> C96CO3 + NO2                                                            ', &
      '           C108O2 + HO2 --> C108OOH                                                                 ', &
      '            C108O2 + NO --> C108NO3                                                                 ', &
@@ -2904,10 +2905,10 @@ MODULE second_Monitor
      '           C89CO3 + NO2 --> C89PAN                                                                  ', &
      '           C89CO3 + NO3 --> C89CO2 + NO2                                                            ', &
      '                 C89CO3 --> C89CO2                                                                  ', &
-     '                 C89CO3 --> C89CO2H                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_71 = (/ &
+     '                 C89CO3 --> C89CO2H                                                                 ', &
      '          C920CO3 + HO2 --> C920CO3H                                                                ', &
-     '          C920CO3 + HO2 --> C920O2 + OH                                                             ', &
+     '          C920CO3 + HO2 --> C920O2 + OH                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_71 = (/ &
      '          C920CO3 + HO2 --> HOPINONIC + O3                                                          ', &
      '           C920CO3 + NO --> C920O2 + NO2                                                            ', &
      '          C920CO3 + NO2 --> C920PAN                                                                 ', &
@@ -2935,10 +2936,10 @@ MODULE second_Monitor
      '                  C85O2 --> C85O                                                                    ', &
      '           C719O2 + HO2 --> C719OOH                                                                 ', &
      '            C719O2 + NO --> C719NO3                                                                 ', &
-     '            C719O2 + NO --> C719O + NO2                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_72 = (/ &
+     '            C719O2 + NO --> C719O + NO2                                                             ', &
      '           C719O2 + NO3 --> C719O + NO2                                                             ', &
-     '                 C719O2 --> C719O                                                                   ', &
+     '                 C719O2 --> C719O                                                                   ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_72 = (/ &
      '                 C719O2 --> C719OH                                                                  ', &
      '           C720OOH + OH --> HCC7CO + OH                                                             ', &
      '                C720OOH --> C720O + OH                                                              ', &
@@ -2948,7 +2949,7 @@ MODULE second_Monitor
      '            C720OH + OH --> HCC7CO + HO2                                                            ', &
      '          NC91CO3H + OH --> NC91CO3                                                                 ', &
      '               NC91CO3H --> NOPINONE + OH + NO2                                                     ', &
-     '           NC91PAN + OH --> NOPINONE + CO + 2 NO2                                                   ', &
+     '           NC91PAN + OH --> NOPINONE + 2 NO2 + CO                                                   ', &
      '                NC91PAN --> NC91CO3 + NO2                                                           ', &
      '           C918O2 + HO2 --> C918OOH                                                                 ', &
      '            C918O2 + NO --> C918NO3                                                                 ', &
@@ -2966,10 +2967,10 @@ MODULE second_Monitor
      '           C915O2 + HO2 --> C915OOH                                                                 ', &
      '            C915O2 + NO --> C915NO3                                                                 ', &
      '            C915O2 + NO --> C915O + NO2                                                             ', &
-     '           C915O2 + NO3 --> C915O + NO2                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_73 = (/ &
+     '           C915O2 + NO3 --> C915O + NO2                                                             ', &
      '                 C915O2 --> C88CHO                                                                  ', &
-     '                 C915O2 --> C915O                                                                   ', &
+     '                 C915O2 --> C915O                                                                   ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_73 = (/ &
      '                 C915O2 --> C915OH                                                                  ', &
      '            C619CO + OH --> C512CO3                                                                 ', &
      '           C917O2 + HO2 --> C917OOH                                                                 ', &
@@ -2986,8 +2987,8 @@ MODULE second_Monitor
      '            C8BCCO + OH --> C89O2                                                                   ', &
      '            C8BCOH + OH --> C8BCCO + HO2                                                            ', &
      '          C918CO3H + OH --> C918CO3                                                                 ', &
-     '               C918CO3H --> NOPINONE + HO2 + OH                                                     ', &
-     '           C918PAN + OH --> NOPINONE + CO + NO2                                                     ', &
+     '               C918CO3H --> NOPINONE + OH + HO2                                                     ', &
+     '           C918PAN + OH --> NOPINONE + NO2 + CO                                                     ', &
      '                C918PAN --> C918CO3 + NO2                                                           ', &
      '         NLIMALO2 + HO2 --> NLIMALOOH                                                               ', &
      '          NLIMALO2 + NO --> NLIMALO + NO2                                                           ', &
@@ -2997,10 +2998,10 @@ MODULE second_Monitor
      '               LIMALOOA --> C926O2 + OH                                                             ', &
      '           LMLKET + NO3 --> HNO3 + C817CO3                                                          ', &
      '            LMLKET + OH --> C817CO3                                                                 ', &
-     '            LMLKET + OH --> C926O2                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_74 = (/ &
+     '            LMLKET + OH --> C926O2                                                                  ', &
      '                 LMLKET --> C817O2 + HO2 + CO                                                       ', &
-     '          LIMALO2 + HO2 --> LIMALOOH                                                                ', &
+     '          LIMALO2 + HO2 --> LIMALOOH                                                                ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_74 = (/ &
      '           LIMALO2 + NO --> LIMALNO3                                                                ', &
      '           LIMALO2 + NO --> LIMALO + NO2                                                            ', &
      '          LIMALO2 + NO3 --> LIMALO + NO2                                                            ', &
@@ -3028,10 +3029,10 @@ MODULE second_Monitor
      '          C822CO3 + NO2 --> C822PAN                                                                 ', &
      '          C822CO3 + NO3 --> C822CO2 + NO2                                                           ', &
      '                C822CO3 --> C822CO2                                                                 ', &
-     '                C822CO3 --> C822CO2H                                                                ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_75 = (/ &
+     '                C822CO3 --> C822CO2H                                                                ', &
      '           C924O2 + HO2 --> C924OOH                                                                 ', &
-     '            C924O2 + NO --> C924O + NO2                                                             ', &
+     '            C924O2 + NO --> C924O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_75 = (/ &
      '           C924O2 + NO3 --> C924O + NO2                                                             ', &
      '                 C924O2 --> C924CO                                                                  ', &
      '                 C924O2 --> C924O                                                                   ', &
@@ -3051,18 +3052,18 @@ MODULE second_Monitor
      '           C816O2 + NO3 --> C816O + NO2                                                             ', &
      '                 C816O2 --> C816O                                                                   ', &
      '          C923CO3H + OH --> C923CO3                                                                 ', &
-     '               C923CO3H --> C923O2 + OH                                                             ', &
-     '           C923PAN + OH --> NORLIMAL + CO + NO2                                                     ', &
-     '                C923PAN --> NO2 + C923CO3                                                           ', &
+     '               C923CO3H --> OH + C923O2                                                             ', &
+     '           C923PAN + OH --> NORLIMAL + NO2 + CO                                                     ', &
+     '                C923PAN --> C923CO3 + NO2                                                           ', &
      '          NLMKAO2 + HO2 --> NLMKAOOH                                                                ', &
      '           NLMKAO2 + NO --> NLMKAO + NO2                                                            ', &
      '          NLMKAO2 + NO3 --> NLMKAO + NO2                                                            ', &
      '                NLMKAO2 --> LMKBNO3                                                                 ', &
      '                NLMKAO2 --> NLMKAO                                                                  ', &
-     '                 LMKOOA --> LMLKAO2 + OH                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_76 = (/ &
+     '                 LMKOOA --> LMLKAO2 + OH                                                            ', &
      '                 LMKOOA --> LMLKBO2 + OH                                                            ', &
-     '                 LMKOOB --> C817O2 + CO + OH                                                        ', &
+     '                 LMKOOB --> C817O2 + OH + CO                                                        ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_76 = (/ &
      '                 LMKOOB --> LMKBOO                                                                  ', &
      '           LMKAO2 + HO2 --> LMKAOOH                                                                 ', &
      '            LMKAO2 + NO --> LMKANO3                                                                 ', &
@@ -3077,31 +3078,31 @@ MODULE second_Monitor
      '                 LMKBO2 --> LMKAOH                                                                  ', &
      '                 LMKBO2 --> LMKBCO                                                                  ', &
      '                 LMKBO2 --> LMKBO                                                                   ', &
-     '                HCOCO3H --> HO2 + CO + OH                                                           ', &
-     '           HCOCO3H + OH --> HCOCO3                                                                  ', &
      '         CONM2CO2H + OH --> MGLYOX + NO2                                                            ', &
-     '              CONM2CO2H --> CH3COCO2H + HO2 + CO + NO2                                              ', &
+     '              CONM2CO2H --> CH3COCO2H + HO2 + NO2 + CO                                              ', &
      '         CONM2CO3H + OH --> CONM2CO3                                                                ', &
-     '              CONM2CO3H --> CH3COCO3H + HO2 + CO + NO2                                              ', &
-     '          CONM2PAN + OH --> CH3COPAN + CO + NO2                                                     ', &
+     '              CONM2CO3H --> CH3COCO3H + HO2 + NO2 + CO                                              ', &
+     '          CONM2PAN + OH --> CH3COPAN + NO2 + CO                                                     ', &
      '               CONM2PAN --> CONM2CO3 + NO2                                                          ', &
-     '         IPRHOCO2H + OH --> CH3COCH3 + HO2                                                          ', &
-     '              IPRHOCO3H --> CH3COCH3 + HO2 + OH                                                     ', &
+     '         IPRHOCO2H + OH --> HO2 + CH3COCH3                                                          ', &
+     '              IPRHOCO3H --> OH + HO2 + CH3COCH3                                                     ', &
      '         IPRHOCO3H + OH --> IPRHOCO3                                                                ', &
      '                 C4PAN5 --> IPRHOCO3 + NO2                                                          ', &
-     '            C4PAN5 + OH --> CH3COCH3 + CO + NO2                                                     ', &
-     '         COHM2CO2H + OH --> GLYOX + HO2                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_77 = (/ &
+     '            C4PAN5 + OH --> NO2 + CO + CH3COCH3                                                     ', &
+     '         COHM2CO2H + OH --> GLYOX + HO2                                                             ', &
      '              COHM2CO2H --> HCOCO2H + HO2 + CO                                                      ', &
      '         COHM2CO3H + OH --> COHM2CO3                                                                ', &
-     '              COHM2CO3H --> GLYOX + HO2 + OH                                                        ', &
-     '              COHM2CO3H --> HCOCO3H + HO2 + CO                                                      ', &
+     '              COHM2CO3H --> GLYOX + OH + HO2                                                        ', &
+     '              COHM2CO3H --> HCOCO3H + HO2 + CO                                                      ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_77 = (/ &
      '          COHM2PAN + OH --> GLYOX + NO3                                                             ', &
      '               COHM2PAN --> COHM2CO3 + NO2                                                          ', &
-     '           C527OOH + OH --> MACROOH + CO + OH                                                       ', &
+     '                HCOCO3H --> OH + HO2 + CO                                                           ', &
+     '           HCOCO3H + OH --> HCOCO3                                                                  ', &
+     '           C527OOH + OH --> MACROOH + OH + CO                                                       ', &
      '                C527OOH --> ACETOL + GLYOX + 2 OH                                                   ', &
-     '                C527OOH --> MACROOH + HO2 + CO + OH                                                 ', &
-     '           C527NO3 + OH --> MACROOH + CO + NO2                                                      ', &
+     '                C527OOH --> MACROOH + OH + HO2 + CO                                                 ', &
+     '           C527NO3 + OH --> MACROOH + NO2 + CO                                                      ', &
      '                C527NO3 --> C527O + NO2                                                             ', &
      '                  C527O --> ACETOL + GLYOX + OH                                                     ', &
      '                 M3FOOA --> C531O2 + OH                                                             ', &
@@ -3109,53 +3110,53 @@ MODULE second_Monitor
      '           INCNCHO + OH --> INCGLYOX + NO2                                                          ', &
      '           INCNCHO + OH --> INCNCO3                                                                 ', &
      '                INCNCHO --> NOA + GLYOX + HO2 + NO2                                                 ', &
-     '                   C59O --> ACETOL + HOCH2CO3                                                       ', &
+     '                   C59O --> HOCH2CO3 + ACETOL                                                       ', &
      '               INCGLYOX --> MACRNBCO3 + HO2 + CO                                                    ', &
      '          INCGLYOX + OH --> MACRNBCO3 + CO                                                          ', &
-     '         PRNO3CO3 + HO2 --> CH3CHO + OH + NO2                                                       ', &
+     '         PRNO3CO3 + HO2 --> OH + NO2 + CH3CHO                                                       ', &
      '         PRNO3CO3 + HO2 --> PRNO3CO2H + O3                                                          ', &
      '         PRNO3CO3 + HO2 --> PRNO3CO3H                                                               ', &
-     '          PRNO3CO3 + NO --> CH3CHO + 2 NO2                                                          ', &
+     '          PRNO3CO3 + NO --> 2 NO2 + CH3CHO                                                          ', &
      '         PRNO3CO3 + NO2 --> PRNO3PAN                                                                ', &
-     '         PRNO3CO3 + NO3 --> CH3CHO + 2 NO2                                                          ', &
-     '               PRNO3CO3 --> CH3CHO + NO2                                                            ', &
+     '         PRNO3CO3 + NO3 --> 2 NO2 + CH3CHO                                                          ', &
+     '               PRNO3CO3 --> NO2 + CH3CHO                                                            ', &
      '               PRNO3CO3 --> PRNO3CO2H                                                               ', &
-     '                PROPALO --> CH3CHO + HO2 + CO                                                       ', &
-     '       CH3CHOHCO3 + HO2 --> CH3CHO + HO2 + OH                                                       ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_78 = (/ &
+     '                PROPALO --> HO2 + CO + CH3CHO                                                       ', &
+     '       CH3CHOHCO3 + HO2 --> OH + HO2 + CH3CHO                                                       ', &
      '       CH3CHOHCO3 + HO2 --> IPROPOLPER                                                              ', &
-     '        CH3CHOHCO3 + NO --> CH3CHO + HO2 + NO2                                                      ', &
+     '        CH3CHOHCO3 + NO --> HO2 + NO2 + CH3CHO                                                      ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_78 = (/ &
      '       CH3CHOHCO3 + NO2 --> IPROPOLPAN                                                              ', &
-     '       CH3CHOHCO3 + NO3 --> CH3CHO + HO2 + NO2                                                      ', &
-     '             CH3CHOHCO3 --> CH3CHO + HO2                                                            ', &
+     '       CH3CHOHCO3 + NO3 --> HO2 + NO2 + CH3CHO                                                      ', &
+     '             CH3CHOHCO3 --> HO2 + CH3CHO                                                            ', &
      '              CO2H3CO3H --> HCOCO3H + CH3CO3 + HO2                                                  ', &
-     '              CO2H3CO3H --> MGLYOX + HO2 + OH                                                       ', &
+     '              CO2H3CO3H --> MGLYOX + OH + HO2                                                       ', &
      '         CO2H3CO3H + OH --> CO2H3CO3                                                                ', &
      '                 C4PAN6 --> CO2H3CO3 + NO2                                                          ', &
-     '            C4PAN6 + OH --> MGLYOX + CO + NO2                                                       ', &
+     '            C4PAN6 + OH --> MGLYOX + NO2 + CO                                                       ', &
      '         CO2N3CO3 + HO2 --> CO2N3CO3H                                                               ', &
      '         CO2N3CO3 + HO2 --> MGLYOX + OH + NO2                                                       ', &
      '          CO2N3CO3 + NO --> MGLYOX + 2 NO2                                                          ', &
      '         CO2N3CO3 + NO2 --> CO2N3PAN                                                                ', &
      '         CO2N3CO3 + NO3 --> MGLYOX + 2 NO2                                                          ', &
      '               CO2N3CO3 --> MGLYOX + NO2                                                            ', &
-     '             ACO2H + OH --> HCHO + HO2 + CO                                                         ', &
-     '                  ACO3H --> HCHO + HO2 + CO + OH                                                    ', &
+     '             ACO2H + OH --> HO2 + CO + HCHO                                                         ', &
+     '                  ACO3H --> OH + HO2 + CO + HCHO                                                    ', &
      '             ACO3H + OH --> ACO3                                                                    ', &
-     '             ACO3H + OH --> HOCH2CHO + CO + OH                                                      ', &
+     '             ACO3H + OH --> HOCH2CHO + OH + CO                                                      ', &
      '                 ACRPAN --> ACO3 + NO2                                                              ', &
-     '            ACRPAN + OH --> HOCH2CHO + CO + NO3                                                     ', &
+     '            ACRPAN + OH --> HOCH2CHO + NO3 + CO                                                     ', &
      '            HMGLOO + CO --> HOCH2COCHO                                                              ', &
      '            HMGLOO + NO --> HOCH2COCHO + NO2                                                        ', &
      '           HMGLOO + NO2 --> HOCH2COCHO + NO3                                                        ', &
      '           HMGLOO + SO2 --> SO3 + HOCH2COCHO                                                        ', &
-     '                 HMGLOO --> H2O2 + HOCH2COCHO                                                       ', &
+     '                 HMGLOO --> HOCH2COCHO + H2O2                                                       ', &
      '                 HMGLOO --> HOCH2COCO2H                                                             ', &
      '         MVKOHAOOH + OH --> H13CO2CHO + OH                                                          ', &
-     '              MVKOHAOOH --> MVKOHAO + OH                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_79 = (/ &
+     '              MVKOHAOOH --> MVKOHAO + OH                                                            ', &
      '         MVKOHANO3 + OH --> H13CO2CHO + NO2                                                         ', &
-     '                MVKOHAO --> HOCH2COCHO + HCHO + HO2                                                 ', &
+     '                MVKOHAO --> HOCH2COCHO + HO2 + HCHO                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_79 = (/ &
      '              H13CO2CHO --> HOCH2CHO + 2 HO2 + CO                                                   ', &
      '        H13CO2CHO + NO3 --> H13CO2CO3 + HNO3                                                        ', &
      '         H13CO2CHO + OH --> H13CO2CO3                                                               ', &
@@ -3170,36 +3171,36 @@ MODULE second_Monitor
      '                 IEACHO --> HMVKBO2 + HO2 + CO                                                      ', &
      '           IEACHO + NO3 --> IEACO3 + HNO3                                                           ', &
      '            IEACHO + OH --> IEACO3                                                                  ', &
-     '           C526OOH + OH --> HMVKBOOH + CO + OH                                                      ', &
+     '           C526OOH + OH --> HMVKBOOH + OH + CO                                                      ', &
      '           C526OOH + OH --> IEC2OOH + OH                                                            ', &
-     '                C526OOH --> HMVKBOOH + HO2 + CO + OH                                                ', &
+     '                C526OOH --> HMVKBOOH + OH + HO2 + CO                                                ', &
      '                C526OOH --> MGLYOX + HOCH2CHO + 2 OH                                                ', &
-     '           C526NO3 + OH --> HMVKBOOH + CO + NO2                                                     ', &
+     '           C526NO3 + OH --> HMVKBOOH + NO2 + CO                                                     ', &
      '                C526NO3 --> C526O + NO2                                                             ', &
      '                  C526O --> MGLYOX + HOCH2CHO + OH                                                  ', &
      '             NC2OO + CO --> NO3CH2CHO                                                               ', &
      '             NC2OO + NO --> NO3CH2CHO + NO2                                                         ', &
      '            NC2OO + NO2 --> NO3CH2CHO + NO3                                                         ', &
      '            NC2OO + SO2 --> SO3 + NO3CH2CHO                                                         ', &
-     '                  NC2OO --> H2O2 + NO3CH2CHO                                                        ', &
+     '                  NC2OO --> NO3CH2CHO + H2O2                                                        ', &
      '                  NC2OO --> NO3CH2CO2H                                                              ', &
-     '             ACLOO + CO --> ACETOL                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_80 = (/ &
+     '             ACLOO + CO --> ACETOL                                                                  ', &
      '             ACLOO + NO --> ACETOL + NO2                                                            ', &
-     '            ACLOO + NO2 --> ACETOL + NO3                                                            ', &
+     '            ACLOO + NO2 --> ACETOL + NO3                                                            ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_80 = (/ &
      '            ACLOO + SO2 --> SO3 + ACETOL                                                            ', &
      '                  ACLOO --> H2O2 + ACETOL                                                           ', &
-     '        NO3CH2CO3 + HO2 --> HCHO + OH + NO2                                                         ', &
+     '        NO3CH2CO3 + HO2 --> OH + NO2 + HCHO                                                         ', &
      '        NO3CH2CO3 + HO2 --> NO3CH2CO2H + O3                                                         ', &
      '        NO3CH2CO3 + HO2 --> NO3CH2CO3H                                                              ', &
-     '         NO3CH2CO3 + NO --> HCHO + 2 NO2                                                            ', &
+     '         NO3CH2CO3 + NO --> 2 NO2 + HCHO                                                            ', &
      '        NO3CH2CO3 + NO2 --> NO3CH2PAN                                                               ', &
-     '        NO3CH2CO3 + NO3 --> HCHO + 2 NO2                                                            ', &
-     '              NO3CH2CO3 --> HCHO + NO2                                                              ', &
+     '        NO3CH2CO3 + NO3 --> 2 NO2 + HCHO                                                            ', &
+     '              NO3CH2CO3 --> NO2 + HCHO                                                              ', &
      '              NO3CH2CO3 --> NO3CH2CO2H                                                              ', &
      '        C3MDIALOOH + OH --> C3MDIALO2                                                               ', &
      '             C3MDIALOOH --> C3MDIALO + OH                                                           ', &
-     '             C3MDIALOOH --> MGLYOX + HO2 + CO + OH                                                  ', &
+     '             C3MDIALOOH --> MGLYOX + OH + HO2 + CO                                                  ', &
      '         CH3COCO3H + OH --> CH3COCO3                                                                ', &
      '              CH3COCO3H --> CH3CO3 + OH                                                             ', &
      '               PPACLOOA --> CH3COCO3 + OH                                                           ', &
@@ -3209,15 +3210,15 @@ MODULE second_Monitor
      '                 C534O2 --> C534O                                                                   ', &
      '              C4M2ALOHO --> GLYOX + MGLYOX + HO2                                                    ', &
      '          HC4ACO2H + OH --> ACETOL + HO2 + CO                                                       ', &
-     '               HC4ACO3H --> ACETOL + HO2 + CO + OH                                                  ', &
-     '          HC4ACO3H + OH --> MACROH + CO + OH                                                        ', &
+     '               HC4ACO3H --> ACETOL + OH + HO2 + CO                                                  ', &
+     '          HC4ACO3H + OH --> MACROH + OH + CO                                                        ', &
      '                C5PAN17 --> HC4ACO3 + NO2                                                           ', &
-     '           C5PAN17 + OH --> MACROH + CO + NO3                                                       ', &
-     '           C58AOOH + OH --> MACROH + CO + OH                                                        ', &
-     '                C58AOOH --> C58AO + OH                                                              ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_81 = (/ &
+     '           C5PAN17 + OH --> MACROH + NO3 + CO                                                       ', &
+     '           C58AOOH + OH --> MACROH + OH + CO                                                        ', &
+     '                C58AOOH --> C58AO + OH                                                              ', &
      '           C58ANO3 + OH --> C47CHO + HO2                                                            ', &
-     '                C58ANO3 --> ACETOL + GLYOX + HO2 + NO2                                              ', &
+     '                C58ANO3 --> ACETOL + GLYOX + HO2 + NO2                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_81 = (/ &
      '                  C58AO --> ACETOL + GLYOX + HO2                                                    ', &
      '           IEB1CHO + OH --> C4M2ALOHO2                                                              ', &
      '           IEB4CHO + OH --> C4M2ALOHO2                                                              ', &
@@ -3235,7 +3236,7 @@ MODULE second_Monitor
      '           INB1NO3 + OH --> INB1NBCHO + HO2                                                         ', &
      '                  INB1O --> ACETOL + HOCH2CHO + NO2                                                 ', &
      '            INB1CO + OH --> INB1GLYOX + HO2                                                         ', &
-     '                 INB1CO --> ACETOL + HOCH2CO3 + NO2                                                 ', &
+     '                 INB1CO --> HOCH2CO3 + ACETOL + NO2                                                 ', &
      '            INB1OH + OH --> C58NO3 + HO2                                                            ', &
      '            INB1OH + OH --> INB1CO + HO2                                                            ', &
      '           INB2OOH + OH --> C58NO3 + OH                                                             ', &
@@ -3245,10 +3246,10 @@ MODULE second_Monitor
      '                 IECCHO --> MACRO2 + HO2 + CO                                                       ', &
      '           IECCHO + NO3 --> IECCO3 + HNO3                                                           ', &
      '            IECCHO + OH --> IECCO3                                                                  ', &
-     '                PPGAOOB --> HCOCO3 + OH                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_82 = (/ &
+     '                PPGAOOB --> HCOCO3 + OH                                                             ', &
      '           C535O2 + HO2 --> C535OOH                                                                 ', &
-     '            C535O2 + NO --> C535O + NO2                                                             ', &
+     '            C535O2 + NO --> C535O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_82 = (/ &
      '           C535O2 + NO3 --> C535O + NO2                                                             ', &
      '                 C535O2 --> C535O                                                                   ', &
      '          HPC52OOH + OH --> HPC52CO3                                                                ', &
@@ -3257,16 +3258,16 @@ MODULE second_Monitor
      '                 HPC52O --> HYPERACET + GLYOX + HO2                                                 ', &
      '          HC4CCO2H + OH --> CH3CO3 + HOCH2CHO                                                       ', &
      '               HC4CCO3H --> CH3CO3 + HOCH2CHO + OH                                                  ', &
-     '          HC4CCO3H + OH --> HO12CO3C4 + CO + OH                                                     ', &
+     '          HC4CCO3H + OH --> HO12CO3C4 + OH + CO                                                     ', &
      '                C5PAN19 --> HC4CCO3 + NO2                                                           ', &
-     '           C5PAN19 + OH --> HO12CO3C4 + CO + NO3                                                    ', &
+     '           C5PAN19 + OH --> HO12CO3C4 + NO3 + CO                                                    ', &
      '           C57AOOH + OH --> HMVKBOOH + HO2 + CO                                                     ', &
      '                C57AOOH --> C57AO + OH                                                              ', &
      '                  C57AO --> MGLYOX + HOCH2CHO + HO2                                                 ', &
      '           INDHCHO + OH --> INDHCO3                                                                 ', &
      '                INDHCHO --> MGLYOX + HOCH2CHO + HO2 + NO2                                           ', &
      '                 C57OOH --> C57O + OH                                                               ', &
-     '            C57OOH + OH --> HO12CO3C4 + CO + OH                                                     ', &
+     '            C57OOH + OH --> HO12CO3C4 + OH + CO                                                     ', &
      '            C57NO3 + OH --> C4M2ALOHNO3 + HO2                                                       ', &
      '            C57NO3 + OH --> C57NO3CO3                                                               ', &
      '                 C57NO3 --> MGLYOX + HOCH2CHO + HO2 + NO2                                           ', &
@@ -3276,21 +3277,21 @@ MODULE second_Monitor
      '             NC4OO + NO --> MVKNO3 + NO2                                                            ', &
      '            NC4OO + NO2 --> MVKNO3 + NO3                                                            ', &
      '            NC4OO + SO2 --> SO3 + MVKNO3                                                            ', &
-     '                  NC4OO --> H2O2 + MVKNO3                                                           ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_83 = (/ &
+     '                  NC4OO --> H2O2 + MVKNO3                                                           ', &
      '            INDOOH + OH --> INDHPCHO + HO2                                                          ', &
-     '            INDOOH + OH --> INDO2                                                                   ', &
+     '            INDOOH + OH --> INDO2                                                                   ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_83 = (/ &
      '                 INDOOH --> INDO + OH                                                               ', &
      '                   INDO --> ACETOL + HOCH2CHO + NO2                                                 ', &
-     '                   INDO --> MVKNO3 + HCHO + HO2                                                     ', &
+     '                   INDO --> MVKNO3 + HO2 + HCHO                                                     ', &
      '             INDOH + OH --> INDHCHO + HO2                                                           ', &
      '                 C59OOH --> C59O + OH                                                               ', &
-     '                 C59OOH --> ACETOL + HOCH2CO3 + OH                                                  ', &
+     '                 C59OOH --> HOCH2CO3 + ACETOL + OH                                                  ', &
      '            C59OOH + OH --> C59O2                                                                   ', &
      '            C59OOH + OH --> IEC2OOH + HO2                                                           ', &
-     '               INAHPCHO --> HMVKANO3 + HO2 + CO + OH                                                ', &
+     '               INAHPCHO --> HMVKANO3 + OH + HO2 + CO                                                ', &
      '          INAHPCHO + OH --> INAHPCO3                                                                ', &
-     '                INANCHO --> HMVKANO3 + HO2 + CO + NO2                                               ', &
+     '                INANCHO --> HMVKANO3 + HO2 + NO2 + CO                                               ', &
      '           INANCHO + OH --> INANCO3                                                                 ', &
      '                 INANCO --> NO3CH2CO3 + ACETOL + NO2                                                ', &
      '            INANCO + OH --> INANCOCHO + HO2                                                         ', &
@@ -3299,7 +3300,7 @@ MODULE second_Monitor
      '           INAHCHO + OH --> INAHCO3                                                                 ', &
      '        C58NO3CO3 + HO2 --> C58NO3CO2H + O3                                                         ', &
      '        C58NO3CO3 + HO2 --> C58NO3CO3H                                                              ', &
-     '        C58NO3CO3 + HO2 --> MACRNO3 + HO2 + OH                                                      ', &
+     '        C58NO3CO3 + HO2 --> MACRNO3 + OH + HO2                                                      ', &
      '         C58NO3CO3 + NO --> MACRNO3 + HO2 + NO2                                                     ', &
      '        C58NO3CO3 + NO2 --> C58NO3PAN                                                               ', &
      '              C58NO3CO3 --> C58NO3CO2H                                                              ', &
@@ -3307,13 +3308,13 @@ MODULE second_Monitor
      '         HOCHOCOOH + OH --> HOCH2COCHO + OH                                                         ', &
      '              HOCHOCOOH --> CHOCOHCO + OH                                                           ', &
      '               CHOCOHCO --> HOCH2CHO + HO2 + CO                                                     ', &
-     '          OCCOHCOH + OH --> A2PANOO                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_84 = (/ &
+     '          OCCOHCOH + OH --> A2PANOO                                                                 ', &
      '         OCCOHCOOH + OH --> OCCOHCO2                                                                ', &
-     '              OCCOHCOOH --> OCCOHCO + OH                                                            ', &
+     '              OCCOHCOOH --> OCCOHCO + OH                                                            ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_84 = (/ &
      '                 C42AOH --> NO3CH2CHO + 2 HO2 + CO                                                  ', &
      '            C42AOH + OH --> NMGLYOX + HO2                                                           ', &
-     '                OCCOHCO --> GLYOX + HCHO + HO2                                                      ', &
+     '                OCCOHCO --> GLYOX + HO2 + HCHO                                                      ', &
      '        ETHENO3O2 + HO2 --> ETHO2HNO3                                                               ', &
      '         ETHENO3O2 + NO --> ETHENO3O + NO2                                                          ', &
      '        ETHENO3O2 + NO3 --> ETHENO3O + NO2                                                          ', &
@@ -3322,14 +3323,14 @@ MODULE second_Monitor
      '              ETHENO3O2 --> NO3CH2CHO                                                               ', &
      '                 CH2OOA --> CH2OO                                                                   ', &
      '                 CH2OOA --> CO                                                                      ', &
-     '                 CH2OOA --> HO2 + CO + OH                                                           ', &
+     '                 CH2OOA --> OH + HO2 + CO                                                           ', &
      '           C524OOH + OH --> C524CO + OH                                                             ', &
      '           C524OOH + OH --> C524O2                                                                  ', &
      '           C524OOH + OH --> HIEPOXB + OH                                                            ', &
      '                C524OOH --> C524O + OH                                                              ', &
      '           C524NO3 + OH --> NC524O2                                                                 ', &
      '                C524NO3 --> C524O + NO2                                                             ', &
-     '                  C524O --> HMACR + HCHO + HO2                                                      ', &
+     '                  C524O --> HMACR + HO2 + HCHO                                                      ', &
      '            C524CO + OH --> C525O2                                                                  ', &
      '                 C524CO --> 2 HOCH2CO3 + HCHO                                                       ', &
      '            C524OH + OH --> C524CO + HO2                                                            ', &
@@ -3338,10 +3339,10 @@ MODULE second_Monitor
      '             HMACR + O3 --> HMGLYOOA + HCHO                                                         ', &
      '             HMACR + OH --> HMACO3                                                                  ', &
      '             HMACR + OH --> HMACRO2                                                                 ', &
-     '        HOC2H4CO3 + HO2 --> HOC2H4CO2H + O3                                                         ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_85 = (/ &
+     '        HOC2H4CO3 + HO2 --> HOC2H4CO2H + O3                                                         ', &
      '        HOC2H4CO3 + HO2 --> HOC2H4CO3H                                                              ', &
-     '        HOC2H4CO3 + HO2 --> HOCH2CH2O2 + OH                                                         ', &
+     '        HOC2H4CO3 + HO2 --> HOCH2CH2O2 + OH                                                         ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_85 = (/ &
      '         HOC2H4CO3 + NO --> HOCH2CH2O2 + NO2                                                        ', &
      '        HOC2H4CO3 + NO2 --> C3PAN1                                                                  ', &
      '        HOC2H4CO3 + NO3 --> HOCH2CH2O2 + NO2                                                        ', &
@@ -3364,15 +3365,15 @@ MODULE second_Monitor
      '            BZFUOH + OH --> BZFUCO + HO2                                                            ', &
      '           MALANHY + OH --> MALANHYO2                                                               ', &
      '        HCOCOHCO3H + OH --> HCOCOHCO3                                                               ', &
-     '             HCOCOHCO3H --> GLYOX + HO2 + OH                                                        ', &
-     '         HCOCOHPAN + OH --> GLYOX + CO + NO2                                                        ', &
+     '             HCOCOHCO3H --> GLYOX + OH + HO2                                                        ', &
+     '         HCOCOHPAN + OH --> GLYOX + NO2 + CO                                                        ', &
      '              HCOCOHPAN --> HCOCOHCO3 + NO2                                                         ', &
      '         CO2C4DIAL + OH --> HO2 + 4 CO                                                              ', &
      '              CO2C4DIAL --> 2 HO2 + 4 CO                                                            ', &
-     '           DNPHEN + NO3 --> NDNPHENO2                                                               ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_86 = (/ &
+     '           DNPHEN + NO3 --> NDNPHENO2                                                               ', &
      '            DNPHEN + OH --> DNPHENO2                                                                ', &
-     '         NPHEN1O2 + HO2 --> NPHEN1OOH                                                               ', &
+     '         NPHEN1O2 + HO2 --> NPHEN1OOH                                                               ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_86 = (/ &
      '          NPHEN1O2 + NO --> NPHEN1O + NO2                                                           ', &
      '         NPHEN1O2 + NO3 --> NPHEN1O + NO2                                                           ', &
      '               NPHEN1O2 --> NPHEN1O                                                                 ', &
@@ -3400,10 +3401,10 @@ MODULE second_Monitor
      '           NPTLQO2 + NO --> NPTLQO + NO2                                                            ', &
      '          NPTLQO2 + NO3 --> NPTLQO + NO2                                                            ', &
      '                NPTLQO2 --> NPTLQO                                                                  ', &
-     '           PTLQO2 + HO2 --> PTLQOOH                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_87 = (/ &
+     '           PTLQO2 + HO2 --> PTLQOOH                                                                 ', &
      '            PTLQO2 + NO --> PTLQO + NO2                                                             ', &
-     '           PTLQO2 + NO3 --> PTLQO + NO2                                                             ', &
+     '           PTLQO2 + NO3 --> PTLQO + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_87 = (/ &
      '                 PTLQO2 --> PTLQCO                                                                  ', &
      '                 PTLQO2 --> PTLQO                                                                   ', &
      '                 PTLQO2 --> PTLQOH                                                                  ', &
@@ -3427,14 +3428,14 @@ MODULE second_Monitor
      '             MC3CODBCO2 --> MMALANHY + HO2                                                          ', &
      '             C3MCODBCO2 --> MGLYOX + HO2 + CO                                                       ', &
      '             C3MCODBCO2 --> MMALANHY + HO2                                                          ', &
-     '        C3MCODBPAN + OH --> MGLYOX + 2 CO + NO2                                                     ', &
+     '        C3MCODBPAN + OH --> MGLYOX + NO2 + 2 CO                                                     ', &
      '             C3MCODBPAN --> C3MCODBCO3 + NO2                                                        ', &
-     '        MC3CODBPAN + OH --> GLYOX + HCHO + CO + NO2                                                 ', &
+     '        MC3CODBPAN + OH --> GLYOX + NO2 + CO + HCHO                                                 ', &
      '             MC3CODBPAN --> MC3CODBCO3 + NO2                                                        ', &
-     '         C4M2AL2OH + OH --> C4M2ALOHO                                                               ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_88 = (/ &
+     '         C4M2AL2OH + OH --> C4M2ALOHO                                                               ', &
      '              C4M2AL2OH --> CO2H3CHO + 2 HO2 + CO                                                   ', &
-     '         NPXYFUO2 + HO2 --> NPXYFUOOH                                                               ', &
+     '         NPXYFUO2 + HO2 --> NPXYFUOOH                                                               ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_88 = (/ &
      '          NPXYFUO2 + NO --> NPXYFUO + NO2                                                           ', &
      '         NPXYFUO2 + NO3 --> NPXYFUO + NO2                                                           ', &
      '               NPXYFUO2 --> NPXYFUO                                                                 ', &
@@ -3462,12 +3463,12 @@ MODULE second_Monitor
      '        MECOACETO2 + NO --> MECOACETO + NO2                                                         ', &
      '       MECOACETO2 + NO3 --> MECOACETO + NO2                                                         ', &
      '             MECOACETO2 --> MECOACETO                                                               ', &
-     '          TLFUONOO + CO --> ACCOMECHO                                                               ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_89 = (/ &
+     '          TLFUONOO + CO --> ACCOMECHO                                                               ', &
      '          TLFUONOO + NO --> ACCOMECHO + NO2                                                         ', &
-     '         TLFUONOO + NO2 --> ACCOMECHO + NO3                                                         ', &
+     '         TLFUONOO + NO2 --> ACCOMECHO + NO3                                                         ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_89 = (/ &
      '         TLFUONOO + SO2 --> SO3 + ACCOMECHO                                                         ', &
-     '               TLFUONOO --> H2O2 + ACCOMECHO                                                        ', &
+     '               TLFUONOO --> ACCOMECHO + H2O2                                                        ', &
      '               TLFUONOO --> C24O3CCO2H                                                              ', &
      '           TLFUOOH + OH --> TLFUO2                                                                  ', &
      '                TLFUOOH --> TLFUO + OH                                                              ', &
@@ -3475,7 +3476,7 @@ MODULE second_Monitor
      '            TLFUOH + OH --> TLFUO                                                                   ', &
      '          PINALOOH + OH --> PINALO2                                                                 ', &
      '               PINALOOH --> PINALO + OH                                                             ', &
-     '          PINALNO3 + OH --> CO235C6CHO + CH3COCH3 + NO2                                             ', &
+     '          PINALNO3 + OH --> CO235C6CHO + NO2 + CH3COCH3                                             ', &
      '               PINALNO3 --> PINALO + NO2                                                            ', &
      '                 PINALO --> C106O2                                                                  ', &
      '           PINALOH + OH --> PINALO                                                                  ', &
@@ -3486,25 +3487,25 @@ MODULE second_Monitor
      '                NC102O2 --> NC102O                                                                  ', &
      '           C108OOH + OH --> C108O2                                                                  ', &
      '                C108OOH --> C108O + OH                                                              ', &
-     '           C108NO3 + OH --> CO235C6CHO + CH3COCH3 + NO2                                             ', &
+     '           C108NO3 + OH --> CO235C6CHO + NO2 + CH3COCH3                                             ', &
      '                C108NO3 --> C108O + NO2                                                             ', &
      '                  C108O --> C717O2 + CH3COCH3                                                       ', &
      '            C108OH + OH --> C108O                                                                   ', &
      '                 C108OH --> C108O + HO2                                                             ', &
      '                 C89CO2 --> C811CO3                                                                 ', &
      '                 C89CO2 --> C89O2                                                                   ', &
-     '           C89CO2H + OH --> C89CO2                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_90 = (/ &
+     '           C89CO2H + OH --> C89CO2                                                                  ', &
      '                C89CO2H --> C89CO2 + HO2                                                            ', &
-     '           C89CO3H + OH --> C89CO3                                                                  ', &
+     '           C89CO3H + OH --> C89CO3                                                                  ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_90 = (/ &
      '                C89CO3H --> C89CO2 + OH                                                             ', &
-     '            C89PAN + OH --> CO13C4CHO + CH3COCH3 + CO + NO2                                         ', &
+     '            C89PAN + OH --> CO13C4CHO + NO2 + CO + CH3COCH3                                         ', &
      '                 C89PAN --> C89CO3 + NO2                                                            ', &
      '          C920CO3H + OH --> C920CO3                                                                 ', &
      '               C920CO3H --> C920O2 + OH                                                             ', &
      '         HOPINONIC + OH --> C920O2                                                                  ', &
      '              HOPINONIC --> C920O2 + HO2                                                            ', &
-     '           C920PAN + OH --> C109OH + CO + NO2                                                       ', &
+     '           C920PAN + OH --> C109OH + NO2 + CO                                                       ', &
      '                C920PAN --> C920CO3 + NO2                                                           ', &
      '           C920OOH + OH --> C920O2                                                                  ', &
      '                C920OOH --> C920O + OH                                                              ', &
@@ -3516,7 +3517,7 @@ MODULE second_Monitor
      '                  C97OH --> C97O + HO2                                                              ', &
      '           C85CO3H + OH --> C85CO3                                                                  ', &
      '                C85CO3H --> C85O2 + OH                                                              ', &
-     '            C9PAN2 + OH --> C85OOH + CO + NO2                                                       ', &
+     '            C9PAN2 + OH --> C85OOH + NO2 + CO                                                       ', &
      '                 C9PAN2 --> C85CO3 + NO2                                                            ', &
      '            C85OOH + OH --> C85O2                                                                   ', &
      '                 C85OOH --> C85O + OH                                                               ', &
@@ -3524,12 +3525,12 @@ MODULE second_Monitor
      '           C719OOH + OH --> C719O2                                                                  ', &
      '                C719OOH --> C719O + OH                                                              ', &
      '           C719NO3 + OH --> C716OH + NO2                                                            ', &
-     '                  C719O --> C716OH + HO2                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_91 = (/ &
+     '                  C719O --> C716OH + HO2                                                            ', &
      '            C719OH + OH --> C719O                                                                   ', &
-     '           C918OOH + OH --> C918O2                                                                  ', &
+     '           C918OOH + OH --> C918O2                                                                  ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_91 = (/ &
      '                C918OOH --> C918O + OH                                                              ', &
-     '           C918NO3 + OH --> 2 HCOCH2CHO + CH3COCH3 + NO2                                            ', &
+     '           C918NO3 + OH --> 2 HCOCH2CHO + NO2 + CH3COCH3                                            ', &
      '                C918NO3 --> C918O + NO2                                                             ', &
      '                  C918O --> C919O2                                                                  ', &
      '            C918OH + OH --> C918O                                                                   ', &
@@ -3555,14 +3556,14 @@ MODULE second_Monitor
      '          C512CO3 + HO2 --> C512CO3H                                                                ', &
      '          C512CO3 + HO2 --> C512O2 + OH                                                             ', &
      '           C512CO3 + NO --> C512O2 + NO2                                                            ', &
-     '          C512CO3 + NO2 --> C512PAN                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_92 = (/ &
+     '          C512CO3 + NO2 --> C512PAN                                                                 ', &
      '          C512CO3 + NO3 --> C512O2 + NO2                                                            ', &
-     '                C512CO3 --> C512CO2H                                                                ', &
+     '                C512CO3 --> C512CO2H                                                                ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_92 = (/ &
      '                C512CO3 --> C512O2                                                                  ', &
      '           C917OOH + OH --> C917O2                                                                  ', &
      '                C917OOH --> C917O + OH                                                              ', &
-     '           C917NO3 + OH --> C619CO + CH3COCH3 + NO2                                                 ', &
+     '           C917NO3 + OH --> C619CO + NO2 + CH3COCH3                                                 ', &
      '                C917NO3 --> C917O + NO2                                                             ', &
      '                  C917O --> C619O2 + CH3COCH3                                                       ', &
      '            C917OH + OH --> C917O                                                                   ', &
@@ -3574,8 +3575,8 @@ MODULE second_Monitor
      '                  C89O2 --> C89OH                                                                   ', &
      '         NLIMALOOH + OH --> NLIMALO2                                                                ', &
      '              NLIMALOOH --> NLIMALO + OH                                                            ', &
-     '                NLIMALO --> LMLKET + HCHO + NO2                                                     ', &
-     '          NLIMALOH + OH --> LMLKET + HCHO + NO2                                                     ', &
+     '                NLIMALO --> LMLKET + NO2 + HCHO                                                     ', &
+     '          NLIMALOH + OH --> LMLKET + NO2 + HCHO                                                     ', &
      '           C926O2 + HO2 --> C926OOH                                                                 ', &
      '            C926O2 + NO --> C926O + NO2                                                             ', &
      '           C926O2 + NO3 --> C926O + NO2                                                             ', &
@@ -3586,10 +3587,10 @@ MODULE second_Monitor
      '          C817CO3 + HO2 --> KLIMONONIC + O3                                                         ', &
      '           C817CO3 + NO --> C817O2 + NO2                                                            ', &
      '          C817CO3 + NO2 --> C817PAN                                                                 ', &
-     '          C817CO3 + NO3 --> C817O2 + NO2                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_93 = (/ &
+     '          C817CO3 + NO3 --> C817O2 + NO2                                                            ', &
      '                C817CO3 --> C817O2                                                                  ', &
-     '                C817CO3 --> KLIMONONIC                                                              ', &
+     '                C817CO3 --> KLIMONONIC                                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_93 = (/ &
      '           C817O2 + HO2 --> C817OOH                                                                 ', &
      '            C817O2 + NO --> C817NO3                                                                 ', &
      '            C817O2 + NO --> C817O + NO2                                                             ', &
@@ -3599,9 +3600,9 @@ MODULE second_Monitor
      '                 C817O2 --> C817OH                                                                  ', &
      '          LIMALOOH + OH --> LIMALO2                                                                 ', &
      '               LIMALOOH --> LIMALO + OH                                                             ', &
-     '          LIMALNO3 + OH --> LMLKET + HCHO + NO2                                                     ', &
-     '                 LIMALO --> LMLKET + HCHO + HO2                                                     ', &
-     '           LIMALOH + OH --> LMLKET + HCHO + HO2                                                     ', &
+     '          LIMALNO3 + OH --> LMLKET + NO2 + HCHO                                                     ', &
+     '                 LIMALO --> LMLKET + HO2 + HCHO                                                     ', &
+     '           LIMALOH + OH --> LMLKET + HO2 + HCHO                                                     ', &
      '          NC826O2 + HO2 --> NC826OOH                                                                ', &
      '           NC826O2 + NO --> NC826O + NO2                                                            ', &
      '          NC826O2 + NO3 --> NC826O + NO2                                                            ', &
@@ -3617,10 +3618,10 @@ MODULE second_Monitor
      '           C826O2 + NO3 --> C826O + NO2                                                             ', &
      '                 C826O2 --> C826O                                                                   ', &
      '                 C826O2 --> C826OH                                                                  ', &
-     '           C729O2 + HO2 --> C729OOH                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_94 = (/ &
+     '           C729O2 + HO2 --> C729OOH                                                                 ', &
      '            C729O2 + NO --> C729NO3                                                                 ', &
-     '            C729O2 + NO --> C729O + NO2                                                             ', &
+     '            C729O2 + NO --> C729O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_94 = (/ &
      '           C729O2 + NO3 --> C729O + NO2                                                             ', &
      '                 C729O2 --> C622CHO                                                                 ', &
      '                 C729O2 --> C729O                                                                   ', &
@@ -3628,14 +3629,14 @@ MODULE second_Monitor
      '               C729CO2H --> C729O2 + HO2                                                            ', &
      '          C729CO3H + OH --> C729CO3                                                                 ', &
      '               C729CO3H --> C729O2 + OH                                                             ', &
-     '           C729PAN + OH --> C622CHO + CO + NO2                                                      ', &
+     '           C729PAN + OH --> C622CHO + NO2 + CO                                                      ', &
      '                C729PAN --> C729CO3 + NO2                                                           ', &
      '                C822CO2 --> C822O2                                                                  ', &
      '                C822CO2 --> C823CO3                                                                 ', &
      '          C822CO2H + OH --> C822CO2                                                                 ', &
      '          C822CO3H + OH --> C822CO3                                                                 ', &
      '               C822CO3H --> C822CO2 + OH                                                            ', &
-     '           C822PAN + OH --> C729CHO + CO + NO2                                                      ', &
+     '           C822PAN + OH --> C729CHO + NO2 + CO                                                      ', &
      '                C822PAN --> C822CO3 + NO2                                                           ', &
      '           C924OOH + OH --> C924CO + OH                                                             ', &
      '                C924OOH --> C924O + OH                                                              ', &
@@ -3645,13 +3646,13 @@ MODULE second_Monitor
      '            C924OH + OH --> C924CO + HO2                                                            ', &
      '          C816CO3H + OH --> C816CO3                                                                 ', &
      '               C816CO3H --> C816O2 + OH                                                             ', &
-     '           C816PAN + OH --> C816CO + CO + NO2                                                       ', &
+     '           C816PAN + OH --> C816CO + NO2 + CO                                                       ', &
      '                C816PAN --> C816CO3 + NO2                                                           ', &
      '         NORLIMOOH + OH --> NORLIMO2                                                                ', &
-     '              NORLIMOOH --> NORLIMO + OH                                                            ' /)
+     '              NORLIMOOH --> NORLIMO + OH                                                            ', &
+     '                NORLIMO --> C817CO + HO2 + HCHO                                                     ', &
+     '           C816OOH + OH --> C816CO + OH                                                             ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_95 = (/ &
-     '                NORLIMO --> C817CO + HCHO + HO2                                                     ', &
-     '           C816OOH + OH --> C816CO + OH                                                             ', &
      '                C816OOH --> C816O + OH                                                              ', &
      '                  C816O --> C816CO + HO2                                                            ', &
      '                  C816O --> MEKAO2 + MACR                                                           ', &
@@ -3679,19 +3680,19 @@ MODULE second_Monitor
      '                 LMKBOO --> H2O2 + LMLKET                                                           ', &
      '           LMKAOOH + OH --> LMKAO2                                                                  ', &
      '                LMKAOOH --> LMKAO + OH                                                              ', &
-     '           LMKANO3 + OH --> LMLKET + NO2                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_96 = (/ &
+     '           LMKANO3 + OH --> LMLKET + NO2                                                            ', &
      '                  LMKAO --> LMLKET + HO2                                                            ', &
-     '            LMKAOH + OH --> LMKBCO + HO2                                                            ', &
+     '            LMKAOH + OH --> LMKBCO + HO2                                                            ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_96 = (/ &
      '           LMKBOOH + OH --> LMKBCO + OH                                                             ', &
      '                LMKBOOH --> LMKBO + OH                                                              ', &
      '                  LMKBO --> LMLKET + HO2                                                            ', &
      '            LMKBCO + OH --> C817CO3                                                                 ', &
-     '          CH3COPAN + OH --> HCHO + 2 CO + NO2                                                       ', &
+     '          CH3COPAN + OH --> NO2 + 2 CO + HCHO                                                       ', &
      '               CH3COPAN --> CH3COCO3 + NO2                                                          ', &
      '         COHM2CO3 + HO2 --> COHM2CO2H + O3                                                          ', &
      '         COHM2CO3 + HO2 --> COHM2CO3H                                                               ', &
-     '         COHM2CO3 + HO2 --> GLYOX + HO2 + OH                                                        ', &
+     '         COHM2CO3 + HO2 --> GLYOX + OH + HO2                                                        ', &
      '          COHM2CO3 + NO --> GLYOX + HO2 + NO2                                                       ', &
      '         COHM2CO3 + NO2 --> COHM2PAN                                                                ', &
      '         COHM2CO3 + NO3 --> GLYOX + HO2 + NO2                                                       ', &
@@ -3710,19 +3711,19 @@ MODULE second_Monitor
      '          INCNCO3 + HO2 --> INCNCO3H                                                                ', &
      '          INCNCO3 + HO2 --> MACRNB + OH + NO2                                                       ', &
      '           INCNCO3 + NO --> MACRNB + 2 NO2                                                          ', &
-     '          INCNCO3 + NO2 --> INCNPAN                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_97 = (/ &
+     '          INCNCO3 + NO2 --> INCNPAN                                                                 ', &
      '          INCNCO3 + NO3 --> MACRNB + 2 NO2                                                          ', &
-     '                INCNCO3 --> INCNCO2H                                                                ', &
+     '                INCNCO3 --> INCNCO2H                                                                ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_97 = (/ &
      '                INCNCO3 --> MACRNB + NO2                                                            ', &
-     '         PRNO3CO2H + OH --> CH3CHO + NO2                                                            ', &
+     '         PRNO3CO2H + OH --> NO2 + CH3CHO                                                            ', &
      '         PRNO3CO3H + OH --> PRNO3CO3                                                                ', &
-     '              PRNO3CO3H --> CH3CHO + OH + NO2                                                       ', &
-     '          PRNO3PAN + OH --> CH3CHO + CO + 2 NO2                                                     ', &
+     '              PRNO3CO3H --> OH + NO2 + CH3CHO                                                       ', &
+     '          PRNO3PAN + OH --> 2 NO2 + CO + CH3CHO                                                     ', &
      '               PRNO3PAN --> PRNO3CO3 + NO2                                                          ', &
      '        IPROPOLPER + OH --> CH3CHOHCO3                                                              ', &
-     '             IPROPOLPER --> CH3CHO + HO2 + OH                                                       ', &
-     '        IPROPOLPAN + OH --> CH3CHO + CO + NO2                                                       ', &
+     '             IPROPOLPER --> OH + HO2 + CH3CHO                                                       ', &
+     '        IPROPOLPAN + OH --> NO2 + CO + CH3CHO                                                       ', &
      '             IPROPOLPAN --> CH3CHOHCO3 + NO2                                                        ', &
      '         CO2N3CO3H + OH --> CO2N3CO3                                                                ', &
      '              CO2N3CO3H --> MGLYOX + OH + NO2                                                       ', &
@@ -3731,7 +3732,7 @@ MODULE second_Monitor
      '       HOCH2COCO2H + OH --> HOCH2CO3                                                                ', &
      '            HOCH2COCO2H --> HOCH2CO3 + HO2                                                          ', &
      '        H13CO2CO3 + HO2 --> H13CO2CO3H                                                              ', &
-     '        H13CO2CO3 + HO2 --> HOCH2COCHO + HO2 + OH                                                   ', &
+     '        H13CO2CO3 + HO2 --> HOCH2COCHO + OH + HO2                                                   ', &
      '         H13CO2CO3 + NO --> HOCH2COCHO + HO2 + NO2                                                  ', &
      '        H13CO2CO3 + NO2 --> C4PAN10                                                                 ', &
      '        H13CO2CO3 + NO3 --> HOCH2COCHO + HO2 + NO2                                                  ', &
@@ -3741,17 +3742,17 @@ MODULE second_Monitor
      '           IEACO3 + HO2 --> HMVKBO2 + OH                                                            ', &
      '           IEACO3 + HO2 --> IEACO3H                                                                 ', &
      '            IEACO3 + NO --> HMVKBO2 + NO2                                                           ', &
-     '           IEACO3 + NO2 --> IEAPAN                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_98 = (/ &
+     '           IEACO3 + NO2 --> IEAPAN                                                                  ', &
      '           IEACO3 + NO3 --> HMVKBO2 + NO2                                                           ', &
-     '                 IEACO3 --> HMVKBO2                                                                 ', &
-     '                IEC2OOH --> BIACETOH + HO2 + CO + OH                                                ', &
-     '                IEC2OOH --> MGLYOX + HOCH2CO3 + OH                                                  ', &
-     '           IEC2OOH + OH --> BIACETOH + CO + OH                                                      ', &
-     '        NO3CH2CO2H + OH --> HCHO + NO2                                                              ', &
+     '                 IEACO3 --> HMVKBO2                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_98 = (/ &
+     '                IEC2OOH --> BIACETOH + OH + HO2 + CO                                                ', &
+     '                IEC2OOH --> HOCH2CO3 + MGLYOX + OH                                                  ', &
+     '           IEC2OOH + OH --> BIACETOH + OH + CO                                                      ', &
+     '        NO3CH2CO2H + OH --> NO2 + HCHO                                                              ', &
      '        NO3CH2CO3H + OH --> NO3CH2CO3                                                               ', &
-     '             NO3CH2CO3H --> HCHO + OH + NO2                                                         ', &
-     '         NO3CH2PAN + OH --> HCHO + CO + 2 NO2                                                       ', &
+     '             NO3CH2CO3H --> OH + NO2 + HCHO                                                         ', &
+     '         NO3CH2PAN + OH --> 2 NO2 + CO + HCHO                                                       ', &
      '              NO3CH2PAN --> NO3CH2CO3 + NO2                                                         ', &
      '        C3MDIALO2 + HO2 --> C3MDIALOOH                                                              ', &
      '         C3MDIALO2 + NO --> C3MDIALO + NO2                                                          ', &
@@ -3772,11 +3773,11 @@ MODULE second_Monitor
      '            C47CHO + OH --> C47CO3                                                                  ', &
      '                 C47CHO --> GLYOX + MGLYOX + HO2 + NO2                                              ', &
      '              INB1HPCHO --> ACETOL + GLYOX + OH + NO2                                               ', &
-     '         INB1HPCHO + OH --> INB1HPCO3                                                               ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_99 = (/ &
+     '         INB1HPCHO + OH --> INB1HPCO3                                                               ', &
      '              INB1NACHO --> ACETOL + GLYOX + 2 NO2                                                  ', &
-     '         INB1NACHO + OH --> INB1NACO3                                                               ', &
-     '              INB1NBCHO --> MVKNO3 + HO2 + CO + NO2                                                 ', &
+     '         INB1NACHO + OH --> INB1NACO3                                                               ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_99 = (/ &
+     '              INB1NBCHO --> MVKNO3 + HO2 + NO2 + CO                                                 ', &
      '         INB1NBCHO + OH --> INB1NBCO3                                                               ', &
      '         INB1GLYOX + OH --> MACRNCO3 + CO                                                           ', &
      '              INB1GLYOX --> MACRNCO3 + HO2 + CO                                                     ', &
@@ -3787,26 +3788,26 @@ MODULE second_Monitor
      '           IECCO3 + NO3 --> MACRO2 + NO2                                                            ', &
      '                 IECCO3 --> MACRO2                                                                  ', &
      '           C535OOH + OH --> C535O2                                                                  ', &
-     '                C535OOH --> C3MDIALOOH + HO2 + OH                                                   ', &
+     '                C535OOH --> C3MDIALOOH + OH + HO2                                                   ', &
      '                C535OOH --> C535O + OH                                                              ', &
-     '                C535OOH --> CO2H3CO3H + HO2 + CO + OH                                               ', &
+     '                C535OOH --> CO2H3CO3H + OH + HO2 + CO                                               ', &
      '                  C535O --> HCOCO3H + MGLYOX + HO2                                                  ', &
-     '         HPC52CO3 + HO2 --> DHPMPAL + HO2 + OH                                                      ', &
+     '         HPC52CO3 + HO2 --> DHPMPAL + OH + HO2                                                      ', &
      '         HPC52CO3 + HO2 --> HPC52CO3H                                                               ', &
      '          HPC52CO3 + NO --> DHPMPAL + HO2 + NO2                                                     ', &
      '         HPC52CO3 + NO2 --> HPC52PAN                                                                ', &
      '         HPC52CO3 + NO3 --> DHPMPAL + HO2 + NO2                                                     ', &
      '               HPC52CO3 --> DHPMPAL + HO2                                                           ', &
      '          INDHCO3 + HO2 --> INDHCO3H                                                                ', &
-     '          INDHCO3 + HO2 --> MVKNO3 + HO2 + OH                                                       ', &
+     '          INDHCO3 + HO2 --> MVKNO3 + OH + HO2                                                       ', &
      '           INDHCO3 + NO --> MVKNO3 + HO2 + NO2                                                      ', &
      '          INDHCO3 + NO2 --> INDHPAN                                                                 ', &
      '          INDHCO3 + NO3 --> MVKNO3 + HO2 + NO2                                                      ', &
      '                INDHCO3 --> MVKNO3 + HO2                                                            ', &
-     '       C4M2ALOHNO3 + OH --> MMALNACO3                                                               ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_100 = (/ &
+     '       C4M2ALOHNO3 + OH --> MMALNACO3                                                               ', &
      '       C4M2ALOHNO3 + OH --> MMALNBCO3                                                               ', &
-     '            C4M2ALOHNO3 --> GLYOX + MGLYOX + HO2 + NO2                                              ', &
+     '            C4M2ALOHNO3 --> GLYOX + MGLYOX + HO2 + NO2                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_100 = (/ &
      '        C57NO3CO3 + HO2 --> C57NO3CO2H + O3                                                         ', &
      '        C57NO3CO3 + HO2 --> C57NO3CO3H                                                              ', &
      '        C57NO3CO3 + HO2 --> HO12CO3C4 + OH + NO2                                                    ', &
@@ -3834,10 +3835,10 @@ MODULE second_Monitor
      '          INANCO3 + NO3 --> HMVKANO3 + 2 NO2                                                        ', &
      '                INANCO3 --> HMVKANO3 + NO2                                                          ', &
      '                INANCO3 --> INANCO2H                                                                ', &
-     '         INANCOCHO + OH --> INANCOCO3                                                               ' /)
+     '         INANCOCHO + OH --> INANCOCO3                                                               ', &
+     '          INAHCO3 + HO2 --> HMVKANO3 + OH + HO2                                                     ', &
+     '          INAHCO3 + HO2 --> INAHCO2H + O3                                                           ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_101 = (/ &
-     '          INAHCO3 + HO2 --> HMVKANO3 + HO2 + OH                                                     ', &
-     '          INAHCO3 + HO2 --> INAHCO2H + O3                                                           ', &
      '          INAHCO3 + HO2 --> INAHCO3H                                                                ', &
      '           INAHCO3 + NO --> HMVKANO3 + HO2 + NO2                                                    ', &
      '          INAHCO3 + NO2 --> INAHPAN                                                                 ', &
@@ -3845,7 +3846,7 @@ MODULE second_Monitor
      '                INAHCO3 --> HMVKANO3 + HO2                                                          ', &
      '                INAHCO3 --> INAHCO2H                                                                ', &
      '        C58NO3CO2H + OH --> MMALNACO2H + HO2                                                        ', &
-     '             C58NO3CO3H --> MACRNO3 + HO2 + OH                                                      ', &
+     '             C58NO3CO3H --> MACRNO3 + OH + HO2                                                      ', &
      '        C58NO3CO3H + OH --> C58NO3CO3                                                               ', &
      '        C58NO3CO3H + OH --> MMALNACO3H + HO2                                                        ', &
      '              C58NO3PAN --> C58NO3CO3 + NO2                                                         ', &
@@ -3858,17 +3859,17 @@ MODULE second_Monitor
      '          A2PANOO + NO3 --> A2PANO + NO2                                                            ', &
      '                A2PANOO --> A2PANO                                                                  ', &
      '                A2PANOO --> C2OHOCO2H                                                               ', &
-     '                NMGLYOX --> HCHO + HO2 + 2 CO + NO2                                                 ', &
+     '                NMGLYOX --> HO2 + NO2 + 2 CO + HCHO                                                 ', &
      '                NMGLYOX --> NO3CH2CO3 + HO2 + CO                                                    ', &
      '          NMGLYOX + NO3 --> NO3CH2CO3 + HNO3 + CO                                                   ', &
      '           NMGLYOX + OH --> NO3CH2CO3 + CO                                                          ', &
      '         ETHO2HNO3 + OH --> ETHENO3O2                                                               ', &
      '         ETHO2HNO3 + OH --> NO3CH2CHO + OH                                                          ', &
      '              ETHO2HNO3 --> ETHENO3O + OH                                                           ', &
-     '               ETHENO3O --> 2 HCHO + NO2                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_102 = (/ &
+     '               ETHENO3O --> NO2 + 2 HCHO                                                            ', &
      '               ETHENO3O --> NO3CH2CHO + HO2                                                         ', &
-     '           HIEPOXB + OH --> HIEB1O2                                                                 ', &
+     '           HIEPOXB + OH --> HIEB1O2                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_102 = (/ &
      '           HIEPOXB + OH --> HIEB2O2                                                                 ', &
      '          NC524O2 + HO2 --> NC524OOH                                                                ', &
      '           NC524O2 + NO --> NC524NO3                                                                ', &
@@ -3882,10 +3883,10 @@ MODULE second_Monitor
      '                 C525O2 --> C525O                                                                   ', &
      '           HMACO3 + HO2 --> HMACO2H + O3                                                            ', &
      '           HMACO3 + HO2 --> HMACO3H                                                                 ', &
-     '           HMACO3 + HO2 --> HOCH2CO3 + HCHO + OH                                                    ', &
-     '            HMACO3 + NO --> HOCH2CO3 + HCHO + NO2                                                   ', &
+     '           HMACO3 + HO2 --> HOCH2CO3 + OH + HCHO                                                    ', &
+     '            HMACO3 + NO --> HOCH2CO3 + NO2 + HCHO                                                   ', &
      '           HMACO3 + NO2 --> HMPAN                                                                   ', &
-     '           HMACO3 + NO3 --> HOCH2CO3 + HCHO + NO2                                                   ', &
+     '           HMACO3 + NO3 --> HOCH2CO3 + NO2 + HCHO                                                   ', &
      '                 HMACO3 --> HMACO2H                                                                 ', &
      '                 HMACO3 --> HOCH2CO3 + HCHO                                                         ', &
      '               HMGLYOOA --> HMGLYOO                                                                 ', &
@@ -3893,16 +3894,16 @@ MODULE second_Monitor
      '          HMACRO2 + HO2 --> HMACROOH                                                                ', &
      '           HMACRO2 + NO --> HMACRO + NO2                                                            ', &
      '          HMACRO2 + NO3 --> HMACRO + NO2                                                            ', &
-     '                HMACRO2 --> H13CO2C3 + CO + OH                                                      ', &
+     '                HMACRO2 --> H13CO2C3 + OH + CO                                                      ', &
      '                HMACRO2 --> HMACRO                                                                  ', &
      '                HMACRO2 --> HMACROH                                                                 ', &
-     '        HOC2H4CO2H + OH --> HOCH2CH2O2                                                              ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_103 = (/ &
+     '        HOC2H4CO2H + OH --> HOCH2CH2O2                                                              ', &
      '             HOC2H4CO3H --> HOCH2CH2O2 + OH                                                         ', &
-     '        HOC2H4CO3H + OH --> HOC2H4CO3                                                               ', &
+     '        HOC2H4CO3H + OH --> HOC2H4CO3                                                               ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_103 = (/ &
      '                 C3PAN1 --> HOC2H4CO3 + NO2                                                         ', &
-     '            C3PAN1 + OH --> HOCH2CHO + CO + NO2                                                     ', &
-     '        CO14O3CHO + NO3 --> HNO3 + HCOCH2O2 + CO                                                    ', &
+     '            C3PAN1 + OH --> HOCH2CHO + NO2 + CO                                                     ', &
+     '        CO14O3CHO + NO3 --> HCOCH2O2 + HNO3 + CO                                                    ', &
      '         CO14O3CHO + OH --> HCOCH2O2 + CO                                                           ', &
      '              CO14O3CHO --> HCOCH2O2 + HO2 + CO                                                     ', &
      '          NBZFUONE + OH --> BZFUCO + NO2                                                            ', &
@@ -3927,10 +3928,10 @@ MODULE second_Monitor
      '             NNCATECOOH --> NNCATECO + OH                                                           ', &
      '               NNCATECO --> NC4DCO2H + HCOCO2H + NO2                                                ', &
      '         NCATECOOH + OH --> NCATECO2                                                                ', &
-     '              NCATECOOH --> NCATECO + OH                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_104 = (/ &
+     '              NCATECOOH --> NCATECO + OH                                                            ', &
      '                NCATECO --> NC4DCO2H + HCOCO2H + HO2                                                ', &
-     '           NBZQOOH + OH --> NBZQO2                                                                  ', &
+     '           NBZQOOH + OH --> NBZQO2                                                                  ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_104 = (/ &
      '                NBZQOOH --> NBZQO + OH                                                              ', &
      '                  NBZQO --> C6CO4DB + NO2                                                           ', &
      '           PBZQOOH + OH --> PBZQCO + OH                                                             ', &
@@ -3958,24 +3959,24 @@ MODULE second_Monitor
      '              NCRES1OOH --> NCRES1O + OH                                                            ', &
      '        MNNCATCOOH + OH --> MNNCATECO2                                                              ', &
      '             MNNCATCOOH --> MNNCATECO + OH                                                          ', &
-     '              MNNCATECO --> NC4MDCO2H + HCOCO2H + NO2                                               ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_105 = (/ &
+     '              MNNCATECO --> NC4MDCO2H + HCOCO2H + NO2                                               ', &
      '        MNCATECOOH + OH --> MNCATECO2                                                               ', &
-     '             MNCATECOOH --> MNCATECO + OH                                                           ', &
+     '             MNCATECOOH --> MNCATECO + OH                                                           ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_105 = (/ &
      '               MNCATECO --> NC4MDCO2H + HCOCO2H + HO2                                               ', &
      '          MMALANHY + OH --> MMALANHYO2                                                              ', &
      '         NPXYFUOOH + OH --> NPXYFUO2                                                                ', &
      '              NPXYFUOOH --> NPXYFUO + OH                                                            ', &
      '                NPXYFUO --> C23O3CCHO + NO2                                                         ', &
      '        MCOCOMOOOH + OH --> MCOCOMOXO2                                                              ', &
-     '             MCOCOMOOOH --> CH3CO3 + HCHO + OH                                                      ', &
+     '             MCOCOMOOOH --> CH3CO3 + OH + HCHO                                                      ', &
      '             MCOCOMOOOH --> MCOCOMOXO + OH                                                          ', &
      '              MCOCOMOXO --> CH3CO3 + HCHO                                                           ', &
      '          PXYFUOOH + OH --> PXYFUO2                                                                 ', &
      '               PXYFUOOH --> PXYFUO + OH                                                             ', &
      '                 PXYFUO --> C23O3CCHO + HO2                                                         ', &
      '           PXYFUOH + OH --> PXYFUO                                                                  ', &
-     '            C54CO + NO3 --> HNO3 + CH3CO3 + 3 CO                                                    ', &
+     '            C54CO + NO3 --> CH3CO3 + HNO3 + 3 CO                                                    ', &
      '             C54CO + OH --> CH3CO3 + 3 CO                                                           ', &
      '                  C54CO --> CH3CO3 + HO2 + 3 CO                                                     ', &
      '        ACCOMECHO + NO3 --> ACCOMECO3 + HNO3                                                        ', &
@@ -3989,10 +3990,10 @@ MODULE second_Monitor
      '        CO235C6CHO + OH --> CO235C6CO3                                                              ', &
      '             CO235C6CHO --> CHOC3COCO3 + CH3CO3                                                     ', &
      '           C106O2 + HO2 --> C106OOH                                                                 ', &
-     '            C106O2 + NO --> C106NO3                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_106 = (/ &
+     '            C106O2 + NO --> C106NO3                                                                 ', &
      '            C106O2 + NO --> C106O + NO2                                                             ', &
-     '           C106O2 + NO3 --> C106O + NO2                                                             ', &
+     '           C106O2 + NO3 --> C106O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_106 = (/ &
      '                 C106O2 --> C106O                                                                   ', &
      '                 C106O2 --> C106OH                                                                  ', &
      '          NC102OOH + OH --> NC102O2                                                                 ', &
@@ -4020,10 +4021,10 @@ MODULE second_Monitor
      '            C921O2 + NO --> C921O + NO2                                                             ', &
      '           C921O2 + NO3 --> C921O + NO2                                                             ', &
      '                 C921O2 --> C921O                                                                   ', &
-     '            C98O2 + HO2 --> C98OOH                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_107 = (/ &
+     '            C98O2 + HO2 --> C98OOH                                                                  ', &
      '             C98O2 + NO --> C98NO3                                                                  ', &
-     '             C98O2 + NO --> C98O + NO2                                                              ', &
+     '             C98O2 + NO --> C98O + NO2                                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_107 = (/ &
      '            C98O2 + NO3 --> C98O + NO2                                                              ', &
      '                  C98O2 --> C98O                                                                    ', &
      '                  C98O2 --> C98OH                                                                   ', &
@@ -4051,10 +4052,10 @@ MODULE second_Monitor
      '                 C914O2 --> C914O                                                                   ', &
      '                 C914O2 --> C914OH                                                                  ', &
      '           C916O2 + HO2 --> C916OOH                                                                 ', &
-     '            C916O2 + NO --> C916NO3                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_108 = (/ &
+     '            C916O2 + NO --> C916NO3                                                                 ', &
      '            C916O2 + NO --> C916O + NO2                                                             ', &
-     '           C916O2 + NO3 --> C916O + NO2                                                             ', &
+     '           C916O2 + NO3 --> C916O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_108 = (/ &
      '                 C916O2 --> C916O                                                                   ', &
      '                 C916O2 --> C916OH                                                                  ', &
      '           C88CO3 + HO2 --> C88CO2H + O3                                                            ', &
@@ -4082,10 +4083,10 @@ MODULE second_Monitor
      '                 C512O2 --> C512O                                                                   ', &
      '                 C512O2 --> C512OH                                                                  ', &
      '                 C512O2 --> CO13C4CHO                                                               ', &
-     '           C512PAN + OH --> CO13C4CHO + CO + NO2                                                    ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_109 = (/ &
+     '           C512PAN + OH --> CO13C4CHO + NO2 + CO                                                    ', &
      '                C512PAN --> C512CO3 + NO2                                                           ', &
-     '           C619O2 + HO2 --> C619OOH                                                                 ', &
+     '           C619O2 + HO2 --> C619OOH                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_109 = (/ &
      '            C619O2 + NO --> C619O + NO2                                                             ', &
      '           C619O2 + NO3 --> C619O + NO2                                                             ', &
      '                 C619O2 --> C619CO                                                                  ', &
@@ -4093,7 +4094,7 @@ MODULE second_Monitor
      '                 C619O2 --> C619OH                                                                  ', &
      '            C89OOH + OH --> C89O2                                                                   ', &
      '                 C89OOH --> C89O + OH                                                               ', &
-     '            C89NO3 + OH --> CO13C4CHO + CH3COCH3 + NO2                                              ', &
+     '            C89NO3 + OH --> CO13C4CHO + NO2 + CH3COCH3                                              ', &
      '                 C89NO3 --> C89O + NO2                                                              ', &
      '                   C89O --> C810O2                                                                  ', &
      '             C89OH + OH --> C89O                                                                    ', &
@@ -4107,20 +4108,20 @@ MODULE second_Monitor
      '               C817CO3H --> C817O2 + OH                                                             ', &
      '        KLIMONONIC + OH --> C817O2                                                                  ', &
      '             KLIMONONIC --> C817O2 + HO2                                                            ', &
-     '           C817PAN + OH --> C817CO + CO + NO2                                                       ', &
+     '           C817PAN + OH --> C817CO + NO2 + CO                                                       ', &
      '                C817PAN --> C817CO3 + NO2                                                           ', &
      '           C817OOH + OH --> C817CO + OH                                                             ', &
      '                C817OOH --> C817O + OH                                                              ', &
      '           C817NO3 + OH --> C817CO + NO2                                                            ', &
      '                C817NO3 --> C817O + NO2                                                             ', &
-     '                  C817O --> C818O2                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_110 = (/ &
+     '                  C817O --> C818O2                                                                  ', &
      '            C817CO + OH --> C727CO3                                                                 ', &
-     '            C817OH + OH --> C817CO + HO2                                                            ', &
+     '            C817OH + OH --> C817CO + HO2                                                            ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_110 = (/ &
      '                 C817OH --> C818O2 + HO2                                                            ', &
      '          NC826OOH + OH --> NC826O2                                                                 ', &
      '               NC826OOH --> NC826O + OH                                                             ', &
-     '                 NC826O --> C626CHO + HCHO + NO2                                                    ', &
+     '                 NC826O --> C626CHO + NO2 + HCHO                                                    ', &
      '           NC826OH + OH --> NC826O                                                                  ', &
      '                NC826OH --> NC826O + HO2                                                            ', &
      '          C626CO3 + HO2 --> C626CO2H + O3                                                           ', &
@@ -4144,10 +4145,10 @@ MODULE second_Monitor
      '                 C735O2 --> C735O                                                                   ', &
      '                 C735O2 --> C735OH                                                                  ', &
      '           C826OOH + OH --> C826O2                                                                  ', &
-     '                C826OOH --> C826O + OH                                                              ' /)
+     '                C826OOH --> C826O + OH                                                              ', &
+     '           C826NO3 + OH --> C626CHO + NO2 + HCHO                                                    ', &
+     '                  C826O --> C626CHO + HO2 + HCHO                                                    ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_111 = (/ &
-     '           C826NO3 + OH --> C626CHO + HCHO + NO2                                                    ', &
-     '                  C826O --> C626CHO + HCHO + HO2                                                    ', &
      '            C826OH + OH --> C826O                                                                   ', &
      '                 C826OH --> C826O + HO2                                                             ', &
      '           C729OOH + OH --> C622CHO + OH                                                            ', &
@@ -4175,10 +4176,10 @@ MODULE second_Monitor
      '           C823CO3 + NO --> C823O2 + NO2                                                            ', &
      '          C823CO3 + NO2 --> C823PAN                                                                 ', &
      '          C823CO3 + NO3 --> C823O2 + NO2                                                            ', &
-     '                C823CO3 --> C823O2                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_112 = (/ &
+     '                C823CO3 --> C823O2                                                                  ', &
      '                C823CO3 --> LIMONIC                                                                 ', &
-     '           C925O2 + HO2 --> C925OOH                                                                 ', &
+     '           C925O2 + HO2 --> C925OOH                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_112 = (/ &
      '            C925O2 + NO --> C925O + NO2                                                             ', &
      '           C925O2 + NO3 --> C925O + NO2                                                             ', &
      '                 C925O2 --> C925O                                                                   ', &
@@ -4191,7 +4192,7 @@ MODULE second_Monitor
      '                C622CO3 --> C622CO2H                                                                ', &
      '                C622CO3 --> C622O2                                                                  ', &
      '            C816CO + OH --> C819O2                                                                  ', &
-     '                 C816CO --> MEKAO2 + MACO3                                                          ', &
+     '                 C816CO --> MACO3 + MEKAO2                                                          ', &
      '          LMLKAOOH + OH --> LMLKACO + OH                                                            ', &
      '               LMLKAOOH --> C626CHO + CH3CO3 + OH                                                   ', &
      '               LMLKAOOH --> LMLKAO + OH                                                             ', &
@@ -4201,15 +4202,15 @@ MODULE second_Monitor
      '           LMLKAOH + OH --> LMLKACO + HO2                                                           ', &
      '                LMLKAOH --> C626CHO + CH3CO3 + HO2                                                  ', &
      '          LMLKBOOH + OH --> LMLKBCO + OH                                                            ', &
-     '               LMLKBOOH --> HCHO + C731CO3 + OH                                                     ', &
+     '               LMLKBOOH --> C731CO3 + OH + HCHO                                                     ', &
      '               LMLKBOOH --> LMLKBO + OH                                                             ', &
-     '                 LMLKBO --> HCHO + C731CO3                                                          ', &
+     '                 LMLKBO --> C731CO3 + HCHO                                                          ', &
      '           LMLKBCO + OH --> C731CO3 + CO                                                            ', &
      '                LMLKBCO --> C731CO3 + HO2 + CO                                                      ', &
-     '           LMLKBOH + OH --> LMLKBCO + HO2                                                           ' /)
+     '           LMLKBOH + OH --> LMLKBCO + HO2                                                           ', &
+     '                LMLKBOH --> C731CO3 + HO2 + HCHO                                                    ', &
+     '           C531OOH + OH --> C531CO + OH                                                             ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_113 = (/ &
-     '                LMLKBOH --> HCHO + C731CO3 + HO2                                                    ', &
-     '           C531OOH + OH --> C531CO + OH                                                             ', &
      '                C531OOH --> C531O + OH                                                              ', &
      '                  C531O --> C31CO3 + HCHO                                                           ', &
      '            C532CO + OH --> C533O2                                                                  ', &
@@ -4218,17 +4219,17 @@ MODULE second_Monitor
      '               INCNCO3H --> MACRNB + OH + NO2                                                       ', &
      '          INCNCO3H + OH --> INCNCO3                                                                 ', &
      '                INCNPAN --> INCNCO3 + NO2                                                           ', &
-     '           INCNPAN + OH --> MACRNB + NO2 + NO3                                                      ', &
-     '             H13CO2CO3H --> HOCH2COCHO + HO2 + OH                                                   ', &
+     '           INCNPAN + OH --> MACRNB + NO3 + NO2                                                      ', &
+     '             H13CO2CO3H --> HOCH2COCHO + OH + HO2                                                   ', &
      '        H13CO2CO3H + OH --> H13CO2CO3                                                               ', &
      '                C4PAN10 --> H13CO2CO3 + NO2                                                         ', &
-     '           C4PAN10 + OH --> HOCH2COCHO + CO + NO2                                                   ', &
+     '           C4PAN10 + OH --> HOCH2COCHO + NO2 + CO                                                   ', &
      '                IEACO3H --> HMVKBO2 + OH                                                            ', &
      '           IEACO3H + OH --> IEACO3                                                                  ', &
      '                 IEAPAN --> IEACO3 + NO2                                                            ', &
-     '            IEAPAN + OH --> HMVKBO2 + CO + NO2                                                      ', &
+     '            IEAPAN + OH --> HMVKBO2 + NO2 + CO                                                      ', &
      '           C47CO3 + HO2 --> C47CO3H                                                                 ', &
-     '           C47CO3 + HO2 --> CO2N3CHO + HO2 + OH                                                     ', &
+     '           C47CO3 + HO2 --> CO2N3CHO + OH + HO2                                                     ', &
      '            C47CO3 + NO --> CO2N3CHO + HO2 + NO2                                                    ', &
      '           C47CO3 + NO2 --> C47PAN                                                                  ', &
      '           C47CO3 + NO3 --> CO2N3CHO + HO2 + NO2                                                    ', &
@@ -4237,10 +4238,10 @@ MODULE second_Monitor
      '        INB1HPCO3 + HO2 --> INB1HPCO3H                                                              ', &
      '        INB1HPCO3 + HO2 --> MACRNO3 + 2 OH                                                          ', &
      '         INB1HPCO3 + NO --> MACRNO3 + OH + NO2                                                      ', &
-     '        INB1HPCO3 + NO2 --> INB1HPPAN                                                               ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_114 = (/ &
+     '        INB1HPCO3 + NO2 --> INB1HPPAN                                                               ', &
      '        INB1HPCO3 + NO3 --> MACRNO3 + OH + NO2                                                      ', &
-     '              INB1HPCO3 --> INB1HPCO2H                                                              ', &
+     '              INB1HPCO3 --> INB1HPCO2H                                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_114 = (/ &
      '              INB1HPCO3 --> MACRNO3 + OH                                                            ', &
      '        INB1NACO3 + HO2 --> INB1NACO2H + O3                                                         ', &
      '        INB1NACO3 + HO2 --> INB1NACO3H                                                              ', &
@@ -4261,17 +4262,17 @@ MODULE second_Monitor
      '                IECCO3H --> MACRO2 + OH                                                             ', &
      '           IECCO3H + OH --> IECCO3                                                                  ', &
      '                 IECPAN --> IECCO3 + NO2                                                            ', &
-     '            IECPAN + OH --> MACRO2 + CO + NO2                                                       ', &
+     '            IECPAN + OH --> MACRO2 + NO2 + CO                                                       ', &
      '         HPC52CO3H + OH --> HPC52CO3                                                                ', &
-     '              HPC52CO3H --> DHPMPAL + HO2 + OH                                                      ', &
-     '          HPC52PAN + OH --> DHPMPAL + CO + NO2                                                      ', &
+     '              HPC52CO3H --> DHPMPAL + OH + HO2                                                      ', &
+     '          HPC52PAN + OH --> DHPMPAL + NO2 + CO                                                      ', &
      '               HPC52PAN --> HPC52CO3 + NO2                                                          ', &
      '          INDHCO3H + OH --> INDHCO3                                                                 ', &
-     '               INDHCO3H --> MVKNO3 + HO2 + OH                                                       ', &
-     '           INDHPAN + OH --> MVKNO3 + NO3                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_115 = (/ &
+     '               INDHCO3H --> MVKNO3 + OH + HO2                                                       ', &
+     '           INDHPAN + OH --> MVKNO3 + NO3                                                            ', &
      '                INDHPAN --> INDHCO3 + NO2                                                           ', &
-     '        MMALNACO3 + HO2 --> CONM2CHO + HO2 + OH                                                     ', &
+     '        MMALNACO3 + HO2 --> CONM2CHO + OH + HO2                                                     ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_115 = (/ &
      '        MMALNACO3 + HO2 --> MMALNACO2H + O3                                                         ', &
      '        MMALNACO3 + HO2 --> MMALNACO3H                                                              ', &
      '         MMALNACO3 + NO --> CONM2CHO + HO2 + NO2                                                    ', &
@@ -4299,18 +4300,18 @@ MODULE second_Monitor
      '         INDHPCO3 + NO2 --> INDHPPAN                                                                ', &
      '         INDHPCO3 + NO3 --> MVKNO3 + OH + NO2                                                       ', &
      '               INDHPCO3 --> MVKNO3 + OH                                                             ', &
-     '              INAHPCO2H --> HMVKANO3 + HO2 + OH                                                     ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_116 = (/ &
+     '              INAHPCO2H --> HMVKANO3 + OH + HO2                                                     ', &
      '         INAHPCO2H + OH --> HMVKANO3 + OH                                                           ', &
-     '              INAHPCO3H --> HMVKANO3 + 2 OH                                                         ', &
+     '              INAHPCO3H --> HMVKANO3 + 2 OH                                                         ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_116 = (/ &
      '         INAHPCO3H + OH --> INAHPCO3                                                                ', &
      '               INAHPPAN --> INAHPCO3 + NO2                                                          ', &
-     '          INAHPPAN + OH --> HMVKANO3 + CO + OH + NO2                                                ', &
+     '          INAHPPAN + OH --> HMVKANO3 + OH + NO2 + CO                                                ', &
      '          INANCO2H + OH --> HMVKANO3 + NO2                                                          ', &
      '               INANCO3H --> HMVKANO3 + OH + NO2                                                     ', &
      '          INANCO3H + OH --> INANCO3                                                                 ', &
      '                INANPAN --> INANCO3 + NO2                                                           ', &
-     '           INANPAN + OH --> HMVKANO3 + CO + 2 NO2                                                   ', &
+     '           INANPAN + OH --> HMVKANO3 + 2 NO2 + CO                                                   ', &
      '        INANCOCO3 + HO2 --> INANCOCO2H + O3                                                         ', &
      '        INANCOCO3 + HO2 --> INANCOCO3H                                                              ', &
      '        INANCOCO3 + HO2 --> CO23C4NO3 + OH + NO2                                                    ', &
@@ -4320,22 +4321,22 @@ MODULE second_Monitor
      '              INANCOCO3 --> INANCOCO2H                                                              ', &
      '              INANCOCO3 --> CO23C4NO3 + NO2                                                         ', &
      '          INAHCO2H + OH --> HMVKANO3 + HO2                                                          ', &
-     '               INAHCO3H --> HMVKANO3 + HO2 + OH                                                     ', &
+     '               INAHCO3H --> HMVKANO3 + OH + HO2                                                     ', &
      '          INAHCO3H + OH --> INAHCO3                                                                 ', &
      '                INAHPAN --> INAHPCO3 + NO2                                                          ', &
-     '           INAHPAN + OH --> HMVKANO3 + HO2 + CO + NO2                                               ', &
+     '           INAHPAN + OH --> HMVKANO3 + HO2 + NO2 + CO                                               ', &
      '        MMALNACO2H + OH --> CONM2CHO + HO2                                                          ', &
      '             MMALNACO2H --> HCOCO2H + MGLYOX + HO2 + NO2                                            ', &
      '        MMALNACO3H + OH --> MMALNACO3                                                               ', &
      '             MMALNACO3H --> HCOCO3H + MGLYOX + HO2 + NO2                                            ', &
-     '         MMALNAPAN + OH --> CONM2CHO + HO2 + NO3                                                    ', &
+     '         MMALNAPAN + OH --> CONM2CHO + NO3 + HO2                                                    ', &
      '              MMALNAPAN --> MMALNACO3 + NO2                                                         ', &
-     '                 A2PANO --> HOCH2CHO + HO2                                                          ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_117 = (/ &
+     '                 A2PANO --> HOCH2CHO + HO2                                                          ', &
      '         C2OHOCO2H + OH --> C3DIOLO2                                                                ', &
-     '         C2OHOCOOH + OH --> A2PANOO                                                                 ', &
+     '         C2OHOCOOH + OH --> A2PANOO                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_117 = (/ &
      '              C2OHOCOOH --> C3DIOLO2                                                                ', &
-     '             A2PAN + OH --> HOCH2CHO + CO + NO2                                                     ', &
+     '             A2PAN + OH --> HOCH2CHO + NO2 + CO                                                     ', &
      '                  A2PAN --> A2PANOO + NO2                                                           ', &
      '          HIEB1O2 + HO2 --> HIEB1OOH                                                                ', &
      '           HIEB1O2 + NO --> HIEB1O + NO2                                                            ', &
@@ -4349,30 +4350,30 @@ MODULE second_Monitor
      '          NC524OOH + OH --> NC524O2                                                                 ', &
      '               NC524OOH --> NC524O + OH                                                             ', &
      '          NC524NO3 + OH --> DNC524CO + HO2                                                          ', &
-     '                 NC524O --> HMVKNO3 + HCHO + HO2                                                    ', &
+     '                 NC524O --> HMVKNO3 + HO2 + HCHO                                                    ', &
      '                 NC524O --> H13CO2C3 + HOCH2CHO + NO2                                               ', &
      '           NC524OH + OH --> HNC524CO + HO2                                                          ', &
      '           C525OOH + OH --> C525O2                                                                  ', &
      '                C525OOH --> C525O + OH                                                              ', &
      '                  C525O --> H13CO2C3 + HOCH2CO3                                                     ', &
      '           HMACO2H + OH --> HOCH2CO3 + HCHO                                                         ', &
-     '           HMACO3H + OH --> H13CO2C3 + CO + OH                                                      ', &
+     '           HMACO3H + OH --> H13CO2C3 + OH + CO                                                      ', &
      '           HMACO3H + OH --> HMACO3                                                                  ', &
-     '                HMACO3H --> HOCH2CO3 + HCHO + OH                                                    ', &
-     '             HMPAN + OH --> H13CO2C3 + CO + NO3                                                     ', &
+     '                HMACO3H --> HOCH2CO3 + OH + HCHO                                                    ', &
+     '             HMPAN + OH --> H13CO2C3 + NO3 + CO                                                     ', &
      '                  HMPAN --> HMACO3 + NO2                                                            ', &
-     '           HMGLYOO + CO --> HOCH2COCHO                                                              ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_118 = (/ &
+     '           HMGLYOO + CO --> HOCH2COCHO                                                              ', &
      '           HMGLYOO + NO --> HOCH2COCHO + NO2                                                        ', &
-     '          HMGLYOO + NO2 --> HOCH2COCHO + NO3                                                        ', &
+     '          HMGLYOO + NO2 --> HOCH2COCHO + NO3                                                        ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_118 = (/ &
      '          HMGLYOO + SO2 --> SO3 + HOCH2COCHO                                                        ', &
-     '                HMGLYOO --> H2O2 + HOCH2COCHO                                                       ', &
+     '                HMGLYOO --> HOCH2COCHO + H2O2                                                       ', &
      '          HMACROOH + OH --> HMACRO2                                                                 ', &
-     '               HMACROOH --> H13CO2C3 + HO2 + CO + OH                                                ', &
+     '               HMACROOH --> H13CO2C3 + OH + HO2 + CO                                                ', &
      '               HMACROOH --> HMACRO + OH                                                             ', &
      '                 HMACRO --> H13CO2C3 + HO2 + CO                                                     ', &
      '          H13CO2C3 + OH --> HOCH2COCHO + HO2                                                        ', &
-     '               H13CO2C3 --> HOCH2CO3 + HCHO + HO2                                                   ', &
+     '               H13CO2C3 --> HOCH2CO3 + HO2 + HCHO                                                   ', &
      '           HMACROH + OH --> HMACRO                                                                  ', &
      '                HMACROH --> H13CO2C3 + 2 HO2 + CO                                                   ', &
      '        MALANHYOOH + OH --> MALNHYOHCO + OH                                                         ', &
@@ -4382,7 +4383,7 @@ MODULE second_Monitor
      '        MALNHYOHCO + OH --> HO2 + 3 CO                                                              ', &
      '        NDNPHENOOH + OH --> NDNPHENO2                                                               ', &
      '             NDNPHENOOH --> NDNPHENO + OH                                                           ', &
-     '               NDNPHENO --> NC4DCO2H + HNO3 + 2 CO + NO2                                            ', &
+     '               NDNPHENO --> NC4DCO2H + HNO3 + NO2 + 2 CO                                            ', &
      '         DNPHENOOH + OH --> DNPHENO2                                                                ', &
      '              DNPHENOOH --> DNPHENO + OH                                                            ', &
      '                DNPHENO --> NC4DCO2H + HCOCO2H + NO2                                                ', &
@@ -4390,23 +4391,23 @@ MODULE second_Monitor
      '           C6CO4DB + OH --> C33CO + HO2 + 3 CO                                                      ', &
      '                C6CO4DB --> C4CO2DBCO3 + HO2 + CO                                                   ', &
      '       C5CO2OHCO3 + HO2 --> C5COOHCO3H                                                              ', &
-     '       C5CO2OHCO3 + HO2 --> HOCOC4DIAL + HO2 + CO + OH                                              ', &
-     '        C5CO2OHCO3 + NO --> HOCOC4DIAL + HO2 + CO + NO2                                             ', &
-     '       C5CO2OHCO3 + NO2 --> C5CO2OHPAN                                                              ' /)
+     '       C5CO2OHCO3 + HO2 --> HOCOC4DIAL + OH + HO2 + CO                                              ', &
+     '        C5CO2OHCO3 + NO --> HOCOC4DIAL + HO2 + NO2 + CO                                             ', &
+     '       C5CO2OHCO3 + NO2 --> C5CO2OHPAN                                                              ', &
+     '       C5CO2OHCO3 + NO3 --> HOCOC4DIAL + HO2 + NO2 + CO                                             ', &
+     '             C5CO2OHCO3 --> HOCOC4DIAL + HO2 + CO                                                   ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_119 = (/ &
-     '       C5CO2OHCO3 + NO3 --> HOCOC4DIAL + HO2 + CO + NO2                                             ', &
-     '             C5CO2OHCO3 --> HOCOC4DIAL + HO2 + CO                                                   ', &
      '           C7CO4DB + OH --> C33CO + CH3CO3 + 2 CO                                                   ', &
      '                C7CO4DB --> C5CO2DBCO3 + HO2 + CO                                                   ', &
-     '       C6CO2OHCO3 + HO2 --> C5134CO2OH + HO2 + CO + OH                                              ', &
+     '       C6CO2OHCO3 + HO2 --> C5134CO2OH + OH + HO2 + CO                                              ', &
      '       C6CO2OHCO3 + HO2 --> C6COOHCO3H                                                              ', &
-     '        C6CO2OHCO3 + NO --> C5134CO2OH + HO2 + CO + NO2                                             ', &
+     '        C6CO2OHCO3 + NO --> C5134CO2OH + HO2 + NO2 + CO                                             ', &
      '       C6CO2OHCO3 + NO2 --> C6CO2OHPAN                                                              ', &
-     '       C6CO2OHCO3 + NO3 --> C5134CO2OH + HO2 + CO + NO2                                             ', &
+     '       C6CO2OHCO3 + NO3 --> C5134CO2OH + HO2 + NO2 + CO                                             ', &
      '             C6CO2OHCO3 --> C5134CO2OH + HO2 + CO                                                   ', &
      '        NDNCRESOOH + OH --> NDNCRESO2                                                               ', &
      '             NDNCRESOOH --> NDNCRESO + OH                                                           ', &
-     '               NDNCRESO --> NC4MDCO2H + HNO3 + 2 CO + NO2                                           ', &
+     '               NDNCRESO --> NC4MDCO2H + HNO3 + NO2 + 2 CO                                           ', &
      '         DNCRESOOH + OH --> DNCRESO2                                                                ', &
      '              DNCRESOOH --> DNCRESO + OH                                                            ', &
      '                DNCRESO --> NC4MDCO2H + HCOCO2H + NO2                                               ', &
@@ -4423,10 +4424,10 @@ MODULE second_Monitor
      '        ACCOMECO3 + HO2 --> MECOACETO2 + OH                                                         ', &
      '         ACCOMECO3 + NO --> MECOACETO2 + NO2                                                        ', &
      '        ACCOMECO3 + NO2 --> ACCOMEPAN                                                               ', &
-     '        ACCOMECO3 + NO3 --> MECOACETO2 + NO2                                                        ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_120 = (/ &
+     '        ACCOMECO3 + NO3 --> MECOACETO2 + NO2                                                        ', &
      '              ACCOMECO3 --> MECOACETO2                                                              ', &
-     '       CO235C6CO3 + HO2 --> C235C6CO3H                                                              ', &
+     '       CO235C6CO3 + HO2 --> C235C6CO3H                                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_120 = (/ &
      '       CO235C6CO3 + HO2 --> CO235C6O2 + OH                                                          ', &
      '        CO235C6CO3 + NO --> CO235C6O2 + NO2                                                         ', &
      '       CO235C6CO3 + NO2 --> C7PAN3                                                                  ', &
@@ -4440,7 +4441,7 @@ MODULE second_Monitor
      '             CHOC3COCO3 --> CHOC3COO2                                                               ', &
      '           C106OOH + OH --> C106O2                                                                  ', &
      '                C106OOH --> C106O + OH                                                              ', &
-     '           C106NO3 + OH --> CO235C6CHO + CH3COCH3 + NO2                                             ', &
+     '           C106NO3 + OH --> CO235C6CHO + NO2 + CH3COCH3                                             ', &
      '                C106NO3 --> C106O + NO2                                                             ', &
      '                  C106O --> C716O2 + CH3COCH3                                                       ', &
      '            C106OH + OH --> C106O                                                                   ', &
@@ -4454,10 +4455,10 @@ MODULE second_Monitor
      '           C717NO3 + OH --> CO235C6CHO + NO2                                                        ', &
      '                C717NO3 --> C717O + NO2                                                             ', &
      '                  C717O --> CO235C6CHO + HO2                                                        ', &
-     '            C717OH + OH --> CO235C6CHO + HO2                                                        ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_121 = (/ &
+     '            C717OH + OH --> CO235C6CHO + HO2                                                        ', &
      '                 C717OH --> C717O + HO2                                                             ', &
-     '          C811CO3H + OH --> C811CO3                                                                 ', &
+     '          C811CO3H + OH --> C811CO3                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_121 = (/ &
      '               C811CO3H --> C811O2 + OH                                                             ', &
      '           C811O2 + HO2 --> C811OOH                                                                 ', &
      '            C811O2 + NO --> C811NO3                                                                 ', &
@@ -4467,7 +4468,7 @@ MODULE second_Monitor
      '                 C811O2 --> C811O                                                                   ', &
      '                 C811O2 --> C811OH                                                                  ', &
      '             PINIC + OH --> C811O2                                                                  ', &
-     '           C811PAN + OH --> C721CHO + CO + NO2                                                      ', &
+     '           C811PAN + OH --> C721CHO + NO2 + CO                                                      ', &
      '                C811PAN --> C811CO3 + NO2                                                           ', &
      '        CHOC3COO2 + HO2 --> C413COOOH                                                               ', &
      '         CHOC3COO2 + NO --> CHOC3COO + NO2                                                          ', &
@@ -4478,17 +4479,17 @@ MODULE second_Monitor
      '                  C921O --> C922O2                                                                  ', &
      '            C98OOH + OH --> C98O2                                                                   ', &
      '                 C98OOH --> C98O + OH                                                               ', &
-     '            C98NO3 + OH --> C614CO + CH3COCH3 + NO2                                                 ', &
+     '            C98NO3 + OH --> C614CO + NO2 + CH3COCH3                                                 ', &
      '                 C98NO3 --> C98O + NO2                                                              ', &
      '                   C98O --> C614O2 + CH3COCH3                                                       ', &
      '             C98OH + OH --> C98O                                                                    ', &
      '                  C98OH --> C98O + HO2                                                              ', &
      '            C86OOH + OH --> C86O2                                                                   ', &
      '                 C86OOH --> C86O + OH                                                               ', &
-     '                   C86O --> C511O2 + CH3COCH3                                                       ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_122 = (/ &
+     '                   C86O --> C511O2 + CH3COCH3                                                       ', &
      '       H3C25C6CO3 + HO2 --> H3C25C6O2 + OH                                                          ', &
-     '       H3C25C6CO3 + HO2 --> H3C25CCO2H + O3                                                         ', &
+     '       H3C25C6CO3 + HO2 --> H3C25CCO2H + O3                                                         ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_122 = (/ &
      '       H3C25C6CO3 + HO2 --> H3C25CCO3H                                                              ', &
      '        H3C25C6CO3 + NO --> H3C25C6O2 + NO2                                                         ', &
      '       H3C25C6CO3 + NO2 --> H3C25C6PAN                                                              ', &
@@ -4511,21 +4512,21 @@ MODULE second_Monitor
      '              HCOCH2CO3 --> HCOCH2O2                                                                ', &
      '           C919OOH + OH --> C919O2                                                                  ', &
      '                C919OOH --> C919O + OH                                                              ', &
-     '           C919NO3 + OH --> 2 HCOCH2CHO + CH3COCH3 + NO2                                            ', &
+     '           C919NO3 + OH --> 2 HCOCH2CHO + NO2 + CH3COCH3                                            ', &
      '                C919NO3 --> C919O + NO2                                                             ', &
      '                  C919O --> C620O2 + CH3COCH3                                                       ', &
      '            C919OH + OH --> C919O                                                                   ', &
      '                 C919OH --> C919O + HO2                                                             ', &
-     '           C914OOH + OH --> C914CO + OH                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_123 = (/ &
+     '           C914OOH + OH --> C914CO + OH                                                             ', &
      '                C914OOH --> C914O + OH                                                              ', &
-     '                  C914O --> C87CO3                                                                  ', &
+     '                  C914O --> C87CO3                                                                  ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_123 = (/ &
      '            C914CO + OH --> C87CO3                                                                  ', &
      '                 C914CO --> C87CO3                                                                  ', &
      '            C914OH + OH --> C914CO + HO2                                                            ', &
      '           C916OOH + OH --> C916O2                                                                  ', &
      '                C916OOH --> C916O + OH                                                              ', &
-     '           C916NO3 + OH --> CO123C5CHO + CH3COCH3 + NO2                                             ', &
+     '           C916NO3 + OH --> CO123C5CHO + NO2 + CH3COCH3                                             ', &
      '                C916NO3 --> C916O + NO2                                                             ', &
      '                  C916O --> C616O2 + CH3COCH3                                                       ', &
      '            C916OH + OH --> C916O                                                                   ', &
@@ -4533,7 +4534,7 @@ MODULE second_Monitor
      '           C88CO2H + OH --> C88O2                                                                   ', &
      '           C88CO3H + OH --> C88CO3                                                                  ', &
      '                C88CO3H --> C88O2 + OH                                                              ', &
-     '            C88PAN + OH --> C88CO + CO + NO2                                                        ', &
+     '            C88PAN + OH --> C88CO + NO2 + CO                                                        ', &
      '                 C88PAN --> C88CO3 + NO2                                                            ', &
      '            C88OOH + OH --> C88CO + OH                                                              ', &
      '                 C88OOH --> C88O + OH                                                               ', &
@@ -4545,12 +4546,12 @@ MODULE second_Monitor
      '           C512NO3 + OH --> CO13C4CHO + NO2                                                         ', &
      '                C512NO3 --> C512O + NO2                                                             ', &
      '                  C512O --> C513O2                                                                  ', &
-     '                  C512O --> CO13C3CO2H + HCHO + HO2                                                 ', &
+     '                  C512O --> CO13C3CO2H + HO2 + HCHO                                                 ', &
      '            C512OH + OH --> CO13C4CHO + HO2                                                         ', &
-     '                 C512OH --> C512O + HO2                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_124 = (/ &
+     '                 C512OH --> C512O + HO2                                                             ', &
      '           C619OOH + OH --> C619CO + OH                                                             ', &
-     '                C619OOH --> C619O + OH                                                              ', &
+     '                C619OOH --> C619O + OH                                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_124 = (/ &
      '                  C619O --> C512CO3                                                                 ', &
      '            C619OH + OH --> C619CO + HO2                                                            ', &
      '           C810O2 + HO2 --> C810OOH                                                                 ', &
@@ -4578,10 +4579,10 @@ MODULE second_Monitor
      '               C626CO2H --> C626O2 + HO2                                                            ', &
      '          C626CO3H + OH --> C626CO3                                                                 ', &
      '               C626CO3H --> C626O2 + OH                                                             ', &
-     '           C626PAN + OH --> C517CHO + CO + NO2                                                      ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_125 = (/ &
+     '           C626PAN + OH --> C517CHO + NO2 + CO                                                      ', &
      '                C626PAN --> C626CO3 + NO2                                                           ', &
-     '           C626OOH + OH --> C517CHO + OH                                                            ', &
+     '           C626OOH + OH --> C517CHO + OH                                                            ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_125 = (/ &
      '                C626OOH --> C626O + OH                                                              ', &
      '           C626NO3 + OH --> C517CHO + NO2                                                           ', &
      '                C626NO3 --> C626O + NO2                                                             ', &
@@ -4609,10 +4610,10 @@ MODULE second_Monitor
      '                 C728O2 --> C728O                                                                   ', &
      '                 C728O2 --> C728OH                                                                  ', &
      '           C622O2 + HO2 --> C622OOH                                                                 ', &
-     '            C622O2 + NO --> C622NO3                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_126 = (/ &
+     '            C622O2 + NO --> C622NO3                                                                 ', &
      '            C622O2 + NO --> C622O + NO2                                                             ', &
-     '           C622O2 + NO3 --> C622O + NO2                                                             ', &
+     '           C622O2 + NO3 --> C622O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_126 = (/ &
      '                 C622O2 --> C518CHO                                                                 ', &
      '                 C622O2 --> C622O                                                                   ', &
      '                 C622O2 --> C622OH                                                                  ', &
@@ -4632,18 +4633,18 @@ MODULE second_Monitor
      '                 C823O2 --> C823O                                                                   ', &
      '                 C823O2 --> C823OH                                                                  ', &
      '           LIMONIC + OH --> C823O2                                                                  ', &
-     '           C823PAN + OH --> C823CO + CO + NO2                                                       ', &
+     '           C823PAN + OH --> C823CO + NO2 + CO                                                       ', &
      '                C823PAN --> C823CO3 + NO2                                                           ', &
      '           C925OOH + OH --> C925O2                                                                  ', &
      '                C925OOH --> C925O + OH                                                              ', &
-     '                  C925O --> C818CO + HCHO + HO2                                                     ', &
+     '                  C925O --> C818CO + HO2 + HCHO                                                     ', &
      '          C622CO2H + OH --> C622O2                                                                  ', &
      '          C622CO3H + OH --> C622CO3                                                                 ', &
      '               C622CO3H --> C622O2 + OH                                                             ', &
-     '           C622PAN + OH --> C518CHO + CO + NO2                                                      ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_127 = (/ &
+     '           C622PAN + OH --> C518CHO + NO2 + CO                                                      ', &
      '                C622PAN --> C622CO3 + NO2                                                           ', &
-     '           C819O2 + HO2 --> C819OOH                                                                 ', &
+     '           C819O2 + HO2 --> C819OOH                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_127 = (/ &
      '            C819O2 + NO --> C819O + NO2                                                             ', &
      '           C819O2 + NO3 --> C819O + NO2                                                             ', &
      '                 C819O2 --> C819O                                                                   ', &
@@ -4658,10 +4659,10 @@ MODULE second_Monitor
      '            C531CO + OH --> C31CO3 + CO                                                             ', &
      '                 C531CO --> C31CO3 + HO2 + CO                                                       ', &
      '           C31CO3 + HO2 --> C31CO3H                                                                 ', &
-     '           C31CO3 + HO2 --> CHOOCHO + HO2 + CO + OH                                                 ', &
-     '            C31CO3 + NO --> CHOOCHO + HO2 + CO + NO2                                                ', &
+     '           C31CO3 + HO2 --> CHOOCHO + OH + HO2 + CO                                                 ', &
+     '            C31CO3 + NO --> CHOOCHO + HO2 + NO2 + CO                                                ', &
      '           C31CO3 + NO2 --> C31PAN                                                                  ', &
-     '           C31CO3 + NO3 --> CHOOCHO + HO2 + CO + NO2                                                ', &
+     '           C31CO3 + NO3 --> CHOOCHO + HO2 + NO2 + CO                                                ', &
      '                 C31CO3 --> CHOOCHO + HO2 + CO                                                      ', &
      '           C533O2 + HO2 --> C533OOH                                                                 ', &
      '            C533O2 + NO --> C533O + NO2                                                             ', &
@@ -4669,82 +4670,82 @@ MODULE second_Monitor
      '                 C533O2 --> C533O                                                                   ', &
      '           C47CO3H + OH --> C47CO3                                                                  ', &
      '                C47CO3H --> CH3COCO3H + GLYOX + HO2 + NO2                                           ', &
-     '            C47PAN + OH --> CO2N3CHO + CO + NO3                                                     ', &
+     '            C47PAN + OH --> CO2N3CHO + NO3 + CO                                                     ', &
      '                 C47PAN --> C47CO3 + NO2                                                            ', &
-     '        INB1HPCO2H + OH --> MACRNO3 + OH                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_128 = (/ &
+     '        INB1HPCO2H + OH --> MACRNO3 + OH                                                            ', &
      '        INB1HPCO3H + OH --> INB1HPCO3                                                               ', &
-     '             INB1HPCO3H --> MACRNO3 + 2 OH                                                          ', &
-     '         INB1HPPAN + OH --> MACRNO3 + CO + OH + NO2                                                 ', &
+     '             INB1HPCO3H --> MACRNO3 + 2 OH                                                          ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_128 = (/ &
+     '         INB1HPPAN + OH --> MACRNO3 + OH + NO2 + CO                                                 ', &
      '              INB1HPPAN --> INB1HPCO3 + NO2                                                         ', &
      '        INB1NACO2H + OH --> MACRNO3 + NO2                                                           ', &
      '        INB1NACO3H + OH --> INB1NACO3                                                               ', &
      '             INB1NACO3H --> MACRNO3 + OH + NO2                                                      ', &
-     '         INB1NAPAN + OH --> MACRNO3 + CO + 2 NO2                                                    ', &
+     '         INB1NAPAN + OH --> MACRNO3 + 2 NO2 + CO                                                    ', &
      '              INB1NAPAN --> INB1NACO3 + NO2                                                         ', &
      '        INB1NBCO2H + OH --> MVKNO3 + NO2                                                            ', &
      '        INB1NBCO3H + OH --> INB1NBCO3                                                               ', &
      '             INB1NBCO3H --> MVKNO3 + OH + NO2                                                       ', &
-     '         INB1NBPAN + OH --> MVKNO3 + CO + 2 NO2                                                     ', &
+     '         INB1NBPAN + OH --> MVKNO3 + 2 NO2 + CO                                                     ', &
      '              INB1NBPAN --> INB1NBCO3 + NO2                                                         ', &
      '        MMALNBCO2H + OH --> CO2H3CHO + NO2                                                          ', &
      '             MMALNBCO2H --> CH3COCO2H + GLYOX + HO2 + NO2                                           ', &
      '        MMALNBCO3H + OH --> MMALNBCO3                                                               ', &
      '             MMALNBCO3H --> CH3COCO3H + GLYOX + HO2 + NO2                                           ', &
-     '         MMALNBPAN + OH --> CO2H3CHO + NO2 + NO3                                                    ', &
+     '         MMALNBPAN + OH --> CO2H3CHO + NO3 + NO2                                                    ', &
      '              MMALNBPAN --> MMALNBCO3 + NO2                                                         ', &
      '         INDHPCO3H + OH --> INDHPCO3                                                                ', &
      '              INDHPCO3H --> MVKNO3 + 2 OH                                                           ', &
      '          INDHPPAN + OH --> MVKNO3 + NO3                                                            ', &
      '               INDHPPAN --> INDHPCO3 + NO2                                                          ', &
-     '             INANCOCO2H --> CH3COCO2H + NO3CH2CO3 + NO2                                             ', &
+     '             INANCOCO2H --> NO3CH2CO3 + CH3COCO2H + NO2                                             ', &
      '        INANCOCO2H + OH --> CO23C4NO3 + NO2                                                         ', &
-     '             INANCOCO3H --> CH3COCO3H + NO3CH2CO3 + NO2                                             ', &
+     '             INANCOCO3H --> NO3CH2CO3 + CH3COCO3H + NO2                                             ', &
      '        INANCOCO3H + OH --> INANCOCO3                                                               ', &
      '              INANCOPAN --> INANCOCO3 + NO2                                                         ', &
-     '         INANCOPAN + OH --> CO23C4NO3 + NO3                                                         ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_129 = (/ &
+     '         INANCOPAN + OH --> CO23C4NO3 + NO3                                                         ', &
      '         C3DIOLO2 + HO2 --> C3DIOLOOH                                                               ', &
-     '          C3DIOLO2 + NO --> C3DIOLO + NO2                                                           ', &
+     '          C3DIOLO2 + NO --> C3DIOLO + NO2                                                           ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_129 = (/ &
      '         C3DIOLO2 + NO3 --> C3DIOLO + NO2                                                           ', &
      '               C3DIOLO2 --> C3DIOLO                                                                 ', &
-     '          HIEB1OOH + OH --> MVKOHAOH + CO + OH                                                      ', &
+     '          HIEB1OOH + OH --> MVKOHAOH + OH + CO                                                      ', &
      '               HIEB1OOH --> HIEB1O + OH                                                             ', &
-     '               HIEB1OOH --> MVKOHAOH + HO2 + CO + OH                                                ', &
+     '               HIEB1OOH --> MVKOHAOH + OH + HO2 + CO                                                ', &
      '                 HIEB1O --> HOCH2COCHO + HOCH2CHO + HO2                                             ', &
-     '          HIEB2OOH + OH --> HMACROH + CO + OH                                                       ', &
+     '          HIEB2OOH + OH --> HMACROH + OH + CO                                                       ', &
      '               HIEB2OOH --> HIEB2O + OH                                                             ', &
-     '               HIEB2OOH --> HMACROH + HO2 + CO + OH                                                 ', &
+     '               HIEB2OOH --> HMACROH + OH + HO2 + CO                                                 ', &
      '                 HIEB2O --> H13CO2C3 + GLYOX + HO2                                                  ', &
-     '         HPNC524CO + OH --> HMVKNO3 + CO + OH                                                       ', &
+     '         HPNC524CO + OH --> HMVKNO3 + OH + CO                                                       ', &
      '              HPNC524CO --> HOCH2COCHO + HOCH2CHO + OH + NO2                                        ', &
-     '          DNC524CO + OH --> HMVKNO3 + CO + NO2                                                      ', &
-     '               DNC524CO --> HMVKNO3 + HO2 + CO + NO2                                                ', &
+     '          DNC524CO + OH --> HMVKNO3 + NO2 + CO                                                      ', &
+     '               DNC524CO --> HMVKNO3 + HO2 + NO2 + CO                                                ', &
      '           HMVKNO3 + OH --> HMVKNGLYOX + HO2                                                        ', &
-     '                HMVKNO3 --> HOCH2CHO + HO2 + 2 CO + NO2                                             ', &
+     '                HMVKNO3 --> HOCH2CHO + HO2 + NO2 + 2 CO                                             ', &
      '          HNC524CO + OH --> HMVKNO3 + HO2 + CO                                                      ', &
      '               HNC524CO --> HOCH2COCHO + HOCH2CHO + HO2 + NO2                                       ', &
      '                NC4DCO2 --> MALANHY + NO2                                                           ', &
      '       C4CO2DBCO3 + HO2 --> C4CO2DCO3H                                                              ', &
-     '       C4CO2DBCO3 + HO2 --> C33CO + HO2 + CO + OH                                                   ', &
-     '        C4CO2DBCO3 + NO --> C33CO + HO2 + CO + NO2                                                  ', &
+     '       C4CO2DBCO3 + HO2 --> C33CO + OH + HO2 + CO                                                   ', &
+     '        C4CO2DBCO3 + NO --> C33CO + HO2 + NO2 + CO                                                  ', &
      '       C4CO2DBCO3 + NO2 --> C4CO2DBPAN                                                              ', &
-     '       C4CO2DBCO3 + NO3 --> C33CO + HO2 + CO + NO2                                                  ', &
+     '       C4CO2DBCO3 + NO3 --> C33CO + HO2 + NO2 + CO                                                  ', &
      '             C4CO2DBCO3 --> C33CO + HO2 + CO                                                        ', &
      '        C5COOHCO3H + OH --> C5CO2OHCO3                                                              ', &
-     '             C5COOHCO3H --> HOCOC4DIAL + HO2 + CO + OH                                              ', &
-     '        C5CO2OHPAN + OH --> HOCOC4DIAL + 2 CO + NO2                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_130 = (/ &
+     '             C5COOHCO3H --> HOCOC4DIAL + OH + HO2 + CO                                              ', &
+     '        C5CO2OHPAN + OH --> HOCOC4DIAL + NO2 + 2 CO                                                 ', &
      '             C5CO2OHPAN --> C5CO2OHCO3 + NO2                                                        ', &
-     '       C5CO2DBCO3 + HO2 --> C5CO2DCO3H                                                              ', &
+     '       C5CO2DBCO3 + HO2 --> C5CO2DCO3H                                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_130 = (/ &
      '       C5CO2DBCO3 + HO2 --> C33CO + CH3CO3 + OH                                                     ', &
      '        C5CO2DBCO3 + NO --> C33CO + CH3CO3 + NO2                                                    ', &
      '       C5CO2DBCO3 + NO2 --> C5CO2DBPAN                                                              ', &
      '       C5CO2DBCO3 + NO3 --> C33CO + CH3CO3 + NO2                                                    ', &
      '             C5CO2DBCO3 --> C33CO + CH3CO3                                                          ', &
      '        C6COOHCO3H + OH --> C6CO2OHCO3                                                              ', &
-     '             C6COOHCO3H --> C5134CO2OH + HO2 + CO + OH                                              ', &
-     '        C6CO2OHPAN + OH --> C5134CO2OH + 2 CO + NO2                                                 ', &
+     '             C6COOHCO3H --> C5134CO2OH + OH + HO2 + CO                                              ', &
+     '        C6CO2OHPAN + OH --> C5134CO2OH + NO2 + 2 CO                                                 ', &
      '             C6CO2OHPAN --> C6CO2OHCO3 + NO2                                                        ', &
      '               NC4MDCO2 --> MMALANHY + NO2                                                          ', &
      '        MMALNHYOOH + OH --> MMALANHYO2                                                              ', &
@@ -4761,20 +4762,20 @@ MODULE second_Monitor
      '              C23O3CCO3 --> MCOCOMOXO2                                                              ', &
      '        ACCOMECO3H + OH --> ACCOMECO3                                                               ', &
      '             ACCOMECO3H --> MECOACETO2 + OH                                                         ', &
-     '         ACCOMEPAN + OH --> METACETHO + 2 CO + NO2                                                  ', &
+     '         ACCOMEPAN + OH --> METACETHO + NO2 + 2 CO                                                  ', &
      '              ACCOMEPAN --> ACCOMECO3 + NO2                                                         ', &
      '        C235C6CO3H + OH --> CO235C6CO3                                                              ', &
-     '             C235C6CO3H --> CO235C6O2 + OH                                                          ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_131 = (/ &
+     '             C235C6CO3H --> CO235C6O2 + OH                                                          ', &
      '        CO235C6O2 + HO2 --> CO235C6OOH                                                              ', &
-     '         CO235C6O2 + NO --> CO235C6O + NO2                                                          ', &
+     '         CO235C6O2 + NO --> CO235C6O + NO2                                                          ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_131 = (/ &
      '        CO235C6O2 + NO3 --> CO235C6O + NO2                                                          ', &
      '              CO235C6O2 --> CO235C6O                                                                ', &
-     '            C7PAN3 + OH --> CO235C5CHO + CO + NO2                                                   ', &
+     '            C7PAN3 + OH --> CO235C5CHO + NO2 + CO                                                   ', &
      '                 C7PAN3 --> CO235C6CO3 + NO2                                                        ', &
      '        CHOC3COOOH + OH --> CHOC3COCO3                                                              ', &
      '             CHOC3COOOH --> CHOC3COO2 + OH                                                          ', &
-     '        CHOC3COPAN + OH --> C4CODIAL + CO + NO2                                                     ', &
+     '        CHOC3COPAN + OH --> C4CODIAL + NO2 + CO                                                     ', &
      '             CHOC3COPAN --> CHOC3COCO3 + NO2                                                        ', &
      '           C716O2 + HO2 --> C716OOH                                                                 ', &
      '            C716O2 + NO --> C716O + NO2                                                             ', &
@@ -4795,10 +4796,10 @@ MODULE second_Monitor
      '           C721CHO + OH --> C721CO3                                                                 ', &
      '                C721CHO --> C721O2 + HO2 + CO                                                       ', &
      '            C811OH + OH --> C721CHO + HO2                                                           ', &
-     '         C413COOOH + OH --> CHOC3COO2                                                               ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_132 = (/ &
+     '         C413COOOH + OH --> CHOC3COO2                                                               ', &
      '              C413COOOH --> CHOC3COO + OH                                                           ', &
-     '               CHOC3COO --> HCHO + HCOCH2CO3                                                        ', &
+     '               CHOC3COO --> HCOCH2CO3 + HCHO                                                        ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_132 = (/ &
      '           C922O2 + HO2 --> C922OOH                                                                 ', &
      '            C922O2 + NO --> C922O + NO2                                                             ', &
      '           C922O2 + NO3 --> C922O + NO2                                                             ', &
@@ -4820,23 +4821,23 @@ MODULE second_Monitor
      '             H3C25CCO2H --> H3C25C6O2 + HO2                                                         ', &
      '        H3C25CCO3H + OH --> H3C25C6CO3                                                              ', &
      '             H3C25CCO3H --> H3C25C6O2 + OH                                                          ', &
-     '        H3C25C6PAN + OH --> H3C25C5CHO + CO + NO2                                                   ', &
+     '        H3C25C6PAN + OH --> H3C25C5CHO + NO2 + CO                                                   ', &
      '             H3C25C6PAN --> H3C25C6CO3 + NO2                                                        ', &
      '        H3C25C6OOH + OH --> H3C25C5CHO + OH                                                         ', &
      '             H3C25C6OOH --> H3C25C6O + OH                                                           ', &
      '               H3C25C6O --> H3C2C4CO3 + HCHO                                                        ', &
      '        H3C25C5CHO + OH --> H3C2C4CO3 + CO                                                          ', &
-     '             H3C25C5CHO --> H3C2C4CO3 + HO2 + CO                                                    ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_133 = (/ &
+     '             H3C25C5CHO --> H3C2C4CO3 + HO2 + CO                                                    ', &
      '         H3C25C6OH + OH --> C614CO + HO2                                                            ', &
-     '         H3C25C6OH + OH --> H3C25C5CHO + HO2                                                        ', &
+     '         H3C25C6OH + OH --> H3C25C5CHO + HO2                                                        ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_133 = (/ &
      '              H3C25C6OH --> HMVKAO2 + HOCH2CO3                                                      ', &
      '             HCOCH2CO2H --> HCOCH2O2 + HO2                                                          ', &
      '        HCOCH2CO2H + OH --> HCOCH2O2                                                                ', &
      '             HCOCH2CO3H --> HCOCH2O2 + OH                                                           ', &
      '        HCOCH2CO3H + OH --> HCOCH2CO3                                                               ', &
      '                 C3PAN2 --> HCOCH2CO3 + NO2                                                         ', &
-     '            C3PAN2 + OH --> GLYOX + CO + NO2                                                        ', &
+     '            C3PAN2 + OH --> GLYOX + NO2 + CO                                                        ', &
      '           C620O2 + HO2 --> C620OOH                                                                 ', &
      '            C620O2 + NO --> C620O + NO2                                                             ', &
      '           C620O2 + NO3 --> C620O + NO2                                                             ', &
@@ -4857,10 +4858,10 @@ MODULE second_Monitor
      '           C616O2 + HO2 --> C616OOH                                                                 ', &
      '            C616O2 + NO --> C616O + NO2                                                             ', &
      '           C616O2 + NO3 --> C616O + NO2                                                             ', &
-     '                 C616O2 --> C616O                                                                   ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_134 = (/ &
+     '                 C616O2 --> C616O                                                                   ', &
      '                 C616O2 --> C616OH                                                                  ', &
-     '                 C616O2 --> CO123C5CHO                                                              ', &
+     '                 C616O2 --> CO123C5CHO                                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_134 = (/ &
      '          C718CO3 + HO2 --> C718CO2H + O3                                                           ', &
      '          C718CO3 + HO2 --> C718CO3H                                                                ', &
      '          C718CO3 + HO2 --> C718O2 + OH                                                             ', &
@@ -4879,7 +4880,7 @@ MODULE second_Monitor
      '             CO13C3CO2H --> HCOCH2CO3 + HO2                                                         ', &
      '           C810OOH + OH --> C810O2                                                                  ', &
      '                C810OOH --> C810O + OH                                                              ', &
-     '           C810NO3 + OH --> CO13C4CHO + CH3COCH3 + NO2                                              ', &
+     '           C810NO3 + OH --> CO13C4CHO + NO2 + CH3COCH3                                              ', &
      '                C810NO3 --> C810O + NO2                                                             ', &
      '                  C810O --> C514O2 + CH3COCH3                                                       ', &
      '            C810OH + OH --> C810O                                                                   ', &
@@ -4888,10 +4889,10 @@ MODULE second_Monitor
      '        CO25C6CO3 + HO2 --> CO25C6CO2H + O3                                                         ', &
      '        CO25C6CO3 + HO2 --> CO25C6CO3H                                                              ', &
      '         CO25C6CO3 + NO --> C627O2 + NO2                                                            ', &
-     '        CO25C6CO3 + NO2 --> C627PAN                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_135 = (/ &
+     '        CO25C6CO3 + NO2 --> C627PAN                                                                 ', &
      '        CO25C6CO3 + NO3 --> C627O2 + NO2                                                            ', &
-     '              CO25C6CO3 --> C627O2                                                                  ', &
+     '              CO25C6CO3 --> C627O2                                                                  ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_135 = (/ &
      '           C627O2 + HO2 --> C627OOH                                                                 ', &
      '            C627O2 + NO --> C627O + NO2                                                             ', &
      '           C627O2 + NO3 --> C627O + NO2                                                             ', &
@@ -4911,7 +4912,7 @@ MODULE second_Monitor
      '            C727O2 + NO --> C727O + NO2                                                             ', &
      '           C727O2 + NO3 --> C727O + NO2                                                             ', &
      '                 C727O2 --> C727O                                                                   ', &
-     '           C727PAN + OH --> C727CO + CO + NO2                                                       ', &
+     '           C727PAN + OH --> C727CO + NO2 + CO                                                       ', &
      '                C727PAN --> C727CO3 + NO2                                                           ', &
      '          C511CO3 + HO2 --> C511CO3H                                                                ', &
      '          C511CO3 + HO2 --> C511O2 + OH                                                             ', &
@@ -4919,10 +4920,10 @@ MODULE second_Monitor
      '          C511CO3 + NO2 --> C511PAN                                                                 ', &
      '          C511CO3 + NO3 --> C511O2 + NO2                                                            ', &
      '                C511CO3 --> C511O2                                                                  ', &
-     '          C517CO3 + HO2 --> C517CO2H + O3                                                           ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_136 = (/ &
+     '          C517CO3 + HO2 --> C517CO2H + O3                                                           ', &
      '          C517CO3 + HO2 --> C517CO3H                                                                ', &
-     '          C517CO3 + HO2 --> C517O2 + OH                                                             ', &
+     '          C517CO3 + HO2 --> C517O2 + OH                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_136 = (/ &
      '           C517CO3 + NO --> C517O2 + NO2                                                            ', &
      '          C517CO3 + NO2 --> C517PAN                                                                 ', &
      '          C517CO3 + NO3 --> C517O2 + NO2                                                            ', &
@@ -4937,8 +4938,8 @@ MODULE second_Monitor
      '                 C517O2 --> HMVKBCHO                                                                ', &
      '          NC728OOH + OH --> NC728O2                                                                 ', &
      '               NC728OOH --> NC728O + OH                                                             ', &
-     '                 NC728O --> C517CHO + HCHO + NO2                                                    ', &
-     '           NC728OH + OH --> C517CHO + HCHO + NO2                                                    ', &
+     '                 NC728O --> C517CHO + NO2 + HCHO                                                    ', &
+     '           NC728OH + OH --> C517CHO + NO2 + HCHO                                                    ', &
      '           C628O2 + HO2 --> C628OOH                                                                 ', &
      '            C628O2 + NO --> C628O + NO2                                                             ', &
      '           C628O2 + NO3 --> C628O + NO2                                                             ', &
@@ -4946,14 +4947,14 @@ MODULE second_Monitor
      '                 C628O2 --> C628OH                                                                  ', &
      '           C728OOH + OH --> C728O2                                                                  ', &
      '                C728OOH --> C728O + OH                                                              ', &
-     '           C728NO3 + OH --> C517CHO + HCHO + NO2                                                    ', &
-     '                  C728O --> C517CHO + HCHO + HO2                                                    ', &
-     '            C728OH + OH --> C517CHO + HCHO + HO2                                                    ', &
+     '           C728NO3 + OH --> C517CHO + NO2 + HCHO                                                    ', &
+     '                  C728O --> C517CHO + HO2 + HCHO                                                    ', &
+     '            C728OH + OH --> C517CHO + HO2 + HCHO                                                    ', &
      '           C622OOH + OH --> C518CHO + OH                                                            ', &
-     '                C622OOH --> C622O + OH                                                              ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_137 = (/ &
+     '                C622OOH --> C622O + OH                                                              ', &
      '           C622NO3 + OH --> C518CHO + NO2                                                           ', &
-     '                C622NO3 --> C622O + NO2                                                             ', &
+     '                C622NO3 --> C622O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_137 = (/ &
      '                  C622O --> C518CHO + HO2                                                           ', &
      '          C518CHO + NO3 --> C518CO3 + HNO3                                                          ', &
      '          C518CHO + NO3 --> NC623O2                                                                 ', &
@@ -4981,41 +4982,41 @@ MODULE second_Monitor
      '                C819OOH --> C819O + OH                                                              ', &
      '                  C819O --> CO2C4CO3 + ACETOL                                                       ', &
      '                C731CO2 --> C731O2                                                                  ', &
-     '                C731CO2 --> C732CO3                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_138 = (/ &
+     '                C731CO2 --> C732CO3                                                                 ', &
      '          C731CO2H + OH --> C731CO2                                                                 ', &
-     '          C731CO3H + OH --> C731CO3                                                                 ', &
+     '          C731CO3H + OH --> C731CO3                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_138 = (/ &
      '               C731CO3H --> C731CO2 + OH                                                            ', &
-     '           C731PAN + OH --> C626CHO + CO + NO2                                                      ', &
+     '           C731PAN + OH --> C626CHO + NO2 + CO                                                      ', &
      '                C731PAN --> C731CO3 + NO2                                                           ', &
      '           C31CO3H + OH --> C31CO3                                                                  ', &
-     '                C31CO3H --> CHOOCHO + HO2 + CO + OH                                                 ', &
+     '                C31CO3H --> CHOOCHO + OH + HO2 + CO                                                 ', &
      '           CHOOCHO + OH --> HO2 + CO                                                                ', &
-     '            C31PAN + OH --> CHOOCHO + CO + NO3                                                      ', &
+     '            C31PAN + OH --> CHOOCHO + NO3 + CO                                                      ', &
      '                 C31PAN --> C31CO3 + NO2                                                            ', &
      '           C533OOH + OH --> C533O2                                                                  ', &
      '                C533OOH --> C533O + OH                                                              ', &
      '                  C533O --> CHOOCHO + MGLYOX + HO2                                                  ', &
      '         C3DIOLOOH + OH --> C3DIOLO2                                                                ', &
      '              C3DIOLOOH --> C3DIOLO + OH                                                            ', &
-     '                C3DIOLO --> HOCH2CHO + HCHO + HO2                                                   ', &
-     '        HMVKNGLYOX + OH --> HOCH2CHO + 2 CO + NO2                                                   ', &
-     '             HMVKNGLYOX --> HOCH2CHO + HO2 + 2 CO + NO2                                             ', &
+     '                C3DIOLO --> HOCH2CHO + HO2 + HCHO                                                   ', &
+     '        HMVKNGLYOX + OH --> HOCH2CHO + NO2 + 2 CO                                                   ', &
+     '             HMVKNGLYOX --> HOCH2CHO + HO2 + NO2 + 2 CO                                             ', &
      '        C4CO2DCO3H + OH --> C4CO2DBCO3                                                              ', &
-     '             C4CO2DCO3H --> C33CO + HO2 + CO + OH                                                   ', &
-     '        C4CO2DBPAN + OH --> C33CO + CO + NO2                                                        ', &
+     '             C4CO2DCO3H --> C33CO + OH + HO2 + CO                                                   ', &
+     '        C4CO2DBPAN + OH --> C33CO + NO2 + CO                                                        ', &
      '             C4CO2DBPAN --> C4CO2DBCO3 + NO2                                                        ', &
      '        C5CO2DCO3H + OH --> C5CO2DBCO3                                                              ', &
      '             C5CO2DCO3H --> C33CO + CH3CO3 + OH                                                     ', &
-     '        C5CO2DBPAN + OH --> C33CO + CH3CHO + NO2                                                    ', &
+     '        C5CO2DBPAN + OH --> C33CO + NO2 + CH3CHO                                                    ', &
      '             C5CO2DBPAN --> C5CO2DBCO3 + NO2                                                        ', &
      '        C23O3CCO2H + OH --> MCOCOMOXO2                                                              ', &
      '        C23O3CCO3H + OH --> C23O3CCO3                                                               ', &
      '             C23O3CCO3H --> MCOCOMOXO2 + OH                                                         ', &
-     '         C23O3CPAN + OH --> C23O3CHO + CO + NO2                                                     ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_139 = (/ &
+     '         C23O3CPAN + OH --> C23O3CHO + NO2 + CO                                                     ', &
      '              C23O3CPAN --> C23O3CCO3 + NO2                                                         ', &
-     '         METACETHO + OH --> CH3CO3                                                                  ', &
+     '         METACETHO + OH --> CH3CO3                                                                  ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_139 = (/ &
      '        CO235C6OOH + OH --> CO235C6O2                                                               ', &
      '             CO235C6OOH --> CO235C6O + OH                                                           ', &
      '               CO235C6O --> CO23C4CO3 + HCHO                                                        ', &
@@ -5043,10 +5044,10 @@ MODULE second_Monitor
      '          C721CO3 + NO2 --> C721PAN                                                                 ', &
      '          C721CO3 + NO3 --> C721O2 + NO2                                                            ', &
      '                C721CO3 --> C721O2                                                                  ', &
-     '                C721CO3 --> NORPINIC                                                                ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_140 = (/ &
+     '                C721CO3 --> NORPINIC                                                                ', &
      '           C721O2 + HO2 --> C721OOH                                                                 ', &
-     '            C721O2 + NO --> C721O + NO2                                                             ', &
+     '            C721O2 + NO --> C721O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_140 = (/ &
      '           C721O2 + NO3 --> C721O + NO2                                                             ', &
      '                 C721O2 --> C721O                                                                   ', &
      '           C922OOH + OH --> C922O2                                                                  ', &
@@ -5056,7 +5057,7 @@ MODULE second_Monitor
      '                C614OOH --> C614O + OH                                                              ', &
      '           C614NO3 + OH --> C614CO + NO2                                                            ', &
      '                C614NO3 --> C614O + NO2                                                             ', &
-     '                  C614O --> CO23C4CHO + HCHO + HO2                                                  ', &
+     '                  C614O --> CO23C4CHO + HO2 + HCHO                                                  ', &
      '            C614OH + OH --> C614CO + HO2                                                            ', &
      '                 C614OH --> C614O + HO2                                                             ', &
      '           C511OOH + OH --> C511O2                                                                  ', &
@@ -5074,10 +5075,10 @@ MODULE second_Monitor
      '                C620OOH --> C620O + OH                                                              ', &
      '                  C620O --> HCOCH2CHO + HCOCH2CO3                                                   ', &
      '           C515CHO + OH --> C515CO3                                                                 ', &
-     '                C515CHO --> C515O2 + HO2 + CO                                                       ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_141 = (/ &
+     '                C515CHO --> C515O2 + HO2 + CO                                                       ', &
      '                C515CHO --> 2 HCOCH2CO3                                                             ', &
-     '            C620OH + OH --> C515CHO + HO2                                                           ', &
+     '            C620OH + OH --> C515CHO + HO2                                                           ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_141 = (/ &
      '                 C620OH --> C620O + HO2                                                             ', &
      '           C87CO2H + OH --> C87O2                                                                   ', &
      '                C87CO2H --> C87O2 + HO2                                                             ', &
@@ -5089,7 +5090,7 @@ MODULE second_Monitor
      '                  C87O2 --> C87CO                                                                   ', &
      '                  C87O2 --> C87O                                                                    ', &
      '                  C87O2 --> C87OH                                                                   ', &
-     '            C87PAN + OH --> C87CO + CO + NO2                                                        ', &
+     '            C87PAN + OH --> C87CO + NO2 + CO                                                        ', &
      '                 C87PAN --> C87CO3 + NO2                                                            ', &
      '         CHOC2CO3 + HO2 --> CHOC2CO2H + O3                                                          ', &
      '         CHOC2CO3 + HO2 --> CHOC2CO3H                                                               ', &
@@ -5105,10 +5106,10 @@ MODULE second_Monitor
      '                  C616O --> CO12C4CHO + HO2 + CO                                                    ', &
      '            C616OH + OH --> CO123C5CHO + HO2                                                        ', &
      '                 C616OH --> C616O + HO2                                                             ', &
-     '          C718CO2H + OH --> C718O2                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_142 = (/ &
+     '          C718CO2H + OH --> C718O2                                                                  ', &
      '               C718CO2H --> C718O2 + HO2                                                            ', &
-     '          C718CO3H + OH --> C718CO3                                                                 ', &
+     '          C718CO3H + OH --> C718CO3                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_142 = (/ &
      '               C718CO3H --> C718O2 + OH                                                             ', &
      '           C718O2 + HO2 --> C718OOH                                                                 ', &
      '            C718O2 + NO --> C718NO3                                                                 ', &
@@ -5117,7 +5118,7 @@ MODULE second_Monitor
      '                 C718O2 --> C617CHO                                                                 ', &
      '                 C718O2 --> C718O                                                                   ', &
      '                 C718O2 --> C718OH                                                                  ', &
-     '           C718PAN + OH --> C617CHO + CO + NO2                                                      ', &
+     '           C718PAN + OH --> C617CHO + NO2 + CO                                                      ', &
      '                C718PAN --> C718CO3 + NO2                                                           ', &
      '           C513OOH + OH --> C513CO + OH                                                             ', &
      '                C513OOH --> C513O + OH                                                              ', &
@@ -5136,16 +5137,16 @@ MODULE second_Monitor
      '        CO25C6CO2H + OH --> C627O2                                                                  ', &
      '             CO25C6CO2H --> C627O2 + HO2                                                            ', &
      '        CO25C6CO3H + OH --> CO25C6CO3                                                               ', &
-     '             CO25C6CO3H --> C627O2 + OH                                                             ' /)
+     '             CO25C6CO3H --> C627O2 + OH                                                             ', &
+     '           C627PAN + OH --> CO2C4GLYOX + NO2 + CO                                                   ', &
+     '                C627PAN --> CO25C6CO3 + NO2                                                         ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_143 = (/ &
-     '           C627PAN + OH --> CO2C4GLYOX + CO + NO2                                                   ', &
-     '                C627PAN --> CO25C6CO3 + NO2                                                         ', &
      '           C627OOH + OH --> CO2C4GLYOX + OH                                                         ', &
      '                C627OOH --> C627O + OH                                                              ', &
-     '                C627OOH --> CO2C4CO3 + HCHO + OH                                                    ', &
+     '                C627OOH --> CO2C4CO3 + OH + HCHO                                                    ', &
      '                  C627O --> CO2C4CO3 + HCHO                                                         ', &
      '            C627OH + OH --> CO2C4GLYOX + HO2                                                        ', &
-     '                 C627OH --> CO2C4CO3 + HCHO + HO2                                                   ', &
+     '                 C627OH --> CO2C4CO3 + HO2 + HCHO                                                   ', &
      '        CO2C4GLYOX + OH --> CO2C4CO3 + CO                                                           ', &
      '             CO2C4GLYOX --> CO2C4CO3 + HO2 + CO                                                     ', &
      '           C820O2 + HO2 --> C820OOH                                                                 ', &
@@ -5159,18 +5160,18 @@ MODULE second_Monitor
      '                 C727CO --> CO2C4CO3 + CH3CO3                                                       ', &
      '          C511CO3H + OH --> C511CO3                                                                 ', &
      '               C511CO3H --> C511O2 + OH                                                             ', &
-     '           C511PAN + OH --> CO23C4CHO + CO + NO2                                                    ', &
+     '           C511PAN + OH --> CO23C4CHO + NO2 + CO                                                    ', &
      '                C511PAN --> C511CO3 + NO2                                                           ', &
      '          C517CO2H + OH --> C517O2                                                                  ', &
      '          C517CO3H + OH --> C517CO3                                                                 ', &
      '               C517CO3H --> C517O2 + OH                                                             ', &
-     '           C517PAN + OH --> HMVKBCHO + CO + NO2                                                     ', &
+     '           C517PAN + OH --> HMVKBCHO + NO2 + CO                                                     ', &
      '                C517PAN --> C517CO3 + NO2                                                           ', &
      '           C517OOH + OH --> HMVKBCHO + OH                                                           ', &
-     '                C517OOH --> C517O + OH                                                              ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_144 = (/ &
+     '                C517OOH --> C517O + OH                                                              ', &
      '           C517NO3 + OH --> HMVKBCHO + NO2                                                          ', &
-     '                C517NO3 --> C517O + NO2                                                             ', &
+     '                C517NO3 --> C517O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_144 = (/ &
      '                  C517O --> HMVKBCHO + HO2                                                          ', &
      '            C517OH + OH --> HMVKBCHO + HO2                                                          ', &
      '         HMVKBCHO + NO3 --> HMVKBCO3 + HNO3                                                         ', &
@@ -5198,10 +5199,10 @@ MODULE second_Monitor
      '                C520OOA --> C520O2 + OH                                                             ', &
      '           C623O2 + HO2 --> C623OOH                                                                 ', &
      '            C623O2 + NO --> C623NO3                                                                 ', &
-     '            C623O2 + NO --> C623O + NO2                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_145 = (/ &
+     '            C623O2 + NO --> C623O + NO2                                                             ', &
      '           C623O2 + NO3 --> C623O + NO2                                                             ', &
-     '                 C623O2 --> C623O                                                                   ', &
+     '                 C623O2 --> C623O                                                                   ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_145 = (/ &
      '                 C623O2 --> C623OH                                                                  ', &
      '           C824OOH + OH --> C824CO + OH                                                             ', &
      '                C824OOH --> C824O + OH                                                              ', &
@@ -5229,17 +5230,17 @@ MODULE second_Monitor
      '           C731O2 + NO3 --> C731O + NO2                                                             ', &
      '                 C731O2 --> C626CHO                                                                 ', &
      '                 C731O2 --> C731O                                                                   ', &
-     '                 C731O2 --> C731OH                                                                  ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_146 = (/ &
+     '                 C731O2 --> C731OH                                                                  ', &
      '          C732CO3 + HO2 --> C732CO3H                                                                ', &
-     '          C732CO3 + HO2 --> C732O2 + OH                                                             ', &
+     '          C732CO3 + HO2 --> C732O2 + OH                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_146 = (/ &
      '          C732CO3 + HO2 --> KLIMONIC + O3                                                           ', &
      '           C732CO3 + NO --> C732O2 + NO2                                                            ', &
      '          C732CO3 + NO2 --> C732PAN                                                                 ', &
      '          C732CO3 + NO3 --> C732O2 + NO2                                                            ', &
      '                C732CO3 --> C732O2                                                                  ', &
      '                C732CO3 --> KLIMONIC                                                                ', &
-     '         C23O3CHO + NO3 --> HNO3 + CH3CO3 + CO                                                      ', &
+     '         C23O3CHO + NO3 --> CH3CO3 + HNO3 + CO                                                      ', &
      '          C23O3CHO + OH --> CH3CO3 + CO                                                             ', &
      '               C23O3CHO --> CH3CO3 + HO2 + CO                                                       ', &
      '        CO23C4CO3 + HO2 --> BIACETO2 + OH                                                           ', &
@@ -5260,17 +5261,17 @@ MODULE second_Monitor
      '             CHOCOCH2O2 --> CHOCOCH2O                                                               ', &
      '           NC72O2 + HO2 --> NC72OOH                                                                 ', &
      '            NC72O2 + NO --> NC72O + NO2                                                             ', &
-     '           NC72O2 + NO3 --> NC72O + NO2                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_147 = (/ &
+     '           NC72O2 + NO3 --> NC72O + NO2                                                             ', &
      '                 NC72O2 --> NC72O                                                                   ', &
-     '           C812OOH + OH --> C812O2                                                                  ', &
+     '           C812OOH + OH --> C812O2                                                                  ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_147 = (/ &
      '                C812OOH --> C812O + OH                                                              ', &
      '                  C812O --> C813O2                                                                  ', &
      '            C812OH + OH --> C812O                                                                   ', &
      '          C721CO3H + OH --> C721CO3                                                                 ', &
      '               C721CO3H --> C721O2 + OH                                                             ', &
      '          NORPINIC + OH --> C721O2                                                                  ', &
-     '           C721PAN + OH --> C721OOH + CO + NO2                                                      ', &
+     '           C721PAN + OH --> C721OOH + NO2 + CO                                                      ', &
      '                C721PAN --> C721CO3 + NO2                                                           ', &
      '           C721OOH + OH --> C721O2                                                                  ', &
      '                C721OOH --> C721O + OH                                                              ', &
@@ -5287,14 +5288,14 @@ MODULE second_Monitor
      '             H3C2C4CO2H --> HMVKAO2 + HO2                                                           ', &
      '        H3C2C4CO3H + OH --> H3C2C4CO3                                                               ', &
      '             H3C2C4CO3H --> HMVKAO2 + OH                                                            ', &
-     '         H3C2C4PAN + OH --> CO2H3CHO + CO + NO2                                                     ', &
+     '         H3C2C4PAN + OH --> CO2H3CHO + NO2 + CO                                                     ', &
      '              H3C2C4PAN --> H3C2C4CO3 + NO2                                                         ', &
      '          C515CO3 + HO2 --> C515CO3H                                                                ', &
      '          C515CO3 + HO2 --> C515O2 + OH                                                             ', &
-     '           C515CO3 + NO --> C515O2 + NO2                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_148 = (/ &
+     '           C515CO3 + NO --> C515O2 + NO2                                                            ', &
      '          C515CO3 + NO2 --> C515PAN                                                                 ', &
-     '          C515CO3 + NO3 --> C515O2 + NO2                                                            ', &
+     '          C515CO3 + NO3 --> C515O2 + NO2                                                            ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_148 = (/ &
      '                C515CO3 --> C515O2                                                                  ', &
      '           C515O2 + HO2 --> C515OOH                                                                 ', &
      '            C515O2 + NO --> C515O + NO2                                                             ', &
@@ -5313,7 +5314,7 @@ MODULE second_Monitor
      '         CHOC2H4O2 + NO --> CHOC2H4O + NO2                                                          ', &
      '        CHOC2H4O2 + NO3 --> CHOC2H4O + NO2                                                          ', &
      '              CHOC2H4O2 --> CHOC2H4O                                                                ', &
-     '          CHOC2PAN + OH --> HCOCH2CHO + CO + NO2                                                    ', &
+     '          CHOC2PAN + OH --> HCOCH2CHO + NO2 + CO                                                    ', &
      '               CHOC2PAN --> CHOC2CO3 + NO2                                                          ', &
      '        CO12C4CHO + NO3 --> CHOC2CO3 + HNO3 + CO                                                    ', &
      '         CO12C4CHO + OH --> CHOC2CO3 + CO                                                           ', &
@@ -5322,10 +5323,10 @@ MODULE second_Monitor
      '                C718OOH --> C718O + OH                                                              ', &
      '           C718NO3 + OH --> C617CHO + NO2                                                           ', &
      '                C718NO3 --> C718O + NO2                                                             ', &
-     '                  C718O --> C617CHO + HO2                                                           ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_149 = (/ &
+     '                  C718O --> C617CHO + HO2                                                           ', &
      '          C617CHO + NO3 --> C617CO3 + HNO3                                                          ', &
-     '          C617CHO + NO3 --> C618CO3 + HNO3                                                          ', &
+     '          C617CHO + NO3 --> C618CO3 + HNO3                                                          ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_149 = (/ &
      '           C617CHO + OH --> C617CO3                                                                 ', &
      '           C617CHO + OH --> C618CO3                                                                 ', &
      '                C617CHO --> C617O2 + HO2 + CO                                                       ', &
@@ -5353,10 +5354,10 @@ MODULE second_Monitor
      '         HMVKBCO3 + HO2 --> HMVKBCO3H                                                               ', &
      '         HMVKBCO3 + HO2 --> HMVKBO2 + OH                                                            ', &
      '          HMVKBCO3 + NO --> HMVKBO2 + NO2                                                           ', &
-     '         HMVKBCO3 + NO2 --> HMVKBPAN                                                                ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_150 = (/ &
+     '         HMVKBCO3 + NO2 --> HMVKBPAN                                                                ', &
      '         HMVKBCO3 + NO3 --> HMVKBO2 + NO2                                                           ', &
-     '               HMVKBCO3 --> HMVKBCO2H                                                               ', &
+     '               HMVKBCO3 --> HMVKBCO2H                                                               ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_150 = (/ &
      '               HMVKBCO3 --> HMVKBO2                                                                 ', &
      '          CO13C4OH + OH --> C4CODIAL + HO2                                                          ', &
      '               CO13C4OH --> HCOCH2O2 + HOCH2CO3                                                     ', &
@@ -5364,12 +5365,12 @@ MODULE second_Monitor
      '          C518CO2H + OH --> ISOPDO2                                                                 ', &
      '          C518CO3H + OH --> C518CO3                                                                 ', &
      '               C518CO3H --> ISOPDO2 + OH                                                            ', &
-     '           C518PAN + OH --> HCOC5 + CO + NO2                                                        ', &
+     '           C518PAN + OH --> HCOC5 + NO2 + CO                                                        ', &
      '                C518PAN --> C518CO3 + NO2                                                           ', &
      '          NC623OOH + OH --> NC623O2                                                                 ', &
      '               NC623OOH --> NC623O + OH                                                             ', &
-     '                 NC623O --> HMVKBCHO + HCHO + NO2                                                   ', &
-     '           NC623OH + OH --> HMVKBCHO + HCHO + NO2                                                   ', &
+     '                 NC623O --> HMVKBCHO + NO2 + HCHO                                                   ', &
+     '           NC623OH + OH --> HMVKBCHO + NO2 + HCHO                                                   ', &
      '           C520O2 + HO2 --> C520OOH                                                                 ', &
      '            C520O2 + NO --> C520O + NO2                                                             ', &
      '           C520O2 + NO3 --> C520O + NO2                                                             ', &
@@ -5377,17 +5378,17 @@ MODULE second_Monitor
      '                 C520O2 --> C520OH                                                                  ', &
      '           C623OOH + OH --> C623O2                                                                  ', &
      '                C623OOH --> C623O + OH                                                              ', &
-     '           C623NO3 + OH --> HMVKBCHO + HCHO + NO2                                                   ', &
-     '                  C623O --> HMVKBCHO + HCHO + HO2                                                   ', &
-     '            C623OH + OH --> HMVKBCHO + HCHO + HO2                                                   ', &
+     '           C623NO3 + OH --> HMVKBCHO + NO2 + HCHO                                                   ', &
+     '                  C623O --> HMVKBCHO + HO2 + HCHO                                                   ', &
+     '            C623OH + OH --> HMVKBCHO + HO2 + HCHO                                                   ', &
      '          C624CHO + NO3 --> C624CO3 + HNO3                                                          ', &
      '          C624CHO + NO3 --> NC730O2                                                                 ', &
      '           C624CHO + O3 --> CH2OOF + C519CHO                                                        ', &
      '           C624CHO + O3 --> C629OOA + HCHO                                                          ', &
-     '           C624CHO + OH --> C624CO3                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_151 = (/ &
+     '           C624CHO + OH --> C624CO3                                                                 ', &
      '           C624CHO + OH --> C730O2                                                                  ', &
-     '          C624CO3 + HO2 --> C624CO2H + O3                                                           ', &
+     '          C624CO3 + HO2 --> C624CO2H + O3                                                           ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_151 = (/ &
      '          C624CO3 + HO2 --> C624CO3H                                                                ', &
      '          C624CO3 + HO2 --> C624O2 + OH                                                             ', &
      '           C624CO3 + NO --> C624O2 + NO2                                                            ', &
@@ -5405,7 +5406,7 @@ MODULE second_Monitor
      '              CO2C4CO3H --> MEKAO2 + OH                                                             ', &
      '         CO2C4CO3H + OH --> CO2C4CO3                                                                ', &
      '                 C5PAN2 --> CO2C4CO3 + NO2                                                          ', &
-     '            C5PAN2 + OH --> CO2C3CHO + CO + NO2                                                     ', &
+     '            C5PAN2 + OH --> CO2C3CHO + NO2 + CO                                                     ', &
      '           C731OOH + OH --> C626CHO + OH                                                            ', &
      '                C731OOH --> C731O + OH                                                              ', &
      '           C731NO3 + OH --> C626CHO + NO2                                                           ', &
@@ -5415,23 +5416,23 @@ MODULE second_Monitor
      '          C732CO3H + OH --> C732CO3                                                                 ', &
      '               C732CO3H --> C732O2 + OH                                                             ', &
      '           C732O2 + HO2 --> C732OOH                                                                 ', &
-     '            C732O2 + NO --> C732NO3                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_152 = (/ &
+     '            C732O2 + NO --> C732NO3                                                                 ', &
      '            C732O2 + NO --> C732O + NO2                                                             ', &
-     '           C732O2 + NO3 --> C732O + NO2                                                             ', &
+     '           C732O2 + NO3 --> C732O + NO2                                                             ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_152 = (/ &
      '                 C732O2 --> C732CO                                                                  ', &
      '                 C732O2 --> C732O                                                                   ', &
      '                 C732O2 --> C732OH                                                                  ', &
      '          KLIMONIC + OH --> C732O2                                                                  ', &
-     '           C732PAN + OH --> C732CO + CO + NO2                                                       ', &
+     '           C732PAN + OH --> C732CO + NO2 + CO                                                       ', &
      '                C732PAN --> C732CO3 + NO2                                                           ', &
      '             CO23C4CO3H --> BIACETO2 + OH                                                           ', &
      '        CO23C4CO3H + OH --> CO23C4CO3                                                               ', &
      '                 C5PAN9 --> CO23C4CO3 + NO2                                                         ', &
-     '            C5PAN9 + OH --> CO23C3CHO + CO + NO2                                                    ', &
+     '            C5PAN9 + OH --> CO23C3CHO + NO2 + CO                                                    ', &
      '        C312COCO3H + OH --> C312COCO3                                                               ', &
      '             C312COCO3H --> CHOCOCH2O2 + OH                                                         ', &
-     '         C312COPAN + OH --> C33CO + CO + NO2                                                        ', &
+     '         C312COPAN + OH --> C33CO + NO2 + CO                                                        ', &
      '              C312COPAN --> C312COCO3 + NO2                                                         ', &
      '        ALCOCH2OOH + OH --> CHOCOCH2O2                                                              ', &
      '             ALCOCH2OOH --> CHOCOCH2O + OH                                                          ', &
@@ -5446,20 +5447,20 @@ MODULE second_Monitor
      '                 C813O2 --> C813O                                                                   ', &
      '                 C813O2 --> C813OH                                                                  ', &
      '           C722O2 + HO2 --> C722OOH                                                                 ', &
-     '            C722O2 + NO --> C722O + NO2                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_153 = (/ &
+     '            C722O2 + NO --> C722O + NO2                                                             ', &
      '           C722O2 + NO3 --> C722O + NO2                                                             ', &
-     '                 C722O2 --> C722O                                                                   ', &
+     '                 C722O2 --> C722O                                                                   ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_153 = (/ &
      '           C621OOH + OH --> C621O2                                                                  ', &
      '                C621OOH --> C621O + OH                                                              ', &
-     '                  C621O --> H1C23C4CHO + HCHO + HO2                                                 ', &
+     '                  C621O --> H1C23C4CHO + HO2 + HCHO                                                 ', &
      '          C515CO3H + OH --> C515CO3                                                                 ', &
      '               C515CO3H --> C515O2 + OH                                                             ', &
-     '           C515PAN + OH --> C515CO + CO + NO2                                                       ', &
+     '           C515PAN + OH --> C515CO + NO2 + CO                                                       ', &
      '                C515PAN --> C515CO3 + NO2                                                           ', &
      '           C515OOH + OH --> C515CO + OH                                                             ', &
      '                C515OOH --> C515O + OH                                                              ', &
-     '                  C515O --> HCHO + HCOCH2CO3 + CO                                                   ', &
+     '                  C515O --> HCOCH2CO3 + CO + HCHO                                                   ', &
      '          C615CO3 + HO2 --> C615CO2H + O3                                                           ', &
      '          C615CO3 + HO2 --> C615CO3H                                                                ', &
      '          C615CO3 + HO2 --> C615O2 + OH                                                             ', &
@@ -5477,10 +5478,10 @@ MODULE second_Monitor
      '           C617CO3 + NO --> C617O2 + NO2                                                            ', &
      '          C617CO3 + NO2 --> C617PAN                                                                 ', &
      '          C617CO3 + NO3 --> C617O2 + NO2                                                            ', &
-     '                C617CO3 --> C617CO2H                                                                ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_154 = (/ &
+     '                C617CO3 --> C617CO2H                                                                ', &
      '                C617CO3 --> C617O2                                                                  ', &
-     '          C618CO3 + HO2 --> C618CO2H + O3                                                           ', &
+     '          C618CO3 + HO2 --> C618CO2H + O3                                                           ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_154 = (/ &
      '          C618CO3 + HO2 --> C618CO3H                                                                ', &
      '          C618CO3 + HO2 --> C618O2 + OH                                                             ', &
      '           C618CO3 + NO --> C618O2 + NO2                                                            ', &
@@ -5505,13 +5506,13 @@ MODULE second_Monitor
      '         HMVKBCO2H + OH --> HMVKBO2                                                                 ', &
      '         HMVKBCO3H + OH --> HMVKBCO3                                                                ', &
      '              HMVKBCO3H --> HMVKBO2 + OH                                                            ', &
-     '          HMVKBPAN + OH --> BIACETOH + CO + NO2                                                     ', &
+     '          HMVKBPAN + OH --> BIACETOH + NO2 + CO                                                     ', &
      '               HMVKBPAN --> HMVKBCO3 + NO2                                                          ', &
      '           C520OOH + OH --> C520O2                                                                  ', &
-     '                C520OOH --> BIACETOH + HO2 + CO + OH                                                ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_155 = (/ &
+     '                C520OOH --> BIACETOH + OH + HO2 + CO                                                ', &
      '                C520OOH --> C520O + OH                                                              ', &
-     '                C520OOH --> HOCH2COCHO + CH3CO3 + OH                                                ', &
+     '                C520OOH --> HOCH2COCHO + CH3CO3 + OH                                                ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_155 = (/ &
      '                  C520O --> BIACETOH + HO2 + CO                                                     ', &
      '                  C520O --> HOCH2COCHO + CH3CO3                                                     ', &
      '            C520OH + OH --> C520O                                                                   ', &
@@ -5539,10 +5540,10 @@ MODULE second_Monitor
      '            C624O2 + NO --> C624O + NO2                                                             ', &
      '           C624O2 + NO3 --> C624O + NO2                                                             ', &
      '                 C624O2 --> C624CO                                                                  ', &
-     '                 C624O2 --> C624O                                                                   ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_156 = (/ &
+     '                 C624O2 --> C624O                                                                   ', &
      '                 C624O2 --> C624OH                                                                  ', &
-     '           C624PAN + OH --> C624CO + CO + NO2                                                       ', &
+     '           C624PAN + OH --> C624CO + NO2 + CO                                                       ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_156 = (/ &
      '                C624PAN --> C624CO3 + NO2                                                           ', &
      '           C733O2 + HO2 --> C733OOH                                                                 ', &
      '            C733O2 + NO --> C733O + NO2                                                             ', &
@@ -5566,14 +5567,14 @@ MODULE second_Monitor
      '                NC61CO3 --> CO235C5CHO + NO2                                                        ', &
      '           C813OOH + OH --> C813O2                                                                  ', &
      '                C813OOH --> C813O + OH                                                              ', &
-     '           C813NO3 + OH --> CO13C3CO2H + HCHO + CH3COCH3 + NO2                                      ', &
+     '           C813NO3 + OH --> CO13C3CO2H + NO2 + HCHO + CH3COCH3                                      ', &
      '                C813NO3 --> C813O + NO2                                                             ', &
      '                  C813O --> C516O2 + CH3COCH3                                                       ', &
      '            C813OH + OH --> C813O                                                                   ', &
-     '                 C813OH --> C813O + HO2                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_157 = (/ &
+     '                 C813OH --> C813O + HO2                                                             ', &
      '           C722OOH + OH --> C722O2                                                                  ', &
-     '                C722OOH --> C722O + OH                                                              ', &
+     '                C722OOH --> C722O + OH                                                              ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_157 = (/ &
      '                  C722O --> C44O2 + CH3COCH3                                                        ', &
      '       H1C23C4CHO + NO3 --> H1C23C4CO3 + HNO3                                                       ', &
      '        H1C23C4CHO + OH --> H1C23C4CO3                                                              ', &
@@ -5591,20 +5592,20 @@ MODULE second_Monitor
      '                 C615O2 --> C615CO                                                                  ', &
      '                 C615O2 --> C615O                                                                   ', &
      '                 C615O2 --> C615OH                                                                  ', &
-     '           C615PAN + OH --> C615CO + CO + NO2                                                       ', &
+     '           C615PAN + OH --> C615CO + NO2 + CO                                                       ', &
      '                C615PAN --> C615CO3 + NO2                                                           ', &
      '          C617CO2H + OH --> C617O2                                                                  ', &
      '               C617CO2H --> C617O2 + HO2                                                            ', &
      '          C617CO3H + OH --> C617CO3                                                                 ', &
      '               C617CO3H --> C617O2 + OH                                                             ', &
-     '           C617PAN + OH --> C615CO + CO + NO2                                                       ', &
+     '           C617PAN + OH --> C615CO + NO2 + CO                                                       ', &
      '                C617PAN --> C617CO3 + NO2                                                           ', &
      '          C618CO2H + OH --> C618O2                                                                  ', &
      '               C618CO2H --> C618O2 + HO2                                                            ', &
-     '          C618CO3H + OH --> C618CO3                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_158 = (/ &
+     '          C618CO3H + OH --> C618CO3                                                                 ', &
      '               C618CO3H --> C618O2 + OH                                                             ', &
-     '           C618PAN + OH --> HCOCH2CHO + CH3COCH3 + CO + NO2                                         ', &
+     '           C618PAN + OH --> HCOCH2CHO + NO2 + CO + CH3COCH3                                         ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_158 = (/ &
      '                C618PAN --> C618CO3 + NO2                                                           ', &
      '           C617OOH + OH --> C615CO + OH                                                             ', &
      '                C617OOH --> C617O + OH                                                              ', &
@@ -5615,14 +5616,14 @@ MODULE second_Monitor
      '                 C617OH --> C617O + HO2                                                             ', &
      '           C618OOH + OH --> C618O2                                                                  ', &
      '                C618OOH --> C618O + OH                                                              ', &
-     '                  C618O --> CH3COCH3 + HCOCH2CO3                                                    ', &
+     '                  C618O --> HCOCH2CO3 + CH3COCH3                                                    ', &
      '                 C67CHO --> C55O2 + HO2 + CO                                                        ', &
      '           C67CHO + NO3 --> C67CO3 + HNO3                                                           ', &
      '            C67CHO + OH --> C67CO3                                                                  ', &
      '          NC730OOH + OH --> NC730O2                                                                 ', &
      '               NC730OOH --> NC730O + OH                                                             ', &
-     '                 NC730O --> C519CHO + HCHO + NO2                                                    ', &
-     '           NC730OH + OH --> C519CHO + HCHO + NO2                                                    ', &
+     '                 NC730O --> C519CHO + NO2 + HCHO                                                    ', &
+     '           NC730OH + OH --> C519CHO + NO2 + HCHO                                                    ', &
      '          C519CO3 + HO2 --> C519CO2H + O3                                                           ', &
      '          C519CO3 + HO2 --> C519CO3H                                                                ', &
      '          C519CO3 + HO2 --> C519O2 + OH                                                             ', &
@@ -5632,16 +5633,16 @@ MODULE second_Monitor
      '                C519CO3 --> C519CO2H                                                                ', &
      '                C519CO3 --> C519O2                                                                  ', &
      '           C629O2 + HO2 --> C629OOH                                                                 ', &
-     '            C629O2 + NO --> C629O + NO2                                                             ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_159 = (/ &
+     '            C629O2 + NO --> C629O + NO2                                                             ', &
      '           C629O2 + NO3 --> C629O + NO2                                                             ', &
-     '                 C629O2 --> C629O                                                                   ', &
+     '                 C629O2 --> C629O                                                                   ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_159 = (/ &
      '                 C629O2 --> C629OH                                                                  ', &
      '           C730OOH + OH --> C730O2                                                                  ', &
      '                C730OOH --> C730O + OH                                                              ', &
-     '           C730NO3 + OH --> C519CHO + HCHO + NO2                                                    ', &
-     '                  C730O --> C519CHO + HCHO + HO2                                                    ', &
-     '            C730OH + OH --> C519CHO + HCHO + HO2                                                    ', &
+     '           C730NO3 + OH --> C519CHO + NO2 + HCHO                                                    ', &
+     '                  C730O --> C519CHO + HO2 + HCHO                                                    ', &
+     '            C730OH + OH --> C519CHO + HO2 + HCHO                                                    ', &
      '           C624OOH + OH --> C624CO + OH                                                             ', &
      '                C624OOH --> C624O + OH                                                              ', &
      '           C624NO3 + OH --> C624CO + NO2                                                            ', &
@@ -5663,10 +5664,10 @@ MODULE second_Monitor
      '                 C734O2 --> C734CO                                                                  ', &
      '                 C734O2 --> C734O                                                                   ', &
      '                 C734O2 --> C734OH                                                                  ', &
-     '          NC61CO3H + OH --> NC61CO3                                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_160 = (/ &
+     '          NC61CO3H + OH --> NC61CO3                                                                 ', &
      '               NC61CO3H --> CO235C5CHO + OH + NO2                                                   ', &
-     '           NC6PAN1 + OH --> CO235C5CHO + CO + 2 NO2                                                 ', &
+     '           NC6PAN1 + OH --> CO235C5CHO + 2 NO2 + CO                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_160 = (/ &
      '                NC6PAN1 --> NC61CO3 + NO2                                                           ', &
      '           C516O2 + HO2 --> C516OOH                                                                 ', &
      '            C516O2 + NO --> C516O + NO2                                                             ', &
@@ -5694,10 +5695,10 @@ MODULE second_Monitor
      '        CO1M22CO3 + HO2 --> CO1M22CO2H + O3                                                         ', &
      '        CO1M22CO3 + HO2 --> CO1M22CO3H                                                              ', &
      '        CO1M22CO3 + HO2 --> IBUTALCO2 + OH                                                          ', &
-     '         CO1M22CO3 + NO --> IBUTALCO2 + NO2                                                         ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_161 = (/ &
+     '         CO1M22CO3 + NO --> IBUTALCO2 + NO2                                                         ', &
      '        CO1M22CO3 + NO2 --> CO1M22PAN                                                               ', &
-     '        CO1M22CO3 + NO3 --> IBUTALCO2 + NO2                                                         ', &
+     '        CO1M22CO3 + NO3 --> IBUTALCO2 + NO2                                                         ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_161 = (/ &
      '              CO1M22CO3 --> CO1M22CO2H                                                              ', &
      '              CO1M22CO3 --> IBUTALCO2                                                               ', &
      '            C55O2 + HO2 --> C55OOH                                                                  ', &
@@ -5719,16 +5720,16 @@ MODULE second_Monitor
      '                 C519O2 --> C519O                                                                   ', &
      '                 C519O2 --> HO13CO4C5                                                               ', &
      '                 C519O2 --> HO1CO34C5                                                               ', &
-     '           C519PAN + OH --> HO1CO34C5 + CO + NO2                                                    ', &
+     '           C519PAN + OH --> HO1CO34C5 + NO2 + CO                                                    ', &
      '                C519PAN --> C519CO3 + NO2                                                           ', &
      '           C629OOH + OH --> C629O2                                                                  ', &
      '                C629OOH --> C629O + OH                                                              ', &
-     '                C629OOH --> HO1CO34C5 + HO2 + CO + OH                                               ', &
+     '                C629OOH --> HO1CO34C5 + OH + HO2 + CO                                               ', &
      '                C629OOH --> HO1CO3CHO + CH3CO3 + OH                                                 ', &
-     '                  C629O --> HO1CO34C5 + HO2 + CO                                                    ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_162 = (/ &
+     '                  C629O --> HO1CO34C5 + HO2 + CO                                                    ', &
      '                  C629O --> HO1CO3CHO + CH3CO3                                                      ', &
-     '            C629OH + OH --> C629O                                                                   ', &
+     '            C629OH + OH --> C629O                                                                   ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_162 = (/ &
      '                 C629OH --> HO1CO34C5 + 2 HO2 + CO                                                  ', &
      '                 C629OH --> HO1CO3CHO + CH3CO3 + HO2                                                ', &
      '           C625O2 + HO2 --> C625OOH                                                                 ', &
@@ -5744,22 +5745,22 @@ MODULE second_Monitor
      '            C734OH + OH --> C734CO + HO2                                                            ', &
      '                C516OOH --> C516O + OH                                                              ', &
      '           C516OOH + OH --> C516O2 + OH                                                             ', &
-     '                  C516O --> CO13C3CO2H + HCHO + HO2                                                 ', &
+     '                  C516O --> CO13C3CO2H + HO2 + HCHO                                                 ', &
      '            C44OOH + OH --> C44O2                                                                   ', &
      '                 C44OOH --> C44O + OH                                                               ', &
      '                   C44O --> HCOCH2CHO + HO2                                                         ', &
      '        HC23C4CO3H + OH --> H1C23C4CO3                                                              ', &
      '             HC23C4CO3H --> H1C23C4O2 + OH                                                          ', &
-     '        H1C23C4PAN + OH --> H1CO23CHO + CO + NO2                                                    ', &
+     '        H1C23C4PAN + OH --> H1CO23CHO + NO2 + CO                                                    ', &
      '             H1C23C4PAN --> H1C23C4CO3 + NO2                                                        ', &
      '        H1C23C4OOH + OH --> H1C23C4O2                                                               ', &
      '             H1C23C4OOH --> H1C23C4O + OH                                                           ', &
-     '               H1C23C4O --> HOCH2CO3 + HCHO + CO                                                    ', &
+     '               H1C23C4O --> HOCH2CO3 + CO + HCHO                                                    ', &
      '        CO1M22CHO + NO3 --> CO1M22CO3 + HNO3                                                        ', &
-     '         CO1M22CHO + OH --> CO1M22CO3                                                               ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_163 = (/ &
+     '         CO1M22CHO + OH --> CO1M22CO3                                                               ', &
      '              CO1M22CHO --> IBUTALCO2 + HO2 + CO                                                    ', &
-     '        CO1M22CO2H + OH --> IBUTALCO2                                                               ', &
+     '        CO1M22CO2H + OH --> IBUTALCO2                                                               ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_163 = (/ &
      '             CO1M22CO2H --> IBUTALCO2 + HO2                                                         ', &
      '        CO1M22CO3H + OH --> CO1M22CO3                                                               ', &
      '             CO1M22CO3H --> IBUTALCO2 + OH                                                          ', &
@@ -5768,7 +5769,7 @@ MODULE second_Monitor
      '        IBUTALCO2 + NO3 --> M2PROPAL2O + NO2                                                        ', &
      '              IBUTALCO2 --> IBUTALOH                                                                ', &
      '              IBUTALCO2 --> M2PROPAL2O                                                              ', &
-     '         CO1M22PAN + OH --> CH3COCH3 + CO + NO2                                                     ', &
+     '         CO1M22PAN + OH --> NO2 + CO + CH3COCH3                                                     ', &
      '              CO1M22PAN --> CO1M22CO3 + NO2                                                         ', &
      '                 C55OOH --> C55O + OH                                                               ', &
      '            C55OOH + OH --> C55O2                                                                   ', &
@@ -5776,7 +5777,7 @@ MODULE second_Monitor
      '                C67CO3H --> C55O2 + OH                                                              ', &
      '           C67CO3H + OH --> C67CO3                                                                  ', &
      '                 C6PAN9 --> C67CO3 + NO2                                                            ', &
-     '            C6PAN9 + OH --> MIBKHO4CHO + CO + NO2                                                   ', &
+     '            C6PAN9 + OH --> MIBKHO4CHO + NO2 + CO                                                   ', &
      '           C519OOH + OH --> HO1CO34C5 + OH                                                          ', &
      '                C519OOH --> C519O + OH                                                              ', &
      '                C519OOH --> HOC2H4CHO + CH3CO3 + OH                                                 ', &
@@ -5787,15 +5788,15 @@ MODULE second_Monitor
      '         HO1CO34C5 + OH --> CO23C4CHO + HO2                                                         ', &
      '           C625OOH + OH --> C625O2                                                                  ', &
      '                C625OOH --> C625O + OH                                                              ', &
-     '                C625OOH --> HOC2H4CO3 + ACETOL + OH                                                 ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_164 = (/ &
+     '                C625OOH --> HOC2H4CO3 + ACETOL + OH                                                 ', &
      '                  C625O --> HOC2H4CO3 + ACETOL                                                      ', &
-     '            C625OH + OH --> HOC2H4CO3 + ACETOL                                                      ', &
+     '            C625OH + OH --> HOC2H4CO3 + ACETOL                                                      ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_164 = (/ &
      '                 C625OH --> HOC2H4CO3 + ACETOL + HO2                                                ', &
      '         IBUTALO2H + OH --> IBUTALCO2                                                               ', &
-     '              IBUTALO2H --> CH3COCH3 + HO2 + CO + OH                                                ', &
+     '              IBUTALO2H --> OH + HO2 + CO + CH3COCH3                                                ', &
      '              IBUTALO2H --> M2PROPAL2O + OH                                                         ', &
-     '             M2PROPAL2O --> CH3COCH3 + HO2 + CO                                                     ', &
+     '             M2PROPAL2O --> HO2 + CO + CH3COCH3                                                     ', &
      '       MIBKHO4CHO + NO3 --> TBUTOLO2 + HNO3 + 2 CO                                                  ', &
      '        MIBKHO4CHO + OH --> TBUTOLO2 + 2 CO                                                         ', &
      '             MIBKHO4CHO --> H2M2C3CO3 + HO2 + CO                                                    ', &
@@ -5818,25 +5819,27 @@ MODULE second_Monitor
      '         TBUTOLOOH + OH --> IBUTALOH + OH                                                           ', &
      '         TBUTOLOOH + OH --> TBUTOLO2                                                                ', &
      '              TBUTOLOOH --> TBUTOLO + OH                                                            ', &
-     '         TBUTOLNO3 + OH --> IBUTALOH + NO2                                                          ' /)
+     '         TBUTOLNO3 + OH --> IBUTALOH + NO2                                                          ', &
+     '                TBUTOLO --> HO2 + HCHO + CH3COCH3                                                   ', &
+     '         IBUTOLOHB + OH --> IBUTALOH + HO2                                                          ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_165 = (/ &
-     '                TBUTOLO --> HCHO + CH3COCH3 + HO2                                                   ', &
-     '         IBUTOLOHB + OH --> IBUTALOH + HO2                                                          ', &
      '             H2M2C3CO3H --> TBUTOLO2 + OH                                                           ', &
      '        H2M2C3CO3H + OH --> H2M2C3CO3                                                               ', &
      '                C5PAN11 --> H2M2C3CO3 + NO2                                                         ', &
-     '           C5PAN11 + OH --> IBUTALOH + CO + NO2                                                     ', &
+     '           C5PAN11 + OH --> IBUTALOH + NO2 + CO                                                     ', &
+     '                 O + O3 --> dummy                                                                   ', &
+     '               OH + HO2 --> dummy                                                                   ', &
      '                  H2SO4 --> P_H2SO4                                                                 ', &
      '                   HNO3 --> P_HNO3                                                                  ', &
      '                   Emi1 --> HOA                                                                     ', &
      '          HCOOH + CH2OO --> dummy_hcooh                                                             ', &
      '        HCOOH + APINBOO --> dummy_hcooh                                                             ', &
-     '        HCOOH + NOPINOO --> dummy_hcooh                                                             ', &
-     '         HCOOH + LIMBOO --> dummy_hcooh                                                             ', &
+     '        NOPINOO + HCOOH --> dummy_hcooh                                                             ', &
+     '         LIMBOO + HCOOH --> dummy_hcooh                                                             ', &
      '        CH3COOH + CH2OO --> dummy_ch3cooh                                                           ', &
      '      CH3COOH + APINBOO --> dummy_ch3cooh                                                           ', &
-     '      CH3COOH + NOPINOO --> dummy_ch3cooh                                                           ', &
-     '       CH3COOH + LIMBOO --> dummy_ch3cooh                                                           ', &
+     '      NOPINOO + CH3COOH --> dummy_ch3cooh                                                           ', &
+     '       LIMBOO + CH3COOH --> dummy_ch3cooh                                                           ', &
      '            CARENE + OH --> APINAO2                                                                 ', &
      '            CARENE + OH --> APINBO2                                                                 ', &
      '            CARENE + OH --> APINCO2                                                                 ', &
@@ -5846,9 +5849,9 @@ MODULE second_Monitor
      '           CARENE + NO3 --> NAPINBO2                                                                ', &
      '                APINOOA --> OH + R_HOM_O4                                                           ', &
      '                 LIMOOA --> OH + R_HOM_O4                                                           ', &
-     '           APINENE + OH --> R_HOM_OH_O5                                                             ', &
-     '           BPINENE + OH --> R_HOM_OH_O5                                                             ', &
-     '          LIMONENE + OH --> R_HOM_OH_O5                                                             ', &
+     '           OH + APINENE --> R_HOM_OH_O5                                                             ', &
+     '           OH + BPINENE --> R_HOM_OH_O5                                                             ', &
+     '          OH + LIMONENE --> R_HOM_OH_O5                                                             ', &
      '            CARENE + OH --> R_HOM_OH_O5                                                             ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_166 = (/ &
      '               R_HOM_O4 --> R_HOM_O6                                                                ', &
@@ -5882,17 +5885,17 @@ MODULE second_Monitor
      '         R_HOM_O13 + NO --> RHOM_O12 + NO2                                                          ', &
      '         R_HOM_O14 + NO --> RHOM_O13 + NO2                                                          ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_167 = (/ &
-     '          R_HOM_O4 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '          R_HOM_O5 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '          R_HOM_O6 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '          R_HOM_O7 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '          R_HOM_O8 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '          R_HOM_O9 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '         R_HOM_O10 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '         R_HOM_O11 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '         R_HOM_O12 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '         R_HOM_O13 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '         R_HOM_O14 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
+     '          R_HOM_O4 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '          R_HOM_O5 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '          R_HOM_O6 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '          R_HOM_O7 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '          R_HOM_O8 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '          R_HOM_O9 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '         R_HOM_O10 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '         R_HOM_O11 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '         R_HOM_O12 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '         R_HOM_O13 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '         R_HOM_O14 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
      '          R_HOM_O4 + NO --> HOM_O3CBN + HO2 + NO2                                                   ', &
      '          R_HOM_O5 + NO --> HOM_O4CBN + HO2 + NO2                                                   ', &
      '          R_HOM_O6 + NO --> HOM_O5CBN + HO2 + NO2                                                   ', &
@@ -5916,16 +5919,16 @@ MODULE second_Monitor
      '         R_HOM_O12 + NO --> HOM_NO13                                                                ', &
      '         R_HOM_O13 + NO --> HOM_NO14                                                                ', &
      '         R_HOM_O14 + NO --> HOM_NO15                                                                ', &
-     '         HO2 + R_HOM_O4 --> HOM_O4                                                                  ', &
+     '         R_HOM_O4 + HO2 --> HOM_O4                                                                  ', &
      '         HO2 + R_HOM_O5 --> HOM_O5                                                                  ', &
-     '         HO2 + R_HOM_O6 --> HOM_O6                                                                  ', &
-     '         HO2 + R_HOM_O7 --> HOM_O7                                                                  ', &
-     '         HO2 + R_HOM_O8 --> HOM_O8                                                                  ', &
+     '         R_HOM_O6 + HO2 --> HOM_O6                                                                  ', &
+     '         R_HOM_O7 + HO2 --> HOM_O7                                                                  ', &
+     '         R_HOM_O8 + HO2 --> HOM_O8                                                                  ', &
      '         HO2 + R_HOM_O9 --> HOM_O9                                                                  ', &
-     '        R_HOM_O10 + HO2 --> HOM_O10                                                                 ', &
-     '        HO2 + R_HOM_O11 --> HOM_O11                                                                 ', &
-     '        R_HOM_O12 + HO2 --> HOM_O12                                                                 ', &
-     '        HO2 + R_HOM_O13 --> HOM_O13                                                                 ', &
+     '        HO2 + R_HOM_O10 --> HOM_O10                                                                 ', &
+     '        R_HOM_O11 + HO2 --> HOM_O11                                                                 ', &
+     '        HO2 + R_HOM_O12 --> HOM_O12                                                                 ', &
+     '        R_HOM_O13 + HO2 --> HOM_O13                                                                 ', &
      '        HO2 + R_HOM_O14 --> HOM_O14                                                                 ', &
      '     APINAO2 + R_HOM_O4 --> HOM20_O5                                                                ', &
      '     APINBO2 + R_HOM_O4 --> HOM20_O5                                                                ', &
@@ -5937,7 +5940,7 @@ MODULE second_Monitor
      '      C108O2 + R_HOM_O4 --> HOM20_O7                                                                ', &
      '     PINALO2 + R_HOM_O4 --> HOM20_O6                                                                ', &
      '      C96CO3 + R_HOM_O4 --> HOM20_O6                                                                ', &
-     '     R_HOM_O4 + C923CO3 --> HOM20_O6                                                                ', &
+     '     C923CO3 + R_HOM_O4 --> HOM20_O6                                                                ', &
      '      LIMAO2 + R_HOM_O4 --> HOM20_O5                                                                ', &
      '    LIMALBO2 + R_HOM_O4 --> HOM20_O6                                                                ', &
      '      LIMCO2 + R_HOM_O4 --> HOM20_O5                                                                ', &
@@ -5967,7 +5970,7 @@ MODULE second_Monitor
      '      C921O2 + R_HOM_O4 --> HOM19_O7                                                                ', &
      '       C98O2 + R_HOM_O4 --> HOM19_O7                                                                ', &
      '      C922O2 + R_HOM_O4 --> HOM19_O8                                                                ', &
-     '      C923O2 + R_HOM_O4 --> HOM19_O5                                                                ', &
+     '      R_HOM_O4 + C923O2 --> HOM19_O5                                                                ', &
      '      C924O2 + R_HOM_O4 --> HOM19_O6                                                                ', &
      '     C816CO3 + R_HOM_O4 --> HOM19_O6                                                                ', &
      '    NORLIMO2 + R_HOM_O4 --> HOM19_O7                                                                ', &
@@ -6064,7 +6067,7 @@ MODULE second_Monitor
      '      C921O2 + R_HOM_O5 --> HOM19_O8                                                                ', &
      '       C98O2 + R_HOM_O5 --> HOM19_O8                                                                ', &
      '      C922O2 + R_HOM_O5 --> HOM19_O9                                                                ', &
-     '      C923O2 + R_HOM_O5 --> HOM19_O6                                                                ', &
+     '      R_HOM_O5 + C923O2 --> HOM19_O6                                                                ', &
      '      C924O2 + R_HOM_O5 --> HOM19_O7                                                                ', &
      '     C816CO3 + R_HOM_O5 --> HOM19_O7                                                                ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_173 = (/ &
@@ -6162,7 +6165,7 @@ MODULE second_Monitor
      '       C98O2 + R_HOM_O6 --> HOM19_O9                                                                ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_176 = (/ &
      '      C922O2 + R_HOM_O6 --> HOM19_O10                                                               ', &
-     '      C923O2 + R_HOM_O6 --> HOM19_O7                                                                ', &
+     '      R_HOM_O6 + C923O2 --> HOM19_O7                                                                ', &
      '      C924O2 + R_HOM_O6 --> HOM19_O8                                                                ', &
      '     C816CO3 + R_HOM_O6 --> HOM19_O8                                                                ', &
      '    NORLIMO2 + R_HOM_O6 --> HOM19_O9                                                                ', &
@@ -6259,7 +6262,7 @@ MODULE second_Monitor
      '      C921O2 + R_HOM_O7 --> HOM19_O10                                                               ', &
      '       C98O2 + R_HOM_O7 --> HOM19_O10                                                               ', &
      '      C922O2 + R_HOM_O7 --> HOM19_O11                                                               ', &
-     '      C923O2 + R_HOM_O7 --> HOM19_O8                                                                ', &
+     '      R_HOM_O7 + C923O2 --> HOM19_O8                                                                ', &
      '      C924O2 + R_HOM_O7 --> HOM19_O9                                                                ', &
      '     C816CO3 + R_HOM_O7 --> HOM19_O9                                                                ', &
      '    NORLIMO2 + R_HOM_O7 --> HOM19_O10                                                               ', &
@@ -6356,7 +6359,7 @@ MODULE second_Monitor
      '      C921O2 + R_HOM_O8 --> HOM19_O11                                                               ', &
      '       C98O2 + R_HOM_O8 --> HOM19_O11                                                               ', &
      '      C922O2 + R_HOM_O8 --> HOM19_O12                                                               ', &
-     '      C923O2 + R_HOM_O8 --> HOM19_O9                                                                ', &
+     '      R_HOM_O8 + C923O2 --> HOM19_O9                                                                ', &
      '      C924O2 + R_HOM_O8 --> HOM19_O10                                                               ', &
      '     C816CO3 + R_HOM_O8 --> HOM19_O10                                                               ', &
      '    NORLIMO2 + R_HOM_O8 --> HOM19_O11                                                               ', &
@@ -6453,7 +6456,7 @@ MODULE second_Monitor
      '      C921O2 + R_HOM_O9 --> HOM19_O12                                                               ', &
      '       C98O2 + R_HOM_O9 --> HOM19_O12                                                               ', &
      '      C922O2 + R_HOM_O9 --> HOM19_O13                                                               ', &
-     '      C923O2 + R_HOM_O9 --> HOM19_O10                                                               ', &
+     '      R_HOM_O9 + C923O2 --> HOM19_O10                                                               ', &
      '      C924O2 + R_HOM_O9 --> HOM19_O11                                                               ', &
      '     C816CO3 + R_HOM_O9 --> HOM19_O11                                                               ', &
      '    NORLIMO2 + R_HOM_O9 --> HOM19_O12                                                               ', &
@@ -6520,7 +6523,7 @@ MODULE second_Monitor
      '     C108O2 + R_HOM_O10 --> HOM20_O13                                                               ', &
      '    PINALO2 + R_HOM_O10 --> HOM20_O12                                                               ', &
      '     C96CO3 + R_HOM_O10 --> HOM20_O12                                                               ', &
-     '    R_HOM_O10 + C923CO3 --> HOM20_O12                                                               ', &
+     '    C923CO3 + R_HOM_O10 --> HOM20_O12                                                               ', &
      '     LIMAO2 + R_HOM_O10 --> HOM20_O11                                                               ', &
      '   LIMALBO2 + R_HOM_O10 --> HOM20_O12                                                               ', &
      '     LIMCO2 + R_HOM_O10 --> HOM20_O11                                                               ', &
@@ -6550,7 +6553,7 @@ MODULE second_Monitor
      '     C921O2 + R_HOM_O10 --> HOM19_O13                                                               ', &
      '      C98O2 + R_HOM_O10 --> HOM19_O13                                                               ', &
      '     C922O2 + R_HOM_O10 --> HOM19_O14                                                               ', &
-     '     C923O2 + R_HOM_O10 --> HOM19_O11                                                               ', &
+     '     R_HOM_O10 + C923O2 --> HOM19_O11                                                               ', &
      '     C924O2 + R_HOM_O10 --> HOM19_O12                                                               ', &
      '    C816CO3 + R_HOM_O10 --> HOM19_O12                                                               ', &
      '   NORLIMO2 + R_HOM_O10 --> HOM19_O13                                                               ', &
@@ -6647,9 +6650,9 @@ MODULE second_Monitor
      '     C921O2 + R_HOM_O11 --> HOM19_O14                                                               ', &
      '      C98O2 + R_HOM_O11 --> HOM19_O14                                                               ', &
      '     C922O2 + R_HOM_O11 --> HOM19_O15                                                               ', &
-     '     C923O2 + R_HOM_O11 --> HOM19_O12                                                               ', &
+     '     R_HOM_O11 + C923O2 --> HOM19_O12                                                               ', &
      '     C924O2 + R_HOM_O11 --> HOM19_O13                                                               ', &
-     '    C816CO3 + R_HOM_O11 --> HOM19_O13                                                               ', &
+     '    R_HOM_O11 + C816CO3 --> HOM19_O13                                                               ', &
      '   NORLIMO2 + R_HOM_O11 --> HOM19_O14                                                               ', &
      '     LMKAO2 + R_HOM_O11 --> HOM19_O13                                                               ', &
      '     LMKBO2 + R_HOM_O11 --> HOM19_O13                                                               ', &
@@ -6714,7 +6717,7 @@ MODULE second_Monitor
      '     C108O2 + R_HOM_O12 --> HOM20_O15                                                               ', &
      '    PINALO2 + R_HOM_O12 --> HOM20_O14                                                               ', &
      '     C96CO3 + R_HOM_O12 --> HOM20_O14                                                               ', &
-     '    R_HOM_O12 + C923CO3 --> HOM20_O14                                                               ', &
+     '    C923CO3 + R_HOM_O12 --> HOM20_O14                                                               ', &
      '     LIMAO2 + R_HOM_O12 --> HOM20_O13                                                               ', &
      '   LIMALBO2 + R_HOM_O12 --> HOM20_O14                                                               ', &
      '     LIMCO2 + R_HOM_O12 --> HOM20_O13                                                               ' /)
@@ -6744,7 +6747,7 @@ MODULE second_Monitor
      '     C921O2 + R_HOM_O12 --> HOM19_O15                                                               ', &
      '      C98O2 + R_HOM_O12 --> HOM19_O15                                                               ', &
      '     C922O2 + R_HOM_O12 --> HOM19_O16                                                               ', &
-     '     R_HOM_O12 + C923O2 --> HOM19_O13                                                               ', &
+     '     C923O2 + R_HOM_O12 --> HOM19_O13                                                               ', &
      '     C924O2 + R_HOM_O12 --> HOM19_O14                                                               ', &
      '    C816CO3 + R_HOM_O12 --> HOM19_O14                                                               ', &
      '   NORLIMO2 + R_HOM_O12 --> HOM19_O15                                                               ', &
@@ -6812,7 +6815,7 @@ MODULE second_Monitor
      '    PINALO2 + R_HOM_O13 --> HOM20_O15                                                               ', &
      '     C96CO3 + R_HOM_O13 --> HOM20_O15                                                               ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_197 = (/ &
-     '    R_HOM_O13 + C923CO3 --> HOM20_O15                                                               ', &
+     '    C923CO3 + R_HOM_O13 --> HOM20_O15                                                               ', &
      '     LIMAO2 + R_HOM_O13 --> HOM20_O14                                                               ', &
      '   LIMALBO2 + R_HOM_O13 --> HOM20_O15                                                               ', &
      '     LIMCO2 + R_HOM_O13 --> HOM20_O14                                                               ', &
@@ -6841,7 +6844,7 @@ MODULE second_Monitor
      '     C921O2 + R_HOM_O13 --> HOM19_O16                                                               ', &
      '      C98O2 + R_HOM_O13 --> HOM19_O16                                                               ', &
      '     C922O2 + R_HOM_O13 --> HOM19_O17                                                               ', &
-     '     C923O2 + R_HOM_O13 --> HOM19_O14                                                               ' /)
+     '     R_HOM_O13 + C923O2 --> HOM19_O14                                                               ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_198 = (/ &
      '     C924O2 + R_HOM_O13 --> HOM19_O15                                                               ', &
      '    C816CO3 + R_HOM_O13 --> HOM19_O15                                                               ', &
@@ -6909,7 +6912,7 @@ MODULE second_Monitor
      '     C108O2 + R_HOM_O14 --> HOM20_O17                                                               ', &
      '    PINALO2 + R_HOM_O14 --> HOM20_O16                                                               ', &
      '     C96CO3 + R_HOM_O14 --> HOM20_O16                                                               ', &
-     '    R_HOM_O14 + C923CO3 --> HOM20_O16                                                               ', &
+     '    C923CO3 + R_HOM_O14 --> HOM20_O16                                                               ', &
      '     LIMAO2 + R_HOM_O14 --> HOM20_O15                                                               ', &
      '   LIMALBO2 + R_HOM_O14 --> HOM20_O16                                                               ', &
      '     LIMCO2 + R_HOM_O14 --> HOM20_O15                                                               ', &
@@ -6939,7 +6942,7 @@ MODULE second_Monitor
      '     C921O2 + R_HOM_O14 --> HOM19_O17                                                               ', &
      '      C98O2 + R_HOM_O14 --> HOM19_O17                                                               ', &
      '     C922O2 + R_HOM_O14 --> HOM19_O18                                                               ', &
-     '     C923O2 + R_HOM_O14 --> HOM19_O15                                                               ', &
+     '     R_HOM_O14 + C923O2 --> HOM19_O15                                                               ', &
      '     C924O2 + R_HOM_O14 --> HOM19_O16                                                               ', &
      '    C816CO3 + R_HOM_O14 --> HOM19_O16                                                               ', &
      '   NORLIMO2 + R_HOM_O14 --> HOM19_O17                                                               ', &
@@ -7045,12 +7048,12 @@ MODULE second_Monitor
      '       R_HOM_OH_O7 + NO --> RHOM_OH_O6 + NO2                                                        ', &
      '       R_HOM_OH_O8 + NO --> RHOM_OH_O7 + NO2                                                        ', &
      '       R_HOM_OH_O9 + NO --> RHOM_OH_O8 + NO2                                                        ', &
-     '       R_HOM_OH_O5 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '       R_HOM_OH_O6 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '       R_HOM_OH_O7 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '       R_HOM_OH_O8 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '       R_HOM_OH_O9 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
-     '      R_HOM_OH_O10 + NO --> C717O2 + CH3COCH3 + NO2                                                 ', &
+     '       R_HOM_OH_O5 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '       R_HOM_OH_O6 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '       R_HOM_OH_O7 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '       R_HOM_OH_O8 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '       R_HOM_OH_O9 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
+     '      R_HOM_OH_O10 + NO --> C717O2 + NO2 + CH3COCH3                                                 ', &
      '       R_HOM_OH_O5 + NO --> HOM_OH_O4CBN + HO2 + NO2                                                ', &
      '       R_HOM_OH_O6 + NO --> HOM_OH_O5CBN + HO2 + NO2                                                ', &
      '       R_HOM_OH_O7 + NO --> HOM_OH_O6CBN + HO2 + NO2                                                ', &
@@ -7065,11 +7068,11 @@ MODULE second_Monitor
      '       R_HOM_OH_O9 + NO --> HOM_OH_NO10                                                             ', &
      '      R_HOM_OH_O10 + NO --> HOM_OH_NO11                                                             ', &
      '      R_HOM_OH_O5 + HO2 --> HOM_OH_O5                                                               ', &
-     '      HO2 + R_HOM_OH_O6 --> HOM_OH_O6                                                               ', &
-     '      HO2 + R_HOM_OH_O7 --> HOM_OH_O7                                                               ', &
-     '      HO2 + R_HOM_OH_O8 --> HOM_OH_O8                                                               ', &
-     '      HO2 + R_HOM_OH_O9 --> HOM_OH_O9                                                               ', &
-     '     HO2 + R_HOM_OH_O10 --> HOM_OH_O10                                                              ', &
+     '      R_HOM_OH_O6 + HO2 --> HOM_OH_O6                                                               ', &
+     '      R_HOM_OH_O7 + HO2 --> HOM_OH_O7                                                               ', &
+     '      R_HOM_OH_O8 + HO2 --> HOM_OH_O8                                                               ', &
+     '      R_HOM_OH_O9 + HO2 --> HOM_OH_O9                                                               ', &
+     '     R_HOM_OH_O10 + HO2 --> HOM_OH_O10                                                              ', &
      '  APINAO2 + R_HOM_OH_O5 --> HOM20_OH_O6                                                             ', &
      '  APINBO2 + R_HOM_OH_O5 --> HOM20_OH_O6                                                             ', &
      '  APINCO2 + R_HOM_OH_O5 --> HOM20_OH_O6                                                             ', &
@@ -7110,7 +7113,7 @@ MODULE second_Monitor
      '   C921O2 + R_HOM_OH_O5 --> HOM19_OH_O8                                                             ', &
      '    C98O2 + R_HOM_OH_O5 --> HOM19_OH_O8                                                             ', &
      '   C922O2 + R_HOM_OH_O5 --> HOM19_OH_O9                                                             ', &
-     '   C923O2 + R_HOM_OH_O5 --> HOM19_OH_O6                                                             ', &
+     '   R_HOM_OH_O5 + C923O2 --> HOM19_OH_O6                                                             ', &
      '   C924O2 + R_HOM_OH_O5 --> HOM19_OH_O7                                                             ', &
      '  C816CO3 + R_HOM_OH_O5 --> HOM19_OH_O7                                                             ', &
      ' NORLIMO2 + R_HOM_OH_O5 --> HOM19_OH_O8                                                             ', &
@@ -7207,7 +7210,7 @@ MODULE second_Monitor
      '   C921O2 + R_HOM_OH_O6 --> HOM19_OH_O9                                                             ', &
      '    C98O2 + R_HOM_OH_O6 --> HOM19_OH_O9                                                             ', &
      '   C922O2 + R_HOM_OH_O6 --> HOM19_OH_O10                                                            ', &
-     '   C923O2 + R_HOM_OH_O6 --> HOM19_OH_O7                                                             ', &
+     '   R_HOM_OH_O6 + C923O2 --> HOM19_OH_O7                                                             ', &
      '   C924O2 + R_HOM_OH_O6 --> HOM19_OH_O8                                                             ', &
      '  C816CO3 + R_HOM_OH_O6 --> HOM19_OH_O8                                                             ', &
      ' NORLIMO2 + R_HOM_OH_O6 --> HOM19_OH_O9                                                             ', &
@@ -7304,9 +7307,9 @@ MODULE second_Monitor
      '   C921O2 + R_HOM_OH_O7 --> HOM19_OH_O10                                                            ', &
      '    C98O2 + R_HOM_OH_O7 --> HOM19_OH_O10                                                            ', &
      '   C922O2 + R_HOM_OH_O7 --> HOM19_OH_O11                                                            ', &
-     '   C923O2 + R_HOM_OH_O7 --> HOM19_OH_O8                                                             ', &
+     '   R_HOM_OH_O7 + C923O2 --> HOM19_OH_O8                                                             ', &
      '   C924O2 + R_HOM_OH_O7 --> HOM19_OH_O9                                                             ', &
-     '  C816CO3 + R_HOM_OH_O7 --> HOM19_OH_O9                                                             ' /)
+     '  R_HOM_OH_O7 + C816CO3 --> HOM19_OH_O9                                                             ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_213 = (/ &
      ' NORLIMO2 + R_HOM_OH_O7 --> HOM19_OH_O10                                                            ', &
      '   LMKAO2 + R_HOM_OH_O7 --> HOM19_OH_O9                                                             ', &
@@ -7402,9 +7405,9 @@ MODULE second_Monitor
      '    C98O2 + R_HOM_OH_O8 --> HOM19_OH_O11                                                            ' /)
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_216 = (/ &
      '   C922O2 + R_HOM_OH_O8 --> HOM19_OH_O12                                                            ', &
-     '   C923O2 + R_HOM_OH_O8 --> HOM19_OH_O9                                                             ', &
+     '   R_HOM_OH_O8 + C923O2 --> HOM19_OH_O9                                                             ', &
      '   C924O2 + R_HOM_OH_O8 --> HOM19_OH_O10                                                            ', &
-     '  C816CO3 + R_HOM_OH_O8 --> HOM19_OH_O10                                                            ', &
+     '  R_HOM_OH_O8 + C816CO3 --> HOM19_OH_O10                                                            ', &
      ' NORLIMO2 + R_HOM_OH_O8 --> HOM19_OH_O11                                                            ', &
      '   LMKAO2 + R_HOM_OH_O8 --> HOM19_OH_O10                                                            ', &
      '   LMKBO2 + R_HOM_OH_O8 --> HOM19_OH_O10                                                            ', &
@@ -7469,7 +7472,7 @@ MODULE second_Monitor
      '   C108O2 + R_HOM_OH_O9 --> HOM20_OH_O12                                                            ', &
      '  PINALO2 + R_HOM_OH_O9 --> HOM20_OH_O11                                                            ', &
      '   C96CO3 + R_HOM_OH_O9 --> HOM20_OH_O11                                                            ', &
-     '  C923CO3 + R_HOM_OH_O9 --> HOM20_OH_O11                                                            ', &
+     '  R_HOM_OH_O9 + C923CO3 --> HOM20_OH_O11                                                            ', &
      '   LIMAO2 + R_HOM_OH_O9 --> HOM20_OH_O10                                                            ', &
      ' LIMALBO2 + R_HOM_OH_O9 --> HOM20_OH_O11                                                            ', &
      '   LIMCO2 + R_HOM_OH_O9 --> HOM20_OH_O10                                                            ', &
@@ -7499,9 +7502,9 @@ MODULE second_Monitor
      '   C921O2 + R_HOM_OH_O9 --> HOM19_OH_O12                                                            ', &
      '    C98O2 + R_HOM_OH_O9 --> HOM19_OH_O12                                                            ', &
      '   C922O2 + R_HOM_OH_O9 --> HOM19_OH_O13                                                            ', &
-     '   C923O2 + R_HOM_OH_O9 --> HOM19_OH_O10                                                            ', &
+     '   R_HOM_OH_O9 + C923O2 --> HOM19_OH_O10                                                            ', &
      '   C924O2 + R_HOM_OH_O9 --> HOM19_OH_O11                                                            ', &
-     '  C816CO3 + R_HOM_OH_O9 --> HOM19_OH_O11                                                            ', &
+     '  R_HOM_OH_O9 + C816CO3 --> HOM19_OH_O11                                                            ', &
      ' NORLIMO2 + R_HOM_OH_O9 --> HOM19_OH_O12                                                            ', &
      '   LMKAO2 + R_HOM_OH_O9 --> HOM19_OH_O11                                                            ', &
      '   LMKBO2 + R_HOM_OH_O9 --> HOM19_OH_O11                                                            ', &
@@ -7596,7 +7599,7 @@ MODULE second_Monitor
      '  C921O2 + R_HOM_OH_O10 --> HOM19_OH_O13                                                            ', &
      '   C98O2 + R_HOM_OH_O10 --> HOM19_OH_O13                                                            ', &
      '  C922O2 + R_HOM_OH_O10 --> HOM19_OH_O14                                                            ', &
-     '  C923O2 + R_HOM_OH_O10 --> HOM19_OH_O11                                                            ', &
+     '  R_HOM_OH_O10 + C923O2 --> HOM19_OH_O11                                                            ', &
      '  C924O2 + R_HOM_OH_O10 --> HOM19_OH_O12                                                            ', &
      ' C816CO3 + R_HOM_OH_O10 --> HOM19_OH_O12                                                            ', &
      'NORLIMO2 + R_HOM_OH_O10 --> HOM19_OH_O13                                                            ', &
@@ -7679,7 +7682,7 @@ MODULE second_Monitor
      '      C811NO3 + APINBOO --> DiEstC18NO8                                                             ', &
      '      C813OOH + APINBOO --> DiEstC18O9                                                              ', &
      '       C813OH + APINBOO --> DiEstC18O8_1                                                            ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(28) :: EQN_NAMES_225 = (/ &
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_225 = (/ &
      '      C812OOH + APINBOO --> DiEstC18O8_2                                                            ', &
      '     C721CO3H + APINBOO --> DiEstC18O8_3                                                            ', &
      '      C811OOH + APINBOO --> DiEstC18O7_1                                                            ', &
@@ -7695,20 +7698,50 @@ MODULE second_Monitor
      '       C44OOH + APINBOO --> DiEstC14O8                                                              ', &
      '   CO13C3CO2H + APINBOO --> DiEstC14O7                                                              ', &
      '   HCOCH2CO2H + APINBOO --> DiEstC13O6                                                              ', &
-     '           APINENE + OH --> HOM_nucl                                                                ', &
-     '           BPINENE + OH --> HOM_nucl                                                                ', &
-     '          LIMONENE + OH --> HOM_nucl                                                                ', &
+     '           OH + APINENE --> HOM_nucl                                                                ', &
+     '           OH + BPINENE --> HOM_nucl                                                                ', &
+     '          OH + LIMONENE --> HOM_nucl                                                                ', &
      '            CARENE + OH --> HOM_nucl                                                                ', &
-     '              OLIGOMER1 --> DUMMY                                                                   ', &
-     '              OLIGOMER2 --> DUMMY                                                                   ', &
-     '              OLIGOMER3 --> DUMMY                                                                   ', &
-     '              OLIGOMER4 --> DUMMY                                                                   ', &
-     '                  FRAG1 --> DUMMY                                                                   ', &
-     '                  FRAG2 --> DUMMY                                                                   ', &
-     '                  FRAG3 --> DUMMY                                                                   ', &
-     '                  FRAG4 --> DUMMY                                                                   ', &
-     '                  FRAG5 --> DUMMY                                                                   ' /)
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(6778) :: EQN_NAMES = (/&
+     '              OLIGOMER1 --> dummy                                                                   ', &
+     '              OLIGOMER2 --> dummy                                                                   ', &
+     '              OLIGOMER3 --> dummy                                                                   ', &
+     '              OLIGOMER4 --> dummy                                                                   ', &
+     '                  FRAG1 --> dummy                                                                   ', &
+     '                  FRAG2 --> dummy                                                                   ', &
+     '                  FRAG3 --> dummy                                                                   ', &
+     '                  FRAG4 --> dummy                                                                   ', &
+     '                  FRAG5 --> dummy                                                                   ', &
+     '          CAMPHENE + OH --> BPINAO2                                                                 ', &
+     '          CAMPHENE + OH --> BPINBO2                                                                 ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(27) :: EQN_NAMES_226 = (/ &
+     '          CAMPHENE + OH --> BPINCO2                                                                 ', &
+     '          CAMPHENE + O3 --> CH2OOF + NOPINONE                                                       ', &
+     '          CAMPHENE + O3 --> NOPINOOA + HCHO                                                         ', &
+     '         CAMPHENE + NO3 --> NBPINAO2                                                                ', &
+     '         CAMPHENE + NO3 --> NBPINBO2                                                                ', &
+     '           MYRCENE + OH --> dummy                                                                   ', &
+     '           MYRCENE + O3 --> dummy + 0.63 OH                                                         ', &
+     '          MYRCENE + NO3 --> dummy                                                                   ', &
+     '          SABINENE + OH --> dummy                                                                   ', &
+     '          SABINENE + O3 --> dummy + 0.33 OH                                                         ', &
+     '         SABINENE + NO3 --> dummy                                                                   ', &
+     '           OCIMENE + OH --> dummy                                                                   ', &
+     '           OCIMENE + O3 --> dummy + 0.55 OH                                                         ', &
+     '          OCIMENE + NO3 --> dummy                                                                   ', &
+     '               OMT + OH --> dummy                                                                   ', &
+     '               OMT + O3 --> dummy + 0.5 OH                                                          ', &
+     '              OMT + NO3 --> dummy                                                                   ', &
+     '         FARNESENE + OH --> dummy                                                                   ', &
+     '         FARNESENE + O3 --> dummy + 0.5 OH                                                          ', &
+     '        FARNESENE + NO3 --> dummy                                                                   ', &
+     '               OSQ + OH --> dummy                                                                   ', &
+     '               OSQ + O3 --> dummy + 0.5 OH                                                          ', &
+     '              OSQ + NO3 --> dummy                                                                   ', &
+     '           CINEOLE + OH --> dummy                                                                   ', &
+     '          CINEOLE + NO3 --> dummy                                                                   ', &
+     '          LINALOOL + OH --> dummy                                                                   ', &
+     '          LINALOOL + O3 --> dummy                                                                   ' /)
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(6807) :: EQN_NAMES = (/&
     EQN_NAMES_0, EQN_NAMES_1, EQN_NAMES_2, EQN_NAMES_3, EQN_NAMES_4, &
     EQN_NAMES_5, EQN_NAMES_6, EQN_NAMES_7, EQN_NAMES_8, EQN_NAMES_9, &
     EQN_NAMES_10, EQN_NAMES_11, EQN_NAMES_12, EQN_NAMES_13, EQN_NAMES_14, &
@@ -7754,7 +7787,7 @@ MODULE second_Monitor
     EQN_NAMES_210, EQN_NAMES_211, EQN_NAMES_212, EQN_NAMES_213, EQN_NAMES_214, &
     EQN_NAMES_215, EQN_NAMES_216, EQN_NAMES_217, EQN_NAMES_218, EQN_NAMES_219, &
     EQN_NAMES_220, EQN_NAMES_221, EQN_NAMES_222, EQN_NAMES_223, EQN_NAMES_224, &
-    EQN_NAMES_225 /)
+    EQN_NAMES_225, EQN_NAMES_226 /)
 
 ! INLINED global variables
 

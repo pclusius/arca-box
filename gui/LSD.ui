@@ -1037,10 +1037,10 @@
         </property>
        </widget>
       </widget>
-      <widget class="QPushButton" name="butMoveToSelVars">
+      <widget class="QToolButton" name="butMoveToSelVars">
        <property name="geometry">
         <rect>
-         <x>610</x>
+         <x>615</x>
          <y>230</y>
          <width>70</width>
          <height>40</height>
@@ -1048,6 +1048,9 @@
        </property>
        <property name="text">
         <string>&lt;---</string>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::LeftArrow</enum>
        </property>
       </widget>
       <widget class="QTableWidget" name="selected_vars">
@@ -1106,10 +1109,10 @@
         </property>
        </column>
       </widget>
-      <widget class="QPushButton" name="butRemoveSelVars">
+      <widget class="QToolButton" name="butRemoveSelVars">
        <property name="geometry">
         <rect>
-         <x>610</x>
+         <x>615</x>
          <y>370</y>
          <width>70</width>
          <height>40</height>
@@ -1118,12 +1121,15 @@
        <property name="text">
         <string>---&gt;</string>
        </property>
+       <property name="arrowType">
+        <enum>Qt::RightArrow</enum>
+       </property>
       </widget>
       <widget class="QLabel" name="label_60">
        <property name="geometry">
         <rect>
-         <x>610</x>
-         <y>180</y>
+         <x>615</x>
+         <y>190</y>
          <width>70</width>
          <height>40</height>
         </rect>
@@ -1141,7 +1147,7 @@
       <widget class="QLabel" name="label_61">
        <property name="geometry">
         <rect>
-         <x>610</x>
+         <x>615</x>
          <y>330</y>
          <width>70</width>
          <height>40</height>
@@ -1160,9 +1166,9 @@
       <widget class="QPushButton" name="markAll">
        <property name="geometry">
         <rect>
-         <x>530</x>
-         <y>605</y>
-         <width>70</width>
+         <x>610</x>
+         <y>520</y>
+         <width>90</width>
          <height>30</height>
         </rect>
        </property>
@@ -1213,9 +1219,9 @@
       <widget class="QPushButton" name="invertMarks">
        <property name="geometry">
         <rect>
-         <x>370</x>
-         <y>605</y>
-         <width>120</width>
+         <x>610</x>
+         <y>560</y>
+         <width>90</width>
          <height>30</height>
         </rect>
        </property>
@@ -1257,7 +1263,7 @@
         </palette>
        </property>
        <property name="text">
-        <string>invert markings</string>
+        <string>invert marks</string>
        </property>
        <property name="flat">
         <bool>true</bool>
@@ -1266,9 +1272,9 @@
       <widget class="QPushButton" name="loadFixed">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>410</x>
          <y>605</y>
-         <width>180</width>
+         <width>190</width>
          <height>30</height>
         </rect>
        </property>
@@ -1313,7 +1319,63 @@
         <string>Loads fixed variables from KPP def-file. These are variables under the #DEFFIX header.</string>
        </property>
        <property name="text">
-        <string>Load fixed variables</string>
+        <string>Load fixed from *.def</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="loadFixedChemistry">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>605</y>
+         <width>280</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>170</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>170</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>136</red>
+             <green>136</green>
+             <blue>136</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="toolTip">
+        <string>This will select all fixed variables from the current chemistry (see tab Advanced)</string>
+       </property>
+       <property name="text">
+        <string>Select FIXED from selected chemistry</string>
        </property>
        <property name="flat">
         <bool>true</bool>

@@ -13,8 +13,8 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : second_Global.f90
-! Time                 : Sat Nov 23 02:04:31 2019
-! 
+! Time                 : Thu Jan 16 13:25:36 2020
+! Working directory    : /home/pecl/05-APCAD/ChemistryPackage
 ! Equation file        : second.kpp
 ! Output root filename : second
 ! 
@@ -39,7 +39,7 @@ MODULE second_Global
   REAL(kind=dp) :: FIX(NFIX)
 ! VAR, FIX are chunks of array C
       EQUIVALENCE( C(1),VAR(1) )
-      EQUIVALENCE( C(1941),FIX(1) )
+      EQUIVALENCE( C(1931),FIX(1) )
 ! RCONST - Rate constants (global)
   REAL(kind=dp) :: RCONST(NREACT)
 ! TIME - Current integration time
@@ -68,14 +68,14 @@ MODULE second_Global
   REAL(kind=dp) :: CFACTOR
 
 ! INLINED global variable declarations
-
+ 
+ REAL(dp)::M, N2, O2, RO2, H2O 
+ 
   INTEGER, PARAMETER :: NPHOT=71
   REAL(dp) :: J(NPHOT)
 
   REAL(dp) :: RES1, RES2
- 
- REAL(dp)::M, N2, O2, RO2, H2O 
- 
+
 ! INLINED global variable declarations
 
 

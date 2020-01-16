@@ -13,8 +13,8 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : second_Initialize.f90
-! Time                 : Sat Nov 23 02:04:31 2019
-! 
+! Time                 : Thu Jan 16 13:25:36 2020
+! Working directory    : /home/pecl/05-APCAD/ChemistryPackage
 ! Equation file        : second.kpp
 ! Output root filename : second
 ! 
@@ -58,10 +58,10 @@ SUBROUTINE Initialize ( )
   END DO
 
 ! constant rate coefficients
-  RCONST(2521) = 9.258e-11
-  RCONST(3511) = 1.867e-11
-  RCONST(3512) = 1.513e-11
-  RCONST(3514) = 1.865e-11
+  RCONST(2519) = 9.258e-11
+  RCONST(3509) = 1.867e-11
+  RCONST(3510) = 1.513e-11
+  RCONST(3512) = 1.865e-11
   RCONST(4959) = 0
 ! END constant rate coefficients
 

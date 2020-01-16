@@ -3,7 +3,7 @@ import pyqtgraph as pg
 from gui import vars, gui5
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique
-from re import sub
+from re import sub, finditer
 from os import walk
 
 try:
@@ -139,6 +139,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.selected_vars.setColumnHidden(7, True)
         self.selected_vars.verticalHeader().setVisible(False);
         self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed', ftype="KPP def (*.def)"))
+        self.loadFixedChemistry.clicked.connect(self.loadFixedFromChemistry)
 
     # -----------------------
     # tab Function creator
@@ -536,6 +537,23 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                         count = count +1
         self.popup('File parsed', 'Selected %d variables'%count)
 
+    def loadFixedFromChemistry(self):
+        chemistry = self.chemistryModules.currentText()
+        try:
+            count = 0
+            with open('src/chemistry/'+chemistry+'/second_Parameters.f90','r') as f:
+                for line in f:
+                    ind = line.upper().find('INDF_')
+                    if ind > 0 and not '!' in line:
+                        ind2 = line.find('=')
+                        comp = line[ind+5:ind2].strip()
+                        if comp not in vars.mods:
+                            self.namesdat.item(namesPyInds[comp]).setSelected(True)
+                            count += 1
+                self.popup('File parsed', 'Selected %d variables'%count)
+        except:
+            self.popup('Error','No \'second_Parameters.f90\' file\nin current chemistry.')
+        pass
 
     def add_new_line(self, name, unit_ind, cols=[],createNew=True, unt=0):
         """adds items to variable table"""
