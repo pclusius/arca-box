@@ -2901,9 +2901,9 @@
            <colorrole role="WindowText">
             <brush brushstyle="SolidPattern">
              <color alpha="255">
-              <red>255</red>
-              <green>255</green>
-              <blue>255</blue>
+              <red>85</red>
+              <green>85</green>
+              <blue>85</blue>
              </color>
             </brush>
            </colorrole>
@@ -2930,9 +2930,9 @@
            <colorrole role="WindowText">
             <brush brushstyle="SolidPattern">
              <color alpha="255">
-              <red>255</red>
-              <green>255</green>
-              <blue>255</blue>
+              <red>85</red>
+              <green>85</green>
+              <blue>85</blue>
              </color>
             </brush>
            </colorrole>
