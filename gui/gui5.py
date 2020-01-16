@@ -1200,6 +1200,9 @@ class Ui_MainWindow(object):
         self.label_4 = QtWidgets.QLabel(self.tab_6)
         self.label_4.setGeometry(QtCore.QRect(720, 590, 50, 20))
         self.label_4.setObjectName("label_4")
+        self.sumSelection = QtWidgets.QCheckBox(self.tab_6)
+        self.sumSelection.setGeometry(QtCore.QRect(770, 616, 160, 20))
+        self.sumSelection.setObjectName("sumSelection")
         self.tabWidget.addTab(self.tab_6, "")
         self.printButton = QtWidgets.QPushButton(self.MainFrame)
         self.printButton.setGeometry(QtCore.QRect(10, 690, 221, 30))
@@ -1239,7 +1242,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(5)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1414,6 +1417,7 @@ class Ui_MainWindow(object):
         self.fLog_2.setText(_translate("MainWindow", "Logarithmic"))
         self.fLin_2.setText(_translate("MainWindow", "Linear"))
         self.label_4.setText(_translate("MainWindow", "Filter:"))
+        self.sumSelection.setText(_translate("MainWindow", "Sum selection"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "Output graph"))
         self.printButton.setText(_translate("MainWindow", "Print model input"))
         self.saveButton.setText(_translate("MainWindow", "Save INITFILE"))

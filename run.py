@@ -209,6 +209,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.pollTimer.timeout.connect(self.pollMonitor)
         self.pauseScroll.clicked.connect(self.checkPauseScroll)
         self.pauseScrolling = False
+        self.sumSelection.stateChanged.connect(self.selectionMode)
 
     # -----------------------
     # tab Output Graph
@@ -989,7 +990,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.fLin_2.setChecked(True)
             self.fLog_2.setChecked(False)
             self.plotResultWindow.setLogMode(y=False)
-
+            self.findComp.clear()
             # Close all previus netcdf-files and clear plot
             self.closenetcdf()
             # Try to open netCDF-file
@@ -1010,7 +1011,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 try:
                     int(self.ncs.variables[v][0])
                     cache.append(v)
-                except:
+                except TypeError:
                     pass
             # remove constants
             self.hnames = []
@@ -1045,6 +1046,16 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         else:
             return
 
+    def selectionMode(self):
+        if self.sumSelection.isChecked():
+            self.availableVars.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        else:
+            self.availableVars.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+            self.availableVars.currentItem().setSelected(True)
+
+
+
+
     # This function is inwoked when lin/log radio button or any variable in the list is changed:
     def showOutputUpdate(self):
         # find out which y-scale should be used
@@ -1052,7 +1063,16 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         # find out which variable should be plotted
         comp = self.availableVars.currentItem().text()
         # Exctract that variable from netCDF-dataset and save to Y
-        Y = self.ncs.variables[comp][:]
+        title = comp+' '+units.get(comp,units['REST'])[0]
+        if not self.sumSelection.isChecked():
+            Y = self.ncs.variables[comp][:]
+        else:
+            if self.availableVars.selectedItems() != []:
+                Y = sum(self.ncs.variables[c.text()][:] for c in self.availableVars.selectedItems())
+                title = self.availableVars.selectedItems()[0].text()+' etc.'
+            else:
+                Y = self.ncs.variables[comp][:]
+
         # Are the values non-negative?
         positive = all(Y>=0)
         # Are all the values zeros?
@@ -1075,7 +1095,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         # update data
         self.outplot.setData(self.ncs.variables[self.hnames[0]][:]/3600,Y)
         # update title
-        self.plotResultWindow.setTitle(comp+' '+units.get(comp,units['REST'])[0])
+        self.plotResultWindow.setTitle(title)
 
 
     def popup(self,title,message):

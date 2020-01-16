@@ -42,7 +42,7 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -3163,6 +3163,19 @@
        </property>
        <property name="text">
         <string>Filter:</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="sumSelection">
+       <property name="geometry">
+        <rect>
+         <x>770</x>
+         <y>616</y>
+         <width>160</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Sum selection</string>
        </property>
       </widget>
      </widget>
