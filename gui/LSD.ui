@@ -1209,6 +1209,9 @@
          </disabled>
         </palette>
        </property>
+       <property name="toolTip">
+        <string>Set all variable's marks to selected (except TEMPK and PRESSURE)</string>
+       </property>
        <property name="text">
         <string>mark all</string>
        </property>
@@ -1220,7 +1223,7 @@
        <property name="geometry">
         <rect>
          <x>610</x>
-         <y>560</y>
+         <y>550</y>
          <width>90</width>
          <height>30</height>
         </rect>
@@ -1262,8 +1265,11 @@
          </disabled>
         </palette>
        </property>
+       <property name="toolTip">
+        <string>Invert all variable's marks except TEMPK and PRESSURE</string>
+       </property>
        <property name="text">
-        <string>invert marks</string>
+        <string>invert</string>
        </property>
        <property name="flat">
         <bool>true</bool>
