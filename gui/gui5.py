@@ -501,7 +501,7 @@ class Ui_MainWindow(object):
         self.label_61.setWordWrap(True)
         self.label_61.setObjectName("label_61")
         self.markAll = QtWidgets.QPushButton(self.tab_3)
-        self.markAll.setGeometry(QtCore.QRect(530, 605, 70, 20))
+        self.markAll.setGeometry(QtCore.QRect(530, 605, 70, 30))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(170, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -516,7 +516,7 @@ class Ui_MainWindow(object):
         self.markAll.setFlat(True)
         self.markAll.setObjectName("markAll")
         self.invertMarks = QtWidgets.QPushButton(self.tab_3)
-        self.invertMarks.setGeometry(QtCore.QRect(370, 605, 120, 20))
+        self.invertMarks.setGeometry(QtCore.QRect(370, 605, 120, 30))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(170, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -531,7 +531,7 @@ class Ui_MainWindow(object):
         self.invertMarks.setFlat(True)
         self.invertMarks.setObjectName("invertMarks")
         self.loadFixed = QtWidgets.QPushButton(self.tab_3)
-        self.loadFixed.setGeometry(QtCore.QRect(10, 605, 180, 20))
+        self.loadFixed.setGeometry(QtCore.QRect(10, 605, 180, 30))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(170, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -1222,7 +1222,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(5)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

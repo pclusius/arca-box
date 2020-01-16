@@ -42,7 +42,7 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -1163,7 +1163,7 @@
          <x>530</x>
          <y>605</y>
          <width>70</width>
-         <height>20</height>
+         <height>30</height>
         </rect>
        </property>
        <property name="palette">
@@ -1216,7 +1216,7 @@
          <x>370</x>
          <y>605</y>
          <width>120</width>
-         <height>20</height>
+         <height>30</height>
         </rect>
        </property>
        <property name="palette">
@@ -1269,7 +1269,7 @@
          <x>10</x>
          <y>605</y>
          <width>180</width>
-         <height>20</height>
+         <height>30</height>
         </rect>
        </property>
        <property name="palette">
