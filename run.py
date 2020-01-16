@@ -1,9 +1,11 @@
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
 from gui import vars, gui5
-import subprocess
-from numpy import linspace,log10,sqrt,exp,pi,sin
-import numpy as np
+from subprocess import Popen, PIPE, STDOUT
+from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique
+from re import sub
+from os import walk
+
 try:
     import netCDF4
     netcdf = True
@@ -208,7 +210,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.pauseScrolling = False
 
     # -----------------------
-    # tab Plot Monitor
+    # tab Output Graph
     # -----------------------
 
         if netcdf:
@@ -216,12 +218,14 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.loadNetcdf.setEnabled(True)
             self.fLog_2.clicked.connect(self.showOutputUpdate)
             self.fLin_2.clicked.connect(self.showOutputUpdate)
+            self.findComp.textChanged.connect(self.filterListOfComp)
 
         else:
             self.show_netcdf.show()
             self.loadNetcdf.setEnabled(False)
             self.fLin_2.setEnabled(False)
             self.fLog_2.setEnabled(False)
+            self.findComp.setEnabled(False)
 
         self.plotResultWindow.showGrid(x=True,y=True)
         self.plotResultWindow.setBackground('w')
@@ -489,8 +493,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def get_available_chemistry(self):
-        from os import walk
-
         with open('makefile','r') as mk:
             for line in mk:
                 if 'CHMDIR' in line and not '$' in line:
@@ -505,7 +507,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def editMakefile(self,mod):
-        import re
         replacement = 'CHMDIR = '+mod
         f = open('makefile','r')
         data = f.read()
@@ -681,7 +682,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.wait_for.setValue(currentWait)
 
         try:
-            self.boxProcess = subprocess.Popen(["./superbox.exe", "%s"%tempfile], stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+            self.boxProcess = Popen(["./superbox.exe", "%s"%tempfile], stdout=PIPE,stderr=STDOUT,stdin=None)
             self.MonitorWindow.clear()
             self.Timer.start(10)
             self.pollTimer.start(1000)
@@ -982,6 +983,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
             # collect all variables and dimensions from netCDF-dataset to hnames
             self.hnames = [i for i in self.ncs.variables]
+            # self.hnames.sort()
             dims = [i for i in self.ncs.dimensions]
 
             # remove string variables (non-numbers and thus not plottable)
@@ -995,7 +997,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             # remove constants
             self.hnames = []
             for i,v in enumerate(cache):
-                if (len(np.shape(self.ncs.variables[v][:])) >1):
+                if (len(shape(self.ncs.variables[v][:])) >1):
                     self.hnames.append(v)
                 # Shifter ands multiplyers are left off for clarity
                 if not 'Shifter' in v and not 'Multipl' in v:
@@ -1030,9 +1032,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         # find out which y-scale should be used
         scale = self.radio(self.fLin_2, self.fLog_2)
         # find out which variable should be plotted
-        i = self.availableVars.currentRow()
+        comp = self.availableVars.currentItem().text()
         # Exctract that variable from netCDF-dataset and save to Y
-        Y = self.ncs.variables[self.hnames[i]][:]
+        Y = self.ncs.variables[comp][:]
         # Are the values non-negative?
         positive = all(Y>=0)
         # Are all the values zeros?
@@ -1041,7 +1043,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         if scale=='log' and positive and not zeros:
             # To avoid very small exponentials, zeros are changed to nearest small number
             if not all(Y>0):
-                uniqs = np.unique(Y)
+                uniqs = unique(Y)
                 if len(uniqs)>1:
                     Y[Y==0] = uniqs[1]
                 # if the above fails, use linear scale
@@ -1055,7 +1057,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         # update data
         self.outplot.setData(self.ncs.variables[self.hnames[0]][:]/3600,Y)
         # update title
-        self.plotResultWindow.setTitle(self.hnames[i]+' '+units.get(self.hnames[i],units['REST'])[0])
+        self.plotResultWindow.setTitle(comp+' '+units.get(comp,units['REST'])[0])
 
 
     def popup(self,title,message):
@@ -1101,15 +1103,26 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     def remake(self):
         if self.running != None:
             self.editMakefile(mod=self.chemistryModules.currentText())
-            self.compile = subprocess.Popen(["make", "clean"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+            self.compile = Popen(["make", "clean"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
             while True:
                 self.running = self.compile.poll()
                 if self.running != None: break
-            self.compile = subprocess.Popen(["make"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+            self.compile = Popen(["make"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
             self.compileProgressBar.show()
             self.inv = 1
             self.compileProgressBar.setValue(0)
             self.TimerCompile.start(10)
+
+
+    def filterListOfComp(self):
+        text = self.findComp.text().upper()
+        self.availableVars.clear()
+        if text == '':
+            self.availableVars.addItems(self.hnames)
+        else:
+            for c in self.hnames:
+                if text in c:
+                    self.availableVars.addItem(c)
 
 
 dummy = Comp()

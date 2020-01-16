@@ -1173,6 +1173,16 @@ class Ui_MainWindow(object):
         self.fLin_2.setGeometry(QtCore.QRect(530, 600, 61, 20))
         self.fLin_2.setChecked(True)
         self.fLin_2.setObjectName("fLin_2")
+        self.findComp = QtWidgets.QLineEdit(self.tab_6)
+        self.findComp.setGeometry(QtCore.QRect(770, 590, 160, 21))
+        font = QtGui.QFont()
+        font.setBold(False)
+        font.setWeight(50)
+        self.findComp.setFont(font)
+        self.findComp.setObjectName("findComp")
+        self.label_4 = QtWidgets.QLabel(self.tab_6)
+        self.label_4.setGeometry(QtCore.QRect(720, 590, 50, 20))
+        self.label_4.setObjectName("label_4")
         self.tabWidget.addTab(self.tab_6, "")
         self.printButton = QtWidgets.QPushButton(self.MainFrame)
         self.printButton.setGeometry(QtCore.QRect(10, 690, 221, 30))
@@ -1212,7 +1222,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(5)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1382,6 +1392,7 @@ class Ui_MainWindow(object):
         self.loadNetcdf.setText(_translate("MainWindow", "Load Box output file"))
         self.fLog_2.setText(_translate("MainWindow", "Logarithmic"))
         self.fLin_2.setText(_translate("MainWindow", "Linear"))
+        self.label_4.setText(_translate("MainWindow", "Filter:"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "Output graph"))
         self.printButton.setText(_translate("MainWindow", "Print model input"))
         self.saveButton.setText(_translate("MainWindow", "Save INITFILE"))
