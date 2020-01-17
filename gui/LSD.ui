@@ -42,7 +42,7 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -3150,6 +3150,9 @@
          <weight>50</weight>
          <bold>false</bold>
         </font>
+       </property>
+       <property name="toolTip">
+        <string>Case insensitive filter. Use dot (.) in the beginning of the search to search for exact match.</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_4">

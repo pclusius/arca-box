@@ -1061,7 +1061,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         # find out which y-scale should be used
         scale = self.radio(self.fLin_2, self.fLog_2)
         # find out which variable should be plotted
-        comp = self.availableVars.currentItem().text()
+        try:
+            comp = self.availableVars.currentItem().text()
+        except:
+            return
         # Exctract that variable from netCDF-dataset and save to Y
         title = comp+' '+units.get(comp,units['REST'])[0]
         if not self.sumSelection.isChecked():
@@ -1154,13 +1157,23 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def filterListOfComp(self):
         text = self.findComp.text().upper()
+        strict = False
+        if text == '':
+            return
+        if text[0] == '.':
+            text = text[1:]
+            strict = True
         self.availableVars.clear()
         if text == '':
             self.availableVars.addItems(self.hnames)
         else:
             for c in self.hnames:
-                if text in c:
-                    self.availableVars.addItem(c)
+                if strict:
+                    if text == c:
+                        self.availableVars.addItem(c)
+                else:
+                    if text in c:
+                        self.availableVars.addItem(c)
 
 
 dummy = Comp()

@@ -1416,6 +1416,7 @@ class Ui_MainWindow(object):
         self.loadNetcdf.setText(_translate("MainWindow", "Load Box output file"))
         self.fLog_2.setText(_translate("MainWindow", "Logarithmic"))
         self.fLin_2.setText(_translate("MainWindow", "Linear"))
+        self.findComp.setToolTip(_translate("MainWindow", "Case insensitive filter. Use dot (.) in the beginning of the search to search for exact match."))
         self.label_4.setText(_translate("MainWindow", "Filter:"))
         self.sumSelection.setText(_translate("MainWindow", "Sum selection"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "Output graph"))

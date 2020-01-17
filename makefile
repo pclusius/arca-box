@@ -22,7 +22,7 @@ BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR)
 
 CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR) -I$(OBJDIR)
 
-ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
+ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow
 
 #CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Monitor.o)
 CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Parameters.o second_Initialize.o second_Util.o second_Monitor.o second_JacobianSP.o \
@@ -179,7 +179,7 @@ clean:
 	-@cd $(OBJDIR) ; rm Superbox.o                       2>/dev/null || true
 	-@rm superbox.exe                                    2>/dev/null || true
 	-@cd $(OBJDIR) ; rm *.mod *.o                        2>/dev/null || true ## added by carlton.. as some .mod files were not removed
-	# -@cd $(OBJDIR) ; rm $(UHMA_OBJECTS) $(UHMA_MODS)   2>/dev/null || true
+# -@cd $(OBJDIR) ; rm $(UHMA_OBJECTS) $(UHMA_MODS)     2>/dev/null || true
 # If you really want to remove chemistry objects too, use this
 cleanall:
 	-@cd $(OBJDIR) ; rm $(BOX_OBJECTS) $(BOX_MODS)       2>/dev/null || true
