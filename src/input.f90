@@ -401,7 +401,7 @@ subroutine READ_INPUT_DATA()
    print FMT_SUB, 'Vapour bins + H2SO4 = '//TRIM(buf)
    !!! reading the vap names and vap vapour_properties
 
-   vapours%Mfractions(vaours%vapour_number) = 1 !
+   vapours%Mfractions(vapours%vapour_number) = 1 !
 
  do ii = 1, vapours%vapour_number+1
    if (ii <= vapours%vapour_number) then !!! all compounds
