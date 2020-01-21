@@ -8,6 +8,7 @@ USE Aerosol_auxillaries
 
 Implicit none
 
+! public :: vapours, ambient
 INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
 INTEGER :: LENV   ! This will store the number of named indices in this code
 
@@ -56,7 +57,7 @@ NAMELIST /NML_Path/ Work_dir, Case_Dir, Case_name, RUN_NAME
 
 ! MODULES IN USE OPTIONS
 Logical :: Chemistry_flag      = .false.
-Logical :: Aerosol_flag       = .false.
+Logical :: Aerosol_flag        = .false.
 Logical :: ACDC_solve_ss       = .false.
 Logical :: NUCLEATION          = .false.
 Logical :: ACDC                = .true.
@@ -147,12 +148,17 @@ CHARACTER(100)   :: Solver = ''
 NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
 
 Logical  :: VAP_logical = .False.
+Logical  :: Use_atoms = .False.
 character(len=256)  :: Vap_names
 character(len=256)  :: Vap_props
-NAMELIST /NML_VAP/ VAP_logical, Vap_names, Vap_props
+character(len=256)  :: Vap_atoms
+NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_props, Vap_atoms
 
 type(vapour_ambient)  :: vapours
+type(ambient_properties)  :: ambient
+type(atoms):: Natoms  ! atoms of hydrogen, oxygen, nitrogen and carbon. Used for calculating diffusion
 
+real(dp),allocatable :: Diff_org(:), Vol_org(:)
 
 contains
 
@@ -161,7 +167,7 @@ subroutine READ_INPUT_DATA()
   character(len=256)  :: buf
   type(nrowcol)       :: rowcol_count
 
-  integer             :: ioi,ioi2, ii, iosp, ioprop
+  integer             :: ioi,ioi2, ii, iosp, ioprop, ioi3
   integer             :: i, j, k, z, xp, yp, path_l(2)
   !!! for vapour FILES
   character(len=256)  :: species_name
@@ -234,8 +240,10 @@ subroutine READ_INPUT_DATA()
 
   CALL PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
 
-  ! check IF dmps data is used or not. If no then do nothing
-  IF (USE_DMPS) then
+  ! check IF dmps data is used or not. If no then do nothing. Use dmps only
+  !if aerosol_flag is true
+  IF (USE_DMPS .and. Aerosol_flag) then
+    
     write(*,FMT_SUB) 'Reading DMPS files '// TRIM(DMPS_file)
     OPEN(unit=51, File=TRIM(DMPS_dir)// '/'//TRIM(DMPS_file), STATUS='OLD', iostat=ioi)
     IF (ioi /= 0) THEN
@@ -379,6 +387,10 @@ subroutine READ_INPUT_DATA()
    allocate(vapours%surf_tension(rowcol_count%rows + 1))
    allocate(vapours%c_sat(rowcol_count%rows + 1))
    allocate(vapours%vap_conc(rowcol_count%rows + 1))
+   allocate(vapours%cond_type(rowcol_count%rows + 1))
+   allocate(vapours%molec_dia(rowcol_count%rows + 1))
+   allocate(vapours%mfractions(rowcol_count%rows + 1))
+   allocate(vapours%alpha(rowcol_count%rows + 1))
 
    vapours%vapour_number = rowcol_count%rows
    vapours%vbs_bins      = rowcol_count%rows + 1
@@ -389,32 +401,88 @@ subroutine READ_INPUT_DATA()
    print FMT_SUB, 'Vapour bins + H2SO4 = '//TRIM(buf)
    !!! reading the vap names and vap vapour_properties
 
+   vapours%Mfractions(1) = 1 !
+
  do ii = 1, vapours%vapour_number+1
    if (ii <= vapours%vapour_number) then !!! all compounds
      read(52,*,iostat=iosp)   species_name
      read(53,*,iostat=ioprop) molar_mass, parameter_A, parameter_B
-     vapours%molar_mass(ii)    = molar_mass
+     vapours%molar_mass(ii)    = molar_mass *1D-3 ! kg/mol
      vapours%parameter_A(ii)   = parameter_A
      vapours%parameter_B(ii)   = parameter_B
      vapours%vapour_names(ii)  = TRIM(species_name)
-     vapours%molec_mass(ii)    = calculate_molecular_mass(molar_mass)
+     vapours%molec_mass(ii)    = calculate_molecular_mass(vapours%molar_mass(ii))  !kg/#
      vapours%density(ii)       = 1400.0  !!! kg/m3
-     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density(ii))
+     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%density(ii),vapours%molec_mass(ii))
      vapours%surf_tension(ii)  = 0.05
+     vapours%cond_type(ii)     = 1  ! not an acid (H2SO4 or HCL)
+     vapours%molec_dia(ii)     = (6D0 * vapours%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
+     ! vapours%mfractions(ii)    = 0.0
+     vapours%alpha(ii)         = 1.0
+     vapours%c_sat(ii)         = calculate_saturation_vp(vapours%parameter_A(ii),vapours%parameter_B(ii), ambient%temperature)
    else !! h2so4
-     vapours%molar_mass(ii)    = 98.0785
+     vapours%molar_mass(ii)    = 98.0785 *1d-3
      vapours%parameter_A(ii)   = 3.869717803774
      vapours%parameter_B(ii)   = 313.607405085
      vapours%vapour_names(ii)  = 'H2S04'
      vapours%molec_mass(ii)    = calculate_molecular_mass(vapours%molar_mass(ii))
      vapours%density(ii)       = 1819.3946 !!! kg/m3
-     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%molec_mass(ii), vapours%density(ii))
+     vapours%molec_volume(ii)  = calculate_molecular_volume(vapours%density(ii),vapours%molec_mass(ii))
      vapours%surf_tension(ii)  = 0.07
+     vapours%cond_type(ii)     = 2  ! Acid
+     vapours%molec_dia(ii)     = (6D0 * vapours%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
+     vapours%mfractions(ii)    = 0.0
+     vapours%alpha(ii)         = 1.0
+     vapours%c_sat(ii)         = 0.0 !calculate_saturation_vp(vapours%parameter_A(ii),vapours%parameter_B(ii), ambient%temperature)
    end if
  end do
 
+
    close(52)
    close(53)
+
+
+  end if
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!! Calculating the diffusivity of organics based on fullers method !!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  if (Use_atoms) THEN
+
+    write(*,FMT_MSG) 'Reading O_C file '// TRIM(Vap_atoms)
+    OPEN(unit=61, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi3)
+
+    rowcol_count%rows = ROWCOUNT(61)
+    rowcol_count%cols = COLCOUNT(61)
+
+    allocate(Natoms%N_Carbon(rowcol_count%rows))
+    allocate(Natoms%N_Hydrogen(rowcol_count%rows))
+    allocate(Natoms%N_Oxygen(rowcol_count%rows))
+    allocate(Natoms%N_Nitrogen(rowcol_count%rows))
+    allocate(Natoms%comp_prop(rowcol_count%cols, rowcol_count%rows))
+    allocate(Vol_org(rowcol_count%rows))
+    allocate(Diff_org(rowcol_count%rows))
+
+    READ(61,*) Natoms%comp_prop
+
+    Natoms%N_Carbon   = Natoms%comp_prop(2,:)
+    Natoms%N_Oxygen   = Natoms%comp_prop(3,:)
+    Natoms%N_Nitrogen = Natoms%comp_prop(4,:)
+    Natoms%N_Hydrogen = Natoms%comp_prop(8,:)
+
+   !Diffusivity
+   ! dimensionless diffusion volumes
+   ! Atomic diffusion values from (Tang et al., ACP 2015) , Reid et al., 1987
+
+   Vol_org = Natoms%N_Carbon*15.9D0 + Natoms%N_Oxygen*6.11D0+&
+        Natoms%N_Hydrogen*2.31D0 + Natoms%N_Nitrogen*4.54D0
+
+  ! Fuller's method /! Diffusivity organic compounds (m^2 s^-1)
+  ! http://umich.edu/~elements/course/lectures/eleven/exam4.htm
+
+   Diff_org = 1D-7*ambient%temperature**1.75D0*SQRT(1/(Mair*1D3) + 1/Natoms%comp_prop(5,:)) / &
+   (ambient%pressure/1.01325D5*(Vol_org**(1D0/3D0) + 20.1**(1D0/3D0))**2D0)
 
 
   end if

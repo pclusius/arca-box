@@ -16,31 +16,36 @@ integer :: ii
 type :: vapour_ambient
   real(dp), allocatable :: molar_mass(:), parameter_A(:), parameter_B(:)
   character(len=256), allocatable :: vapour_names(:)
-  real(dp) :: alpha        = 1.0
+  real(dp),allocatable :: alpha(:) !       = 1.0
   real(dp),allocatable  :: density(:)
-  real(dp), allocatable :: surf_tension(:)
+  real(dp),allocatable :: surf_tension(:)
   integer  :: vapour_number
   integer  :: vbs_bins
+  integer,allocatable  :: cond_type(:)
+  real(dp),allocatable :: molec_dia(:)
   real(dp),allocatable :: molec_mass(:), molec_volume(:) !!! molecule mass and molecule volume
-  real(dp),allocatable :: c_sat(:), vap_conc(:)!, vapout_type(:), condensing_type(:)
+  real(dp),allocatable :: c_sat(:), vap_conc(:)!, vapour_type(:), condensing_type(:)
+  real(dp),allocatable :: mfractions(:)        !!! dimension(tot_spec) mole fractions
 end type vapour_ambient
 
 
 type ambient_properties
   !!! contains variables related to vapors and ambient conditions
-   real(dp) ::         temp,      &
-                       pres,      &
-                       rh
+   real(dp) ::  temperature = 293.15
+   real(dp) ::  pressure = 1D5
+   real(dp) ::  rh   = 60.0
 end type ambient_properties
 
-type initial_distribution
-!!!contains parameters for initial particle size distribution
-!!! n_mode, sigma_mode, r_mode is of dimension(init_mode)
-!!! mfractions is of dimension tot_spec
-    real(dp) :: r_min,r_max                                       !!! dry minimum and maximum radius
-    real(dp),dimension(:),allocatable :: n_mode,sigma_mode,r_mode   !!! dimension(init mode) mode conc, mode deivation and radius of mode
-    real(dp),dimension(:),allocatable :: mfractions                 !!! dimension(tot_spec) mole fractions
-end type initial_distribution
+type atoms  ! for reading in molar mass of each atom. WIll be used to calculate diffusion
+  real(dp), allocatable :: N_Carbon(:)
+  real(dp), allocatable :: N_Oxygen(:)
+  real(dp), allocatable :: N_Hydrogen(:)
+  real(dp), allocatable :: N_Nitrogen(:)
+  REAL(dp), allocatable :: comp_prop(:,:)
+end type atoms
+
+
+
 
 
 contains
@@ -56,10 +61,10 @@ end subroutine set_speed
 
 !!!! Calculate molecular mass in KG
 !!! input molar_mass
-pure elemental function calculate_molecular_mass(molecular_mass) result(mass)
-  real(dp), intent(in) :: molecular_mass
+pure elemental function calculate_molecular_mass(molar_mass) result(mass)
+  real(dp), intent(in) :: molar_mass
   real(dp) :: mass
-  mass = molecular_mass / Na *1D-3 !! convert to kg/#
+  mass = molar_mass / Na !*1D-3 !! convert to kg/#
 end function calculate_molecular_mass
 
 !!! calculate molecular volume
@@ -81,7 +86,6 @@ pure elemental function calculate_saturation_vp(A,B, Temperature) result(Vapour_
   Vapour_concentration = (vapour_pressure*101325)/(kb * temperature) ! #/m3
 
 end function calculate_saturation_vp
-
 
 
 End module aerosol_auxillaries

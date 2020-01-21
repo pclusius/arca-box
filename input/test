@@ -38,9 +38,8 @@ MCM_file = ''
 
 ####### MODULE settings #######
 &NML_Flag
-Aerosol_flag        = .true.
 Chemistry_flag      = .true.
-Aerosol_flag       = .true.
+Aerosol_flag        = .true.
 ACDC_solve_ss       = .true.
 NUCLEATION          = .true.
 ACDC                = .true.
@@ -77,8 +76,10 @@ MODS(151) = 0 -1  1.00d+00  2.120000d+09  1.00000d+01  2.00000d+02 2.710000d0 12
 ####### Vap stuff #####
 &NML_VAP
 Vap_logical = .True.
+Use_atoms   = .True.
 Vap_names   = 'Vapour_names.dat'
 Vap_props   = 'Vapour_properties.dat'
+vap_atoms   = 'O_C.dat'
 /
 ####### Misc stuff #####
 &NML_MISC
