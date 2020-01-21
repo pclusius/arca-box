@@ -12,6 +12,7 @@ integer(sp), parameter:: min_s = 60           ! [s] seconds in minute
 integer(sp), parameter:: hour_s  = 3600       ! [s] seconds in hour
 integer(sp), parameter:: day_s = 24*hour_s
 real(dp), parameter   :: um3_to_m3 = (1D-6)**3 ! used for  vol_concentration
+REAL(dp), PARAMETER   :: Mair = 28.96D-3          ! Mean molecular weight of air (kg)
 
 ! Saturation vapour pressure of water in Pa
 REAL, PARAMETER       :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
@@ -78,7 +79,7 @@ type timetype
   integer       :: ind_netcdf     = 1
   integer       :: JD             = 0
   character(8)  :: hms            = "00:00:00"
-  logical       :: printnow       = .true.
+  logical       :: printnow       = .false.
   logical       :: savenow        = .true.
   logical       :: PRINTACDC      = .false.
 end type timetype

@@ -18,7 +18,7 @@
  RESOLVE_BASE=F,
  /
 &NML_TIME
- RUNTIME=  2.0000000000000000     ,
+ RUNTIME=  24.000000000000000     ,
  DT=         -1,
  FSAVE_INTERVAL=  300.00000000000000     ,
  PRINT_INTERVAL=  600.00000000000000     ,
@@ -2171,6 +2171,6 @@
  /
 &NML_VAP
  VAP_LOGICAL=T,
- VAP_NAMES="Vapour_names.dat                                                                                                                                                                                                                                                ",
- VAP_PROPS="Vapour_properties.dat                                                                                                                                                                                                                                           ",
+ VAP_NAMES="Vapour_names_test.dat                                                                                                                                                                                                                                           ",
+ VAP_PROPS="Vapour_properties_test.dat                                                                                                                                                                                                                                      ",
  /

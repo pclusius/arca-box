@@ -17,6 +17,7 @@ PROGRAM Supermodel
     USE aerosol_auxillaries
 !    USE Aerosol
     USE ParticleSizeDistribution
+    USE aerosol_dynamics
 
 
     IMPLICIT NONE
@@ -43,6 +44,11 @@ PROGRAM Supermodel
     !...(1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
     INTEGER          :: speed_up(10) = 1
     TYPE(error_type) :: error
+
+     real(dp), dimension(10):: cond_vapour
+    real(dp) :: time, time_end
+
+
 
 
     CALL READ_INPUT_DATA ! Declare most variables and read user input and options in input.f90
@@ -72,12 +78,32 @@ PROGRAM Supermodel
         DEALLOCATE(y_fit)
 
         dummy_property = dummy_property * LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))
-        current_PSD%conc_fs = dummy_property
+        ! current_PSD%conc_fs = dummy_property
+
+!!!!! added by carlton
+       vapours%Mfractions(1)=1.0
+        ! vapours%Mfractions(1)=0.0
+       vapours%Mfractions(2:9)=0.0
+
+      ! intialize concentration of condensables in each bin (#/m3). We convert it back to kg/m3 later
+      do i = 1,current_PSD%nr_bins
+        conc_pp(i,:) = conc_pp(i,:) + &
+                                   vapours%mfractions * current_PSD%volume_fs(i) * current_PSD%conc_fs(i) * vapours%density / &
+                                   vapours%molar_mass*Na
+
+      end do
+
+      do  i = 1, current_PSD%nr_bins
+              current_PSD%composition_fs(i,:) = conc_pp(i,:) * vapours%molar_mass  / Na / current_PSD%conc_fs(i)
+      end do
+
+   ! write(*,*) 'sum of conc_pp',SUM(current_PSD%conc_pp,2)
 
         print*,
         print FMT_HDR, 'INITIALIZING PARTICLE STRUCTURES '
         PRINT '("| ",a,6(es9.3," "),a,t100,"|")','model dp: ', current_PSD%diameter_fs(1:6), '...'
-        PRINT '("| ",a,6(es9.3," "),a,t100,"|")','fitted model PSD: ',current_PSD%conc_fs(1:6), '...'
+        ! PRINT '("| ",a,6(es9.3," "),a,t100,"|")','fitted model PSD: ',current_PSD%conc_fs(1:6), '...'
+        ! write(*,*) 'particle mass' , current_PSD%conc_fs
 
         ! Derive composition of the particles form input (XTRAS(I), I...# of noncond (nr_noncond))
         IF (extra_particles /= '') THEN
@@ -123,6 +149,14 @@ PROGRAM Supermodel
     !Open error output file
     open(unit=333, file='output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_error_output.txt')
 
+    OPEN(100,file="output/diameter.dat",status='replace',action='write')
+    OPEN(104,file="output/time.dat",status='replace',action='write')
+    OPEN(101,file="output/particle_conc.dat",status='replace',action='write')
+
+    ! write(*,*) 'current_PSD%diameter_fs', current_PSD%diameter_fs
+    WRITE(100,*) current_PSD%diameter_fs
+    WRITE(101,*) current_PSD%conc_fs
+    WRITE(104,*) time
     !Open output file
     print*,
     print FMT_HDR, 'INITIALIZING OUTPUT '
@@ -181,7 +215,9 @@ PROGRAM Supermodel
                           CH_H2O, C_AIR_NOW, TSTEP_CONC(inm_CS), TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
             if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
+            !
 
+            ! write(*,*) 'model sim time ', dt_aero
         END IF ! IF (Chemistry_flag)
 
         ! =================================================================================================
@@ -199,6 +235,33 @@ PROGRAM Supermodel
         ! =================================================================================================
 
         ! Condensation
+        ! call allocate_aerosol(vapours,n_bins_particle)
+        time = MODELTIME%sec
+        time_end= MODELTIME%SIM_TIME_S
+
+
+        cond_vapour(1) = 1D13 !*time                                               ! [molec m-3], [HOA]
+        cond_vapour(2) = 2*1D13*sin(pi/86400 * time)                               ! [molec m-3], [APINBOOH]
+        cond_vapour(3) = sqrt(2*1D13*sin(pi/2/86400 * time))                       ! [molec m-3], [APINCOOH]
+        cond_vapour(4) = 1D12 * time_end/(time+1D0)                                ! [molec m-3], [PINONIC]
+        cond_vapour(5) = sqrt(2*1D13*sin(pi/86400 * time))                         ! [molec m-3], [LIMAOOH]
+        cond_vapour(6) = 2*1D13*sin(pi/86400 * time)/time_end                      ! [molec m-3], [C918NO3]
+        cond_vapour(7) = sqrt(2*1D13*sin(pi/2/86400 * time)) *time_end             ! [molec m-3], [C617OOH]
+        cond_vapour(8) = sqrt(1D12 * time_end/(time+1D0))                          ! [molec m-3], [C128OH]
+        cond_vapour(9) = sqrt(2*1D13*sin(pi/86400 * time)) * time/time_end        ! [molec m-3], [C716OH]
+        cond_vapour(10) = 1D13 *sin(pi/86400 * time)
+
+         CH_GAS(1:9)=cond_vapour(1:9)
+         CH_GAS(ind_H2SO4)=cond_vapour(10)
+
+      ! write(*,*) 'CH_GAS(ind_H2SO4)', CH_GAS(ind_H2SO4)
+          ! write(*,*) 'earlier cond_vapor is ', cond_vapour
+        ! call run_aero_test(cond_vapour)
+         call Nucleation_apc(MODELTIME%dt_aero,CH_GAS(ind_H2SO4),current_PSD%conc_fs)
+        CALL Condensation_apc(MODELTIME%dt_aero,vapours,current_PSD,conc_pp,CH_GAS, &
+        CH_GAS(ind_H2SO4),ambient,dmass)
+
+
         ! Coagulation
         ! Deposition
 
@@ -229,14 +292,23 @@ PROGRAM Supermodel
             ! =================================================================================================
 
             ! =================================================================================================
-            ! Add main timestep to modeltime
+            ! Add main timestep to modeltime'
+            ! write(*,*) 'modeltime%dt_aero and modeltime%SIM_TIME_H', MODELTIME%dt_aero,'',  MODELTIME%SIM_TIME_H
             MODELTIME = ADD(MODELTIME)
           ! =================================================================================================
 
+          WRITE(101,*) current_PSD%conc_fs
+          WRITE(104,*) time
+          ! WRITE(*,*) SUM(mix_PSD%volume_fs),SUM(current_PSD%volume_fs)
+          ! write(*,*) 'time is ', time,'', modeltime%sec,'', modeltime%SIM_TIME_S
         END IF !ERROR hanldling
     ! =================================================================================================
     END DO	! Main loop ends
     ! =================================================================================================
+
+    CLOSE(100)
+    CLOSE(101)
+    CLOSE(104)
 
     CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 

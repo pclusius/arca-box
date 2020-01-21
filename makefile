@@ -9,8 +9,9 @@ F90 = gfortran
  SRCDIR  = src
  CHMDIR  = Hyde
  CHMDIR  = SkeletonChem
+ AERDIR  = Aerosol
 # When compiling, search for files in these directories:
-VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31
+VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31/Aerosol
 
 # Options reminders:
 # -w suppresses warning messages
@@ -25,20 +26,24 @@ CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,z
 
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 
-#CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Monitor.o)
+
 CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Parameters.o second_Initialize.o second_Util.o second_Monitor.o second_JacobianSP.o \
                second_LinearAlgebra.o second_Jacobian.o second_Global.o second_Rates.o second_Integrator.o second_Function.o \
                second_Model.o second_Main.o)
 
-BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o solve_bases.o Chemistry.o output.o PSD.o)
+BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o solve_bases.o Chemistry.o output.o PSD.o aerosol_dynamics.o)
 
 PSD_OBJECTS = $(addprefix $(OBJDIR)/, constants.o Aerosol_auxillaries.o input.o Chemistry.o)
+
+AEROSOL_OBJECTS = $(addprefix $(OBJDIR)/, constants.o input.o Aerosol_auxillaries.o)
 
 ACDC_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AN_ions.o monomer_settings_acdc_NH3_ions.o solution_settings.o driver_acdc_J_ions.o \
              acdc_equations_AN_ions.o get_acdc_J_ions.o)
 
 ACDC_D_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AD_new.o monomer_settings_acdc_DMA.o solution_settings.o driver_acdc_D.o \
                   acdc_equations_AD_new.o get_acdc_D.o)
+
+
 
 NETLIBS =  -I/usr/include -L/usr/lib/x86_64-linux-gnu/ -lnetcdf  -lnetcdff -lcurl
 #NETLIBS = -I$(NETCDF_INCLUDE) -L$(NETCDF_LIB) -L$(H5_LIB) -lnetcdf -lnetcdff -lcurl -lhdf5 -lhdf5_hl
@@ -64,6 +69,11 @@ $(OBJDIR)/Superbox.o: src/Supermodel_main.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(A
 #PSD representation
 $(OBJDIR)/PSD.o: src/PSD.f90 $(PSD_OBJECTS)
 	$(F90) $(BOX_OPTS) -c $< -o $@
+
+#Aerosol dynamic
+$(OBJDIR)/aerosol_dynamics.o: $(SRCDIR)/$(AERDIR)/aerosol_dynamics.f90 $(AEROSOL_OBJECTS)
+	$(F90) $(BOX_OPTS) -c $< -o $@
+
 
 $(OBJDIR)/solve_bases.o: src/solve_bases.f90 $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
 	 $(F90) $(BOX_OPTS) -c $< -o $@
