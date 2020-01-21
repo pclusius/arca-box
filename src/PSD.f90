@@ -38,7 +38,7 @@ MODULE ParticleSizeDistribution
                             dummy_property(:)   !has dimension of diameter array and can be used for various things (e.g.: fitting)
 
   CHARACTER(len=15) :: process !defines the process that passes information to subroutine Mass_Number_Change (coagulation, condensation, mixing)
-  logical :: testing_phase=.True.
+  logical :: testing_phase=.false.
   !INTEGER :: &
   !            i,j   ! some integer for loops
 
@@ -425,7 +425,7 @@ MODULE ParticleSizeDistribution
     IMPLICIT NONE
     INTEGER   :: i     !some integer for looping
     ! REAL(dp)  :: r1,r2    !contration fractions that move to bin a and a-1, respectively
-    real(dp) :: test(current_PSD%nr_bins)
+    ! real(dp) :: test(current_PSD%nr_bins)
 
     IF (current_PSD%PSD_style == 1) THEN
       !!!!!!!!!!!!!!!!!!!!!!!!!

@@ -45,7 +45,7 @@ PROGRAM Supermodel
     INTEGER          :: speed_up(10) = 1
     TYPE(error_type) :: error
 
-     real(dp), dimension(10):: cond_vapour
+     ! real(dp), dimension(10):: cond_vapour
     real(dp) :: time, time_end
 
 
@@ -81,10 +81,11 @@ PROGRAM Supermodel
         ! current_PSD%conc_fs = dummy_property
 
 !!!!! added by carlton
-       vapours%Mfractions(1)=1.0
-        ! vapours%Mfractions(1)=0.0
-       vapours%Mfractions(2:9)=0.0
+       ! vapours%Mfractions(1)=1.0
+       !  ! vapours%Mfractions(1)=0.0
+       ! vapours%Mfractions(2:9)=0.0
 
+    if (Aerosol_flag) then
       ! intialize concentration of condensables in each bin (#/m3). We convert it back to kg/m3 later
       do i = 1,current_PSD%nr_bins
         conc_pp(i,:) = conc_pp(i,:) + &
@@ -92,10 +93,11 @@ PROGRAM Supermodel
                                    vapours%molar_mass*Na
 
       end do
-
+      ! composition in kg/m3
       do  i = 1, current_PSD%nr_bins
-              current_PSD%composition_fs(i,:) = conc_pp(i,:) * vapours%molar_mass  / Na / current_PSD%conc_fs(i)
+              current_PSD%composition_fs(i,:) = conc_pp(i,:) * vapours%molar_mass  / Na !/ current_PSD%conc_fs(i)
       end do
+    end if
 
    ! write(*,*) 'sum of conc_pp',SUM(current_PSD%conc_pp,2)
 
@@ -239,28 +241,10 @@ PROGRAM Supermodel
         time = MODELTIME%sec
         time_end= MODELTIME%SIM_TIME_S
 
-
-        cond_vapour(1) = 1D13 !*time                                               ! [molec m-3], [HOA]
-        cond_vapour(2) = 2*1D13*sin(pi/86400 * time)                               ! [molec m-3], [APINBOOH]
-        cond_vapour(3) = sqrt(2*1D13*sin(pi/2/86400 * time))                       ! [molec m-3], [APINCOOH]
-        cond_vapour(4) = 1D12 * time_end/(time+1D0)                                ! [molec m-3], [PINONIC]
-        cond_vapour(5) = sqrt(2*1D13*sin(pi/86400 * time))                         ! [molec m-3], [LIMAOOH]
-        cond_vapour(6) = 2*1D13*sin(pi/86400 * time)/time_end                      ! [molec m-3], [C918NO3]
-        cond_vapour(7) = sqrt(2*1D13*sin(pi/2/86400 * time)) *time_end             ! [molec m-3], [C617OOH]
-        cond_vapour(8) = sqrt(1D12 * time_end/(time+1D0))                          ! [molec m-3], [C128OH]
-        cond_vapour(9) = sqrt(2*1D13*sin(pi/86400 * time)) * time/time_end        ! [molec m-3], [C716OH]
-        cond_vapour(10) = 1D13 *sin(pi/86400 * time)
-
-         CH_GAS(1:9)=cond_vapour(1:9)
-         CH_GAS(ind_H2SO4)=cond_vapour(10)
-
-      ! write(*,*) 'CH_GAS(ind_H2SO4)', CH_GAS(ind_H2SO4)
-          ! write(*,*) 'earlier cond_vapor is ', cond_vapour
-        ! call run_aero_test(cond_vapour)
-         call Nucleation_apc(MODELTIME%dt_aero,CH_GAS(ind_H2SO4),current_PSD%conc_fs)
-        CALL Condensation_apc(MODELTIME%dt_aero,vapours,current_PSD,conc_pp,CH_GAS, &
-        CH_GAS(ind_H2SO4),ambient,dmass)
-
+       if (Aerosol_flag) then
+         CALL Condensation_apc(MODELTIME%dt_aero,vapours,current_PSD,conc_pp,CH_GAS, &
+         CH_GAS(ind_H2SO4),ambient,dmass)
+       end if
 
         ! Coagulation
         ! Deposition
@@ -299,6 +283,7 @@ PROGRAM Supermodel
 
           WRITE(101,*) current_PSD%conc_fs
           WRITE(104,*) time
+          ! write(*,*) sum(current_PSD%conc_fs)
           ! WRITE(*,*) SUM(mix_PSD%volume_fs),SUM(current_PSD%volume_fs)
           ! write(*,*) 'time is ', time,'', modeltime%sec,'', modeltime%SIM_TIME_S
         END IF !ERROR hanldling

@@ -12,42 +12,12 @@ IMPLICIT NONE
 Logical :: RH_DEPENDENCE=.True.
 Logical :: real_code =.TRUE.
 Logical :: use_raoult =.True.
-Logical :: use_new_method=.false.
+Logical :: use_new_method=.true.
 
 integer, parameter::nr_bins=100
 ! integer, parameter::nr_cond=10
 
 CONTAINS
-
-
-  SUBROUTINE Nucleation_apc (dt, nucl_gas, particle_conc)! (Add input and output variables here)
-
-    ! Consider how kinetic H2SO4 nucleation influence the number concentrations of particles
-    ! in the fist size bin particle_conc(1) within one model time step
-    real(dp), intent(in   ) :: dt      , &  ! [s], integration time step
-                               nucl_gas     ! [molec m-3], concentration of condensed vapors
-    real(dp), intent(  out) :: particle_conc(nr_bins)  ! [molec m-3], particle number concentration
-    real(dp) :: Knucl            ! [m3 molec-1 s-1], nucleation coefficient
-    real(dp) :: nucleation_rate  ! [molec m-3 s-1], nucleation rate
-    ! real(dp),dimension(nr_bins, nr_cond), intent(inout) ::  conc_pp
-    ! real(dp),dimension(nr_cond), intent(in) :: c_p_nucl
-    ! real(dp),dimension(nr_bins),intent(inout):: diameter
-
-
-    Knucl = 1.0e-20_dp  ! [m3 molec-1 s-1]
-
-    nucleation_rate = Knucl * nucl_gas**2
-    particle_conc(1)    = particle_conc(1) + nucleation_rate*dt
-
-    ! write(*,*) 'in nuc before update',sum(conc_pp)
-    ! from Pontus.. update the conc_pp in particle phase and diameter
-
-    ! vp = sum(conc_pp(1,:)/Na*molar_mass/density/particle_conc(1)) !particle_volume(1)*particle_conc(1)*density/molecular_mass
-    ! ! write(*,*) 'in nuc sfter update',sum(conc_pp)
-    ! ! write(*,*) vp,'', sum(conc_pp)
-    ! diameter(1) = (vp*6D0/pi)**(1D0/3D0)
-
-  END SUBROUTINE Nucleation_apc
 
 
 SUBROUTINE Condensation_apc(timestep, vapour_properties, particle_properties, conc_pp,ch_gas, &
@@ -121,12 +91,12 @@ if (real_code) THEN
 
  do ii=1, n_bins_particle
    if (particle_properties%diameter_fs(ii) <=  1*1D-9) THEN
-      write(*,*) 'In here',ii
+       ! write(*,*) 'In here',ii
      xorg(ii,:) = 1D0
    end if
  end do
 
-! write(*,*) 'line 116 aerosol_dynamics xorg', sum(xorg)
+
  ! collision rate, kelvin_eff, kohler_effect, and apc_scheme
  do ii=1, nr_species_p
 
@@ -182,8 +152,8 @@ if (real_code) THEN
 
 ! update composition
  do  ii = 1, particle_properties%nr_bins
-         particle_properties%composition_fs(ii,:) = conc_pp(ii,:) * vapour_properties%molar_mass  / Na &
-                                                   / particle_conc(ii)
+         particle_properties%composition_fs(ii,:) = conc_pp(ii,:) * vapour_properties%molar_mass  / Na !&
+                                                   ! / particle_conc(ii)
  end do
 
  !!! update dmass
@@ -428,3 +398,33 @@ end function collision_rate
 ! !
 !
 END MODULE aerosol_dynamics
+
+!! for testing
+! SUBROUTINE Nucleation_apc (dt, nucl_gas, particle_conc)! (Add input and output variables here)
+!
+!   ! Consider how kinetic H2SO4 nucleation influence the number concentrations of particles
+!   ! in the fist size bin particle_conc(1) within one model time step
+!   real(dp), intent(in   ) :: dt      , &  ! [s], integration time step
+!                              nucl_gas     ! [molec m-3], concentration of condensed vapors
+!   real(dp), intent(  out) :: particle_conc(nr_bins)  ! [molec m-3], particle number concentration
+!   real(dp) :: Knucl            ! [m3 molec-1 s-1], nucleation coefficient
+!   real(dp) :: nucleation_rate  ! [molec m-3 s-1], nucleation rate
+!   ! real(dp),dimension(nr_bins, nr_cond), intent(inout) ::  conc_pp
+!   ! real(dp),dimension(nr_cond), intent(in) :: c_p_nucl
+!   ! real(dp),dimension(nr_bins),intent(inout):: diameter
+!
+!
+!   Knucl = 1.0e-20_dp  ! [m3 molec-1 s-1]
+!
+!   nucleation_rate = Knucl * nucl_gas**2
+!   particle_conc(1)    = particle_conc(1) + nucleation_rate*dt
+!
+!   ! write(*,*) 'in nuc before update',sum(conc_pp)
+!   ! from Pontus.. update the conc_pp in particle phase and diameter
+!
+!   ! vp = sum(conc_pp(1,:)/Na*molar_mass/density/particle_conc(1)) !particle_volume(1)*particle_conc(1)*density/molecular_mass
+!   ! ! write(*,*) 'in nuc sfter update',sum(conc_pp)
+!   ! ! write(*,*) vp,'', sum(conc_pp)
+!   ! diameter(1) = (vp*6D0/pi)**(1D0/3D0)
+!
+! END SUBROUTINE Nucleation_apc

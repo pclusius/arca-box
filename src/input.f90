@@ -239,8 +239,10 @@ subroutine READ_INPUT_DATA()
 
   CALL PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
 
-  ! check IF dmps data is used or not. If no then do nothing
-  IF (USE_DMPS) then
+  ! check IF dmps data is used or not. If no then do nothing. Use dmps only
+  !if aerosol_flag is true
+  IF (USE_DMPS .and. Aerosol_flag) then
+    
     write(*,FMT_SUB) 'Reading DMPS files '// TRIM(DMPS_file)
     OPEN(unit=51, File=TRIM(DMPS_dir)// '/'//TRIM(DMPS_file), STATUS='OLD', iostat=ioi)
     IF (ioi /= 0) THEN
@@ -397,6 +399,8 @@ subroutine READ_INPUT_DATA()
    write(buf,'(i0)') vapours%vbs_bins
    print FMT_SUB, 'Vapour bins + H2SO4 = '//TRIM(buf)
    !!! reading the vap names and vap vapour_properties
+
+   vapours%Mfractions(1) = 1 !
 
  do ii = 1, vapours%vapour_number+1
    if (ii <= vapours%vapour_number) then !!! all compounds
