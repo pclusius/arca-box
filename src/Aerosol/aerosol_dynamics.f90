@@ -14,7 +14,7 @@ Logical :: real_code =.TRUE.
 Logical :: use_raoult =.True.
 Logical :: use_new_method=.true.
 
-integer, parameter::nr_bins=100
+! integer, parameter::nr_bins=100
 ! integer, parameter::nr_cond=10
 
 CONTAINS

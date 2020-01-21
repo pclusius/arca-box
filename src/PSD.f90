@@ -26,7 +26,8 @@ MODULE ParticleSizeDistribution
               nr_times, &      !number of points in time for PSD_in
               nr_channels, &   !number of diameter channels for PSD_in
               nr_species_P,&  !number of species that can go to the particle phase
-              nr_cond
+              nr_cond     ,&
+              nr_bins
   REAL(dp), ALLOCATABLE :: PSD_in(:,:)
   !END variables that will be defined outside
 
@@ -123,6 +124,7 @@ MODULE ParticleSizeDistribution
     !input particle size distribution:
     nr_times = size(par_data(2:,1))
     nr_channels = size(par_data(1,2:))
+    nr_bins = current_PSD%nr_bins
     !write(*,*) current_PSD%PSD_style, current_PSD%nr_bins, current_PSD%dp_range
     !write(*,*) nr_species_P, nr_noncond, nr_times, nr_channels
     !PAUSE

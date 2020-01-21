@@ -39,7 +39,7 @@ MCM_file = ''
 ####### MODULE settings #######
 &NML_Flag
 Chemistry_flag      = .true.
-Aerosol_flag        = .false.
+Aerosol_flag        = .true.
 ACDC_solve_ss       = .true.
 NUCLEATION          = .true.
 ACDC                = .true.
