@@ -49,10 +49,10 @@ character(len=256), private :: Fname_init ! init file names
 
 ! MAIN PATHS
 character(len=256):: WORK_DIR   = ''
-character(len=256):: CASE_DIR   = 'input'
-character(len=256):: CASE_NAME  = 'DEFAULT'
-character(len=30) :: RUN_NAME   = 'RUN'
-NAMELIST /NML_Path/ Work_dir, Case_Dir, Case_name, RUN_NAME
+character(len=256):: INOUT_DIR   = 'INOUT'
+character(len=256):: CASE_NAME  = 'DEFAULTCASE'
+character(len=30) :: RUN_NAME   = 'DEFAULTRUN'
+NAMELIST /NML_Path/ Work_dir, INOUT_DIR, Case_name, RUN_NAME
 
 ! MODULES IN USE OPTIONS
 Logical :: Chemistry_flag      = .false.
@@ -66,8 +66,9 @@ Logical :: Coagulation         = .false.
 Logical :: Extra_data          = .false.
 Logical :: Current_case        = .false.
 Logical :: RESOLVE_BASE        = .false.
+Logical :: PRINT_ACDC          = .false.
 NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, NUCLEATION, ACDC, &
-         Extra_data, Current_case, Condensation, Coagulation, model_H2SO4, RESOLVE_BASE
+         Extra_data, Current_case, Condensation, Coagulation, model_H2SO4, RESOLVE_BASE, PRINT_ACDC
 
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0
@@ -75,8 +76,8 @@ real(dp)  :: FSAVE_INTERVAL = 300d0
 real(dp)  :: PRINT_INTERVAL = 15*60d0
 INTEGER   :: FSAVE_DIVISION = 0
 INTEGER   :: dt = -1
-character(len=10)  :: DATE = '1800-01-01'
-NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, DATE
+character(len=10)  :: DATE = '1800-01-01', INDEX = ''
+NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, DATE, INDEX
 
 ! MODIFIER OPTIONS
 ! MODS is declared in CONSTANTS.f90, in order to be more widely available
@@ -97,9 +98,9 @@ REAL(dp)            :: max_particle_diam = 1d-6 ! upper limit of particle range 
 REAL(dp)            :: DMPS_read_in_time = 0d0
 
 ! 6) PSD input as discussed: real (time, total conc in first two columns, diameter in first row and concentration matrix) (nr_times + 1, nr_channels + 2)
-character(len=256)  :: DMPS_dir
+! character(len=256)  :: DMPS_dir
+! character(len=256)  :: extra_p_dir
 character(len=256)  :: DMPS_file
-character(len=256)  :: extra_p_dir
 
 ! 4) name list of species making up the particle phase (we think that this will only be a few species that are measured in the particle phase): integer
 ! 5) number of nonvolatile species considered: integer
@@ -113,7 +114,7 @@ REAL(dp)            :: dmps_highband_lower_limit = 15d-9    !for use_dmps_specia
 REAL(dp)            :: dmps_lowband_upper_limit = 6.*1d-10  !for use_dmps_special, read all dmps data below this diameter [m]
 logical             :: use_dmps = .false.
 logical             :: use_dmps_special = .false.
-NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_particle,min_particle_diam,max_particle_diam, DMPS_dir,extra_p_dir, DMPS_file,extra_particles,&
+NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_particle,min_particle_diam,max_particle_diam, DMPS_file,extra_particles,& !DMPS_dir,extra_p_dir,
                         DMPS_read_in_time,dmps_highband_lower_limit, dmps_lowband_upper_limit,use_dmps,use_dmps_special
 
 type(inert_particles), ALLOCATABLE :: xtras(:)
@@ -186,15 +187,21 @@ subroutine READ_INPUT_DATA()
   INDRELAY_CH = 0
   CALL NAME_MODS_SORT_NAMED_INDICES
   CALL READ_INIT_FILE
-  CALL REPORT_INPUT_COLUMNS_TO_USER
   CALL PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
+  CALL REPORT_INPUT_COLUMNS_TO_USER
 
-  ! ALLOCATE CONC_MAT
+  ! ALLOCATE CONC_MAT Currently both files need to have same time resolution FIX THIS SOON!
+  ! The idea here is to count the rows to get time and allocate CONCMAT and TIMEVEC
+  ! This is very much under construction
   IF ((ENV_file /= '') .or. (MCM_file /= '')) THEN
     IF (ENV_file /= '') THEN
-      OPEN(unit=51, File=TRIM(ENV_path) //'/'//TRIM(ENV_file), ACTION='READ', STATUS='OLD')
+      OPEN(unit=51, File=TRIM(ENV_file), ACTION='READ', STATUS='OLD', iostat=ioi)
+      CALL handle_file_io(ioi, ENV_file, 'stop')
+
     ELSE
-      OPEN(unit=51, File=TRIM(MCM_path) //'/'//TRIM(MCM_file), ACTION='READ', STATUS='OLD')
+      OPEN(unit=51, File=TRIM(MCM_file), ACTION='READ', STATUS='OLD',iostat=ioi)
+      CALL handle_file_io(ioi, MCM_file, 'stop')
+
     END IF
     ALLOCATE(CONC_MAT(ROWCOUNT(51,'#'),N_VARS))
     ALLOCATE(TIMEVEC(ROWCOUNT(51,'#')))
@@ -209,7 +216,9 @@ subroutine READ_INPUT_DATA()
 
   ! READ ENV INPUT
   if (ENV_file /= '') THEN
-    OPEN(unit=51, File=TRIM(ENV_path) //'/'//TRIM(ENV_file), ACTION='READ', STATUS='OLD')
+    OPEN(unit=51, File=TRIM(ENV_file), ACTION='READ', STATUS='OLD', iostat=ioi)
+    CALL handle_file_io(ioi, ENV_file, 'Terminating on CONCMAT allocation')
+
     rowcol_count%rows = ROWCOUNT(51,'#')
     rowcol_count%cols = COLCOUNT(51)
 
@@ -222,7 +231,7 @@ subroutine READ_INPUT_DATA()
 
   ! READ MCM INPUT
   if (MCM_file /= '') THEN
-    OPEN(unit=51, File=TRIM(MCM_path) //'/'//TRIM(MCM_file), ACTION='READ', STATUS='OLD')
+    OPEN(unit=51, File=TRIM(MCM_file), ACTION='READ', STATUS='OLD')
     rowcol_count%rows = ROWCOUNT(51,'#')
     rowcol_count%cols = COLCOUNT(51)
     allocate(INPUT_MCM(rowcol_count%rows,rowcol_count%cols))
@@ -237,11 +246,9 @@ subroutine READ_INPUT_DATA()
   ! check IF dmps data is used or not. If no then do nothing
   IF (USE_DMPS) then
     write(*,FMT_SUB) 'Reading DMPS files '// TRIM(DMPS_file)
-    OPEN(unit=51, File=TRIM(DMPS_dir)// '/'//TRIM(DMPS_file), STATUS='OLD', iostat=ioi)
-    IF (ioi /= 0) THEN
-      print FMT_FAT0, 'DMPS file was defined but not readable, exiting. Check NML_PARTICLE in INIT file'
-      STOP
-    END IF
+    OPEN(unit=51, File=TRIM(DMPS_file), STATUS='OLD', iostat=ioi)
+    CALL handle_file_io(ioi, DMPS_file, 'Terminating on DMPS pardata')
+
     rowcol_count%rows = ROWCOUNT(51,'#')
     rowcol_count%cols = COLCOUNT(51)
 
@@ -281,7 +288,7 @@ subroutine READ_INPUT_DATA()
 
   IF (extra_particles /= '') THEN
     ! First we open the extra particle files to count the dimensions needed for the matrix
-    OPEN(unit=51, File=TRIM(extra_p_dir)//'/'//TRIM(extra_particles) , STATUS='OLD', iostat=ioi)
+    OPEN(unit=51, File=TRIM(extra_particles) , STATUS='OLD', iostat=ioi)
     Z = ROWCOUNT(51)
     write(buf, '(a, i0, a)') 'reading XTRAS: ', Z,' lines'
     PRINT FMT_SUB, TRIM(buf)
@@ -308,11 +315,7 @@ subroutine READ_INPUT_DATA()
       read(BUF(path_l(2):), *) XTRAS(I)%options
 
       OPEN(unit=51+I, File=TRIM(buf(1:path_l(1))) , STATUS='OLD', iostat=ioi)
-      if (ioi/=0) then
-         print FMT_FAT0, 'Cannot open extra particle file. Check the path in extra_particles-file:  '
-         print FMT_MSG, '"'//TRIM(buf(1:path_l(1)))//'"'
-         STOP
-       END IF
+      CALL handle_file_io(ioi, buf(1:path_l(1)), 'Terminating when trying to open extra particles, check the paths in extra_particles')
 
       yp = ROWCOUNT(51+I)
       xp = COLCOUNT(51+I)
@@ -355,8 +358,8 @@ subroutine READ_INPUT_DATA()
   IF (VAP_logical) then
    write(*,FMT_MSG) 'Reading Vapour name file '// TRIM(Vap_names)
    write(*,FMT_MSG) 'Reading Vapour prop file '// TRIM(Vap_props)
-   OPEN(unit=52, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
-   OPEN(unit=53, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_props) , STATUS='OLD', iostat=ioi2)
+   OPEN(unit=52, File= TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
+   OPEN(unit=53, File= TRIM(Vap_props) , STATUS='OLD', iostat=ioi2)
 
    IF (ioi /= 0) THEN
      print FMT_FAT0, 'Vap_names file was defined but not readable, exiting. Check NML_vap in INIT file'
@@ -481,11 +484,12 @@ subroutine READ_INIT_FILE
 
   CLOSE(50)
 
-  ! IF (SUM(ABS(IOS)) /= 0) then
-  !   write(*,FMT_MSG) 'There was a problem with INITFILE. Check the file and refer to manual. Exiting now.'
-  !   write(*,FMT_LEND)
-    ! STOP
-  ! end if
+  IF (SUM(ABS(IOS)) /= 0) then
+    write(*,FMT_MSG) 'There was a problem with INITFILE. Check the file and refer to manual. Exiting now.'
+    write(*,*) IOS
+    write(*,FMT_LEND)
+    STOP
+  end if
 
 end subroutine READ_INIT_FILE
 
@@ -493,8 +497,8 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
   implicit none
   INTEGER :: days(12), non_leap_year(12) = ([31,28,31,30,31,30,31,31,30,31,30,31])
   INTEGER :: leap_year(12) = ([31,29,31,30,31,30,31,31,30,31,30,31])
-  INTEGER :: y,m,d
-
+  INTEGER :: y,m,d, ioi
+  CHARACTER(100) :: buf
   MODELTIME%SIM_TIME_H = runtime
   MODELTIME%SIM_TIME_S = runtime*3600d0
   ! figure out the correct save interval
@@ -508,22 +512,26 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
   IF (JD > 0) MODELTIME%JD = JD
   if (TRIM(DATE) /= '1800-01-01') THEN
 
-    read(date(1:4),*) y
-    read(date(6:7),*) m
-    read(date(9:) ,*) d
-
-    if (MODULO(y,4) == 0) THEN
-      if ((MODULO(y,100) == 0) .and. (MODULO(y,400) /= 0)) THEN
-        days = non_leap_year
-      ELSE
-        days = leap_year
-      END IF
+    read(date(1:4),*,iostat=ioi) y
+    if (ioi == 0) read(date(6:7),*,iostat=ioi) m
+    if (ioi == 0) read(date(9:) ,*,iostat=ioi) d
+    if (ioi /= 0) THEN
+      print FMT_WARN0, 'Proper date not provided in INITFILE'
     ELSE
-        days = non_leap_year
+      if (MODULO(y,4) == 0) THEN
+        if ((MODULO(y,100) == 0) .and. (MODULO(y,400) /= 0)) THEN
+          days = non_leap_year
+        ELSE
+          days = leap_year
+        END IF
+      ELSE
+          days = non_leap_year
+      END IF
+      MODELTIME%PRINTACDC = PRINT_ACDC
+      MODELTIME%JD = sum(days(:m-1)) + d
+      write(buf, '(i0)') MODELTIME%JD
+      print FMT_MSG, 'Date: '//TRIM(date)//' -> Julian Day: '//TRIM(buf)
     END IF
-
-    MODELTIME%JD = sum(days(:m-1)) + d
-    print*, 'Julian Day: ', MODELTIME%JD
   END if
 end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
 

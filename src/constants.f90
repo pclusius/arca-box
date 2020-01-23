@@ -121,6 +121,7 @@ type(input_mod), allocatable  :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIF
 TYPE(input_mod)               :: ORIGINAL_TEMP(2), ORIGINAL_press(2)
 REAL(dp)                      :: J_ACDC_NH3 = 0d0
 REAL(dp)                      :: J_ACDC_DMA = 0d0
+REAL(dp)                      :: clusteracid,clusterbase,dclusteracid,dclusterbase
 REAL(dp)                      :: J_NH3_BY_IONS(3) = 0d0
 REAL(dp)                      :: acdc_cluster_diam = 2.17d-9
 

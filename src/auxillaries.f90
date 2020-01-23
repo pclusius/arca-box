@@ -263,6 +263,27 @@ PURE INTEGER FUNCTION IndexFromName(name, list_of_names)
 
 END FUNCTION IndexFromName
 
+subroutine handle_file_io(ioi, file, halt)
+  IMPLICIT NONE
+  INTEGER, INTENT(in) :: ioi
+  CHARACTER(*), INTENT(in) :: file
+  CHARACTER(100) :: fmt
+  CHARACTER(*), OPTIONAL, INTENT(in) :: halt
+  if (PRESENT(halt)) THEN
+    fmt = FMT_FAT0
+  else
+    fmt = FMT_WARN0
+  end if
+  if (ioi /= 0) THEN
+    print fmt, 'Could not open '//TRIM(file)//', does it exist?'
+    if (PRESENT(halt)) THEN
+      print FMT_SUB, halt
+      print FMT_LEND
+      stop
+    END IF
+  END if
+end subroutine handle_file_io
+
 
 
 end MODULE AUXILLARIES

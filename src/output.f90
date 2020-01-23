@@ -21,7 +21,7 @@ INTEGER, PARAMETER :: N_FILES = 3
 INTEGER, PARAMETER :: shuff=1, compress=1, compression=9
 
 INTEGER       :: ncfile_ids(N_FILES)
-CHARACTER(200) :: ncfile_names(N_FILES) = (['general  ', 'chemistry', 'particle '])
+CHARACTER(200) :: ncfile_names(N_FILES) = (['General  ', 'Chemistry', 'Particle '])
 
 INTEGER, allocatable        :: shifter_ind(:)
 INTEGER, allocatable        :: multipl_ind(:)
@@ -62,7 +62,7 @@ CONTAINS
     TYPE(vapour_ambient),INTENT(IN) :: vapours
     REAL(dp), INTENT(IN)            :: CH_GAS(:)
     CHARACTER(255)                  :: PROGRAM_NAME
-    INTEGER                         :: i,j,k,lenD, n_condensables=0
+    INTEGER                         :: i,j,k,ioi,lenD, n_condensables=0
     INTEGER, PARAMETER              :: textdim = len(SPC_NAMES(1))
     CHARACTER(textdim), ALLOCATABLE :: COND_NAMES(:)
 
@@ -115,15 +115,17 @@ CONTAINS
 
     print FMT_HDR, 'PREPARING OUTPUT FILES'
     print FMT_SUB, 'NetCDF version: '//trim(nf90_inq_libvers())
-    print FMT_SUB, 'Create files: '//TRIM(filename)//'_*.nc'
+    print FMT_SUB, 'Create files to: '//TRIM(filename)
 
     DO I=1, N_FILES
 
-      ncfile_names(I) = trim(filename)//'_'//TRIM(ncfile_names(I))//'.nc'
+      ncfile_names(I) = trim(filename)//'/'//TRIM(ncfile_names(I))//'.nc'
 
       !Clearing file; Opening file. Overwrites
-      open(720+I, FILE=ncfile_names(I), ERR = 100)
+      open(720+I, FILE=ncfile_names(I), iostat = ioi)
+      CALL handle_file_io(ioi, ncfile_names(I), 'Terminating when trying to open netCDF-file, does the CASE and RUN directory exist')
       close(720+I)
+
       ! Added compression for particle.nc, so we need to use netCDF4-file. Here used in classic mode
       ! call handler( nf90_create(ncfile_names(I), NF90_NETCDF4, ncfile_ids(I)) )
       call handler( nf90_create(ncfile_names(I), IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), ncfile_ids(I)) )
@@ -282,10 +284,6 @@ CONTAINS
 
 
   RETURN
-  100 continue
-  print *, "Error in opening NetCDF file: "//filename//""
-  stop
-
 
 END SUBROUTINE OPEN_FILES
 
