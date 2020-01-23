@@ -4,7 +4,7 @@
 # --------------------------------------------------
 
 &NML_PATH
- CASE_DIR = 'input'
+ INOUT_DIR = 'input'
  CASE_NAME = ''
  RUN_NAME = ''
 /

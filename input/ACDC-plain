@@ -1,15 +1,15 @@
 #--------------------------------------------------
-#      Superbox setting file: file name
+#      Superbox setting file: input/ACDC-plain
 #--------------------------------------------------
 
 &NML_PATH
- CASE_DIR = 'input'
- CASE_NAME = 'TESTING'
- RUN_NAME = 'simple_run'
+ INOUT_DIR = 'INOUT'
+ CASE_NAME = 'BASE'
+ RUN_NAME = 'RUN_0'
 / 
 
 &NML_FLAG
- CHEMISTRY_FLAG = .FALSE.
+ CHEMISTRY_FLAG = .TRUE.
  AEROSOL_FLAG = .FALSE.
  ACDC_SOLVE_SS = .TRUE.
  NUCLEATION = T
@@ -20,6 +20,7 @@
  COAGULATION = .TRUE.
  MODEL_H2SO4 = .FALSE.
  RESOLVE_BASE = .FALSE.
+ PRINT_ACDC = .FALSE.
 / 
 
 &NML_TIME
@@ -28,17 +29,19 @@
  FSAVE_INTERVAL = 300
  PRINT_INTERVAL = 600
  FSAVE_DIVISION = 0
+ DATE = '2019-04-01'
+ INDEX = ''
 / 
 
 &NML_PARTICLE
- PSD_MODE = 1
+ PSD_MODE = 0
  N_BINS_PARTICLE = 50
  MIN_PARTICLE_DIAM = 1e-10
  MAX_PARTICLE_DIAM = 1e-5
  DMPS_DIR = '0'
  EXTRA_P_DIR = ''
- DMPS_FILE = ''
- EXTRA_PARTICLES = ''
+ DMPS_FILE = 'input/part.dat'
+ EXTRA_PARTICLES = 'input/xtra.dat'
  DMPS_READ_IN_TIME = 1.41
  DMPS_HIGHBAND_LOWER_LIMIT = 1e-8
  DMPS_LOWBAND_UPPER_LIMIT = 
@@ -47,14 +50,14 @@
 / 
 
 &NML_ENV
- ENV_PATH = 'input'
- ENV_FILE = ''
+ ENV_PATH = ''
+ ENV_FILE = 'input/env.dat'
  TEMPUNIT = 'C'
 / 
 
 &NML_MCM
- MCM_PATH = 'input'
- MCM_FILE = ''
+ MCM_PATH = ''
+ MCM_FILE = 'input/mcm.dat'
 / 
 
 &NML_MODS
@@ -72,7 +75,7 @@
  LON = 7.0
  WAIT_FOR = -1
  PYTHON = .FALSE.
- DESCRIPTION = 'ACDC'
+ DESCRIPTION = ''
  CH_ALBEDO = 0.5
  DMA_F = 0.0
  RESOLVE_BASE_PRECISION = 0.05

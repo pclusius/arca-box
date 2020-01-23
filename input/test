@@ -2,7 +2,7 @@
 ####### PATH settings ############
 &NML_path
 Work_Dir    =
-Case_Dir    = 'input'
+INOUT_DIR    = 'input'
 Case_name   = 'TESTING'
 RUN_NAME    = 'simple_run'
 /

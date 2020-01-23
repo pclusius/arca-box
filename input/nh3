@@ -2,7 +2,7 @@
 
 &NML_path
  Work_Dir    =
- Case_Dir    =  'input'
+ INOUT_DIR    =  'input'
  Case_name   =  'Hyde'
  !RUN_NAME    =  'dmaSensi'
 ! RUN_NAME = '180403_low_nh3'
