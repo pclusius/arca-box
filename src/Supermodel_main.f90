@@ -285,8 +285,8 @@ PROGRAM Supermodel
             MODELTIME = ADD(MODELTIME)
           ! =================================================================================================
 
-          WRITE(101,*) current_PSD%conc_fs
-          WRITE(104,*) time
+          if (MODELTIME%savenow) WRITE(101,*) current_PSD%conc_fs
+          if (MODELTIME%savenow) WRITE(104,*) time
           ! write(*,*) sum(current_PSD%conc_fs)
           ! WRITE(*,*) SUM(mix_PSD%volume_fs),SUM(current_PSD%volume_fs)
           ! write(*,*) 'time is ', time,'', modeltime%sec,'', modeltime%SIM_TIME_S

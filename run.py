@@ -30,7 +30,7 @@ units = {
 }
 exe_name = 'superbox.exe'
 ## Read model names--------------------------------------------
-path_to_names = 'src/NAMES.dat'
+path_to_names = 'ModelLib/NAMES.dat'
 NAMES = []
 namesPyInds = {}
 namesFoInds = {}
@@ -1294,11 +1294,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     def filterListOfComp(self):
         text = self.findComp.text().upper()
         strict = False
-        if text == '':
-            return
-        if text[0] == '.':
-            text = text[1:]
-            strict = True
+        if text != '':
+            if text[0] == '.':
+                text = text[1:]
+                strict = True
         self.availableVars.clear()
         if text == '':
             self.availableVars.addItems(self.hnames)

@@ -8,6 +8,8 @@ USE Aerosol_auxillaries
 
 Implicit none
 
+! Relative path to NAMES.DAT
+CHARACTER(18), PARAMETER :: NAMESDAT = 'ModelLib/NAMES.dat'
 ! public :: vapours, ambient
 INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
 INTEGER :: LENV   ! This will store the number of named indices in this code
@@ -86,7 +88,7 @@ NAMELIST /NML_MODS/ MODS
 
 ! ----------------------------------------------------------------------------------------------------------------------
 ! Particle related variables
-INTEGER             :: PSD_MODE = 1
+INTEGER             :: PSD_MODE = 0
 ! PSD representation used
 ! 0 = Lukas basic
 ! 1 = Lukas advanced
@@ -149,10 +151,10 @@ CHARACTER(100)   :: Solver = ''
 NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
 
 Logical  :: VAP_logical = .False.
-Logical  :: Use_atoms = .False.
+Logical  :: Use_atoms = .True.
 character(len=256)  :: Vap_names
 character(len=256)  :: Vap_props
-character(len=256)  :: Vap_atoms
+character(len=256)  :: Vap_atoms = 'input/O_C.dat'
 NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_props, Vap_atoms
 
 type(vapour_ambient)  :: vapours
@@ -178,9 +180,9 @@ subroutine READ_INPUT_DATA()
   print'(a,t35,a)', achar(10),  '--~:| HLS-BOX v.0.1 |:~--'//achar(10)
 
   ! CHECK HOW MANY POSSIBLE INPUT VARIABLES (METEOROLOGICAL, MCM ETC.) THERE ARE IN THE MODEL
-  OPEN(2151, file='src/NAMES.dat', ACTION='READ', status='OLD', iostat=ioi)
+  OPEN(2151, file=NAMESDAT, ACTION='READ', status='OLD', iostat=ioi)
   IF (ioi /= 0) THEN
-    print FMT_FAT0, 'Could not open NAMES.DAT. This is a mandatory file and should be in src/ directory.'
+    print FMT_FAT0, 'Could not open NAMES.dat. This should be in directory defined in NAMESDAT: '//NAMESDAT
     STOP
   END IF
   N_VARS = rowcount(2151)
@@ -607,7 +609,7 @@ end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_MODELTIME
 subroutine NAME_MODS_SORT_NAMED_INDICES
   implicit none
   INTEGER :: i
-  OPEN(2151, file='src/NAMES.dat', ACTION='READ', status='OLD')
+  OPEN(2151, file=NAMESDAT, ACTION='READ', status='OLD')
   DO i = 1,N_VARS
     READ(2151, *) MODS(I)%NAME
     IF (TRIM(MODS(I)%NAME) == 'TEMPK'        ) inm_TempK = i
