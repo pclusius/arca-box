@@ -55,14 +55,13 @@ class INITFILE:
     class _PATH:
         def __init__(self):
             # self.WORK_DIR=0
-            self.CASE_DIR=0
+            self.INOUT_DIR=0
             self.CASE_NAME=0
             self.RUN_NAME=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_PATH%s')"%(cmd, eol))
-            # print(' WORK_DIR = \'%s\''%self.WORK_DIR)%cmd)
-            exec("%s(' CASE_DIR = \\'%s\\'%s')"%(cmd,self.CASE_DIR,eol))
+            exec("%s(' INOUT_DIR = \\'%s\\'%s')"%(cmd,self.INOUT_DIR,eol))
             exec("%s(' CASE_NAME = \\'%s\\'%s')"%(cmd,self.CASE_NAME,eol))
             exec("%s(' RUN_NAME = \\'%s\\'%s')"%(cmd,self.RUN_NAME,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
@@ -80,6 +79,7 @@ class INITFILE:
             self.COAGULATION=0
             self.MODEL_H2SO4=0
             self.RESOLVE_BASE=0
+            self.PRINT_ACDC=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_FLAG%s')"%(cmd, eol))
@@ -94,6 +94,7 @@ class INITFILE:
             exec("%s(' COAGULATION = %s%s')"%(cmd,self.COAGULATION,eol))
             exec("%s(' MODEL_H2SO4 = %s%s')"%(cmd,self.MODEL_H2SO4,eol))
             exec("%s(' RESOLVE_BASE = %s%s')"%(cmd,self.RESOLVE_BASE,eol))
+            exec("%s(' PRINT_ACDC = %s%s')"%(cmd,self.PRINT_ACDC,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _TIME:
@@ -104,6 +105,7 @@ class INITFILE:
             self.PRINT_INTERVAL=0
             self.FSAVE_DIVISION=0
             self.DATE='2000-01-01'
+            self.INDEX=''
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_TIME%s')"%(cmd, eol))
@@ -113,6 +115,7 @@ class INITFILE:
             exec("%s(' PRINT_INTERVAL = %s%s')"%(cmd,self.PRINT_INTERVAL,eol))
             exec("%s(' FSAVE_DIVISION = %s%s')"%(cmd,self.FSAVE_DIVISION,eol))
             exec("%s(' DATE = \\'%s\\'%s')"%(cmd,self.DATE,eol))
+            exec("%s(' INDEX = \\'%s\\'%s')"%(cmd,self.INDEX,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _PARTICLE:
@@ -121,8 +124,8 @@ class INITFILE:
             self.N_BINS_PARTICLE=0
             self.MIN_PARTICLE_DIAM=0
             self.MAX_PARTICLE_DIAM=0
-            self.DMPS_DIR=0
-            self.EXTRA_P_DIR=0
+            # self.DMPS_DIR=0
+            # self.EXTRA_P_DIR=0
             self.DMPS_FILE=0
             self.EXTRA_PARTICLES=0
             self.DMPS_READ_IN_TIME=0
@@ -137,8 +140,8 @@ class INITFILE:
             exec("%s(' N_BINS_PARTICLE = %s%s')"%(cmd,self.N_BINS_PARTICLE,eol))
             exec("%s(' MIN_PARTICLE_DIAM = %s%s')"%(cmd,self.MIN_PARTICLE_DIAM,eol))
             exec("%s(' MAX_PARTICLE_DIAM = %s%s')"%(cmd,self.MAX_PARTICLE_DIAM,eol))
-            exec("%s(' DMPS_DIR = \\'%s\\'%s')"%(cmd,self.DMPS_DIR,eol))
-            exec("%s(' EXTRA_P_DIR = \\'%s\\'%s')"%(cmd,self.EXTRA_P_DIR,eol))
+            # exec("%s(' DMPS_DIR = \\'%s\\'%s')"%(cmd,self.DMPS_DIR,eol))
+            # exec("%s(' EXTRA_P_DIR = \\'%s\\'%s')"%(cmd,self.EXTRA_P_DIR,eol))
             exec("%s(' DMPS_FILE = \\'%s\\'%s')"%(cmd,self.DMPS_FILE,eol))
             exec("%s(' EXTRA_PARTICLES = \\'%s\\'%s')"%(cmd,self.EXTRA_PARTICLES,eol))
             exec("%s(' DMPS_READ_IN_TIME = %s%s')"%(cmd,self.DMPS_READ_IN_TIME,eol))
@@ -150,25 +153,25 @@ class INITFILE:
 
     class _ENV:
         def __init__(self):
-            self.ENV_PATH=0
+            # self.ENV_PATH=0
             self.ENV_FILE=0
             self.TEMPUNIT='C'
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_ENV%s')"%(cmd, eol))
-            exec("%s(' ENV_PATH = \\'%s\\'%s')"%(cmd,self.ENV_PATH,eol))
+            # exec("%s(' ENV_PATH = \\'%s\\'%s')"%(cmd,self.ENV_PATH,eol))
             exec("%s(' ENV_FILE = \\'%s\\'%s')"%(cmd,self.ENV_FILE,eol))
             exec("%s(' TEMPUNIT = \\'%s\\'%s')"%(cmd,self.TEMPUNIT,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _MCM:
         def __init__(self):
-            self.MCM_PATH=0
+            # self.MCM_PATH=0
             self.MCM_FILE=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_MCM%s')"%(cmd, eol))
-            exec("%s(' MCM_PATH = \\'%s\\'%s')"%(cmd,self.MCM_PATH,eol))
+            # exec("%s(' MCM_PATH = \\'%s\\'%s')"%(cmd,self.MCM_PATH,eol))
             exec("%s(' MCM_FILE = \\'%s\\'%s')"%(cmd,self.MCM_FILE,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 

@@ -54,7 +54,7 @@
          <x>700</x>
          <y>10</y>
          <width>241</width>
-         <height>600</height>
+         <height>620</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -69,7 +69,7 @@
           <x>10</x>
           <y>30</y>
           <width>221</width>
-          <height>560</height>
+          <height>580</height>
          </rect>
         </property>
         <property name="verticalScrollBarPolicy">
@@ -261,39 +261,13 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_5">
            <property name="toolTip">
             <string>Used for calculation of correct Julian day</string>
            </property>
            <property name="text">
-            <string>Batch name</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" colspan="2">
-          <widget class="QLineEdit" name="case_name">
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>Group name, output is saved under directory named after this.</string>
+            <string>Case name</string>
            </property>
           </widget>
          </item>
@@ -304,29 +278,6 @@
            </property>
            <property name="text">
             <string>Run name</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" colspan="2">
-          <widget class="QLineEdit" name="run_name">
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>Run name, output is saved under directory named after this, locating in Batch name directory.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="toolTip">
-            <string>Run name, output is saved under directory named after this, locating in Batch name directory.</string>
-           </property>
-           <property name="text">
-            <string>Date</string>
            </property>
           </widget>
          </item>
@@ -349,19 +300,6 @@
             <string>yyyy-MM-dd</string>
            </property>
           </widget>
-         </item>
-         <item row="3" column="3" colspan="2">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>148</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
          <item row="4" column="0">
           <widget class="QLabel" name="label_8">
@@ -410,6 +348,113 @@
            </property>
           </spacer>
          </item>
+         <item row="0" column="2" colspan="3">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="1" colspan="3">
+          <widget class="QLineEdit" name="run_name">
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Run name, output is saved under directory named after this, locating in Batch name directory.</string>
+           </property>
+           <property name="placeholderText">
+            <string>&quot;DEFAULTRUN&quot; if left empty</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="3">
+          <widget class="QLineEdit" name="case_name">
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Group name, output is saved under directory named after this.</string>
+           </property>
+           <property name="placeholderText">
+            <string>&quot;DEFAULTCASE&quot; if left empty</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="4">
+          <widget class="QSpinBox" name="indexEdit">
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QRadioButton" name="indexRadioDate">
+           <property name="text">
+            <string>Date:</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3">
+          <widget class="QRadioButton" name="indexRadioIndex">
+           <property name="text">
+            <string>Index:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <widget class="QToolButton" name="browseCase">
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Browse for existing case directories</string>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="4">
+          <widget class="QToolButton" name="browseRun">
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Browse for existing run directories</string>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </widget>
@@ -419,7 +464,7 @@
          <x>460</x>
          <y>190</y>
          <width>221</width>
-         <height>280</height>
+         <height>270</height>
         </rect>
        </property>
        <property name="font">
@@ -451,7 +496,7 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>30</y>
+          <y>20</y>
           <width>211</width>
           <height>240</height>
          </rect>
@@ -638,9 +683,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>330</y>
+         <y>340</y>
          <width>441</width>
-         <height>280</height>
+         <height>290</height>
         </rect>
        </property>
        <property name="font">
@@ -657,8 +702,8 @@
          <rect>
           <x>10</x>
           <y>20</y>
-          <width>411</width>
-          <height>251</height>
+          <width>413</width>
+          <height>260</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_9">
@@ -672,12 +717,12 @@
          <item row="1" column="0" colspan="2">
           <widget class="QLabel" name="label_46">
            <property name="text">
-            <string>Common input path</string>
+            <string>Common data path</string>
            </property>
           </widget>
          </item>
          <item row="1" column="2">
-          <widget class="QLineEdit" name="case_dir">
+          <widget class="QLineEdit" name="inout_dir">
            <property name="font">
             <font>
              <weight>50</weight>
@@ -685,7 +730,10 @@
             </font>
            </property>
            <property name="text">
-            <string>input</string>
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>&quot;INOUT&quot; if left empty</string>
            </property>
           </widget>
          </item>
@@ -702,44 +750,14 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="2">
-          <widget class="QLabel" name="label_47">
-           <property name="text">
-            <string>Common output path</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLineEdit" name="lineEdit_13">
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="3">
-          <widget class="QToolButton" name="browseCommonOut">
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
+         <item row="3" column="0">
           <widget class="QLabel" name="label_44">
            <property name="text">
             <string>ENV input</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1" colspan="2">
+         <item row="3" column="1" colspan="2">
           <widget class="QLineEdit" name="env_file">
            <property name="font">
             <font>
@@ -749,7 +767,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="3">
+         <item row="3" column="3">
           <widget class="QToolButton" name="browseEnv">
            <property name="font">
             <font>
@@ -762,14 +780,14 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="label_45">
            <property name="text">
             <string>MCM input</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1" colspan="2">
+         <item row="4" column="1" colspan="2">
           <widget class="QLineEdit" name="mcm_file">
            <property name="font">
             <font>
@@ -779,7 +797,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="3">
+         <item row="4" column="3">
           <widget class="QToolButton" name="browseMcm">
            <property name="font">
             <font>
@@ -792,14 +810,14 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="label_49">
            <property name="text">
             <string>BG particles</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="1" colspan="2">
+         <item row="5" column="1" colspan="2">
           <widget class="QLineEdit" name="dmps_file">
            <property name="font">
             <font>
@@ -809,7 +827,7 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="3">
+         <item row="5" column="3">
           <widget class="QToolButton" name="browsePar">
            <property name="font">
             <font>
@@ -822,14 +840,14 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="label_53">
            <property name="text">
             <string>Extra particles</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="1" colspan="2">
+         <item row="6" column="1" colspan="2">
           <widget class="QLineEdit" name="extra_particles">
            <property name="font">
             <font>
@@ -839,7 +857,7 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="3">
+         <item row="6" column="3">
           <widget class="QToolButton" name="browseXtr">
            <property name="font">
             <font>
@@ -852,10 +870,10 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0" colspan="3">
+         <item row="2" column="0" colspan="4">
           <widget class="QLabel" name="label_48">
            <property name="text">
-            <string>Input files (relative to common input path if given)</string>
+            <string>Input files:</string>
            </property>
           </widget>
          </item>
@@ -866,9 +884,9 @@
        <property name="geometry">
         <rect>
          <x>460</x>
-         <y>480</y>
+         <y>460</y>
          <width>220</width>
-         <height>130</height>
+         <height>170</height>
         </rect>
        </property>
        <property name="font">
@@ -978,6 +996,25 @@
           </widget>
          </item>
         </layout>
+       </widget>
+       <widget class="QCheckBox" name="print_acdc">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>130</y>
+          <width>137</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>print clusters</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
       </widget>
      </widget>
@@ -2080,7 +2117,7 @@
        <property name="geometry">
         <rect>
          <x>21</x>
-         <y>91</y>
+         <y>70</y>
          <width>671</width>
          <height>20</height>
         </rect>
@@ -2096,7 +2133,7 @@
        <property name="geometry">
         <rect>
          <x>21</x>
-         <y>117</y>
+         <y>96</y>
          <width>671</width>
          <height>20</height>
         </rect>
@@ -2112,7 +2149,7 @@
        <property name="geometry">
         <rect>
          <x>21</x>
-         <y>143</y>
+         <y>122</y>
          <width>671</width>
          <height>20</height>
         </rect>
@@ -2128,7 +2165,7 @@
        <property name="geometry">
         <rect>
          <x>21</x>
-         <y>169</y>
+         <y>148</y>
          <width>671</width>
          <height>20</height>
         </rect>
@@ -2147,7 +2184,7 @@
        <property name="geometry">
         <rect>
          <x>21</x>
-         <y>195</y>
+         <y>174</y>
          <width>671</width>
          <height>20</height>
         </rect>
@@ -2163,7 +2200,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>400</y>
+         <y>259</y>
          <width>671</width>
          <height>21</height>
         </rect>
@@ -2176,7 +2213,7 @@
        <property name="geometry">
         <rect>
          <x>24</x>
-         <y>430</y>
+         <y>289</y>
          <width>50</width>
          <height>21</height>
         </rect>
@@ -2195,10 +2232,13 @@
        <property name="geometry">
         <rect>
          <x>85</x>
-         <y>430</y>
+         <y>289</y>
          <width>611</width>
          <height>21</height>
         </rect>
+       </property>
+       <property name="toolTip">
+        <string>This option only applies to the use in Terminal and is always -1 for runs inside this GUI.</string>
        </property>
        <property name="text">
         <string>seconds (0=wait indefinitely, negative=don't wait)</string>
@@ -2208,10 +2248,13 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>460</y>
+         <y>319</y>
          <width>671</width>
          <height>20</height>
         </rect>
+       </property>
+       <property name="toolTip">
+        <string>This option only applies to the use in Terminal and is always off for runs inside this GUI.</string>
        </property>
        <property name="text">
         <string>After the run is finished, offer to plot some of the output (with Python)</string>
@@ -2535,7 +2578,7 @@
        <property name="geometry">
         <rect>
          <x>40</x>
-         <y>220</y>
+         <y>199</y>
          <width>651</width>
          <height>50</height>
         </rect>
@@ -2601,7 +2644,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>510</y>
+         <y>349</y>
          <width>420</width>
          <height>30</height>
         </rect>
@@ -2617,7 +2660,7 @@
        <property name="geometry">
         <rect>
          <x>30</x>
-         <y>540</y>
+         <y>379</y>
          <width>470</width>
          <height>60</height>
         </rect>
@@ -2789,6 +2832,191 @@
        <property name="invertedAppearance">
         <bool>false</bool>
        </property>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_11">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>460</y>
+         <width>480</width>
+         <height>130</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="title">
+        <string>Create batch</string>
+       </property>
+       <widget class="QDateEdit" name="batchRangeDayBegin">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>30</y>
+          <width>120</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="date">
+         <date>
+          <year>2020</year>
+          <month>1</month>
+          <day>1</day>
+         </date>
+        </property>
+        <property name="displayFormat">
+         <string>yyyy-MM-dd</string>
+        </property>
+       </widget>
+       <widget class="QDateEdit" name="batchRangeDayEnd">
+        <property name="geometry">
+         <rect>
+          <x>330</x>
+          <y>30</y>
+          <width>120</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="date">
+         <date>
+          <year>2020</year>
+          <month>1</month>
+          <day>5</day>
+         </date>
+        </property>
+        <property name="displayFormat">
+         <string>yyyy-MM-dd</string>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="batchRangeIndBegin">
+        <property name="geometry">
+         <rect>
+          <x>200</x>
+          <y>60</y>
+          <width>120</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>999999</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="batchRangeIndEnd">
+        <property name="geometry">
+         <rect>
+          <x>330</x>
+          <y>60</y>
+          <width>120</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>999999</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="createBashFile">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>95</y>
+          <width>290</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Create bash file</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="batchRangeDay">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>30</y>
+          <width>160</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Range (including):</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="batchRangeInd">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>60</y>
+          <width>160</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Indices (including)</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="saveBatch">
+        <property name="geometry">
+         <rect>
+          <x>199</x>
+          <y>90</y>
+          <width>251</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Preview batchfiles and directories</string>
+        </property>
+       </widget>
       </widget>
      </widget>
      <widget class="QWidget" name="tab_5">
@@ -3305,6 +3533,118 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>runtime</tabstop>
+  <tabstop>case_name</tabstop>
+  <tabstop>run_name</tabstop>
+  <tabstop>dateEdit</tabstop>
+  <tabstop>description</tabstop>
+  <tabstop>inout_dir</tabstop>
+  <tabstop>browseCommonIn</tabstop>
+  <tabstop>env_file</tabstop>
+  <tabstop>browseEnv</tabstop>
+  <tabstop>mcm_file</tabstop>
+  <tabstop>browseMcm</tabstop>
+  <tabstop>dmps_file</tabstop>
+  <tabstop>browsePar</tabstop>
+  <tabstop>extra_particles</tabstop>
+  <tabstop>browseXtr</tabstop>
+  <tabstop>checkBox_che</tabstop>
+  <tabstop>checkBox_acd</tabstop>
+  <tabstop>checkBox_aer</tabstop>
+  <tabstop>n_bins_particle</tabstop>
+  <tabstop>use_dmps</tabstop>
+  <tabstop>psd_mode</tabstop>
+  <tabstop>min_particle_diam</tabstop>
+  <tabstop>max_particle_diam</tabstop>
+  <tabstop>dmps_read_in_time</tabstop>
+  <tabstop>print_interval</tabstop>
+  <tabstop>fsave_interval</tabstop>
+  <tabstop>fsave_division</tabstop>
+  <tabstop>print_acdc</tabstop>
+  <tabstop>names_sel</tabstop>
+  <tabstop>toolButton</tabstop>
+  <tabstop>selected_vars</tabstop>
+  <tabstop>namesdat</tabstop>
+  <tabstop>butMoveToSelVars</tabstop>
+  <tabstop>butRemoveSelVars</tabstop>
+  <tabstop>markAll</tabstop>
+  <tabstop>invertMarks</tabstop>
+  <tabstop>loadFixedChemistry</tabstop>
+  <tabstop>loadFixed</tabstop>
+  <tabstop>fMin</tabstop>
+  <tabstop>fMax</tabstop>
+  <tabstop>fLin</tabstop>
+  <tabstop>fLog</tabstop>
+  <tabstop>resW</tabstop>
+  <tabstop>fWidth</tabstop>
+  <tabstop>resP</tabstop>
+  <tabstop>fPeak</tabstop>
+  <tabstop>resA</tabstop>
+  <tabstop>fFreq</tabstop>
+  <tabstop>resPh</tabstop>
+  <tabstop>fPhase</tabstop>
+  <tabstop>resAm</tabstop>
+  <tabstop>fAmp</tabstop>
+  <tabstop>gain</tabstop>
+  <tabstop>resG</tabstop>
+  <tabstop>plotTo</tabstop>
+  <tabstop>saveParams</tabstop>
+  <tabstop>loadParams</tabstop>
+  <tabstop>monW</tabstop>
+  <tabstop>monP</tabstop>
+  <tabstop>monA</tabstop>
+  <tabstop>monPh</tabstop>
+  <tabstop>monAm</tabstop>
+  <tabstop>dt</tabstop>
+  <tabstop>acdc_solve_ss</tabstop>
+  <tabstop>model_h2so4</tabstop>
+  <tabstop>condensation</tabstop>
+  <tabstop>coagulation</tabstop>
+  <tabstop>use_dmps_special</tabstop>
+  <tabstop>dmps_highband_lower_limit</tabstop>
+  <tabstop>dmps_lowband_upper_limit</tabstop>
+  <tabstop>wait_for</tabstop>
+  <tabstop>python</tabstop>
+  <tabstop>vap_logical</tabstop>
+  <tabstop>vap_names</tabstop>
+  <tabstop>butVapourNames</tabstop>
+  <tabstop>vap_props</tabstop>
+  <tabstop>butVapour</tabstop>
+  <tabstop>batchRangeDay</tabstop>
+  <tabstop>batchRangeDayBegin</tabstop>
+  <tabstop>batchRangeDayEnd</tabstop>
+  <tabstop>batchRangeInd</tabstop>
+  <tabstop>batchRangeIndBegin</tabstop>
+  <tabstop>batchRangeIndEnd</tabstop>
+  <tabstop>createBashFile</tabstop>
+  <tabstop>saveBatch</tabstop>
+  <tabstop>lat</tabstop>
+  <tabstop>lon</tabstop>
+  <tabstop>ch_albedo</tabstop>
+  <tabstop>resolve_base</tabstop>
+  <tabstop>resolve_base_precision</tabstop>
+  <tabstop>fill_formation_with</tabstop>
+  <tabstop>dma_f</tabstop>
+  <tabstop>chemistryModules</tabstop>
+  <tabstop>recompile</tabstop>
+  <tabstop>MonitorWindow</tabstop>
+  <tabstop>startButton</tabstop>
+  <tabstop>stopButton</tabstop>
+  <tabstop>pauseScroll</tabstop>
+  <tabstop>availableVars</tabstop>
+  <tabstop>loadNetcdf</tabstop>
+  <tabstop>fLin_2</tabstop>
+  <tabstop>fLog_2</tabstop>
+  <tabstop>findComp</tabstop>
+  <tabstop>sumSelection</tabstop>
+  <tabstop>printButton</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>loadButton</tabstop>
+  <tabstop>saveDefaults</tabstop>
+  <tabstop>names_sel_2</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
