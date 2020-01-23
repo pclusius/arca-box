@@ -454,7 +454,8 @@ subroutine READ_INPUT_DATA()
   if (Use_atoms) THEN
 
     write(*,FMT_MSG) 'Reading O_C file '// TRIM(Vap_atoms)
-    OPEN(unit=61, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi3)
+    ! OPEN(unit=61, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi3)
+    OPEN(unit=61, File=TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi3)
 
     rowcol_count%rows = ROWCOUNT(61)
     rowcol_count%cols = COLCOUNT(61)
