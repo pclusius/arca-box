@@ -1,10 +1,10 @@
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-from gui import vars, gui5
+from gui import vars, gui5, batchDialog,batch
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique
 from re import sub, finditer
-from os import walk
+from os import walk, mkdir, getcwd
 
 try:
     import netCDF4
@@ -28,7 +28,7 @@ units = {
 'NUC_RATE_IN':['1/cm3 s'],
 'REST':['#/cm3','ppm','ppb','ppt','ppq']
 }
-
+exe_name = 'superbox.exe'
 ## Read model names--------------------------------------------
 path_to_names = 'src/NAMES.dat'
 NAMES = []
@@ -37,6 +37,10 @@ namesFoInds = {}
 default_path = 'gui/defaults'
 tempfile = 'input/tmp_b65d729f784bc8fcfb4beb009ac7a31d'
 ## -----------------------------------------------------------
+
+## get current directory (to render relative paths) ----------
+currentdir   = getcwd()
+currentdir_l = len(currentdir)
 
 ## Create lists and dictionaries related to NAMES-------------
 i = 0
@@ -54,6 +58,20 @@ with open(path_to_names) as f:
 
 ## -----------------------------------------------------------
 nml = vars.INITFILE(NAMES)
+
+class batchW(QtGui.QDialog):
+    def __init__(self, parent = None):
+        super(batchW, self).__init__(parent)
+        self.ui = batchDialog.Ui_batchDialog()
+        self.ui.setupUi(self)
+        self.ui.bDialogbuttonBox.accepted.connect(self.accept)
+        self.ui.bDialogbuttonBox.rejected.connect(self.reject)
+    def settext(self,i,a):
+        if i==0:
+            self.ui.bDialogDirTextEdit.appendPlainText(''.join(a))
+        if i==1:
+            self.ui.bDialogFileTextEdit.appendPlainText(''.join(a))
+
 
 class Comp:
     def __init__(self):
@@ -96,7 +114,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.printButton.clicked.connect(lambda: self.print_values())
         self.saveButton.clicked.connect(lambda: self.save_file())
         self.loadButton.clicked.connect(lambda: self.browse_path(None, 'load'))
-        self.actionSave_2.triggered.connect(self.save_file)
+        self.actionSave_2.triggered.connect(lambda: self.save_file())
         self.actionPrint.triggered.connect(lambda: self.print_values())
         self.actionOpen.triggered.connect(lambda: self.browse_path(None, 'load'))
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
@@ -120,14 +138,20 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.add_new_line('TEMPK', 0)
         self.add_new_line('PRESSURE', 1)
 
-        self.browseCommonIn.clicked.connect(lambda: self.browse_path(self.case_dir, 'dir'))
-        self.browseCommonOut.clicked.connect(lambda: self.browse_path(self.lineEdit_13, 'dir'))
+        self.dateEdit.dateChanged.connect(lambda: self.indexRadioDate.setChecked(True))
+        self.indexEdit.valueChanged.connect(lambda: self.indexRadioIndex.setChecked(True))
+
+        self.browseCase.clicked.connect(lambda: self.browse_path(self.case_name, 'dironly'))
+        self.browseRun.clicked.connect(lambda: self.browse_path(self.run_name, 'dironly'))
+
+        self.browseCommonIn.clicked.connect(lambda: self.browse_path(self.inout_dir, 'dir'))
         self.browseEnv.clicked.connect(lambda: self.browse_path(self.env_file, 'file'))
         self.browseMcm.clicked.connect(lambda: self.browse_path(self.mcm_file, 'file'))
         self.browsePar.clicked.connect(lambda: self.browse_path(self.dmps_file, 'file'))
         self.browseXtr.clicked.connect(lambda: self.browse_path(self.extra_particles, 'file'))
         self.checkBox_aer.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.groupBox_8))
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
+        self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,self.print_acdc))
 
     # -----------------------
     # tab Input variables
@@ -192,6 +216,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.TimerCompile.timeout.connect(self.progress)
         self.compileProgressBar.hide()
         self.running = 0
+        self.saveBatch.clicked.connect(self.batchCaller)
+        self.batchRangeDayBegin.dateChanged.connect(lambda: self.batchRangeDay.setChecked(True))
+        self.batchRangeDayEnd.dateChanged.connect(lambda: self.batchRangeDay.setChecked(True))
+        self.batchRangeIndBegin.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
+        self.batchRangeIndEnd.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
     # -----------------------
     # tab Process Monitor
     # -----------------------
@@ -207,9 +236,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.pollTimer = QtCore.QTimer(self);
         self.Timer.timeout.connect(self.updateOutput)
         self.pollTimer.timeout.connect(self.pollMonitor)
-        self.pauseScroll.clicked.connect(self.checkPauseScroll)
-        self.pauseScrolling = False
-        self.sumSelection.stateChanged.connect(self.selectionMode)
 
     # -----------------------
     # tab Output Graph
@@ -217,37 +243,121 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
         if netcdf:
             self.show_netcdf.hide()
-            self.loadNetcdf.setEnabled(True)
             self.fLog_2.clicked.connect(self.showOutputUpdate)
             self.fLin_2.clicked.connect(self.showOutputUpdate)
             self.findComp.textChanged.connect(self.filterListOfComp)
+            self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
 
         else:
+            self.sumSelection.setEnabled(False)
             self.show_netcdf.show()
-            self.loadNetcdf.setEnabled(False)
             self.fLin_2.setEnabled(False)
             self.fLog_2.setEnabled(False)
             self.findComp.setEnabled(False)
+            self.loadNetcdf.clicked.connect(lambda: self.popup(
+            'Please note:',
+            'To view NetCDF-files you need netCDF4 for Python\nYou can istall it with pip, package manager or similar.'
+            ))
 
         self.plotResultWindow.showGrid(x=True,y=True)
         self.plotResultWindow.setBackground('w')
         pen = pg.mkPen(color=(0,0,0), width=1)
         self.plotResultWindow.getAxis('left').setPen(pen)
         self.plotResultWindow.getAxis('bottom').setPen(pen)
-        self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
+        self.sumSelection.stateChanged.connect(self.selectionMode)
+
+    # -----------------------
+    # Load preferences, or create preferences if not found
+    # -----------------------
         try: self.load_initfile(default_path)
         except: self.save_file(file=default_path, mode='silent')
 
         self.get_available_chemistry()
 
+
+
     # -----------------------
     # Class methods
     # -----------------------
-    def checkPauseScroll(self):
-        if self.pauseScroll.isChecked() == True:
-            self.pauseScrolling = True
+
+    def batchCaller(self):
+        self.update_nml()
+        if self.batchRangeDay.isChecked():
+            b = self.batchRangeDayBegin.text()
+            e = self.batchRangeDayEnd.text()
         else:
-            self.pauseScrolling = False
+            b = self.batchRangeIndBegin.value()
+            e = self.batchRangeIndEnd.value()
+
+        kwargs = {'begin':b,'end':e,'case':nml.PATH.CASE_NAME,'run':nml.PATH.RUN_NAME, 'common_root':nml.PATH.INOUT_DIR}
+        ret = batch.batch(**kwargs)
+        if len(ret) == 6:
+            dirs_to_create, conflicting_names, files_to_create, files_to_overwrite, existing_runs, dates = ret
+        else:
+            self.popup('Error', ret, icon=2)
+            return
+        self.w = batchW()
+        if conflicting_names != []:
+            text = ''.join(['- %s\n' %i for i in conflicting_names])
+            self.popup('File name conflicts',
+            'The following (file)names are already in use:\n\n'+text
+            +'\nPlease resolve the naming conflicts and try again.\n')
+            return
+
+        text = ''.join(['- %s\n' %i for i in dirs_to_create])
+        if existing_runs != []:
+            text = text + '\nPLEASE NOTE: There are some non-empty run directories! Possible output files will be overwritten!\n'
+            text = text+'\n'.join(['- %s' %i for i in existing_runs])
+        self.w.settext(0, text)
+
+        if files_to_overwrite != []:
+            for i,f in enumerate(files_to_create):
+                if f in files_to_overwrite: files_to_create[i] = files_to_create[i]+' (current file will be overwritten)'
+
+        text = ''.join(['- %s\n' %i for i in files_to_create])
+        if self.createBashFile.isChecked():
+            bashfile = '%s/%s_%s_%s-%s.bash'%(kwargs['common_root'],kwargs['case'],kwargs['run'],dates[0],dates[-1])
+            text = text + '\n- ' + bashfile
+            if batch.paths(bashfile) == 1:
+                text = text + ' (current file will be overwritten)'
+        self.w.settext(1, text)
+        response = self.w.exec()
+        if response == 0:
+            return
+
+        dirs_to_create, _, files_to_create, _, _, dates= batch.batch(**kwargs)
+        for path in dirs_to_create:
+            mkdir(path)
+
+        if self.createBashFile.isChecked():
+            bf = open(bashfile, 'w')
+            bf.write('#!/bin/bash\n')
+
+        def pars(var, file):
+            if var != '':
+                return file[:file.rfind('/')+1] + var[max(0,var.rfind('/'))+1:]
+            else:
+                return ''
+
+        for date,file in zip(dates,files_to_create):
+            if self.createBashFile.isChecked():
+                bf.write('./'+exe_name+' '+file+'\n')
+            if self.batchRangeDay.isChecked():
+                nml.TIME.DATE='%s'%(date)
+                nml.TIME.INDEX=''
+            else:
+                nml.TIME.DATE=''
+                nml.TIME.INDEX='%s'%(date)
+            nml.ENV.ENV_FILE = pars(nml.ENV.ENV_FILE, file)
+            nml.MCM.MCM_FILE = pars(nml.MCM.MCM_FILE, file)
+            nml.PARTICLE.DMPS_FILE = pars(nml.PARTICLE.DMPS_FILE, file)
+            nml.PARTICLE.EXTRA_PARTICLES = pars(nml.PARTICLE.EXTRA_PARTICLES, file)
+
+
+            self.print_values(file=file,mode='silent',nobatch=False)
+        if self.createBashFile.isChecked():
+            bf.close()
+        return
 
     def resetSlider(self, slider, pos):
         slider.setProperty("value", pos)
@@ -255,7 +365,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def scales(self):
         rt = self.runtime.value()
-        # rt=24
         scf = 24
         wScale = scf/2/200.0
         pScale = scf*1.1905/200.0
@@ -420,13 +529,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         if ftype != None:
             dialog.setNameFilter(ftype)
 
-        if mode == 'dir': dialog.setFileMode(QtWidgets.QFileDialog.Directory)
-        if mode == 'dir': dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly)
+        if 'dir' in mode:
+            dialog.setFileMode(QtWidgets.QFileDialog.Directory)
+            dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly)
         options = dialog.Options()
         options |= dialog.DontUseNativeDialog
         if mode == 'dir':
             path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
-        # if mode == 'file' or mode == 'load' or mode == 'fixed': path = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
         else:
             dialog.setOption(QtWidgets.QFileDialog.DontUseNativeDialog)
             dialog.setWindowTitle('Choose File')
@@ -435,25 +544,34 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             else: path=''
             # path = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
         if path != '':
+            if path[:currentdir_l] == currentdir:
+                path = path[currentdir_l+1:]
             if mode == 'load':
                 self.load_initfile(path)
             elif mode == 'fixed':
                 self.loadFixedFile(path)
             elif mode == 'plot':
                 self.showOutput(path)
+            elif mode == 'dironly':
+                path = path[path.rfind('/')+1:]
+                target.clear()
+                target.insert(path)
             else:
                 target.clear()
                 target.insert(path)
 
 
-    def save_file(self, file=None, mode=None):
-        self.update_nml()
+    def save_file(self, file=None, mode=None,nobatch=True):
+        if nobatch:
+            self.update_nml()
         if file==None:
             dialog = QtWidgets.QFileDialog()
             options = dialog.Options()
             options |= dialog.DontUseNativeDialog
             file = dialog.getSaveFileName(self, 'Save INITFILE', options=options)[0]
         if file != '':
+            if file[:currentdir_l] == currentdir:
+                file = file[currentdir_l+1:]
             self.print_values(file, mode)
 
 
@@ -536,7 +654,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                     if comp not in vars.mods:
                         self.namesdat.item(namesPyInds[comp]).setSelected(True)
                         count = count +1
-        self.popup('File parsed', 'Selected %d variables'%count)
+        self.popup('File parsed', 'Selected %d variables'%count, icon=1)
 
     def loadFixedFromChemistry(self):
         chemistry = self.chemistryModules.currentText()
@@ -551,9 +669,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                         if comp not in vars.mods:
                             self.namesdat.item(namesPyInds[comp]).setSelected(True)
                             count += 1
-                self.popup('File parsed', 'Selected %d variables'%count)
+                self.popup('File parsed', 'Selected %d variables'%count, icon=1)
         except:
-            self.popup('Error','No \'second_Parameters.f90\' file\nin current chemistry.')
+            self.popup('Error','No \'second_Parameters.f90\' file\nin current chemistry.',icon=2)
         pass
 
     def add_new_line(self, name, unit_ind, cols=[],createNew=True, unt=0):
@@ -634,21 +752,22 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.fsave_interval.setEnabled(True)
 
 
-    def print_values(self, file=None, mode=None):
-        self.update_nml()
+    def print_values(self, file=None, mode=None, nobatch=True):
+        if nobatch:
+            self.update_nml()
         self.prints += 1
         if (file):
             f = open(file, 'w')
             f.write('#'+('-')*50+'\n')
-            f.write('#      Superbox setting file: %s\n'%('file name'))
+            f.write('#      Superbox setting file: %s\n'%(file))
             f.write('#'+('-')*50+'\n\n')
             nml.printall(vars.mods, target='f',f=f)
             f.close()
-            if file == default_path:
-                if not mode=='silent':
-                    self.popup('', 'Defaults saved')
-            elif file != tempfile:
-                self.popup('Saved settings to', file)
+            if not mode=='silent':
+                if file == default_path:
+                    self.popup('', 'Defaults saved', icon=0)
+                elif file != tempfile:
+                    self.popup('Saved settings to', file, icon=0)
         else:
             print(('\n')*10, )
             print('#',('-')*50)
@@ -684,10 +803,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.boxProcess.poll()
         self.toggle_frame(self.frameStop)
         self.toggle_frame(self.frameStart)
+        self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
 
 
     def startBox(self):
         self.closenetcdf()
+        self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+        self.pauseScroll.setChecked(False)
 
         currentWait = self.wait_for.value()
         if self.python.isChecked():
@@ -701,10 +823,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.wait_for.setValue(currentWait)
 
         try:
-            self.boxProcess = Popen(["./superbox.exe", "%s"%tempfile], stdout=PIPE,stderr=STDOUT,stdin=None)
+            self.boxProcess = Popen(["./"+exe_name, "%s"%tempfile], stdout=PIPE,stderr=STDOUT,stdin=None)
             self.MonitorWindow.clear()
             self.Timer.start(10)
-            self.pollTimer.start(1000)
+            self.pollTimer.start(2000)
             self.toggle_frame(self.frameStart)
             self.toggle_frame(self.frameStop)
         except:
@@ -720,7 +842,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     def updateOutput(self):
         fulltext = self.boxProcess.stdout.readline().decode("utf-8")
         self.MonitorWindow.insertPlainText(fulltext)
-        if self.pauseScrolling == False:
+        if self.pauseScroll.isChecked() == False:
             self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
         if 'SIMULATION HAS ENDED' in str(fulltext)[-50:]:
             self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
@@ -737,9 +859,12 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def update_nml(self):
         # class _PATH:
-        nml.PATH.CASE_DIR=self.case_dir.text()
+        nml.PATH.INOUT_DIR=self.inout_dir.text()
+        if nml.PATH.INOUT_DIR == '': nml.PATH.INOUT_DIR = 'INOUT'
         nml.PATH.CASE_NAME=self.case_name.text()
+        if nml.PATH.CASE_NAME == '': nml.PATH.CASE_NAME = 'DEFAULTCASE'
         nml.PATH.RUN_NAME = self.run_name.text()
+        if nml.PATH.RUN_NAME == '': nml.PATH.RUN_NAME = 'DEFAULTRUN'
         # class _FLAG:
         nml.FLAG.CHEMISTRY_FLAG=self.checkbox(self.checkBox_che)
         nml.FLAG.AEROSOL_FLAG=self.checkbox(self.checkBox_aer)
@@ -752,20 +877,26 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.FLAG.COAGULATION=self.checkbox(self.coagulation)
         nml.FLAG.MODEL_H2SO4=self.checkbox(self.model_h2so4)
         nml.FLAG.RESOLVE_BASE=self.checkbox(self.resolve_base)
+        nml.FLAG.PRINT_ACDC=self.checkbox(self.print_acdc)
         # class _TIME:
         nml.TIME.RUNTIME=self.runtime.value()
         nml.TIME.DT=self.dt.value()
         nml.TIME.FSAVE_INTERVAL=self.fsave_interval.value()
         nml.TIME.PRINT_INTERVAL=self.print_interval.value()
         nml.TIME.FSAVE_DIVISION=self.fsave_division.value()
-        nml.TIME.DATE=self.dateEdit.text()
+        if self.indexRadioDate.isChecked():
+            nml.TIME.DATE=self.dateEdit.text()
+            nml.TIME.INDEX=''
+        if self.indexRadioIndex.isChecked():
+            nml.TIME.DATE=''
+            nml.TIME.INDEX='%04d'%self.indexEdit.value()
         # class _PARTICLE:
         nml.PARTICLE.PSD_MODE=self.psd_mode.currentIndex()+1
         nml.PARTICLE.N_BINS_PARTICLE=self.n_bins_particle.value()
         nml.PARTICLE.MIN_PARTICLE_DIAM=self.min_particle_diam.text()
         nml.PARTICLE.MAX_PARTICLE_DIAM=self.max_particle_diam.text()
         # nml.PARTICLE.DMPS_DIR=self.dmps_dir.text()
-        nml.PARTICLE.EXTRA_P_DIR=''
+        # nml.PARTICLE.EXTRA_P_DIR=''
         nml.PARTICLE.DMPS_FILE=self.dmps_file.text()
         nml.PARTICLE.EXTRA_PARTICLES=self.extra_particles.text()
         nml.PARTICLE.DMPS_READ_IN_TIME=self.dmps_read_in_time.value()
@@ -774,10 +905,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.PARTICLE.USE_DMPS=self.checkbox(self.use_dmps)
         nml.PARTICLE.USE_DMPS_SPECIAL=self.checkbox(self.use_dmps_special)
         # class _ENV:
-        nml.ENV.ENV_PATH=self.case_dir.text()
+        # nml.ENV.ENV_PATH=self.inout_dir.text()
         nml.ENV.ENV_FILE=self.env_file.text()
         # class _MCM:
-        nml.MCM.MCM_PATH=self.case_dir.text()
+        # nml.MCM.MCM_PATH=self.inout_dir.text()
         nml.MCM.MCM_FILE=self.mcm_file.text()
         # class _MISC:
         nml.MISC.LAT=self.lat.value()
@@ -898,10 +1029,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             else:
                 continue
 
-            if   'WORK_DIR' == key: self.case_dir.setText(strng)
-            elif 'CASE_DIR' == key: self.case_dir.setText(strng)
-            elif 'CASE_NAME' == key: self.case_name.setText(strng)
-            elif 'RUN_NAME' == key: self.run_name.setText(strng)
+            if   'WORK_DIR' == key: self.inout_dir.setText(strng)
+            elif 'INOUT_DIR' == key and strng != 'INOUT': self.inout_dir.setText(strng)
+            elif 'CASE_NAME' == key and strng != 'DEFAULTCASE': self.case_name.setText(strng)
+            elif 'RUN_NAME' == key and strng != 'DEFAULTRUN': self.run_name.setText(strng)
             elif 'CHEMISTRY_FLAG' == key: self.checkBox_che.setChecked(strng)
             elif 'AEROSOL_FLAG' == key: self.checkBox_aer.setChecked(strng)
             elif 'ACDC_SOLVE_SS' == key: self.acdc_solve_ss.setChecked(strng)
@@ -914,11 +1045,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'MODEL_H2SO4' == key: self.model_h2so4.setChecked(strng)
             elif 'RESOLVE_BASE' == key: self.resolve_base.setChecked(strng)
             elif 'RUNTIME' == key and isFl: self.runtime.setValue(float(strng))
+            elif 'PRINT_ACDC' == key: self.print_acdc.setChecked(strng)
             # elif 'DT' == key: print(strng)#          -1,
             elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(float(strng))
             elif 'PRINT_INTERVAL' == key and isFl: self.print_interval.setValue(float(strng))
             elif 'FSAVE_DIVISION' == key and isFl: self.fsave_division.setValue(float(strng))
             elif 'DATE' == key: self.dateEdit.setDate(parse_date(strng))
+            elif 'INDEX' == key and isFl: self.indexEdit.setValue(int(strng))
             elif 'PSD_MODE' == key and isFl: self.psd_mode.setCurrentIndex(int(strng))
             elif 'N_BINS_PARTICLE' == key and isFl: self.n_bins_particle.setValue(int(strng))
             elif 'MIN_PARTICLE_DIAM' == key: self.min_particle_diam.setText(strng)#   1.0000000000000001E-009,
@@ -932,7 +1065,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'DMPS_LOWBAND_UPPER_LIMIT' == key: self.dmps_lowband_upper_limit.setText(strng)
             elif 'USE_DMPS' == key: self.use_dmps.setChecked(strng)
             elif 'USE_DMPS_SPECIAL' == key: self.use_dmps_special.setChecked(strng)
-            # elif 'ENV_PATH' == key: self.case_dir.setText(strng)
+            # elif 'ENV_PATH' == key: self.inout_dir.setText(strng)
             elif 'ENV_FILE' == key: self.env_file.setText(strng)
             # elif 'TEMPUNIT' == key: print(strng)# "K
             # elif 'MCM_PATH' == key: print(strng)# "
@@ -985,66 +1118,63 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def showOutput(self, file):
-        if netcdf:
-            # First set plot mode to linear in order to avoid errors with zero values
-            self.fLin_2.setChecked(True)
-            self.fLog_2.setChecked(False)
-            self.plotResultWindow.setLogMode(y=False)
-            self.findComp.clear()
-            # Close all previus netcdf-files and clear plot
-            self.closenetcdf()
-            # Try to open netCDF-file
-            try:
-                self.ncs = netCDF4.Dataset(file, 'r')
-            except:
-                self.popup('Bummer...', 'Not a valid output file')
-                return
-
-            # collect all variables and dimensions from netCDF-dataset to hnames
-            self.hnames = [i for i in self.ncs.variables]
-            # self.hnames.sort()
-            dims = [i for i in self.ncs.dimensions]
-
-            # remove string variables (non-numbers and thus not plottable)
-            cache = []
-            for i,v in enumerate(self.hnames):
-                try:
-                    int(self.ncs.variables[v][0])
-                    cache.append(v)
-                except TypeError:
-                    pass
-            # remove constants
-            self.hnames = []
-            for i,v in enumerate(cache):
-                if (len(shape(self.ncs.variables[v][:])) >1):
-                    self.hnames.append(v)
-                # Shifter ands multiplyers are left off for clarity
-                if not 'Shifter' in v and not 'Multipl' in v:
-                    self.hnames.append(v)
-            # Now try plot first the third line, which is the first non-time variable
-            try:
-                self.outplot = self.plotResultWindow.plot(
-                self.ncs.variables[self.hnames[0]][:]/3600,
-                self.ncs.variables[self.hnames[2]][:],
-                pen={'color':'b','width': 2.0}
-                )
-                self.availableVars.clear()
-                self.availableVars.addItems(self.hnames)
-                self.availableVars.item(2).setSelected(True)
-                self.availableVars.itemSelectionChanged.connect(self.showOutputUpdate)
-
-            # If fails, give information and return
-            except:
-                self.popup('Bummer...', "Output file does not contain any plottable data")
-                return
-
-            # All's well, decorate plot
-            self.plotResultWindow.setLabel('bottom', 'Time', units='h')
-            self.plotResultWindow.setTitle(self.hnames[2]+' '+units.get(self.hnames[2],units['REST'])[0])
-
-        # if netCDF is not installed, return and do nothing
-        else:
+        # First set plot mode to linear in order to avoid errors with zero values
+        self.fLin_2.setChecked(True)
+        self.fLog_2.setChecked(False)
+        self.plotResultWindow.setLogMode(y=False)
+        self.findComp.clear()
+        # Close all previus netcdf-files and clear plot
+        self.closenetcdf()
+        # Try to open netCDF-file
+        try:
+            self.ncs = netCDF4.Dataset(file, 'r')
+        except:
+            self.popup('Bummer...', 'Not a valid output file',icon=3)
             return
+
+        # collect all variables and dimensions from netCDF-dataset to hnames
+        self.hnames = [i for i in self.ncs.variables]
+        # self.hnames.sort()
+        dims = [i for i in self.ncs.dimensions]
+
+        # remove string variables (non-numbers and thus not plottable)
+        cache = []
+        for i,v in enumerate(self.hnames):
+            try:
+                int(self.ncs.variables[v][0])
+                cache.append(v)
+            except:
+                pass
+        # remove constants
+        self.hnames = []
+        for i,v in enumerate(cache):
+            if (len(shape(self.ncs.variables[v][:])) >1):
+                self.hnames.append(v)
+            # Shifter ands multiplyers are left off for clarity
+            if not 'Shifter' in v and not 'Multipl' in v:
+                self.hnames.append(v)
+        # Now try plot first the third line, which is the first non-time variable
+        try:
+            self.outplot = self.plotResultWindow.plot(
+            self.ncs.variables[self.hnames[0]][:]/3600,
+            self.ncs.variables[self.hnames[2]][:],
+            pen={'color':'b','width': 2.0}
+            )
+            self.availableVars.clear()
+            self.availableVars.addItems(self.hnames)
+            self.availableVars.item(2).setSelected(True)
+            self.availableVars.itemSelectionChanged.connect(self.showOutputUpdate)
+
+        # If fails, give information and return
+        except:
+            self.popup('Bummer...', "Output file does not contain any plottable data",icon=3)
+            return
+
+        # All's well, decorate plot
+        self.plotResultWindow.setLabel('bottom', 'Time', units='h')
+        self.plotResultWindow.setTitle(self.hnames[2]+' '+units.get(self.hnames[2],units['REST'])[0])
+
+
 
     def selectionMode(self):
         if self.sumSelection.isChecked():
@@ -1101,9 +1231,15 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.plotResultWindow.setTitle(title)
 
 
-    def popup(self,title,message):
+    ## Popup message function -icon sets the icon:----------------------------------------------------------------------
+    # QMessageBox::NoIcon      0   the message box does not have any icon.
+    #              Question	   4   an icon indicating that the message is asking a question.
+    #              Information 1   an icon indicating that the message is nothing out of the ordinary.
+    #              Warning     2   an icon indicating that the message is a warning, but can be dealt with.
+    #              Critical    3   an icon indicating that the message represents a critical problem.
+    def popup(self,title,message,icon=2):
         msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Warning)
+        msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(message)
         retval = msg.exec_()
@@ -1136,9 +1272,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.TimerCompile.stop()
             self.compileProgressBar.hide()
             if self.running == 0:
-                self.popup('', 'Compiled succesfully')
+                self.popup('', 'Compiled succesfully', icon=0)
             else:
-                self.popup('', 'Error in compiling, see output from terminal')
+                self.popup('', 'Error in compiling, see output from terminal', icon=2)
 
 
     def remake(self):
