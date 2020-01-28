@@ -7,7 +7,7 @@ F90 = gfortran
 #OBJDIR = src#/build
  OBJDIR  = build
  SRCDIR  = src
- CHMDIR  = Hyde
+ CHMDIR = SkeletonChem
  AERDIR  = Aerosol
 # When compiling, search for files in these directories:
 VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31:Aerosol
@@ -30,7 +30,7 @@ CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Parameters.o se
                second_LinearAlgebra.o second_Jacobian.o second_Global.o second_Rates.o second_Integrator.o second_Function.o \
                second_Model.o second_Main.o)
 
-BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o solve_bases.o Chemistry.o output.o PSD.o aerosol_dynamics.o)
+BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o solve_bases.o Chemistry.o PSD.o aerosol_dynamics.o output.o)
 
 PSD_OBJECTS = $(addprefix $(OBJDIR)/, constants.o Aerosol_auxillaries.o input.o Chemistry.o)
 

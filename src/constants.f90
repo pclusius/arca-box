@@ -79,7 +79,7 @@ type timetype
   integer       :: ind_netcdf     = 1
   integer       :: JD             = 0
   character(8)  :: hms            = "00:00:00"
-  logical       :: printnow       = .false.
+  logical       :: printnow       = .true.
   logical       :: savenow        = .true.
   logical       :: PRINTACDC      = .false.
 end type timetype

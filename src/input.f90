@@ -10,7 +10,7 @@ Implicit none
 
 ! Relative path to NAMES.DAT
 CHARACTER(18), PARAMETER :: NAMESDAT = 'ModelLib/NAMES.dat'
-! public :: vapours, ambient
+
 INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
 INTEGER :: LENV   ! This will store the number of named indices in this code
 
@@ -48,7 +48,7 @@ REAL(dp), allocatable :: CONC_MAT(:,:)  ! will be of shape ( len(timevec) : N_VA
 real(dp), allocatable :: par_data(:,:)
 
 ! variable for storing init file name
-character(len=256), private :: Fname_init ! init file names
+character(len=256) :: Fname_init ! init file names
 
 ! MAIN PATHS
 character(len=256):: WORK_DIR   = ''
@@ -518,7 +518,7 @@ subroutine READ_INIT_FILE
   OPEN(UNIT=50, FILE=TRIM(ADJUSTL(Fname_init)), STATUS='OLD', ACTION='READ', iostat=IOS(1))
   ! Handle file not found error
   IF (IOS(1) /= 0) THEN
-    write(*,FMT_FAT0) 'No INITFILE called '//TRIM(ADJUSTL(Fname_init))//', exiting. Good bye.'
+    write(*,FMT_FAT0) 'There is no INITFILE '//TRIM(ADJUSTL(Fname_init))//', exiting. Good bye.'
     write(*,FMT_LEND)
     STOP
   END IF
@@ -526,31 +526,31 @@ subroutine READ_INIT_FILE
   ! if INITFILE was found, we read it. In case there is a problem in namelist filling, give en error.
   write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM: '//TRIM(ADJUSTL(Fname_init))
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_TIME, IOSTAT=IOS(i))
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_TIME, IOSTAT=IOS(i)) ! #1
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_Flag, IOSTAT=IOS(i))
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_Flag, IOSTAT=IOS(i)) ! #2
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_Path, IOSTAT=IOS(i))
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_Path, IOSTAT=IOS(i)) ! #3
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_MISC, IOSTAT=IOS(i))
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_MISC, IOSTAT=IOS(i)) ! #4
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_VAP, IOSTAT=IOS(i))
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_VAP, IOSTAT=IOS(i)) ! #5
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_PARTICLE, IOSTAT=IOS(i))
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_PARTICLE, IOSTAT=IOS(i)) ! #6
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_ENV, IOSTAT=IOS(i))
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_ENV, IOSTAT=IOS(i)) ! #7
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_MCM, IOSTAT=IOS(i))
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_MCM, IOSTAT=IOS(i)) ! #8
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_MODS, IOSTAT=IOS(i))
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_MODS, IOSTAT=IOS(i)) ! #9
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
   CLOSE(50)
@@ -642,7 +642,7 @@ subroutine REPORT_INPUT_COLUMNS_TO_USER
   character(4) :: buffer
   DO i=1,N_VARS
     IF (I==1) print FMT_MSG, 'ENV values from '//TRIM(ENV_file)//':'
-    IF ((I==LENV) .and. (maxval(MODS(LENV:)%col)>-1)) print FMT_MSG, 'MCM values from '//TRIM(ENV_file)//':'
+    IF ((I==LENV) .and. (maxval(MODS(LENV:)%col)>-1)) print FMT_MSG, 'MCM values from '//TRIM(MCM_file)//':'
 
     IF (MODS(I)%col > -1) THEN
       write(buffer, '(i0)') MODS(I)%col
@@ -795,16 +795,10 @@ SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
 
   buf = UCASE(TRIM(MODS(inm_pres)%UNIT))
   if (TRIM(buf) == 'HPA' .or. TRIM(buf) == 'MBAR') THEN
-      ! CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 100d0
-      ! MODS(inm_pres)%shift = MODS(inm_pres)%shift *100d0
       print FMT_MSG, '- Converting pressure from hPa (mbar) to Pascals.'
     elseif (TRIM(buf) == 'KPA') THEN
-      ! CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1000d0
-      ! MODS(inm_pres)%shift = MODS(inm_pres)%shift *1000d0
       print FMT_MSG, '- Converting pressure from kPa to Pascals.'
     elseif (TRIM(buf) == 'ATM') THEN
-      ! CONC_MAT(:,inm_pres) = CONC_MAT(:,inm_pres) * 1.01325d5
-      ! MODS(inm_pres)%shift = MODS(inm_pres)%shift * 1.01325d5
       print FMT_MSG, '- Converting pressure from atm to Pascals.'
     elseif (TRIM(buf) == 'PA') THEN
       print FMT_MSG, '- Pressure is given in Pascals.'

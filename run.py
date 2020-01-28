@@ -1,10 +1,12 @@
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-from gui import vars, gui5, batchDialog,batch
+from ModelLib.gui import vars, gui5, batchDialog,batch
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique
 from re import sub, finditer
 from os import walk, mkdir, getcwd
+from os.path import exists
+from re import sub,IGNORECASE
 
 try:
     import netCDF4
@@ -13,6 +15,7 @@ except:
     netcdf = False
 
 ## Some constants --------------------------------------------
+# widths of the columns in "Input variables" tab
 column_widths = [140,70,70,70,70,90,50,3]
 
 # available units for variables
@@ -29,14 +32,21 @@ units = {
 'REST':['#/cm3','ppm','ppb','ppt','ppq']
 }
 exe_name = 'superbox.exe'
-## Read model names--------------------------------------------
+# Path to variable names--------------------------------------------
 path_to_names = 'ModelLib/NAMES.dat'
+# GUI defaults are saved into this file. If it doesn't exist, it gets created in first start
+defaults_file_path = 'ModelLib/gui/defaults'
+
+default_inout = 'INOUT'
+default_case = 'DEFAULTCASE'.upper()
+default_run  = 'DEFAULTRUN'.upper()
+tempfile = '.GUI.tmp'
+modellogo = "ModelLib/gui/S_logo.png"
+
+## -----------------------------------------------------------
 NAMES = []
 namesPyInds = {}
 namesFoInds = {}
-default_path = 'gui/defaults'
-tempfile = 'input/tmp_b65d729f784bc8fcfb4beb009ac7a31d'
-## -----------------------------------------------------------
 
 ## get current directory (to render relative paths) ----------
 currentdir   = getcwd()
@@ -108,18 +118,25 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # Common stuff
     # -----------------------
         self.setWindowTitle('Superbox utility')
+        self.inout_dir.setPlaceholderText("\""+default_inout+"\" if left empty")
+        self.case_name.setPlaceholderText("\""+default_case+"\" if left empty")
+        self.run_name.setPlaceholderText("\""+default_run+"\" if left empty")
+        self.currentInitFileToSave = ''
         self.prints = 1
         self.plots  = 0
         self.show_extra_plots = ''
         self.printButton.clicked.connect(lambda: self.print_values())
         self.saveButton.clicked.connect(lambda: self.save_file())
+        self.saveCurrentButton.clicked.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='silent'))
+        self.actionSave_to_current.triggered.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='silent'))
+        self.actionCreate_output_directories.triggered.connect(self.createCaseFolders)
         self.loadButton.clicked.connect(lambda: self.browse_path(None, 'load'))
         self.actionSave_2.triggered.connect(lambda: self.save_file())
         self.actionPrint.triggered.connect(lambda: self.print_values())
         self.actionOpen.triggered.connect(lambda: self.browse_path(None, 'load'))
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
-        self.saveDefaults.clicked.connect(lambda: self.save_file(file=default_path))
-
+        self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
+        self.label_10.setPixmap(QtGui.QPixmap(modellogo))
     # -----------------------
     # tab General options
     # -----------------------
@@ -153,6 +170,23 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
         self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,self.print_acdc))
 
+        self.dateEdit.dateChanged.connect(self.updatePath)
+        self.indexEdit.valueChanged.connect(self.updatePath)
+        self.case_name.textChanged.connect(self.updatePath)
+        self.run_name.textChanged.connect(self.updatePath)
+        self.inout_dir.textChanged.connect(self.updatePath)
+        self.indexRadioDate.toggled.connect(self.updatePath)
+
+        self.dateEdit.dateChanged.connect(self.updateEnvPath)
+        self.indexEdit.valueChanged.connect(self.updateEnvPath)
+        self.indexRadioDate.toggled.connect(self.updateEnvPath)
+        self.env_file.textChanged.connect(self.updateEnvPath)
+        self.mcm_file.textChanged.connect(self.updateEnvPath)
+        self.dmps_file.textChanged.connect(self.updateEnvPath)
+        self.extra_particles.textChanged.connect(self.updateEnvPath)
+        self.saveCurrentButton.setEnabled(False)
+        self.actionSave_to_current.setEnabled(False)
+        self.currentInitFile.setText('None loaded/saved')
     # -----------------------
     # tab Input variables
     # -----------------------
@@ -208,7 +242,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.frameBase.setEnabled(False)
         self.butVapourNames.clicked.connect(lambda: self.browse_path(self.vap_names, 'file'))
         self.butVapour.clicked.connect(lambda: self.browse_path(self.vap_props, 'file'))
+        self.butVapourAtoms.clicked.connect(lambda: self.browse_path(self.vap_atoms, 'file'))
         self.vap_logical.stateChanged.connect(lambda: self.grayIfNotChecked(self.vap_logical,self.frameVap))
+        self.use_atoms.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_atoms,self.frameAtoms))
         self.resolve_base.stateChanged.connect(lambda: self.grayIfNotChecked(self.resolve_base,self.frameBase))
         self.use_dmps_special.stateChanged.connect(lambda: self.toggle_gray(self.use_dmps_special,self.gridLayout_11))
         self.recompile.clicked.connect(self.remake)
@@ -269,30 +305,56 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Load preferences, or create preferences if not found
     # -----------------------
-        try: self.load_initfile(default_path)
-        except: self.save_file(file=default_path, mode='silent')
+        try: self.load_initfile(defaults_file_path)
+        except: self.save_file(file=defaults_file_path, mode='silent')
 
         self.get_available_chemistry()
-
-
+        self.updateEnvPath()
 
     # -----------------------
     # Class methods
     # -----------------------
 
+
+    def show_currentInit(self,file):
+        self.saveCurrentButton.setEnabled(True)
+        self.actionSave_to_current.setEnabled(True)
+        self.currentInitFile.setText(file)
+        self.currentInitFileToSave = file
+
+    def updateEnvPath(self):
+        self.update_nml()
+        self.env_file.setToolTip('Location: "'+nml.ENV.ENV_FILE+'"')
+        self.mcm_file.setToolTip('Location: "'+nml.MCM.MCM_FILE+'"')
+        self.dmps_file.setToolTip('Location: "'+nml.PARTICLE.DMPS_FILE+'"')
+        self.extra_particles.setToolTip('Location: "'+nml.PARTICLE.EXTRA_PARTICLES+'"')
+
+
+    def updatePath(self):
+        self.update_nml()
+        if self.indexRadioDate.isChecked():
+            r = [self.dateEdit.text()]*2
+        else:
+            r = [self.indexEdit.value()]*2
+        kwargs = {'begin':r[0],'end':r[1],'case':nml.PATH.CASE_NAME,'run':nml.PATH.RUN_NAME, 'common_root':nml.PATH.INOUT_DIR}
+        casedir = batch.batch(**kwargs)
+        if len(casedir) == 7:
+            self.currentAddress.setText(casedir[-1]+'/')
+        else:
+            self.currentAddress.setText(casedir)
+
+
     def batchCaller(self):
         self.update_nml()
         if self.batchRangeDay.isChecked():
-            b = self.batchRangeDayBegin.text()
-            e = self.batchRangeDayEnd.text()
+            r = self.batchRangeDayBegin.text(),self.batchRangeDayEnd.text()
         else:
-            b = self.batchRangeIndBegin.value()
-            e = self.batchRangeIndEnd.value()
+            r = self.batchRangeIndBegin.value(),self.batchRangeIndEnd.value()
 
-        kwargs = {'begin':b,'end':e,'case':nml.PATH.CASE_NAME,'run':nml.PATH.RUN_NAME, 'common_root':nml.PATH.INOUT_DIR}
+        kwargs = {'begin':r[0],'end':r[1],'case':nml.PATH.CASE_NAME,'run':nml.PATH.RUN_NAME, 'common_root':nml.PATH.INOUT_DIR}
         ret = batch.batch(**kwargs)
-        if len(ret) == 6:
-            dirs_to_create, conflicting_names, files_to_create, files_to_overwrite, existing_runs, dates = ret
+        if len(ret) == 7:
+            dirs_to_create, conflicting_names, files_to_create, files_to_overwrite, existing_runs, dates,_ = ret
         else:
             self.popup('Error', ret, icon=2)
             return
@@ -325,7 +387,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         if response == 0:
             return
 
-        dirs_to_create, _, files_to_create, _, _, dates= batch.batch(**kwargs)
+        dirs_to_create, _, files_to_create, _, _, dates,_= batch.batch(**kwargs)
         for path in dirs_to_create:
             mkdir(path)
 
@@ -333,13 +395,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             bf = open(bashfile, 'w')
             bf.write('#!/bin/bash\n')
 
-        def pars(var, file):
-            if var != '':
-                return file[:file.rfind('/')+1] + var[max(0,var.rfind('/'))+1:]
-            else:
-                return ''
 
         for date,file in zip(dates,files_to_create):
+            self.index_for_parser = date
             if self.createBashFile.isChecked():
                 bf.write('./'+exe_name+' '+file+'\n')
             if self.batchRangeDay.isChecked():
@@ -348,16 +406,31 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             else:
                 nml.TIME.DATE=''
                 nml.TIME.INDEX='%s'%(date)
-            nml.ENV.ENV_FILE = pars(nml.ENV.ENV_FILE, file)
-            nml.MCM.MCM_FILE = pars(nml.MCM.MCM_FILE, file)
-            nml.PARTICLE.DMPS_FILE = pars(nml.PARTICLE.DMPS_FILE, file)
-            nml.PARTICLE.EXTRA_PARTICLES = pars(nml.PARTICLE.EXTRA_PARTICLES, file)
 
+            nml.ENV.ENV_FILE = self.pars(self.env_file.text(), file, self.stripRoot_env.isChecked())
+            nml.MCM.MCM_FILE = self.pars(self.mcm_file.text(), file, self.stripRoot_mcm.isChecked())
+            nml.PARTICLE.DMPS_FILE = self.pars(self.dmps_file.text(), file, self.stripRoot_par.isChecked())
+            nml.PARTICLE.EXTRA_PARTICLES = self.pars(self.extra_particles.text(), file, self.stripRoot_xtr.isChecked())
 
             self.print_values(file=file,mode='silent',nobatch=False)
+
         if self.createBashFile.isChecked():
             bf.close()
         return
+
+    def taghandler(self, tag):
+        return (batch.tagparser(tag.group(0), self.index_for_parser))
+
+    def pars(self, var, file=None, stripRoot=True):
+        if var != '':
+            if '>' in var and '<' in var:
+                var = sub('<[iydm]*>', self.taghandler, var, flags=IGNORECASE)
+            # else:
+            if stripRoot:
+                return file[:file.rfind('/')+1] + var[var.rfind('/')+1:]
+            return var
+        else:
+            return ''
 
     def resetSlider(self, slider, pos):
         slider.setProperty("value", pos)
@@ -522,6 +595,22 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                     self.PLOT.setLogMode(y=True)
                     return 'log'
 
+    def createCaseFolders(self):
+        cd = ''
+        created = ''
+        relpath = self.currentAddress.text().split('/')
+        for i,p in enumerate(relpath):
+            if 'Common root does not exist' in p:
+                self.popup('Error', 'Common root does not exist. Change "Common out" or create the necessary path: "'+self.inout_dir.text()+'"', icon=2)
+                return
+            if i>0:
+                cd = '/'.join(relpath[:i])
+                if cd != '' and not exists(cd):
+                    mkdir(cd)
+                    created = created  + cd +'\n'
+        if created == '': created = 'No new directories created (all necessary directories existed already).'
+        self.popup('Created directories', created, icon=1)
+        return
 
     def browse_path(self, target, mode, ftype=None):
         """Browse for file or folder (depending on 'mode' and write the outcome to 'target')"""
@@ -538,6 +627,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
         else:
             dialog.setOption(QtWidgets.QFileDialog.DontUseNativeDialog)
+            if mode == 'plot' and exists(self.currentAddress.text()):
+                dialog.setDirectory(self.currentAddress.text())
             dialog.setWindowTitle('Choose File')
             if dialog.exec() == 1:
                 path = dialog.selectedFiles()[0]
@@ -548,6 +639,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 path = path[currentdir_l+1:]
             if mode == 'load':
                 self.load_initfile(path)
+                self.show_currentInit(path)
             elif mode == 'fixed':
                 self.loadFixedFile(path)
             elif mode == 'plot':
@@ -573,6 +665,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             if file[:currentdir_l] == currentdir:
                 file = file[currentdir_l+1:]
             self.print_values(file, mode)
+            if file != defaults_file_path:
+                self.show_currentInit(file)
 
 
     def markReverseSelection(self, op):
@@ -764,7 +858,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             nml.printall(vars.mods, target='f',f=f)
             f.close()
             if not mode=='silent':
-                if file == default_path:
+                if file == defaults_file_path:
                     self.popup('', 'Defaults saved', icon=0)
                 elif file != tempfile:
                     self.popup('Saved settings to', file, icon=0)
@@ -817,7 +911,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.python.setChecked(False)
         else:
             currentPython = False
-        self.wait_for.setValue(-1)
+        self.wait_for.setValue(0)
         self.print_values(tempfile)
         self.python.setChecked(currentPython)
         self.wait_for.setValue(currentWait)
@@ -850,7 +944,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.stopBox()
 
 
-    def checkbox(self, widget):
+    def checkboxToFOR(self, widget):
         if widget.isChecked() == True:
             return '.TRUE.'
         else:
@@ -859,25 +953,47 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def update_nml(self):
         # class _PATH:
+        nml.SETTINGS.BATCH = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:"%s' %(
+        'batchRangeDayBegin', self.batchRangeDayBegin.text(),
+        'batchRangeDayEnd', self.batchRangeDayEnd.text(),
+        'batchRangeIndBegin', self.batchRangeIndBegin.text(),
+        'batchRangeIndEnd', self.batchRangeIndEnd.text(),
+
+        'createBashFile', self.checkboxToFOR(self.createBashFile),
+        'batchRangeDay', self.checkboxToFOR(self.batchRangeDay),
+        'batchRangeInd', self.checkboxToFOR(self.batchRangeInd),
+        )
+        nml.SETTINGS.INPUT = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s' %(
+        'env_file', self.env_file.text(),
+        'mcm_file', self.mcm_file.text(),
+        'dmps_file', self.dmps_file.text(),
+        'extra_particles', self.extra_particles.text(),
+
+        'stripRoot_env', self.checkboxToFOR(self.stripRoot_env),
+        'stripRoot_mcm', self.checkboxToFOR(self.stripRoot_mcm),
+        'stripRoot_par', self.checkboxToFOR(self.stripRoot_par),
+        'stripRoot_xtr', self.checkboxToFOR(self.stripRoot_xtr),
+        )
+
         nml.PATH.INOUT_DIR=self.inout_dir.text()
-        if nml.PATH.INOUT_DIR == '': nml.PATH.INOUT_DIR = 'INOUT'
-        nml.PATH.CASE_NAME=self.case_name.text()
-        if nml.PATH.CASE_NAME == '': nml.PATH.CASE_NAME = 'DEFAULTCASE'
-        nml.PATH.RUN_NAME = self.run_name.text()
-        if nml.PATH.RUN_NAME == '': nml.PATH.RUN_NAME = 'DEFAULTRUN'
+        if nml.PATH.INOUT_DIR == '': nml.PATH.INOUT_DIR = default_inout
+        nml.PATH.CASE_NAME=self.case_name.text().upper()
+        if nml.PATH.CASE_NAME == '': nml.PATH.CASE_NAME = default_case
+        nml.PATH.RUN_NAME = self.run_name.text().upper()
+        if nml.PATH.RUN_NAME == '': nml.PATH.RUN_NAME = default_run
         # class _FLAG:
-        nml.FLAG.CHEMISTRY_FLAG=self.checkbox(self.checkBox_che)
-        nml.FLAG.AEROSOL_FLAG=self.checkbox(self.checkBox_aer)
-        nml.FLAG.ACDC_SOLVE_SS=self.checkbox(self.acdc_solve_ss)
+        nml.FLAG.CHEMISTRY_FLAG=self.checkboxToFOR(self.checkBox_che)
+        nml.FLAG.AEROSOL_FLAG=self.checkboxToFOR(self.checkBox_aer)
+        nml.FLAG.ACDC_SOLVE_SS=self.checkboxToFOR(self.acdc_solve_ss)
         nml.FLAG.NUCLEATION='T'
-        nml.FLAG.ACDC=self.checkbox(self.checkBox_acd)
+        nml.FLAG.ACDC=self.checkboxToFOR(self.checkBox_acd)
         nml.FLAG.EXTRA_DATA='F'
         nml.FLAG.CURRENT_CASE='F'
-        nml.FLAG.CONDENSATION=self.checkbox(self.condensation)
-        nml.FLAG.COAGULATION=self.checkbox(self.coagulation)
-        nml.FLAG.MODEL_H2SO4=self.checkbox(self.model_h2so4)
-        nml.FLAG.RESOLVE_BASE=self.checkbox(self.resolve_base)
-        nml.FLAG.PRINT_ACDC=self.checkbox(self.print_acdc)
+        nml.FLAG.CONDENSATION=self.checkboxToFOR(self.condensation)
+        nml.FLAG.COAGULATION=self.checkboxToFOR(self.coagulation)
+        nml.FLAG.MODEL_H2SO4=self.checkboxToFOR(self.model_h2so4)
+        nml.FLAG.RESOLVE_BASE=self.checkboxToFOR(self.resolve_base)
+        nml.FLAG.PRINT_ACDC=self.checkboxToFOR(self.print_acdc)
         # class _TIME:
         nml.TIME.RUNTIME=self.runtime.value()
         nml.TIME.DT=self.dt.value()
@@ -885,45 +1001,49 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.TIME.PRINT_INTERVAL=self.print_interval.value()
         nml.TIME.FSAVE_DIVISION=self.fsave_division.value()
         if self.indexRadioDate.isChecked():
+            self.index_for_parser = self.dateEdit.text()
             nml.TIME.DATE=self.dateEdit.text()
             nml.TIME.INDEX=''
         if self.indexRadioIndex.isChecked():
+            self.index_for_parser = self.indexEdit.value()
             nml.TIME.DATE=''
             nml.TIME.INDEX='%04d'%self.indexEdit.value()
         # class _PARTICLE:
-        nml.PARTICLE.PSD_MODE=self.psd_mode.currentIndex()+1
+        nml.PARTICLE.PSD_MODE=self.psd_mode.currentIndex()
         nml.PARTICLE.N_BINS_PARTICLE=self.n_bins_particle.value()
         nml.PARTICLE.MIN_PARTICLE_DIAM=self.min_particle_diam.text()
         nml.PARTICLE.MAX_PARTICLE_DIAM=self.max_particle_diam.text()
         # nml.PARTICLE.DMPS_DIR=self.dmps_dir.text()
         # nml.PARTICLE.EXTRA_P_DIR=''
-        nml.PARTICLE.DMPS_FILE=self.dmps_file.text()
-        nml.PARTICLE.EXTRA_PARTICLES=self.extra_particles.text()
+        nml.PARTICLE.DMPS_FILE=self.pars(self.dmps_file.text(), stripRoot=False)
+        nml.PARTICLE.EXTRA_PARTICLES=self.pars(self.extra_particles.text(), stripRoot=False)
         nml.PARTICLE.DMPS_READ_IN_TIME=self.dmps_read_in_time.value()
         nml.PARTICLE.DMPS_HIGHBAND_LOWER_LIMIT=self.dmps_highband_lower_limit.text()
         nml.PARTICLE.DMPS_LOWBAND_UPPER_LIMIT=self.dmps_lowband_upper_limit.text()
-        nml.PARTICLE.USE_DMPS=self.checkbox(self.use_dmps)
-        nml.PARTICLE.USE_DMPS_SPECIAL=self.checkbox(self.use_dmps_special)
+        nml.PARTICLE.USE_DMPS=self.checkboxToFOR(self.use_dmps)
+        nml.PARTICLE.USE_DMPS_SPECIAL=self.checkboxToFOR(self.use_dmps_special)
         # class _ENV:
         # nml.ENV.ENV_PATH=self.inout_dir.text()
-        nml.ENV.ENV_FILE=self.env_file.text()
+        nml.ENV.ENV_FILE=self.pars(self.env_file.text(), stripRoot=False)
         # class _MCM:
         # nml.MCM.MCM_PATH=self.inout_dir.text()
-        nml.MCM.MCM_FILE=self.mcm_file.text()
+        nml.MCM.MCM_FILE=self.pars(self.mcm_file.text(), stripRoot=False)
         # class _MISC:
         nml.MISC.LAT=self.lat.value()
         nml.MISC.LON=self.lon.value()
         nml.MISC.WAIT_FOR=self.wait_for.value()
-        nml.MISC.PYTHON=self.checkbox(self.python)
+        nml.MISC.PYTHON=self.checkboxToFOR(self.python)
         nml.MISC.DESCRIPTION=self.description.toPlainText()
         nml.MISC.CH_ALBEDO=self.ch_albedo.value()
         nml.MISC.DMA_F=self.dma_f.value()
         nml.MISC.RESOLVE_BASE_PRECISION=self.resolve_base_precision.value()
         nml.MISC.FILL_FORMATION_WITH=self.resolveHelper()
         # class _VAP:
-        nml.VAP.VAP_LOGICAL=self.checkbox(self.vap_logical)
+        nml.VAP.VAP_LOGICAL=self.checkboxToFOR(self.vap_logical)
         nml.VAP.VAP_NAMES=self.vap_names.text()
         nml.VAP.VAP_PROPS=self.vap_props.text()
+        nml.VAP.USE_ATOMS=self.checkboxToFOR(self.use_atoms)
+        nml.VAP.VAP_ATOMS=self.vap_atoms.text()
 
         for i in range(self.selected_vars.rowCount()):
             name = self.selected_vars.item(i,0).text()
@@ -933,6 +1053,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             vars.mods[name].pmInUse = self.selected_vars.cellWidget(i,4).currentText()
             vars.mods[name].unit = self.selected_vars.cellWidget(i,5).currentText()
         nml.ENV.TEMPUNIT=vars.mods['TEMPK'].unit
+
 
         return
 
@@ -961,16 +1082,19 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             else: return 0
 
         def parse_date(str):
-            y = int(str[0:4])
-            m = int(str[5:7])
-            d = int(str[8:10])
-            return QtCore.QDate(y, m, d)
+            if len(str)==10:
+                y = int(str[0:4])
+                m = int(str[5:7])
+                d = int(str[8:10])
+                return QtCore.QDate(y, m, d)
+            else:
+                return QtCore.QDate(2000, 1, 1)
+
 
         f = open(file, 'r')
         for line in f:
             i = line.find('=')
             x = line.find('!')
-
             if i<x or (x==-1 and i!=-1):
                 key = line[:i].upper().strip()
                 # remove comma and excess whitespace
@@ -1030,9 +1154,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 continue
 
             if   'WORK_DIR' == key: self.inout_dir.setText(strng)
-            elif 'INOUT_DIR' == key and strng != 'INOUT': self.inout_dir.setText(strng)
-            elif 'CASE_NAME' == key and strng != 'DEFAULTCASE': self.case_name.setText(strng)
-            elif 'RUN_NAME' == key and strng != 'DEFAULTRUN': self.run_name.setText(strng)
+            elif 'INOUT_DIR' == key and strng != default_inout: self.inout_dir.setText(strng)
+            elif 'CASE_NAME' == key and strng != default_case: self.case_name.setText(strng)
+            elif 'RUN_NAME' == key and strng != default_run: self.run_name.setText(strng)
             elif 'CHEMISTRY_FLAG' == key: self.checkBox_che.setChecked(strng)
             elif 'AEROSOL_FLAG' == key: self.checkBox_aer.setChecked(strng)
             elif 'ACDC_SOLVE_SS' == key: self.acdc_solve_ss.setChecked(strng)
@@ -1070,7 +1194,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             # elif 'TEMPUNIT' == key: print(strng)# "K
             # elif 'MCM_PATH' == key: print(strng)# "
             elif 'MCM_FILE' == key: self.mcm_file.setText(strng)# "
-            # elif 'JD' == key: print(strng)#           2,
             elif 'LAT' == key and isFl: self.lat.setValue(float(strng))
             elif 'LON' == key and isFl: self.lon.setValue(float(strng))
             elif 'WAIT_FOR' == key and isFl: self.wait_for.setValue(int(strng))
@@ -1082,8 +1205,37 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'RESOLVE_BASE_PRECISION' == key and isFl: self.resolve_base_precision.setValue(float(strng))
             elif 'FILL_FORMATION_WITH' == key: self.fill_formation_with.setCurrentIndex(solve_for_parser(strng))
             elif 'VAP_LOGICAL' == key: self.vap_logical.setChecked(strng)
+            elif 'USE_ATOMS' == key: self.use_atoms.setChecked(strng)
             elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
             elif 'VAP_PROPS' == key: self.vap_props.setText(strng)
+            elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
+
+            elif '# INPUT_SETTINGS' == key:
+                sets = strng.split()
+                for kv in sets:
+                    kk, val = kv.split(':')
+                    if 'FALSE' in val or 'TRUE' in val:
+                        if 'TRUE' in val:
+                            exec('self.'+kk+'.setChecked(True)')
+                        else:
+                            exec('self.'+kk+'.setChecked(False)')
+                    else:
+                        exec('self.'+kk+'.setText(\''+val+'\')')
+
+            elif '# BATCH_SETTINGS' == key:
+                sets = strng.split()
+                for kv in sets:
+                    kk, val = kv.split(':')
+                    if 'FALSE' in val or 'TRUE' in val:
+                        if 'TRUE' in val:
+                            exec('self.'+kk+'.setChecked(True)')
+                        else:
+                            exec('self.'+kk+'.setChecked(False)')
+                    elif 'batchRangeInd' in kk:
+                        exec('self.'+kk+'.setValue('+val+')')
+                    elif 'batchRangeDay' in kk:
+                        exec('self.'+kk+'.setDate(parse_date(\''+val+'\'))')
+
 
         # manage different units
         for key in vars.mods:
@@ -1295,8 +1447,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         text = self.findComp.text().upper()
         strict = False
         if text != '':
-            if text[0] == '.':
-                text = text[1:]
+            if text[-1] == '.':
+                text = text[:-1]
                 strict = True
         self.availableVars.clear()
         if text == '':

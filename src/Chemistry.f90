@@ -39,7 +39,7 @@ MODULE CHEMISTRY
     INTEGER, PARAMETER :: NKVALUES = 42   ! Number of rate coefficients used in KPP. Hand-copied from second_Main.f90
 
     ! File path for the input values:
-    CHARACTER(LEN=*), PARAMETER :: filename1 = 'input'
+    CHARACTER(LEN=*), PARAMETER :: filename1 = 'ModelLib'
 
 CONTAINS
 
@@ -117,7 +117,7 @@ CONTAINS
         IF (first_call) THEN ! do only once
             first_call = .FALSE.
             ! For solar radiation distribution: measured data is read in for 280-500 nm but value at 500 nm is used for 505 - 650 nm
-            OPEN(501, file = 'input/General/swr_distribution.txt', status = "old")
+            OPEN(501, file = filename1//'/General/swr_distribution.txt', status = "old")
             DO J1 = 1,84
                 READ(501,*) swr_dis(J1)
             ENDDO

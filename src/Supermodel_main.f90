@@ -24,11 +24,12 @@ PROGRAM Supermodel
 
     ! Transient variables
     CHARACTER(90) :: buf
+    CHARACTER(:), allocatable:: RUN_OUTPUT_DIR
     INTEGER       :: in_channels !number of diameters -> passed over to the fitting subroutine
     INTEGER       :: I
 
     ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
-    REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)
+    REAL(dp), ALLOCATABLE :: TSTEP_CONC(:), TEST_CONC(:)
     REAL(DP), ALLOCATABLE :: CH_GAS(:)
 
     REAL(dp) :: CH_RO2      ! RO2 concentration in [molecules / cm^3]
@@ -46,33 +47,40 @@ PROGRAM Supermodel
     TYPE(error_type) :: error
 
      ! real(dp), dimension(10):: cond_vapour
-    real(dp) :: time, time_end
+    ! real(dp) :: time, time_end
 
 
 
 
     CALL READ_INPUT_DATA ! Declare most variables and read user input and options in input.f90
 
-    CALL CHECK_INPUT_AGAINST_KPP ! Check that the input exists in chemistry, or if not, print warning
+    IF (Chemistry_flag) CALL CHECK_INPUT_AGAINST_KPP ! Check that the input exists in chemistry, or if not, print warning
+
+    ! All run output goes to this directory. RUN_OUTPUT_DIR is allocated to correct length so we dont need to TRIM every time
+    ALLOCATE(CHARACTER(len=LEN(TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME))) :: RUN_OUTPUT_DIR)
+
+    RUN_OUTPUT_DIR = TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)
 
     !Particles are considered -> initialize a particle representation, set initial PSD and determine composition
     !  code: MODULE ParticleSizeDistribution (PSD.f90)
-    IF (Aerosol_flag) THEN
+
+    IF (Aerosol_flag) THEN ! PC: WHY DO WE HAVE DMPS FLAG WHEN IT IS NOT TESTED HERE?
+
       ! Initialzie the Particle representation
       CALL INITIALIZE_PSD
 
       ! Send par_data (from input): diameter and first time step for fitting of initial model PSD
       IF (current_PSD%PSD_style == 1) THEN !only defined procedure for fully stationary
-        in_channels = size(par_data(1,3:))
-
+        in_channels = size(par_data(1,3:)) ! PC: Is this correct, now we miss one channel?
         ALLOCATE(dp_fit(in_channels))
         ALLOCATE(y_fit(in_channels))
 
-        dp_fit = par_data(1,3:)
-        y_fit = par_data(5,3:)
-        dummy_property = 0.d0
+        dp_fit = par_data(1,3:) ! PC: Is this correct, now we miss one channel?
+        y_fit = par_data(5,3:) ! PC: Is this correct, now we miss one channel?
+                               ! PC: What if there is no line 5 in par_data??
 
-        CALL GeneratePSDfromInput(dp_fit,y_fit)
+        dummy_property = 0.d0 ! PC: Now dummy_property is zero
+        CALL GeneratePSDfromInput(dp_fit,y_fit) ! PC: Now it is not zero anymore. IMHO, this approach is too sloppy
 
         DEALLOCATE(dp_fit)
         DEALLOCATE(y_fit)
@@ -103,7 +111,7 @@ PROGRAM Supermodel
 
         print*,
         print FMT_HDR, 'INITIALIZING PARTICLE STRUCTURES '
-        PRINT '("| ",a,6(es9.3," "),a,t100,"|")','model dp: ', current_PSD%diameter_fs(1:6), '...'
+        ! PRINT '("| ",a,6(es9.3," "),a,t100,"|")','model dp: ', current_PSD%diameter_fs(1:6), '...'
         ! PRINT '("| ",a,6(es9.3," "),a,t100,"|")','fitted model PSD: ',current_PSD%conc_fs(1:6), '...'
         ! write(*,*) 'particle mass' , current_PSD%conc_fs
 
@@ -139,7 +147,9 @@ PROGRAM Supermodel
 
 
     ALLOCATE(TSTEP_CONC(N_VARS))
+    ALLOCATE(TEST_CONC(N_VARS))
     TSTEP_CONC = 0
+    TEST_CONC = 0
     ALLOCATE(CH_GAS(size(SPC_NAMES)))
     CH_GAS = 0
 
@@ -149,24 +159,23 @@ PROGRAM Supermodel
     ENDIF
 
     !Open error output file
-    open(unit=333, file='output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_error_output.txt')
+    open(unit=333, file=RUN_OUTPUT_DIR//'/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_error_output.txt')
 
-    OPEN(100,file="output/diameter.dat",status='replace',action='write')
-    OPEN(104,file="output/time.dat",status='replace',action='write')
-    OPEN(101,file="output/particle_conc.dat",status='replace',action='write')
+    ! OPEN(100,file=RUN_OUTPUT_DIR//"/diameter.dat",status='replace',action='write')
+    ! OPEN(104,file=RUN_OUTPUT_DIR//"/time.dat",status='replace',action='write')
+    ! OPEN(101,file=RUN_OUTPUT_DIR//"/particle_conc.dat",status='replace',action='write')
 
     ! write(*,*) 'current_PSD%diameter_fs', current_PSD%diameter_fs
-    WRITE(100,*) current_PSD%diameter_fs
-    WRITE(101,*) current_PSD%conc_fs
-    WRITE(104,*) time
+    ! WRITE(100,*) current_PSD%diameter_fs
+    ! WRITE(101,*) current_PSD%conc_fs
+    ! WRITE(104,*) time
     !Open output file
     print*,
     print FMT_HDR, 'INITIALIZING OUTPUT '
-    CALL OPEN_FILES( TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME), Description, MODS, CH_GAS, VAPOURS)
+    CALL OPEN_FILES( RUN_OUTPUT_DIR, Description, MODS, CH_GAS, VAPOURS, CURRENT_PSD)
 
     !Open error output file
-    open(unit=333, file='output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_error_output.txt')
-
+    open(unit=333, file=RUN_OUTPUT_DIR//'/error_output.txt')
 
     CALL PAUSE_FOR_WHILE(wait_for)
 
@@ -190,10 +199,10 @@ PROGRAM Supermodel
         ! Assign values to input variables
 
         DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables that user can provide or tamper, and leave zero if no input or mod was provided
-            IF ((I==inm_TempK) .or. (MODS(I)%col>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift) > 1d-100)) THEN
-                TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I)) .mod. MODS(I)
-              ! INDRELAY(I)>0 means that user must have provided a column from an input file; MODS(I)%MODE > 0 means NORMALD is in use
-            END IF
+          ! IF ((I==inm_TempK) .or. (MODS(I)%col>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift) > 1d-100)) THEN
+              TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I)) .mod. MODS(I)
+            ! INDRELAY(I)>0 means that user must have provided a column from an input file; MODS(I)%MODE > 0 means NORMALD is in use
+          ! END IF
         END DO
 
         ! =================================================================================================
@@ -205,25 +214,24 @@ PROGRAM Supermodel
 
         ! Chemistry
         IF (Chemistry_flag) THEN
+          DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables
+              IF (INDRELAY_CH(I)>0) THEN ! <-- this will pick those that were paired in CHECK_INPUT_AGAINST_KPP
+                  CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
+              END IF
+          END DO
 
-            DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables
-                IF (INDRELAY_CH(I)>0) THEN ! <-- this will pick those that were paired in CHECK_INPUT_AGAINST_KPP
-                    CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
-                END IF
-            END DO
+          CH_TIME_kpp = MODELTIME%sec
+          CH_END_kpp = MODELTIME%sec + MODELTIME%dt_chem
 
-            CH_TIME_kpp = MODELTIME%sec
-            CH_END_kpp = MODELTIME%sec + MODELTIME%dt_chem
+          call BETA(CH_Beta) ! this to properly work, lat, lon and Julian Day need to be defined in INIT_FILE
 
-            call BETA(CH_BETA) ! this to properly work, lat, lon and Julian Day need to be defined in INIT_FILE
+          Call CHEMCALC(CH_GAS, CH_TIME_kpp, CH_END_kpp, TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_swr), CH_Beta,  &
+                        CH_H2O, C_AIR_NOW, TSTEP_CONC(inm_CS), TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
-            Call CHEMCALC(CH_GAS, CH_TIME_kpp, CH_END_kpp, TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_swr), CH_Beta,  &
-                          CH_H2O, C_AIR_NOW, TSTEP_CONC(inm_CS), TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
+          if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
 
-            if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
-            !
-
-            ! write(*,*) 'model sim time ', dt_aero
+          !
+          ! write(*,*) 'model sim time ', dt_aero
         END IF ! IF (Chemistry_flag)
 
         ! =================================================================================================
@@ -236,18 +244,18 @@ PROGRAM Supermodel
               ! CALL SOME_OTHER_NUCLEATION_TYPE
             END if
         END if
-
+        current_psd%conc_fs(2) = (J_ACDC_NH3+J_ACDC_DMA)*MODELTIME%dt
         if (MODELTIME%savenow .and. RESOLVE_BASE) CALL Get_BASE(TSTEP_CONC, RESOLVED_BASE, RESOLVED_J)
         ! =================================================================================================
 
         ! Condensation
         ! call allocate_aerosol(vapours,n_bins_particle)
-        time = MODELTIME%sec
-        time_end= MODELTIME%SIM_TIME_S
+        ! time = MODELTIME%sec
+        ! time_end= MODELTIME%SIM_TIME_S
 
        if (Aerosol_flag) then
-         CALL Condensation_apc(MODELTIME%dt_aero,vapours,current_PSD,conc_pp,CH_GAS, &
-         CH_GAS(ind_H2SO4),ambient,dmass)
+         CALL Condensation_apc(MODELTIME%dt_aero,vapours,current_PSD,conc_pp,CH_GAS, & ! PC: In aerosol module all units are metercubed, but I don't see any conversion anywhere
+         CH_GAS(ind_H2SO4),TSTEP_CONC(inm_TempK),TSTEP_CONC(inm_pres),TSTEP_CONC(inm_RH),dmass)
        end if
 
         ! Coagulation
@@ -273,31 +281,33 @@ PROGRAM Supermodel
 
             ! =================================================================================================
 
+            ! current_PSD%dp_dry_fs = current_PSD%diameter_fs
+
             ! =================================================================================================
             ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
             if (MODELTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-            if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA)
+            if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOURS, CURRENT_PSD)
             ! =================================================================================================
 
-            ! =================================================================================================
-            ! Add main timestep to modeltime'
-            ! write(*,*) 'modeltime%dt_aero and modeltime%SIM_TIME_H', MODELTIME%dt_aero,'',  MODELTIME%SIM_TIME_H
-            MODELTIME = ADD(MODELTIME)
-          ! =================================================================================================
-
-          if (MODELTIME%savenow) WRITE(101,*) current_PSD%conc_fs
-          if (MODELTIME%savenow) WRITE(104,*) time
+          ! if (MODELTIME%savenow) WRITE(101,*) current_PSD%conc_fs
+          ! if (MODELTIME%savenow) WRITE(104,*) time
           ! write(*,*) sum(current_PSD%conc_fs)
           ! WRITE(*,*) SUM(mix_PSD%volume_fs),SUM(current_PSD%volume_fs)
           ! write(*,*) 'time is ', time,'', modeltime%sec,'', modeltime%SIM_TIME_S
-        END IF !ERROR hanldling
+
+          ! =================================================================================================
+          ! Add main timestep to modeltime'
+          ! write(*,*) 'modeltime%dt_aero and modeltime%SIM_TIME_H', MODELTIME%dt_aero,'',  MODELTIME%SIM_TIME_H
+          MODELTIME = ADD(MODELTIME)
+          ! =================================================================================================
+        END IF !ERROR handling
     ! =================================================================================================
     END DO	! Main loop ends
     ! =================================================================================================
 
-    CLOSE(100)
-    CLOSE(101)
-    CLOSE(104)
+    ! CLOSE(100)
+    ! CLOSE(101)
+    ! CLOSE(104)
 
     CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
@@ -327,7 +337,7 @@ CONTAINS
         sim_time_sec
     type(error_type) :: error
 
-    !Write some error informaiton to file
+    !Write some error information to file
     write(333,*) 'Precision error at simulation time [s]', sim_time_sec
     write(333,*) '  ERROR TYPE: ', trim(error%error_specification)
     !reduce the speed_up factor or, if necessary, the integration time step:
@@ -457,7 +467,7 @@ CONTAINS
           print FMT_TIME, MODELTIME%hms
           CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
       END IF
-      if (.not. MODELTIME%savenow)  CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA)
+      if (.not. MODELTIME%savenow)  CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOURS, CURRENT_PSD)
   END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
 
@@ -528,7 +538,6 @@ CONTAINS
   END SUBROUTINE WATER
 
 
-
   ! ================================================================================================
   ! Calculate Beta parameter (solar angle above horizon), parameterization by Henderson-Sellers
   ! ================================================================================================
@@ -544,6 +553,7 @@ CONTAINS
     IF (CH_Beta < 0d0) CH_Beta = 0d0
   END SUBROUTINE BETA
 
+
   ! ================================================================================================
   ! Give the user time to read through the input stuff and continue upon Enter, or wait for amount
   ! defined in Wait_for (in INITFILE)
@@ -552,13 +562,13 @@ CONTAINS
     INTEGER :: for, rof
     CHARACTER(3) :: secs
     rof = for
-    if (for == 0) THEN
+    if (for == -1) THEN
       do while(rof == for)
         print *,
         print '(a,20(" "),a)', ACHAR(10),'Press any key to start the run or Ctrl-C to abort'
         read(*,*)
         print FMT_LEND,
-        for = -1
+        for = 0
       end do
     ELSE IF (for > 0) THEN
       write(secs,'(i0)') for

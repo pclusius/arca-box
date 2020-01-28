@@ -21,7 +21,7 @@ CONTAINS
 
 
 SUBROUTINE Condensation_apc(timestep, vapour_properties, particle_properties, conc_pp,ch_gas, &
-                          CH2SO4,ambient, dmass) ! Add more variables if you need it
+                          CH2SO4,temperature, pressure, rh, dmass) ! Add more variables if you need it
 
 
   REAL(dp), INTENT(IN) :: timestep
@@ -36,13 +36,13 @@ SUBROUTINE Condensation_apc(timestep, vapour_properties, particle_properties, co
 
 
   INTEGER :: j,ii,ip, a,ig
-  type(ambient_properties), intent(in) :: ambient
+
   type(vapour_ambient), intent(in) :: vapour_properties
   type(PSD), intent(inout) :: particle_properties
-
+  type(ambient_properties) :: ambient
   Real(dp) :: r1, r2
   Real(dp) :: sum_org
-  Real(dp) :: temperature, pressure
+  Real(dp), intent(in) :: temperature, pressure, rh
   Real(dp), dimension(n_bins_particle,nr_species_p) :: Kelvin_Effect, kohler_effect,conc_pp_fixed
   Real(dp), dimension(n_bins_particle,nr_species_p),intent(inout) :: conc_pp
 
@@ -55,8 +55,10 @@ SUBROUTINE Condensation_apc(timestep, vapour_properties, particle_properties, co
   Real(dp), dimension(nr_bins, nr_species_P), intent(inout) :: dmass
   real(dp) :: test(nr_bins)
 
-  temperature=ambient%temperature
-  pressure  = ambient%pressure
+  ambient%temperature = temperature
+  ambient%pressure = pressure
+  ambient%rh = rh
+
   particle_conc=particle_properties%conc_fs
   particle_conc_old=particle_properties%conc_fs
   conc_H2SO4_old = cH2SO4 ! need to replace this with the concentation of H2SO4 from chemistry

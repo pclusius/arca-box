@@ -1,95 +1,96 @@
+#--------------------------------------------------
+#      Superbox setting file: input/test
+#--------------------------------------------------
 
-####### PATH settings ############
-&NML_path
-Work_Dir    =
-INOUT_DIR    = 'input'
-Case_name   = 'TESTING'
-RUN_NAME    = 'simple_run'
-/
+&NML_PATH
+ INOUT_DIR = 'INOUT'
+ CASE_NAME = 'PC'
+ RUN_NAME = 'XX'
+/ 
 
+&NML_FLAG
+ CHEMISTRY_FLAG = .TRUE.
+ AEROSOL_FLAG = .TRUE.
+ ACDC_SOLVE_SS = .TRUE.
+ NUCLEATION = T
+ ACDC = .TRUE.
+ EXTRA_DATA = F
+ CURRENT_CASE = F
+ CONDENSATION = .TRUE.
+ COAGULATION = .TRUE.
+ MODEL_H2SO4 = .FALSE.
+ RESOLVE_BASE = .FALSE.
+ PRINT_ACDC = .FALSE.
+/ 
 
-####### ENV file read #####
-&NML_ENV
-ENV_file         = 'meas.dat'
-ENV_path         = 'input'
-TempUnit         = 'C' ! If valid unit (and not empty or missing), will override MODS%UNIT for Temperature
-/
-
-####### TIME settings #####
 &NML_TIME
-runtime        = 24
-PRINT_INTERVAL = 600
-FSAVE_INTERVAL = 300
-FSAVE_DIVISION = 0
-/
-!####### PARTICLE settings #####
+ RUNTIME = 2.0
+ DT = 10
+ FSAVE_INTERVAL = 300
+ PRINT_INTERVAL = 600
+ FSAVE_DIVISION = 0
+ DATE = '2019-04-01'
+ INDEX = ''
+/ 
+
 &NML_PARTICLE
-use_dmps = .true.
-dmps_dir = 'input'
-dmps_file = 'dm150101.sum'
-extra_p_dir = 'input'
-extra_particles = 'xtra.dat'
-/
-####### CHEMICAL settings #####
+ PSD_MODE = 1
+ N_BINS_PARTICLE = 50
+ MIN_PARTICLE_DIAM = 1e-10
+ MAX_PARTICLE_DIAM = 1e-5
+ DMPS_FILE = 'input/dm150101.sum'
+ EXTRA_PARTICLES = 'xtra.dat'
+ DMPS_READ_IN_TIME = 1.41
+ DMPS_HIGHBAND_LOWER_LIMIT = 1e-8
+ DMPS_LOWBAND_UPPER_LIMIT = 
+ USE_DMPS = .TRUE.
+ USE_DMPS_SPECIAL = .FALSE.
+/ 
+
+&NML_ENV
+ ENV_FILE = 'input/meas.dat'
+ TEMPUNIT = 'C'
+/ 
+
 &NML_MCM
-MCM_path = ''
-MCM_file = ''
-/
+ MCM_FILE = ''
+/ 
 
-####### MODULE settings #######
-&NML_Flag
-Chemistry_flag      = .true.
-Aerosol_flag        = .true.
-ACDC_solve_ss       = .true.
-NUCLEATION          = .true.
-ACDC                = .true.
-model_H2SO4         = .false.
-Condensation        = .true.
-Coagulation         = .true.
-Extra_data          = .false.
-Current_case        = .false.
-RESOLVE_BASE        = .false.
-/
-
-
-####### MODEL INPUT #####
-#      mode col multi        shift        min          max         sig        mju         fv         ph         am        unit name
 &NML_MODS
-MODS(1) = 0 -1  1.00000d+00  0.00000d+00 -7.00000d+00  1.50000d+01 6.860000d0 9.960000d0 0.540000d0 2.980000d0 0.500000d0 'C'! TEMPK
-MODS(2) = 0 -1  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'hPa'! PRESSURE
-MODS(3) = 0 -1  1.00000d+00  4.50000d+01  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! REL_HUMIDITY
-MODS(4) = 0 -1  1.00000d+00  2.00000d-02  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! CONDENS_SINK
-MODS(6) = 1 -1  1.00000d+00  1.00000d+00  4.00000d+00  5.00000d+02 2.070000d0 11.490000d0 0.220000d0 0.850000d0 2.060000d0 ! SW_RADIATION
-MODS(7) = 0 -1  1.00000d+00  3.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! ION_PROD_RATE
-MODS(8) = 0 -1  0.0d+00  5.00000d+06  1.000000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! H2SO4
-MODS(9) = 1 -1  1.00000d+00  1.00000d-1  4.00000d-01  2.00000d+01 2.070000d0 11.490000d0 0.220000d0 0.850000d0 2.060000d0 'ppb'! NH3
-MODS(10) = 0 -1  0.00d+00  2.00000d+02  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppq' ! DMA
-MODS(11) = 1 -1  1.00000d+00  0.00000d+00  1.00000d+01  2.00000d+02 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppt'! SO2
-MODS(12) = 1 -1  1.00000d+00  1.00000d+08  1.00000d+01  2.00000d+02 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppt'! NO
-MODS(13) = 1 -1  1.00000d+00  2.00000d+08  1.00000d+00  2.00000d+01 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppt'! NO2
-MODS(16) = 1 -1  1.00000d+00  1.00000d+11  1.00000d+00  2.00000d+01 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppb'! O3
-MODS(17) = 1 -1  1.00000d+00  0.00000d+00  4.50000d-02  1.00000d+00 2.610000d0 13.700000d0 1.670000d0 -2.840000d0 1.000000d0 ! NUC_RATE_IN
-MODS(151) = 0 -1  1.00d+00  2.120000d+09  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 ! APINENE
-/
+ MODS(1)   = 0  -1  1.00000d+00  0.00000d+00 -7.00000d+00  1.50000d+01 6.860000d0 9.960000d0 0.540000d0 2.980000d0 0.500000d0 'C' ! TEMPK
+ MODS(2)   = 0  -1  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'hPa' ! PRESSURE
+ MODS(3)   = 0  -1  1.00000d+00  4.50000d+01  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' ! REL_HUMIDITY
+ MODS(4)   = 0  -1  1.00000d+00  2.00000d-02  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' ! CONDENS_SINK
+ MODS(6)   = 1  -1  1.00000d+00  1.00000d+00  4.00000d+00  5.00000d+02 2.070000d0 11.490000d0 0.220000d0 0.850000d0 2.060000d0 '#' ! SW_RADIATION
+ MODS(7)   = 0  -1  1.00000d+00  3.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' ! ION_PROD_RATE
+ MODS(8)   = 0  -1  0.00000d+00  5.00000d+06  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' ! H2SO4
+ MODS(9)   = 1  -1  1.00000d+00  1.00000d-01  4.00000d-01  2.00000d+01 2.070000d0 11.490000d0 0.220000d0 0.850000d0 2.060000d0 'ppb' ! NH3
+ MODS(10)  = 0  -1  0.00000d+00  2.00000d+02  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppq' ! DMA
+ MODS(11)  = 1  -1  1.00000d+00  0.00000d+00  1.00000d+01  2.00000d+02 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppt' ! SO2
+ MODS(12)  = 1  -1  1.00000d+00  1.00000d+08  1.00000d+01  2.00000d+02 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppt' ! NO
+ MODS(13)  = 1  -1  1.00000d+00  2.00000d+08  1.00000d+00  2.00000d+01 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppt' ! NO2
+ MODS(16)  = 1  -1  1.00000d+00  1.00000d+11  1.00000d+00  2.00000d+01 6.600000d0 10.830000d0 -1.020000d0 0.850000d0 2.060000d0 'ppb' ! O3
+ MODS(17)  = 1  -1  1.00000d+00  0.00000d+00  4.50000d-02  1.00000d+00 2.610000d0 13.700000d0 1.670000d0 -2.840000d0 1.000000d0 '#' ! NUC_RATE_IN
+ MODS(151) = 0  -1  1.00000d+00  2.12000d+09  1.00000d+01  2.00000d+02 2.710000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' ! APINENE
+/ 
 
-
-####### Vap stuff #####
-&NML_VAP
-Vap_logical = .True.
-Use_atoms   = .True.
-Vap_names   = 'Vapour_names.dat'
-Vap_props   = 'Vapour_properties.dat'
-vap_atoms   = 'O_C.dat'
-/
-####### Misc stuff #####
 &NML_MISC
-lat = 60
-lon = 25
-JD  = 91
-wait_for  = -1
-python  = F
-dma_f = 0.0
-resolve_BASE_precision = 0.01
-Fill_formation_with = ''
-Description = 'Just some testing'
-/
+ LAT = 60.0
+ LON = 25.0
+ WAIT_FOR = 3
+ PYTHON = .FALSE.
+ DESCRIPTION = 'Just some testing'
+ CH_ALBEDO = 0.5
+ DMA_F = 0.0
+ RESOLVE_BASE_PRECISION = 0.01
+ FILL_FORMATION_WITH = ''
+/ 
+
+&NML_VAP
+ VAP_LOGICAL = .TRUE.
+ USE_ATOMS = .TRUE.
+ VAP_NAMES = 'ModelLib/Vapour_names.dat'
+ VAP_PROPS = 'ModelLib/Vapour_properties.dat'
+ VAP_ATOMS = 'ModelLib/O_C.dat'
+/ 
+
