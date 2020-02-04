@@ -2,12 +2,12 @@ import numpy as np
 import netCDF4
 import sys; import os;
 
-relpath = '../output/'
+relpath = '../../INOUT/PC_0000/ODDFUNCTS/'
 files = os.listdir(relpath)
 
 ncfiles = []
 for f in files:
-    if f[-3:] == '.nc':
+    if f == 'General.nc':
         # print(f)
         ncfiles.append(f)
 

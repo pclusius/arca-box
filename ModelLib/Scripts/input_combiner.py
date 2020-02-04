@@ -41,47 +41,97 @@ dates = [
 ]
 
 
+# input = ([
+# 'SMEAR_TEMP_168.dat',
+# 'SMEAR_PRESS.dat',
+# 'SMEAR_RH.dat',
+# 'SMEAR_SWR.dat',
+# 'SA_tower.dat',
+# 'SA_ground.dat',
+# 'NH3.dat',
+# 'SMEAR_CS.dat',
+# 'SMEAR_GAS_CO.dat',
+# 'SMEAR_GAS_NO2.dat',
+# 'SMEAR_GAS_NO.dat',
+# 'SMEAR_GAS_O3.dat',
+# 'SMEAR_GAS_SO2.dat',
+# ])
 
-input = ([
-'SMEAR_TEMP_168.dat',
-'SMEAR_PRESS.dat',
-'SMEAR_RH.dat',
-'SMEAR_SWR.dat',
-'SA_tower.dat',
-'SA_ground.dat',
-'NH3.dat',
-'SMEAR_CS.dat',
-'SMEAR_GAS_CO.dat',
-'SMEAR_GAS_NO2.dat',
-'SMEAR_GAS_NO.dat',
-'SMEAR_GAS_O3.dat',
-'SMEAR_GAS_SO2.dat',
-])
-# 'VOC_0042.dat',
+combofile = 'VOC_0042.dat'
 
-for date in dates:
-    data_folder = '../../INOUT/HYDE/PC_20'+date[0:2]+'-'+date[2:4]+'-'+date[4:]+'/input'
-    counter = 0
-    header = ''
-    source_dir = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+date
-    filename    = 'env'+date+'.dat'
-    for file in input:
-        if counter == 0:
-            time,meas = np.genfromtxt(source_dir+'/'+file, usecols=(0,1), unpack=True)
-            for i,t in enumerate(time[1:]):
-                if t>time[i]: exit
+multicolumn = True
 
-            output_array = np.zeros((i+1, len(input)+1))
-            output_array[:,0] = time[0:i+1]
-            output_array[:,1] = meas[0:i+1]
-            counter = 2
-            header = header + '%24s%28s'%('time', file)
-        else:
-            time_this,meas = np.genfromtxt(source_dir+'/'+file, usecols=(0,1), unpack=True)
-            meas_i = sc.interpolate.interp1d(time_this,meas,kind='linear', fill_value=0,bounds_error=True)
-            output_array[:,counter] = meas_i(time[0:i+1])
-            header = header + '%28s'%(file)
-            counter +=1
-    np.savetxt(data_folder+'/'+filename, output_array, delimiter='  ', fmt="%1.20e", header=header)
+if not multicolumn:
+    for date in dates:
+        data_folder = '../../INOUT/HYDE/PC_20'+date[0:2]+'-'+date[2:4]+'-'+date[4:]+'/input'
+        column = 0
+        header = ''
+        source_dir = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+date
+        filename    = 'voc'+date+'.dat'
+        for file in input:
+            if column == 0:
+                time,meas = np.genfromtxt(source_dir+'/'+file, usecols=(0,1), unpack=True)
+                for i,t in enumerate(time[1:]):
+                    if t>time[i]: exit
+
+                output_array = np.zeros((i+1, len(input)+1))
+                output_array[:,0] = time[0:i+1]
+                output_array[:,1] = meas[0:i+1]
+                column = 2
+                header = header + '%24s%28s'%('time', file)
+            else:
+                time_this,meas = np.genfromtxt(source_dir+'/'+file, usecols=(0,1), unpack=True)
+                meas_i = sc.interpolate.interp1d(time_this,meas,kind='linear', fill_value=0,bounds_error=True)
+                output_array[:,column] = meas_i(time[0:i+1])
+                header = header + '%28s'%(file)
+                column +=1
+        np.savetxt(data_folder+'/'+filename, output_array, delimiter='  ', fmt="%1.20e", header=header)
+
+if multicolumn:
+    for date in dates:
+        data_folder = '../../INOUT/HYDE/PC_20'+date[0:2]+'-'+date[2:4]+'-'+date[4:]+'/input'
+        column = 0
+        header = ''
+        source_dir = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+date
+        filename    = 'voc'+date+'.dat'
+        data = np.genfromtxt(source_dir+'/'+combofile)
+        nc = np.shape(data)[1]
+        f = open(data_folder+'/'+filename, 'w')
+
+        previous = 0.0
+        for i, line in enumerate(data):
+            if line[0]>previous:
+                zzz = '%24.12e'*nc %tuple(line)
+                f.write(zzz+'\n')
+            previous = line[0]
+        f.close()
+
+
+# if multicolumn:
+#     for date in dates:
+#         data_folder = '../../INOUT/HYDE/PC_20'+date[0:2]+'-'+date[2:4]+'-'+date[4:]+'/input'
+#         column = 0
+#         header = ''
+#         source_dir = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+date
+#         filename    = 'voc'+date+'.dat'
+#         for file in input:
+#             if column == 0:
+#                 data = np.genfromtxt(source_dir+'/'+file, unpack=True)
+#                 for i,t in enumerate(data[0:]):
+#                     if t>data[0,i]: exit
+#
+#                 output_array = np.zeros((i+1, len(input)+1))
+#                 output_array[:,0] = time[0:i+1]
+#                 output_array[:,1] = meas[0:i+1]
+#                 column = 2
+#                 header = header + '%24s%28s'%('time', file)
+#             else:
+#                 time_this,meas = np.genfromtxt(source_dir+'/'+file, usecols=(0,1), unpack=True)
+#                 meas_i = sc.interpolate.interp1d(time_this,meas,kind='linear', fill_value=0,bounds_error=True)
+#                 output_array[:,column] = meas_i(time[0:i+1])
+#                 header = header + '%28s'%(file)
+#                 column +=1
+#         np.savetxt(data_folder+'/'+filename, output_array, delimiter='  ', fmt="%1.20e", header=header)
+
 # plt.plot(output_array[:-1,0],output_array[:-1,3])
 # plt.show()

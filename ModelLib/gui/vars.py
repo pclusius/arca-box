@@ -157,13 +157,13 @@ class INITFILE:
         def __init__(self):
             # self.ENV_PATH=0
             self.ENV_FILE=0
-            self.TEMPUNIT='C'
+            # self.TEMPUNIT='C'
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_ENV%s')"%(cmd, eol))
             # exec("%s(' ENV_PATH = \\'%s\\'%s')"%(cmd,self.ENV_PATH,eol))
             exec("%s(' ENV_FILE = \\'%s\\'%s')"%(cmd,self.ENV_FILE,eol))
-            exec("%s(' TEMPUNIT = \\'%s\\'%s')"%(cmd,self.TEMPUNIT,eol))
+            # exec("%s(' TEMPUNIT = \\'%s\\'%s')"%(cmd,self.TEMPUNIT,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _MCM:
@@ -216,7 +216,7 @@ class INITFILE:
             self.LAT=0
             self.LON=0
             self.WAIT_FOR=0
-            self.PYTHON=0
+            # self.PYTHON=0
             self.DESCRIPTION=0
             # self.SOLVER=0
             self.CH_ALBEDO=0
@@ -230,7 +230,7 @@ class INITFILE:
             exec("%s(' LAT = %s%s')"%(cmd,self.LAT,eol))
             exec("%s(' LON = %s%s')"%(cmd,self.LON,eol))
             exec("%s(' WAIT_FOR = %s%s')"%(cmd,self.WAIT_FOR,eol))
-            exec("%s(' PYTHON = %s%s')"%(cmd,self.PYTHON,eol))
+            # exec("%s(' PYTHON = %s%s')"%(cmd,self.PYTHON,eol))
             exec("%s(' DESCRIPTION = \\'%s\\'%s')"%(cmd,self.DESCRIPTION,eol))
             # exec("%s(' SOLVER = \\'%s\\'%s')"%(cmd,self.SOLVER,eol))
             exec("%s(' CH_ALBEDO = %s%s')"%(cmd,self.CH_ALBEDO,eol))

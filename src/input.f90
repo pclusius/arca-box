@@ -20,24 +20,24 @@ INTEGER :: LENV   ! This will store the number of named indices in this code
 ! - this list
 ! - subroutine NAME_MODS_SORT_NAMED_INDICES
 !------------------------------------------------------------------
-INTEGER :: inm_TempK
-INTEGER :: inm_pres
-INTEGER :: inm_RH
-INTEGER :: inm_CS
-INTEGER :: inm_CS_NA
-INTEGER :: inm_swr
-INTEGER :: inm_IPR
-INTEGER :: inm_H2SO4
-INTEGER :: inm_NH3
-INTEGER :: inm_DMA
-INTEGER :: inm_SO2
-INTEGER :: inm_NO
-INTEGER :: inm_NO2
-INTEGER :: inm_CO
-INTEGER :: inm_H2
-INTEGER :: inm_O3
-INTEGER :: inm_JIN
-INTEGER :: inm_JDMA
+INTEGER :: inm_TempK = 0
+INTEGER :: inm_pres = 0
+INTEGER :: inm_RH = 0
+INTEGER :: inm_CS = 0
+INTEGER :: inm_CS_NA = 0
+INTEGER :: inm_swr = 0
+INTEGER :: inm_IPR = 0
+INTEGER :: inm_H2SO4 = 0
+INTEGER :: inm_NH3 = 0
+INTEGER :: inm_DMA = 0
+INTEGER :: inm_SO2 = 0
+INTEGER :: inm_NO = 0
+INTEGER :: inm_NO2 = 0
+INTEGER :: inm_CO = 0
+INTEGER :: inm_H2 = 0
+INTEGER :: inm_O3 = 0
+INTEGER :: inm_JIN = 0
+INTEGER :: inm_JDMA = 0
 
 INTEGER, ALLOCATABLE :: INDRELAY_CH(:)
 
@@ -128,8 +128,8 @@ type(inert_particles) :: BG_PAR
 ! ENVIRONMENTAL INPUT
 character(len=256)  :: ENV_path = ''
 character(len=256)  :: ENV_file = ''
-character(len=1)  :: TempUnit = '' ! K or C
-NAMELIST /NML_ENV/ ENV_path, ENV_file, TempUnit
+character(len=1)    :: TempUnit = '' ! K or C
+NAMELIST /NML_ENV/ ENV_path, ENV_file!, TempUnit
 
 ! MCM INPUT
 character(len=256)  :: MCM_path = ''
@@ -201,7 +201,7 @@ subroutine READ_INPUT_DATA()
   ! ALLOCATE CONC_MAT Currently both files need to have same time resolution FIX THIS SOON!
   ! The idea here is to count the rows to get time and allocate CONCMAT and TIMEVEC
   ! This is very much under construction
-  IF ((ENV_file /= '') .or. (MCM_file /= '')) THEN
+  IF ((ENV_file /= '') .or. (MCM_file /= '' .and. Chemistry_flag)) THEN
     IF (ENV_file /= '') THEN
       OPEN(unit=51, File=TRIM(ENV_file), ACTION='READ', STATUS='OLD', iostat=ioi)
       CALL handle_file_io(ioi, ENV_file, 'stop')
@@ -756,14 +756,26 @@ END SUBROUTINE CHECK_MODIFIERS
     !use constants, ONLY: UCASE
     IMPLICIT NONE
 
-    if ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
-        print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins."
+    ! if ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
+    !     print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins."
+    !     TempUnit = 'K'
+    ! elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'K') THEN
+    !     TempUnit = 'K'
+    ! elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C') THEN
+    !     TempUnit = 'C'
+    ! END IF
+
+    if (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
+        print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins. This may lead to SIGFPE."
         TempUnit = 'K'
-    elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'K') THEN
-        TempUnit = 'K'
-    elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C') THEN
-        TempUnit = 'C'
+    elseif (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'K' .or. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C' )THEN
+        TempUnit = TRIM(UCASE(MODS(inm_TempK)%UNIT))
+    ! elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C') THEN
+    !     TempUnit = 'C'
     END IF
+
+
+
 
     IF (UCASE(TempUnit) == 'K') THEN
         print FMT_MSG, '- Temperature input in Kelvins.'

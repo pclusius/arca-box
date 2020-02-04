@@ -59,7 +59,7 @@ def batch(begin = '2020-01-01', end='2020-01-05', case='Melpitz', run='X1', comm
                 if j==2 and listdir(p) != []:
                     existing_runs.append(p)
 
-    return dirs_to_create, conflicting_names, files_to_create, files_to_overwrite, existing_runs, index_strings, outdir+'/'+run
+    return dirs_to_create, conflicting_names, files_to_create, files_to_overwrite, existing_runs, index_strings, outdir+'/'+run, indir
 # batch()
 def tagparser(tag, index):
     tag = tag.replace('<','')

@@ -108,8 +108,8 @@ use constants
 	diameter_acdc = diameter_max*1.d-9
 
   if (time%printnow) THEN
-    clusteracid = sum(c(2:nclust)*cluster_acid_content(2:))/c(1)
-    clusterbase = sum(c(n1N+1:nclust)*cluster_base_content(n1N+1:))/c(n1N)
+    clusteracid = sum(c(2:nclust)*cluster_acid_content(2:))/max(1d-200,c(1))
+    clusterbase = sum(c(n1N+1:nclust)*cluster_base_content(n1N+1:))/max(1d-200,c(n1N))
     if (time%PRINTACDC) THEN
       do n = 1,nclust
         write(buf, '(es10.3)') c(n)*1d-6

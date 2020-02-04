@@ -158,17 +158,7 @@ PROGRAM Supermodel
       CALL KPP_SetUp
     ENDIF
 
-    !Open error output file
-    open(unit=333, file=RUN_OUTPUT_DIR//'/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_error_output.txt')
-
-    ! OPEN(100,file=RUN_OUTPUT_DIR//"/diameter.dat",status='replace',action='write')
-    ! OPEN(104,file=RUN_OUTPUT_DIR//"/time.dat",status='replace',action='write')
-    ! OPEN(101,file=RUN_OUTPUT_DIR//"/particle_conc.dat",status='replace',action='write')
-
     ! write(*,*) 'current_PSD%diameter_fs', current_PSD%diameter_fs
-    ! WRITE(100,*) current_PSD%diameter_fs
-    ! WRITE(101,*) current_PSD%conc_fs
-    ! WRITE(104,*) time
     !Open output file
     print*,
     print FMT_HDR, 'INITIALIZING OUTPUT '
@@ -215,9 +205,13 @@ PROGRAM Supermodel
         ! Chemistry
         IF (Chemistry_flag) THEN
           DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables
-              IF (INDRELAY_CH(I)>0) THEN ! <-- this will pick those that were paired in CHECK_INPUT_AGAINST_KPP
-                  CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
+            IF (INDRELAY_CH(I)>0) THEN ! <-- this will pick those that were paired in CHECK_INPUT_AGAINST_KPP
+              IF (I == inm_H2SO4 .and. .not. model_H2SO4) THEN
+                CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
+              ELSE IF (I /= inm_H2SO4) THEN
+                CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
               END IF
+            END IF
           END DO
 
           CH_TIME_kpp = MODELTIME%sec
@@ -230,7 +224,6 @@ PROGRAM Supermodel
 
           if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
 
-          !
           ! write(*,*) 'model sim time ', dt_aero
         END IF ! IF (Chemistry_flag)
 
@@ -244,19 +237,19 @@ PROGRAM Supermodel
               ! CALL SOME_OTHER_NUCLEATION_TYPE
             END if
         END if
-        current_psd%conc_fs(2) = (J_ACDC_NH3+J_ACDC_DMA)*MODELTIME%dt
         if (MODELTIME%savenow .and. RESOLVE_BASE) CALL Get_BASE(TSTEP_CONC, RESOLVED_BASE, RESOLVED_J)
         ! =================================================================================================
 
         ! Condensation
         ! call allocate_aerosol(vapours,n_bins_particle)
-        ! time = MODELTIME%sec
-        ! time_end= MODELTIME%SIM_TIME_S
 
-       if (Aerosol_flag) then
-         CALL Condensation_apc(MODELTIME%dt_aero,vapours,current_PSD,conc_pp,CH_GAS, & ! PC: In aerosol module all units are metercubed, but I don't see any conversion anywhere
-         CH_GAS(ind_H2SO4),TSTEP_CONC(inm_TempK),TSTEP_CONC(inm_pres),TSTEP_CONC(inm_RH),dmass)
-       end if
+        if (Aerosol_flag) then
+          current_psd%conc_fs(2) = (J_ACDC_NH3+J_ACDC_DMA)*MODELTIME%dt
+          CALL Condensation_apc(MODELTIME%dt_aero,vapours,current_PSD,conc_pp,CH_GAS, & ! PC: In aerosol module all units are metercubed, but I don't see any conversion anywhere
+          CH_GAS(ind_H2SO4),TSTEP_CONC(inm_TempK),TSTEP_CONC(inm_pres),TSTEP_CONC(inm_RH),dmass)
+        end if
+
+        ! PC: Where does my sulfuric acid go??? Unit problem?
 
         ! Coagulation
         ! Deposition
@@ -289,8 +282,6 @@ PROGRAM Supermodel
             if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOURS, CURRENT_PSD)
             ! =================================================================================================
 
-          ! if (MODELTIME%savenow) WRITE(101,*) current_PSD%conc_fs
-          ! if (MODELTIME%savenow) WRITE(104,*) time
           ! write(*,*) sum(current_PSD%conc_fs)
           ! WRITE(*,*) SUM(mix_PSD%volume_fs),SUM(current_PSD%volume_fs)
           ! write(*,*) 'time is ', time,'', modeltime%sec,'', modeltime%SIM_TIME_S
@@ -305,9 +296,6 @@ PROGRAM Supermodel
     END DO	! Main loop ends
     ! =================================================================================================
 
-    ! CLOSE(100)
-    ! CLOSE(101)
-    ! CLOSE(104)
 
     CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
@@ -400,7 +388,7 @@ CONTAINS
     IF (inm_DMA   /= 0) DMA   = C(inm_DMA)*1d6
     IF (inm_IPR   /= 0) IPR   = C(inm_IPR)*1d6
     ! Speed up program by ignoring nucleation when there is none
-    if (NH3 > 1d12 .or. J_ACDC_NH3 > 1d-6) THEN
+    if (NH3 > 1d12 .and. H2SO4>1d9) THEN
         CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMPK),IPR,MODELTIME,&
             ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
         J_ACDC_NH3 = J_ACDC_NH3*1e-6
@@ -410,7 +398,7 @@ CONTAINS
         if (MODELTIME%printnow) print FMT_SUB, 'NH3 IGNORED'
     END IF
     ! Speed up program by ignoring nucleation when there is none
-    if (DMA > 1d6 .or. J_ACDC_DMA > 1d-6) THEN
+    if (DMA > 1d6 .and. H2SO4>1d9) THEN
         CALL get_acdc_D(H2SO4,DMA,c_org,C(inm_CS),C(inm_TEMPK),MODELTIME,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
         J_ACDC_DMA = J_ACDC_DMA*1e-6
     ELSE
@@ -439,10 +427,10 @@ CONTAINS
   SUBROUTINE PRINT_KEY_INFORMATION(C)
     IMPLICIT NONE
     real(dp), intent(in) :: C(:)
-    print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]','sum(An)/A1',clusteracid,'[]'
+    print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]','sum(An)/A1',clusteracid,' []'
     ! print FMT10_2CVU,'APINE C: ', C(IndexFromName('APINENE'))
     print FMT10_3CVU,'Temp:', C(inm_TempK), ' [K]','Pressure: ', C(inm_pres), ' [Pa]', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
-    IF (inm_NH3   /= 0) print FMT10_3CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3, ' [1/cm3]','sum(Nn)/N1',clusterbase,'[]'
+    IF (inm_NH3   /= 0) print FMT10_3CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3, ' [1/cm3]','sum(Nn)/N1',clusterbase,' []'
     IF (inm_DMA   /= 0) print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA, ' [1/cm3]'
     print FMT10_3CVU, 'Jion neutral:', J_NH3_BY_IONS(1)*1d-6 , ' [1/s/cm3]','Jion neg:', J_NH3_BY_IONS(2)*1d-6 , ' [1/s/cm3]','Jion pos:', J_NH3_BY_IONS(3)*1d-6 , ' [1/s/cm3]'
     IF (inm_IPR   /= 0) print FMT10_2CVU, 'C-sink:', C(inm_CS) , ' [1/s]','IPR:', C(inm_IPR) , ' [1/s/cm3]'
@@ -487,7 +475,9 @@ CONTAINS
                   IF (MODS(i)%NAME == TRIM(SPC_NAMES(j))) THEN
                       check = 1
                       print FMT_MSG, 'Found '//TRIM(SPC_NAMES(j))//' from chemistry'
-                      INDRELAY_CH(I) = J !store the key->value map for input and chemistry
+                      INDRELAY_CH(I) = J !store the 'key->value map' for input and chemistry
+                      IF ((I==inm_H2SO4) .and. model_H2SO4 .and. Chemistry_flag) print FMT_SUB, 'Replacing HSO4 input with modelled chemistry'
+
                       exit
                   end if
               END DO
@@ -588,19 +578,21 @@ CONTAINS
 
   SUBROUTINE FAREWELL
     IMPLICIT NONE
-    character(1) :: buf
+    ! character(1) :: buf
 
     write(*,*)
-    IF (python) THEN
-      write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. Plot general output (requires Python3). y? '
-      read(*,*) buf
-      if (UCASE(buf) == 'Y') CALL EXECUTE_COMMAND_LINE('python3 Scripts/PlotNetCDF.py '//'output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_general.nc')
-    ELSE
+    ! IF (python) THEN
+    !   write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. Plot general output (requires Python3). y? '
+    !   read(*,*) buf
+    !   if (UCASE(buf) == 'Y') CALL EXECUTE_COMMAND_LINE('python3 Scripts/PlotNetCDF.py '//'output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_general.nc')
+    ! ELSE
       write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. '
-    END IF
+    ! END IF
     write(*, '(a)') 'SO LONG!'
     write(*,*)
     write(*,*)
+    write(333,*) '---------- SIMULATION REACHED END SUCCESFULLY ------------'
+    close(333)
 
   END SUBROUTINE FAREWELL
 
