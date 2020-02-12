@@ -13,5 +13,5 @@ For convenience, there is a client (run it by executing superbox_client.sh) to s
 
 - netcdf4-python (optional, but highly recommended)
 
-You can probably install these with command: <python 3> -m pip install -U <module>, but this might vary from one
+You can (probably) install these with command: <python 3> -m pip install -U <module>, but this might vary from one
 Python installation to another. Also using Python VIRTUALENV is advisable.
