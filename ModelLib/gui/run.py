@@ -15,18 +15,26 @@
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-import vars, gui5, batchDialog,batch
+import vars, gui5, batchDialog1,batchDialog2,batchDialog3,batch
 from subprocess import Popen, PIPE, STDOUT
-from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique
+from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,ndarray,where
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod
 from os.path import exists
 from re import sub,IGNORECASE
+import particles as par
 
+try:
+    from scipy.ndimage.filters import gaussian_filter
+    scipyIs = True
+except:
+    print('Consider adding SciPy to your Python')
+    scipyIs = False
 try:
     import netCDF4
     netcdf = True
 except:
+    print('Consider adding netCDF4 to your Python')
     netcdf = False
 
 ## Some constants --------------------------------------------
@@ -106,18 +114,29 @@ nml = vars.INITFILE(NAMES)
 
 # The popup window for batch file preview
 class batchW(QtGui.QDialog):
-    def __init__(self, parent = None):
+    def __init__(self, parent = None, n=0):
         super(batchW, self).__init__(parent)
-        self.ui = batchDialog.Ui_batchDialog()
+        if n==3:
+            self.ui = batchDialog3.Ui_batchDialog()
+        elif n==2:
+            self.ui = batchDialog2.Ui_batchDialog()
+        else:
+            self.ui = batchDialog1.Ui_batchDialog()
         self.ui.setupUi(self)
         self.ui.bDialogbuttonBox.accepted.connect(self.accept)
         self.ui.bDialogbuttonBox.rejected.connect(self.reject)
     # Setter for window text
-    def settext(self,i,a):
-        if i==0: # 0 if text is to go the directory screen, 1 to file screen
-            self.ui.bDialogDirTextEdit.appendPlainText(''.join(a))
-        if i==1: # 0 if text is to go the directory screen, 1 to file screen
-            self.ui.bDialogFileTextEdit.appendPlainText(''.join(a))
+    def settext(self,a):
+        c = 1
+        for i in range(3):
+            if a[0][i]>0:
+                exec('self.ui.label_%d.setText(a[1][%d])'%(c,i))
+                exec('self.ui.tb_%d.appendPlainText(\'\'.join(a[2][%d]))'%(c,i))
+                c +=1
+        # if i==0: # 0 if text is to go the directory screen, 1 to file screen
+        #     self.ui.bDialogDirTextEdit.appendPlainText(''.join(a))
+        # if i==1: # 0 if text is to go the directory screen, 1 to file screen
+        #     self.ui.bDialogFileTextEdit.appendPlainText(''.join(a))
 
 # Class for input compounds/variables. Default values are used in parameter creator
 class Comp:
@@ -212,6 +231,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.indexRadioDate.toggled.connect(self.updatePath)
 
         self.dateEdit.dateChanged.connect(self.updateEnvPath)
+        self.dateEdit.dateChanged.connect(lambda: self.curDate.setText(self.dateEdit.text()))
+
         self.indexEdit.valueChanged.connect(self.updateEnvPath)
         self.indexRadioDate.toggled.connect(self.updateEnvPath)
         self.env_file.textChanged.connect(self.updateEnvPath)
@@ -241,6 +262,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # tab Function creator
     # -----------------------
+
+        self.PLOT.setMenuEnabled(False)
         self.PLOT.setBackground('w')
         self.PLOT.setLabel('bottom','time',units='h')
         self.PLOT.getAxis('left').setStyle(autoExpandTextSpace=False)
@@ -327,11 +350,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
         if netcdf:
             self.show_netcdf.hide()
+            self.show_netcdf_2.hide()
             self.fLog_2.clicked.connect(self.showOutputUpdate)
             self.fLin_2.clicked.connect(self.showOutputUpdate)
             self.findComp.textChanged.connect(self.filterListOfComp)
             self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
-
+            self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF (*.nc)"))
+            self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="Sumfile (*.sum)"))
         else:
             self.sumSelection.setEnabled(False)
             self.show_netcdf.show()
@@ -343,13 +368,21 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             'To view NetCDF-files you need netCDF4 for Python\nYou can istall it with pip, package manager or similar.'
             ))
 
+            self.loadNetcdfPar.clicked.connect(lambda: self.popup(
+            'Please note:',
+            'To view NetCDF-files you need netCDF4 for Python\nYou can istall it with pip, package manager or similar.'
+            ))
+
+        self.plotResultWindow.setMenuEnabled(False)
         self.plotResultWindow.showGrid(x=True,y=True)
         self.plotResultWindow.setBackground('w')
         pen = pg.mkPen(color=(0,0,0), width=1)
         self.plotResultWindow.getAxis('left').setPen(pen)
         self.plotResultWindow.getAxis('bottom').setPen(pen)
         self.sumSelection.stateChanged.connect(self.selectionMode)
-
+        self.loadCurrentBg.clicked.connect(lambda: self.showParOutput('load current'))
+        self.oneDayFwd.clicked.connect(lambda: self.moveOneDay(1))
+        self.oneDayBack.clicked.connect(lambda: self.moveOneDay(-1))
     # -----------------------
     # Load preferences, or create preferences if not found
     # -----------------------
@@ -363,6 +396,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Class methods
     # -----------------------
+    def moveOneDay(self, days):
+        day = self.dateEdit.date()
+        day=day.addDays(days)
+        self.dateEdit.setDate(day)
 
     def show_currentInit(self,file):
         self.saveCurrentButton.setEnabled(True)
@@ -413,7 +450,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         else:
             self.popup('Error', ret, icon=2)
             return
-        self.w = batchW()
+
         if conflicting_names != []:
             text = ''.join(['- %s\n' %i for i in conflicting_names])
             self.popup('File name conflicts',
@@ -421,23 +458,32 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             +'\nPlease resolve the naming conflicts and try again.\n')
             return
 
-        text = ''.join(['- %s\n' %i for i in dirs_to_create])
+        text_a = [[0,0,1],['','',''],['','','']]
+        text_a[1][2] = 'The following files will be created:'
+
+        if dirs_to_create != []:
+            text_a[0][0] = 1
+            text_a[1][0] = 'The following directories will be created:'
+            text_a[2][0] = ''.join(['- %s\n' %i for i in dirs_to_create])
+
         if existing_runs != []:
-            text = text + '\nPLEASE NOTE: There are some non-empty run directories! Possible output files will be overwritten!\n'
-            text = text+'\n'.join(['- %s' %i for i in existing_runs])
-        self.w.settext(0, text)
+            text_a[0][1] = 1
+            text_a[1][1] = 'NOTE: There are some non-empty run directories and the output files would be overwritten by the Model:'
+            text_a[2][1] = '\n'.join(['- %s' %i for i in existing_runs])
+        # self.w.settext(0, text)
 
         if files_to_overwrite != []:
             for i,f in enumerate(files_to_create):
                 if f in files_to_overwrite: files_to_create[i] = files_to_create[i]+' (current file will be overwritten)'
 
-        text = ''.join(['- %s\n' %i for i in files_to_create])
+        text_a[2][2] = ''.join(['- %s\n' %i for i in files_to_create])
         if self.createBashFile.isChecked():
             bashfile = '%s/%s_%s_%s-%s.bash'%(kwargs['common_root'],kwargs['case'],kwargs['run'],dates[0],dates[-1])
-            text = text + '\n- ' + bashfile
+            text_a[2][2] = text_a[2][2] + '\n- ' + bashfile
             if batch.paths(bashfile) == 1:
-                text = text + ' (current file will be overwritten)'
-        self.w.settext(1, text)
+                text_a[2][2] = text_a[2][2] + ' (current file will be overwritten)'
+        self.w = batchW(n=sum(text_a[0]))
+        self.w.settext(text_a)
         response = self.w.exec()
         if response == 0:
             return
@@ -709,6 +755,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 self.loadFixedFile(path)
             elif mode == 'plot':
                 self.showOutput(path)
+            elif mode == 'plotPar':
+                self.showParOutput(path)
             elif mode == 'dironly':
                 path = path[path.rfind('/')+1:]
                 target.clear()
@@ -966,6 +1014,67 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
 
 
+    def showParOutput(self, file):
+        window = self.surfacePlotWindow_1
+        windowInd = 1
+        levels=(self.lowlev.value(),self.highlev.value())
+        if '.nc' in file[-4:]:
+            windowInd = 0
+            window = self.surfacePlotWindow_0
+            self.parPlotTitle_0.setText(file)
+            self.lowlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_0))
+            self.highlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_0))
+        elif '.sum' in file or file == 'load current':
+            self.lowlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
+            self.highlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
+            if file == 'load current':
+                file = self.pars(self.dmps_file.text(), file=self.indir, stripRoot=self.stripRoot_par.isChecked())
+                if not exists(file):
+                    self.popup('','File not found', icon=2)
+                    return
+            self.parPlotTitle_1.setText(file)
+
+
+        window.clear()
+        ret = par.loadNC(file)
+        if 'str' in str(type(ret)):
+            self.popup('Error', 'File was not completely ok, maybe an interrupted run? Error message: \n'+ret, icon=2)
+            return
+        _,diam,n = ret
+        if windowInd==0:self.z0 = n
+        if windowInd==1:self.z1 = n
+        self.drawSurf(window, new=1)
+
+
+    def drawSurf(self,window, new=0):
+        if window==self.surfacePlotWindow_0: n_levelled = self.z0
+        else: n_levelled = self.z1
+
+        levels=(self.lowlev.value(),self.highlev.value())
+        # if scipyIs: n_levelled = gaussian_filter(n_levelled,(0.6,0.6),mode='constant')
+        n_levelled = where(n_levelled>=levels[1],levels[1]*0.98,n_levelled)
+
+        hm = pg.ImageItem(n_levelled)
+        try:
+            # If matplotlib is installed, we get colours
+            from matplotlib import cm
+            colormap = cm.get_cmap("viridis")  # cm.get_cmap("CMRmap")
+            colormap._init()
+            lut = (colormap._lut * 255).view(ndarray)  # Convert matplotlib colormap from 0-1 to 0 -255 for Qt
+            # Apply the colormap
+            hm.setLookupTable(lut)
+        except:
+            pass
+        # if self.diam != []:
+        #     if diam
+
+
+        #
+        hm.setLevels(levels)
+        window.setMenuEnabled(False)
+        window.addItem(hm)
+
+
     def startBox(self):
         self.closenetcdf()
         self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
@@ -1147,8 +1256,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.updteGraph()
 
         def solve_for_parser(query):
-            if query.upper() == 'NH3': return 1
-            elif query.upper() == 'DMA': return 2
+            if query.upper() == 'NH3': return 2
+            elif query.upper() == 'DMA': return 1
             else: return 0
 
         def parse_date(str):
@@ -1411,7 +1520,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
         # All's well, decorate plot
         self.plotResultWindow.setLabel('bottom', 'Time', units='h')
-        self.plotResultWindow.setTitle(file + ': ' + self.hnames[2]+' ['+units.get(self.hnames[2],units['REST'])[0]+']')
+        self.plotTitle = file + ': ' + self.hnames[2]+' ['+units.get(self.hnames[2],units['REST'])[0]+']'
+        self.plotResultWindow.setTitle(self.plotTitle)
 
 
 
@@ -1430,20 +1540,21 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     def showOutputUpdate(self):
         # find out which y-scale should be used
         scale = self.radio(self.fLin_2, self.fLog_2)
+        if scale == 'log':loga = True
+        else: loga = False
         # find out which variable should be plotted
         try:
             comp = self.availableVars.currentItem().text()
         except:
             return
-        otitle = self.plotResultWindow.getTitle()
         # Exctract that variable from netCDF-dataset and save to Y
-        title = otitle[:otitle.find(':')+1] + comp+' ['+units.get(comp,units['REST'])[0]+']'
+        self.plotTitle = self.plotTitle[:self.plotTitle.find(':')+2] + comp+' ['+units.get(comp,units['REST'])[0]+']'
         if not self.sumSelection.isChecked():
             Y = self.ncs.variables[comp][:]
         else:
             if self.availableVars.selectedItems() != []:
                 Y = sum(self.ncs.variables[c.text()][:] for c in self.availableVars.selectedItems())
-                title = self.availableVars.selectedItems()[0].text()+' etc.'
+                self.plotTitle = self.plotTitle[:self.plotTitle.find(':')+2] + self.availableVars.selectedItems()[0].text()+' etc.'
             else:
                 Y = self.ncs.variables[comp][:]
 
@@ -1451,7 +1562,15 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         positive = all(Y>=0)
         # Are all the values zeros?
         zeros = all(Y==0)
-        # if non-negative and not all zeros, and log-scale is possible
+        # if non-negative and not all zeros, and log-scale is possible without any fixes
+        if not zeros and not positive and scale=='log':
+            Y[Y<=0] = 1e-20
+            # Mark plot with red to warn that negative values have been deleted
+            self.outplot.setPen({'color':'r','width': 2.0})
+            positive = True
+        else:
+            self.outplot.setPen({'color':'b','width': 2.0})
+
         if scale=='log' and positive and not zeros:
             # To avoid very small exponentials, zeros are changed to nearest small number
             if not all(Y>0):
@@ -1460,16 +1579,19 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                     Y[Y==0] = uniqs[1]
                 # if the above fails, use linear scale
                 else:
-                    self.plotResultWindow.setLogMode(y=False)
+                    loga = False
             # if everything ok, use log scale
-            self.plotResultWindow.setLogMode(y=True)
+            loga = True
+
         # if linear scale was chosen, or negative values, or all zeros, use lin-scale
         else:
             self.plotResultWindow.setLogMode(y=False)
+            loga = False
         # update data
         self.outplot.setData(self.ncs.variables[self.hnames[0]][:]/3600,Y)
+        self.plotResultWindow.setLogMode(y=loga)
         # update title
-        self.plotResultWindow.setTitle(title)
+        self.plotResultWindow.setTitle(self.plotTitle)
 
 
     ## Popup message function -icon sets the icon:----------------------------------------------------------------------
@@ -1560,4 +1682,3 @@ if __name__ == '__main__':
     qt_box = QtBoxGui()
     qt_box.show()
     app.exec_()
-    # sys.exit(app.exec_())

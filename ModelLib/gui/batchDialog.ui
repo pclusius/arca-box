@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
-    <widget class="QPlainTextEdit" name="bDialogDirTextEdit">
+    <widget class="QPlainTextEdit" name="tb_1">
      <property name="textInteractionFlags">
       <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
      </property>
@@ -24,21 +24,21 @@
    <item row="2" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>The following files will be created:</string>
+      <string>label_2</string>
      </property>
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="QPlainTextEdit" name="bDialogFileTextEdit">
+    <widget class="QPlainTextEdit" name="tb_2">
      <property name="textInteractionFlags">
       <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
      </property>
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="label_1">
      <property name="text">
-      <string>The following directories will be created (existing directories are not listed):</string>
+      <string>label_1</string>
      </property>
     </widget>
    </item>

@@ -57,32 +57,40 @@ contains
     END IF
 
     i=0 ! reset counter for total number of ACDC runs
-
+    iterJ = 0d0
     ! Here the limits for formation is establised. The min/max for dma_f is trying to handle DMA_f = 0 and DMA_f > 1
 
     J_limits(1) = JACDC(MIN(conc_limits(1), conc_limits(1)/max(1d0,DMA_f)))
     J_limits(2) = JACDC(conc_limits(2))
 
+    IF (J_limits(1) < 1d-100) J_limits(1) = 1d-100
+
     ! In case someone sends percentages... Not foolproof
-    IF (resolve_BASE_precision > 1) resolve_BASE_precision = resolve_BASE_precision/100d0
+    ! IF (resolve_BASE_precision > 1) resolve_BASE_precision = resolve_BASE_precision/100d0
 
     ! show messages only when other printouts are shown, even if sub is run at filesaves
     if (MODELTIME%printnow) THEN
-      if (MODELTIME%printnow) print FMT_HDR
-      if (MODELTIME%printnow) write(buf, '(a,f5.2,a)') 'SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within ',100*resolve_BASE_precision,'% of target):'
-      if (MODELTIME%printnow) print FMT_MSG, TRIM(buf)
+      print FMT_HDR
+      write(buf, '(a,f5.2,a)') 'SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within ',100*resolve_BASE_precision,'% of target):'
+      print FMT_MSG, TRIM(buf)
     END IF
 
     ! if target J is smaller than lower limits would produce, don't bother iterating further
-    if (target_J < J_limits(1)) THEN
-      if (MODELTIME%printnow) write(buf,'(a,es9.3,a)') 'Target J (',target_J,') is smaller than what lower limits produce'
+    if (target_J < 1d-200) THEN
+      if (MODELTIME%printnow) write(buf,'(a,es9.3,a)') 'Target J is zero. No need for extra formation.'
+      if (MODELTIME%printnow) print FMT_MSG, TRIM(buf)
+      testbase = 0
+
+    ! if target J is smaller than lower limits would produce, don't bother iterating further
+    else if (target_J < J_limits(1)) THEN
+      if (MODELTIME%printnow) write(buf,'(a,es9.3,a)') 'Target J (',target_J*1d-6,') is smaller than what lower limits produce'
       if (MODELTIME%printnow) print FMT_MSG, TRIM(buf)
       testbase = 0
 
     ! if target J is larger than upper limits can produce, don't bother iterating further
     else if (target_J > J_limits(2)) THEN
-      if (MODELTIME%printnow) print'(es12.3,a,es12.3,es12.3)', target_J,' Target J is too large for current upper limits of bases', conc_limits(2), conc_limits(2)*DMA_f
-      testbase = C_AIR_NOW*1d6*2
+      if (MODELTIME%printnow) print'(es12.3,a,es12.3,es12.3)', target_J*1d-6,' Target J is too large for current upper limits of bases', conc_limits(2), conc_limits(2)*DMA_f
+      testbase = C_AIR_NOW*1d6
 
     ! if target J reasonable, iterate the concentrations
     else
@@ -101,7 +109,10 @@ contains
         ELSE
           minb = log10(testbase)
         END IF
-
+        if (i>50) THEN
+          PRINT*, 'Situation too instable, not possible to reach the precision, settling for less.'
+          EXIT
+        END IF
       END DO
     end if
     ! inform the result
@@ -119,6 +130,7 @@ contains
     ! save the result
     RESOLVED_J = iterJ*1d-6
     RESOLVED_BASE = testbase*1d-6
+    IF (RESOLVED_BASE<0) RESOLVED_BASE = 0d0
 
   contains
 
@@ -132,7 +144,7 @@ contains
       real(DP) :: BASE,testJ ! the cache variable for concentration. BASE is INTENT(INOUT) in ACDC, therefore this expendable var.
 
       BASE = test
-
+      JACDC = 0d0
       IF (UCASE(Fill_formation_with) /= 'DMA') THEN
         i = i+1
         CALL get_acdc_J(SA,BASE,dummy1,CS,T,IPR,MODELTIME,.true.,testJ,dummy2,dummy3)
