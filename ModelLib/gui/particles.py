@@ -1,5 +1,4 @@
 import numpy as np
-import netCDF4
 
 def log_to_lin(diam, sum):
     log = np.log10(diam)
@@ -42,6 +41,10 @@ def parseSum(file):
 def loadNC(file):
     if '.sum' in file:
         return parseSum(file)
+    try:
+        import netCDF4
+    except:
+        return 'This feature need netCDF for Python'
     try:
         nc = netCDF4.Dataset(file, 'r')
     except:

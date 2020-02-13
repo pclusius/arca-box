@@ -22,7 +22,6 @@ from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod
 from os.path import exists
 from re import sub,IGNORECASE
-import particles as par
 
 try:
     from scipy.ndimage.filters import gaussian_filter
@@ -32,6 +31,7 @@ except:
     scipyIs = False
 try:
     import netCDF4
+    import particles as par
     netcdf = True
 except:
     print('Consider adding netCDF4 to your Python')
