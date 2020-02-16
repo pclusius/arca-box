@@ -1681,4 +1681,9 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication([])
     qt_box = QtBoxGui()
     qt_box.show()
+    styles = QtWidgets.QStyleFactory.keys()
+    if "Fusion" in styles:
+        app.setStyle(QtWidgets.QStyleFactory.create("Fusion"))
+    else:
+        print('Available styles: ',styles)
     app.exec_()
