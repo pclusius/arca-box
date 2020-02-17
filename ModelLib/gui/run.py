@@ -8,11 +8,6 @@
 # petri.clusius@helsinki.fi
 # =============================================================================
 
-
-# -----------------------------------------------------------------------------
-# Generally these default settings should not changed, do so with your own risk
-# -----------------------------------------------------------------------------
-
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
 import vars, gui5, batchDialog1,batchDialog2,batchDialog3,batch
@@ -36,6 +31,10 @@ try:
 except:
     print('Consider adding netCDF4 to your Python')
     netcdf = False
+
+# -----------------------------------------------------------------------------
+# Generally these default settings should not changed, do so with your own risk
+# -----------------------------------------------------------------------------
 
 ## Some constants --------------------------------------------
 # widths of the columns in "Input variables" tab
@@ -95,7 +94,7 @@ try:
 except:
     pass
 
-## Create lists and dictionaries related to NAMES-------------
+## Create lists and dictionaries related to NAMES -------------
 i = 0
 with open(path_to_names) as f:
     for line in f:
@@ -133,10 +132,6 @@ class batchW(QtGui.QDialog):
                 exec('self.ui.label_%d.setText(a[1][%d])'%(c,i))
                 exec('self.ui.tb_%d.appendPlainText(\'\'.join(a[2][%d]))'%(c,i))
                 c +=1
-        # if i==0: # 0 if text is to go the directory screen, 1 to file screen
-        #     self.ui.bDialogDirTextEdit.appendPlainText(''.join(a))
-        # if i==1: # 0 if text is to go the directory screen, 1 to file screen
-        #     self.ui.bDialogFileTextEdit.appendPlainText(''.join(a))
 
 # Class for input compounds/variables. Default values are used in parameter creator
 class Comp:
@@ -282,28 +277,21 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.sliders = [self.fWidth,self.fPeak,self.fFreq,self.fPhase,self.fAmp]
         for i in range(5):
             self.resetSlider(self.sliders[i], defCompound.sliderVls[i])
-        # self.resetSlider(self.sliders[1], defCompound.sliderVls[1])
-        # self.resetSlider(self.sliders[2], defCompound.sliderVls[2])
-        # self.resetSlider(self.sliders[3], defCompound.sliderVls[3])
-        # self.resetSlider(self.sliders[4], defCompound.sliderVls[4])
 
         self.wScalei.valueChanged.connect(lambda: self.fWidth.setMaximum(max(self.wScalei.value(), 0.5)*slMxs[0]))
         self.peScale.valueChanged.connect(lambda: self.fPeak.setMaximum(max(self.peScale.value(), 0.5)*slMxs[1]))
         self.anScale.valueChanged.connect(lambda: self.fFreq.setMaximum(max(self.anScale.value(), 0.5)*slMxs[2]))
         self.phScale.valueChanged.connect(lambda: self.fPhase.setMaximum(max(self.phScale.value(), 0.5)*slMxs[3]))
         self.amScale.valueChanged.connect(lambda: self.fAmp.setMaximum(max(self.amScale.value(), 0.5)*slMxs[4]))
-
         self.resW.clicked.connect(lambda: self.resetSlider(self.fWidth, defCompound.sliderVls[0]))
         self.resP.clicked.connect(lambda: self.resetSlider(self.fPeak,  defCompound.sliderVls[1]))
         self.resA.clicked.connect(lambda: self.resetSlider(self.fFreq,  defCompound.sliderVls[2]))
         self.resPh.clicked.connect(lambda: self.resetSlider(self.fPhase,defCompound.sliderVls[3]))
         self.resAm.clicked.connect(lambda: self.resetSlider(self.fAmp,  defCompound.sliderVls[4]))
-        # self.resG.clicked.connect(lambda: self.resetSlider(self.gain,   defCompound.gain))
         self.fPeak.valueChanged.connect(lambda: self.updteGraph())
         self.fFreq.valueChanged.connect(lambda: self.updteGraph())
         self.fPhase.valueChanged.connect(lambda: self.updteGraph())
         self.fAmp.valueChanged.connect(lambda: self.updteGraph())
-        # self.gain.valueChanged.connect(lambda: self.updteGraph())
         self.PLOT.showGrid(x=True,y=True)
         self.PLOT.showButtons()
         self.updteGraph()
@@ -363,15 +351,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.fLin_2.setEnabled(False)
             self.fLog_2.setEnabled(False)
             self.findComp.setEnabled(False)
-            self.loadNetcdf.clicked.connect(lambda: self.popup(
-            'Please note:',
-            'To view NetCDF-files you need netCDF4 for Python\nYou can istall it with pip, package manager or similar.'
-            ))
+            netcdfMissinnMes = ('Please note:',
+            'To open NetCDF-files you need netCDF4 for Python\nYou can istall it with pip, package manager or similar.')
+            self.loadNetcdf.clicked.connect(lambda: self.popup(*netcdfMissinnMes))
+            self.loadNetcdfPar.clicked.connect(lambda: self.popup(*netcdfMissinnMes))
 
-            self.loadNetcdfPar.clicked.connect(lambda: self.popup(
-            'Please note:',
-            'To view NetCDF-files you need netCDF4 for Python\nYou can istall it with pip, package manager or similar.'
-            ))
 
         self.plotResultWindow.setMenuEnabled(False)
         self.plotResultWindow.showGrid(x=True,y=True)

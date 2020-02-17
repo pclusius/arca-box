@@ -1,7 +1,8 @@
-import numpy as np
+from numpy import log10, genfromtxt
+from pathlib import Path
 
 def log_to_lin(diam, sum):
-    log = np.log10(diam)
+    log = log10(diam)
     FF = (log[2:]-log[1:-1])/2 + (log[1:-1]-log[0:-2])/2
     dm_nconc_f = sum.copy()
     dm_nconc_f[:,1:-1] = dm_nconc_f[:,1:-1]*FF
@@ -10,7 +11,7 @@ def log_to_lin(diam, sum):
     return dm_nconc_f
 
 def lin_to_log(diam, sum):
-    log = np.log10(diam)
+    log = log10(diam)
     FF = (log[2:]-log[1:-1])/2 + (log[1:-1]-log[0:-2])/2
     dm_nconc_f = sum.copy()
     dm_nconc_f[:,1:-1] = dm_nconc_f[:,1:-1]/FF
@@ -21,7 +22,7 @@ def lin_to_log(diam, sum):
 
 def parseSum(file):
     try:
-        data = np.genfromtxt(file)
+        data = genfromtxt(Path(file))
     except:
         return 'Could not open the file: '+data
     if data[0,1] == 0:
@@ -33,7 +34,7 @@ def parseSum(file):
     time = data[1:,0]
 
     n_conc[n_conc<=0] = 1.01
-    n_conc = np.log10(n_conc)
+    n_conc = log10(n_conc)
     n_conc[n_conc<=0] = 0.0
 
     return time, diam, n_conc
@@ -46,7 +47,7 @@ def loadNC(file):
     except:
         return 'This feature need netCDF for Python'
     try:
-        nc = netCDF4.Dataset(file, 'r')
+        nc = netCDF4.Dataset(Path(file), 'r')
     except:
         return 'Could not open the file, is it accessible?'
     vnames = [i for i in nc.variables]
@@ -76,13 +77,8 @@ def loadNC(file):
         return 'The file shape is not as it should be, is it complete run?'
 
     number_concentration[number_concentration<=0] = 1.01
-    number_concentration = np.log10(number_concentration)
+    number_concentration = log10(number_concentration)
     number_concentration[number_concentration<=0] = 0.0
 
 
     return time, diameter[1,:], number_concentration
-
-
-# polku = '/home/pecl/05-APCAD/supermodel-phase-1/INOUT/HYDE/PC_2018-04-01/SA/Particle.nc'
-# polku = '/home/pecl/04-MALTE/dMalte/Malte_out/Box/PC180410/N1/particle.nc'
-# t,d,n = loadNC(polku)
