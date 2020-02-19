@@ -1,4 +1,4 @@
-from numpy import log10, genfromtxt
+from numpy import log10, genfromtxt,nan_to_num
 from pathlib import Path
 
 def log_to_lin(diam, sum):
@@ -32,7 +32,7 @@ def parseSum(file):
         n_conc = data[1:,1:]
         diam = data[0,1:]
     time = data[1:,0]
-
+    nan_to_num(n_conc,copy=False)
     n_conc[n_conc<=0] = 1.01
     n_conc = log10(n_conc)
     n_conc[n_conc<=0] = 0.0

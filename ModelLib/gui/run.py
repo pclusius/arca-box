@@ -217,7 +217,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.checkBox_aer.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.groupBox_8))
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
         self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,self.print_acdc))
-
         self.dateEdit.dateChanged.connect(self.updatePath)
         self.indexEdit.valueChanged.connect(self.updatePath)
         self.case_name.textChanged.connect(self.updatePath)
@@ -316,6 +315,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.batchRangeDayEnd.dateChanged.connect(lambda: self.batchRangeDay.setChecked(True))
         self.batchRangeIndBegin.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
         self.batchRangeIndEnd.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
+        self.chemistryModules.setEnabled(False)
+        self.ReplChem.stateChanged.connect(lambda: self.grayIfNotChecked(self.ReplChem,self.chemistryModules))
+
     # -----------------------
     # tab Process Monitor
     # -----------------------
@@ -384,6 +386,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         day = self.dateEdit.date()
         day=day.addDays(days)
         self.dateEdit.setDate(day)
+        self.showParOutput('load current')
 
     def show_currentInit(self,file):
         self.saveCurrentButton.setEnabled(True)
@@ -1626,11 +1629,12 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def remake(self):
         if self.running != None:
-            self.editMakefile(mod=self.chemistryModules.currentText())
-            self.compile = Popen(["make", "clean"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
-            while True:
-                self.running = self.compile.poll()
-                if self.running != None: break
+            if self.ReplChem.isChecked():
+                self.editMakefile(mod=self.chemistryModules.currentText())
+                self.compile = Popen(["make", "clean"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+                while True:
+                    self.running = self.compile.poll()
+                    if self.running != None: break
             self.compile = Popen(["make"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
             self.compileProgressBar.show()
             self.inv = 1
