@@ -1342,9 +1342,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'RUNTIME' == key and isFl: self.runtime.setValue(float(strng))
             elif 'PRINT_ACDC' == key: self.print_acdc.setChecked(strng)
             # elif 'DT' == key: print(strng)#          -1,
-            elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(float(strng))
-            elif 'PRINT_INTERVAL' == key and isFl: self.print_interval.setValue(float(strng))
-            elif 'FSAVE_DIVISION' == key and isFl: self.fsave_division.setValue(float(strng))
+            elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(int(strng))
+            elif 'PRINT_INTERVAL' == key and isFl: self.print_interval.setValue(int(strng))
+            elif 'FSAVE_DIVISION' == key and isFl: self.fsave_division.setValue(int(strng))
             elif 'DATE' == key: self.dateEdit.setDate(parse_date(strng))
             elif 'INDEX' == key and isFl: self.indexEdit.setValue(int(strng))
             elif 'PSD_MODE' == key and isFl: self.psd_mode.setCurrentIndex(int(strng))
