@@ -17,6 +17,8 @@ from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod
 from os.path import exists
 from re import sub,IGNORECASE
+import time
+
 
 try:
     from scipy.ndimage.filters import gaussian_filter
@@ -955,6 +957,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             f = open(file, 'w')
             f.write('#'+('-')*50+'\n')
             f.write('#      Superbox setting file: %s\n'%(file))
+            f.write('#         Created at: '+( time.strftime("%b %d %Y, %H:%M:%S", time.localtime()))+'\n')
             f.write('#'+('-')*50+'\n\n')
             nml.printall(vars.mods, target='f',f=f)
             f.close()
@@ -967,6 +970,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             print(('\n')*10, )
             print('#',('-')*50)
             print('#              Superbox setting file #%d'%(self.prints))
+            print('#         Created at:', ( time.strftime("%b %d %Y, %H:%M:%S", time.localtime())))
             print('#',('-')*50, '\n')
             nml.printall(vars.mods, target='p')
 
@@ -1218,8 +1222,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             vars.mods[name].pmInUse = self.selected_vars.cellWidget(i,4).currentText()
             vars.mods[name].unit = self.selected_vars.cellWidget(i,5).currentText()
         # nml.ENV.TEMPUNIT=vars.mods['TEMPK'].unit
-
-
+        #items = (self.groupBox.itemAt(i) for i in range(self.groupBox.count()))
+        nml.RAW.RAW = self.rawEdit.toPlainText()
+        nml.CUSTOM.CUSTOMS = []
+        for i in range(1,33):
+            key = 'customKey_%d'%i
+            value = 'customVal_%d'%i
+            exec('nml.CUSTOM.CUSTOMS.append([self.%s.text(),self.%s.text()])'%(key,value))
         return
 
 
@@ -1258,6 +1267,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
         f = open(file, 'r')
+        in_custom = False
+
         for line in f:
             i = line.find('=')
             x = line.find('!')
@@ -1272,8 +1283,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 if (strng[0] == "\'" and strng[-1] == "\'") or (strng[0] == "\"" and strng[-1] == "\""):
                     strng = strng[1:-1]
                 # change fortran boolean to python boolean
-                if strng == "T" or strng.upper() == ".TRUE.": strng = True
-                elif strng == "F" or strng.upper() == ".FALSE.": strng = False
+                if not in_custom:
+                    if strng == "T" or strng.upper() == ".TRUE.": strng = True
+                    elif strng == "F" or strng.upper() == ".FALSE.": strng = False
                 # Check if srtng is a number
                 try:
                     float(strng)
@@ -1319,7 +1331,26 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                             vars.mods[name].unit = unt
 
             else:
+                if line.strip() == '/' and in_custom:
+                    in_custom = False
+                    n = len(nml.CUSTOM.CUSTOMS)
+                    if n>0:
+                        for i in range(1,n+1):
+                            keyW = 'customKey_%d'%i
+                            valueW = 'customVal_%d'%i
+                            exec("self.%s.setText(\'%s\')"%(keyW,nml.CUSTOM.CUSTOMS[i-1][0]))
+                            exec("self.%s.setText(\'%s\')"%(valueW,nml.CUSTOM.CUSTOMS[i-1][1]))
+                        for j in range(i+1,33):
+                            keyW = 'customKey_%d'%j
+                            valueW = 'customVal_%d'%j
+                            exec("self.%s.clear()"%(keyW))
+                            exec("self.%s.clear()"%(valueW))
+
+                elif '&NML_CUSTOM' in line:
+                    in_custom = True
+                    nml.CUSTOM.CUSTOMS = []
                 continue
+
 
             if   'WORK_DIR' == key: self.inout_dir.setText(strng)
             # elif 'INOUT_DIR' == key and strng != default_inout: self.inout_dir.setText(strng)
@@ -1380,7 +1411,12 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
             elif 'VAP_PROPS' == key: self.vap_props.setText(strng)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
+            elif in_custom:
+                nml.CUSTOM.CUSTOMS.append([key, strng])
+                pass
 
+            elif '# RAW_INPUT' == key:
+                self.rawEdit.insertPlainText(strng.replace('<br>', '\n'))
             elif '# INPUT_SETTINGS' == key:
                 sets = strng.split()
                 for kv in sets:
@@ -1666,6 +1702,7 @@ dummy = Comp()
 defCompound = Comp()
 
 if __name__ == '__main__':
+    print('Superbox 0.2 started at:', ( time.strftime("%B %d %Y, %H:%M:%S", time.localtime())))
     app = QtWidgets.QApplication([])
     qt_box = QtBoxGui()
     qt_box.show()

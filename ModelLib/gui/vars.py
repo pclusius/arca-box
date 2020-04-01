@@ -33,6 +33,8 @@ class INITFILE:
         self.MODS = self._MODS(names)
         self.MISC = self._MISC()
         self.VAP = self._VAP()
+        self.CUSTOM = self._CUSTOM()
+        self.RAW = self._RAW()
         self.SETTINGS = self._SETTINGS()
 
     def printall(self, mods=None, target='p', f=None):
@@ -52,6 +54,8 @@ class INITFILE:
         self.MODS.printall(cmd,f,eol,mods)
         self.MISC.printall(cmd,f,eol)
         self.VAP.printall(cmd,f,eol)
+        self.CUSTOM.printall(cmd,f,eol)
+        self.RAW.printall(cmd,f,eol)
         self.SETTINGS.printall(cmd,f,eol)
 
     class _PATH:
@@ -255,6 +259,34 @@ class INITFILE:
             exec("%s(' VAP_PROPS = \\'%s\\'%s')"%(cmd,self.VAP_PROPS,eol))
             exec("%s(' VAP_ATOMS = \\'%s\\'%s')"%(cmd,self.VAP_ATOMS,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
+
+    class _CUSTOM:
+        def __init__(self):
+            self.CUSTOMS=[]
+
+        def printall(self,cmd,f,eol):
+            exec("%s('&NML_CUSTOM%s')"%(cmd, eol))
+            for key, value in self.CUSTOMS:
+                if key.strip() != '':
+                    try:
+                        float(value)
+                        exec("%s(' %s = %s%s')"%(cmd,key,value,eol))
+                    except:
+                        if value.upper() == '.TRUE.' or value.upper() == '.FALSE.':
+                            exec("%s(' %s = %s%s')"%(cmd,key,value,eol))
+                        else:
+                            exec("%s(' %s = \\'%s\\'%s')"%(cmd,key,value.replace("'",'').replace('"',''),eol))
+            exec("%s('/ \\n%s')"%(cmd, eol))
+
+    class _RAW:
+        def __init__(self):
+            self.RAW=''
+
+        def printall(self,cmd,f,eol):
+            exec("%s('%s%s')"%(cmd,self.RAW.replace('\n','\\n'),eol))
+            exec("%s('\\n%s')"%(cmd, eol))
+            exec("%s('# RAW_INPUT = \\'%s\\'%s')"%(cmd,self.RAW.replace('\n','<br>'),eol))
+
 
     class _SETTINGS:
         def __init__(self):
