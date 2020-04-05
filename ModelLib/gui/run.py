@@ -735,7 +735,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             else: path=''
             # path = dialog.getOpenFileName(self, 'Choose File', options=options)[0]
         if path != '':
-            if path[:currentdir_l] == currentdir:
+            if path[:currentdir_l] == currentdir and path[currentdir_l] == '/':
                 path = path[currentdir_l+1:]
             if mode == 'load':
                 self.load_initfile(path)
@@ -1274,6 +1274,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             x = line.find('!')
             if i<x or (x==-1 and i!=-1):
                 key = line[:i].upper().strip()
+                if key == '# RAW_INPUT':
+                    rawline = line[i+1:].lstrip().rstrip()
                 # remove comma and excess whitespace
                 strng = line[i+1:x].strip(' ,')
                 if len(strng) == 0:
@@ -1416,7 +1418,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 pass
 
             elif '# RAW_INPUT' == key:
-                self.rawEdit.insertPlainText(strng.replace('<br>', '\n'))
+                self.rawEdit.clear()
+                self.rawEdit.insertPlainText(rawline.replace('<br>', '\n'))
             elif '# INPUT_SETTINGS' == key:
                 sets = strng.split()
                 for kv in sets:

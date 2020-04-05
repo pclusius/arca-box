@@ -17,7 +17,7 @@ VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_
 
 # For programming (faster compiling):
 BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
--Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all -O2
+-Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all -O2 -fopenmp
 #BOX_OPTS = -ffree-line-length-none -cpp -DLINUX -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
 #-Warray-temporaries -Wtabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all
 
@@ -61,9 +61,9 @@ superbox.exe: Superbox.o $(BOX_OBJECTS) $(CHEM_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D
 $(OBJDIR)/Superbox.o: src/Supermodel_main.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS) $(PSD_OBJECTS)
 	 $(F90) $(BOX_OPTS) -c $< -o $@
 
-# # Chemistry
-#$(OBJDIR)/%.o: $(SRCDIR)/chemistry/%.f90#
-#	$(F90) $(CHEM_OPTS) -c $< -o $@
+# Chemistry
+# $(OBJDIR)/%.o: $(SRCDIR)/chemistry/%.f90#
+# 	$(F90) $(CHEM_OPTS) -c $< -o $@
 
 #PSD representation
 $(OBJDIR)/PSD.o: src/PSD.f90 $(PSD_OBJECTS)
@@ -111,33 +111,6 @@ $(OBJDIR)/second_Main.o: chemistry/$(CHMDIR)/second_Main.f90 second_Model.o seco
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 
 
-
-# # Uhma (aerosols)
-# $(OBJDIR)/uhma_datatypes.o: uhma/uhma_datatypes.f90
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
-# $(OBJDIR)/uhma_io.o: uhma/uhma_io.f90 uhma_datatypes.o
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
-# $(OBJDIR)/distribute.o: uhma/distribute.f90 uhma_datatypes.o
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
-# $(OBJDIR)/nucleate.o: uhma/nucleate.f90 uhma_datatypes.o $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
-# $(OBJDIR)/condense.o: uhma/condense.f90 uhma_datatypes.o
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
-# $(OBJDIR)/coagulate.o: uhma/coagulate.f90 uhma_datatypes.o
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
-# $(OBJDIR)/deposit.o: uhma/deposit.f90 uhma_datatypes.o
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
-# $(OBJDIR)/uhma_misc.o: uhma/uhma_misc.f90 uhma_datatypes.o arbitrary_input.o
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
-# $(OBJDIR)/gde_solver.o: uhma/gde_solver.f90 uhma_datatypes.o nucleate.o condense.o coagulate.o deposit.o distribute.o \
-# uhma_misc.o sorting.o
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
-# $(OBJDIR)/output_netcdf.o: uhma/output_netcdf.f90 uhma_datatypes.o
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@ $(NETLIBS)
-# $(OBJDIR)/sorting.o: uhma/sorting.f90 uhma_datatypes.o
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
-# $(OBJDIR)/arbitrary_input.o: uhma/arbitrary_input.f90 uhma_datatypes.o
-# 	$(F90) $(UHMA_OPTS) -c $< -o $@
 
 # ACDC
 ##NH3

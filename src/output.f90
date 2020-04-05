@@ -5,7 +5,6 @@ use INPUT
 use second_Monitor
 use AUXILLARIES
 USE Aerosol_auxillaries, only: vapour_ambient
-USE ParticleSizeDistribution, only: psd
 IMPLICIT NONE
 private
 

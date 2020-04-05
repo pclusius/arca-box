@@ -3,16 +3,16 @@ USE SECOND_PRECISION,  ONLY : dp, sp
 IMPLICIT NONE
 PUBLIC
 
-real(dp), parameter   :: Na = 6.022140857d23  ! 1/mol Avogadro constant
-real(dp), parameter   :: R  = 8.3144598       ! [J/K/mol] Universal gas constant
-real(dp), parameter   :: kb = R/Na            ! [J/K] Boltzmann constant
-real(dp), parameter   :: pi = ACOS(-1d0)      ! pi
-real(dp), parameter   :: K0 = 273.15d0        ! [K] Zero degree celcius in K
-integer(sp), parameter:: min_s = 60           ! [s] seconds in minute
-integer(sp), parameter:: hour_s  = 3600       ! [s] seconds in hour
-integer(sp), parameter:: day_s = 24*hour_s
-real(dp), parameter   :: um3_to_m3 = (1D-6)**3 ! used for  vol_concentration
-REAL(dp), PARAMETER   :: Mair = 28.96D-3          ! Mean molecular weight of air (kg)
+real(dp), parameter    :: Na = 6.022140857d23  ! 1/mol Avogadro constant
+real(dp), parameter    :: R  = 8.3144598       ! [J/K/mol] Universal gas constant
+real(dp), parameter    :: kb = R/Na            ! [J/K] Boltzmann constant
+real(dp), parameter    :: pi = ACOS(-1d0)      ! pi
+real(dp), parameter    :: K0 = 273.15d0        ! [K] Zero degree celcius in K
+integer(sp), parameter :: min_s = 60           ! [s] seconds in minute
+integer(sp), parameter :: hour_s  = 3600       ! [s] seconds in hour
+integer(sp), parameter :: day_s = 24*hour_s
+real(dp), parameter    :: um3_to_m3 = (1D-6)**3 ! used for  vol_concentration
+REAL(dp), PARAMETER    :: Mair = 28.96D-3          ! Mean molecular weight of air (kg)
 
 ! Saturation vapour pressure of water in Pa
 REAL, PARAMETER       :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
@@ -23,19 +23,21 @@ REAL, PARAMETER       :: a0 = 6.107799961,     & ! Parameters to calculate the s
                          a5 = 2.034080948E-8,  &
                          a6 = 6.136820929E-11
 
-! ----------------------------------------------------------------
+
+! ======================================================================================================================
 ! USER-DEFINED TYPES
+! ======================================================================================================================
 
-! Container for input, name, unit and parameters for creating simulated datapoints
-
+! ===========================================================================
+! Type for input, name, unit and parameters for creating simulated datapoints
 type input_mod
-  ! Mode of operation:
-  INTEGER   :: MODE  = 0
+
+  INTEGER   :: MODE  = 0 ! Mode of operation:
   ! 0 = use values that are read in from column "col", possibly modifying by a factor or a constant
   ! 1 = Use NORMALD to create function in LINEAR mode
   ! 2 = Use NORMALD to create function in LOGARITMIC mode
-  integer   :: col = -1     ! Column for input in whatever file the value will be. if -1, only modifiers are used
 
+  integer   :: col = -1     ! Column for input in whatever file the value will be. if -1, only modifiers are used
   real(dp)  :: multi = 1d0  ! Multiplication factor in MODE0
   real(dp)  :: shift = 0d0  ! Constant to be added in MODE0
   real(dp)  :: min = 0d0    ! Minimum value for the parametrized concentration OR constant value if max <= min
@@ -104,6 +106,44 @@ TYPE inert_particles
   REAL(dp), ALLOCATABLE :: sections(:)    ! diameters for the centers of the sections
   CHARACTER(20) :: name  ! Name for the stuff
 END TYPE inert_particles
+
+!===============================================================
+! type describing the particle size distribution and composition
+!===============================================================
+type PSD
+  INTEGER  :: PSD_style  !sets type of particle size distribution representation
+  INTEGER  :: nr_bins    !initial number of bins, particle sizes for any method
+  REAL(dp) :: dp_range(2)    !lower and upper limit of diameter for simulation
+
+  ! FULL STATIONARY METHOD
+  REAL(dp), ALLOCATABLE :: diameter_fs(:)          ! particle diameter [m] (nr_bins)
+  REAL(dp), ALLOCATABLE :: dp_dry_fs(:)            ! dry particle diameter [m] (nr_bins)
+  REAL(dp), ALLOCATABLE :: volume_fs(:)            ! particle volume   [m³ / m³] (nr_bins)
+  REAL(dp), ALLOCATABLE :: density_fs(:)           ! particle density  [kg * m⁻³] (nr_species_P)
+  REAL(dp), ALLOCATABLE :: particle_density_fs(:)  ! particle density [kg * m⁻³] (nr_bins)
+  REAL(dp), ALLOCATABLE :: particle_mass_fs(:)     ! particle mass [kg] (nr_bins)
+  REAL(dp), ALLOCATABLE :: composition_fs(:,:)     ! mass of all species in the particle phase [kg/m⁻³] (nr_bins,nr_species_P)
+  REAL(dp), ALLOCATABLE :: conc_fs(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
+END TYPE PSD
+
+!===============================================================
+!type describing the particle size distribution and composition
+!===============================================================
+type generic_PSD
+  INTEGER  :: nr_bins   !initial number of bins, particle sizes for any method
+  REAL(dp) :: dp_range(2)    !lower and upper limit of diameter for simulation
+
+  ! FULL STATIONARY METHOD
+  REAL(dp), ALLOCATABLE ::  &
+              diameter(:),  &             !particle diameter [m] (nr_bins)
+              dp_dry(:), &                !dry particle diameter [m] (nr_bins)
+              volume(:), &                !particle volume   [m³ / m³] (nr_bins)
+              density(:), &               !particle density  [kg * m⁻³] (nr_species_P)
+              particle_density(:), &      !particle density [kg * m⁻³] (nr_bins)
+              particle_mass(:), &         !particle mass [kg] (nr_bins)
+              composition(:,:), &         !mass of all species in the particle phase [kg/m⁻³] (nr_bins,nr_species_P)
+              conc(:)                     !particle concentration in each size bin [m⁻³] (nr_bins)
+END TYPE generic_PSD
 
 
 ! ------------------------------------------------------------

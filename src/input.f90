@@ -73,6 +73,19 @@ Logical :: PRINT_ACDC          = .false.
 NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, NUCLEATION, ACDC, &
          Extra_data, Current_case, Condensation, Coagulation, model_H2SO4, RESOLVE_BASE, PRINT_ACDC
 
+
+Logical :: distribution1 = .false.
+Logical :: distribution2 = .false.
+! Logical :: distribution3 = .false.
+NAMELIST /NML_DIST/ distribution1, distribution2!, distribution3
+
+Logical :: Multi_compounds   = .false.
+Logical :: use_test_vapours = .false.
+NAMELIST /NML_use_testcase/ Multi_compounds, use_test_vapours
+
+Logical :: USE_OPENMP   = .false.
+NAMELIST /NML_PARALLEL/ USE_OPENMP
+
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0
 real(dp)  :: FSAVE_INTERVAL = 300d0
@@ -158,10 +171,12 @@ character(len=256)  :: Vap_atoms = 'input/O_C.dat'
 NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_props, Vap_atoms
 
 type(vapour_ambient)  :: vapours
+type(vapour_ambient)  :: vapours_used
 type(ambient_properties)  :: ambient
 type(atoms):: Natoms  ! atoms of hydrogen, oxygen, nitrogen and carbon. Used for calculating diffusion
 
 real(dp),allocatable :: Diff_org(:), Vol_org(:)
+integer :: comp_infile
 
 contains
 
@@ -382,6 +397,8 @@ subroutine READ_INPUT_DATA()
    rowcol_count%rows = ROWCOUNT(52)
    rowcol_count%cols = COLCOUNT(53)
 
+   comp_infile=rowcol_count%rows
+
    allocate(vapours%Vapour_names(rowcol_count%rows + 1 ))
    allocate(vapours%molar_mass(rowcol_count%rows + 1))
    allocate(vapours%parameter_A(rowcol_count%rows + 1))
@@ -399,6 +416,7 @@ subroutine READ_INPUT_DATA()
 
    vapours%vapour_number = rowcol_count%rows
    vapours%vbs_bins      = rowcol_count%rows + 1
+
 
    write(buf,'(i0)') vapours%vapour_number
    print FMT_SUB, 'Vapours available = '//TRIM(buf)
@@ -441,6 +459,15 @@ subroutine READ_INPUT_DATA()
      vapours%c_sat(ii)         = 0.0 !calculate_saturation_vp(vapours%parameter_A(ii),vapours%parameter_B(ii), ambient%temperature)
    end if
  end do
+ !!!! for the run with multiple compounds .
+       if (Multi_compounds) then
+         vapours%Mfractions(:)=0.0
+         vapours%Mfractions(vapours%vapour_number)=1d0
+       else
+ !!! for test case default. Use 10 compounds
+         vapours%Mfractions(1)=1.0
+         vapours%Mfractions(2:9)=0.0
+      end if
 
 
    close(52)
@@ -551,6 +578,15 @@ subroutine READ_INIT_FILE
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
   do k=1, ROWCOUNT(50); READ(50,NML = NML_MODS, IOSTAT=IOS(i)) ! #9
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_DIST, IOSTAT=IOS(i)) ! #10
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_use_testcase, IOSTAT=IOS(i)) ! #11
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_PARALLEL, IOSTAT=IOS(i)) ! #12
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
   CLOSE(50)

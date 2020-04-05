@@ -283,9 +283,9 @@ class INITFILE:
             self.RAW=''
 
         def printall(self,cmd,f,eol):
-            exec("%s('%s%s')"%(cmd,self.RAW.replace('\n','\\n'),eol))
+            exec("%s('%s%s')"%(cmd,self.RAW.replace('\n','\\n').replace("'", "\\'").replace('"', '\\"'),eol))
             exec("%s('\\n%s')"%(cmd, eol))
-            exec("%s('# RAW_INPUT = \\'%s\\'%s')"%(cmd,self.RAW.replace('\n','<br>'),eol))
+            exec("%s('# RAW_INPUT = %s%s')"%(cmd,self.RAW.replace('\n','<br>').replace("'", "\\'").replace('"', '\\"'),eol))
 
 
     class _SETTINGS:

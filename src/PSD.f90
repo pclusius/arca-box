@@ -1,11 +1,11 @@
 MODULE ParticleSizeDistribution
-!Probably I can remove the do loop for nr_times: it will be outside this module
-!When used as a module, read in is:
-!nr_bins,PSD_style,nr_species,dp_range,nr_channels,process
-!change vectors: dconc_coag,dmass,dconc_dep_mix,mix_ratio
-!PSD_in
-!USE SECOND_PRECISION,  ONLY : dp
-!Question: should we have the density temperature dependent?
+! Probably I can remove the do loop for nr_times: it will be outside this module
+! When used as a module, read in is:
+! nr_bins,PSD_style,nr_species,dp_range,nr_channels,process
+! change vectors: dconc_coag,dmass,dconc_dep_mix,mix_ratio
+! PSD_in
+! USE SECOND_PRECISION,  ONLY : dp
+! Question: should we have the density temperature dependent?
 
   USE second_precision, ONLY: dp
   USE constants
@@ -14,57 +14,29 @@ MODULE ParticleSizeDistribution
 
   IMPLICIT NONE
 
-  ! Private
-  !
-  ! Public ::
-  !START: variables that will be defined outside
-!  INTEGER, PARAMETER :: dp = SELECTED_REAL_KIND(15,300)
-  INTEGER :: &
-              nr_time_in  !the line of the input array (i.e.: specifies the time) which is used to generate the model PSD
-!  REAL(dp) :: pi = 2D0*ASIN(1D0)
-  INTEGER :: &
-              nr_times, &      !number of points in time for PSD_in
-              nr_channels, &   !number of diameter channels for PSD_in
-              nr_species_P,&  !number of species that can go to the particle phase
-              nr_cond     ,&
-              nr_bins
+! Private
+!
+! Public ::
+! START: variables that will be defined outside
+! INTEGER, PARAMETER :: dp = SELECTED_REAL_KIND(15,300)
+! REAL(dp) :: pi = 2D0*ASIN(1D0)
+  INTEGER :: nr_time_in  !the line of the input array (i.e.: specifies the time) which is used to generate the model PSD
+  INTEGER :: nr_times      !number of points in time for PSD_in
+  INTEGER :: nr_channels   !number of diameter channels for PSD_in
+  INTEGER :: nr_species_P  !number of species that can go to the particle phase
+  INTEGER :: nr_cond
+  INTEGER :: nr_bins
+
   REAL(dp), ALLOCATABLE :: PSD_in(:,:)
   !END variables that will be defined outside
 
-  REAL(dp), ALLOCATABLE :: &
-                            dconc_coag(:,:), &   !coagulation: collision number matrix: nr_bins * nr_bins
-                            dmass(:,:) ,&    !change in particle mass (due to condensation or mixing) (nr_bins,nr_species_P)
-                            dconc_dep_mix(:), &      !change in particle concentration (e.g. reduced coagulatio or mixing) (nr_bins)
-                            mix_ratio(:), &     !gives the rate ratio: added volume over present volume per timestep
-                            dummy_property(:)   !has dimension of diameter array and can be used for various things (e.g.: fitting)
+  REAL(dp), ALLOCATABLE :: dconc_coag(:,:)   !coagulation: collision number matrix: nr_bins * nr_bins
+  REAL(dp), ALLOCATABLE :: dmass(:,:)        !change in particle mass (due to condensation or mixing) (nr_bins,nr_species_P)
+  REAL(dp), ALLOCATABLE :: dconc_dep_mix(:)  !change in particle concentration (e.g. reduced coagulatio or mixing) (nr_bins)
+  REAL(dp), ALLOCATABLE :: mix_ratio(:)      !gives the rate ratio: added volume over present volume per timestep
+  REAL(dp), ALLOCATABLE :: dummy_property(:) !has dimension of diameter array and can be used for various things (e.g.: fitting)
 
   CHARACTER(len=15) :: process !defines the process that passes information to subroutine Mass_Number_Change (coagulation, condensation, mixing)
-  logical :: testing_phase=.false.
-  !INTEGER :: &
-  !            i,j   ! some integer for loops
-
-  type PSD
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !type describing the particle size distribution and composition !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    INTEGER :: &
-                PSD_style, &  !sets type of particle size distribution representation
-                nr_bins   !initial number of bins, particle sizes for any method
-    REAL(dp) :: &
-                dp_range(2)    !lower and upper limit of diameter for simulation
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   !! FULL STATIONARY METHOD  !!
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    REAL(dp), ALLOCATABLE ::  &
-                diameter_fs(:),  &             !particle diameter [m] (nr_bins)
-                dp_dry_fs(:), &                !dry particle diameter [m] (nr_bins)
-                volume_fs(:), &                !particle volume   [m³ / m³] (nr_bins)
-                density_fs(:), &               !particle density  [kg * m⁻³] (nr_species_P)
-                particle_density_fs(:), &      !particle density [kg * m⁻³] (nr_bins)
-                particle_mass_fs(:), &         !particle mass [kg] (nr_bins)
-                composition_fs(:,:), &         !mass of all species in the particle phase [kg/m⁻³] (nr_bins,nr_species_P)
-                conc_fs(:)                     !particle concentration in each size bin [m⁻³] (nr_bins)
-  END TYPE PSD
 
   real(dp), allocatable :: conc_pp(:,:)        !concentration of all species in the particle phase [#/m⁻³] (nr_bins,nr_species_P)
   real(dp), allocatable :: par_conc(:)
@@ -74,6 +46,8 @@ MODULE ParticleSizeDistribution
   type(PSD) :: old_PSD
   type(PSD) :: mix_PSD
   type(PSD) :: interm_PSD
+  type(generic_PSD) :: par_dynamics
+  real(dp), allocatable :: dia_particle(:), vol_particle(:)
 
 
 
@@ -86,19 +60,21 @@ MODULE ParticleSizeDistribution
     !  3) generate the PSD related arrays
     IMPLICIT NONE
 
-    CALL PSD_get_input()  !get some variables from input module needed for PSD representation
-    CALL PSD_Allocate()   !allocate the variables representing the PSD
-    CALL GeneratePSDarrays()  !Generate the PSD arrays for modelling
+    CALL PSD_get_input()      ! get some variables from input module needed for PSD representation
+    CALL PSD_Allocate()       ! allocate the variables representing the PSD
+    CALL GeneratePSDarrays()  ! Generate the PSD arrays for modelling
 
   END SUBROUTINE initialize_PSD
 
+
+  ! ==================================================================================
+  ! This subroutine picks inputs needed from input MODULE to initialize the PSD module
+  ! ==================================================================================
   SUBROUTINE PSD_get_input()
-    !This subroutine picks inputs needed from input MODULE to initialize the PSD module
 
     IMPLICIT NONE
 
-    INTEGER :: &
-                nr_noncond      !number of species on the particle that are non-volatile
+    INTEGER :: nr_noncond      !number of species on the particle that are non-volatile
 
     !SET mode of particle size distribution representation:
     !   PSD_style: options for particle size distribution representation
@@ -132,14 +108,30 @@ MODULE ParticleSizeDistribution
   END SUBROUTINE PSD_get_input
 
 
+  ! ===========================================================================
+  ! This subroutine allocates the particle size distribution relevant variables
+  ! based on choice of representation type
+  ! Further it might be used to minimizes the dimensions of varibales used in
+  ! other PSD representation types to save computation time
+  ! ===========================================================================
   SUBROUTINE PSD_Allocate()
-    !This subroutine allocates the particle size distribution relevant variables
-    ! based on choice of representation type
-    !Further it might be used to minimizes the dimensions of varibales used in
-    !other PSD representation types to save computation time
     IMPLICIT NONE
 
     ALLOCATE(conc_pp(current_PSD%nr_bins,nr_species_P))
+    ALLOCATE(dia_particle(current_PSD%nr_bins + 2))
+    ALLOCATE(vol_particle(current_PSD%nr_bins + 2))
+
+    par_dynamics%nr_bins   = current_PSD%nr_bins
+    par_dynamics%dp_range  = current_PSD%dp_range
+
+    ALLOCATE(par_dynamics%diameter(par_dynamics%nr_bins))
+    ALLOCATE(par_dynamics%volume(par_dynamics%nr_bins))
+    ALLOCATE(par_dynamics%conc(par_dynamics%nr_bins))
+    ALLOCATE(par_dynamics%composition(par_dynamics%nr_bins,nr_species_P))
+    ALLOCATE(par_dynamics%density(nr_species_P))
+    ALLOCATE(par_dynamics%particle_density(par_dynamics%nr_bins))
+    ALLOCATE(par_dynamics%particle_mass(par_dynamics%nr_bins))
+
     IF (current_PSD%PSD_style == 1) THEN
       ! FULLY STATIONARY representation !
       ALLOCATE(current_PSD%diameter_fs(current_PSD%nr_bins))
@@ -199,6 +191,10 @@ MODULE ParticleSizeDistribution
     INTEGER :: &
                i  !some integer for incrementation
 
+    INTEGER, PARAMETER  ::  modes=5
+    REAL(dp), DIMENSION(modes) :: s, N_modes, dm
+
+    REAL(dp), DIMENSION(current_PSD%nr_bins) :: d_p, d_g, dlogDp
     current_PSD%conc_fs = 0.d0
     conc_pp = 0.d0
 
@@ -208,17 +204,41 @@ MODULE ParticleSizeDistribution
       !!!!!!!!!!!!!!!!!!!!!!!!!
       ! for testing
 
-     if (testing_phase) then
+     if (distribution1) then
         ! Particle diameters between 2D-9 and 2.5D-6 m:
        current_PSD%diameter_fs(1)=2D-9
        DO i=2,current_PSD%nr_bins
         current_PSD%diameter_fs(i)=current_PSD%diameter_fs(i-1)*(2.5D-6/current_PSD%diameter_fs(1))**(1D0/(current_PSD%nr_bins-1))
        END DO
        current_PSD%conc_fs = 1D0 ! Assume an initial particle number concentration of 1 [# m-3]
-       ! current_PSD%conc_fs(1) = 4.3D10
+       ! current_PSD%conc_fs(current_PSD%nr_bins) = 2d8
        where((abs(current_PSD%diameter_fs-2D-7)-MINVAL(abs(current_PSD%diameter_fs-2D-7)))<1D-20)  current_PSD%conc_fs=2D8  ! add 200 [# cm-3] to 200 nm sized accumulation mode particles
-      ! Define diameter array:
-      ! write(*,*) current_PSD%conc_fs
+       current_PSD%volume_fs = 1D0/6D0 * pi * current_PSD%diameter_fs**3.d0   ! Single particle volume (m^3)
+
+     elseif(distribution2) then ! use some arbitary particle size distribution
+       dia_particle(1)=2D-9 !1.95D-9
+       vol_particle(1)=(pi*dia_particle(1)**3)/6
+       DO i=2,current_PSD%nr_bins+1
+          vol_particle(i)=vol_particle(i-1)*1.2!048!9!1.199
+       END DO
+       dia_particle = (vol_particle*6./pi)**(1D0/3D0)
+
+       d_p = (dia_particle(1:current_PSD%nr_bins) + dia_particle(2:current_PSD%nr_bins+1))/2D0    ! Arithmetic mean diameter in each
+       d_g = (dia_particle(1:current_PSD%nr_bins)*dia_particle(2:current_PSD%nr_bins+1))**0.5;    ! Geometric mean diameter in each size bin
+       dlogDp=log10(dia_particle(2:current_PSD%nr_bins+1))-log10(dia_particle(1:current_PSD%nr_bins))
+
+       dm = (/ 1.9317115D-8, 3.2812671D-8, 4.8989795D-8, 1.2D-7, 3.2719494D-7 /) ! Mode diameter size distribution (m)
+       s = (/ 1.1833333, 1.2666667, 1.4333333, 1.5, 1.2666667 /)  ! Standard deviation for each mode
+       N_modes = (/ 1D3, 1D3, 1D3, 1D9, 1D1 /) ! Number concentration modes (#/m^3)
+       ! dm = (/ 3.2812671D-8, 4.8989795D-8, 3.2719494D-7 /) ! Mode diameter size distribution (m)
+       ! s = (/ 1.2666667, 1.4333333, 1.2666667 /)  ! Standard deviation for each mode
+       ! N_modes = (/ 1D3, 1D9, 1D3 /) ! Number concentration modes (#/m^3)
+
+       current_PSD%diameter_fs = d_p !arithmetic mean diameter
+       CALL dNdlogDp(d_g,d_p,dlogDp,modes,s,N_modes,dm,current_PSD%conc_fs) ! Initial size dist
+       ! where (current_PSD%diameter_fs<1D0) current_PSD%diameter_fs=1D0
+       ! write(*,*) 'l 285 sum(current_PSD%conc_fs)', sum(current_PSD%conc_fs)
+       current_PSD%volume_fs = 1D0/6D0 * pi * current_PSD%diameter_fs**3.d0
       else
        current_PSD%diameter_fs(1) = current_PSD%dp_range(1)
        do i = 2,current_PSD%nr_bins
@@ -226,9 +246,10 @@ MODULE ParticleSizeDistribution
         (current_PSD%dp_range(2) / current_PSD%dp_range(1)) ** &
         (1.D0/(current_PSD%nr_bins-1))
        end do
+       current_PSD%volume_fs = 1D0/6D0 * pi * current_PSD%diameter_fs**3.d0   ! Single particle volume (m^3)
      end if
       !Define diameter array:
-      current_PSD%volume_fs = 1D0/6D0 * pi * current_PSD%diameter_fs**3.d0     ! Single particle volume (m^3)
+
       !! particle_density .. neede for diffusion
       current_PSD%particle_density_fs = 1.4D3
       current_PSD%particle_mass_fs = 1D0/6D0 * pi * current_PSD%diameter_fs**3 * current_PSD%particle_density_fs
@@ -386,7 +407,7 @@ MODULE ParticleSizeDistribution
     !Subroutine input is change-array dconc_dep_mix(nr_bins) or dconc_coag(nr_bins,nr_bins) for number
     IMPLICIT NONE
     CHARACTER(len=*),INTENT(IN)  :: process
-
+    ! Real(dp), dimension(par_dynamics%nr_bins, nr_species_P), intent(in) :: dmass
     ! INTEGER :: i     !some integer for looping
 
     IF (current_PSD%PSD_style == 1) THEN
@@ -436,23 +457,15 @@ MODULE ParticleSizeDistribution
       ! write(*,*) 'in PSD_Change_Condensation dmass', sum(dmass)
       !Find new volume in case of condensation
       DO i = 1, current_PSD%nr_bins
-        mix_PSD%volume_fs(i) =    current_PSD%volume_fs(i) + &
-                                 SUM(dmass(i,:) / current_PSD%density_fs(:))
+        mix_PSD%volume_fs(i) =  current_PSD%volume_fs(i) + &
+                                 SUM(dmass(i,:) / current_PSD%density_fs(:) / current_PSD%conc_fs(i)) ! in m^3
 
 
-        mix_PSD%composition_fs(i,:) = current_PSD%composition_fs(i,:)!dmass(i,:) + current_PSD%composition_fs(i,:)
+        mix_PSD%composition_fs(i,:) = dmass(i,:) + current_PSD%composition_fs(i,:)
         mix_PSD%conc_fs(i) = current_PSD%conc_fs(i)
         IF ( mix_PSD%conc_fs(i) > 0.d0 ) CALL bin_redistribute_fs(i)
         mix_PSD%conc_fs(i) = 0.d0
-      ! PRINT*,i,mix_PSD%volume_fs(i),current_PSD%volume_fs(i)
-         ! PRINT*,i,sum(mix_PSD%composition_fs),sum(current_PSD%composition_fs)
-         ! PRINT*,mix_PSD%volume_fs(i)/current_PSD%volume_fs(i)
-        ! PRINT*,SUM(dmass(i,:)),current_PSD%volume_fs(i) !SUM(dmass(i,:)/current_PSD%density_fs)
        END DO
-       ! write(*,*) sum(mix_PSD%volume_fs), sum(current_PSD%volume_fs),sum(test),sum(new_PSD%volume_fs)
-        ! PRINT*,sum(new_PSD%composition_fs),sum(mix_PSD%composition_fs),sum(current_PSD%composition_fs)
-      ! current_PSD%conc_fs=new_psd%conc_fs
-      ! current_PSD%composition_fs=new_PSD%composition_fs
     ELSE
       print*,'choose other form of representation:'
       print*,current_PSD%PSD_style,'is not defined yet'
@@ -478,31 +491,39 @@ MODULE ParticleSizeDistribution
       !FULLY STATIONARY METHOD!
       !!!!!!!!!!!!!!!!!!!!!!!!!
       mix_PSD%conc_fs = 0.d0  !initial value is zero -> content is determined below
-      new_PSD%conc_fs = current_PSD%conc_fs  !the initial concentration is like the old -> changes are applied below
+      ! new_PSD%conc_fs = current_PSD%conc_fs  !the initial concentration is like the old -> changes are applied below
+      ! mix_PSD%composition_fs =0.0d0
+      ! new_PSD%composition_fs = 0.0d0
 
       !apply changes for all combinations of i and j
-      DO i = 1, current_PSD%nr_bins
+      DO i = 1, current_PSD%nr_bins-1 ! changed by Carlton. going to nr bins gives unrealistic number concentration in nr_bins
         DO j = 1, i
           IF (dconc_coag(i,j) > 0.d0) THEN
             !PRINT*,'coag',i,j
-            !PRINT*, mix_PSD%composition_fs(i,:), mix_PSD%conc_fs(i)
+            ! PRINT*, mix_PSD%composition_fs(i,:), mix_PSD%conc_fs(i)
             !Reduce the new particle concentration by the number of particles that are lost by coagulation in i and j -> they will be added later to the new bin
-            new_PSD%conc_fs(i) = new_PSD%conc_fs(i) - dconc_coag(i,j)  !reduce number in i
-            new_PSD%conc_fs(j) = new_PSD%conc_fs(j) - dconc_coag(i,j)  !reduce number in j (if i=j we have to reduce twice (which is done here) as 1 collision removes 2 particles)
+            new_PSD%conc_fs(i) = new_PSD%conc_fs(i) - dconc_coag(i,j)*MODELTIME%dt_aero  !reduce number in i
+            new_PSD%conc_fs(j) = new_PSD%conc_fs(j) - dconc_coag(i,j)*MODELTIME%dt_aero  !reduce number in j (if i=j we have to reduce twice (which is done here) as 1 collision removes 2 particles)
             !Determine new mass compositions: (total mass of collision products (i+j) + total mass already in mix bin i) / devided by sum of concentration (collisions + mix)
             mix_PSD%composition_fs(i,:) = (current_PSD%composition_fs(i,:) + current_PSD%composition_fs(j,:))  !composition of of collision result bins: i + j
             !update concentration in the mix_PSD
-            mix_PSD%conc_fs(i) = dconc_coag(i,j)
+            mix_PSD%conc_fs(i) = dconc_coag(i,j)*MODELTIME%dt_aero
+
             !Determine volume of the mixing aerosol
-            mix_PSD%volume_fs(i) = SUM(mix_PSD%composition_fs(i,:) / current_PSD%density_fs(:))   !Determine the volume of particles in the mix distribution
+
+            mix_PSD%volume_fs(i) = current_PSD%volume_fs(i) +current_PSD%volume_fs(j)!SUM(mix_PSD%composition_fs(i,:) / current_PSD%density_fs(:) / current_PSD%conc_fs(i))   !Determine the volume of particles in the mix distribution
+            ! original one
+            ! mix_PSD%volume_fs(i) = SUM(mix_PSD%composition_fs(i,:) / current_PSD%density_fs(:) / current_PSD%conc_fs(i))
             !PRINT*,current_PSD%composition_fs(i,:) + current_PSD%composition_fs(j,:), dconc_coag(i,j)
             !PRINT*, mix_PSD%composition_fs(i,:), mix_PSD%conc_fs(i)
             !PAUSE
+            ! print*, mix_PSD%volume_fs(i), '',SUM(mix_PSD%composition_fs(i,:) / current_PSD%density_fs(:) / current_PSD%conc_fs(i))
             CALL bin_redistribute_fs(i)
             mix_PSD%conc_fs(i) = 0.d0  !reset value to zero -> changes have been applied
           END IF
         END DO
       END DO
+
     ELSE
       print*,'choose other form of representation:'
       print*,current_PSD%PSD_style,'is not defined yet'
@@ -556,8 +577,6 @@ MODULE ParticleSizeDistribution
 
 
 
-
-
   SUBROUTINE bin_redistribute_fs(i)
     !!!!!!!!!!!!!!!!!!!!!!!!!
     !FULLY STATIONARY METHOD!
@@ -569,18 +588,18 @@ MODULE ParticleSizeDistribution
     IMPLICIT NONE
 
     INTEGER, INTENT(IN) ::   i  !the bin which is to be redistributed -> it generally has different diameter than in diameter_fs!
-    INTEGER   :: j      ! some integer for incrementation
-    INTEGER   :: a      ! a and (a+-1): bin number where the new concentration moves to
-    REAL(dp)  :: r1,r2 !contration fractions that move to bin a and a-1, respectively
+    INTEGER :: &
+               j,k,  &!some integer for incrementation
+               a     !a and (a+-1): bin number where the new concentration moves to
+    REAL(dp) :: &
+               r1,r2   !contration fractions that move to bin a and a-1, respectively
 
 
     !Find the bin numbers (a-1, a) where the content goes to
     a = MINLOC(current_PSD%volume_fs-mix_PSD%volume_fs(i),1, &
         mask = (current_PSD%volume_fs-mix_PSD%volume_fs(i)) >= 0.0_dp)
-        ! write(*,*) 'line 561 a value', a
     IF (a == 0) THEN !move to largest bin or beyond
       j = new_PSD%nr_bins  !to save some space
-      ! write(*,*) 'line 561 a value', a
       new_PSD%composition_fs(j,:) = (new_PSD%composition_fs(j,:) * new_PSD%conc_fs(j) + &    !new composition in new_PSD%nr_bins
                                     mix_PSD%composition_fs(i,:) * mix_PSD%conc_fs(i)) / &
                                     (new_PSD%conc_fs(j) + mix_PSD%conc_fs(i))
@@ -594,28 +613,14 @@ MODULE ParticleSizeDistribution
       interm_PSD%conc_fs(a) = r2 * mix_PSD%conc_fs(i)
       interm_PSD%conc_fs(a-1) = r1 * mix_PSD%conc_fs(i)
       !Determine new mass compositions:
-      ! interm_PSD%composition_fs(a-1,:) = mix_PSD%composition_fs(i,:) * current_PSD%volume_fs(a-1) / mix_PSD%volume_fs(i)   !composition of fraction that goes to a-1
-      ! new_PSD%composition_fs(a-1,:) = (new_PSD%composition_fs(a-1,:) * new_PSD%conc_fs(a-1) + &    !new composition in a-1
-      !                               interm_PSD%composition_fs(a-1,:) * interm_PSD%conc_fs(a-1)) / &
-      !                              (new_PSD%conc_fs(a-1) + interm_PSD%conc_fs(a-1))
-      ! interm_PSD%composition_fs(a,:) = mix_PSD%composition_fs(i,:) * current_PSD%volume_fs(a) / mix_PSD%volume_fs(i) !composition of fraction that goes to a
-      ! new_PSD%composition_fs(a,:) = (new_PSD%composition_fs(a,:) * new_PSD%conc_fs(a) + &   !new composition in a
-      !                               interm_PSD%composition_fs(a,:) * interm_PSD%conc_fs(a)) / &
-      !                              (new_PSD%conc_fs(a) + interm_PSD%conc_fs(a))
-      ! !Determine new particle number concentrations:
-      ! new_PSD%conc_fs(a-1) = new_PSD%conc_fs(a-1) + interm_PSD%conc_fs(a-1)
-      ! new_PSD%conc_fs(a) = new_PSD%conc_fs(a) + interm_PSD%conc_fs(a)
-!edits by carlton
-      interm_PSD%composition_fs(a-1,:) = mix_PSD%composition_fs(a-1,:) * current_PSD%volume_fs(a-1) / mix_PSD%volume_fs(i) &
-                                        *r1* current_PSD%composition_fs(i,:) !composition of fraction that goes to a-1
-      new_PSD%composition_fs(a-1,:) = interm_PSD%composition_fs(a-1,:)!new_PSD%composition_fs(a-1,:) * new_PSD%conc_fs(a-1) + &    !new composition in a-1
-                                   !  interm_PSD%composition_fs(a-1,:) * interm_PSD%conc_fs(a-1)) / &
-                                   ! (new_PSD%conc_fs(a-1) + interm_PSD%conc_fs(a-1))
-      interm_PSD%composition_fs(a,:) = mix_PSD%composition_fs(a,:) * current_PSD%volume_fs(a) / mix_PSD%volume_fs(i)* &
-                                       r2*current_PSD%composition_fs(i,:) !composition of fraction that goes to a
-      new_PSD%composition_fs(a,:) = interm_PSD%composition_fs(a,:)!(new_PSD%composition_fs(a,:) * new_PSD%conc_fs(a) + &   !new composition in a
-                                   !  interm_PSD%composition_fs(a,:) * interm_PSD%conc_fs(a)) / &
-                                   ! (new_PSD%conc_fs(a) + interm_PSD%conc_fs(a))
+      interm_PSD%composition_fs(a-1,:) = mix_PSD%composition_fs(i,:) * current_PSD%volume_fs(a-1) / mix_PSD%volume_fs(i)   !composition of fraction that goes to a-1
+      new_PSD%composition_fs(a-1,:) = (new_PSD%composition_fs(a-1,:) * new_PSD%conc_fs(a-1) + &    !new composition in a-1
+                                    interm_PSD%composition_fs(a-1,:) * interm_PSD%conc_fs(a-1)) / &
+                                   (new_PSD%conc_fs(a-1) + interm_PSD%conc_fs(a-1))
+      interm_PSD%composition_fs(a,:) = mix_PSD%composition_fs(i,:) * current_PSD%volume_fs(a) / mix_PSD%volume_fs(i) !composition of fraction that goes to a
+      new_PSD%composition_fs(a,:) = (new_PSD%composition_fs(a,:) * new_PSD%conc_fs(a) + &   !new composition in a
+                                    interm_PSD%composition_fs(a,:) * interm_PSD%conc_fs(a)) / &
+                                   (new_PSD%conc_fs(a) + interm_PSD%conc_fs(a))
       !Determine new particle number concentrations:
       new_PSD%conc_fs(a-1) = new_PSD%conc_fs(a-1) + interm_PSD%conc_fs(a-1)
       new_PSD%conc_fs(a) = new_PSD%conc_fs(a) + interm_PSD%conc_fs(a)
@@ -623,9 +628,40 @@ MODULE ParticleSizeDistribution
       new_PSD%conc_fs(i) = new_PSD%conc_fs(i) + mix_PSD%conc_fs(i)
     END IF
 
-    ! current_PSD%conc_fs(i)=new_PSD%conc_fs(i)
-    ! current_PSD%composition_fs(i,:) = new_PSD%composition_fs(i,:)
+    current_PSD%conc_fs(i) = new_PSD%conc_fs(i)
+    current_PSD%composition_fs(i,:)  = new_psd%composition_fs(i,:)
+
+
+  ! if particle concentations  < 0d0
+    if (current_PSD%conc_fs(i) <= 0D0) then
+      current_PSD%conc_fs(i)=1D0
+    end if
 
   END SUBROUTINE bin_redistribute_fs
+
+  SUBROUTINE dNdlogDp(d_g,d_p,dlogDp,modes,s,N_modes,dm,N_bins)
+     INTEGER ::  ii
+     INTEGER, INTENT(IN) :: modes
+     REAL(dp), DIMENSION(modes), INTENT(IN) :: s,N_modes,dm
+     REAL(dp), DIMENSION(modes,current_PSD%nr_bins)   :: dNdlogDp_modes
+     REAL(dp), DIMENSION(current_PSD%nr_bins), INTENT(IN) :: d_g,d_p,dlogDp
+     REAL(dp), DIMENSION(current_PSD%nr_bins)  :: Vp
+     REAL(dp), DIMENSION(current_PSD%nr_bins), INTENT(OUT) :: N_bins
+
+     DO ii = 1,modes
+           dNdlogDp_modes(ii,:) = ( N_modes(ii) / 2.506628 / LOG10(s(ii)))*&
+             EXP(-((LOG10(d_g) - log10(dm(ii)))**2 ) / (2*LOG10(s(ii))**2 ))
+             ! write(*,*) 'L704 psd', sum(EXP(-((LOG10(d_g) - log10(dm(ii)))**2 ) / (2*LOG10(s(ii))**2 )) ),sum((LOG10(d_g))), log10(dm(ii)), &
+             ! sum(((LOG10(d_g) - log10(dm(ii)))**2))
+     END DO
+
+     N_bins=SUM(dNdlogDp_modes, DIM=1)*dlogDp+1D-3
+
+
+     ! Vp=d_p**3.0*pi/6.0
+     ! V_bins=N_bins*Vp
+
+
+  END SUBROUTINE dNdlogDp
 
 END MODULE ParticleSizeDistribution

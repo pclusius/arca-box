@@ -10,7 +10,7 @@
 
 &NML_FLAG
  CHEMISTRY_FLAG = .TRUE.
- AEROSOL_FLAG = .FALSE.
+ AEROSOL_FLAG = .TRUE.
  ACDC_SOLVE_SS = .TRUE.
  NUCLEATION = .TRUE.
  ACDC = .TRUE.
@@ -19,17 +19,17 @@
  CONDENSATION = .TRUE.
  COAGULATION = .TRUE.
  MODEL_H2SO4 = .TRUE.
- RESOLVE_BASE = .TRUE.
+ RESOLVE_BASE = .FALSE.
  PRINT_ACDC = .FALSE.
 / 
 
 &NML_TIME
- RUNTIME = 24.0
+ RUNTIME = 2.0
  DT = 10
  FSAVE_INTERVAL = 300
  PRINT_INTERVAL = 600
  FSAVE_DIVISION = 0
- DATE = '2018-04-04'
+ DATE = '2018-04-01'
  INDEX = ''
 / 
 
@@ -38,7 +38,7 @@
  N_BINS_PARTICLE = 50
  MIN_PARTICLE_DIAM = 1e-10
  MAX_PARTICLE_DIAM = 1e-5
- DMPS_FILE = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/filled_dmps/dm180404.sum'
+ DMPS_FILE = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/filled_dmps/dm180401.sum'
  EXTRA_PARTICLES = ''
  DMPS_READ_IN_TIME = 2.0
  DMPS_HIGHBAND_LOWER_LIMIT = 1e-8
@@ -48,11 +48,11 @@
 / 
 
 &NML_ENV
- ENV_FILE = 'INOUT/HYDE/PC_2018-04-04/input/env180404.dat'
+ ENV_FILE = 'INOUT/HYDE/PC_2018-04-01/input/env180401.dat'
 / 
 
 &NML_MCM
- MCM_FILE = 'INOUT/HYDE/PC_2018-04-04/input/voc180404.dat'
+ MCM_FILE = 'INOUT/HYDE/PC_2018-04-01/input/voc180401.dat'
 / 
 
 &NML_MODS
@@ -106,6 +106,24 @@
  VAP_PROPS = 'ModelLib/Vapour_properties.dat'
  VAP_ATOMS = 'ModelLib/O_C.dat'
 / 
+
+&NML_CUSTOM
+/ 
+
+
+&NML_DIST
+distribution1 = .false.   !MODELLING SCHOOL
+distribution2 = .true.  !pontus version
+/
+
+&NML_use_testcase
+Multi_compounds    = .true.
+use_test_vapours  = .false.
+/
+
+&NML_PARALLEL
+USE_OPENMP = .true.
+/
 
 # These settings are for the gui and not used by the model ------------------ 
 # INPUT_SETTINGS = 'env_file:env<yy><mm><dd>.dat mcm_file:voc<yy><mm><dd>.dat dmps_file:/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/filled_dmps/dm<yy><mm><dd>.sum extra_particles: stripRoot_env:.TRUE. stripRoot_mcm:.TRUE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'

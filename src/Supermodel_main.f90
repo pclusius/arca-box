@@ -18,6 +18,7 @@ PROGRAM Supermodel
 !    USE Aerosol
     USE ParticleSizeDistribution
     USE aerosol_dynamics
+    use omp_lib
 
 
     IMPLICIT NONE
@@ -26,7 +27,7 @@ PROGRAM Supermodel
     CHARACTER(90) :: buf
     CHARACTER(:), allocatable:: RUN_OUTPUT_DIR
     INTEGER       :: in_channels !number of diameters -> passed over to the fitting subroutine
-    INTEGER       :: I
+    INTEGER       :: I, J,val, val1
 
     ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
     REAL(dp), ALLOCATABLE :: TSTEP_CONC(:), TEST_CONC(:)
@@ -47,7 +48,14 @@ PROGRAM Supermodel
     TYPE(error_type) :: error
 
      ! real(dp), dimension(10):: cond_vapour
-    ! real(dp) :: time, time_end
+    real(dp) :: time, time_end
+    REAL(DP) :: J_value
+
+    INTEGER, DIMENSION(:), allocatable :: index_cond,kk
+    real(dp), dimension(:), allocatable:: cond_vapour
+
+    integer:: omp_rank
+
 
 
 
@@ -77,7 +85,7 @@ PROGRAM Supermodel
 
         dp_fit = par_data(1,3:) ! PC: Is this correct, now we miss one channel?
         y_fit = par_data(5,3:) ! PC: Is this correct, now we miss one channel?
-                               ! PC: What if there is no line 5 in par_data??
+        dummy_property = 0.d0  ! PC: What if there is no line 5 in par_data??
 
         dummy_property = 0.d0 ! PC: Now dummy_property is zero
         CALL GeneratePSDfromInput(dp_fit,y_fit) ! PC: Now it is not zero anymore. IMHO, this approach is too sloppy
@@ -88,26 +96,30 @@ PROGRAM Supermodel
         dummy_property = dummy_property * LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))
         ! current_PSD%conc_fs = dummy_property
 
-!!!!! added by carlton
-       ! vapours%Mfractions(1)=1.0
-       !  ! vapours%Mfractions(1)=0.0
-       ! vapours%Mfractions(2:9)=0.0
+
+      if (PSD_MODE == 1 ) THEN
+        par_dynamics%diameter         = current_PSD%diameter_fs
+        par_dynamics%volume           = current_PSD%volume_fs
+        par_dynamics%conc             = current_PSD%conc_fs
+        par_dynamics%composition      = current_PSD%composition_fs
+        par_dynamics%density          = current_PSD%density_fs
+        par_dynamics%particle_density = current_PSD%particle_density_fs
+        par_dynamics%particle_mass    = current_PSD%particle_mass_fs
+      end if
 
     if (Aerosol_flag) then
       ! intialize concentration of condensables in each bin (#/m3). We convert it back to kg/m3 later
       do i = 1,current_PSD%nr_bins
         conc_pp(i,:) = conc_pp(i,:) + &
-                                   vapours%mfractions * current_PSD%volume_fs(i) * current_PSD%conc_fs(i) * vapours%density / &
+                                   vapours%mfractions * par_dynamics%volume(i) * par_dynamics%conc(i)* vapours%density / & !* par_dynamics%conc(i)
                                    vapours%molar_mass*Na
 
       end do
       ! composition in kg/m3
       do  i = 1, current_PSD%nr_bins
-              current_PSD%composition_fs(i,:) = conc_pp(i,:) * vapours%molar_mass  / Na !/ current_PSD%conc_fs(i)
+              par_dynamics%composition(i,:) = conc_pp(i,:) * vapours%molar_mass  / Na !/ par_dynamics%conc(i)
       end do
     end if
-
-   ! write(*,*) 'sum of conc_pp',SUM(current_PSD%conc_pp,2)
 
         print*,
         print FMT_HDR, 'INITIALIZING PARTICLE STRUCTURES '
@@ -158,7 +170,19 @@ PROGRAM Supermodel
       CALL KPP_SetUp
     ENDIF
 
+
+    OPEN(100,file=RUN_OUTPUT_DIR//"/diameter.dat",status='replace',action='write')
+    OPEN(104,file=RUN_OUTPUT_DIR//"/time.dat",status='replace',action='write')
+    OPEN(101,file=RUN_OUTPUT_DIR//"/particle_conc.dat",status='replace',action='write')
+    OPEN(105,file=RUN_OUTPUT_DIR//"/avail_species.dat",status='replace',action='write')
+    OPEN(106,file=RUN_OUTPUT_DIR//"/index_cond.dat",status='replace',action='write')
+    OPEN(107,file=RUN_OUTPUT_DIR//"/index_avail_comp.dat",status='replace',action='write')
+
     ! write(*,*) 'current_PSD%diameter_fs', current_PSD%diameter_fs
+    WRITE(100,*) par_dynamics%diameter!current_PSD%diameter_fs
+    WRITE(101,*) par_dynamics%conc !current_PSD%conc_fs
+    WRITE(104,*) time
+
     !Open output file
     print*,
     print FMT_HDR, 'INITIALIZING OUTPUT '
@@ -166,6 +190,28 @@ PROGRAM Supermodel
 
     !Open error output file
     open(unit=333, file=RUN_OUTPUT_DIR//'/error_output.txt')
+
+    !!! reading the index of compounds
+    ALLOCATE(index_cond(nr_cond))
+    ! ALLOCATE(kk(nr_cond))
+    ALLOCATE(cond_vapour(nr_species_P))
+
+    index_cond=0
+    val1=0
+! check how many species we have in common
+    DO i = 1,size(SPC_NAMES)
+        DO j = 1,nr_cond
+            IF (vapours%vapour_names(j) .eq. SPC_NAMES(i)) THEN ! SPC_NAMES from second-Monitor
+                index_cond(j) = i
+            END IF
+        END DO
+    END DO
+
+
+write(106,*) index_cond
+write(107,*) pack(index_cond,index_cond/=0)
+write(105,*) spc_names(pack(index_cond,index_cond/=0))
+
 
     CALL PAUSE_FOR_WHILE(wait_for)
 
@@ -217,14 +263,15 @@ PROGRAM Supermodel
           CH_TIME_kpp = MODELTIME%sec
           CH_END_kpp = MODELTIME%sec + MODELTIME%dt_chem
 
-          call BETA(CH_Beta) ! this to properly work, lat, lon and Julian Day need to be defined in INIT_FILE
 
+            call BETA(CH_BETA) ! this to properly work, lat, lon and Julian Day need to be defined in INIT_FILE
+
+            ! write(*,*) 'L 262 before chemcalc sum of ch_gas', sum(CH_GAS)
           Call CHEMCALC(CH_GAS, CH_TIME_kpp, CH_END_kpp, TSTEP_CONC(inm_TempK), TSTEP_CONC(inm_swr), CH_Beta,  &
                         CH_H2O, C_AIR_NOW, TSTEP_CONC(inm_CS), TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
           if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
 
-          ! write(*,*) 'model sim time ', dt_aero
         END IF ! IF (Chemistry_flag)
 
         ! =================================================================================================
@@ -232,6 +279,7 @@ PROGRAM Supermodel
         IF (NUCLEATION .and. (.not. error%error_state) ) THEN
             if (ACDC) THEN
                 CALL ACDC_J(TSTEP_CONC)
+                J_value = J_ACDC_DMA + J_ACDC_NH3
             else
               continue
               ! CALL SOME_OTHER_NUCLEATION_TYPE
@@ -241,15 +289,92 @@ PROGRAM Supermodel
         ! =================================================================================================
 
         ! Condensation
-        ! call allocate_aerosol(vapours,n_bins_particle)
 
-        if (Aerosol_flag) then
-          current_psd%conc_fs(2) = (J_ACDC_NH3+J_ACDC_DMA)*MODELTIME%dt
-          CALL Condensation_apc(MODELTIME%dt_aero,vapours,current_PSD,conc_pp,CH_GAS, & ! PC: In aerosol module all units are metercubed, but I don't see any conversion anywhere
-          CH_GAS(ind_H2SO4),TSTEP_CONC(inm_TempK),TSTEP_CONC(inm_pres),TSTEP_CONC(inm_RH),dmass)
+        time = MODELTIME%sec
+        time_end= MODELTIME%SIM_TIME_S
+
+        val1=0
+        if (Multi_compounds) then
+          do i = 1, nr_cond
+            if (index_cond(i) /= 0) then
+            ! print*, i, index_cond(i)
+              cond_vapour(i) =  CH_GAS(index_cond(i))*1E6 ! mol/m3
+              val1=val1+1
+            else
+              cond_vapour(i) = 0d0
+        end if
+          end do
+          CH_GAS(ind_H2SO4) = CH_GAS(ind_H2SO4)*1e6
         end if
 
-        ! PC: Where does my sulfuric acid go??? Unit problem?
+        if (use_test_vapours) then
+          cond_vapour(1) = 1D13 !*time                                               ! [molec m-3], [HOA]
+          cond_vapour(2) = 2*1D13*sin(pi/86400 * time)                               ! [molec m-3], [APINBOOH]
+          cond_vapour(3) = sqrt(2*1D13*sin(pi/2/86400 * time))                       ! [molec m-3], [APINCOOH]
+          cond_vapour(4) = 1D12 * time_end/(time+1D0)                                ! [molec m-3], [PINONIC]
+          cond_vapour(5) = sqrt(2*1D13*sin(pi/86400 * time))                         ! [molec m-3], [LIMAOOH]
+          cond_vapour(6) = 2*1D13*sin(pi/86400 * time)/time_end                      ! [molec m-3], [C918NO3]
+          cond_vapour(7) = sqrt(2*1D13*sin(pi/2/86400 * time)) *time_end             ! [molec m-3], [C617OOH]
+          cond_vapour(8) = sqrt(1D12 * time_end/(time+1D0))                          ! [molec m-3], [C128OH]
+          cond_vapour(9) = sqrt(2*1D13*sin(pi/86400 * time)) * time/time_end        ! [molec m-3], [C716OH]
+          cond_vapour(nr_species_P) = 1D13 *sin(pi/86400 * time)
+          CH_GAS(ind_H2SO4)=cond_vapour(nr_species_P)
+        end if
+
+        ! write(*,*) 'ch_gas(ind_apinene)', ch_gas(ind_apinene)
+
+        call Nucleation_routine(MODELTIME%dt_aero,J_value,CH_GAS(ind_H2SO4),par_dynamics%conc) ! this works
+
+
+  !!!!!! for condensation all the following are necessary
+        if (Condensation) THEN
+          CALL Condensation_apc(MODELTIME%dt_aero,vapours,par_dynamics,conc_pp,cond_vapour, &
+            CH_GAS(ind_H2SO4),ambient,dmass)
+        !
+          current_PSD%conc_fs = par_dynamics%conc
+          current_PSD%composition_fs = par_dynamics%composition
+        !
+          CALL Mass_Number_Change('condensation')
+        !
+          par_dynamics%conc         = current_PSD%conc_fs
+          par_dynamics%composition  = current_PSD%composition_fs
+
+        end if
+!!!!!! end of condensation
+
+if (Multi_compounds) then
+ do i = 1, nr_cond
+   if (index_cond(i) /= 0) then
+    CH_GAS(index_cond(i)) = cond_vapour(i) *1E-6
+   end if
+ end do
+
+
+ CH_GAS(ind_H2SO4) = CH_GAS(ind_H2SO4)*1e-6
+end if
+
+
+!!!!!!  For coagulation
+       if (Coagulation) then
+         ! write(*,*) Coagulation
+
+         Call Coagulation_routine(MODELTIME%dt_aero,par_dynamics,ambient,dconc_coag)
+
+
+          Call Mass_Number_Change('coagulation')
+        ! !
+
+          par_dynamics%conc    = current_PSD%conc_fs
+          par_dynamics%composition  = current_PSD%composition_fs
+
+       end if
+
+
+      ! write(*,*) 'L 368 after condensation sum of ch_gas', sum(CH_GAS)
+        !
+
+        ! write(*,*) 'L 292 to test sum(par_dynamics%conc) and sum(current_PSD%conc_fs)','',sum(par_dynamics%conc), '',sum(current_PSD%conc_fs)
+
 
         ! Coagulation
         ! Deposition
@@ -282,9 +407,10 @@ PROGRAM Supermodel
             if (MODELTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOURS, CURRENT_PSD)
             ! =================================================================================================
 
-          ! write(*,*) sum(current_PSD%conc_fs)
-          ! WRITE(*,*) SUM(mix_PSD%volume_fs),SUM(current_PSD%volume_fs)
-          ! write(*,*) 'time is ', time,'', modeltime%sec,'', modeltime%SIM_TIME_S
+          ! =================================================================================================
+          WRITE(100,*) par_dynamics%diameter
+          WRITE(101,*) par_dynamics%conc !current_PSD%conc_fs
+          WRITE(104,*) time
 
           ! =================================================================================================
           ! Add main timestep to modeltime'
@@ -295,6 +421,13 @@ PROGRAM Supermodel
     ! =================================================================================================
     END DO	! Main loop ends
     ! =================================================================================================
+
+    CLOSE(100)
+    CLOSE(101)
+    CLOSE(104)
+    CLOSE(105)
+    CLOSE(106)
+    CLOSE(107)
 
 
     CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
