@@ -74,8 +74,8 @@ type timetype
   real(dp)      :: min            = 0
   real(dp)      :: hrs            = 0
   real(dp)      :: day            = 0
-  real(dp)      :: dt_chem        = 10.0d0
-  real(dp)      :: dt_aero        = 10.0d0
+  real(dp)      :: dt_chm         = 10.0d0
+  real(dp)      :: dt_aer         = 10.0d0
   real(dp)      :: PRINT_INTERVAL = 15d0  *60d0
   real(dp)      :: FSAVE_INTERVAL = 5d0   *60d0
   integer       :: ind_netcdf     = 1
@@ -87,23 +87,30 @@ type timetype
 end type timetype
 
 !type for number of column and rows
-type nrowcol
-  integer :: rows,cols
-end type nrowcol
+! type nrowcol
+!   integer :: rows,cols
+! end type nrowcol
 
-!error type which is used to optimize computation speed at given simulatin precision
+
+!===============================================================
+! error type which is used to optimize computation speed at given simulatin precision
+!===============================================================
 TYPE error_type
   LOGICAL :: error_state = .false.  !there is no error at the start
   INTEGER :: error_process  !process where the error occurs
   CHARACTER(150) :: error_specification  !specification on error type (e.g."particle conc" during coagulation)
 END TYPE error_type
 
+
+!===============================================================
 ! Type for storing the (currently only the extra) particles
+!===============================================================
 TYPE inert_particles
   REAL(dp), ALLOCATABLE :: binseries(:,:) ! the time series and bins
   REAL(dp), ALLOCATABLE :: options(:)     ! Additional information, like molar mass, density etc.
   REAL(dp), ALLOCATABLE :: time(:)        ! Time vector of the particles
   REAL(dp), ALLOCATABLE :: sections(:)    ! diameters for the centers of the sections
+  REAL(dp), ALLOCATABLE :: conc_modelbins(:) ! current concentration fitted to model bins
   CHARACTER(20) :: name  ! Name for the stuff
 END TYPE inert_particles
 
@@ -124,26 +131,31 @@ type PSD
   REAL(dp), ALLOCATABLE :: particle_mass_fs(:)     ! particle mass [kg] (nr_bins)
   REAL(dp), ALLOCATABLE :: composition_fs(:,:)     ! mass of all species in the particle phase [kg/m⁻³] (nr_bins,nr_species_P)
   REAL(dp), ALLOCATABLE :: conc_fs(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
+
+  ! REAL(dp), ALLOCATABLE :: p_diam(:)               ! particle diameter [m] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: p_diam_dry(:)           ! dry particle diameter [m] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: p_vol(:)                ! particle volume   [m³ / m³] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: p_conc(:)               ! particle concentration in each size bin [m⁻³] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: p_dens(:)               ! particle density [kg * m⁻³] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: p_mass(:)               ! particle mass [kg] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: condensed_dens(:)       ! particle phase density  [kg * m⁻³] (nr_species_P)
+  ! REAL(dp), ALLOCATABLE :: p_comp_m(:,:)           ! mass of all species in the particle phase [kg/m⁻³] (nr_bins,nr_species_P)
+  ! REAL(dp), ALLOCATABLE :: p_comp_c(:,:)           ! concentrations of all species in the particle phase [kg/m⁻³] (nr_bins,nr_species_P)
+
 END TYPE PSD
 
-!===============================================================
-!type describing the particle size distribution and composition
-!===============================================================
-type generic_PSD
-  INTEGER  :: nr_bins   !initial number of bins, particle sizes for any method
-  REAL(dp) :: dp_range(2)    !lower and upper limit of diameter for simulation
 
-  ! FULL STATIONARY METHOD
-  REAL(dp), ALLOCATABLE ::  &
-              diameter(:),  &             !particle diameter [m] (nr_bins)
-              dp_dry(:), &                !dry particle diameter [m] (nr_bins)
-              volume(:), &                !particle volume   [m³ / m³] (nr_bins)
-              density(:), &               !particle density  [kg * m⁻³] (nr_species_P)
-              particle_density(:), &      !particle density [kg * m⁻³] (nr_bins)
-              particle_mass(:), &         !particle mass [kg] (nr_bins)
-              composition(:,:), &         !mass of all species in the particle phase [kg/m⁻³] (nr_bins,nr_species_P)
-              conc(:)                     !particle concentration in each size bin [m⁻³] (nr_bins)
-END TYPE generic_PSD
+!===============================================================
+! type describing the atom content
+!===============================================================
+type atoms  ! for reading in molar mass of each atom. WIll be used to calculate diffusion
+  real(dp), allocatable :: N_Carbon(:)
+  real(dp), allocatable :: N_Oxygen(:)
+  real(dp), allocatable :: N_Hydrogen(:)
+  real(dp), allocatable :: N_Nitrogen(:)
+  REAL(dp), allocatable :: comp_prop(:,:)
+end type atoms
+
 
 
 ! ------------------------------------------------------------
@@ -157,16 +169,18 @@ interface operator(.mod.)
 end interface operator(.mod.)
 ! ------------------------------------------------------------
 
-type(timetype)  :: MODELTIME
+type(timetype)  :: GTIME
 type(input_mod), allocatable  :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
 TYPE(input_mod)               :: ORIGINAL_TEMP(2), ORIGINAL_press(2)
 REAL(dp)                      :: J_ACDC_NH3 = 0d0
 REAL(dp)                      :: J_ACDC_DMA = 0d0
+REAL(dp)                      :: J_TOTAL = 0d0
 REAL(dp)                      :: clusteracid,clusterbase,dclusteracid,dclusterbase
 REAL(dp)                      :: J_NH3_BY_IONS(3) = 0d0
 REAL(dp)                      :: acdc_cluster_diam = 2.17d-9
 
-REAL(dp) :: C_AIR_NOW, RESOLVED_BASE, RESOLVED_J
+REAL(dp) :: RESOLVED_BASE, RESOLVED_J
+REAL(dp) :: GC_AIR_NOW, GTEMPK, GPRES, GRH ! Global Air concentration, Temperature, Pressure and Relative humidity
 CONTAINS
 
 ! =================================================================================================
@@ -187,7 +201,7 @@ PURE type(timetype) function ADD(time, sec)
   ADD%hrs = ADD%sec/3600d0
   ADD%day = ADD%sec/3600d0/24d0
   write(ADD%hms, '(i2.2, ":" i2.2, ":" i2.2)') nint(ADD%sec)/3600, &
-    int(MODULO(nint(ADD%sec),3600)/60), MODULO(MODULO(nint(ADD%sec),3600), 60)
+    int(MODULO(nint(ADD%sec),3600)/60d0), MODULO(MODULO(nint(ADD%sec),3600), 60)
   IF (MODULO(nint(ADD%sec*100), NINT(ADD%PRINT_INTERVAL*100)) == 0) THEN
     ADD%printnow = .true.
   ELSE
@@ -220,13 +234,13 @@ PURE REAL(dp) FUNCTION MOD_CONC(c, MODS)
 
   ! If the concentration is a mixing ratio, defined in MODS%UNIT, it will be converted to number concentration
   if (UCASE(TRIM(MODS%UNIT)) == 'PPM') THEN
-    MOD_CONC = MOD_CONC * 1d-6 * C_AIR_NOW
+    MOD_CONC = MOD_CONC * 1d-6 * GC_AIR_NOW
   elseif (UCASE(TRIM(MODS%UNIT)) == 'PPB') THEN
-    MOD_CONC = MOD_CONC * 1d-9 * C_AIR_NOW
+    MOD_CONC = MOD_CONC * 1d-9 * GC_AIR_NOW
   elseif (UCASE(TRIM(MODS%UNIT)) == 'PPT') THEN
-    MOD_CONC = MOD_CONC * 1d-12 * C_AIR_NOW
+    MOD_CONC = MOD_CONC * 1d-12 * GC_AIR_NOW
   elseif (UCASE(TRIM(MODS%UNIT)) == 'PPQ') THEN
-    MOD_CONC = MOD_CONC * 1d-15 * C_AIR_NOW
+    MOD_CONC = MOD_CONC * 1d-15 * GC_AIR_NOW
   elseif (UCASE(TRIM(MODS%UNIT)) == 'HPA') THEN
     MOD_CONC = MOD_CONC * 1d2
   elseif (UCASE(TRIM(MODS%UNIT)) == 'KPA') THEN
@@ -256,11 +270,11 @@ PURE REAL(dp) FUNCTION NORMALD(MODS, timein)
   if (PRESENT(timein)) THEN
     time = timein
   ELSE
-    time = MODELTIME
+    time = GTIME
   END IF
 
-  D = MODS%mju + sin((MODELTIME%hrs-MODS%mju)*MODS%fv)*MODS%am + MODS%ph
-  NORMALD = 1d0/SQRT(2d0*pi*MODS%sig**2) * EXP(- (MODELTIME%hrs-D)**2/(2d0*MODS%sig**2))
+  D = MODS%mju + sin((GTIME%hrs-MODS%mju)*MODS%fv)*MODS%am + MODS%ph
+  NORMALD = 1d0/SQRT(2d0*pi*MODS%sig**2) * EXP(- (GTIME%hrs-D)**2/(2d0*MODS%sig**2))
   f = 1d0/SQRT(2d0*pi*MODS%sig**2)
   ! Check if minimum is same or more than maximum and if so, use constant concentration (minumum)
   IF (ABS(MODS%max-MODS%min) <1e-9) THEN
@@ -289,5 +303,7 @@ PURE FUNCTION UCASE(word)
   UCASE = word
   FORALL (i=1:len(word), ((ichar(word(i:i))>96) .and. (ichar(word(i:i))<123))) UCASE(i:i) = char(ichar(word(i:i))-32)
 END FUNCTION UCASE
+
+
 
 end MODULE constants

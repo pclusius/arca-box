@@ -1,6 +1,6 @@
 # CS Calculation
 
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sc
 import scipy.interpolate
@@ -367,45 +367,45 @@ RHfile = 'SMEAR_RH.dat'
 TEMPfile = 'SMEAR_TEMP_168.dat'
 selected_days = ([
 '180401',
-'180402',
-'180403',
-'180404',
-'180405',
-'180406',
-'180407',
-'180408',
-'180409',
-'180410',
-'180411',
-'180412',
-'180413',
-'180414',
-'180415',
-'180416',
-'180417',
-'180418',
-'180419',
-'180420',
-'180421',
-'180422',
-'180423',
-'180424',
-'180425',
-'180426',
-'180427',
-'180428',
-'180429',
-'180430'
+# '180402',
+# '180403',
+# '180404',
+# '180405',
+# '180406',
+# '180407',
+# '180408',
+# '180409',
+# '180410',
+# '180411',
+# '180412',
+# '180413',
+# '180414',
+# '180415',
+# '180416',
+# '180417',
+# '180418',
+# '180419',
+# '180420',
+# '180421',
+# '180422',
+# '180423',
+# '180424',
+# '180425',
+# '180426',
+# '180427',
+# '180428',
+# '180429',
+# '180430'
 ])
 # plt.ion()
 total_cs = []
 total_time = []
 for day in selected_days:
 	# times need to be in same format
-	v = np.genfromtxt('/home/pecl/malte/dMalte/Malte_in/Box/April2018/filled_dmps/dm'+day+'.sum')
-	RH = np.genfromtxt('/home/pecl/malte/dMalte/Malte_in/Box/April2018/PC'+day+'/'+RHfile)[:144,:]
-	temp = np.genfromtxt('/home/pecl/malte/dMalte/Malte_in/Box/April2018/PC'+day+'/'+TEMPfile)[:144,:]
-
+	v = np.genfromtxt('/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/filled_dmps/dm'+day+'.sum')
+	RH = np.genfromtxt('/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+day+'/'+RHfile)[:144,:]
+	temp = np.genfromtxt('/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+day+'/'+TEMPfile)[:144,:]
+	RH[:,1] = 80
 	time,dd = CS_calc_day(v,RH,temp,3)
 	total_cs = np.append(total_cs, dd)
 	total_time = np.append(total_time, time)
@@ -414,10 +414,10 @@ for day in selected_days:
 	out[:144,1] = dd
 	out[144,0] = time[0]+1.
 	out[144,1] = dd[-1]
-	np.savetxt('/home/pecl/malte/dMalte/Malte_in/Box/April2018/PC'+day+'/'+CSfile, out, fmt='%20.12e', delimiter = '  ')
-	# plt.plot(time,dd)
-	# plt.grid()
+	# np.savetxt('/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+day+'/'+CSfile, out, fmt='%20.12e', delimiter = '  ')
+	plt.plot(time,dd)
+	plt.grid()
 
-# plt.show()
+plt.show()
 
 #

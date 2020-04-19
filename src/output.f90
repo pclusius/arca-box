@@ -133,7 +133,7 @@ CONTAINS
       call handler( nf90_create(ncfile_names(I), IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), ncfile_ids(I)) )
 
       ! Defining dimensions: time(unlimited), size sections, vapor_species
-      call handler(nf90_def_dim(ncfile_ids(I), "time",NINT(MODELTIME%SIM_TIME_S/MODELTIME%FSAVE_INTERVAL+1), dtime_id) )
+      call handler(nf90_def_dim(ncfile_ids(I), "time",NINT(GTIME%SIM_TIME_S/GTIME%FSAVE_INTERVAL+1), dtime_id) )
       IF (I==3) call handler(nf90_def_dim(ncfile_ids(I), "string",textdim, dstring_id) )
       call handler(nf90_def_dim(ncfile_ids(I), "bins",n_bins_particle, dbins_id) )
       call handler(nf90_def_dim(ncfile_ids(I), "condensables",n_condensables, dcond_id) )
@@ -270,19 +270,29 @@ CONTAINS
 
   ! Also save all settings to initfile. Use this file to rerun if necessary
   open(9129, file=filename//'/RUN_INI.conf', action='WRITE')
-  write(9129,NML=NML_Path)! directories and test cases
-  write(9129,NML=NML_Flag)! flags
-  write(9129,NML=NML_TIME)! time related stuff
-  write(9129,NML=NML_PARTICLE)! dmps_file information
-  write(9129,NML=NML_ENV)! environmental information
-  write(9129,NML=NML_MCM)! MCM_file information
-  write(9129,NML=NML_MODS)! modification parameters
-  write(9129,NML=NML_MISC)! misc input
-  write(9129,NML=NML_VAP)! vapour input
+  write(9129,NML = NML_TIME       ) ! directories and test cases
+  write(9129,NML = NML_Flag       ) ! flags
+  write(9129,NML = NML_Path       ) ! time related stuff
+  write(9129,NML = NML_MISC       ) ! dmps_file information
+  write(9129,NML = NML_VAP        ) ! environmental information
+  write(9129,NML = NML_PARTICLE   ) ! MCM_file information
+  write(9129,NML = NML_ENV        ) ! modification parameters
+  write(9129,NML = NML_MCM        ) ! misc input
+  write(9129,NML = NML_MODS       ) ! vapour input
+  write(9129,NML = NML_PARALLEL   ) ! vapour input
   close(9129)
 
   MODS(inm_TempK) = ORIGINAL_TEMP(2)
   MODS(inm_pres)  = ORIGINAL_press(2)
+
+
+
+
+
+
+
+
+
 
 
   RETURN
@@ -306,8 +316,8 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOURS, cu
   INTEGER                         :: i,j,k
 
   DO I = 1,N_FILES
-    call handler( nf90_put_var(ncfile_ids(I), timearr_id, MODELTIME%sec, (/MODELTIME%ind_netcdf/) ))
-    call handler( nf90_put_var(ncfile_ids(I), hrsarr_id, MODELTIME%hrs, (/MODELTIME%ind_netcdf/) ))
+    call handler( nf90_put_var(ncfile_ids(I), timearr_id, GTIME%sec, (/GTIME%ind_netcdf/) ))
+    call handler( nf90_put_var(ncfile_ids(I), hrsarr_id, GTIME%hrs, (/GTIME%ind_netcdf/) ))
   END DO
 
   I=1
@@ -315,26 +325,26 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOURS, cu
   do j = 1,size(MODS)
     IF ((TRIM(MODS(j)%name) /= '#')) THEN
       IF (j<LENV .or. INDRELAY_CH(j)>0) THEN
-        call handler( nf90_put_var(ncfile_ids(I), mods_ind(j), TSTEP_CONC(j), (/MODELTIME%ind_netcdf/)) )
+        call handler( nf90_put_var(ncfile_ids(I), mods_ind(j), TSTEP_CONC(j), (/GTIME%ind_netcdf/)) )
       END IF
       IF ((ABS(MODS(j)%shift-0d0) > 1d-100) .or. (ABS(MODS(j)%multi-1d0) > 1d-100)) THEN
-        call handler(nf90_put_var(ncfile_ids(I), multipl_ind(j), MODS(j)%multi, (/MODELTIME%ind_netcdf/) ) )
-        call handler(nf90_put_var(ncfile_ids(I), shifter_ind(j), MODS(j)%shift,  (/MODELTIME%ind_netcdf/) ) )
+        call handler(nf90_put_var(ncfile_ids(I), multipl_ind(j), MODS(j)%multi, (/GTIME%ind_netcdf/) ) )
+        call handler(nf90_put_var(ncfile_ids(I), shifter_ind(j), MODS(j)%shift,  (/GTIME%ind_netcdf/) ) )
       END IF
     END IF
   end do
 
-  call handler( nf90_put_var(ncfile_ids(I), gJ_out_NH3_id, J_ACDC_NH3, (/MODELTIME%ind_netcdf/)) )
-  call handler( nf90_put_var(ncfile_ids(I), gJ_out_DMA_id, J_ACDC_DMA, (/MODELTIME%ind_netcdf/)) )
-  call handler( nf90_put_var(ncfile_ids(I), gJ_out_SUM_id, J_ACDC_DMA+J_ACDC_NH3, (/MODELTIME%ind_netcdf/)) )
+  call handler( nf90_put_var(ncfile_ids(I), gJ_out_NH3_id, 1d-6*(J_ACDC_NH3), (/GTIME%ind_netcdf/)) )
+  call handler( nf90_put_var(ncfile_ids(I), gJ_out_DMA_id, 1d-6*(J_ACDC_DMA), (/GTIME%ind_netcdf/)) )
+  call handler( nf90_put_var(ncfile_ids(I), gJ_out_SUM_id, 1d-6*(J_ACDC_DMA+J_ACDC_NH3), (/GTIME%ind_netcdf/)) )
   IF (RESOLVE_BASE) THEN
-    call handler( nf90_put_var(ncfile_ids(I), gRES_BASE, RESOLVED_BASE, (/MODELTIME%ind_netcdf/)) )
-    call handler( nf90_put_var(ncfile_ids(I), gRES_J,    RESOLVED_J,     (/MODELTIME%ind_netcdf/)) )
+    call handler( nf90_put_var(ncfile_ids(I), gRES_BASE, RESOLVED_BASE, (/GTIME%ind_netcdf/)) )
+    call handler( nf90_put_var(ncfile_ids(I), gRES_J,    RESOLVED_J,     (/GTIME%ind_netcdf/)) )
   END IF
 
   I=2 ! Chemical file
   do j = 1,size(CH_GAS)
-    call handler( nf90_put_var(ncfile_ids(I), chem_ind(j), CH_GAS(j), (/MODELTIME%ind_netcdf/)) )
+    call handler( nf90_put_var(ncfile_ids(I), chem_ind(j), CH_GAS(j), (/GTIME%ind_netcdf/)) )
   end do
 
 
@@ -344,24 +354,24 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOURS, cu
     do j = 1,size(vapours%vapour_names)
       k = IndexFromName( vapours%vapour_names(j),   SPC_NAMES )
       if (k>0) then
-        call handler(nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(k), (/MODELTIME%ind_netcdf/)) )
+        call handler(nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(k), (/GTIME%ind_netcdf/)) )
       end if
     end do
     do j = 1,size(savepar)
-      ! if (parbuf(i)%name == 'CONDENSABLES'          ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      if (savepar(j)%name == 'NUMBER_CONCENTRATION'  ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      if (savepar(j)%name == 'DIAMETER'              ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%diameter_fs, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      ! if (savepar(j)%name == 'DRY_DIAMETER'          ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%dp_dry_fs, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      ! if (parbuf(i)%name == 'ORIGINAL_DRY_DIAMETER' ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%original_dry_radius, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      ! if (parbuf(i)%name == 'GROWTH_RATE'           ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      if (savepar(j)%name == 'CORE_VOLUME'           ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%volume_fs, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      if (savepar(j)%name == 'MASS'                  ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%particle_mass_fs, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      if (savepar(j)%name == 'PARTICLE_COMPOSITION'  ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%composition_fs, start=(/1,1,MODELTIME%ind_netcdf/), count=(/n_condensables,n_bins_particle/)))
-      ! if (parbuf(i)%name == 'SURFACE_TENSION'       ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      ! if (parbuf(i)%name == 'VAPOR_CONCENTRATION'   ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      ! if (parbuf(i)%name == 'CONDENSABLES'          ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      if (savepar(j)%name == 'NUMBER_CONCENTRATION'  ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, 1d-6*current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      if (savepar(j)%name == 'DIAMETER'              ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%diameter_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      ! if (savepar(j)%name == 'DRY_DIAMETER'          ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%dp_dry_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      ! if (parbuf(i)%name == 'ORIGINAL_DRY_DIAMETER' ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%original_dry_radius, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      ! if (parbuf(i)%name == 'GROWTH_RATE'           ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      if (savepar(j)%name == 'CORE_VOLUME'           ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%volume_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      if (savepar(j)%name == 'MASS'                  ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%particle_mass_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      if (savepar(j)%name == 'PARTICLE_COMPOSITION'  ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%composition_fs, start=(/1,1,GTIME%ind_netcdf/), count=(/n_condensables,n_bins_particle/)))
+      ! if (parbuf(i)%name == 'SURFACE_TENSION'       ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      ! if (parbuf(i)%name == 'VAPOR_CONCENTRATION'   ) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
 
       ! if (savepar(J)%d == 0) call handler(nf90_put_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dconstant_id  , savepar(J)%i) )
-      ! if (savepar(J)%d == 3) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,MODELTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      ! if (savepar(J)%d == 3) call handler(nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
       ! if (savepar(J)%d == 4) call handler(nf90_put_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dcond_id  , savepar(J)%i) )
       ! if (savepar(J)%d == 5) call handler(nf90_put_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcond_id,dtime_id])  , savepar(J)%i) )
       ! if (savepar(J)%d == 7) call handler(nf90_put_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcond_id,dbins_id,dtime_id])  , savepar(J)%i) )

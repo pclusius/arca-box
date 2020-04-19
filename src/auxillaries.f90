@@ -5,6 +5,7 @@ IMPLICIT NONE
 PUBLIC
 
 CHARACTER(56) :: FMT_TIME    = '("+.",t18,82("."),t3,"Time: ",a,t100, "+")'
+CHARACTER(56) :: FMT_CVU     = '("| ",t3, a,es10.3,t100, "|")'
 CHARACTER(56) :: FMT10_CVU   = '("| ",t3, a,t13, es10.3,a,t100, "|")'
 CHARACTER(56) :: FMT30_CVU   = '("| ",t3, a,t33, es10.3,a,t100, "|")'
 CHARACTER(86) :: FMT10_2CVU  = '("| ",t3, a,t13, es10.3,a,t35,a,es10.3,a, t100, "|")'
@@ -75,7 +76,7 @@ REAL(dp) FUNCTION PERIODICAL(MODS, timein)
   if (PRESENT(timein)) THEN
     time = timein
   ELSE
-    time = MODELTIME
+    time = GTIME
   END IF
   A = (MODS%max-MODS%min)/2d0
   PERIODICAL = A*SIN(MODS%fv*2d0*pi*time%sec/time%SIM_TIME_S &
@@ -186,7 +187,7 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
   if (PRESENT(timein)) THEN
     time = timein
   ELSE
-    time = MODELTIME
+    time = GTIME
   END IF
   if (PRESENT(unit)) THEN
     if (unit .eq. 'sec') THEN

@@ -90,7 +90,6 @@ use constants
 	if (n1org .ne. 0) then
 		c(n1org) = c_org
 	end if
-
 	! Run ACDC to the steady state / for the given time
 	call acdc_driver(c,cs_ref,temp,ipr,t_in,t_iter,solve_ss,use_solver,ipar,int_ok,j_out)
 	j_acdc = sum(j_out)

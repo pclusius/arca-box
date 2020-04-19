@@ -110,6 +110,7 @@ subroutine acdc_driver(c,cs_ref,temperature,ipr,t_max,t_iter,solve_ss,use_solver
 			tfin = min(max(tfin,t0*10.d0),t_max)
 
 			ok = .true.
+
 			call DVODE (feval,neqn,c,t0,tfin,itol,rtol,atol,&	! calling the solver
 				& itask,istate,iopt,work,lwork,iwork,liwork,&
 				& jeval,mf,parameters,ipar)

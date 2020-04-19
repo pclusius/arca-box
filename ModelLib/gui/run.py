@@ -13,6 +13,7 @@ import pyqtgraph as pg
 import vars, gui5, batchDialog1,batchDialog2,batchDialog3,batch
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,ndarray,where
+import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod
 from os.path import exists
@@ -348,7 +349,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.findComp.textChanged.connect(self.filterListOfComp)
             self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
             self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF (*.nc)"))
-            self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="Sumfile (*.sum)"))
+            self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="Sumfile (*.sum *.dat)"))
         else:
             self.sumSelection.setEnabled(False)
             self.show_netcdf.show()
@@ -1083,7 +1084,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.wait_for.setValue(currentWait)
 
         try:
-            self.boxProcess = Popen(["./"+exe_name, "%s"%tempfile], stdout=PIPE,stderr=STDOUT,stdin=None)
+            # tmpfile = Popen(['tee', 'process_diary.txt'], stdin=PIPE, stdout=None).stdin
+            # self.boxProcess = Popen(["./superbox.exe", " input/test"], stdout=tmpfile,stdin=PIPE)
+            self.boxProcess = Popen(["./"+exe_name, "%s"%tempfile, '--gui'], stdout=PIPE,stderr=STDOUT,stdin=None)
             self.MonitorWindow.clear()
             self.Timer.start(10)
             self.pollTimer.start(2000)
@@ -1101,13 +1104,14 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def updateOutput(self):
         fulltext = self.boxProcess.stdout.readline().decode("utf-8")
-        self.MonitorWindow.insertPlainText(fulltext)
+        if fulltext != '.\n':
+            self.MonitorWindow.insertPlainText(fulltext)
         if self.pauseScroll.isChecked() == False:
             self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
         if 'SIMULATION HAS ENDED' in str(fulltext)[-50:]:
             self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
             self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
-            self.stopBox()
+            # self.stopBox()
 
 
     def checkboxToFOR(self, widget):
@@ -1355,16 +1359,12 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
             if   'WORK_DIR' == key: self.inout_dir.setText(strng)
-            # elif 'INOUT_DIR' == key and strng != default_inout: self.inout_dir.setText(strng)
-            # elif 'CASE_NAME' == key and strng != default_case: self.case_name.setText(strng)
-            # elif 'RUN_NAME' == key and strng != default_run: self.run_name.setText(strng)
             elif 'INOUT_DIR' == key: self.inout_dir.setText(strng)
             elif 'CASE_NAME' == key: self.case_name.setText(strng)
             elif 'RUN_NAME' == key: self.run_name.setText(strng)
             elif 'CHEMISTRY_FLAG' == key: self.checkBox_che.setChecked(strng)
             elif 'AEROSOL_FLAG' == key: self.checkBox_aer.setChecked(strng)
             elif 'ACDC_SOLVE_SS' == key: self.acdc_solve_ss.setChecked(strng)
-            # elif 'NUCLEATION' == key: self.      .setChecked(strng)
             elif 'ACDC' == key: self.checkBox_acd.setChecked(strng)
             # elif 'EXTRA_DATA' == key: self.      .setChecked(strng)
             # elif 'CURRENT_CASE' == key: self.      .setChecked(strng)
@@ -1373,8 +1373,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'MODEL_H2SO4' == key: self.model_h2so4.setChecked(strng)
             elif 'RESOLVE_BASE' == key: self.resolve_base.setChecked(strng)
             elif 'RUNTIME' == key and isFl: self.runtime.setValue(float(strng))
+            elif 'DT' == key and isFl: self.dt.setValue(int(strng)),
             elif 'PRINT_ACDC' == key: self.print_acdc.setChecked(strng)
-            # elif 'DT' == key: print(strng)#          -1,
             elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(int(strng))
             elif 'PRINT_INTERVAL' == key and isFl: self.print_interval.setValue(int(strng))
             elif 'FSAVE_DIVISION' == key and isFl: self.fsave_division.setValue(int(strng))
@@ -1529,11 +1529,20 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                 self.hnames.append(v)
         # Now try plot first the third line, which is the first non-time variable
         try:
-            self.outplot = self.plotResultWindow.plot(
-            self.ncs.variables[self.hnames[0]][:]/3600,
-            self.ncs.variables[self.hnames[2]][:],
-            pen={'color':'b','width': 2.0}
-            )
+            time = self.ncs.variables[self.hnames[0]][:]/3600
+            vari = self.ncs.variables[self.hnames[2]][:]
+            if ma.is_masked(time):
+                self.outplot = self.plotResultWindow.plot(
+                time[~time.mask],
+                vari[~time.mask],
+                pen={'color':'b','width': 2.0}
+                )
+            else:
+                self.outplot = self.plotResultWindow.plot(
+                time,
+                vari,
+                pen={'color':'b','width': 2.0}
+                )
             self.availableVars.clear()
             self.availableVars.addItems(self.hnames)
             self.availableVars.item(2).setSelected(True)
@@ -1547,7 +1556,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         # All's well, decorate plot
         self.plotResultWindow.setLabel('bottom', 'Time', units='h')
         self.plotTitle = file + ': ' + self.hnames[2]+' ['+units.get(self.hnames[2],units['REST'])[0]+']'
-        self.plotResultWindow.setTitle(self.plotTitle)
+        self.plotResultTitle.setText(self.plotTitle)
 
 
 
@@ -1614,19 +1623,24 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.plotResultWindow.setLogMode(y=False)
             loga = False
         # update data
-        self.outplot.setData(self.ncs.variables[self.hnames[0]][:]/3600,Y)
+        time = self.ncs.variables[self.hnames[0]][:]/3600
+        if ma.is_masked(time):
+            self.outplot.setData(time[~time.mask],Y[~time.mask])
+        else:
+            self.outplot.setData(time,Y)
         self.plotResultWindow.setLogMode(y=loga)
         # update title
-        self.plotResultWindow.setTitle(self.plotTitle)
+        self.plotResultTitle.setText(self.plotTitle)
 
 
     ## Popup message function -icon sets the icon:----------------------------------------------------------------------
     # QMessageBox::NoIcon      0   the message box does not have any icon.
-    #              Question	   4   an icon indicating that the message is asking a question.
     #              Information 1   an icon indicating that the message is nothing out of the ordinary.
     #              Warning     2   an icon indicating that the message is a warning, but can be dealt with.
     #              Critical    3   an icon indicating that the message represents a critical problem.
+    #              Question	   4   an icon indicating that the message is asking a question.
     def popup(self,title,message,icon=2):
+        """Handle for giving popup messages"""
         msg = QtWidgets.QMessageBox()
         msg.setIcon(icon)
         msg.setWindowTitle(title)

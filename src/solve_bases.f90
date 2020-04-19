@@ -69,7 +69,7 @@ contains
     ! IF (resolve_BASE_precision > 1) resolve_BASE_precision = resolve_BASE_precision/100d0
 
     ! show messages only when other printouts are shown, even if sub is run at filesaves
-    if (MODELTIME%printnow) THEN
+    if (GTIME%printnow) THEN
       print FMT_HDR
       write(buf, '(a,f5.2,a)') 'SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within ',100*resolve_BASE_precision,'% of target):'
       print FMT_MSG, TRIM(buf)
@@ -77,20 +77,20 @@ contains
 
     ! if target J is smaller than lower limits would produce, don't bother iterating further
     if (target_J < 1d-200) THEN
-      if (MODELTIME%printnow) write(buf,'(a,es9.3,a)') 'Target J is zero. No need for extra formation.'
-      if (MODELTIME%printnow) print FMT_MSG, TRIM(buf)
+      if (GTIME%printnow) write(buf,'(a,es9.3,a)') 'Target J is zero. No need for extra formation.'
+      if (GTIME%printnow) print FMT_MSG, TRIM(buf)
       testbase = 0
 
     ! if target J is smaller than lower limits would produce, don't bother iterating further
     else if (target_J < J_limits(1)) THEN
-      if (MODELTIME%printnow) write(buf,'(a,es9.3,a)') 'Target J (',target_J*1d-6,') is smaller than what lower limits produce'
-      if (MODELTIME%printnow) print FMT_MSG, TRIM(buf)
+      if (GTIME%printnow) write(buf,'(a,es9.3,a)') 'Target J (',target_J*1d-6,') is smaller than what lower limits produce'
+      if (GTIME%printnow) print FMT_MSG, TRIM(buf)
       testbase = 0
 
     ! if target J is larger than upper limits can produce, don't bother iterating further
     else if (target_J > J_limits(2)) THEN
-      if (MODELTIME%printnow) print'(es12.3,a,es12.3,es12.3)', target_J*1d-6,' Target J is too large for current upper limits of bases', conc_limits(2), conc_limits(2)*DMA_f
-      testbase = C_AIR_NOW*1d6
+      if (GTIME%printnow) print'(es12.3,a,es12.3,es12.3)', target_J*1d-6,' Target J is too large for current upper limits of bases', conc_limits(2), conc_limits(2)*DMA_f
+      testbase = GC_AIR_NOW*1d6
 
     ! if target J reasonable, iterate the concentrations
     else
@@ -116,7 +116,7 @@ contains
       END DO
     end if
     ! inform the result
-    if (MODELTIME%printnow) THEN
+    if (GTIME%printnow) THEN
       if (TRIM(UCASE(Fill_formation_with)) == '') THEN
         write(buf,'(4(a,es8.2),a,i0,a)') 'target J: ',target_J*1d-6, ' resolved J: ', iterJ*1d-6, '. NH3 ',testbase*1d-6, ' DMA:', testbase*DMA_f*1d-6, ' (',i,' iterations)'
       ELSE IF (UCASE(Fill_formation_with) == 'DMA') THEN
@@ -147,7 +147,7 @@ contains
       JACDC = 0d0
       IF (UCASE(Fill_formation_with) /= 'DMA') THEN
         i = i+1
-        CALL get_acdc_J(SA,BASE,dummy1,CS,T,IPR,MODELTIME,.true.,testJ,dummy2,dummy3)
+        CALL get_acdc_J(SA,BASE,dummy1,CS,T,IPR,GTIME,.true.,testJ,dummy2,dummy3)
         JACDC = testJ
       END IF
       IF (UCASE(Fill_formation_with) /= 'NH3') THEN
@@ -158,7 +158,7 @@ contains
             BASE = test
             JACDC = 0d0
           END IF
-          CALL get_acdc_D(SA,BASE,dummy1,CS,T,MODELTIME,.true.,testJ,dummy2)
+          CALL get_acdc_D(SA,BASE,dummy1,CS,T,GTIME,.true.,testJ,dummy2)
           JACDC = JACDC + testJ
         END IF
       END IF

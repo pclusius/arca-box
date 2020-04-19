@@ -21,6 +21,7 @@ def lin_to_log(diam, sum):
 
 
 def parseSum(file):
+    lin = False
     try:
         data = genfromtxt(Path(file))
     except:
@@ -29,10 +30,15 @@ def parseSum(file):
         n_conc = data[1:,2:]
         diam = data[0,2:]
     else:
+        lin = True
         n_conc = data[1:,1:]
         diam = data[0,1:]
+        print('Assuming raw output')
+        n_conc = data
     time = data[1:,0]
     nan_to_num(n_conc,copy=False)
+    if lin:
+        n_conc = n_conc / log10(1.0E-6/9.3915586871665631E-007)
     n_conc[n_conc<=0] = 1.01
     n_conc = log10(n_conc)
     n_conc[n_conc<=0] = 0.0
@@ -40,7 +46,7 @@ def parseSum(file):
     return time, diam, n_conc
 
 def loadNC(file):
-    if '.sum' in file:
+    if ('.sum' in file) or ('.dat' in file):
         return parseSum(file)
     try:
         import netCDF4
@@ -70,7 +76,7 @@ def loadNC(file):
         diameter = nc.variables[diam_str][:]
     except:
         diameter = nc.variables[radius_str][:]*2
-
+    nc.close()
     try:
         number_concentration = lin_to_log(diameter[1,:],number_concentration*1e-6)
     except:

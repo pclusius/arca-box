@@ -21,7 +21,7 @@ BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR)
 #BOX_OPTS = -ffree-line-length-none -cpp -DLINUX -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
 #-Warray-temporaries -Wtabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all
 
-CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR) -I$(OBJDIR) -O2
+CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR) -I$(OBJDIR)# -O2
 
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 

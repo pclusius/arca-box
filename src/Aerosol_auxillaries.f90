@@ -12,7 +12,7 @@ real(dp) :: precision
 logical :: first_time
 integer :: ii
 
-!!! This datatype contains all parameters for input vapours
+! This datatype contains all parameters for input vapours
 type :: vapour_ambient
   real(dp), allocatable :: molar_mass(:), parameter_A(:), parameter_B(:)
   character(len=256), allocatable :: vapour_names(:)
@@ -23,29 +23,10 @@ type :: vapour_ambient
   integer  :: vbs_bins
   integer,allocatable  :: cond_type(:)
   real(dp),allocatable :: molec_dia(:)
-  real(dp),allocatable :: molec_mass(:), molec_volume(:) !!! molecule mass and molecule volume
+  real(dp),allocatable :: molec_mass(:), molec_volume(:) ! molecule mass and molecule volume
   real(dp),allocatable :: c_sat(:), vap_conc(:)!, vapour_type(:), condensing_type(:)
-  real(dp),allocatable :: mfractions(:)        !!! dimension(tot_spec) mole fractions
+  real(dp),allocatable :: mfractions(:)        ! dimension(tot_spec) mole fractions
 end type vapour_ambient
-
-
-type ambient_properties
-  !!! contains variables related to vapors and ambient conditions
-   real(dp) ::  temperature = 293.15
-   real(dp) ::  pressure = 1D5
-   real(dp) ::  rh   = 60.0
-end type ambient_properties
-
-type atoms  ! for reading in molar mass of each atom. WIll be used to calculate diffusion
-  real(dp), allocatable :: N_Carbon(:)
-  real(dp), allocatable :: N_Oxygen(:)
-  real(dp), allocatable :: N_Hydrogen(:)
-  real(dp), allocatable :: N_Nitrogen(:)
-  REAL(dp), allocatable :: comp_prop(:,:)
-end type atoms
-
-
-
 
 
 contains
@@ -59,15 +40,18 @@ end if
 
 end subroutine set_speed
 
-!!!! Calculate molecular mass in KG
-!!! input molar_mass
+
+! =====================================================================================================
+! Calculate molecular mass in KG
+! input molar_mass
+! .....................................................................................................
 pure elemental function calculate_molecular_mass(molar_mass) result(mass)
   real(dp), intent(in) :: molar_mass
   real(dp) :: mass
-  mass = molar_mass / Na !*1D-3 !! convert to kg/#
+  mass = molar_mass / Na ! kg/molecule
 end function calculate_molecular_mass
 
-!!! calculate molecular volume
+! calculate molecular volume
 pure elemental function calculate_molecular_volume(density, molecule_mass) result(volume)
   real(dp), intent(in) :: molecule_mass, density
   real(dp) :: volume
@@ -75,17 +59,32 @@ pure elemental function calculate_molecular_volume(density, molecule_mass) resul
 end function calculate_molecular_volume
 
 
-!!!! calculate saturation vapour PRESSURE
-!!! input parameter_A, parameter_B and temperature
+! calculate saturation vapour PRESSURE
+! input parameter_A, parameter_B and temperature
 pure elemental function calculate_saturation_vp(A,B, Temperature) result(Vapour_concentration)
   real(dp), intent(in) :: A, B, temperature
   real(dp) :: Vapour_concentration, vapour_pressure
 
-!Using antoine equation log_10(p) = A- (B/T)
+  ! Using antoine equation log_10(p) = A- (B/T)
   vapour_pressure      = 10 ** (A - (B/temperature)) ! in atm
   Vapour_concentration = (vapour_pressure*101325)/(kb * temperature) ! #/m3
 
 end function calculate_saturation_vp
+
+
+SUBROUTINE Calculate_SaturationVapourConcentration(VAPOUR_PROP,TEMPK)
+  IMPLICIT NONE
+  type(vapour_ambient), INTENT(INOUT) :: VAPOUR_PROP
+  real(dp), INTENT(IN) :: TEMPK
+  ! Update saturation concentrations to current temperature, omit sulfuric acid
+  VAPOUR_PROP%c_sat(1:VAPOUR_PROP%vapour_number) =  calculate_saturation_vp( &
+                      VAPOUR_PROP%parameter_A(1:VAPOUR_PROP%vapour_number),&
+                      VAPOUR_PROP%parameter_B(1:VAPOUR_PROP%vapour_number),&
+                      TEMPK)
+
+END SUBROUTINE Calculate_SaturationVapourConcentration
+
+
 
 
 End module aerosol_auxillaries

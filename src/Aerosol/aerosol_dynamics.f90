@@ -9,374 +9,300 @@ use omp_lib
 
 IMPLICIT NONE
 
-Logical :: use_raoult =.True.
-
 CONTAINS
 
 
+SUBROUTINE Nucleation_routine (J_TOTAL,particle_conc)
+  IMPLICIT NONE
+  REAL(dp), intent(in   ) :: J_TOTAL ![m-3 s-1]
+  REAL(dp), intent(inout) :: particle_conc(:)  ! [molec m-3], particle number concentration
+  ! REAL(dp) :: Knucl            ! [m3 molec-1 s-1], nucleation coefficient
+  ! REAL(dp) :: nucleation_rate  ! [molec m-3 s-1], nucleation rate
 
-  SUBROUTINE Nucleation_routine (dt, J_ACDC,CH_h2so4,particle_conc)! (Add input and output variables here)
+  ! Knucl = 1.0e-20_dp  ! [m3 molec-1 s-1]
+  ! nucleation_rate=Knucl*CH_h2so4 **2
+  ! particle_conc(1) = old_par + nucleation_rate * GTIME%dt_aer
 
-    real(dp), intent(in   ) :: dt      ! [s], integration time step
-    real(dp), intent(in   ) :: CH_h2so4
-    real(dp), intent(  out) :: particle_conc(nr_bins)  ! [molec m-3], particle number concentration
-    real(dp) :: Knucl            ! [m3 molec-1 s-1], nucleation coefficient
-    real(dp) :: nucleation_rate  ! [molec m-3 s-1], nucleation rate
-    real(dp), intent(in) :: J_ACDC ![m-3 s-3]
-    real(dp) :: par_j_acdc, old_par
+  particle_conc(1) = particle_conc(1) + J_TOTAL * GTIME%dt_aer
 
-
-
-    ! Knucl = 1.0e-20_dp  ! [m3 molec-1 s-1]
-    ! nucleation_rate=Knucl*CH_h2so4 **2
-    old_par=particle_conc(1)
-    particle_conc(1) = old_par + J_ACDC * dt
-    ! particle_conc(1) = old_par + nucleation_rate * dt
-
-  END SUBROUTINE Nucleation_routine
+END SUBROUTINE Nucleation_routine
 
 
 
-!!!!! Main condensation subroutine. We use the Analytical predictor of condensation scheme Jacobson 1997c, 2002 and fundamentals of atmospheric modelling!!!!!!
-!!!!dmass, which is bascially the flux onto or removed from the particles is the main outcome of this subroutine which is fed to PSD!!!!!!!!!!
+! ======================================================================================================================
+! Main condensation subroutine. We use the Analytical predictor of condensation scheme Jacobson 1997c, 2002 and
+! fundamentals of atmospheric modelling. Dmass, which is the flux onto or removed from the particles is the outcome
+! of this subroutine which is fed to PSD
+! ======================================================================================================================
+SUBROUTINE Condensation_apc(vapour_prop, particles, conc_pp,conc_vap, dmass)
+  IMPLICIT NONE
+  type(vapour_ambient), INTENT(IN) :: vapour_prop ! Properties of condensing vapours
+  type(PSD)           , INTENT(IN) :: particles ! Current PSD properties
+  REAL(dp), INTENT(INOUT) :: conc_pp(:,:) ! [#/m^3] Particle phase concentrations, DIM(n_bins_particle,nr_species_P)
+  REAL(dp), INTENT(INOUT) :: conc_vap(:)  ! [#/m^3], condensing vapour concentrations, DIM(nr_species_P)
+  REAL(dp), INTENT(INOUT) :: dmass(:,:)   ! [kg/m^3] change of mass in particle phase, DIM(n_bins_particle, nr_species_P)
+  REAL(dp), DIMENSION(n_bins_particle,nr_species_P) :: CR,CR2 ! [/s] collisions per second, collision rate * concentration
 
+  REAL(dp), DIMENSION(n_bins_particle,nr_species_p) :: Kelvin_Effect, kohler_effect
+  REAL(dp), DIMENSION(n_bins_particle,nr_species_p) :: conc_pp_orig
+  REAL(dp), DIMENSION(n_bins_particle,nr_species_P) :: xorg ! mole fraction of each organic compound in each bin
+  REAL(dp), DIMENSION(n_bins_particle, nr_species_P) :: conc_pp_eq
+  REAL(dp), DIMENSION(nr_species_p) :: conc_tot
+  REAL(dp), DIMENSION(nr_species_P) :: conc_vap_orig
+  REAL(dp) :: conc_guess
+  REAL(dp) :: sum_org ! Sum of organic concentration in bin, transient variable
 
-SUBROUTINE Condensation_apc(timestep, vapour_properties, particle_properties, conc_pp,gas_conc, &
-                          CH2SO4,ambient, dmass)
+  INTEGER :: ii
 
+  ! original gas phase concentration
+  conc_vap_orig =  conc_vap
+  ! original particle phase concentration
+  conc_pp_orig = conc_pp
+  ! vapour phase + particle phase
+  conc_tot = conc_vap + sum(conc_pp,1)
 
-
-  REAL(dp), INTENT(IN) :: timestep
-
-
-  REAL(dp), DIMENSION(nr_species_P), INTENT(INOUT) :: gas_conc  ! [molec m-3], condensing vapour concentrations
-  REAL(dp), INTENT(INOUT) :: cH2SO4
-  REAL(dp), DIMENSION(n_bins_particle) :: particle_volume_new, particle_conc_new,particle_conc_old
-  REAL(dp), DIMENSION(n_bins_particle):: vp, particle_conc
-  REAL(dp), DIMENSION(n_bins_particle,nr_cond) :: CR
-  REAL(dp), DIMENSION(n_bins_particle) :: CR_H2SO4
-
-
-  INTEGER :: j,ii,ip, a,ig
-  type(ambient_properties), intent(in) :: ambient
-  type(vapour_ambient), intent(in) :: vapour_properties
-  type(generic_PSD), intent(inout) :: particle_properties
-
-  Real(dp) :: r1, r2
-  Real(dp) :: sum_org
-  Real(dp) :: temperature, pressure, rh
-  Real(dp), dimension(n_bins_particle,nr_species_p) :: Kelvin_Effect, kohler_effect,conc_pp_fixed
-  Real(dp), dimension(n_bins_particle,nr_species_p),intent(inout) :: conc_pp
-
-  Real(dp), dimension(n_bins_particle,nr_species_p) :: conc_pp_old
-  Real(dp), dimension(n_bins_particle,nr_species_P) :: xorg                       ! mole fraction of each organic compound in each bin
-
-  Real(dp), dimension(nr_species_p) :: conc_guess, c_total
-  Real(dp), DIMENSION(nr_species_P) ::  gas_conc_old
-  Real(dp), dimension(nr_bins) :: conc_H2SO4_guess, conc_H2SO4_old, conc_H2SO4_pp, conc_H2SO4
-  Real(dp), dimension(nr_bins, nr_species_P) :: composition_old, conc_pp_eq
-  Real(dp), dimension(nr_bins, nr_species_P), intent(inout) :: dmass
-  real(dp) :: test(nr_bins)
-
-  temperature=ambient%temperature
-  pressure  = ambient%pressure
-  particle_conc=particle_properties%conc
-  particle_conc_old=particle_properties%conc
-
-  conc_H2SO4_old = cH2SO4 ! need to replace this with the concentation of H2SO4 from chemistry
-  conc_H2SO4   = cH2SO4
-  composition_old = particle_properties%composition
-  gas_conc_old =  gas_conc
-
-
-   conc_pp_old = conc_pp
-   c_total = gas_conc + sum(conc_pp,1)    ! vapour phase + particle phase
-
-
- if (use_raoult) THEN
-   do ii=1,n_bins_particle
-        if (particle_properties%volume(ii) >0.0 ) then
-         sum_org = sum(conc_pp(ii,:),DIM=1, Mask=(vapour_properties%cond_type==1))
-         if (sum_org>0) THEN
-           xorg(ii,:)= conc_pp(ii,:)/sum_org
-         else
-           xorg(ii,:) = 1D0
-         end if
+  if (use_raoult) THEN
+    DO ii=1,n_bins_particle
+      if (particles%volume_fs(ii) >0.0 ) then
+        sum_org = sum(conc_pp(ii,:),DIM=1, Mask=(vapour_prop%cond_type==1))
+        if (sum_org>0) THEN
+          xorg(ii,:)= conc_pp(ii,:)/sum_org
         else
-         xorg(ii,:) = 1D0
-       end if
-    end do
- end if
+          xorg(ii,:) = 1D0
+        END if
+      else
+        xorg(ii,:) = 1D0
+      END if
+    END DO
+  END if
 
- do ii=1, n_bins_particle
+  DO ii=1, n_bins_particle
 
-   if (particle_properties%diameter(ii) <=  1*1D-9) THEN
+    if (particles%diameter_fs(ii) <=  1*1D-9) THEN
       write(*,*) 'In here',ii
-     xorg(ii,:) = 1d0
-   end if
- end do
+      xorg(ii,:) = 1d0
+    END if
+  END DO
 
+  ! Kelvin and Kohler factors.
+  DO ii = 1, nr_species_p
+    ! Kelvin factor takes into account the curvature of particles. Unitless
+    Kelvin_Effect(:,ii) = 1D0 + 2D0*vapour_prop%surf_tension(ii)*vapour_prop%molar_mass(ii) &
+                        / (R*GTEMPK*vapour_prop%density(ii)*particles%diameter_fs(:)/2D0)
 
- ! kelvin and Kohler effect. Takes into account the curvature of particles and the solute partial pressure effect.
-  do ii =1, nr_species_P
-    Kelvin_Effect(:,ii) = 1D0 + 2D0*vapour_properties%surf_tension(ii)*vapour_properties%molar_mass(ii) / &
-                             (R*temperature*vapour_properties%density(ii)*particle_properties%diameter(:)/2D0)     ! unit less
+    ! Kohler factor the solute partial pressure effect. Unitless
+    kohler_effect(:,ii) = Kelvin_Effect(:,ii)*xorg(:,ii)
+  END DO
+  ! Treat H2SO4 specially
+  kohler_effect(:,nr_species_p) = Kelvin_Effect(:,nr_species_p)
 
-     kohler_effect(:,ii) = Kelvin_Effect(:,ii)*xorg(:,ii)
-   end do
+  ! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
+  DO ii=1,n_bins_particle
+    conc_pp_eq(ii,1:nr_species_P-1) = conc_vap_orig(1:nr_species_P-1)*SUM(conc_pp_orig(ii,1:nr_species_P-1)) &
+                                    / (Kelvin_Effect(ii,1:nr_species_P-1)* vapour_prop%c_sat(1:nr_species_P-1))
+  END DO
 
+  DO ii = 1, nr_species_p
 
-  !! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
-   DO j=1,nr_bins
-     conc_pp_eq(j,1:nr_species_P-1) =  gas_conc_old(1:nr_species_P-1)*SUM(conc_pp_old(j,1:nr_species_P-1)) &
-                                        /(Kelvin_Effect(j,1:nr_species_P-1)* vapour_properties%c_sat(1:nr_species_P-1))
-   END DO
+    ! Total number of collisions/s
+    if (Use_atoms) THEN
+      CR(:,ii) = particles%conc_fs * collision_rate(ii,particles,vapour_prop)
+    ELSE
+      CR(:,ii) = particles%conc_fs * collision_rate_uhma(ii,particles%diameter_fs/2d0,particles%particle_mass_fs,vapour_prop)
+    END IF
+    if ((vapour_prop%cond_type(II) == 2) .and. GTIME%printnow) print*, 'CS SA', sum(particles%conc_fs), sum(CR(:,ii))
+    ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
+    conc_guess = (conc_vap(ii) + GTIME%dt_aer*sum(CR(:,ii)*kohler_effect(:,ii)*vapour_prop%c_sat(ii))) &
+               / (1D0 + GTIME%dt_aer*sum(CR(:,ii)))
 
-    ! collision rate and apc_scheme
- do ii=1, nr_species_p
+    ! apc scheme here. NOTE that for sulfuric acid vapour_prop%c_sat(ii) = 0 so the last term will vanish
+    conc_pp(:,ii) = conc_pp_orig(:,ii) + GTIME%dt_aer*CR(:,ii)*(MIN(conc_guess,conc_tot(ii)) &
+                  - kohler_effect(:,ii)*vapour_prop%c_sat(ii))
 
-   if(vapour_properties%cond_type(ii)==1) then ! for all organics, No acids included
+    ! Prevent overestimation of evaporation by setting negative concentrations to zero
+    WHERE ( conc_pp(:,ii)<0D0 ) conc_pp(:,ii) = 0D0
 
-     CR(:,ii)  = particle_conc *collision_rate(ii,par_dynamics,ambient,vapours,Diff_org)! s-1
+    ! Prevents particles to grow over the saturation limit. For organics, no acids included
+    IF (vapour_prop%cond_type(ii)==1) then
+      WHERE (conc_pp(:,ii)>conc_pp_eq(:,ii) .AND. conc_vap_orig(ii)<(Kelvin_Effect(:,ii) * vapour_prop%c_sat(ii))) conc_pp(:,ii) = conc_pp_eq(:,ii)
+    END IF
 
-  !!!! apc scheme here
-     conc_guess(ii) = (gas_conc(ii) + timestep*sum(CR(:,ii)*kohler_effect(:,ii)*vapour_properties%c_sat(ii))) / &
-                   (1D0 + timestep*sum(CR(:,ii)))
+    ! Update conc_vap: total conc - particle phase concentration
+    conc_vap(ii) = conc_tot(ii) - sum(conc_pp(:,ii))
 
-     conc_pp(:,ii) = conc_pp_old(:,ii) + timestep*CR(:,ii)*(MIN(conc_guess(ii),c_total(ii)) - &
-                                 kohler_effect(:,ii)*vapour_properties%c_sat(ii))
+  END DO
 
-     ! dmass(:,ii) =  timestep*CR(:,ii)*(MIN(conc_guess(ii),c_total(ii)) - &
-     !                        kohler_effect(:,ii)*vapour_properties%c_sat(ii)) * vapour_properties%molar_mass(ii)  / Na
-
-     ! PREVENT OVERESTIMATION OF EVAPORATION
-     WHERE( conc_pp(:,ii)<0D0) conc_pp(:,ii)=0D0
-
-     ! Prevents particles to grow over the saturation limit
-     WHERE (conc_pp(:,ii)>conc_pp_eq(:,ii) .AND. gas_conc_old(ii)<(Kelvin_Effect(:,ii)* vapour_properties%c_sat(ii))) conc_pp(:,ii)=conc_pp_eq(:,ii)
-
-     gas_conc(ii) = c_total(ii) - sum(conc_pp(:,ii)) ! update gas_conc, total conc - particle phase concentration
-
-
-   else ! acids mainly h2so4 for now
-     CR_H2SO4  = particle_conc *collision_rate(ii,par_dynamics,ambient,vapours,Diff_org)! s-1
-
-
-  !!!! apc scheme here
-     conc_H2SO4_guess = (conc_H2SO4_old + timestep*sum(CR_H2SO4(:)*kelvin_effect(:,ii)*vapour_properties%c_sat(ii))) / &
-                   (1D0 + timestep*sum(CR_H2SO4))
-
-
-     conc_H2SO4_pp = conc_pp_old(:,ii) + timestep*CR_H2SO4(:)*(MIN(conc_H2SO4_guess,c_total(ii)) - &
-                                 kohler_effect(:,ii)*vapour_properties%c_sat(ii))
-
-    ! dmass(:,ii) =  timestep*CR_H2SO4*(MIN(conc_H2SO4_guess,c_total(ii)) - &
-     !                          kohler_effect(:,ii)*vapour_properties%c_sat(ii)) * vapour_properties%molar_mass(ii)  / Na
-
-     WHERE( conc_H2SO4_pp<0D0) conc_H2SO4_pp=0D0 ! PREVENT OVERESTIMATION OF EVAPORATION
-
-     cH2SO4 = c_total(ii) - sum(conc_H2SO4_pp) ! gas phase #/m3
-
-     conc_pp(:,ii) = conc_H2SO4_pp
-
-   end if
-
- end do
-
-!!! dmass is calculated here . This is sent out to PSD
- do ii =1, nr_species_P-1
-  dmass(:,ii) = (conc_pp(:,ii) -  conc_pp_old(:,ii))*vapour_properties%molar_mass(ii)  / Na
- end do
+  ! Calculate dmass for PSD
+  DO ii = 1, nr_species_P
+    dmass(:,ii) = (conc_pp(:,ii) - conc_pp_orig(:,ii))*vapour_prop%molar_mass(ii) / Na
+  END DO
+  ! ! Check this out, something funky going on because dmass not zero when CURRENT_PSD%conc_fs is zero
+  DO ii=1,n_bins_particle
+    if (particles%conc_fs(ii) < 1d-200) dmass(ii,:) = 0d0
+  END DO
 
 
 END SUBROUTINE Condensation_apc
 
-!!!!! Coagulation!!!!!!
 
-SUBROUTINE Coagulation_routine(timestep,particle_properties,ambient,dconc_coag) ! Add more variables if you need it
+
+
+SUBROUTINE Coagulation_routine(timestep,particles,dconc_coag) ! Add more variables if you need it
 
 
   use omp_lib
 
-  REAL(dp), DIMENSION(nr_bins) :: particle_conc,diameter, particle_mass
-  type(generic_PSD), intent(inout) :: particle_properties
+  REAL(dp), DIMENSION(n_bins_particle) :: particle_conc,diameter, particle_mass
+  type(PSD), INTENT(IN) :: particles
   REAL(dp), INTENT(IN) :: timestep
 
-  type(ambient_properties), intent(in) :: ambient
-
-  REAL(dp), DIMENSION(nr_bins) :: particle_volume
-  real(dp) :: dp_max,Vp_coag
-  REAL(dp) :: temperature, pressure
+  REAL(dp), DIMENSION(n_bins_particle) :: particle_volume
+  REAL(dp) :: dp_max
+  ! REAL(dp) :: temperature, pressure
   integer :: i,j,m
-  REAL(dp), DIMENSION(nr_bins,nr_bins) :: coagulation_coef        ! coagulation coefficients [m^3/s]
-  ! REAL(dp), DIMENSION(nr_bins,nr_cond), intent(inout) :: conc_pp
+  REAL(dp), DIMENSION(n_bins_particle,n_bins_particle) :: coagulation_coef        ! coagulation coefficients [m^3/s]
 
-  REAL(dp), DIMENSION(nr_bins,nr_bins), intent(out) :: dconc_coag    ! coagulation coefficients [m^3/s]
+  REAL(dp), DIMENSION(n_bins_particle,n_bins_particle), intent(inout) :: dconc_coag    ! coagulation coefficients [m^3/s]
 
-  REAL(dp), DIMENSION(nr_bins) :: slip_correction, diffusivity, dist, speed_p, &
+  REAL(dp), DIMENSION(n_bins_particle) :: slip_correction, diffusivity, dist, speed_p, &
                                    free_path_p
 
-  REAL(dp), dimension(nr_bins, nr_bins) :: Beta_Fuchs, loss
+  REAL(dp), DIMENSION(n_bins_particle, n_bins_particle) :: Beta_Fuchs
 
-  REAL(dp), DIMENSION(nr_bins+1) :: Vp
-
-  ! REAL(dp), DIMENSION(nr_cond) :: conc_pp_coag
-  ! Real(dp), dimension(nr_bins, nr_cond) :: conc_pp_single
+  REAL(dp), DIMENSION(n_bins_particle+1) :: Vp
 
   REAL(dp) :: dyn_visc, &  ! dynamic viscosity, kg/(m*s)
               l_gas        ! Gas mean free path in air
+  REAL(dp) :: a
 
 
-  Real(dp) :: a, r1, r2
 
-  Real(dp) :: vol_coag, coag_sinktot
-  real(DP) :: startT, TTime, stt,t1,t2
+  ! REAL(dp) :: vol_coag
+  REAL(dp) :: stt
   integer:: omp_rank
 
+  particle_conc=particles%conc_fs
+  diameter =  particles%diameter_fs
+  particle_mass = particles%particle_mass_fs
+  particle_volume(1:n_bins_particle) = particles%volume_fs
 
-  temperature=ambient%temperature
-  pressure  = ambient%pressure
-  particle_conc=particle_properties%conc
-  diameter =  particle_properties%diameter
-  particle_mass = particle_properties%particle_mass
-  particle_volume(1:nr_bins) = particle_properties%volume
-
-  dp_max = diameter(nr_bins)*diameter(nr_bins)/diameter(nr_bins-1)
-  Vp(1:nr_bins) = particle_volume(1:nr_bins)
-  Vp(nr_bins+1) = (pi*dp_max**3.)/6.
+  dp_max = diameter(n_bins_particle)*diameter(n_bins_particle)/diameter(n_bins_particle-1)
+  Vp(1:n_bins_particle) = particle_volume(1:n_bins_particle)
+  Vp(n_bins_particle+1) = (pi*dp_max**3.)/6.
 
   ! The Coagulation coefficient is calculated according to formula 13.56 in Seinfield and Pandis (2006), Page 603
 
-  dyn_visc = 1.8D-5*(temperature/298.0d0)**0.85                                              ! Dynamic viscosity of air
+  dyn_visc = 1.8D-5*(GTEMPK/298.0d0)**0.85                                              ! Dynamic viscosity of air
 
-  l_gas=2D0*dyn_visc/(pressure*SQRT(8D0*Mair/(pi*R*temperature)))                        ! Gas mean free path in air (m)
+  l_gas=2D0*dyn_visc/(GPRES*SQRT(8D0*Mair/(pi*R*GTEMPK)))                        ! Gas mean free path in air (m)
 
   slip_correction = 1D0+(2D0*l_gas/(diameter))*&
   (1.257D0+0.4D0*exp(-1.1D0/(2D0*l_gas/diameter)))                                        ! Cunninghams slip correction factor (Seinfeld and Pandis eq 9.34)
 
-  diffusivity = slip_correction*kb*temperature/(3D0*pi*dyn_visc*diameter)                 ! Diffusivity for the different particle sizes m^2/s
+  diffusivity = slip_correction*kb*GTEMPK/(3D0*pi*dyn_visc*diameter)                 ! Diffusivity for the different particle sizes m^2/s
 
-  speed_p = SQRT(8D0*kb*temperature/(pi*particle_mass))                                   ! Speed of particles (m/s)
+  speed_p = SQRT(8D0*kb*GTEMPK/(pi*particle_mass))                                   ! Speed of particles (m/s)
 
   free_path_p = 8D0*diffusivity/(pi*speed_p)                                              ! Particle mean free path (m)
 
   dist = (1D0/(3D0*diameter*free_path_p))*((diameter + free_path_p)**3D0 &
   -(diameter**2D0 + free_path_p**2D0)**(3D0/2D0)) - diameter                    ! mean distance from the center of a sphere reached by particles leaving the sphere's surface (m)
 
-  DO i = 1,nr_bins
+  DO i = 1,n_bins_particle
      Beta_Fuchs(i,:) = 1D0/((diameter + diameter(i))/(diameter + diameter(i) +&
      2D0*(dist**2D0 + dist(i)**2D0)**0.5D0) + 8D0*(diffusivity + diffusivity(i))/&
      (((speed_p**2D0+speed_p(i)**2D0)**0.5D0)*(diameter + diameter(i))))                    ! Fuchs correction factor from Seinfeld and Pandis, 2006, p. 600
 
      coagulation_coef(i,:) = 2D0*pi*Beta_Fuchs(i,:)*(diameter*diffusivity(i) + &
      diameter*diffusivity + diameter(i)*diffusivity + diameter(i)*diffusivity(i)) *timestep     ! coagulation rates between two particles of all size combinations  (m^3/s)
- END DO
+  END DO
 
-! call cpu_time(t1)
+  if (USE_OPENMP) THEN
+    if (GTIME%printnow) write(*,FMT_SUB) 'Using openmp'
+    call omp_set_num_threads(4)
+    !$OMP PARALLEL shared(particle_conc, coagulation_coef) private(omp_rank, stt,j,m)
+    stt=omp_get_wtime()
+    omp_rank = omp_get_thread_num()
 
-! IF OPENMP IS USED THEN
+    !$OMP PARALLEL DO
+    do j =1, n_bins_particle
+      do m = 1, j
+        if (m==j) then
+          a=0.5_dp
+        else
+          a= 1.0_dp
+        END if
+           dconc_coag(j,m) = a * coagulation_coef(m,j) * particle_conc(j) * particle_conc(m) ! 1/m^3s
+      END DO
+    END DO
+    !$OMP END parallel DO
+    !$omp END parallel
 
-if (USE_OPENMP) THEN
+  ! If no OPENMP. NOTE the actual loops are identical
+  ELSE
+    do j =1, n_bins_particle
+      do m = 1, j
+        if (m==j) then
+          a=0.5_dp
+        else
+          a= 1.0_dp
+        END if
+        dconc_coag(j,m) = a * coagulation_coef(m,j) * particle_conc(j) * particle_conc(m) ! 1/m^3s
+      END DO
+    END DO
+  END IF
 
-  if (MODELTIME%printnow) write(*,*) 'here use openmp'
-  call omp_set_num_threads(4)
-
-  !$OMP PARALLEL shared(particle_conc, coagulation_coef) private(omp_rank, stt,j,m)
-
-  stt=omp_get_wtime()
-  omp_rank = omp_get_thread_num()
-
-
-  !$OMP PARALLEL DO
-  do j =1, nr_bins
-    do m = 1, j
-     if (m==j) then
-       a=0.5_dp
-     else
-       a= 1.0_dp
-    end if
-         dconc_coag(j,m) = a * coagulation_coef(m,j) * particle_conc(j) * particle_conc(m) ! 1/m^3s
-  end do
-  end do
-  !$OMP END parallel DO
-
-  !$omp end parallel
-  call cpu_time(t2)
-  ! write(*,*) 'cpu_time is ', t2-t1
-
-ELSE
-  do j =1, nr_bins
-    do m = 1, j
-     if (m==j) then
-       a=0.5_dp
-     else
-       a= 1.0_dp
-end if
-         dconc_coag(j,m) = a * coagulation_coef(m,j) * particle_conc(j) * particle_conc(m) ! 1/m^3s
-    end do
-  end do
-
-END IF
 
 END SUBROUTINE Coagulation_routine
 
 
 
-function collision_rate(jj,particle_properties,ambient,vapour_properties,Diff_org)
+function collision_rate(jj,particles,vapour_prop)
 
     implicit none
 
-    type(ambient_properties), intent(in) :: ambient
-    type(vapour_ambient), intent(in) :: vapour_properties
-    type(generic_PSD), intent(in) :: particle_properties
+    type(vapour_ambient), INTENT(IN) :: vapour_prop
+    type(PSD), INTENT(IN) :: particles ! used to be generic_psd
 
-    integer, intent(in) :: jj                      ! the 'number' of condensing vapour
-    real(dp), dimension(nr_cond), intent(in) :: Diff_org
-    real(dp),dimension(n_bins_particle) :: collision_rate
+    integer, INTENT(IN) :: jj                      ! the 'number' of condensing vapour
+    REAL(dp),dimension(n_bins_particle) :: collision_rate
 
     ! integer :: ii
+    REAL(dp) :: Diff_org
 
-    real(dp) :: air_free_path,temp,rh,pres,viscosity !dif_vap, r_vap, n1, , r_hyd, r_h2o,zero
-    real(dp), dimension(n_bins_particle) :: knudsen, Diff_par, slip_correction
+    REAL(dp) :: air_free_path,viscosity !dif_vap, r_vap, n1, , r_hyd, r_h2o,zero
+    REAL(dp), DIMENSION(n_bins_particle) :: knudsen, Diff_par, slip_correction
 
 
-    REAL(DP):: Diff_H2SO4_0    ! gas diffusivity for H2SO4 AT RH=0%
+    REAL(dp):: Diff_H2SO4_0    ! gas diffusivity for H2SO4 AT RH=0%
 
-    real(dp) :: Diff_H2SO4,Keq1,Keq2,d_H2SO4,mH2SO4,speedH2SO4,&
+    REAL(dp) :: Diff_H2SO4,Keq1,Keq2,d_H2SO4,mH2SO4,speedH2SO4,&
                 dorg,dens_air,speedorg
 
-    real(dp),dimension(n_bins_particle) :: gasmeanfpH2SO4,speed_p,KnH2SO4,f_corH2SO4,DH2SO4eff,gasmeanfporg,&
+    REAL(dp),dimension(n_bins_particle) :: gasmeanfpH2SO4,speed_p,KnH2SO4,f_corH2SO4,DH2SO4eff,gasmeanfporg,&
                                         Knorg,f_cororg,Dorgeff
 
-    temp  = ambient%temperature
-    rh    = ambient%rh              ! RH unit %,values from 1-100
-    pres  = ambient%pressure
-
-
-
     ! viscosity of air, density oif air and mean free path in air
-    viscosity     = 1.8D-5*(temp/298D0)**0.85D0  ! dynamic viscosity of air
-    dens_air      = Mair*pres/(R*temp)
-    air_free_path = 2D0*viscosity/(pres*SQRT(8D0*Mair/(pi*R*Temp))) ! gas mean free path in air
-
+    viscosity     = 1.8D-5*(GTEMPK/298D0)**0.85D0  ! dynamic viscosity of air
+    dens_air      = Mair*GPRES/(R*GTEMPK)
+    air_free_path = 2D0*viscosity/(GPRES*SQRT(8D0*Mair/(pi*R*GTEMPK))) ! gas mean free path in air
     ! knudsen number
-    knudsen = 2D0 * air_free_path/particle_properties%diameter
+    knudsen = 2D0 * air_free_path/particles%diameter_fs
 
     ! Cunninghams slip correction factor (Seinfeld and Pandis eq 9.34 pg 407)
     slip_correction = 1D0 + knudsen * &
-                      (1.257D0 + 0.4D0*exp(-1.1D0/(2D0*air_free_path/particle_properties%diameter)))
+                      (1.257D0 + 0.4D0*exp(-1.1D0/(2D0*air_free_path/particles%diameter_fs)))
 
     ! particle diffusion coefficient (m^2 s^-1)
-    Diff_par = (kb * temp * slip_correction) / (3D0 * pi * viscosity * particle_properties%diameter)
+    Diff_par = (kb * GTEMPK * slip_correction) / (3D0 * pi * viscosity * particles%diameter_fs)
 
 
-
-    where (particle_properties%particle_mass> 0)
-      speed_p = SQRT(8D0*kb*temp/(pi*particle_properties%particle_mass)) ! speed of particle unit(mass)=kg
-    end where
+    where (particles%particle_mass_fs> 0)
+      speed_p = SQRT(8D0*kb*GTEMPK/(pi*particles%particle_mass_fs)) ! speed of particle unit(mass)=kg
+    END where
    ! write(*,*) 'Carlton debug check molecvol line 276', molecvol(jj)
 
-    IF (vapour_properties%cond_type(jj)==2) THEN
+    IF (vapour_prop%cond_type(jj)==2) THEN
      ! For testing. In the main model we use RH dependence
      ! H2SO4 mass transfer rate (m3/s) ,RH dependent Diffusion, diameter and mass
 
@@ -387,581 +313,193 @@ function collision_rate(jj,particle_properties,ambient,vapour_properties,Diff_or
       Keq2=0.016D0     ! Hanson and Eisele
 
     ! Diffusivity H2SO4 at ambient RH
-       Diff_H2SO4 =  (Diff_H2SO4_0 + 0.85D0*Diff_H2SO4_0*Keq1*RH + 0.76D0*Diff_H2SO4_0*Keq1*Keq2*RH**2D0) &
-        /(1D0 + Keq1*RH + Keq1*Keq2*RH**2D0)
+       Diff_H2SO4 =  (Diff_H2SO4_0 + 0.85D0*Diff_H2SO4_0*Keq1*GRH + 0.76D0*Diff_H2SO4_0*Keq1*Keq2*GRH**2D0) &
+        /(1D0 + Keq1*GRH + Keq1*Keq2*GRH**2D0)
 
        ! RH dependent H2SO4 diameter
-       d_H2SO4 = (((vapour_properties%molar_mass(jj)/vapour_properties%density(jj)/Na)*6D0/pi)**(1D0/3D0) + &
-          Keq1*RH*(((vapour_properties%molar_mass(jj) + 18D-3)/vapour_properties%density(jj)/Na)*6D0/pi)**(1D0/3D0) + &
-          Keq1*Keq2*RH**2D0*(((vapour_properties%molar_mass(jj) + 36D-3)/vapour_properties%density(jj)/Na)*6D0/pi)**(1D0/3D0)) / &
-          (1D0 + Keq1*RH + Keq1*Keq2*RH**2D0)
+       d_H2SO4 = (((vapour_prop%molar_mass(jj)/vapour_prop%density(jj)/Na)*6D0/pi)**(1D0/3D0) + &
+          Keq1*GRH*(((vapour_prop%molar_mass(jj) + 18D-3)/vapour_prop%density(jj)/Na)*6D0/pi)**(1D0/3D0) + &
+          Keq1*Keq2*GRH**2D0*(((vapour_prop%molar_mass(jj) + 36D-3)/vapour_prop%density(jj)/Na)*6D0/pi)**(1D0/3D0)) / &
+          (1D0 + Keq1*GRH + Keq1*Keq2*GRH**2D0)
       !
 
       !  ! RH H2SO4 molecular mass
-       mH2SO4 = (vapour_properties%molar_mass(jj)/Na + Keq1*RH*(vapour_properties%molar_mass(jj) + 18D-3)/Na +  &
-                Keq1*Keq2*rh**2D0*(vapour_properties%molar_mass(jj) + 36D-3)/Na) / &
-                (1D0 + Keq1*RH + Keq1*Keq2*RH**2D0)
+       mH2SO4 = (vapour_prop%molar_mass(jj)/Na + Keq1*GRH*(vapour_prop%molar_mass(jj) + 18D-3)/Na +  &
+                Keq1*Keq2*GRH**2D0*(vapour_prop%molar_mass(jj) + 36D-3)/Na) / &
+                (1D0 + Keq1*GRH + Keq1*Keq2*GRH**2D0)
 
-      ! write(*,*) 'line 320 mH2so4', mH2SO4,'',d_h2so4,'',vapour_properties%molar_mass(jj),vapour_properties%molec_mass(jj)
-      !
-      !  ! speed of H2SO4 molecule
-       speedH2SO4 = SQRT(8D0*kb*temp/(pi*mH2SO4))
-      !  ! gasmeanfpH2SO4 = 0
-      !
-      !  ! collision of H2SO4 molecule with particle. Only for bins where mass > 0
+       ! speed of H2SO4 molecule
+       speedH2SO4 = SQRT(8D0*kb*GTEMPK/(pi*mH2SO4))
+       ! gasmeanfpH2SO4 = 0
+
+        ! collision of H2SO4 molecule with particle. Only for bins where mass > 0
         gasmeanfpH2SO4 = 3D0*(Diff_H2SO4 + Diff_par)/SQRT(speedH2SO4**2D0 + speed_p**2D0)
-      !
-      ! !  Knudsen number H2SO4
-       KnH2SO4=2D0*gasmeanfpH2SO4/(particle_properties%diameter + d_H2SO4)
-      !
-      ! ! Fuchs-Sutugin correction factor for transit
-       f_corH2SO4 = (0.75*vapour_properties%alpha(jj)*(1D0 + KnH2SO4))/ &
-                    (KnH2SO4**2D0 + KnH2SO4 + 0.283*KnH2SO4*vapour_properties%alpha(jj) + 0.75*vapour_properties%alpha(jj))
-      !
+
+       ! Knudsen number H2SO4
+       KnH2SO4=2D0*gasmeanfpH2SO4/(particles%diameter_fs + d_H2SO4)
+
+       ! Fuchs-Sutugin correction factor for transit
+       f_corH2SO4 = (0.75*vapour_prop%alpha(jj)*(1D0 + KnH2SO4))/ &
+                    (KnH2SO4**2D0 + KnH2SO4 + 0.283*KnH2SO4*vapour_prop%alpha(jj) + 0.75*vapour_prop%alpha(jj))
+
        DH2SO4eff = (Diff_H2SO4 + Diff_par)*f_corH2SO4    !m2/s
 
-       collision_rate = 2D0*pi*(particle_properties%diameter + d_H2SO4)*DH2SO4eff  !mass transfer rate m3/s
+       collision_rate = 2D0*pi*(particles%diameter_fs + d_H2SO4)*DH2SO4eff  !mass transfer rate m3/s
 
        ! write(*,*) 'mH2SO4', mH2SO4
 
-! Knudsen number  for organic condensable compounds
-    ELSE
-      !............................................................................
-      !Organics mass transfer rate (m3/s)
+    ! Knudsen number for organic condensable compounds
+    ELSE ! Organics mass transfer rate (m3/s)
 
+       ! diameter of organic compounds
+       dorg= (6D0*vapour_prop%molec_volume(jj)/pi)**(1D0/3D0)               !estimated diameter (m)
 
-       ! ! diamter of organic compounds
-       dorg= (6D0*vapour_properties%molec_volume(jj)/pi)**(1D0/3D0)               !estimated diameter (m)
-       !
-       ! ! diffusivity organic compound
-       ! Diff_org=5D0/(16D0*Na*dorg**2D0*dens_air)*&
-       !    sqrt(R*temp*Mair/(2D0*pi)*((vapour_properties%molar_mass(jj) + Mair)/vapour_properties%molar_mass(jj)))
-       !
-       speedorg=SQRT(8D0*Kb*temp/(pi*vapour_properties%molec_mass(jj))) !spped of organic molecules
+       ! diffusivity organic compound
+       if (Use_atoms) THEN
+         Diff_org  = 1D-7 * GTempK**1.75D0 * SQRT( 1/(Mair*1D3) + 1/(1d3*VAPOUR_PROP%molar_mass(jj)) ) &
+                   / (GPres/1.01325D5 * (Vol_org(jj)**(1D0/3D0) + 20.1**(1D0/3D0))**2D0)
 
-       ! gasmeanfporg=0
-       gasmeanfporg=3D0*(Diff_org(jj) + Diff_par)/SQRT(speedorg**2D0 + speed_p**2D0)
+       ELSE
+         Diff_org=5D0/(16D0*Na*dorg**2D0*dens_air)*&
+         sqrt(R*GTEMPK*Mair/(2D0*pi)*((vapour_prop%molar_mass(jj) + Mair)/vapour_prop%molar_mass(jj)))
+       END IF
+
+       speedorg=SQRT(8D0*Kb*GTEMPK/(pi*vapour_prop%molec_mass(jj))) !speed of organic molecules
+
+       gasmeanfporg=3D0*(Diff_org + Diff_par)/SQRT(speedorg**2D0 + speed_p**2D0)
+       ! print*, 'SB',Diff_par
 
        ! Knudsen number organic comp
-       Knorg=2D0*gasmeanfporg/(particle_properties%diameter + dorg)
+       Knorg=2D0*gasmeanfporg/(particles%diameter_fs + dorg)
 
        ! Fuchs-Sutugin correction factor for transit
-       f_cororg=(0.75*vapour_properties%alpha(jj)*(1D0 + Knorg))/&
-                 (Knorg**2D0 + Knorg+0.283*Knorg*vapour_properties%alpha(jj) + 0.75*vapour_properties%alpha(jj))
+       f_cororg=(0.75*vapour_prop%alpha(jj)*(1D0 + Knorg))/&
+                 (Knorg**2D0 + Knorg+0.283*Knorg*vapour_prop%alpha(jj) + 0.75*vapour_prop%alpha(jj))
 
-       Dorgeff = (Diff_org(jj) + Diff_par)*f_cororg                    ! m^2/s
+       Dorgeff = (Diff_org + Diff_par)*f_cororg                    ! m^2/s
 
-       collision_rate = 2D0*pi*(particle_properties%diameter + dorg)*Dorgeff        ! mass transfer coefficient s^-1
-        ! write(*,*) 'line 340 collision_rate of org', sum(collision_rate)
+       collision_rate = 2D0*pi*(particles%diameter_fs + dorg)*Dorgeff        ! mass transfer coefficient s^-1
 
      ENDIF
 
-end function collision_rate
-!
-! !
-! !!!! old original
-! SUBROUTINE Condensation_apc(timestep, vapour_properties, particle_properties, conc_pp,gas_conc, &
-!                           CH2SO4,ambient, dmass) ! Add more variables if you need it
-!
-!
-!   REAL(dp), INTENT(IN) :: timestep
-!
-!
-!   REAL(dp), DIMENSION(nr_species_p), INTENT(INOUT) :: gas_conc  ! [molec m-3], condensing vapour concentrations, which is H2SO4 and organics (ELVOC)
-!   REAL(dp), INTENT(INOUT) :: cH2SO4
-!   REAL(dp), DIMENSION(n_bins_particle) :: particle_volume_new, particle_conc_new,particle_conc_old
-!   REAL(dp), DIMENSION(n_bins_particle):: vp, particle_conc
-!   REAL(dp), DIMENSION(n_bins_particle,nr_cond) :: CR
-!   REAL(dp), DIMENSION(n_bins_particle) :: CR_H2SO4
-!
-!
-!   INTEGER :: j,ii,ip, a,ig
-!   type(ambient_properties), intent(in) :: ambient
-!   type(vapour_ambient), intent(in) :: vapour_properties
-!   type(PSD), intent(inout) :: particle_properties
-!
-!   Real(dp) :: r1, r2
-!   Real(dp) :: sum_org
-!   Real(dp) :: temperature, pressure
-!   Real(dp), dimension(n_bins_particle,nr_species_p) :: Kelvin_Effect, kohler_effect,conc_pp_fixed
-!   Real(dp), dimension(n_bins_particle,nr_species_p),intent(inout) :: conc_pp
-!
-!   Real(dp), dimension(n_bins_particle,nr_species_p) :: conc_pp_old
-!   Real(dp), dimension(n_bins_particle,nr_species_P) :: xorg                       ! mole fraction of each organic compound in each bin
-!
-!   Real(dp), dimension(nr_species_p) :: conc_guess, c_total!, gas_conc_old
-!   Real(dp), dimension(nr_bins) :: conc_H2SO4_guess, conc_H2SO4_old, conc_H2SO4_pp, conc_H2SO4
-!   Real(dp), dimension(nr_bins, nr_species_P) :: composition_old, flux
-!   Real(dp), dimension(nr_bins, nr_species_P), intent(inout) :: dmass
-!   real(dp) :: test(nr_bins)
-!
-!   temperature=ambient%temperature
-!   pressure  = ambient%pressure
-!   particle_conc=particle_properties%conc_fs
-!   particle_conc_old=particle_properties%conc_fs
-!   conc_H2SO4_old = cH2SO4 ! need to replace this with the concentation of H2SO4 from chemistry
-!   conc_H2SO4   = cH2SO4
-!   composition_old = particle_properties%composition_fs
-!  ! write(*,*), 'gas_conc', gas_conc(ind_H2SO4)
-!   ! conc_H2SO4_old=conc_H2SO4
-!   ! Add more variabels as you need it...
-!
-! if (real_code) THEN
-!
-!
-!    conc_pp_old = conc_pp
-!    c_total = gas_conc + sum(conc_pp,1)    ! vapour phase + particle phase
-!
-!
-!  if (use_raoult) THEN
-!    do ii=1,n_bins_particle
-!         if (particle_properties%volume_fs(ii) >0.0 ) then
-!          sum_org = sum(conc_pp(ii,:),DIM=1, Mask=(vapour_properties%cond_type==1))
-!           ! write(*,*) 'sum_org', sum_org
-!          if (sum_org>0) THEN
-!            xorg(ii,:)= conc_pp(ii,:)/sum_org
-!          else
-!            xorg(ii,:) = 1D0
-!          end if
-!         else
-!          xorg(ii,:) = 1D0
-!        end if
-!     end do
-!  end if
-!
-!  do ii=1, n_bins_particle
-!    if (particle_properties%diameter_fs(ii) <=  1*1D-9) THEN
-!       write(*,*) 'In here',ii
-!      xorg(ii,:) = 1D0
-!    end if
-!  end do
-!
-! ! write(*,*) 'line 116 aerosol_dynamics xorg', sum(xorg)
-!  ! collision rate, kelvin_eff, kohler_effect, and apc_scheme
-!  do ii=1, nr_species_p
-!
-!    if(vapour_properties%cond_type(ii)==1) then ! for all organics, No acids included
-!
-!      CR(:,ii)  = particle_conc *collision_rate(ii,current_PSD,ambient,vapours,Diff_org)! s-1
-!
-!    ! kelvinEffect
-!      Kelvin_Effect(:,ii) = 1D0 + 2D0*vapour_properties%surf_tension(ii)*vapour_properties%molec_volume(ii) / &
-!                                (kb*temperature*particle_properties%diameter_fs/2D0)     ! unit less
-!
-!      kohler_effect(:,ii) = Kelvin_Effect(:,ii)*xorg(:,ii)
-!
-!   !!!! apc scheme here
-!      conc_guess(ii) = (gas_conc(ii) + timestep*sum(CR(:,ii)*kohler_effect(:,ii)*vapour_properties%c_sat(ii))) / &
-!                    (1D0 + timestep*sum(CR(:,ii)))
-!
-!      conc_pp(:,ii) = conc_pp_old(:,ii) + timestep*CR(:,ii)*(MIN(conc_guess(ii),c_total(ii)) - &
-!                                  kohler_effect(:,ii)*vapour_properties%c_sat(ii))
-!
-!      flux(:,ii) =  timestep*CR(:,ii)*(MIN(conc_guess(ii),c_total(ii)) - &
-!                             kohler_effect(:,ii)*vapour_properties%c_sat(ii)) * vapour_properties%molar_mass(ii)  / Na
-!
-!      WHERE( flux(:,ii)<0D0) flux(:,ii)=0D0
-!      WHERE( conc_pp(:,ii)<0D0) conc_pp(:,ii)=0D0 ! PREVENT OVERESTIMATION OF EVAPORATION
-!
-!      gas_conc(ii) = c_total(ii) - sum(conc_pp(:,ii)) ! update gas_conc, total conc - particle phase concentration
-!
-!      IF (gas_conc(ii)<0d0) then
-!        gas_conc(ii)=0D0
-!      END IF
-!
-!    else ! acids mainly h2so4 for now
-!      CR_H2SO4  = particle_conc *collision_rate(ii,current_PSD,ambient,vapours,Diff_org)! s-1
-!
-!    ! kelvinEffect
-!      Kelvin_Effect(:,ii) = 1D0 + 2D0*vapour_properties%surf_tension(ii)*vapour_properties%molec_volume(ii) / &
-!                                (kb*temperature*particle_properties%diameter_fs/2D0)     ! unit less
-!
-!
-!
-!   !!!! apc scheme here
-!      conc_H2SO4_guess = (conc_H2SO4_old + timestep*sum(CR_H2SO4(:)*kelvin_effect(:,ii)*vapour_properties%c_sat(ii))) / &
-!                    (1D0 + timestep*sum(CR_H2SO4))
-!
-!      conc_H2SO4_pp = conc_pp_old(:,ii) + timestep*CR_H2SO4(:)*(MIN(conc_H2SO4_guess,c_total(ii)) - &
-!                                  kohler_effect(:,ii)*vapour_properties%c_sat(ii))
-!
-!      flux(:,ii) =  timestep*CR(:,ii)*(MIN(conc_guess(ii),c_total(ii)) - &
-!                               kohler_effect(:,ii)*vapour_properties%c_sat(ii)) * vapour_properties%molar_mass(ii)  / Na
-!
-!      WHERE( flux(:,ii)<0D0) flux(:,ii)=0D0
-!      WHERE( conc_H2SO4_pp<0D0) conc_H2SO4_pp=0D0 ! PREVENT OVERESTIMATION OF EVAPORATION
-!
-!      cH2SO4 = c_total(ii) - sum(conc_H2SO4_pp) ! gas phase #/m3
-!
-!      conc_pp(:,ii) = conc_H2SO4_pp
-!    end if
-!
-!  end do
-!
-! ! update composition
-!  do  ii = 1, particle_properties%nr_bins
-!          particle_properties%composition_fs(ii,:) = conc_pp(ii,:) * vapour_properties%molar_mass  / Na &
-!                                                    / particle_conc(ii)
-!  end do
-!
-!  !!! update dmass
-!
-!    do ii=1,nr_bins
-!     dmass(ii,:) = (particle_properties%composition_fs(ii,:) - composition_old(ii,:) ) !/ vapour_properties%density &
-!                   ! /particle_conc(ii)
-!    end do
-!
-! if (use_new_method) then
-!     CALL Mass_Number_Change('condensation')
-! else
-!
-! do ig=1,nr_bins!_particle
-!    particle_volume_new(ig) = &
-!                              !  sum(conc_pp(ig,:)/Na*vapour_properties%molar_mass/&
-!                              ! vapour_properties%density/particle_conc(ig))
-!
-!             sum(particle_properties%composition_fs(ig,:) / vapour_properties%density) ! another way using composition
-!
-!   ! test(ig) =particle_properties%volume_fs(ig)/particle_conc(ig) + &
-!   ! SUM(dmass(ig,:) / vapour_properties%density(:))
-!
-! end do
-! ! write(*,*) 'particle_volume_new', sum(particle_volume_new), '', sum(test),'', &
-!     ! sum(particle_properties%volume_fs)!, sum(particle_properties%composition_fs)
-!
-!  vp = particle_properties%volume_fs !diameter**3D0*pi/6D0
-!  particle_conc_new=0D0 ! Initialise a new vector with the new particle concentrations
-!  particle_conc_new(n_bins_particle)=particle_properties%conc_fs(n_bins_particle)
-!  conc_pp_fixed = 0D0
-!
-!
-!  ! Update the particle concentration in the particle_conc vector:
-!  ! Taken from Pontus
-!  DO j = 1,n_bins_particle
-!     a = MINLOC(vp-particle_volume_new(j),1,mask = (vp-particle_volume_new(j)) >= 0D0)
-!        ! write(*,*) 'a=',a,'j=',j
-!     IF (a > j) THEN ! growth
-!       r1 = (vp(a)-particle_volume_new(j))/(vp(a)-vp(a-1)) ! Fraction of particles in size bin a-1
-!       r2 = 1D0-r1 ! Fraction of particles in next size bin (a)
-!       IF (a > n_bins_particle+1) THEN
-!       ELSE IF (a == n_bins_particle+1) THEN
-!         particle_conc_new(a-1) = particle_conc_new(a-1)+r1*particle_conc(j)
-!         conc_pp_fixed(a-1,:) = conc_pp_fixed(a-1,:)+vp(a-1)/particle_volume_new(j)*r1*conc_pp(j,:)
-!       ELSE
-!         particle_conc_new(a-1) = particle_conc_new(a-1)+r1*particle_conc(j)
-!         particle_conc_new(a) = particle_conc_new(a)+r2*particle_conc(j)
-!         conc_pp_fixed(a-1,:) = conc_pp_fixed(a-1,:)+vp(a-1)/particle_volume_new(j)*r1*conc_pp(j,:)
-!         conc_pp_fixed(a,:) = conc_pp_fixed(a,:)+vp(a)/particle_volume_new(j)*r2*conc_pp(j,:)
-!       END IF
-!     ELSE ! evaporation
-!       IF (a == 0) THEN
-!       ELSEIF (a == 1) THEN
-!         r1 = (particle_volume_new(j))/(vp(1)) ! Fraction of particles in size bin a
-!         particle_conc_new(1) = particle_conc_new(1)+r1*particle_conc(j)
-!         conc_pp_fixed(1,:) = conc_pp_fixed(1,:)+vp(1)/particle_volume_new(j)*r1*conc_pp(j,:)
-!       ELSE
-!         r1 = (particle_volume_new(j)-vp(a-1))/(vp(a)-vp(a-1)) ! Fraction of particles in size bin i
-!         r2 = 1-r1 ! Fraction of particles in previous size bin (i-1)
-!
-!         particle_conc_new(a) = particle_conc_new(a)+r1*particle_conc(j)
-!         particle_conc_new(a-1) = particle_conc_new(a-1)+r2*particle_conc(j)
-!         conc_pp_fixed(a,:) = conc_pp_fixed(a,:)+vp(a)/particle_volume_new(j)*r1*conc_pp(j,:)
-!         conc_pp_fixed(a-1,:) = conc_pp_fixed(a-1,:)+vp(a-1)/particle_volume_new(j)*r2*conc_pp(j,:)
-!       END IF
-!       END IF
-!  END DO
-!
-!  particle_conc=particle_conc_new
-!  conc_pp=conc_pp_fixed
-!
-! ! write(*,*) 'after',sum(conc_pp,2)
-!
-!   ! if particle_conc is <0 . Is possible for full stationary method
-!   do ip=1, n_bins_particle
-!     if (particle_conc(ip)<=0d0) then
-!       ! write(*,*) 'ip', ip
-!       particle_conc(ip) = 1d0
-!       ! particle_properties%conc_fs(ip)=particle_conc(ip)
-!        conc_pp(ip,:)=conc_pp_old(ip,:)*particle_properties%conc_fs(ip)/&
-!                                          particle_conc_old(ip)
-!     end if
-!   end do
-!
-! particle_properties%conc_fs=particle_conc
-!
-! ! do  ii = 1, particle_properties%nr_bins
-! !         particle_properties%composition_fs(ii,:) = conc_pp(ii,:) * vapour_properties%molar_mass  / Na &
-! !                                                   / particle_conc(ii)
-! ! end do
-! end if ! if use_new_method
-! end if
-!
-!
-!
-! END SUBROUTINE Condensation_apc
-!
-!
-!
-! function collision_rate(jj,particle_properties,ambient,vapour_properties,Diff_org)
-!
-!     implicit none
-!
-!     type(ambient_properties), intent(in) :: ambient
-!     type(vapour_ambient), intent(in) :: vapour_properties
-!     type(PSD), intent(in) :: particle_properties
-!
-!     integer, intent(in) :: jj                      ! the 'number' of condensing vapour
-!     real(dp), dimension(nr_cond), intent(in) :: Diff_org
-!     real(dp),dimension(n_bins_particle) :: collision_rate
-!
-!     ! integer :: ii
-!
-!     real(dp) :: air_free_path,temp,rh,pres,viscosity !dif_vap, r_vap, n1, , r_hyd, r_h2o,zero
-!     real(dp), dimension(n_bins_particle) :: knudsen, Diff_par, slip_correction
-!
-!
-!     REAL(DP):: Diff_H2SO4_0    ! gas diffusivity for H2SO4 AT RH=0%
-!
-!     real(dp) :: Diff_H2SO4,Keq1,Keq2,d_H2SO4,mH2SO4,speedH2SO4,&
-!                 dorg,dens_air,speedorg
-!
-!     real(dp),dimension(n_bins_particle) :: gasmeanfpH2SO4,speed_p,KnH2SO4,f_corH2SO4,DH2SO4eff,gasmeanfporg,&
-!                                         Knorg,f_cororg,Dorgeff
-!
-!     temp  = ambient%temperature
-!     rh    = ambient%rh              ! RH unit %,values from 1-100
-!     pres  = ambient%pressure
-!
-!
-!
-!     ! viscosity of air, density oif air and mean free path in air
-!     viscosity     = 1.8D-5*(temp/298D0)**0.85D0  ! dynamic viscosity of air
-!     dens_air      = Mair*pres/(R*temp)
-!     air_free_path = 2D0*viscosity/(pres*SQRT(8D0*Mair/(pi*R*Temp))) ! gas mean free path in air
-!
-!     ! knudsen number
-!     knudsen = 2D0 * air_free_path/particle_properties%diameter_fs
-!
-!     ! Cunninghams slip correction factor (Seinfeld and Pandis eq 9.34 pg 407)
-!     slip_correction = 1D0 + knudsen * &
-!                       (1.257D0 + 0.4D0*exp(-1.1D0/(2D0*air_free_path/particle_properties%diameter_fs)))
-!
-!     ! particle diffusion coefficient (m^2 s^-1)
-!     Diff_par = (kb * temp * slip_correction) / (3D0 * pi * viscosity * particle_properties%diameter_fs)
-!
-!
-!
-!     where (particle_properties%particle_mass_fs> 0)
-!       speed_p = SQRT(8D0*kb*temp/(pi*particle_properties%particle_mass_fs)) ! speed of particle unit(mass)=kg
-!     end where
-!    ! write(*,*) 'Carlton debug check molecvol line 276', molecvol(jj)
-!
-!   IF (RH_DEPENDENCE) THEN
-!     IF (vapour_properties%cond_type(jj)==2) THEN
-!      ! For testing. In the main model we use RH dependence
-!      ! H2SO4 mass transfer rate (m3/s) ,RH dependent Diffusion, diameter and mass
-!
-!      ! diffusivity of H2SO4 at RH=0%
-!       Diff_H2SO4_0 = 0.09D-4
-!
-!       Keq1=0.13D0      ! Hanson and Eisele
-!       Keq2=0.016D0     ! Hanson and Eisele
-!
-!     ! Diffusivity H2SO4 at ambient RH
-!        Diff_H2SO4 =  (Diff_H2SO4_0 + 0.85D0*Diff_H2SO4_0*Keq1*RH + 0.76D0*Diff_H2SO4_0*Keq1*Keq2*RH**2D0) &
-!         /(1D0 + Keq1*RH + Keq1*Keq2*RH**2D0)
-!
-!        ! RH dependent H2SO4 diameter
-!        d_H2SO4 = (((vapour_properties%molar_mass(jj)/vapour_properties%density(jj)/Na)*6D0/pi)**(1D0/3D0) + &
-!           Keq1*RH*(((vapour_properties%molar_mass(jj) + 18D-3)/vapour_properties%density(jj)/Na)*6D0/pi)**(1D0/3D0) + &
-!           Keq1*Keq2*RH**2D0*(((vapour_properties%molar_mass(jj) + 36D-3)/vapour_properties%density(jj)/Na)*6D0/pi)**(1D0/3D0)) / &
-!           (1D0 + Keq1*RH + Keq1*Keq2*RH**2D0)
-!       !
-!
-!       !  ! RH H2SO4 molecular mass
-!        mH2SO4 = (vapour_properties%molar_mass(jj)/Na + Keq1*RH*(vapour_properties%molar_mass(jj) + 18D-3)/Na +  &
-!                 Keq1*Keq2*rh**2D0*(vapour_properties%molar_mass(jj) + 36D-3)/Na) / &
-!                 (1D0 + Keq1*RH + Keq1*Keq2*RH**2D0)
-!
-!       ! write(*,*) 'line 320 mH2so4', mH2SO4,'',d_h2so4,'',vapour_properties%molar_mass(jj),vapour_properties%molec_mass(jj)
-!       !
-!       !  ! speed of H2SO4 molecule
-!        speedH2SO4 = SQRT(8D0*kb*temp/(pi*mH2SO4))
-!       !  ! gasmeanfpH2SO4 = 0
-!       !
-!       !  ! collision of H2SO4 molecule with particle. Only for bins where mass > 0
-!         gasmeanfpH2SO4 = 3D0*(Diff_H2SO4 + Diff_par)/SQRT(speedH2SO4**2D0 + speed_p**2D0)
-!       !
-!       ! !  Knudsen number H2SO4
-!        KnH2SO4=2D0*gasmeanfpH2SO4/(particle_properties%diameter_fs + d_H2SO4)
-!       !
-!       ! ! Fuchs-Sutugin correction factor for transit
-!        f_corH2SO4 = (0.75*vapour_properties%alpha(jj)*(1D0 + KnH2SO4))/ &
-!                     (KnH2SO4**2D0 + KnH2SO4 + 0.283*KnH2SO4*vapour_properties%alpha(jj) + 0.75*vapour_properties%alpha(jj))
-!       !
-!        DH2SO4eff = (Diff_H2SO4 + Diff_par)*f_corH2SO4    !m2/s
-!
-!        collision_rate = 2D0*pi*(particle_properties%diameter_fs + d_H2SO4)*DH2SO4eff  !mass transfer rate m3/s
-!
-!        ! write(*,*) 'mH2SO4', mH2SO4
-!
-! ! Knudsen number  for organic condensable compounds
-!     ELSE
-!       !............................................................................
-!       !Organics mass transfer rate (m3/s)
-!
-!
-!        ! ! diamter of organic compounds
-!        dorg= (6D0*vapour_properties%molec_volume(jj)/pi)**(1D0/3D0)               !estimated diameter (m)
-!        !
-!        ! ! diffusivity organic compound
-!        ! Diff_org=5D0/(16D0*Na*dorg**2D0*dens_air)*&
-!        !    sqrt(R*temp*Mair/(2D0*pi)*((vapour_properties%molar_mass(jj) + Mair)/vapour_properties%molar_mass(jj)))
-!        !
-!        speedorg=SQRT(8D0*Kb*temp/(pi*vapour_properties%molec_mass(jj))) !spped of organic molecules
-!
-!        ! gasmeanfporg=0
-!        gasmeanfporg=3D0*(Diff_org(jj) + Diff_par)/SQRT(speedorg**2D0 + speed_p**2D0)
-!
-!        ! Knudsen number organic comp
-!        Knorg=2D0*gasmeanfporg/(particle_properties%diameter_fs + dorg)
-!
-!        ! Fuchs-Sutugin correction factor for transit
-!        f_cororg=(0.75*vapour_properties%alpha(jj)*(1D0 + Knorg))/&
-!                  (Knorg**2D0 + Knorg+0.283*Knorg*vapour_properties%alpha(jj) + 0.75*vapour_properties%alpha(jj))
-!
-!        Dorgeff = (Diff_org(jj) + Diff_par)*f_cororg                    ! m^2/s
-!
-!        collision_rate = 2D0*pi*(particle_properties%diameter_fs + dorg)*Dorgeff        ! mass transfer coefficient s^-1
-!         ! write(*,*) 'line 340 collision_rate of org', sum(collision_rate)
-!
-!      ENDIF
-!
-!
-!
-!    ENDIF
-!
-! end function collision_rate
-! !
+END function collision_rate
 
 
-!!!! auxillary part-- basically old stuff..can fall back to this if i ever screw up.. which i probably will
-!!! update dmass
 
-  ! do ii=1,nr_bins
-  !  dmass(ii,:) =  (particle_properties%composition(ii,:) - composition_old(ii,:) ) !/ vapour_properties%density & !flux(ii,:) * vapour_properties%molar_mass(:)  / Na
-  !                ! /particle_conc(ii)
-  ! end do
+function collision_rate_uhma(jj,radius,mass,vapour_prop)
 
-! write(*,*) 'sum(flux)', '', sum(dmass)!, '', sum(flux)-sum(dmass)
-! if (use_new_method) then
-!     ! CALL Mass_Number_Change('condensation')
-! else
+    implicit none
 
- ! do  ii = 1, particle_properties%nr_bins
- !         particle_properties%composition(ii,:) = conc_pp(ii,:) * vapour_properties%molar_mass  / Na! &
- !                                                   ! / particle_conc(ii)
- ! end do
+    type(vapour_ambient),intent(in) :: vapour_prop
+    integer, intent(in) :: jj                                                        ! the 'number' of condensing vapour
+    real(dp),dimension(:),intent(in) :: radius,mass
+    real(dp), dimension(100) :: collision_rate_uhma
 
-! do ig=1,nr_bins!_particle
-!    particle_volume_new(ig) = &
-!                              !  sum(conc_pp(ig,:)/Na*vapour_properties%molar_mass/&
-!                              ! vapour_properties%density/particle_conc(ig))
-!
-!             sum(particle_properties%composition(ig,:) / vapour_properties%density) / particle_conc(ig) ! another way using composition
-!
-!
-! end do
-! ! write(*,*) 'particle_volume_new', sum(particle_volume_new), '', sum(test),'', &
-!     ! sum(particle_properties%volume_fs)!, sum(particle_properties%composition_fs)
-!
-!  vp = particle_properties%volume !diameter**3D0*pi/6D0
-!  particle_conc_new=0D0 ! Initialise a new vector with the new particle concentrations
-!  particle_conc_new(n_bins_particle)=particle_properties%conc(n_bins_particle)
-!  conc_pp_fixed = 0D0
-!
-!
-!  ! Update the particle concentration in the particle_conc vector:
-!  ! Taken from Pontus
-!  DO j = 1,n_bins_particle
-!     a = MINLOC(vp-particle_volume_new(j),1,mask = (vp-particle_volume_new(j)) >= 0D0)
-!        ! write(*,*) 'a=',a,'j=',j
-!     IF (a > j) THEN ! growth
-!       r1 = (vp(a)-particle_volume_new(j))/(vp(a)-vp(a-1)) ! Fraction of particles in size bin a-1
-!       r2 = 1D0-r1 ! Fraction of particles in next size bin (a)
-!       IF (a > n_bins_particle+1) THEN
-!       ELSE IF (a == n_bins_particle+1) THEN
-!         particle_conc_new(a-1) = particle_conc_new(a-1)+r1*particle_conc(j)
-!         conc_pp_fixed(a-1,:) = conc_pp_fixed(a-1,:)+vp(a-1)/particle_volume_new(j)*r1*conc_pp(j,:)
-!       ELSE
-!         particle_conc_new(a-1) = particle_conc_new(a-1)+r1*particle_conc(j)
-!         particle_conc_new(a) = particle_conc_new(a)+r2*particle_conc(j)
-!         conc_pp_fixed(a-1,:) = conc_pp_fixed(a-1,:)+vp(a-1)/particle_volume_new(j)*r1*conc_pp(j,:)
-!         conc_pp_fixed(a,:) = conc_pp_fixed(a,:)+vp(a)/particle_volume_new(j)*r2*conc_pp(j,:)
-!       END IF
-!     ELSE ! evaporation
-!       IF (a == 0) THEN
-!       ELSEIF (a == 1) THEN
-!         r1 = (particle_volume_new(j))/(vp(1)) ! Fraction of particles in size bin a
-!         particle_conc_new(1) = particle_conc_new(1)+r1*particle_conc(j)
-!         conc_pp_fixed(1,:) = conc_pp_fixed(1,:)+vp(1)/particle_volume_new(j)*r1*conc_pp(j,:)
-!       ELSE
-!         r1 = (particle_volume_new(j)-vp(a-1))/(vp(a)-vp(a-1)) ! Fraction of particles in size bin i
-!         r2 = 1-r1 ! Fraction of particles in previous size bin (i-1)
-!
-!         particle_conc_new(a) = particle_conc_new(a)+r1*particle_conc(j)
-!         particle_conc_new(a-1) = particle_conc_new(a-1)+r2*particle_conc(j)
-!         conc_pp_fixed(a,:) = conc_pp_fixed(a,:)+vp(a)/particle_volume_new(j)*r1*conc_pp(j,:)
-!         conc_pp_fixed(a-1,:) = conc_pp_fixed(a-1,:)+vp(a-1)/particle_volume_new(j)*r2*conc_pp(j,:)
-!       END IF
-!       END IF
-!  END DO
-!
-!  particle_conc=particle_conc_new
-!  conc_pp=conc_pp_fixed
-!
-! ! write(*,*) 'after',sum(conc_pp,2)
-!
-!   ! if particle_conc is <0 . Is possible for full stationary method
-!   do ip=1, n_bins_particle
-!     if (particle_conc(ip)<=0d0) then
-!           particle_conc(ip) = 1d0
-!     end if
-!   end do
-!
-! particle_properties%conc=particle_conc
-!
-!
-! end if ! if use_new_method
-!
+    integer :: ii
+    real(dp) :: air_free_path, dif_vap, r_vap, n1, viscosity, r_hyd, r_h2o,temp,rh,pres,zero
+    real(dp), dimension(n_bins_particle) :: knudsen, corr, dif_part, mean_path, rate, apu, corr2
+    real(dp),dimension(nr_cond+1) :: molecmass,molecvol,molarmass,molarmass1,alpha,dens
+    !variables for new method(when input_flag=0)
+    real(dp) :: DH2SO40,DH2SO4,Keq1,Keq2,d_H2SO4,mH2SO4,speedH2SO4,Dorg,dX,dens_air,speedorg
+    real(dp),dimension(n_bins_particle) :: gasmeanfpH2SO4,speed_p,KnH2SO4,f_corH2SO4,DH2SO4eff,gasmeanfporg,&
+                                        Knorg,f_cororg,Dorgeff
+
+    temp=GTEMPK
+    rh=grh ! RH unit %,values from 1-100
+    pres=gpres
+    molecvol=vapour_prop%molec_volume !m3
+    molarmass=vapour_prop%molar_mass*1d3 !g/mol
+    molarmass1=molarmass*1d-3
+    molecmass=vapour_prop%molec_mass !kg
+
+    alpha=vapour_prop%alpha
+    dens=vapour_prop%density
+   ! air mean free path (m) and viscosity (kg s^-1 m^-1) (where from?)
+    air_free_path = (6.73d-8*temp*(1.+110.4/temp))/(296.*pres/101325d0*1.373)
+    viscosity = (1.832d-5*406.4*temp**1.5)/(5093*(temp+110.4))
+    r_h2o = (3*(18 * 1.d-3 / Na)/1000d0/(4*pi))**(1./3.)        ! radius of water molecule
+    r_vap = (molecvol(jj)*3./(4.*pi))**(1./3.)        ! radius of condensable molecules (m)
+
+    ! for particles in each size section
+    knudsen = air_free_path/radius                                                        ! particle Knudsen number
+    corr = 1. + knudsen*(1.142+0.558*exp(-0.999/knudsen))        ! Cunninghan correction factor (Allen and Raabe, Aerosol Sci. Tech. 4, 269)
+    dif_part = kb*temp*corr/(6*pi*viscosity*radius)        ! particle diffusion coefficient (m^2/s)
+
+   IF (.TRUE.) THEN
+     ! H2SO4 mass transfer rate (m3/s) ,RH dependent Diffusion, diameter and mass
+
+     IF (jj .EQ. VAPOUR_PROP%vbs_bins )  THEN
+
+       DH2SO40= 0.09D-4 ! gas diffusivity H2SO4 m2/s RH=0%
+       Keq1=0.13D0
+       Keq2=0.016D0
+       DH2SO4 = (DH2SO40+0.85D0*DH2SO40*Keq1*rh+0.76D0*DH2SO40*Keq1*Keq2*rh**2D0)&
+          /(1D0+Keq1*rh+Keq1*Keq2*rh**2D0) ! Diffusivity H2SO4 at ambient RH
+
+       d_H2SO4=(((molarmass1(jj)/dens(jj)/Na)*6D0/pi)**(1D0/3D0)+&
+          Keq1*rh*(((molarmass1(jj)+18D-3)/dens(jj)/Na)*6D0/pi)**(1D0/3D0)+&
+          Keq1*Keq2*rh**2D0*(((molarmass1(jj)+36D-3)/dens(jj)/Na)*6D0/pi)**(1D0/3D0))/&
+          (1D0+Keq1*rh+Keq1*Keq2*rh**2D0) ! RH dependent H2SO4 diameter
+
+       mH2SO4=(molarmass1(jj)/Na+Keq1*rh*(molarmass1(jj)+18D-3)/Na+Keq1*Keq2*rh**2D0*(molarmass1(jj)+36D-3)/Na)/&
+          (1D0+Keq1*rh+Keq1*Keq2*rh**2D0) ! RH H2SO4 molecular mass
+
+       speedH2SO4=SQRT(8D0*kb*temp/(pi*mH2SO4)) ! speed of H2SO4 molecule
+       gasmeanfpH2SO4=0
+       where (mass>0)
+        speed_p=SQRT(8D0*kb*temp/(pi*mass)) ! speed of particle unit(mass)=kg
+        gasmeanfpH2SO4=3D0*(DH2SO4+dif_part)/SQRT(speedH2SO4**2D0+speed_p**2D0)
+       endwhere
+
+
+
+       KnH2SO4=2D0*gasmeanfpH2SO4/(2*radius+d_H2SO4) ! Knudsen number H2SO4
+
+       f_corH2SO4=(0.75*alpha(jj)*(1D0+KnH2SO4))/(KnH2SO4**2D0+KnH2SO4+0.283*KnH2SO4*alpha(jj)+0.75*alpha(jj)) ! Fuchs-Sutugin correction factor for transit
+       DH2SO4eff=(DH2SO4+dif_part)*f_corH2SO4    !m2/s
+     !  where (mass>0)
+         collision_rate_uhma=2D0*pi*(2.*radius+d_H2SO4)*DH2SO4eff  !mass transfer rate m3/s
+     !  elsewhere
+     !    collision_rate_uhma=0
+     !  endwhere
+
+     ELSE
+      !............................................................................
+      !Organics mass transfer rate (m3/s)
+
+       dX= (6.*molecvol(jj)/pi)**(1./3.)    !estimated diameter ( m)
+       dens_air=mair*1e-3* pres/(R*temp)     ! density of air  kg/m3
+       Dorg=5./(16.*Na*dX**2.*dens_air)*&
+          sqrt(R*temp*mair*1e-3/(2.*pi)*((molarmass1(jj)+mair*1e-3)/molarmass1(jj))) ! diffusivity organic compound
+
+       speedorg=SQRT(8D0*kb*temp/(pi*molecmass(jj))) !spped of organic molecules
+       gasmeanfporg=0
+       where (mass>0)
+        speed_p=SQRT(8D0*kb*temp/(pi*mass)) ! speed of particle unit(mass)=kg
+        gasmeanfporg=3D0*(Dorg+dif_part)/SQRT(speedorg**2D0+speed_p**2D0)
+       endwhere
+       ! print*, 'UH', dif_part
+
+       Knorg=2D0*gasmeanfporg/(2*radius+dX)       ! Knudsen number organic comp
+       f_cororg=(0.75*alpha(jj)*(1D0+Knorg))/&
+         (Knorg**2D0+Knorg+0.283*Knorg*alpha(jj)+0.75*alpha(jj))     ! Fuchs-Sutugin correction factor for transit
+       Dorgeff=(Dorg+dif_part)*f_cororg                    ! m^2/s
+      ! where (mass>0)
+         collision_rate_uhma=2D0*pi*(2.*radius+dX)*Dorgeff        ! mass transfer coefficient s^-1
+      ! elsewhere
+      !   collision_rate_uhma=0
+      ! endwhere
+!         write(*,*) 'haha',collision_rate_uhma(1),collision_rate_uhma(30)
+!         stop
+
+     ENDIF
+
+
+
+   ENDIF
+end function collision_rate_uhma
+
+
+
+
 END MODULE aerosol_dynamics
-
-!! for testing
-! SUBROUTINE Nucleation_apc (dt, nucl_gas, particle_conc)! (Add input and output variables here)
-!
-!   ! Consider how kinetic H2SO4 nucleation influence the number concentrations of particles
-!   ! in the fist size bin particle_conc(1) within one model time step
-!   real(dp), intent(in   ) :: dt      , &  ! [s], integration time step
-!                              nucl_gas     ! [molec m-3], concentration of condensed vapors
-!   real(dp), intent(  out) :: particle_conc(nr_bins)  ! [molec m-3], particle number concentration
-!   real(dp) :: Knucl            ! [m3 molec-1 s-1], nucleation coefficient
-!   real(dp) :: nucleation_rate  ! [molec m-3 s-1], nucleation rate
-!   ! real(dp),dimension(nr_bins, nr_cond), intent(inout) ::  conc_pp
-!   ! real(dp),dimension(nr_cond), intent(in) :: c_p_nucl
-!   ! real(dp),dimension(nr_bins),intent(inout):: diameter
-!
-!
-!   Knucl = 1.0e-20_dp  ! [m3 molec-1 s-1]
-!
-!   nucleation_rate = Knucl * nucl_gas**2
-!   particle_conc(1)    = particle_conc(1) + nucleation_rate*dt
-!
-!   ! write(*,*) 'in nuc before update',sum(conc_pp)
-!   ! from Pontus.. update the conc_pp in particle phase and diameter
-!
-!   ! vp = sum(conc_pp(1,:)/Na*molar_mass/density/particle_conc(1)) !particle_volume(1)*particle_conc(1)*density/molecular_mass
-!   ! ! write(*,*) 'in nuc sfter update',sum(conc_pp)
-!   ! ! write(*,*) vp,'', sum(conc_pp)
-!   ! diameter(1) = (vp*6D0/pi)**(1D0/3D0)
-!
-! END SUBROUTINE Nucleation_apc
