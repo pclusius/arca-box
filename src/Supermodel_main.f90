@@ -281,7 +281,7 @@ PROGRAM Supermodel
             ! Initialization is necessary because GeneratePSDfromInput skips some bins and this would lead to blowup
             CURRENT_PSD%conc_fs = 0d0
             CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(GTIME%ind_netcdf+1, size(par_data, 1)),2:), CURRENT_PSD%conc_fs )
-            where(CURRENT_PSD%conc_fs<1d-18) CURRENT_PSD%conc_fs = 1d-18
+            where(CURRENT_PSD%conc_fs<1d-28) CURRENT_PSD%conc_fs = 1d-28
             ! NOTE Sumfile is typically in particles /cm^3
             CURRENT_PSD%conc_fs = CURRENT_PSD%conc_fs * 1d6
 

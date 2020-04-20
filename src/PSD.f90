@@ -311,8 +311,12 @@ SUBROUTINE PSD_Change_Condensation()
   IF (current_PSD%PSD_style == 1) THEN
     ! FULLY STATIONARY METHOD! ============================================
     DO i = 1, current_PSD%nr_bins
+      if (current_PSD%conc_fs(i)>0d0) THEN
         mix_PSD%volume_fs(i) =  current_PSD%volume_fs(i) &
           + SUM(dmass(i,:) / current_PSD%density_fs(:) / current_PSD%conc_fs(i)) ! in m^3
+        ELSE
+          mix_PSD%volume_fs(i) = 0d0
+        END IF
 
 
       mix_PSD%composition_fs(i,:) = dmass(i,:) + current_PSD%composition_fs(i,:)
