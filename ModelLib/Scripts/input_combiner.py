@@ -8,54 +8,54 @@ This script combines different files to create input for THEBOX.
 The first file in input vector defines the time column; other files are interpolated to that time.
 '''
 dates = [
-'180401',
-'180402',
-'180403',
-'180404',
-'180405',
-'180405',
-'180407',
-'180408',
-'180409',
+# '180401',
+# '180402',
+# '180403',
+# '180404',
+# '180405',
+# '180405',
+# '180407',
+# '180408',
+# '180409',
 '180410',
 '180411',
-'180412',
-'180413',
-'180414',
-'180415',
-'180416',
-'180417',
-'180418',
-'180419',
-'180420',
-'180421',
-'180422',
-'180423',
-'180424',
-'180425',
-'180426',
-'180427',
-'180428',
-'180429',
-'180430',
+# '180412',
+# '180413',
+# '180414',
+# '180415',
+# '180416',
+# '180417',
+# '180418',
+# '180419',
+# '180420',
+# '180421',
+# '180422',
+# '180423',
+# '180424',
+# '180425',
+# '180426',
+# '180427',
+# '180428',
+# '180429',
+# '180430',
 ]
 
 
-# input = ([
-# 'SMEAR_TEMP_168.dat',
-# 'SMEAR_PRESS.dat',
-# 'SMEAR_RH.dat',
-# 'SMEAR_SWR.dat',
-# 'SA_tower.dat',
-# 'SA_ground.dat',
-# 'NH3.dat',
-# 'SMEAR_CS.dat',
-# 'SMEAR_GAS_CO.dat',
-# 'SMEAR_GAS_NO2.dat',
-# 'SMEAR_GAS_NO.dat',
-# 'SMEAR_GAS_O3.dat',
-# 'SMEAR_GAS_SO2.dat',
-# ])
+input = ([
+'SMEAR_TEMP_168.dat',
+'SMEAR_PRESS.dat',
+'SMEAR_RH.dat',
+'SMEAR_SWR.dat',
+'SA_tower.dat',
+'SA_ground.dat',
+'NH3.dat',
+'SMEAR_CS.dat',
+'SMEAR_GAS_CO.dat',
+'SMEAR_GAS_NO2.dat',
+'SMEAR_GAS_NO.dat',
+'SMEAR_GAS_O3.dat',
+'SMEAR_GAS_SO2.dat',
+])
 
 combofile = 'VOC_0042.dat'
 
@@ -67,7 +67,7 @@ if not multicolumn:
         column = 0
         header = ''
         source_dir = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+date
-        filename    = 'voc'+date+'.dat'
+        filename    = 'env'+date+'.dat'
         for file in input:
             if column == 0:
                 time,meas = np.genfromtxt(source_dir+'/'+file, usecols=(0,1), unpack=True)

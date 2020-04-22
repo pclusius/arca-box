@@ -76,6 +76,7 @@ slMxs = [200,190,220,100,200]
 ## Settings stop here-----------------------------------------------
 # icon
 modellogo = "ModelLib/gui/S_logo.png"
+GUIName = "HLS BOX 0.3"
 NAMES = []
 namesPyInds = {}
 namesFoInds = {}
@@ -166,7 +167,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Common stuff
     # -----------------------
-        self.setWindowTitle('Superbox utility')
+        self.setWindowTitle(GUIName)
         self.inout_dir.setPlaceholderText("\""+default_inout+"\" if left empty")
         self.case_name.setPlaceholderText("\""+default_case+"\" if left empty")
         self.run_name.setPlaceholderText("\""+default_run+"\" if left empty")
@@ -197,6 +198,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
 
         self.runtime.valueChanged.connect(lambda: self.updteGraph())
+        self.runtime.valueChanged.connect(lambda: self.runtime_s.setValue(self.runtime.value()*3600))
+        self.runtime_s.editingFinished.connect(lambda: self.runtime.setValue(self.runtime_s.value()/3600))
 
         # Prepare the variable table
         for i in range(len(column_widths)):
@@ -395,6 +398,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.saveCurrentButton.setEnabled(True)
         self.actionSave_to_current.setEnabled(True)
         self.currentInitFile.setText(file)
+        self.setWindowTitle(GUIName+': '+file)
+
         self.currentInitFileToSave = file
 
     def updateEnvPath(self):
@@ -419,11 +424,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         kwargs = {'begin':r[0],'end':r[1],'case':nml.PATH.CASE_NAME,'run':nml.PATH.RUN_NAME, 'common_root':nml.PATH.INOUT_DIR}
         casedir = batch.batch(**kwargs)
         if len(casedir) == 8:
-            self.currentAddress.setText(casedir[-2]+'/')
+            # self.currentAddress.setText(casedir[-2]+'/')
+            self.currentAddressTb.setText(casedir[-2]+'/')
             self.indir = casedir[-1]+'/'
         else:
             self.indir = '<Common root does not exist>/'
-            self.currentAddress.setText(casedir)
+            # self.currentAddress.setText(casedir)
+            self.currentAddressTb.setText(casedir)
         self.updateEnvPath()
 
     def batchCaller(self):
@@ -699,7 +706,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
     def createCaseFolders(self):
         cd = ''
         created = ''
-        relpath = self.currentAddress.text().split('/')
+        # relpath = self.currentAddress.text().split('/')
+        relpath = self.currentAddressTb.text().split('/')
         for i,p in enumerate(relpath):
             if 'Common root does not exist' in p:
                 self.popup('Error', 'Common root does not exist. Change "Common out" or create the necessary path: "'+self.inout_dir.text()+'"', icon=2)
@@ -1004,7 +1012,12 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.toggle_frame(self.frameStop)
         self.toggle_frame(self.frameStart)
         self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
-
+        if exists(self.currentAddressTb.text()):
+            f = open(self.currentAddressTb.text()+'/run_report.txt', 'w')
+            f.write(self.MonitorWindow.toPlainText())
+            f.close()
+        else:
+            self.popup('Oops','Output directories do not exist.\nYou can create them from File->Create output directories')
 
     def showParOutput(self, file):
         window = self.surfacePlotWindow_1
@@ -1016,7 +1029,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.parPlotTitle_0.setText(file)
             self.lowlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_0))
             self.highlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_0))
-        elif '.sum' in file or file == 'load current':
+        elif '.sum' in file or  '.dat' in file or file == 'load current':
             self.lowlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
             self.highlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
             if file == 'load current':

@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      Superbox setting file: Current
-#         Created at: Apr 19 2020, 18:12:11
+#         Created at: Apr 22 2020, 16:26:13
 #--------------------------------------------------
 
 &NML_PATH
@@ -10,7 +10,7 @@
 / 
 
 &NML_FLAG
- CHEMISTRY_FLAG = .FALSE.
+ CHEMISTRY_FLAG = .TRUE.
  AEROSOL_FLAG = .TRUE.
  ACDC_SOLVE_SS = .FALSE.
  NUCLEATION = .FALSE.
@@ -41,7 +41,7 @@
  MAX_PARTICLE_DIAM = 1d-6
  DMPS_FILE = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/filled_dmps/dm180401.sum'
  EXTRA_PARTICLES = ''
- DMPS_READ_IN_TIME = 24.0
+ DMPS_READ_IN_TIME = 0.5
  DMPS_HIGHBAND_LOWER_LIMIT = 1e-8
  DMPS_LOWBAND_UPPER_LIMIT = 
  USE_DMPS = .TRUE.
@@ -113,7 +113,6 @@
  USE_RAOULT = .true.
  ACDC_ITERATIONS = 1
  VARIABLE_DENSITY = .true.
- TEMP_DEPEND_CSAT = .true.
 / 
 
 &NML_PARALLEL

@@ -1,0 +1,116 @@
+
+                                 --~:| HLS BOX v.0.3 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
+| Date: 2018-04-01 -> Julian Day: 91                                                               |
+| ENV values from INOUT/HYDE/PC_2018-04-01/input/env180401.dat:                                    |
+|   :........TEMPK will be read from column: 2                                                     |
+|   :........PRESSURE will be read from column: 3                                                  |
+|   :........REL_HUMIDITY will be read from column: 4                                              |
+|   :........CONDENS_SINK will be read from column: 9                                              |
+|   :........SW_RADIATION will be read from column: 5                                              |
+|   :........H2SO4 will be read from column: 7                                                     |
+|   :........SO2 will be read from column: 14                                                      |
+|   :........NO will be read from column: 12                                                       |
+|   :........NO2 will be read from column: 11                                                      |
+|   :........CO will be read from column: 10                                                       |
+|   :........O3 will be read from column: 13                                                       |
+| MCM values from INOUT/HYDE/PC_2018-04-01/input/voc180401.dat:                                    |
+|   :........CH3OH will be read from column: 2                                                     |
+|   :........C2H5OH will be read from column: 5                                                    |
+|   :........CH3CHO will be read from column: 4                                                    |
+|   :........MACR will be read from column: 9                                                      |
+|   :........BENZENE will be read from column: 11                                                  |
+|   :........TOLUENE will be read from column: 14                                                  |
+|   :........C5H8 will be read from column: 8                                                      |
+|   :........CH3COCH3 will be read from column: 6                                                  |
+|   :........MEK will be read from column: 10                                                      |
+|   :........BPINENE will be read from column: 15                                                  |
+|   :........LIMONENE will be read from column: 15                                                 |
+|   :........CH3CO2H will be read from column: 7                                                   |
+|   :........CARENE will be read from column: 15                                                   |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "INOUT/HYDE/PC_2018-04-01/input/env180401.dat".           |
+| Done filling input matrices...                                                                   |
+| Filling input matrices...                                                                        |
+| Done filling input matrices...                                                                   |
+|   :........Reading DMPS files /home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/filled_dmps/dm180|01.sum
++..................................................................................................+
+| Reading Vapour name file ModelLib/Vapour_names_test.dat                                          |
+| Reading Vapour prop file ModelLib/Vapour_properties_test.dat                                     |
+|   :........Vapours available = 9                                                                 |
+|   :........Vapour bins + H2SO4 = 10                                                              |
+| Reading O_C file ModelLib/O_C_test.dat                                                           |
++.Checking input validity..........................................................................+
+| - Converting temperature from degrees C -> K.                                                    |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Converting NH3 from ppb                                                                        |
+| - Converting DMA from ppq                                                                        |
+| - Converting SO2 from ppb                                                                        |
+| - Converting NO from ppb                                                                         |
+| - Converting NO2 from ppb                                                                        |
+| - Converting CO from ppb                                                                         |
+| - Converting O3 from ppb                                                                         |
+| - Converting CH3OH from ppb                                                                      |
+| - Converting C2H5OH from ppb                                                                     |
+| - Converting HCHO from ppt                                                                       |
+| - Converting CH3CHO from ppb                                                                     |
+| - Converting MACR from ppb                                                                       |
+| - Converting CH4 from ppm                                                                        |
+| - Converting BENZENE from ppb                                                                    |
+| - Converting TOLUENE from ppb                                                                    |
+| - Converting C5H8 from ppb                                                                       |
+| - Converting CH3COCH3 from ppb                                                                   |
+| - Converting MEK from ppb                                                                        |
+| - Converting APINENE from ppb                                                                    |
+| - Converting BPINENE from ppb                                                                    |
+| - Converting LIMONENE from ppb                                                                   |
+| - Converting CH3CO2H from ppb                                                                    |
+| - Converting CARENE from ppb                                                                     |
+| - Adding a constant to ION_PROD_RATE, [in #/cm3]: 3.000E+00                                      |
+| - Replacing input for NH3 with parametrized function.                                            |
+| - Multiplying DMA with: 0.000E+00                                                                |
+| - Adding a constant to DMA, [in ppq]: 2.000E+02                                                  |
+| - Adding a constant to HCHO, [in ppt]: 4.000E-01                                                 |
+| - Adding a constant to CH4, [in ppm]: 1.950E+00                                                  |
+| - Adding a constant to APINENE, [in ppb]: 2.120E+09                                              |
+| - Multiplying BPINENE with: 1.200E-01                                                            |
+| - Multiplying LIMONENE with: 9.000E-02                                                           |
+| - Multiplying CARENE with: 2.800E-01                                                             |
++..................................................................................................+
+|   :........Using openmp                                                                          |
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     First full chemistry runs from April 2018.                                                   |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: INOUT/HYDE/PC_2018-04-01/A1                                          |
++..................................................................................................+
+ 
++.Beginning simulation.............................................................................+
+
++.Time: 00:00:00 ..................................................................................+
+|   :........Reading in background particles                                                       |
+CS SA:    2.506E-23
+| ACID C:    1.754E+05 [1/cm3]    sum(An)/A1 2.419E-03 []                                          |
+| Temp:      2.702E+02 [K]        Pressure:  9.911E+04 [Pa]     Air_conc 2.656E+19 [1/cm3]         |
+| NH3 C:     1.062E+10 [1/cm3]    J_NH3: 2.105E-15 [1/cm3]      sum(Nn)/N1 4.548E-08 []            |
+| DMA C:     5.312E+06 [1/cm3]    J_DMA: 3.820E-17 [1/cm3]                                         |
+| Jion neutr 2.178E-16 [1/s/cm3]  Jion neg: 1.452E-18 [1/s/cm3] Jion pos: 1.885E-15 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
++..................................................................................................+
+
+Program received signal SIGFPE: Floating-point exception - erroneous arithmetic operation.
+
+Backtrace for this error:
+#0  0x7fa7b68ff2ed in ???
+#1  0x7fa7b68fe503 in ???
+#2  0x7fa7b5d4cf1f in ???
+#3  0x55c397b8f99e in __aerosol_dynamics_MOD_condensation_apc
+	at src/Aerosol/aerosol_dynamics.f90:102
+#4  0x55c397b6a455 in supermodel
+	at src/Supermodel_main.f90:361
+#5  0x55c397b6527e in main
+	at src/Supermodel_main.f90:3

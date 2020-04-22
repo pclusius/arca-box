@@ -41,7 +41,7 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_pp,conc_vap, dmass)
   REAL(dp), INTENT(INOUT) :: conc_pp(:,:) ! [#/m^3] Particle phase concentrations, DIM(n_bins_particle,nr_species_P)
   REAL(dp), INTENT(INOUT) :: conc_vap(:)  ! [#/m^3], condensing vapour concentrations, DIM(nr_species_P)
   REAL(dp), INTENT(INOUT) :: dmass(:,:)   ! [kg/m^3] change of mass in particle phase, DIM(n_bins_particle, nr_species_P)
-  REAL(dp), DIMENSION(n_bins_particle,nr_species_P) :: CR,CR2 ! [/s] collisions per second, collision rate * concentration
+  REAL(dp), DIMENSION(n_bins_particle,nr_species_P) :: CR ! [/s] collisions per second, collision rate * concentration
 
   REAL(dp), DIMENSION(n_bins_particle,nr_species_p) :: Kelvin_Effect, kohler_effect
   REAL(dp), DIMENSION(n_bins_particle,nr_species_p) :: conc_pp_orig
@@ -110,7 +110,7 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_pp,conc_vap, dmass)
     ELSE
       CR(:,ii) = particles%conc_fs * collision_rate_uhma(ii,particles%diameter_fs/2d0,particles%particle_mass_fs,vapour_prop)
     END IF
-    if ((vapour_prop%cond_type(II) == 2) .and. GTIME%printnow) print*, 'CS SA', sum(particles%conc_fs), sum(CR(:,ii))
+    if ((vapour_prop%cond_type(II) == 2) .and. GTIME%printnow) print'(a, es12.3)', 'CS SA: ',sum(CR(:,ii))
     ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
     conc_guess = (conc_vap(ii) + GTIME%dt_aer*sum(CR(:,ii)*kohler_effect(:,ii)*vapour_prop%c_sat(ii))) &
                / (1D0 + GTIME%dt_aer*sum(CR(:,ii)))
@@ -136,7 +136,7 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_pp,conc_vap, dmass)
   DO ii = 1, nr_species_P
     dmass(:,ii) = (conc_pp(:,ii) - conc_pp_orig(:,ii))*vapour_prop%molar_mass(ii) / Na
   END DO
-  ! ! Check this out, something funky going on because dmass not zero when CURRENT_PSD%conc_fs is zero
+
   DO ii=1,n_bins_particle
     if (particles%conc_fs(ii) < 1d-200) dmass(ii,:) = 0d0
   END DO
@@ -170,6 +170,7 @@ SUBROUTINE Coagulation_routine(timestep,particles,dconc_coag) ! Add more variabl
   REAL(dp), DIMENSION(n_bins_particle, n_bins_particle) :: Beta_Fuchs
 
   REAL(dp), DIMENSION(n_bins_particle+1) :: Vp
+
 
   REAL(dp) :: dyn_visc, &  ! dynamic viscosity, kg/(m*s)
               l_gas        ! Gas mean free path in air
@@ -218,7 +219,6 @@ SUBROUTINE Coagulation_routine(timestep,particles,dconc_coag) ! Add more variabl
   END DO
 
   if (USE_OPENMP) THEN
-    if (GTIME%printnow) write(*,FMT_SUB) 'Using openmp'
     call omp_set_num_threads(4)
     !$OMP PARALLEL shared(particle_conc, coagulation_coef) private(omp_rank, stt,j,m)
     stt=omp_get_wtime()
@@ -395,9 +395,8 @@ function collision_rate_uhma(jj,radius,mass,vapour_prop)
     real(dp),dimension(:),intent(in) :: radius,mass
     real(dp), dimension(100) :: collision_rate_uhma
 
-    integer :: ii
-    real(dp) :: air_free_path, dif_vap, r_vap, n1, viscosity, r_hyd, r_h2o,temp,rh,pres,zero
-    real(dp), dimension(n_bins_particle) :: knudsen, corr, dif_part, mean_path, rate, apu, corr2
+    real(dp) :: air_free_path, r_vap, viscosity, r_h2o,temp,rh,pres
+    real(dp), dimension(n_bins_particle) :: knudsen, corr, dif_part
     real(dp),dimension(nr_cond+1) :: molecmass,molecvol,molarmass,molarmass1,alpha,dens
     !variables for new method(when input_flag=0)
     real(dp) :: DH2SO40,DH2SO4,Keq1,Keq2,d_H2SO4,mH2SO4,speedH2SO4,Dorg,dX,dens_air,speedorg

@@ -47,15 +47,15 @@ REAL(dp), allocatable :: CONC_MAT(:,:)  ! will be of shape ( len(timevec) : N_VA
 real(dp), allocatable :: par_data(:,:)
 
 ! variable for storing init file name
-character(len=256) :: Fname_init ! init file names
-character(len=5)   :: gui        ! magic word for gui in use
+CHARACTER(len=256) :: Fname_init ! init file names
+CHARACTER(len=5)   :: gui        ! magic word for gui in use
 LOGICAL            :: ingui = .False. ! True if program is invoked from gui, from command line
 
 ! MAIN PATHS
-character(len=256):: WORK_DIR   = ''
-character(len=256):: INOUT_DIR   = 'INOUT'
-character(len=256):: CASE_NAME  = 'DEFAULTCASE'
-character(len=30) :: RUN_NAME   = 'DEFAULTRUN'
+CHARACTER(len=256):: WORK_DIR   = ''
+CHARACTER(len=256):: INOUT_DIR   = 'INOUT'
+CHARACTER(len=256):: CASE_NAME  = 'DEFAULTCASE'
+CHARACTER(len=30) :: RUN_NAME   = 'DEFAULTRUN'
 NAMELIST /NML_Path/ Work_dir, INOUT_DIR, Case_name, RUN_NAME
 
 ! MODULES IN USE OPTIONS
@@ -83,7 +83,7 @@ real(dp)  :: FSAVE_INTERVAL = 300d0
 real(dp)  :: PRINT_INTERVAL = 15*60d0
 INTEGER   :: FSAVE_DIVISION = 0
 INTEGER   :: dt = -1
-character(len=10)  :: DATE = '1800-01-01', INDEX = ''
+CHARACTER(len=10)  :: DATE = '1800-01-01', INDEX = ''
 NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, DATE, INDEX
 
 ! MODIFIER OPTIONS
@@ -105,9 +105,9 @@ REAL(dp)            :: max_particle_diam = 2d-6 ! upper limit of particle range 
 REAL(dp)            :: DMPS_read_in_time = 0d0
 
 ! 6) PSD input as discussed: real (time, total conc in first two columns, diameter in first row and concentration matrix) (nr_times + 1, nr_channels + 2)
-! character(len=256)  :: DMPS_dir
-! character(len=256)  :: extra_p_dir
-character(len=256)  :: DMPS_file
+! CHARACTER(len=256)  :: DMPS_dir
+! CHARACTER(len=256)  :: extra_p_dir
+CHARACTER(len=256)  :: DMPS_file
 
 ! 4) name list of species making up the particle phase (we think that this will only be a few species that are measured in the particle phase): integer
 ! 5) number of nonvolatile species considered: integer
@@ -116,9 +116,9 @@ INTEGER             :: n_xpar_options = 3    ! number of options in the extra_pa
 ! The list is needed for every species in the read in particle phase (see "4) name list of species ...") or we make one long list
 ! (nr_times + 1, nr_bins * particle phase species)
 ! Note: the number of channels does not have to be the number of size bins
-character(len=256)  :: extra_particles = '' ! file containing paths to extra particle sumfile
-REAL(dp)            :: dmps_highband_lower_limit = 15d-9    !for use_dmps_special, read all dmps data above this diameter [m]
-REAL(dp)            :: dmps_lowband_upper_limit = 6.*1d-10  !for use_dmps_special, read all dmps data below this diameter [m]
+CHARACTER(len=256)  :: extra_particles = '' ! file containing paths to extra particle sumfile
+REAL(dp)            :: dmps_highband_lower_limit = 0d0    !for use_dmps_special, read all dmps data above this diameter [m]
+REAL(dp)            :: dmps_lowband_upper_limit = 0d0  !for use_dmps_special, read all dmps data below this diameter [m]
 logical             :: use_dmps = .false.
 logical             :: use_dmps_special = .false.
 NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_particle,min_particle_diam,max_particle_diam, DMPS_file,extra_particles,& !DMPS_dir,extra_p_dir,
@@ -130,14 +130,14 @@ type(inert_particles) :: BG_PAR
 
 
 ! ENVIRONMENTAL INPUT
-character(len=256)  :: ENV_path = ''
-character(len=256)  :: ENV_file = ''
-character(len=1)    :: TempUnit = '' ! K or C
+CHARACTER(len=256)  :: ENV_path = ''
+CHARACTER(len=256)  :: ENV_file = ''
+CHARACTER(len=1)    :: TempUnit = '' ! K or C
 NAMELIST /NML_ENV/ ENV_path, ENV_file!, TempUnit
 
 ! MCM INPUT
-character(len=256)  :: MCM_path = ''
-character(len=256)  :: MCM_file = ''
+CHARACTER(len=256)  :: MCM_path = ''
+CHARACTER(len=256)  :: MCM_file = ''
 NAMELIST /NML_MCM / MCM_path, MCM_file
 
 ! MISC OPTIONS
@@ -156,17 +156,21 @@ NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo
 
 Logical  :: VAP_logical = .False.
 Logical  :: Use_atoms = .True.
-character(len=256)  :: Vap_names
-character(len=256)  :: Vap_props
-character(len=256)  :: Vap_atoms = 'ModelLib/O_C.dat'
+CHARACTER(len=256)  :: Vap_names
+CHARACTER(len=256)  :: Vap_props
+CHARACTER(len=256)  :: Vap_atoms = 'ModelLib/O_C.dat'
 NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_props, Vap_atoms
 
 INTEGER :: acdc_iterations = 4
 Logical :: use_raoult = .True.
-Logical :: temp_depend_csat = .True.
 Logical :: variable_density = .False.
 Logical :: skip_acdc = .True. ! If True, skips ACDC with very low concentrations and negligible formation rates
-NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,temp_depend_csat
+real(dp) :: dmps_tres_min = 10.
+real(dp) :: start_time_s = 0d0
+real(dp) :: dmps_multi = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
+
+NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,dmps_tres_min, &
+                      start_time_s, dmps_multi
 
 type(vapour_ambient)  :: VAPOUR_PROP
 type(atoms):: Natoms  ! atoms of hydrogen, oxygen, nitrogen and carbon. Used for calculating diffusion
@@ -182,17 +186,15 @@ contains
 ! ......................................................................................................................
 subroutine READ_INPUT_DATA()
   IMPLICIT NONE
-  character(len=256)  :: buf
+  CHARACTER(len=256)  :: buf
 
   integer             :: ioi,ioi2, ii, iosp, ioprop, ioi3
   integer             :: i, j, k, xp, yp, path_l(2), N_Xtr = 0
   integer             :: rows, cols
   !!! for vapour FILES
-  character(len=256)  :: species_name
+  CHARACTER(len=256)  :: species_name
   real(dp)            :: molar_mass, parameter_A, parameter_B, fl_buff(2)
 
-  ! Welcoming message
-  print'(a,t35,a)', achar(10),  '--~:| THE BOX v.0.2 |:~--'//achar(10)
 
   ! CHECK HOW MANY POSSIBLE INPUT VARIABLES (METEOROLOGICAL, MCM ETC.) THERE ARE IN THE MODEL
   OPEN(2151, file=NAMESDAT, ACTION='READ', status='OLD', iostat=ioi)
@@ -212,6 +214,9 @@ subroutine READ_INPUT_DATA()
   CALL READ_INIT_FILE
   CALL PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
   CALL REPORT_INPUT_COLUMNS_TO_USER
+
+  ! set up number of ACDC iterations.
+  if (ACDC_solve_ss) acdc_iterations = 1
 
   ! ALLOCATE CONC_MAT Currently both files need to have same time resolution FIX THIS SOON!
   ! The idea here is to count the rows to get time and allocate CONCMAT and TIMEVEC
@@ -423,7 +428,7 @@ subroutine READ_INPUT_DATA()
    print FMT_SUB, 'Vapour bins + H2SO4 = '//TRIM(buf)
    !!! reading the vap names and vap vapour_properties
    VAPOUR_PROP%Mfractions = 0.0
-   VAPOUR_PROP%Mfractions(VAPOUR_PROP%vapour_number) = 1 !
+   VAPOUR_PROP%Mfractions(VAPOUR_PROP%vapour_number) = 1d0 !
 
 
 
@@ -587,7 +592,7 @@ subroutine READ_INIT_FILE
 
   CLOSE(50)
 
-  
+
 
   IF (SUM(ABS(IOS)) /= 0) then
     write(*,FMT_MSG) 'There was a problem with INITFILE. Check the file and refer to manual. Exiting now.'
@@ -595,6 +600,20 @@ subroutine READ_INIT_FILE
     write(*,FMT_LEND)
     STOP
   end if
+
+  ! Also save all settings to initfile. Use this file to rerun if necessary
+  open(9129, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE')
+  write(9129,NML = NML_TIME       ) ! directories and test cases
+  write(9129,NML = NML_Flag       ) ! flags
+  write(9129,NML = NML_Path       ) ! time related stuff
+  write(9129,NML = NML_MISC       ) ! dmps_file information
+  write(9129,NML = NML_VAP        ) ! environmental information
+  write(9129,NML = NML_PARTICLE   ) ! MCM_file information
+  write(9129,NML = NML_ENV        ) ! modification parameters
+  write(9129,NML = NML_MCM        ) ! misc input
+  write(9129,NML = NML_MODS       ) ! vapour input
+  write(9129,NML = NML_PARALLEL   ) ! vapour input
+  close(9129)
 
 end subroutine READ_INIT_FILE
 
@@ -638,6 +657,10 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
       print FMT_MSG, 'Date: '//TRIM(date)//' -> Julian Day: '//TRIM(buf)
     END IF
   END if
+
+  ! In case user wants to start at later point, move clock, but only if the movement skips one filesave
+  if (start_time_s > GTIME%FSAVE_INTERVAL) GTIME = ADD(GTIME, start_time_s)
+
 end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
 
 subroutine NAME_MODS_SORT_NAMED_INDICES
@@ -673,7 +696,7 @@ end subroutine NAME_MODS_SORT_NAMED_INDICES
 subroutine REPORT_INPUT_COLUMNS_TO_USER
   implicit none
   integer::i
-  character(4) :: buffer
+  CHARACTER(4) :: buffer
   DO i=1,N_VARS
     IF (I==1) print FMT_MSG, 'ENV values from '//TRIM(ENV_file)//':'
     IF ((I==LENV) .and. (maxval(MODS(LENV:)%col)>-1)) print FMT_MSG, 'MCM values from '//TRIM(MCM_file)//':'
@@ -716,7 +739,7 @@ subroutine FILL_INPUT_BUFF(unit,cols,INPUT_BF,Input_file)
   implicit none
   integer, intent(in) :: cols
   real(dp), intent(inout) :: INPUT_BF(:,:)
-  character(*) :: Input_file
+  CHARACTER(*) :: Input_file
   integer :: i,j,k, ioi, unit
 
   ! Reading data into the variable
@@ -744,14 +767,10 @@ SUBROUTINE CHECK_MODIFIERS()
   IMPLICIT NONE
   type(input_mod) :: test
   integer         :: i,j=0
-  character(4)    :: cprf
-  character(20)    :: buf
+  CHARACTER(4)    :: cprf
+  CHARACTER(20)   :: buf
 
-  print FMT_HDR, 'Check input validity'
-
-  ! Save input temperature and pressure for archive purpose
-  ORIGINAL_TEMP(1)  = MODS(inm_TempK)
-  ORIGINAL_press(1) = MODS(inm_pres)
+  print FMT_HDR, 'Checking input validity'
 
   CALL CONVERT_TEMPS_TO_KELVINS
   CALL CONVERT_PRESSURE_AND_VALIDATE_UNITS
@@ -782,71 +801,58 @@ SUBROUTINE CHECK_MODIFIERS()
 END SUBROUTINE CHECK_MODIFIERS
 
 
-  ! ================================================================================================
-  ! Subroutine converts temperature to Kelvins based on the user input. Since there is more than one
-  ! way to define unit for temperature, this routine tries to tackle with all of them.
-  ! ================================================================================================
-  SUBROUTINE CONVERT_TEMPS_TO_KELVINS
-    !use constants, ONLY: UCASE
-    IMPLICIT NONE
+! ================================================================================================
+! Subroutine converts temperature to Kelvins based on the user input. Since there is more than one
+! way to define unit for temperature, this routine tries to tackle with all of them.
+! ================================================================================================
+SUBROUTINE CONVERT_TEMPS_TO_KELVINS
+  !use constants, ONLY: UCASE
+  IMPLICIT NONE
 
-    ! if ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
-    !     print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins."
-    !     TempUnit = 'K'
-    ! elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'K') THEN
-    !     TempUnit = 'K'
-    ! elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C') THEN
-    !     TempUnit = 'C'
-    ! END IF
-
-    if (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
-        print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins. This may lead to SIGFPE."
-        TempUnit = 'K'
-    elseif (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'K' .or. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C' )THEN
-        TempUnit = TRIM(UCASE(MODS(inm_TempK)%UNIT))
-    ! elseif ((TRIM(UCASE(TempUnit)) /= 'K' .and. TRIM(UCASE(TempUnit)) /= 'C') .and. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C') THEN
-    !     TempUnit = 'C'
-    END IF
+  if (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
+      print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins. This may lead to SIGFPE."
+      TempUnit = 'K'
+  ELSEIF (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'K' .or. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C' )THEN
+      TempUnit = TRIM(UCASE(MODS(inm_TempK)%UNIT))
+  END IF
 
 
+  IF (UCASE(TempUnit) == 'K') THEN
+      print FMT_MSG, '- Temperature input in Kelvins.'
+    ELSEIF (UCASE(TempUnit) == 'C') THEN
+      print FMT_MSG, '- Converting temperature from degrees C -> K.'
+      MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
+      MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
+      CONC_MAT(:,inm_TempK) = CONC_MAT(:,inm_TempK) + 273.15d0
+    ELSE
+      print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
+  END IF
+  ! Check if a double conversion is attempted
+  IF ((TempUnit == 'C') .and. (  ABS(MODS(inm_TempK)%shift - 273.15)<1d0  )) THEN
+      print FMT_WARN1, 'Temperature will be converted to Kelvins, but an additional constant is added: ',MODS(inm_TempK)%shift
+  END IF
+  TempUnit = 'K'
+  MODS(inm_TempK)%UNIT = TempUnit
 
-
-    IF (UCASE(TempUnit) == 'K') THEN
-        print FMT_MSG, '- Temperature input in Kelvins.'
-      ELSEIF (UCASE(TempUnit) == 'C') THEN
-        print FMT_MSG, '- Converting temperature from degrees C -> K.'
-        MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
-        MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
-        CONC_MAT(:,inm_TempK) = CONC_MAT(:,inm_TempK) + 273.15d0
-      ELSE
-        print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
-    END IF
-    ! Check if a double conversion is attempted
-    IF ((TempUnit == 'C') .and. (  ABS(MODS(inm_TempK)%shift - 273.15)<1d0  )) THEN
-        print FMT_WARN1, 'Temperature will be converted to Kelvins, but an additional constant is added: ',MODS(inm_TempK)%shift
-    END IF
-    TempUnit = 'K'
-    MODS(inm_TempK)%UNIT = TempUnit
-  END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
+END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
 
 
 ! ================================================================================================
 ! This subroutine converts pressure from all possible input units to Pa
 ! ================================================================================================
 SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
-  !use constants, ONLY: UCASE
   IMPLICIT NONE
   INTEGER      :: i
-  character(5) :: buf
+  CHARACTER(5) :: buf
 
   buf = UCASE(TRIM(MODS(inm_pres)%UNIT))
   if (TRIM(buf) == 'HPA' .or. TRIM(buf) == 'MBAR') THEN
       print FMT_MSG, '- Converting pressure from hPa (mbar) to Pascals.'
-    elseif (TRIM(buf) == 'KPA') THEN
+    ELSEIF (TRIM(buf) == 'KPA') THEN
       print FMT_MSG, '- Converting pressure from kPa to Pascals.'
-    elseif (TRIM(buf) == 'ATM') THEN
+    ELSEIF (TRIM(buf) == 'ATM') THEN
       print FMT_MSG, '- Converting pressure from atm to Pascals.'
-    elseif (TRIM(buf) == 'PA') THEN
+    ELSEIF (TRIM(buf) == 'PA') THEN
       print FMT_MSG, '- Pressure is given in Pascals.'
     else
       if ((MODS(inm_pres)%MODE > 0) .or. (MODS(inm_pres)%col > 1)  .or. (ABS(MODS(inm_pres)%multi - 1d0)>1d-9) .or. (ABS(MODS(inm_pres)%shift)>1d-16)) THEN

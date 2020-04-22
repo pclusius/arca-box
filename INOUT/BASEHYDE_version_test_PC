@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      Superbox setting file: INOUT/BASEHYDE_version_test_PC
-#         Created at: Apr 03 2020, 17:13:18
+#         Created at: Apr 22 2020, 16:09:42
 #--------------------------------------------------
 
 &NML_PATH
@@ -37,8 +37,8 @@
 &NML_PARTICLE
  PSD_MODE = 1
  N_BINS_PARTICLE = 100
- MIN_PARTICLE_DIAM = 1e-10
- MAX_PARTICLE_DIAM = 1e-5
+ MIN_PARTICLE_DIAM = 2e-9
+ MAX_PARTICLE_DIAM = 1e-6
  DMPS_FILE = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/filled_dmps/dm180401.sum'
  EXTRA_PARTICLES = ''
  DMPS_READ_IN_TIME = 2.0
@@ -110,9 +110,11 @@
 / 
 
 &NML_CUSTOM
+ USE_RAOULT = .true.
+ ACDC_ITERATIONS = 1
 / 
 
-
+'
 &NML_DIST
 distribution1 = .false.   !MODELLING SCHOOL
 distribution2 = .true.  !pontus version
@@ -126,7 +128,7 @@ use_test_vapours  = .false.
 &NML_PARALLEL
 USE_OPENMP = .true.
 /
-
+'
 
 
 # RAW_INPUT = '<br>&NML_DIST<br>distribution1 = .false.   !MODELLING SCHOOL<br>distribution2 = .true.  !pontus version<br>/<br><br>&NML_use_testcase<br>Multi_compounds    = .true.<br>use_test_vapours  = .false.<br>/<br><br>&NML_PARALLEL<br>USE_OPENMP = .true.<br>/<br>'

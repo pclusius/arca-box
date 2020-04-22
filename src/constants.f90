@@ -114,6 +114,8 @@ TYPE inert_particles
   CHARACTER(20) :: name  ! Name for the stuff
 END TYPE inert_particles
 
+
+
 !===============================================================
 ! type describing the particle size distribution and composition
 !===============================================================
@@ -171,7 +173,6 @@ end interface operator(.mod.)
 
 type(timetype)  :: GTIME
 type(input_mod), allocatable  :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
-TYPE(input_mod)               :: ORIGINAL_TEMP(2), ORIGINAL_press(2)
 REAL(dp)                      :: J_ACDC_NH3 = 0d0
 REAL(dp)                      :: J_ACDC_DMA = 0d0
 REAL(dp)                      :: J_TOTAL = 0d0

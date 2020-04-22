@@ -34,15 +34,13 @@ def parseSum(file):
         n_conc = data[1:,1:]
         diam = data[0,1:]
         print('Assuming raw output')
-        n_conc = data
     time = data[1:,0]
     nan_to_num(n_conc,copy=False)
     if lin:
-        n_conc = n_conc / log10(1.0E-6/9.3915586871665631E-007)
+        n_conc = n_conc / log10(diam[3]/diam[2])
     n_conc[n_conc<=0] = 1.01
     n_conc = log10(n_conc)
     n_conc[n_conc<=0] = 0.0
-
     return time, diam, n_conc
 
 def loadNC(file):
@@ -58,15 +56,14 @@ def loadNC(file):
         return 'Could not open the file, is it accessible?'
     vnames = [i for i in nc.variables]
     for n in vnames:
-        if 'number_concentration' in n.lower():
+        if 'number_concentration' == n.lower():
             n_conc_str = n
-        if 'diameter' in n.lower():
+        if 'diameter' == n.lower():
             diam_str = n
-        if 'radius' in n.lower():
+        if 'radius' == n.lower():
             radius_str = n
         if 'time_in' in n.lower():
             time_str = n
-
     try:
         number_concentration = nc.variables[n_conc_str][:]
         time = nc.variables[time_str][:]
@@ -78,7 +75,7 @@ def loadNC(file):
         diameter = nc.variables[radius_str][:]*2
     nc.close()
     try:
-        number_concentration = lin_to_log(diameter[1,:],number_concentration*1e-6)
+        number_concentration = number_concentration/log10(diameter[1,3]/diameter[1,2])
     except:
         return 'The file shape is not as it should be, is it complete run?'
 

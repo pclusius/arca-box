@@ -90,20 +90,21 @@ CONTAINS
 
     allocate(savepar(i-1))
     savepar = parbuf(1:i-1)
-
-    do j = 1,size(vapours%vapour_names)
-      k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
-      if (k>0) n_condensables=n_condensables+1
-    end do
-    ALLOCATE(COND_NAMES(n_condensables))
-    i=1
-    do j = 1,size(vapours%vapour_names)
-      k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
-      if (k>0) THEN
-        COND_NAMES(i) = vapours%vapour_names(j)
-        i = i + 1
-      END IF
-    end do
+    if (Aerosol_flag) THEN
+      do j = 1,size(vapours%vapour_names)
+        k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
+        if (k>0) n_condensables=n_condensables+1
+      end do
+      ALLOCATE(COND_NAMES(n_condensables))
+      i=1
+      do j = 1,size(vapours%vapour_names)
+        k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
+        if (k>0) THEN
+          COND_NAMES(i) = vapours%vapour_names(j)
+          i = i + 1
+        END IF
+      end do
+    END IF
 
     ! Print run description
     lenD = LEN(TRIM(Description))
@@ -234,14 +235,16 @@ CONTAINS
     call handler(nf90_put_att(ncfile_ids(I), savepar(J)%i, 'unit' , savepar(J)%u))
   end do
 
-  do j = 1,size(vapours%vapour_names)
-    k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
-    if (k>0) THEN
-      call handler(nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(j)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
-      call handler(nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
-      call handler(nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
-    end if
-  end do
+  if (Aerosol_flag) THEN
+    do j = 1,size(vapours%vapour_names)
+      k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
+      if (k>0) THEN
+        call handler(nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(j)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
+        call handler(nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
+        call handler(nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
+      end if
+    end do
+  end if
 
 
   ! Ending definition mode
@@ -251,49 +254,18 @@ CONTAINS
 
   I=1
 
-  do j = 1,size(vapours%vapour_names)
-    k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
-    if (k>0) THEN
-      call handler( nf90_put_var(ncfile_ids(3), savepar(1)%i, COND_NAMES))
-      i=i+1
-    END IF
-
-  end do
+  if (Aerosol_flag) THEN
+    do j = 1,size(vapours%vapour_names)
+      k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
+      if (k>0) THEN
+        call handler( nf90_put_var(ncfile_ids(3), savepar(1)%i, COND_NAMES))
+        i=i+1
+      END IF
+    end do
+  END IF
 
 
   print FMT_LEND,
-
-  ORIGINAL_TEMP(2)  = MODS(inm_TempK)
-  ORIGINAL_press(2) = MODS(inm_pres)
-  MODS(inm_TempK) = ORIGINAL_TEMP(1)
-  MODS(inm_pres)  = ORIGINAL_press(1)
-
-  ! Also save all settings to initfile. Use this file to rerun if necessary
-  open(9129, file=filename//'/RUN_INI.conf', action='WRITE')
-  write(9129,NML = NML_TIME       ) ! directories and test cases
-  write(9129,NML = NML_Flag       ) ! flags
-  write(9129,NML = NML_Path       ) ! time related stuff
-  write(9129,NML = NML_MISC       ) ! dmps_file information
-  write(9129,NML = NML_VAP        ) ! environmental information
-  write(9129,NML = NML_PARTICLE   ) ! MCM_file information
-  write(9129,NML = NML_ENV        ) ! modification parameters
-  write(9129,NML = NML_MCM        ) ! misc input
-  write(9129,NML = NML_MODS       ) ! vapour input
-  write(9129,NML = NML_PARALLEL   ) ! vapour input
-  close(9129)
-
-  MODS(inm_TempK) = ORIGINAL_TEMP(2)
-  MODS(inm_pres)  = ORIGINAL_press(2)
-
-
-
-
-
-
-
-
-
-
 
   RETURN
 
@@ -301,7 +273,7 @@ END SUBROUTINE OPEN_FILES
 
 
 
-! --------------------------------------------------------------------------------------------------------------------
+! ====================================================================================================================
 ! Here the input is written to netcdf-files. Again, particles still rudimentary
 ! --------------------------------------------------------------------------------------------------------------------
 SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOURS, current_PSD)

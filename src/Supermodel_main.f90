@@ -15,104 +15,138 @@ PROGRAM Supermodel
     USE aerosol_auxillaries
     USE ParticleSizeDistribution
     USE aerosol_dynamics
-    ! use omp_lib
-
 
     IMPLICIT NONE
 
-    ! Transient variables
-    CHARACTER(90) :: buf
-    CHARACTER(1000) :: inibk
-    CHARACTER(:), allocatable:: RUN_OUTPUT_DIR
-    INTEGER       :: in_channels ! number of diameters -> passed over to the fitting subroutine
-    INTEGER       :: I, J, val1, ioi
 
-    ! MOST OF THE VARIABLES ARE DEFINED IN INPUT.F90
-    REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)
-    REAL(DP), ALLOCATABLE :: CH_GAS(:)
-    REAL(DP), ALLOCATABLE :: shitarray(:)
+  ! ==================================================================================================================
+  ! VARIABLE DECLARATION. MOST OF THE GLOBAL VARIABLES ARE DEFINED IN INPUT.F90 and CONSTANTS.F90
+  ! ==================================================================================================================
 
+    REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)    ! Array to hold input variables for the current timestep
+    REAL(DP), ALLOCATABLE :: CH_GAS(:)        ! Array to hold all chemistry compounds
+    REAL(DP), ALLOCATABLE :: dmps_fitted(:)   ! array passed to background particle fitting if using dmps_special
+    INTEGER               :: dmps_ln = 0      ! line number from where background particles are read from
+    INTEGER               :: dmps_sp_min = 0, dmps_sp_max = 0 ! Indices for dmps_special
+
+    ! Variables related to chemistry module
     REAL(dp) :: CH_RO2      ! RO2 concentration in [molecules / cm^3]
     REAL(dp) :: CH_H2O      ! H20 concentration in [molecules / cm^3]
     REAL(dp) :: CH_Beta     ! solar zenit angle
     REAL(dp) :: EW          ! Water content in Pa
     REAL(dp) :: ES          ! Saturation vapour pressure
-    REAL(dp) :: cpu1, cpu2  ! CPU time in seconds
-    REAL(dp) :: Tavg = 0d0, Pavg = 0d0 ! Average Temperature and Pressure
 
-    !speed_up: factor for increasing integration time step for individual prosesses
-    !...(1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
-    INTEGER          :: speed_up(10) = 1
-    INTEGER          :: iters
-    TYPE(error_type) :: error
-
+    ! Variables related to aerosol module
     INTEGER, DIMENSION(:), allocatable :: index_cond
     REAL(dp), dimension(:), allocatable:: conc_vapour
 
+    ! Transient variables
+    CHARACTER(:), allocatable:: RUN_OUTPUT_DIR ! Saves the output directory relative to this executable
+    CHARACTER(1000) :: inibuf ! Buffer to save backp from the INITfile that was called
+    INTEGER         :: I,J          ! Loop indices
+    INTEGER         :: ioi          ! iostat variable
+    REAL(dp)        :: cpu1, cpu2   ! CPU time in seconds
+
+    ! speed_up: factor for increasing integration time step for individual prosesses
+    ! (1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
+    INTEGER          :: speed_up(10) = 1
+    TYPE(error_type) :: error
+
+  ! ==================================================================================================================
+
+
+  ! Welcoming message
+    print'(a,t35,a)', achar(10),  '--~:| HLS BOX v.0.3 |:~--'//achar(10)
+
+  ! ==================================================================================================================
     CALL READ_INPUT_DATA ! Declare most variables and read user input and options in input.f90
+  ! ==================================================================================================================
 
-    ! set up number of ACDC iterations.
-    if (ACDC_solve_ss) THEN
-      iters = 1
-    ELSE
-      iters = acdc_iterations
-    end if
+  ! ==================================================================================================================
+    IF (Chemistry_flag) THEN
+      CALL CHECK_INPUT_AGAINST_KPP ! Check that the input exists in chemistry, or if not, print warning
+      ! This only called once for KPP in the beginning
+      CALL KPP_SetUp
+    ENDIF
+  ! ==================================================================================================================
 
-    IF (Chemistry_flag) CALL CHECK_INPUT_AGAINST_KPP ! Check that the input exists in chemistry, or if not, print warning
-
-
-
-    ! Particles are considered -> initialize a particle representation, set initial PSD and determine composition
+  ! ==================================================================================================================
+  ! If particles are considered -> initialize a particle representation, set initial PSD and determine composition
     IF (Aerosol_flag) THEN
+      ! OMP is parallel processing and currently has only marginal effect
+      if (USE_OPENMP) write(*,FMT_SUB) 'Using openmp'
 
-      ! Initialzie the Particle representation
+      ! Initialize the Particle representation
       CALL INITIALIZE_PSD
-      ALLOCATE(shitarray(n_bins_particle))
-      ! Initialize the saturation vapour concentration and diffusivity with mean temperature and pressure
-      DO i = 2, size(CONC_MAT,1)-1
-        Tavg = Tavg + (CONC_MAT(i,inm_TempK) .mod. MODS(inm_Tempk))
-        Pavg = Pavg + (CONC_MAT(i,inm_PRES) .mod. MODS(inm_PRES))
-      END DO
 
-      Tavg = Tavg/(size(CONC_MAT,1)-2)
-      Pavg = Pavg/(size(CONC_MAT,1)-2)
+      if (use_dmps_special) THEN
+        ! Initialize the dummy for dmps_special
+        ALLOCATE(dmps_fitted(n_bins_particle))
+        ! both limits have to be far enough for the smallest and largest diameters
+        if (dmps_lowband_upper_limit > current_PSD%diameter_fs(2)) THEN
+          dmps_sp_min = minloc(abs(current_PSD%diameter_fs-dmps_lowband_upper_limit),1)
+        ELSE IF (dmps_lowband_upper_limit > 0d0) THEN
+          print FMT_FAT0, 'dmps_lowband_upper_limit is is too small and will not be used'
+          STOP
+        END IF
 
-      CALL Calculate_SaturationVapourConcentration(VAPOUR_PROP, Tavg)
+        if (dmps_highband_lower_limit < current_PSD%diameter_fs(n_bins_particle-1) &
+          .and. dmps_highband_lower_limit > current_PSD%diameter_fs(2)) THEN
+          dmps_sp_max = minloc(abs(current_PSD%diameter_fs-dmps_highband_lower_limit),1)
+        ELSE IF (dmps_highband_lower_limit > 0d0) THEN
+          print FMT_FAT0, 'dmps_highband_lower_limit is is too large and will not be used'
+          STOP
+        END IF
 
-      if (.not. temp_depend_csat) THEN
-        write(buf, '(a,f6.2, a, f8.1,a)') 'Using mean temperature ', Tavg, ' K and pressure ', Pavg, ' [Pa] for condensation'
-        print FMT_MSG, buf
+        print FMT_MSG, 'Using dmps_special. Lower bins replaced from 0 to '//i2chr(dmps_sp_min)// &
+        ', upper bins from '//i2chr(dmps_sp_max)//' to '//i2chr(n_bins_particle)
       END IF
 
       ! Send par_data (from input): diameter and first time step for fitting of initial model PSD
-      IF (CURRENT_PSD%PSD_style == 1) THEN !only defined procedure for fully stationary
-        print*, 'CHECK COMPO INITIALOIZATION'
-          ! intialize concentration of condensables in each bin kg/m3
-          do  i = 1, CURRENT_PSD%nr_bins
-            CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * CURRENT_PSD%conc_fs(i)* VAPOUR_PROP%density * 1d6
-            conc_pp(i,:) = CURRENT_PSD%composition_fs(i,:) / VAPOUR_PROP%molar_mass*Na *1d6
-          end do
+      ! IF (CURRENT_PSD%PSD_style == 1) THEN ! only defined procedure for fully stationary
+        ! print*, 'CHECK COMPO INITIALOIZATION'
+        ! ! intialize concentration of condensables in each bin kg/m3
+        ! do  i = 1, CURRENT_PSD%nr_bins
+        !   CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * CURRENT_PSD%conc_fs(i)* VAPOUR_PROP%density * 1d6
+        !   conc_pp(i,:) = CURRENT_PSD%composition_fs(i,:) / VAPOUR_PROP%molar_mass*Na *1d6
+        ! end do
 
+        ! print*,
+        ! print FMT_HDR, 'INITIALIZING PARTICLE STRUCTURES '
 
-        print*,
-        print FMT_HDR, 'INITIALIZING PARTICLE STRUCTURES '
+        ! If part of the PSD is to be replaced by existing distribution, find out the indices nearest the chosen size
 
-        ! Derive composition of the particles form input (XTRAS(I), I...# of noncond (nr_noncond))
-        IF (extra_particles /= '') THEN
-          PRINT FMT_MSG,'initial particles are composed of:'
-          DO I = 1,size(xtras(:))
-            write(buf, '(a,3(es12.3))') xtras(I)%name,xtras(I)%options
-            PRINT FMT_MSG, TRIM(buf)
+        ! ! Derive composition of the particles form input (XTRAS(I), I...# of noncond (nr_noncond))
+        ! IF (extra_particles /= '') THEN
+        !   PRINT FMT_MSG,'initial particles are composed of:'
+        !   DO I = 1,size(xtras(:))
+        !     write(buf, '(a,3(es12.3))') xtras(I)%name,xtras(I)%options
+        !     PRINT FMT_MSG, TRIM(buf)
+        !
+        !     CALL GeneratePSDfromInput(xtras(I)%sections(:),xtras(I)%binseries(1,:), xtras(i)%conc_modelbins)
+        !
+        !   END DO
+        ! END IF
 
-            in_channels = size(XTRAS(I)%sections(:))
+      ! END IF ! IF (CURRENT_PSD%PSD_style == 1)
 
-            CALL GeneratePSDfromInput(xtras(I)%sections(:),xtras(I)%binseries(1,:), xtras(i)%conc_modelbins)
+      ! reading the index of compounds
+      ALLOCATE(index_cond(nr_cond))
+      ALLOCATE(conc_vapour(nr_species_P))
 
-          END DO
-        END IF
-      END IF
+      index_cond=0
+      ! check how many species we have in common
+      DO i = 1,size(SPC_NAMES)
+        DO j = 1,nr_cond
+          IF (VAPOUR_PROP%vapour_names(j) .eq. SPC_NAMES(i)) THEN ! SPC_NAMES from second-Monitor
+            index_cond(j) = i
+            exit
+          END IF
+        END DO
+      END DO
+
       print FMT_LEND,
-    END IF
+    END IF ! IF (Aerosol_flag)
 
     ALLOCATE(TSTEP_CONC(N_VARS))
     TSTEP_CONC = 0
@@ -120,75 +154,59 @@ PROGRAM Supermodel
     ALLOCATE(CH_GAS(size(SPC_NAMES)))
     CH_GAS = 0
 
-    ! This only called once for KPP in the beginning
-    IF (Chemistry_flag .EQV. .true.) THEN
-      CALL KPP_SetUp
-    ENDIF
 
+  ! ==================================================================================================================
+  ! Prepare output
+  ! ==================================================================================================================
+    write(*,*)
+    print FMT_HDR, 'INITIALIZING OUTPUT '
 
-
-    ! All run output goes to this directory. RUN_OUTPUT_DIR is allocated to correct length so we dont need to TRIM every time
+    ! All run output goes to RUN_OUTPUT_DIR directory. RUN_OUTPUT_DIR is allocated to correct length so we dont need to TRIM every time
     ALLOCATE(CHARACTER(len=LEN(TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME))) :: RUN_OUTPUT_DIR)
     RUN_OUTPUT_DIR = TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)
 
-    OPEN(100,file=RUN_OUTPUT_DIR//"/diameter.dat",status='replace',action='write')
-    OPEN(104,file=RUN_OUTPUT_DIR//"/time.dat",status='replace',action='write')
-    OPEN(101,file=RUN_OUTPUT_DIR//"/particle_conc.sum",status='replace',action='write')
-    OPEN(105,file=RUN_OUTPUT_DIR//"/avail_species.dat",status='replace',action='write')
-    OPEN(106,file=RUN_OUTPUT_DIR//"/index_cond.dat",status='replace',action='write')
-    OPEN(107,file=RUN_OUTPUT_DIR//"/index_avail_comp.dat",status='replace',action='write')
+    if (Aerosol_flag) THEN
 
-    !Open output file
-    write(*,*)
-    print FMT_HDR, 'INITIALIZING OUTPUT '
-    CALL OPEN_FILES( RUN_OUTPUT_DIR, Description, MODS, CH_GAS, VAPOUR_PROP, CURRENT_PSD)
+      ! Open text files to save particle size ditribution in easily accessible format
+      ! Sumfile that uses same format as SMEAR sumfiles, (with exception of time resolution; here model save interval is used)
+      ! Format is:
+      ! 000------------------000------------bin_1 diameter---bin_2 diameter---bin_3 diameter . bin_n diameter
+      ! Time 0 (s)--Total particle number---dN/log10(dDp)---dN/log10(dDp)-----dN/log10(dDp) . . dN/log10(dDp)
+      ! Time 1 (s)--Total particle number---dN/log10(dDp)---dN/log10(dDp)-----dN/log10(dDp) . . dN/log10(dDp)
+      OPEN(101,file=RUN_OUTPUT_DIR//"/particle_conc.sum",status='replace',action='write')
+      WRITE(101,*) 0d0,0d0,CURRENT_PSD%diameter_fs
 
-    !Open error output file
-    open(unit=333, file=RUN_OUTPUT_DIR//'/error_output.txt')
+      ! Datfile where PSD is in linear form. Format is:
+      ! 000----------bin_1 diameter---bin_2 diameter---bin_3 diameter . bin_n diameter
+      ! Time 0 (s)---------dN--------------dN----------------dN . . . . . . . dN
+      ! Time 1 (s)---------dN--------------dN----------------dN . . . . . . . dN
+      OPEN(104,file=RUN_OUTPUT_DIR//"/particle_conc.dat",status='replace',action='write')
+      WRITE(104,*) 0d0,CURRENT_PSD%diameter_fs
+
+    END IF
 
     ! Save backup from the initfile
     OPEN(UNIT=504, FILE=TRIM(ADJUSTL(Fname_init)), STATUS='OLD', ACTION='READ', iostat=ioi)
     open(unit=334, file=RUN_OUTPUT_DIR//'/InitBackup.txt')
-    ioi = 0
     DO while (ioi == 0)
-      read(504,'(a)', iostat = ioi) inibk
-      write(334,'(a)') TRIM(inibk)
+      read(504,'(a)', iostat = ioi) inibuf
+      write(334,'(a)') TRIM(inibuf)
     end do
     close(504)
     close(334)
 
-    ! reading the index of compounds
-    ALLOCATE(index_cond(nr_cond))
-    ALLOCATE(conc_vapour(nr_species_P))
+    ! Open netCDF files
+    CALL OPEN_FILES( RUN_OUTPUT_DIR, Description, MODS, CH_GAS, VAPOUR_PROP, CURRENT_PSD)
 
-    index_cond=0
-    val1=0
-! check how many species we have in common
-    DO i = 1,size(SPC_NAMES)
-      DO j = 1,nr_cond
-        IF (VAPOUR_PROP%vapour_names(j) .eq. SPC_NAMES(i)) THEN ! SPC_NAMES from second-Monitor
-          index_cond(j) = i
-          val1 = val1+1
-          exit
-        END IF
-      END DO
-    END DO
-
-    write(106,'(i0)') index_cond
-    write(107,'(i0)') pack(index_cond,index_cond/=0)
-    write(105,'(a)') spc_names(pack(index_cond,index_cond/=0))
-    CLOSE(105)
-    CLOSE(106)
-    CLOSE(107)
-
-
+    ! If wait_for was defined in user options, wait for a sec
     CALL PAUSE_FOR_WHILE(wait_for)
 
-    print*,;print FMT_HDR, 'Beginning simulation' ! Information to user
-    call cpu_time(cpu1)
+    write(*,*) ''
+    print FMT_HDR, 'Beginning simulation'
+    call cpu_time(cpu1) ! For efficiency calculation
     ! =================================================================================================
     DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
-        ! =================================================================================================
+    ! =================================================================================================
 
 
         ! =================================================================================================
@@ -196,11 +214,13 @@ PROGRAM Supermodel
         if (GTIME%printnow) THEN
           print *, ! Print time
           print FMT_TIME, GTIME%hms
-          call cpu_time(cpu2)
+          call cpu_time(cpu2) ! To compare real time vs simulatoin time, timer is stopped in the beginning
+
         ! if --gui flag was used, print a dot and EOL so the STDOUT-reading in Python GUI will be smoother.
         ELSE
           if (ingui) print'(a)', '.'
         END IF
+
         ! =================================================================================================
         ! GC_AIR_NOW, TEMPK, PRES and RH are calculated as global variables and are available everywhere.
         ! USE GC_AIR_NOW FOR CURRENT AIR CONCENTRATION IN CM^3
@@ -210,27 +230,26 @@ PROGRAM Supermodel
         GC_AIR_NOW = C_AIR_cc(GTEMPK, GPRES)
         ! =================================================================================================
 
-
-        ! =================================================================================================
-        ! Assign values to input variables
-
-        DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables that user can provide or tamper, and leave zero if no input or mod was provided
-          ! IF ((I==inm_TempK) .or. (MODS(I)%col>0) .or. (MODS(I)%MODE > 0) .or. (ABS(MODS(I)%Shift) > 1d-100)) THEN
-              TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I)) .mod. MODS(I)
-            ! INDRELAY(I)>0 means that user must have provided a column from an input file; MODS(I)%MODE > 0 means NORMALD is in use
-          ! END IF
-        END DO
-
-        ! =================================================================================================
-
         ! =================================================================================================
         ! Calculate Water vapour pressure and concentration
         CALL WATER(ES,EW,CH_H2O)
         ! =================================================================================================
 
+        ! =================================================================================================
+        ! Assign values to input variables
+        ! N_VARS will cycle through all variables that user can provide or tamper, and
+        ! leave zero if no input or mod was provided
+        DO I = 1, N_VARS
+          TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I)) .mod. MODS(I)
+        END DO
+        ! =================================================================================================
+
+
+        ! =================================================================================================
         ! Chemistry
+        ! =================================================================================================
         IF (Chemistry_flag) THEN
-          DO I = 1, N_VARS ! <-- N_VARS will cycle through all variables
+          DO I = 1, N_VARS ! <-- N_VARS will cycle through all input variables
             IF (INDRELAY_CH(I)>0) THEN ! <-- this will pick those that were paired in CHECK_INPUT_AGAINST_KPP
               IF (I == inm_H2SO4 .and. .not. model_H2SO4) THEN
                 CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
@@ -243,19 +262,21 @@ PROGRAM Supermodel
           ! Solar Zenith angle. For this to properly work, lat, lon and Date need to be defined in INIT_FILE
           call BETA(CH_Beta)
 
-            ! write(*,*) 'L 262 before chemcalc sum of ch_gas', sum(CH_GAS)
           Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt_chm), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
                         CH_H2O, GC_AIR_NOW, TSTEP_CONC(inm_CS), TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
           if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
 
         END IF ! IF (Chemistry_flag)
+        ! =================================================================================================
+
 
         ! =================================================================================================
         ! NUCLEATION
+        ! =================================================================================================
         IF (NUCLEATION .and. (.not. error%error_state) ) THEN
             if (ACDC) THEN
-                CALL ACDC_J(TSTEP_CONC, iters)
+                CALL ACDC_J(TSTEP_CONC, acdc_iterations)
                 J_TOTAL = J_ACDC_DMA + J_ACDC_NH3 ! [particles/s/m^3]
                 IF (.not. RESOLVE_BASE) J_TOTAL = J_TOTAL + TSTEP_CONC(inm_JIN) * 1d6 ! [particles/s/cm^3]
             else
@@ -264,114 +285,158 @@ PROGRAM Supermodel
             END if
         END if
         if (GTIME%savenow .and. RESOLVE_BASE) CALL Get_BASE(TSTEP_CONC, RESOLVED_BASE, RESOLVED_J)
+        ! =================================================================================================
 
 
         ! =================================================================================================
         ! AEROSOL PART STARTS HERE
         ! =================================================================================================
-        IF (Aerosol_flag) THEN
-
+        IF (Aerosol_flag.and.(.not. error%error_state)) THEN
 
           ! =================================================================================================
           ! Read in background particles
-          if (use_dmps .and. GTIME%min/60d0 < DMPS_read_in_time) THEN
+          if (use_dmps .and. GTIME%min >= (dmps_ln*dmps_tres_min) .and. GTIME%min/60d0 < DMPS_read_in_time) THEN
+            print FMT_SUB, 'Reading in background particles'
 
-            IF (GTIME%printnow) print FMT_SUB, 'Reading in background particles'
-
-            ! Initialization is necessary because GeneratePSDfromInput skips some bins and this would lead to blowup
+            ! Initialization is necessary
             CURRENT_PSD%conc_fs = 0d0
-            CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(GTIME%ind_netcdf+1, size(par_data, 1)),2:), CURRENT_PSD%conc_fs )
-            where(CURRENT_PSD%conc_fs<1d-28) CURRENT_PSD%conc_fs = 1d-28
-            ! NOTE Sumfile is typically in particles /cm^3
-            CURRENT_PSD%conc_fs = CURRENT_PSD%conc_fs * 1d6
+
+            CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(dmps_ln+2, size(par_data, 1)),2:), CURRENT_PSD%conc_fs )
+
+            ! NOTE Sumfile is typically in particles /cm^3, so make sure dmps_multi is correct
+            CURRENT_PSD%conc_fs = CURRENT_PSD%conc_fs * dmps_multi
+
+            do  i = 1, CURRENT_PSD%nr_bins
+              CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density * CURRENT_PSD%conc_fs(i)
+              conc_pp(i,:) = CURRENT_PSD%composition_fs(i,:) * Na / VAPOUR_PROP%molar_mass
+            end do
+
+            ! Next time next line is read
+            dmps_ln = dmps_ln + 1
 
           END IF
 
-          val1=0
-          do i = 1, nr_cond
-            if (index_cond(i) /= 0) then
-            ! print*, i, index_cond(i)
-              conc_vapour(i) =  CH_GAS(index_cond(i))*1D6 ! mol/m3
-              val1=val1+1
-            else
-              conc_vapour(i) = 0d0
-            end if
-          end do
+          if (use_dmps_special .and. (GTIME%min >= (dmps_ln*dmps_tres_min)) .and. (GTIME%min/60d0 .ge. DMPS_read_in_time)) THEN
 
-          conc_vapour(nr_species_P) = CH_GAS(ind_H2SO4)*1d6
+            print FMT_SUB, 'Reading in background particles partially'
 
+            ! Initialization is necessary
+            dmps_fitted = 0d0
+
+            CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(dmps_ln+2, size(par_data, 1)),2:), dmps_fitted )
+
+            ! NOTE Sumfile is typically in particles /cm^3, so make sure dmps_multi is correct
+            if (dmps_sp_min>0) CURRENT_PSD%conc_fs(:dmps_sp_min) = dmps_fitted(:dmps_sp_min) * dmps_multi
+            if (dmps_sp_max>0) CURRENT_PSD%conc_fs(dmps_sp_max:) = dmps_fitted(dmps_sp_max:) * dmps_multi
+
+            ! Next time next line is read
+            dmps_ln = dmps_ln + 1
+
+          END IF
+
+          ! Just add all new particles to first bin
           call Nucleation_routine(J_TOTAL,CURRENT_PSD%conc_fs)
 
+          ! =================================================================================================
+          ! CONDENSATION
           if (Condensation) THEN
-            ! CURRENT_PSD%conc_fs = CURRENT_PSD%conc_fs*1d6
-            ! CURRENT_PSD%composition_fs = CURRENT_PSD%composition_fs*1d6
-            ! =================================================================================================
-            if (temp_depend_csat) CALL Calculate_SaturationVapourConcentration(VAPOUR_PROP, GTEMPK)
+
+            ! Pick the condensables from chemistry and change units from #/cm^3 to #/m^3
+            if (.not. ALLOCATED(index_cond))  THEN
+              print FMT_FAT0, 'something funky going on in ',i2chr(__LINE__)
+              stop
+            END IF
+
+            do i = 1, nr_cond
+              if (index_cond(i) /= 0) then
+                conc_vapour(i) =  CH_GAS(index_cond(i))*1D6 ! mol/m3
+              else
+                conc_vapour(i) = 0d0
+              end if
+            end do
+            ! Poor sulfuric acid always needs special treatment
+            conc_vapour(nr_species_P) = CH_GAS(ind_H2SO4)*1d6
+
+            ! Update vapour concentrations
+            CALL Calculate_SaturationVapourConcentration(VAPOUR_PROP, GTEMPK)
+
+            ! Solve mass flux
             CALL Condensation_apc(VAPOUR_PROP,CURRENT_PSD,conc_pp,conc_vapour,dmass)
-            ! print*, 'bef mnc conc_pp', sum(conc_pp)
-            ! print*, 'bef mnc compo', sum(sum(CURRENT_PSD%composition_fs(:,:),1) * Na / VAPOUR_PROP%molar_mass)
+            ! Distribute mass
             CALL Mass_Number_Change('condensation')
+
+            ! Update PSD with new concentrations
+            CURRENT_PSD%conc_fs = new_PSD%conc_fs
+            CURRENT_PSD%composition_fs = new_PSD%composition_fs
+
+            do i = 1,current_PSD%nr_bins
+              conc_pp(i,:) = CURRENT_PSD%composition_fs(i,:) * Na / VAPOUR_PROP%molar_mass
+            end do
+
+            do i = 1, nr_cond
+              if (index_cond(i) /= 0) then
+                CH_GAS(index_cond(i)) = conc_vapour(i) *1D-6
+              end if
+            end do
+            CH_GAS(ind_H2SO4) = conc_vapour(nr_species_P)*1d-6
 
           end if ! end of condensation
 
-          do i = 1, nr_cond
-            if (index_cond(i) /= 0) then
-             CH_GAS(index_cond(i)) = conc_vapour(i) *1D-6
-            end if
-          end do
-          CH_GAS(ind_H2SO4) = conc_vapour(nr_species_P)*1d-6
+          ! =================================================================================================
 
-          ! For coagulation
+          ! =================================================================================================
+          ! COAGULATION
           if (Coagulation) then
-            Call Coagulation_routine(GTIME%dt_aer,CURRENT_PSD,dconc_coag)
-            Call Mass_Number_Change('coagulation')
-          end if
 
-          do i = 1,current_PSD%nr_bins
-            conc_pp(i,:) = CURRENT_PSD%composition_fs(i,:) * Na / VAPOUR_PROP%molar_mass
-          end do
-          ! CURRENT_PSD%conc_fs = CURRENT_PSD%conc_fs*1d-6
-          ! CURRENT_PSD%composition_fs = CURRENT_PSD%composition_fs*1d-6
+            ! Solve particle coagulation
+            Call Coagulation_routine(GTIME%dt_aer,CURRENT_PSD,dconc_coag)
+            ! Distribute mass
+            Call Mass_Number_Change('coagulation')
+
+            ! Update PSD with new concentrations
+            CURRENT_PSD%conc_fs = new_PSD%conc_fs
+            CURRENT_PSD%composition_fs = new_PSD%composition_fs
+
+          end if ! end of coagulation
+          ! =================================================================================================
 
         end if ! if Aerosol_flag
-
-
-        ! =================================================================================================
-        ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
-        ! if (GTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-        ! if (GTIME%savenow) CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOUR_PROP)
         ! =================================================================================================
 
-        IF (error%error_state) THEN !ERROR handling
+
+        ! SPEED handling
+        IF (error%error_state) THEN
           CALL error_handling(error, speed_up,GTIME%dt,GTIME%sec)
           error%error_state = .false.
 
-        ! There was no error during the actual timestep
-        ELSE
+        ELSE ! If there was no error during the actual timestep
           ! ============================================================================================================
           ! Write printouts to screen and outputs to netcdf-file, later this will include more optionality
           if (GTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
           if (GTIME%savenow) THEN
             CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOUR_PROP, CURRENT_PSD)
-            WRITE(100,*) CURRENT_PSD%diameter_fs
-            WRITE(101,*) CURRENT_PSD%conc_fs*1d-6
-            WRITE(104,*) GTIME%sec
+
+            if (Aerosol_flag) THEN
+              WRITE(101,*) GTIME%sec, sum(CURRENT_PSD%conc_fs*1d-6), CURRENT_PSD%conc_fs*1d-6 / LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))
+              WRITE(104,*) GTIME%sec, CURRENT_PSD%conc_fs*1d-6
+            END IF
+
           END IF
 
           ! ============================================================================================================
           ! Add main timestep to GTIME'
           GTIME = ADD(GTIME)
 
-        END IF ! ERROR handling
+        END IF ! SPEED handling
 
     END DO	! Main loop ends
     ! ==================================================================================================================
     ! ==================================================================================================================
 
-    CLOSE(100)
-    CLOSE(101)
-    CLOSE(104)
-
+    if (Aerosol_flag) THEN
+      CLOSE(101)
+      CLOSE(104)
+    END IF
 
     CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
@@ -681,7 +746,18 @@ CONTAINS
 
   END SUBROUTINE FINISH
 
+  PURE CHARACTER(LEN=12) FUNCTION f2chr(number)
+    IMPLICIT NONE
+    real(dp), INTENT(IN) :: number
+    write(f2chr, '(es12.3)') number
+  END FUNCTION f2chr
 
+  PURE FUNCTION i2chr(number) result(out)
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: number
+    CHARACTER(len=int(LOG10(MAX(number*1d0, 1d0))+1)) :: out
+    write(out, '(i0)') number
+  END FUNCTION i2chr
 
 
 END PROGRAM SUPERMODEL

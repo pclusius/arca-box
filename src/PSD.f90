@@ -119,7 +119,7 @@ SUBROUTINE PSD_Allocate()
 SUBROUTINE GeneratePSDarrays()
   IMPLICIT NONE
   INTEGER :: i  ! integer for incrementation
-  REAL(dp) :: binw_ratio, binwl(2), factor_voldiam,factor_areadiam
+  REAL(dp) :: binw_ratio
 
   current_PSD%conc_fs = 0.d0
   conc_pp = 0.d0
@@ -133,19 +133,9 @@ SUBROUTINE GeneratePSDarrays()
     ! Define diameter array as exponent of a geometric series
     current_PSD%diameter_fs =  exp([(i*binw_ratio + log(current_PSD%dp_range(1)), i=0,current_PSD%nr_bins-1)])
     current_PSD%diameter_fs(1) = current_PSD%dp_range(1)
-    ! calculate first bin width
-    binwl =  exp([((i+0.5)*binw_ratio + log(current_PSD%dp_range(1)), i=-1,0)])
-    ! calculate the ratio of the representative area diameter to nominal diameter
-    factor_areadiam = ( 1.d0/(3*(binwl(2)-binwl(1))) * (binwl(2)**3 - binwl(1)**3)  )**(1/2.d0) / current_PSD%diameter_fs(1)
-    ! calculate the ratio of the representative volume diameter to nominal diameter
-    factor_voldiam = ( 1.d0/(4*(binwl(2)-binwl(1))) * (binwl(2)**4 - binwl(1)**4)  )**(1/3.d0) / current_PSD%diameter_fs(1)
 
-    if (factor_voldiam > 1.01 .or. factor_areadiam > 1.01) THEN
-      print FMT_WARN1, 'You should increase particle bins: volume diameter to nominal fraction: ', factor_voldiam
-      print FMT_WARN1, 'You should increase particle bins: area diameter to nominal fraction:   ', factor_areadiam
-    end if
     ! Define volume array:
-    current_PSD%volume_fs = 1D0/6D0 * pi * (current_PSD%diameter_fs*factor_voldiam)**3.d0   ! Single particle volume (m^3)
+    current_PSD%volume_fs = 1D0/6D0 * pi * (current_PSD%diameter_fs)**3.d0   ! Single particle volume (m^3)
     ! particle_density needed for diffusion
     current_PSD%particle_density_fs = 1.4D3
     ! particle_density needed for diffusion
@@ -458,6 +448,7 @@ END SUBROUTINE PSD_Change_coagulation
                                                      + current_PSD%conc_fs(ind)
     ! Coagulation: (partly) leads to change in bin; condensation: growth or shrinkage
     ELSE IF (aa > 1 .and. aa <= current_PSD%nr_bins) THEN
+      ! if (GTIME%sec>1880 .and. aa<ind) aa = ind
       ! Fraction of particles in size bin aa-1
       r1 = (current_PSD%volume_fs(aa) - mix_PSD%volume_fs(ind)) / &
            (current_PSD%volume_fs(aa) - current_PSD%volume_fs(aa-1))
@@ -468,16 +459,27 @@ END SUBROUTINE PSD_Change_coagulation
 
       ! Determine new mass compositions: composition of fraction that goes to a-1
       interm_PSD%composition_fs(aa-1,:) = mix_PSD%composition_fs(ind,:) * current_PSD%volume_fs(aa-1) / mix_PSD%volume_fs(ind)
+
       ! new composition in aa-1
-      new_PSD%composition_fs(aa-1,:) = (new_PSD%composition_fs(aa-1,:) * new_PSD%conc_fs(aa-1) &
-                                     + interm_PSD%composition_fs(aa-1,:) * interm_PSD%conc_fs(aa-1)) &
-                                     / (new_PSD%conc_fs(aa-1) + interm_PSD%conc_fs(aa-1))
-      ! composition of fraction that goes to a
+      if (new_PSD%conc_fs(aa-1)>0d0 .and. interm_PSD%conc_fs(aa-1) > 0d0) THEN
+        new_PSD%composition_fs(aa-1,:) = (new_PSD%composition_fs(aa-1,:) * new_PSD%conc_fs(aa-1) &
+                                       + interm_PSD%composition_fs(aa-1,:) * interm_PSD%conc_fs(aa-1)) &
+                                       / (new_PSD%conc_fs(aa-1) + interm_PSD%conc_fs(aa-1))
+      ELSE
+        new_PSD%composition_fs(aa-1,:) = 0d0
+      END IF
+
+      ! composition of fraction that goes to aa
       interm_PSD%composition_fs(aa,:) = mix_PSD%composition_fs(ind,:) * current_PSD%volume_fs(aa) / mix_PSD%volume_fs(ind)
-      ! new composition in a
-      new_PSD%composition_fs(aa,:) = (new_PSD%composition_fs(aa,:) * new_PSD%conc_fs(aa) + &
-                                    interm_PSD%composition_fs(aa,:) * interm_PSD%conc_fs(aa)) / &
-                                   (new_PSD%conc_fs(aa) + interm_PSD%conc_fs(aa))
+
+      ! new composition in aa
+      if (new_PSD%conc_fs(aa)>0d0 .and. interm_PSD%conc_fs(aa) > 0d0) THEN
+        new_PSD%composition_fs(aa,:) = (new_PSD%composition_fs(aa,:) * new_PSD%conc_fs(aa) + &
+                                        interm_PSD%composition_fs(aa,:) * interm_PSD%conc_fs(aa)) / &
+                                        (new_PSD%conc_fs(aa) + interm_PSD%conc_fs(aa))
+      ELSE
+        new_PSD%composition_fs(aa,:) = 0d0
+      END IF
 
       ! Determine new particle number concentrations:
       new_PSD%conc_fs(aa-1) = new_PSD%conc_fs(aa-1) + interm_PSD%conc_fs(aa-1)
@@ -487,15 +489,6 @@ END SUBROUTINE PSD_Change_coagulation
     ELSE
       new_PSD%conc_fs(ind) = new_PSD%conc_fs(ind) + mix_PSD%conc_fs(ind)
     END IF
-
-    current_PSD%conc_fs(ind) = new_PSD%conc_fs(ind)
-    current_PSD%composition_fs(ind,:)  = new_psd%composition_fs(ind,:)
-
-    ! Currently we can't handle zero conc properly
-    if (current_PSD%conc_fs(ind) < 1d-200) then
-      print '("| ",t3, a,i0,a,es10.3,t100, "|")', 'zero or less particles in bin ', ind,': ', current_PSD%conc_fs(ind)
-      current_PSD%conc_fs(ind)=1D-18
-    end if
 
   END SUBROUTINE bin_redistribute_fs
 
