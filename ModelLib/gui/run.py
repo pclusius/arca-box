@@ -28,8 +28,8 @@ except:
     print('Consider adding SciPy to your Python')
     scipyIs = False
 try:
-    import netCDF4
     import particles as par
+    import netCDF4
     netcdf = True
 except:
     print('Consider adding netCDF4 to your Python')
@@ -352,7 +352,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.findComp.textChanged.connect(self.filterListOfComp)
             self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
             self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF (*.nc)"))
-            self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="Sumfile (*.sum *.dat)"))
         else:
             self.sumSelection.setEnabled(False)
             self.show_netcdf.show()
@@ -365,6 +364,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.loadNetcdfPar.clicked.connect(lambda: self.popup(*netcdfMissinnMes))
 
 
+        self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="Sumfile (*.sum *.dat)"))
         self.plotResultWindow.setMenuEnabled(False)
         self.plotResultWindow.showGrid(x=True,y=True)
         self.plotResultWindow.setBackground('w')
