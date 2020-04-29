@@ -1,0 +1,7 @@
+
+                                 --~:| HLS BOX v.0.3 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
+| There was a problem with INITFILE. Check the file and refer to manual. Exiting now.              |
+           0           0           0           0           0           0           0           0           0          -1           0           0           0           0           0           0           0           0           0           0
++..................................................................................................+

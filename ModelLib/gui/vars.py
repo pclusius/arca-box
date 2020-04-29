@@ -77,7 +77,6 @@ class INITFILE:
             self.CHEMISTRY_FLAG=0
             self.AEROSOL_FLAG=0
             self.ACDC_SOLVE_SS=0
-            self.NUCLEATION=0
             self.ACDC=0
             self.EXTRA_DATA=0
             self.CURRENT_CASE=0
@@ -92,7 +91,6 @@ class INITFILE:
             exec("%s(' CHEMISTRY_FLAG = %s%s')"%(cmd,self.CHEMISTRY_FLAG,eol))
             exec("%s(' AEROSOL_FLAG = %s%s')"%(cmd,self.AEROSOL_FLAG,eol))
             exec("%s(' ACDC_SOLVE_SS = %s%s')"%(cmd,self.ACDC_SOLVE_SS,eol))
-            exec("%s(' NUCLEATION = %s%s')"%(cmd,self.NUCLEATION,eol))
             exec("%s(' ACDC = %s%s')"%(cmd,self.ACDC,eol))
             exec("%s(' EXTRA_DATA = %s%s')"%(cmd,self.EXTRA_DATA,eol))
             exec("%s(' CURRENT_CASE = %s%s')"%(cmd,self.CURRENT_CASE,eol))

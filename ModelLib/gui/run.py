@@ -1171,7 +1171,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.FLAG.CHEMISTRY_FLAG=self.checkboxToFOR(self.checkBox_che)
         nml.FLAG.AEROSOL_FLAG=self.checkboxToFOR(self.checkBox_aer)
         nml.FLAG.ACDC_SOLVE_SS=self.checkboxToFOR(self.acdc_solve_ss)
-        nml.FLAG.NUCLEATION=self.checkboxToFOR(self.checkBox_acd)
         nml.FLAG.ACDC=self.checkboxToFOR(self.checkBox_acd)
         nml.FLAG.EXTRA_DATA='F'
         nml.FLAG.CURRENT_CASE='F'

@@ -2132,7 +2132,7 @@ class Ui_MainWindow(object):
         self.highlev = QtWidgets.QDoubleSpinBox(self.tab_8)
         self.highlev.setGeometry(QtCore.QRect(10, 290, 111, 22))
         self.highlev.setDecimals(1)
-        self.highlev.setMaximum(10.0)
+        self.highlev.setMaximum(20.0)
         self.highlev.setSingleStep(0.1)
         self.highlev.setProperty("value", 4.5)
         self.highlev.setObjectName("highlev")

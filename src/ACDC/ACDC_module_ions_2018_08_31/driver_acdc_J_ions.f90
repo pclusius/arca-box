@@ -118,7 +118,7 @@ subroutine acdc_driver(c,cs_ref,temperature,ipr,t_max,t_iter,solve_ss,use_solver
 				write(*,*) 'ERROR: returned istate =', istate
 				ok = .false.
 			elseif (minval(c) .lt. negtol) then					! checking all concentrations > 0 - if not, print error
-				write(*,*) 'Negative concentrations: c_min = ', minval(c),' at t = ',t0
+				write(*,*) 'Negative concentrations: c_min = ', minval(c),' at t = ',t0, 'in ', minloc(c)
 				ok = .false.
 			end if
 			if (.not. ok) then									! if there was a problem, try a shorter time interval

@@ -127,12 +127,22 @@ type PSD
   ! FULL STATIONARY METHOD
   REAL(dp), ALLOCATABLE :: diameter_fs(:)          ! particle diameter [m] (nr_bins)
   REAL(dp), ALLOCATABLE :: dp_dry_fs(:)            ! dry particle diameter [m] (nr_bins)
-  REAL(dp), ALLOCATABLE :: volume_fs(:)            ! particle volume   [m³ / m³] (nr_bins)
+  REAL(dp), ALLOCATABLE :: volume_fs(:)            ! particle volume   [m³ / particle] (nr_bins)
   REAL(dp), ALLOCATABLE :: density_fs(:)           ! particle density  [kg * m⁻³] (nr_species_P)
   REAL(dp), ALLOCATABLE :: particle_density_fs(:)  ! particle density [kg * m⁻³] (nr_bins)
   REAL(dp), ALLOCATABLE :: particle_mass_fs(:)     ! particle mass [kg] (nr_bins)
-  REAL(dp), ALLOCATABLE :: composition_fs(:,:)     ! mass of all species in the particle phase [kg/m⁻³] (nr_bins,nr_species_P)
+  REAL(dp), ALLOCATABLE :: composition_fs(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,nr_species_P)
   REAL(dp), ALLOCATABLE :: conc_fs(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
+
+  ! ! FULL STATIONARY METHOD
+  ! REAL(dp), ALLOCATABLE :: diameter_ma(:)          ! particle diameter [m] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: dp_dry_ma(:)            ! dry particle diameter [m] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: volume_ma(:)            ! particle volume   [m³ / particle] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: density_ma(:)           ! particle density  [kg * m⁻³] (nr_species_P)
+  ! REAL(dp), ALLOCATABLE :: particle_density_ma(:)  ! particle density [kg * m⁻³] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: particle_mass_ma(:)     ! particle mass [kg] (nr_bins)
+  ! REAL(dp), ALLOCATABLE :: composition_ma(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,nr_species_P)
+  ! REAL(dp), ALLOCATABLE :: conc_ma(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
 
   ! REAL(dp), ALLOCATABLE :: p_diam(:)               ! particle diameter [m] (nr_bins)
   ! REAL(dp), ALLOCATABLE :: p_diam_dry(:)           ! dry particle diameter [m] (nr_bins)

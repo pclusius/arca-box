@@ -35,7 +35,6 @@ PROGRAM Supermodel
     REAL(dp) :: CH_Beta     ! solar zenit angle
     REAL(dp) :: EW          ! Water content in Pa
     REAL(dp) :: ES          ! Saturation vapour pressure
-
     ! Variables related to aerosol module
     INTEGER, DIMENSION(:), allocatable :: index_cond
     REAL(dp), dimension(:), allocatable:: conc_vapour
@@ -195,6 +194,8 @@ PROGRAM Supermodel
     close(504)
     close(334)
 
+    open(unit=333, file=RUN_OUTPUT_DIR//'/error_output.txt')
+
     ! Open netCDF files
     CALL OPEN_FILES( RUN_OUTPUT_DIR, Description, MODS, CH_GAS, VAPOUR_PROP, CURRENT_PSD)
 
@@ -261,7 +262,6 @@ PROGRAM Supermodel
 
           ! Solar Zenith angle. For this to properly work, lat, lon and Date need to be defined in INIT_FILE
           call BETA(CH_Beta)
-
           Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt_chm), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
                         CH_H2O, GC_AIR_NOW, TSTEP_CONC(inm_CS), TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
@@ -274,14 +274,14 @@ PROGRAM Supermodel
         ! =================================================================================================
         ! NUCLEATION
         ! =================================================================================================
-        IF (NUCLEATION .and. (.not. error%error_state) ) THEN
+        IF (.not. error%error_state) THEN
             if (ACDC) THEN
                 CALL ACDC_J(TSTEP_CONC, acdc_iterations)
                 J_TOTAL = J_ACDC_DMA + J_ACDC_NH3 ! [particles/s/m^3]
-                IF (.not. RESOLVE_BASE) J_TOTAL = J_TOTAL + TSTEP_CONC(inm_JIN) * 1d6 ! [particles/s/cm^3]
+                IF (.not. RESOLVE_BASE) J_TOTAL = J_TOTAL + TSTEP_CONC(inm_JIN) * 1d6 ! [particles/s/m^3]
             else
-              continue
-              ! CALL SOME_OTHER_NUCLEATION_TYPE
+              ! Only use input format rate
+              J_TOTAL = TSTEP_CONC(inm_JIN) * 1d6
             END if
         END if
         if (GTIME%savenow .and. RESOLVE_BASE) CALL Get_BASE(TSTEP_CONC, RESOLVED_BASE, RESOLVED_J)
@@ -296,19 +296,18 @@ PROGRAM Supermodel
           ! =================================================================================================
           ! Read in background particles
           if (use_dmps .and. GTIME%min >= (dmps_ln*dmps_tres_min) .and. GTIME%min/60d0 < DMPS_read_in_time) THEN
-            print FMT_SUB, 'Reading in background particles'
+            if (gtime%printnow) print FMT_SUB, 'Reading in background particles'
 
             ! Initialization is necessary
             CURRENT_PSD%conc_fs = 0d0
 
             CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(dmps_ln+2, size(par_data, 1)),2:), CURRENT_PSD%conc_fs )
 
-            ! NOTE Sumfile is typically in particles /cm^3, so make sure dmps_multi is correct
+            ! NOTE Sumfile is typically in particles /cm^3, so make sure dmps_multi is correct (in NML_CUSTOM)
             CURRENT_PSD%conc_fs = CURRENT_PSD%conc_fs * dmps_multi
 
-            do  i = 1, CURRENT_PSD%nr_bins
-              CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density * CURRENT_PSD%conc_fs(i)
-              conc_pp(i,:) = CURRENT_PSD%composition_fs(i,:) * Na / VAPOUR_PROP%molar_mass
+            do i = 1, n_bins_particle
+              CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density
             end do
 
             ! Next time next line is read
@@ -318,7 +317,7 @@ PROGRAM Supermodel
 
           if (use_dmps_special .and. (GTIME%min >= (dmps_ln*dmps_tres_min)) .and. (GTIME%min/60d0 .ge. DMPS_read_in_time)) THEN
 
-            print FMT_SUB, 'Reading in background particles partially'
+            if (gtime%printnow) print FMT_MSG, 'Reading in background particles partially'
 
             ! Initialization is necessary
             dmps_fitted = 0d0
@@ -326,8 +325,20 @@ PROGRAM Supermodel
             CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(dmps_ln+2, size(par_data, 1)),2:), dmps_fitted )
 
             ! NOTE Sumfile is typically in particles /cm^3, so make sure dmps_multi is correct
-            if (dmps_sp_min>0) CURRENT_PSD%conc_fs(:dmps_sp_min) = dmps_fitted(:dmps_sp_min) * dmps_multi
-            if (dmps_sp_max>0) CURRENT_PSD%conc_fs(dmps_sp_max:) = dmps_fitted(dmps_sp_max:) * dmps_multi
+            if (dmps_sp_min>0) THEN
+              CURRENT_PSD%conc_fs(:dmps_sp_min) = dmps_fitted(:dmps_sp_min) * dmps_multi
+              if (gtime%printnow) print FMT_SUB, 'Lowband upper limit: '//i2chr(dmps_sp_min)
+              do i = 1, dmps_sp_min
+                CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density
+              end do
+            END IF
+            if (dmps_sp_max>0) THEN
+              CURRENT_PSD%conc_fs(dmps_sp_max:) = dmps_fitted(dmps_sp_max:) * dmps_multi
+              if (gtime%printnow) print FMT_SUB, 'Highband lower limit: '//i2chr(dmps_sp_max)
+              do i = dmps_sp_max, n_bins_particle
+                CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density
+              end do
+            END IF
 
             ! Next time next line is read
             dmps_ln = dmps_ln + 1
@@ -335,7 +346,7 @@ PROGRAM Supermodel
           END IF
 
           ! Just add all new particles to first bin
-          call Nucleation_routine(J_TOTAL,CURRENT_PSD%conc_fs)
+          call Nucleation_routine(J_TOTAL,CURRENT_PSD%conc_fs(1), CURRENT_PSD%composition_fs(1,:))
 
           ! =================================================================================================
           ! CONDENSATION
@@ -347,31 +358,24 @@ PROGRAM Supermodel
               stop
             END IF
 
+            conc_vapour = 0d0
+            dmass = 0d0
             do i = 1, nr_cond
-              if (index_cond(i) /= 0) then
-                conc_vapour(i) =  CH_GAS(index_cond(i))*1D6 ! mol/m3
-              else
-                conc_vapour(i) = 0d0
-              end if
+              if (index_cond(i) /= 0) conc_vapour(i) =  CH_GAS(index_cond(i))*1D6 ! mol/m3
             end do
             ! Poor sulfuric acid always needs special treatment
             conc_vapour(nr_species_P) = CH_GAS(ind_H2SO4)*1d6
 
             ! Update vapour concentrations
-            CALL Calculate_SaturationVapourConcentration(VAPOUR_PROP, GTEMPK)
-
+            if (GTIME%sec == 0 ) CALL Calculate_SaturationVapourConcentration(VAPOUR_PROP, GTEMPK)
             ! Solve mass flux
-            CALL Condensation_apc(VAPOUR_PROP,CURRENT_PSD,conc_pp,conc_vapour,dmass)
+            CALL Condensation_apc(VAPOUR_PROP,CURRENT_PSD,conc_vapour,dmass)
             ! Distribute mass
             CALL Mass_Number_Change('condensation')
-
+            ! if (GTIME%sec >= 45740) print*, new_PSD%conc_fs(1:10)
             ! Update PSD with new concentrations
             CURRENT_PSD%conc_fs = new_PSD%conc_fs
             CURRENT_PSD%composition_fs = new_PSD%composition_fs
-
-            do i = 1,current_PSD%nr_bins
-              conc_pp(i,:) = CURRENT_PSD%composition_fs(i,:) * Na / VAPOUR_PROP%molar_mass
-            end do
 
             do i = 1, nr_cond
               if (index_cond(i) /= 0) then
@@ -389,7 +393,7 @@ PROGRAM Supermodel
           if (Coagulation) then
 
             ! Solve particle coagulation
-            Call Coagulation_routine(GTIME%dt_aer,CURRENT_PSD,dconc_coag)
+            Call Coagulation_routine(CURRENT_PSD,dconc_coag)
             ! Distribute mass
             Call Mass_Number_Change('coagulation')
 
@@ -577,7 +581,7 @@ CONTAINS
     ! print FMT10_2CVU,'APINE C: ', C(IndexFromName('APINENE'))
     print FMT10_3CVU,'Temp:', C(inm_TempK), ' [K]','Pressure: ', C(inm_pres), ' [Pa]', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
     IF (inm_NH3   /= 0) print FMT10_3CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3*1d-6, ' [1/cm3]','sum(Nn)/N1',clusterbase,' []'
-    IF (inm_DMA   /= 0) print FMT10_2CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA*1d-6, ' [1/cm3]'
+    IF (inm_DMA   /= 0) print FMT10_3CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA*1d-6, ' [1/cm3]', 'J-total', J_TOTAL*1e-6,' [1/cm3]'
     print FMT10_3CVU, 'Jion neutral:', J_NH3_BY_IONS(1)*1d-6 , ' [1/s/cm3]','Jion neg:', J_NH3_BY_IONS(2)*1d-6 , ' [1/s/cm3]','Jion pos:', J_NH3_BY_IONS(3)*1d-6 , ' [1/s/cm3]'
     IF (inm_IPR   /= 0) print FMT10_2CVU, 'C-sink:', C(inm_CS) , ' [1/s]','IPR:', C(inm_IPR) , ' [1/s/cm3]'
     if ((GTIME%sec)>0) print '("| ",a,i0,a,i0.2,a,i0,a,i0.2,t65,a,f6.2,t100,"|")', 'Elapsed time (m:s) ',int(cpu2 - cpu1)/60,':',modulo(int(cpu2 - cpu1),60) ,' Est. time to finish (m:s) ',&
@@ -728,16 +732,9 @@ CONTAINS
 
   SUBROUTINE FINISH
     IMPLICIT NONE
-    ! character(1) :: buf
 
     write(*,*)
-    ! IF (python) THEN
-    !   write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. Plot general output (requires Python3). y? '
-    !   read(*,*) buf
-    !   if (UCASE(buf) == 'Y') CALL EXECUTE_COMMAND_LINE('python3 Scripts/PlotNetCDF.py '//'output/'//TRIM(CASE_NAME)//'_'//TRIM(RUN_NAME)//'_general.nc')
-    ! ELSE
-      write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. '
-    ! END IF
+    write(*,'(a,1(" "),a)', advance='no') 'SIMULATION HAS ENDED. '
     write(*, '(a)') 'SO LONG!'
     write(*,*)
     write(*,*)

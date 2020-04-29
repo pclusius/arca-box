@@ -275,7 +275,8 @@ subroutine READ_INPUT_DATA()
   !if aerosol_flag is true
   IF (USE_DMPS .and. Aerosol_flag) then
 
-    write(*,FMT_SUB) 'Reading DMPS files '// TRIM(DMPS_file)
+    write(*,FMT_MSG) 'Reading DMPS files '// TRIM(DMPS_file)
+
     OPEN(unit=51, File=TRIM(DMPS_file), STATUS='OLD', iostat=ioi)
     CALL handle_file_io(ioi, DMPS_file, 'Terminating on DMPS pardata')
 
@@ -632,10 +633,11 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
     GTIME%FSAVE_INTERVAL = FSAVE_INTERVAL
   END IF
   GTIME%PRINT_INTERVAL = PRINT_INTERVAL
+  GTIME%PRINTACDC = PRINT_ACDC
   ! IF julian day was provided, use it
   IF (JD > 0) GTIME%JD = JD
-  if (TRIM(DATE) /= '1800-01-01') THEN
 
+  if (TRIM(DATE) /= '1800-01-01') THEN
     read(date(1:4),*,iostat=ioi) y
     if (ioi == 0) read(date(6:7),*,iostat=ioi) m
     if (ioi == 0) read(date(9:) ,*,iostat=ioi) d
@@ -651,7 +653,6 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
       ELSE
           days = non_leap_year
       END IF
-      GTIME%PRINTACDC = PRINT_ACDC
       GTIME%JD = sum(days(:m-1)) + d
       write(buf, '(i0)') GTIME%JD
       print FMT_MSG, 'Date: '//TRIM(date)//' -> Julian Day: '//TRIM(buf)
@@ -755,7 +756,7 @@ subroutine FILL_INPUT_BUFF(unit,cols,INPUT_BF,Input_file)
       i=i+1
     END IF
   END DO
-  print FMT_MSG, 'Done filling input matrices...'
+  print FMT_SUB, 'Done filling input matrices...'
 end subroutine FILL_INPUT_BUFF
 
 
@@ -880,6 +881,19 @@ SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
   end do
 
 END SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
+
+PURE FUNCTION pp_conc(particles) result(out)
+  IMPLICIT NONE
+  type(PSD), intent(in) :: particles
+  real(dp), dimension(n_bins_particle, VAPOUR_PROP%vbs_bins) :: out
+  integer :: i
+
+  if (particles%PSD_style == 1) THEN
+    do i=1,n_bins_particle
+      out(i,:) = particles%composition_fs(i,:) * Na / VAPOUR_PROP%Molar_mass
+    end do
+  end if
+END FUNCTION pp_conc
 
 
 

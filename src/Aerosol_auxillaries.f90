@@ -59,6 +59,19 @@ pure elemental function calculate_molecular_volume(density, molecule_mass) resul
 end function calculate_molecular_volume
 
 
+
+SUBROUTINE Calculate_SaturationVapourConcentration(VAPOUR_PROP,TEMPK)
+  IMPLICIT NONE
+  type(vapour_ambient), INTENT(INOUT) :: VAPOUR_PROP
+  real(dp), INTENT(IN) :: TEMPK
+  ! Update saturation concentrations to current temperature, omit sulfuric acid
+  VAPOUR_PROP%c_sat(1:VAPOUR_PROP%vapour_number) =  calculate_saturation_vp( &
+  VAPOUR_PROP%parameter_A(1:VAPOUR_PROP%vapour_number),&
+  VAPOUR_PROP%parameter_B(1:VAPOUR_PROP%vapour_number),&
+  TEMPK)
+
+END SUBROUTINE Calculate_SaturationVapourConcentration
+
 ! calculate saturation vapour PRESSURE
 ! input parameter_A, parameter_B and temperature
 pure elemental function calculate_saturation_vp(A,B, Temperature) result(Vapour_concentration)
@@ -70,21 +83,6 @@ pure elemental function calculate_saturation_vp(A,B, Temperature) result(Vapour_
   Vapour_concentration = (vapour_pressure*101325)/(kb * temperature) ! #/m3
 
 end function calculate_saturation_vp
-
-
-SUBROUTINE Calculate_SaturationVapourConcentration(VAPOUR_PROP,TEMPK)
-  IMPLICIT NONE
-  type(vapour_ambient), INTENT(INOUT) :: VAPOUR_PROP
-  real(dp), INTENT(IN) :: TEMPK
-  ! Update saturation concentrations to current temperature, omit sulfuric acid
-  VAPOUR_PROP%c_sat(1:VAPOUR_PROP%vapour_number) =  calculate_saturation_vp( &
-                      VAPOUR_PROP%parameter_A(1:VAPOUR_PROP%vapour_number),&
-                      VAPOUR_PROP%parameter_B(1:VAPOUR_PROP%vapour_number),&
-                      TEMPK)
-
-END SUBROUTINE Calculate_SaturationVapourConcentration
-
-
 
 
 End module aerosol_auxillaries
