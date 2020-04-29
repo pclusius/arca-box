@@ -283,6 +283,7 @@ class INITFILE:
         def printall(self,cmd,f,eol):
             exec("%s('%s%s')"%(cmd,self.RAW.replace('\n','\\n').replace("'", "\\'").replace('"', '\\"'),eol))
             exec("%s('\\n%s')"%(cmd, eol))
+            exec("%s('# Following settings are for the GUI and not directly used by the model ----- %s')"%(cmd, eol))
             exec("%s('# RAW_INPUT = %s%s')"%(cmd,self.RAW.replace('\n','<br>').replace("'", "\\'").replace('"', '\\"'),eol))
 
 
@@ -294,7 +295,6 @@ class INITFILE:
         def printall(self,cmd,f,eol):
             # if cmd == 'f.write'
                 # exec("%s('!GUI SETTINGS%s')"%(cmd, eol))
-            exec("%s('# These settings are for the gui and not used by the model ------------------ %s')"%(cmd, eol))
             exec("%s('# INPUT_SETTINGS = \\'%s\\'%s')"%(cmd,self.INPUT,eol))
             exec("%s('# BATCH_SETTINGS = \\'%s\\'%s')"%(cmd,self.BATCH,eol))
             exec("%s('#---------------------------------------------------------------------------- \\n%s')"%(cmd, eol))

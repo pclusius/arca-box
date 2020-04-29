@@ -119,7 +119,6 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
     conc_pp(:,ii) = conc_pp_old(:,ii) + GTIME%dt_aer*CR(:,ii)*(MIN(conc_guess,conc_tot(ii)) &
                   - kohler_effect(:,ii)*vapour_prop%c_sat(ii))
 
-
     ! Prevent overestimation of evaporation by setting negative concentrations to zero
     WHERE ( conc_pp(:,ii)<0D0 ) conc_pp(:,ii) = 0D0
 
