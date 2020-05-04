@@ -128,20 +128,20 @@ type PSD
   REAL(dp), ALLOCATABLE :: diameter_fs(:)          ! particle diameter [m] (nr_bins)
   REAL(dp), ALLOCATABLE :: dp_dry_fs(:)            ! dry particle diameter [m] (nr_bins)
   REAL(dp), ALLOCATABLE :: volume_fs(:)            ! particle volume   [m³ / particle] (nr_bins)
-  REAL(dp), ALLOCATABLE :: density_fs(:)           ! particle density  [kg * m⁻³] (nr_species_P)
+  REAL(dp), ALLOCATABLE :: density_fs(:)           ! particle density  [kg * m⁻³] (n_cond_tot)
   REAL(dp), ALLOCATABLE :: particle_density_fs(:)  ! particle density [kg * m⁻³] (nr_bins)
   REAL(dp), ALLOCATABLE :: particle_mass_fs(:)     ! particle mass [kg] (nr_bins)
-  REAL(dp), ALLOCATABLE :: composition_fs(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,nr_species_P)
+  REAL(dp), ALLOCATABLE :: composition_fs(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,n_cond_tot)
   REAL(dp), ALLOCATABLE :: conc_fs(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
 
   ! ! FULL STATIONARY METHOD
   ! REAL(dp), ALLOCATABLE :: diameter_ma(:)          ! particle diameter [m] (nr_bins)
   ! REAL(dp), ALLOCATABLE :: dp_dry_ma(:)            ! dry particle diameter [m] (nr_bins)
   ! REAL(dp), ALLOCATABLE :: volume_ma(:)            ! particle volume   [m³ / particle] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: density_ma(:)           ! particle density  [kg * m⁻³] (nr_species_P)
+  ! REAL(dp), ALLOCATABLE :: density_ma(:)           ! particle density  [kg * m⁻³] (n_cond_tot)
   ! REAL(dp), ALLOCATABLE :: particle_density_ma(:)  ! particle density [kg * m⁻³] (nr_bins)
   ! REAL(dp), ALLOCATABLE :: particle_mass_ma(:)     ! particle mass [kg] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: composition_ma(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,nr_species_P)
+  ! REAL(dp), ALLOCATABLE :: composition_ma(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,n_cond_tot)
   ! REAL(dp), ALLOCATABLE :: conc_ma(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
 
   ! REAL(dp), ALLOCATABLE :: p_diam(:)               ! particle diameter [m] (nr_bins)
@@ -150,9 +150,9 @@ type PSD
   ! REAL(dp), ALLOCATABLE :: p_conc(:)               ! particle concentration in each size bin [m⁻³] (nr_bins)
   ! REAL(dp), ALLOCATABLE :: p_dens(:)               ! particle density [kg * m⁻³] (nr_bins)
   ! REAL(dp), ALLOCATABLE :: p_mass(:)               ! particle mass [kg] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: condensed_dens(:)       ! particle phase density  [kg * m⁻³] (nr_species_P)
-  ! REAL(dp), ALLOCATABLE :: p_comp_m(:,:)           ! mass of all species in the particle phase [kg/m⁻³] (nr_bins,nr_species_P)
-  ! REAL(dp), ALLOCATABLE :: p_comp_c(:,:)           ! concentrations of all species in the particle phase [kg/m⁻³] (nr_bins,nr_species_P)
+  ! REAL(dp), ALLOCATABLE :: condensed_dens(:)       ! particle phase density  [kg * m⁻³] (n_cond_tot)
+  ! REAL(dp), ALLOCATABLE :: p_comp_m(:,:)           ! mass of all species in the particle phase [kg/m⁻³] (nr_bins,n_cond_tot)
+  ! REAL(dp), ALLOCATABLE :: p_comp_c(:,:)           ! concentrations of all species in the particle phase [kg/m⁻³] (nr_bins,n_cond_tot)
 
 END TYPE PSD
 
@@ -220,7 +220,6 @@ PURE type(timetype) function ADD(time, sec)
   END IF
   IF (MODULO(nint(ADD%sec*100), NINT(ADD%FSAVE_INTERVAL*100)) == 0) THEN
     ADD%savenow = .true.
-    ADD%ind_netcdf = ADD%ind_netcdf + 1
   ELSE
     ADD%savenow = .false.
   END IF

@@ -2,8 +2,8 @@
                                  --~:| HLS BOX v.0.3 |:~--
 
 +.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
-| Date: 2018-04-11 -> Julian Day: 101                                                              |
-| ENV values from INOUT/HYDE/PC_2018-04-11/input/env180411.dat:                                    |
+| Date: 2018-04-10 -> Julian Day: 100                                                              |
+| ENV values from INOUT/HYDE/PC_2018-04-10/input/env180410.dat:                                    |
 |   :........TEMPK will be read from column: 2                                                     |
 |   :........PRESSURE will be read from column: 3                                                  |
 |   :........REL_HUMIDITY will be read from column: 4                                              |
@@ -16,13 +16,13 @@
 |   :........NO2 will be read from column: 11                                                      |
 |   :........CO will be read from column: 10                                                       |
 |   :........O3 will be read from column: 13                                                       |
-| MCM values from INOUT/HYDE/PC_2018-04-11/input/voc180411.dat:                                    |
+| MCM values from INOUT/HYDE/PC_2018-04-10/input/voc180410.dat:                                    |
 |   :........CH3OH will be read from column: 2                                                     |
 |   :........C2H5OH will be read from column: 5                                                    |
 |   :........CH3CHO will be read from column: 4                                                    |
 |   :........BENZENE will be read from column: 11                                                  |
 |   :........TOLUENE will be read from column: 14                                                  |
-|   :........C5H8 will be read from column: 8                                                      |
+|   :........C5H8 will be read from column: 15                                                     |
 |   :........CH3COCH3 will be read from column: 6                                                  |
 |   :........MEK will be read from column: 10                                                      |
 |   :........APINENE will be read from column: 15                                                  |
@@ -31,17 +31,11 @@
 |   :........CH3CO2H will be read from column: 7                                                   |
 |   :........CARENE will be read from column: 15                                                   |
 | Filling input matrices...                                                                        |
-|   :........First row omitted from file "INOUT/HYDE/PC_2018-04-11/input/env180411.dat".           |
+|   :........First row omitted from file "INOUT/HYDE/PC_2018-04-10/input/env180410.dat".           |
 |   :........Done filling input matrices...                                                        |
 | Filling input matrices...                                                                        |
 |   :........Done filling input matrices...                                                        |
-| Reading DMPS files /home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/filled_dmps/dm180411.sum    |
 +..................................................................................................+
-| Reading Vapour name file ModelLib/Vapour_names.dat                                               |
-| Reading Vapour prop file ModelLib/Vapour_properties.dat                                          |
-|   :........Vapours available = 1175                                                              |
-|   :........Vapour bins + H2SO4 = 1176                                                            |
-| Reading O_C file ModelLib/O_C.dat                                                                |
 +.Checking input validity..........................................................................+
 | - Converting temperature from degrees C -> K.                                                    |
 | - Converting pressure from hPa (mbar) to Pascals.                                                |
@@ -68,6 +62,8 @@
 | - Converting CARENE from ppb                                                                     |
 | - Adding a constant to ION_PROD_RATE, [in #/cm3]: 3.000E+00                                      |
 | - Multiplying DMA with: 0.000E+00                                                                |
+| - Multiplying NO with: 2.000E+01                                                                 |
+| - Multiplying NO2 with: 2.000E+01                                                                |
 | - Adding a constant to HCHO, [in ppt]: 4.000E-01                                                 |
 | - Adding a constant to CH4, [in ppm]: 1.950E+00                                                  |
 | - Multiplying APINENE with: 5.100E-01                                                            |
@@ -100,76 +96,74 @@
 | Found CH3CO2H from chemistry                                                                     |
 | Found CARENE from chemistry                                                                      |
 +..................................................................................................+
-+..................................................................................................+
 
 +.INITIALIZING OUTPUT .............................................................................+
 |   :........Description for run:                                                                  |
 |                                                                                                  |
 +.PREPARING OUTPUT FILES...........................................................................+
 |   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
-|   :........Create files to: INOUT/HYDE/PC_2018-04-11/A1                                          |
+|   :........Create files to: INOUT/HYDE/PC_2018-04-10/XX                                          |
 +..................................................................................................+
  
 +.Beginning simulation.............................................................................+
 
 +.Time: 00:00:00 ..................................................................................+
 |   :........DMA IGNORED                                                                           |
-|   :........Reading in background particles                                                       |
-| CS SA:     1.578E-28 [/s]                                                                        |
-| ACID C:    2.851E+05 [1/cm3]    sum(An)/A1 1.057E-05 []                                          |
-| Temp:      2.724E+02 [K]        Pressure:  1.008E+05 [Pa]     Air_conc 2.680E+19 [1/cm3]         |
-| NH3 C:     5.360E+07 [1/cm3]    J_NH3: 3.007E-20 [1/cm3]      sum(Nn)/N1 2.570E-07 []            |
-| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 3.007E-20 [1/cm3]          |
-| Jion neutr 3.311E-23 [1/s/cm3]  Jion neg: 2.344E-20 [1/s/cm3] Jion pos: 6.602E-21 [1/s/cm3]      |
-| C-sink:    3.478E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| ACID C:    1.035E+05 [1/cm3]    sum(An)/A1 1.420E-05 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  9.934E+04 [Pa]     Air_conc 2.644E+19 [1/cm3]         |
+| NH3 C:     7.221E+07 [1/cm3]    J_NH3: 3.521E-22 [1/cm3]      sum(Nn)/N1 2.447E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 3.521E-22 [1/cm3]          |
+| Jion neutr 3.448E-25 [1/s/cm3]  Jion neg: 1.265E-22 [1/s/cm3] Jion pos: 2.253E-22 [1/s/cm3]      |
+| C-sink:    2.265E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
++..................................................................................................+
+
++.Time: 00:01:40 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| ACID C:    1.037E+05 [1/cm3]    sum(An)/A1 1.052E-04 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  9.934E+04 [Pa]     Air_conc 2.644E+19 [1/cm3]         |
+| NH3 C:     8.180E+07 [1/cm3]    J_NH3: 4.791E-14 [1/cm3]      sum(Nn)/N1 6.316E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 4.791E-14 [1/cm3]          |
+| Jion neutr 1.118E-15 [1/s/cm3]  Jion neg: 7.713E-15 [1/s/cm3] Jion pos: 3.908E-14 [1/s/cm3]      |
+| C-sink:    2.252E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:00 Est. time to finish (m:s) 0:09        Realtime/Modeltime: 381.24         |
++..................................................................................................+
+
++.Time: 00:03:20 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| ACID C:    1.038E+05 [1/cm3]    sum(An)/A1 2.884E-04 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  9.934E+04 [Pa]     Air_conc 2.644E+19 [1/cm3]         |
+| NH3 C:     9.140E+07 [1/cm3]    J_NH3: 2.208E-12 [1/cm3]      sum(Nn)/N1 9.774E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 2.208E-12 [1/cm3]          |
+| Jion neutr 2.098E-13 [1/s/cm3]  Jion neg: 2.969E-13 [1/s/cm3] Jion pos: 1.701E-12 [1/s/cm3]      |
+| C-sink:    2.238E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:00 Est. time to finish (m:s) 0:06        Realtime/Modeltime: 498.36         |
 +..................................................................................................+
 
 +.Time: 00:05:00 ..................................................................................+
 |   :........DMA IGNORED                                                                           |
-| CS SA:     2.915E-17 [/s]                                                                        |
-| ACID C:    2.735E+05 [1/cm3]    sum(An)/A1 3.906E-04 []                                          |
-| Temp:      2.724E+02 [K]        Pressure:  1.008E+05 [Pa]     Air_conc 2.680E+19 [1/cm3]         |
-| NH3 C:     5.360E+07 [1/cm3]    J_NH3: 1.069E-09 [1/cm3]      sum(Nn)/N1 1.764E-05 []            |
-| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.069E-09 [1/cm3]          |
-| Jion neutr 2.960E-10 [1/s/cm3]  Jion neg: 2.160E-10 [1/s/cm3] Jion pos: 5.574E-10 [1/s/cm3]      |
-| C-sink:    3.545E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
-| Elapsed time (m:s) 0:01 Est. time to finish (m:s) 5:04        Realtime/Modeltime: 283.16         |
+| ACID C:    1.039E+05 [1/cm3]    sum(An)/A1 5.008E-04 []                                          |
+| Temp:      2.722E+02 [K]        Pressure:  9.935E+04 [Pa]     Air_conc 2.644E+19 [1/cm3]         |
+| NH3 C:     1.010E+08 [1/cm3]    J_NH3: 2.317E-11 [1/cm3]      sum(Nn)/N1 1.147E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 2.317E-11 [1/cm3]          |
+| Jion neutr 3.945E-12 [1/s/cm3]  Jion neg: 2.348E-12 [1/s/cm3] Jion pos: 1.688E-11 [1/s/cm3]      |
+| C-sink:    2.225E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:00 Est. time to finish (m:s) 0:05        Realtime/Modeltime: 555.68         |
 +..................................................................................................+
 
-+.Time: 00:10:00 ..................................................................................+
++.Time: 00:06:40 ..................................................................................+
 |   :........DMA IGNORED                                                                           |
-|   :........Reading in background particles                                                       |
-| CS SA:     2.669E-03 [/s]                                                                        |
-| ACID C:    2.618E+05 [1/cm3]    sum(An)/A1 7.275E-04 []                                          |
-| Temp:      2.724E+02 [K]        Pressure:  1.008E+05 [Pa]     Air_conc 2.680E+19 [1/cm3]         |
-| NH3 C:     5.361E+07 [1/cm3]    J_NH3: 3.287E-08 [1/cm3]      sum(Nn)/N1 2.217E-05 []            |
-| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 3.287E-08 [1/cm3]          |
-| Jion neutr 1.315E-08 [1/s/cm3]  Jion neg: 3.529E-09 [1/s/cm3] Jion pos: 1.620E-08 [1/s/cm3]      |
-| C-sink:    3.613E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
-| Elapsed time (m:s) 0:01 Est. time to finish (m:s) 4:03        Realtime/Modeltime: 352.33         |
+| ACID C:    1.040E+05 [1/cm3]    sum(An)/A1 7.066E-04 []                                          |
+| Temp:      2.722E+02 [K]        Pressure:  9.935E+04 [Pa]     Air_conc 2.644E+19 [1/cm3]         |
+| NH3 C:     1.106E+08 [1/cm3]    J_NH3: 1.274E-10 [1/cm3]      sum(Nn)/N1 1.214E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.274E-10 [1/cm3]          |
+| Jion neutr 2.847E-11 [1/s/cm3]  Jion neg: 1.003E-11 [1/s/cm3] Jion pos: 8.893E-11 [1/s/cm3]      |
+| C-sink:    2.212E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:00 Est. time to finish (m:s) 0:05        Realtime/Modeltime: 585.98         |
 +..................................................................................................+
 
-+.Time: 00:15:00 ..................................................................................+
++.Time: 00:08:20 ..................................................................................+
 |   :........DMA IGNORED                                                                           |
-| CS SA:     2.673E-03 [/s]                                                                        |
-| ACID C:    2.501E+05 [1/cm3]    sum(An)/A1 8.941E-04 []                                          |
-| Temp:      2.724E+02 [K]        Pressure:  1.008E+05 [Pa]     Air_conc 2.681E+19 [1/cm3]         |
-| NH3 C:     7.279E+07 [1/cm3]    J_NH3: 1.618E-07 [1/cm3]      sum(Nn)/N1 1.748E-05 []            |
-| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.618E-07 [1/cm3]          |
-| Jion neutr 8.021E-08 [1/s/cm3]  Jion neg: 1.406E-08 [1/s/cm3] Jion pos: 6.757E-08 [1/s/cm3]      |
-| C-sink:    3.681E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
-| Elapsed time (m:s) 0:02 Est. time to finish (m:s) 4:36        Realtime/Modeltime: 309.19         |
-+..................................................................................................+
-
-+.Time: 00:20:00 ..................................................................................+
-|   :........DMA IGNORED                                                                           |
-|   :........Reading in background particles                                                       |
-| CS SA:     2.425E-03 [/s]                                                                        |
-| ACID C:    2.384E+05 [1/cm3]    sum(An)/A1 9.686E-04 []                                          |
-| Temp:      2.724E+02 [K]        Pressure:  1.008E+05 [Pa]     Air_conc 2.681E+19 [1/cm3]         |
-| NH3 C:     9.197E+07 [1/cm3]    J_NH3: 3.775E-07 [1/cm3]      sum(Nn)/N1 1.412E-05 []            |
-| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 3.775E-07 [1/cm3]          |
-| Jion neutr 2.190E-07 [1/s/cm3]  Jion neg: 2.822E-08 [1/s/cm3] Jion pos: 1.303E-07 [1/s/cm3]      |
-| C-sink:    3.748E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
-| Elapsed time (m:s) 0:03 Est. time to finish (m:s) 4:18        Realtime/Modeltime: 329.88         |
-+..................................................................................................+
+| ACID C:    1.041E+05 [1/cm3]    sum(An)/A1 8.901E-04 []                                          |
+| Temp:      2.722E+02 [K]        Pressure:  9.935E+04 [Pa]     Air_conc 2.644E+19 [1/cm3]         |
+| NH3 C:     1.202E+08 [1/cm3]    J_NH3: 4.639E-10 [1/cm3]      sum(Nn)/N1 1.224E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 4.639E-10 [1/cm3]          |

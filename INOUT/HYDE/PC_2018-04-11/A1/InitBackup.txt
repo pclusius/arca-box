@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      Superbox setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: Apr 29 2020, 17:15:37
+#         Created at: Apr 29 2020, 23:20:20
 #--------------------------------------------------
 
 &NML_PATH
@@ -120,8 +120,8 @@ USE_OPENMP = .false.
 
 
 
+# Following settings are for the GUI and not directly used by the model -----
 # RAW_INPUT = &NML_PARALLEL<br>USE_OPENMP = .false.<br>/<br>
-# These settings are for the gui and not used by the model ------------------
 # INPUT_SETTINGS = 'env_file:env<yy><mm><dd>.dat mcm_file:voc<yy><mm><dd>.dat dmps_file:/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/filled_dmps/dm<yy><mm><dd>.sum extra_particles: stripRoot_env:.TRUE. stripRoot_mcm:.TRUE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-02 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #----------------------------------------------------------------------------

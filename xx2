@@ -1,6 +1,6 @@
 #--------------------------------------------------
-#      Superbox setting file: xx
-#         Created at: Apr 29 2020, 23:23:03
+#      Superbox setting file: xx2
+#         Created at: May 01 2020, 00:32:15
 #--------------------------------------------------
 
 &NML_PATH
@@ -10,8 +10,8 @@
 / 
 
 &NML_FLAG
- CHEMISTRY_FLAG = .FALSE.
- AEROSOL_FLAG = .FALSE.
+ CHEMISTRY_FLAG = .TRUE.
+ AEROSOL_FLAG = .TRUE.
  ACDC_SOLVE_SS = .FALSE.
  ACDC = .TRUE.
  EXTRA_DATA = F
@@ -24,9 +24,9 @@
 / 
 
 &NML_TIME
- RUNTIME = 1.0
+ RUNTIME = 0.167
  DT = 10
- FSAVE_INTERVAL = 600
+ FSAVE_INTERVAL = 50
  PRINT_INTERVAL = 100
  FSAVE_DIVISION = 0
  DATE = '2018-04-10'
@@ -43,7 +43,7 @@
  DMPS_READ_IN_TIME = 0.0
  DMPS_HIGHBAND_LOWER_LIMIT = 15e-9
  DMPS_LOWBAND_UPPER_LIMIT = 0
- USE_DMPS = .TRUE.
+ USE_DMPS = .FALSE.
  USE_DMPS_SPECIAL = .FALSE.
 / 
 
@@ -101,7 +101,7 @@
 
 &NML_VAP
  VAP_LOGICAL = .TRUE.
- USE_ATOMS = .TRUE.
+ USE_ATOMS = .FALSE.
  VAP_NAMES = 'ModelLib/Vapour_names.dat'
  VAP_PROPS = 'ModelLib/Vapour_properties.dat'
  VAP_ATOMS = 'ModelLib/O_C.dat'
@@ -112,7 +112,7 @@
  ACDC_ITERATIONS = 1
  VARIABLE_DENSITY = .false.
  START_TIME_S = 0
- START_OVER = 0
+ START_OVER = 1
 / 
 
 &NML_PARALLEL

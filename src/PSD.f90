@@ -12,12 +12,12 @@ MODULE ParticleSizeDistribution
   IMPLICIT NONE
 
   ! START: variables that will be defined outside
-  INTEGER :: nr_species_P  ! number of species that can go to the particle phase
-  INTEGER :: nr_cond
+  INTEGER :: n_cond_tot  ! number of species that can go to the particle phase
+  INTEGER :: n_cond_org
   ! END variables that will be defined outside
 
   REAL(dp), ALLOCATABLE :: dconc_coag(:,:)  ! coagulation: collision number matrix: nr_bins * nr_bins
-  REAL(dp), ALLOCATABLE :: dmass(:,:)       ! change in particle mass (due to condensation or mixing) (nr_bins,nr_species_P)
+  REAL(dp), ALLOCATABLE :: dmass(:,:)       ! change in particle mass (due to condensation or mixing) (nr_bins,n_cond_tot)
   REAL(dp), ALLOCATABLE :: dconc_dep_mix(:) ! change in particle concentration (e.g. reduced coagulatio or mixing) (nr_bins)
   REAL(dp), ALLOCATABLE :: mix_ratio(:)     ! gives the rate ratio: added volume over present volume per timestep
   CHARACTER(len=15) :: process              ! defines the process that passes information to subroutine Mass_Number_Change (coagulation, condensation, mixing)
@@ -70,8 +70,8 @@ MODULE ParticleSizeDistribution
     !non condensables initially on the particle phase
     !vapour_number is the stuff that has a quatifiable vapour pressure > 0
     if (ALLOCATED(XTRAS)) nr_noncond = size(XTRAS)
-    nr_species_P = VAPOUR_PROP%vapour_number + 1 + nr_noncond
-    nr_cond      = VAPOUR_PROP%vapour_number
+    n_cond_tot = VAPOUR_PROP%vapour_number + 1 + nr_noncond
+    n_cond_org      = VAPOUR_PROP%vapour_number
 
   END SUBROUTINE PSD_get_input
 
@@ -91,12 +91,12 @@ SUBROUTINE PSD_Allocate()
     ALLOCATE(current_PSD%diameter_fs(current_PSD%nr_bins))
     ALLOCATE(current_PSD%volume_fs(current_PSD%nr_bins))
     ALLOCATE(current_PSD%conc_fs(current_PSD%nr_bins))
-    ALLOCATE(current_PSD%composition_fs(current_PSD%nr_bins,nr_species_P))
-    ALLOCATE(current_PSD%density_fs(nr_species_P))
+    ALLOCATE(current_PSD%composition_fs(current_PSD%nr_bins,n_cond_tot))
+    ALLOCATE(current_PSD%density_fs(n_cond_tot))
     ALLOCATE(current_PSD%particle_density_fs(current_PSD%nr_bins))
     ALLOCATE(current_PSD%particle_mass_fs(current_PSD%nr_bins))
 
-    ALLOCATE(dmass(current_PSD%nr_bins,nr_species_P))
+    ALLOCATE(dmass(current_PSD%nr_bins,n_cond_tot))
     ALLOCATE(dconc_dep_mix(current_PSD%nr_bins))
     ALLOCATE(dconc_coag(current_PSD%nr_bins,current_PSD%nr_bins))
     ALLOCATE(mix_ratio(current_PSD%nr_bins))
@@ -255,7 +255,7 @@ END SUBROUTINE GeneratePSDfromInput
 ! 3) dmass for condensation
 ! Based on current and absolute change in single particle mass/number [units similar to composition and concentration]
 ! the new 1ribution is determined
-! Subroutine input is change-array dmass (nr_species_P,nr_bins) for mass
+! Subroutine input is change-array dmass (n_cond_tot,nr_bins) for mass
 ! Subroutine input is change-array dconc_dep_mix(nr_bins) or dconc_coag(nr_bins,nr_bins) for number
 ! ===================================================================================================================
 SUBROUTINE Mass_Number_Change(process)
@@ -425,7 +425,7 @@ END SUBROUTINE PSD_Change_coagulation
   SUBROUTINE PSD_Change_mixing
     !This subroutine uses the dconc_dep_mix and dmass vectors provided by mixing subroutine
     !dconc_dep_mix give the size dependent particle number that is added: (nr_bins)
-    !dmass gives the composition of those particles: (nr_bins,nr_species_P)
+    !dmass gives the composition of those particles: (nr_bins,n_cond_tot)
     !Result is the new particle size 1ribution and composition: new_PSD%conc_fs and new_PSD%composition_fs
     !mix_ratio dtermines the ratio between present and added volume
 
@@ -475,14 +475,10 @@ END SUBROUTINE PSD_Change_coagulation
     INTEGER             :: n_b   ! Short for number of bins
     INTEGER             :: aa    ! aa and (aa+-1): bin number where the new concentration moves to
     REAL(dp)            :: r1,r2 ! Contraction fractions that move to bin a and a-1, respectively
-    integer, save :: nextprint = 0
+
     !Find the bin numbers (aa-1, a) where the content goes to
     aa = MINLOC(current_PSD%volume_fs-mix_PSD%volume_fs(ind),1, &
          mask = (current_PSD%volume_fs-mix_PSD%volume_fs(ind)) >= 0.0_dp)
-
-    ! if (nextprint>0 .and. int(GTIME%sec)<nextprint) print*,'XXX0',GTIME%sec,current_PSD%conc_fs(1:10)
-    ! if (nextprint>0 .and. int(GTIME%sec)<nextprint) print*,'XXX1',GTIME%sec,current_PSD%volume_fs(1:10)
-    ! if (nextprint>0 .and. int(GTIME%sec)<nextprint) print*,'XXX2',GTIME%sec,sum(current_PSD%composition_fs(1:10, :), 2)
 
     ! Move to largest bin or beyond
     IF (aa == 0) THEN
@@ -537,7 +533,7 @@ END SUBROUTINE PSD_Change_coagulation
     ELSE
       new_PSD%conc_fs(ind) = new_PSD%conc_fs(ind) + mix_PSD%conc_fs(ind)
       print*, 'XXX3',ind, aa, GTIME%sec
-      if (aa<ind) print*, 'dmass HOA', dmass(ind,nr_species_P-1)
+      if (aa<ind) print*, 'dmass HOA', dmass(ind,n_cond_tot-1)
       ! if (aa<ind) print*, 'conc', new_PSD%conc_fs(ind)
       ! if (aa<ind) print*, 'mix volume', mix_PSD%volume_fs(ind)
       ! if (aa<ind) print*, 'current volume', current_PSD%volume_fs

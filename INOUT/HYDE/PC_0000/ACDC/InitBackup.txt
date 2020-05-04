@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      Superbox setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: Apr 28 2020, 12:41:27
+#         Created at: May 02 2020, 23:46:42
 #--------------------------------------------------
 
 &NML_PATH
@@ -26,8 +26,8 @@
 &NML_TIME
  RUNTIME = 4.0
  DT = 10
- FSAVE_INTERVAL = 30
- PRINT_INTERVAL = 600
+ FSAVE_INTERVAL = 60
+ PRINT_INTERVAL = 60
  FSAVE_DIVISION = 0
  DATE = ''
  INDEX = '0000'
@@ -56,12 +56,12 @@
 /
 
 &NML_MODS
- MODS(1)   = 0  -1  1.00000d+00  5.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'C' ! TEMPK
+ MODS(1)   = 0  -1  1.00000d+00  2.98000d+02  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'K' ! TEMPK
  MODS(2)   = 0  -1  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'hPa' ! PRESSURE
- MODS(4)   = 0  -1  1.00000d+00  1.00000d-01  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' ! CONDENS_SINK
+ MODS(4)   = 0  -1  1.00000d+00  1.00000d-03  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' ! CONDENS_SINK
  MODS(7)   = 0  -1  1.00000d+00  3.00000d+00  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' ! ION_PROD_RATE
- MODS(8)   = 0  -1  1.00000d+00  2.00000d+00  1.00000d+01  1.00000d+07 1.860000d0 -0.285720d0 0.020000d0 0.000000d0 1.000000d0 '#' ! H2SO4
- MODS(9)   = 0  -1  1.00000d+00 -2.00000d+00  1.00000d+01  1.00000d+09 1.860000d0 4.142940d0 0.020000d0 0.000000d0 1.000000d0 '#' ! NH3
+ MODS(8)   = 0  -1  1.00000d+00  4.00000d+06  1.00000d+03  1.00000d+05 1.860000d0 -0.285720d0 10.820000d0 2.400000d0 4.500000d0 '#' ! H2SO4
+ MODS(9)   = 0  -1  1.00000d+00  6.00000d+09  1.00000d+01  1.00000d+09 1.860000d0 4.142940d0 0.020000d0 0.000000d0 1.000000d0 '#' ! NH3
 /
 
 &NML_MISC
@@ -93,8 +93,8 @@ USE_OPENMP = .false.
 /
 
 
+# Following settings are for the GUI and not directly used by the model -----
 # RAW_INPUT = &NML_PARALLEL<br>USE_OPENMP = .false.<br>/
-# These settings are for the gui and not used by the model ------------------
 # INPUT_SETTINGS = 'env_file: mcm_file: dmps_file: extra_particles: stripRoot_env:.TRUE. stripRoot_mcm:.TRUE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.TRUE. indexRadioDate:.FALSE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #----------------------------------------------------------------------------

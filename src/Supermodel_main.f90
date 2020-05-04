@@ -101,42 +101,15 @@ PROGRAM Supermodel
         ', upper bins from '//i2chr(dmps_sp_max)//' to '//i2chr(n_bins_particle)
       END IF
 
-      ! Send par_data (from input): diameter and first time step for fitting of initial model PSD
-      ! IF (CURRENT_PSD%PSD_style == 1) THEN ! only defined procedure for fully stationary
-        ! print*, 'CHECK COMPO INITIALOIZATION'
-        ! ! intialize concentration of condensables in each bin kg/m3
-        ! do  i = 1, CURRENT_PSD%nr_bins
-        !   CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * CURRENT_PSD%conc_fs(i)* VAPOUR_PROP%density * 1d6
-        !   conc_pp(i,:) = CURRENT_PSD%composition_fs(i,:) / VAPOUR_PROP%molar_mass*Na *1d6
-        ! end do
-
-        ! print*,
-        ! print FMT_HDR, 'INITIALIZING PARTICLE STRUCTURES '
-
-        ! If part of the PSD is to be replaced by existing distribution, find out the indices nearest the chosen size
-
-        ! ! Derive composition of the particles form input (XTRAS(I), I...# of noncond (nr_noncond))
-        ! IF (extra_particles /= '') THEN
-        !   PRINT FMT_MSG,'initial particles are composed of:'
-        !   DO I = 1,size(xtras(:))
-        !     write(buf, '(a,3(es12.3))') xtras(I)%name,xtras(I)%options
-        !     PRINT FMT_MSG, TRIM(buf)
-        !
-        !     CALL GeneratePSDfromInput(xtras(I)%sections(:),xtras(I)%binseries(1,:), xtras(i)%conc_modelbins)
-        !
-        !   END DO
-        ! END IF
-
-      ! END IF ! IF (CURRENT_PSD%PSD_style == 1)
 
       ! reading the index of compounds
-      ALLOCATE(index_cond(nr_cond))
-      ALLOCATE(conc_vapour(nr_species_P))
+      ALLOCATE(index_cond(n_cond_org))
+      ALLOCATE(conc_vapour(n_cond_tot))
 
       index_cond=0
       ! check how many species we have in common
       DO i = 1,size(SPC_NAMES)
-        DO j = 1,nr_cond
+        DO j = 1,n_cond_org
           IF (VAPOUR_PROP%vapour_names(j) .eq. SPC_NAMES(i)) THEN ! SPC_NAMES from second-Monitor
             index_cond(j) = i
             exit
@@ -202,13 +175,20 @@ PROGRAM Supermodel
     ! If wait_for was defined in user options, wait for a sec
     CALL PAUSE_FOR_WHILE(wait_for)
 
+    if (TRIM(INITIALIZE_WITH) /= '') THEN
+        CALL INITIALIZE_WITH_LAST(CURRENT_PSD%composition_fs, CURRENT_PSD%conc_fs,CH_GAS)
+    END IF
+
     write(*,*) ''
     print FMT_HDR, 'Beginning simulation'
+    if (start_time_s>0) then
+        write(*, '(a)', advance='no') 'Starting simulation at: '
+        print FMT_TIME, GTIME%hms
+    end if
     call cpu_time(cpu1) ! For efficiency calculation
     ! =================================================================================================
     DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
     ! =================================================================================================
-
 
         ! =================================================================================================
         ! Print time header in a nice way, start with empty row
@@ -245,10 +225,10 @@ PROGRAM Supermodel
         END DO
         ! =================================================================================================
 
-
         ! =================================================================================================
         ! Chemistry
         ! =================================================================================================
+
         IF (Chemistry_flag) THEN
           DO I = 1, N_VARS ! <-- N_VARS will cycle through all input variables
             IF (INDRELAY_CH(I)>0) THEN ! <-- this will pick those that were paired in CHECK_INPUT_AGAINST_KPP
@@ -259,7 +239,6 @@ PROGRAM Supermodel
               END IF
             END IF
           END DO
-
           ! Solar Zenith angle. For this to properly work, lat, lon and Date need to be defined in INIT_FILE
           call BETA(CH_Beta)
           Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt_chm), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
@@ -317,7 +296,7 @@ PROGRAM Supermodel
 
           if (use_dmps_special .and. (GTIME%min >= (dmps_ln*dmps_tres_min)) .and. (GTIME%min/60d0 .ge. DMPS_read_in_time)) THEN
 
-            if (gtime%printnow) print FMT_MSG, 'Reading in background particles partially'
+              if (gtime%printnow) print FMT_MSG, 'Reading in background particles partially'
 
             ! Initialization is necessary
             dmps_fitted = 0d0
@@ -360,14 +339,13 @@ PROGRAM Supermodel
 
             conc_vapour = 0d0
             dmass = 0d0
-            do i = 1, nr_cond
+            do i = 1, n_cond_org
               if (index_cond(i) /= 0) conc_vapour(i) =  CH_GAS(index_cond(i))*1D6 ! mol/m3
             end do
             ! Poor sulfuric acid always needs special treatment
-            conc_vapour(nr_species_P) = CH_GAS(ind_H2SO4)*1d6
-
+            conc_vapour(n_cond_tot) = CH_GAS(ind_H2SO4)*1d6
             ! Update vapour concentrations
-            if (GTIME%sec == 0 ) CALL Calculate_SaturationVapourConcentration(VAPOUR_PROP, GTEMPK)
+            CALL Calculate_SaturationVapourConcentration(VAPOUR_PROP, GTEMPK)
             ! Solve mass flux
             CALL Condensation_apc(VAPOUR_PROP,CURRENT_PSD,conc_vapour,dmass)
             ! Distribute mass
@@ -377,12 +355,12 @@ PROGRAM Supermodel
             CURRENT_PSD%conc_fs = new_PSD%conc_fs
             CURRENT_PSD%composition_fs = new_PSD%composition_fs
 
-            do i = 1, nr_cond
+            do i = 1, n_cond_org
               if (index_cond(i) /= 0) then
                 CH_GAS(index_cond(i)) = conc_vapour(i) *1D-6
               end if
             end do
-            CH_GAS(ind_H2SO4) = conc_vapour(nr_species_P)*1d-6
+            CH_GAS(ind_H2SO4) = conc_vapour(n_cond_tot)*1d-6
 
           end if ! end of condensation
 
@@ -527,6 +505,7 @@ CONTAINS
     INTEGER :: i
     INTEGER, INTENT(IN)  :: iters
     REAL(dp), intent(in) :: C(:)
+    LOGICAL, save        :: first_time = .true., ss_handle = .true.
     REAL(dp)             :: H2SO4=0,NH3=0,DMA=0,IPR=0 ! these are created to make the unit conversion
 
     ! NUCLEATION BY S-ACID AND NH3 - NOTE: in ACDC, ingoing concentrations are assumed to be in 1/m3!!
@@ -539,7 +518,7 @@ CONTAINS
       ! Idea of iteration is to not necessarily reach steady state but still get a "better" estimate of instantenous formation rate
       Do i=1,iters
         CALL get_acdc_J(H2SO4,NH3,c_org,C(inm_CS),C(inm_TEMPK),IPR,GTIME,&
-            ACDC_solve_ss,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
+            ss_handle,J_ACDC_NH3,acdc_cluster_diam, J_NH3_BY_IONS)
       end do
     ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
@@ -549,13 +528,18 @@ CONTAINS
     if ((DMA > 1d6 .and. H2SO4>1d9) .or. (.not. skip_acdc)) THEN
       ! Idea of iteration is to not necessarily reach steady state but still get a "better" estimate of instantenous formation rate
       Do i=1,iters
-        CALL get_acdc_D(H2SO4,DMA,c_org,C(inm_CS),C(inm_TEMPK),GTIME,ACDC_solve_ss,J_ACDC_DMA,acdc_cluster_diam)
+        CALL get_acdc_D(H2SO4,DMA,c_org,C(inm_CS),C(inm_TEMPK),GTIME,ss_handle,J_ACDC_DMA,acdc_cluster_diam)
       end do
     ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
         if (GTIME%printnow) print FMT_SUB, 'DMA IGNORED'
     END IF
 
+    ! The first time ACDC is run, it is run to steady state, after that the user supplied option is used
+    if (first_time) THEN
+        ss_handle = ACDC_solve_ss
+        first_time = .false.
+    end if
   END SUBROUTINE ACDC_J  ! END ACDC Nucleation
 
 
@@ -585,8 +569,8 @@ CONTAINS
     print FMT10_3CVU, 'Jion neutral:', J_NH3_BY_IONS(1)*1d-6 , ' [1/s/cm3]','Jion neg:', J_NH3_BY_IONS(2)*1d-6 , ' [1/s/cm3]','Jion pos:', J_NH3_BY_IONS(3)*1d-6 , ' [1/s/cm3]'
     IF (inm_IPR   /= 0) print FMT10_2CVU, 'C-sink:', C(inm_CS) , ' [1/s]','IPR:', C(inm_IPR) , ' [1/s/cm3]'
     if ((GTIME%sec)>0) print '("| ",a,i0,a,i0.2,a,i0,a,i0.2,t65,a,f6.2,t100,"|")', 'Elapsed time (m:s) ',int(cpu2 - cpu1)/60,':',modulo(int(cpu2 - cpu1),60) ,' Est. time to finish (m:s) ',&
-                            int((cpu2 - cpu1)/GTIME%sec*(GTIME%SIM_TIME_S-GTIME%sec))/60,':', MODULO(int((cpu2 - cpu1)/GTIME%sec*(GTIME%SIM_TIME_S-GTIME%sec)),60),&
-                            'Realtime/Modeltime: ', GTIME%sec/(cpu2 - cpu1)
+                            int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec))/60,':', MODULO(int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec)),60),&
+                            'Realtime/Modeltime: ', (GTIME%sec-start_time_s)/(cpu2 - cpu1)
 
     print FMT_LEND,
   END SUBROUTINE PRINT_KEY_INFORMATION

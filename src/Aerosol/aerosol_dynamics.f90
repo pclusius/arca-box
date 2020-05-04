@@ -39,17 +39,17 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
   IMPLICIT NONE
   type(vapour_ambient), INTENT(IN) :: vapour_prop ! Properties of condensing vapours
   type(PSD)           , INTENT(IN) :: particles ! Current PSD properties
-  REAL(dp), INTENT(INOUT) :: conc_vap(:)  ! [#/m^3], condensing vapour concentrations, DIM(nr_species_P)
-  REAL(dp), INTENT(INOUT) :: dmass(:,:)   ! [kg/m^3] change of mass per particle in particle phase, DIM(n_bins_particle, nr_species_P)
-  REAL(dp) :: conc_pp(n_bins_particle,nr_species_P) ! [#/m^3] Particle phase concentrations, DIM(n_bins_particle,nr_species_P)
-  REAL(dp), DIMENSION(n_bins_particle,nr_species_P) :: CR ! [/s] collisions per second, collision rate * concentration
+  REAL(dp), INTENT(INOUT) :: conc_vap(:)  ! [#/m^3], condensing vapour concentrations, DIM(n_cond_tot)
+  REAL(dp), INTENT(INOUT) :: dmass(:,:)   ! [kg/m^3] change of mass per particle in particle phase, DIM(n_bins_particle, n_cond_tot)
+  REAL(dp) :: conc_pp(n_bins_particle,n_cond_tot) ! [#/m^3] Particle phase concentrations, DIM(n_bins_particle,n_cond_tot)
+  REAL(dp), DIMENSION(n_bins_particle,n_cond_tot) :: CR ! [/s] collisions per second, collision rate * concentration
 
-  REAL(dp), DIMENSION(n_bins_particle,nr_species_p) :: Kelvin_Effect, kohler_effect
-  REAL(dp), DIMENSION(n_bins_particle,nr_species_p) :: conc_pp_old
-  REAL(dp), DIMENSION(n_bins_particle,nr_species_P) :: xorg ! mole fraction of each organic compound in each bin
-  REAL(dp), DIMENSION(n_bins_particle, nr_species_P) :: conc_pp_eq
-  REAL(dp), DIMENSION(nr_species_p) :: conc_tot
-  REAL(dp), DIMENSION(nr_species_P) :: conc_vap_old
+  REAL(dp), DIMENSION(n_bins_particle,n_cond_tot) :: Kelvin_Effect, kohler_effect
+  REAL(dp), DIMENSION(n_bins_particle,n_cond_tot) :: conc_pp_old
+  REAL(dp), DIMENSION(n_bins_particle,n_cond_tot) :: xorg ! mole fraction of each organic compound in each bin
+  REAL(dp), DIMENSION(n_bins_particle, n_cond_tot) :: conc_pp_eq
+  REAL(dp), DIMENSION(n_cond_tot) :: conc_tot
+  REAL(dp), DIMENSION(n_cond_tot) :: conc_vap_old
   REAL(dp) :: conc_guess
   REAL(dp) :: sum_org ! Sum of organic concentration in bin, transient variable
   INTEGER :: ii
@@ -84,7 +84,7 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
 
 
   ! Kelvin and Kohler factors.
-  DO ii = 1, nr_species_p
+  DO ii = 1, n_cond_tot
     ! Kelvin factor takes into account the curvature of particles. Unitless
     Kelvin_Effect(:,ii) = 1D0 + 2D0*vapour_prop%surf_tension(ii)*vapour_prop%molar_mass(ii) &
                         / (R*GTEMPK*vapour_prop%density(ii)*particles%diameter_fs(:)/2D0)
@@ -93,15 +93,15 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
     kohler_effect(:,ii) = Kelvin_Effect(:,ii)*xorg(:,ii)
   END DO
   ! Treat H2SO4 specially
-  kohler_effect(:,nr_species_p) = Kelvin_Effect(:,nr_species_p)
+  kohler_effect(:,n_cond_tot) = Kelvin_Effect(:,n_cond_tot)
 
   ! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
   DO ii=1,n_bins_particle
-    conc_pp_eq(ii,1:nr_species_P-1) = conc_vap_old(1:nr_species_P-1)*SUM(conc_pp_old(ii,1:nr_species_P-1)) &
-                                    / (Kelvin_Effect(ii,1:nr_species_P-1)* vapour_prop%c_sat(1:nr_species_P-1))
+    conc_pp_eq(ii,1:n_cond_tot-1) = conc_vap_old(1:n_cond_tot-1)*SUM(conc_pp_old(ii,1:n_cond_tot-1)) &
+                                    / (Kelvin_Effect(ii,1:n_cond_tot-1)* vapour_prop%c_sat(1:n_cond_tot-1))
   END DO
 
-  DO ii = 1, nr_species_p
+  DO ii = 1, n_cond_tot
     ! Total number of collisions/s
     if (Use_atoms) THEN
       CR(:,ii) = particles%conc_fs * collision_rate(ii,particles,vapour_prop)
@@ -122,8 +122,8 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
     ! Prevent overestimation of evaporation by setting negative concentrations to zero
     WHERE ( conc_pp(:,ii)<0D0 ) conc_pp(:,ii) = 0D0
 
-    ! Prevents particles to grow over the saturation limit. For organics, no acids included
-    IF (ii <= nr_species_p-2) then
+    ! Prevents particles to grow over the saturation limit. For organics, no acids or HOA included
+    IF (ii <= n_cond_org-1) then
       WHERE (conc_pp(:,ii)>conc_pp_eq(:,ii) .AND. conc_vap_old(ii)<(Kelvin_Effect(:,ii) * vapour_prop%c_sat(ii))) conc_pp(:,ii) = conc_pp_eq(:,ii)
     END IF
 
@@ -134,10 +134,10 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
   END DO
 
   ! Calculate dmass for PSD
-  DO ii = 1, nr_species_P
+  DO ii = 1, n_cond_tot
     dmass(:,ii) = (conc_pp(:,ii) - conc_pp_old(:,ii))*vapour_prop%molar_mass(ii) / Na
   END DO
-  ! dmass(:,nr_species_p-1) = max(dmass(:,nr_species_p-1), 0)
+  ! dmass(:,n_cond_tot-1) = max(dmass(:,n_cond_tot-1), 0)
   do ii = 1, n_bins_particle
     if (current_PSD%conc_fs(ii)>0d0) THEN
       dmass(ii,:) = dmass(ii,:) / current_PSD%conc_fs(ii)
@@ -168,7 +168,7 @@ SUBROUTINE Coagulation_routine(particles,dconc_coag) ! Add more variables if you
   REAL(dp), DIMENSION(n_bins_particle+1) :: Vp
   REAL(dp) :: dyn_visc  ! dynamic viscosity, kg/(m*s)
   REAL(dp) :: l_gas     ! Gas mean free path in air
-  REAL(dp) :: a, shit
+  REAL(dp) :: a
 
   REAL(dp) :: stt
   integer:: omp_rank
@@ -466,7 +466,7 @@ function collision_rate_uhma(jj,radius,mass,vapour_prop)
 
     real(dp) :: air_free_path, r_vap, viscosity, r_h2o,temp,rh,pres
     real(dp), dimension(n_bins_particle) :: knudsen, corr, dif_part
-    real(dp),dimension(nr_cond+1) :: molecmass,molecvol,molarmass,molarmass1,alpha,dens
+    real(dp),dimension(n_cond_org+1) :: molecmass,molecvol,molarmass,molarmass1,alpha,dens
     !variables for new method(when input_flag=0)
     real(dp) :: DH2SO40,DH2SO4,Keq1,Keq2,d_H2SO4,mH2SO4,speedH2SO4,Dorg,dX,dens_air,speedorg
     real(dp),dimension(n_bins_particle) :: gasmeanfpH2SO4,speed_p,KnH2SO4,f_corH2SO4,DH2SO4eff,gasmeanfporg,&

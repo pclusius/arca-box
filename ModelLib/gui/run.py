@@ -889,6 +889,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
         pmInUse = QtWidgets.QComboBox()
         pmInUse.addItems(['No','Yes'])
+        # pmInUse.currentIndexChanged.connect(lambda: self.toggleColor(row))
         unit = QtWidgets.QComboBox()
         unit.addItems(units.get(name,units['REST']))
         unit.setCurrentIndex(unt)
@@ -915,6 +916,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.selected_vars.setCellWidget(row, i+2, unit )
         self.selected_vars.setCellWidget(row, i+3, markBut )
 
+
+
         self.selected_vars.setItem(row, i+4, QtWidgets.QTableWidgetItem('%03d'%(namesFoInds[name])))
 
         self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)
@@ -926,6 +929,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             vars.mods[name].name = name# Human readable name for modified variable
             # vars.mods[name].gain = min(99,max(1, int(2*self.runtime.value() - 4)))# adjust gain to runtime
 
+    # def toggleColor(self,r):
+    #     if self.selected_vars.cellWidget(r,4).currentText() == 'Yes':
+    #         self.selected_vars.item(r, 1).setBackground(QtGui.QColor(128,0,0))
+    #     else:
+    #         self.selected_vars.item(r, 1).setBackground(QtGui.QColor(255,255,255))
 
     def toggle_frame(self, frame):
         if frame.isEnabled() == True:
@@ -1110,8 +1118,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def pollMonitor(self):
+        fulltext = self.boxProcess.stdout.readline().decode("utf-8")
+        if fulltext != '.\n':
+            self.MonitorWindow.insertPlainText(fulltext)
         status = self.boxProcess.poll()
-        if status != None:
+        if status != None and fulltext == '':
             self.stopBox()
 
 

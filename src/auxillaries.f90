@@ -226,7 +226,9 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
     end do
     rw = i-1
     if (rw==size(conctime)) THEN
-      rw = size(conctime)-1
+      INTERP = conc(rw)
+      return
+      ! rw = size(conctime)-1
     end if
   end if
 

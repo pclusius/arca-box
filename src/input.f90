@@ -1,6 +1,6 @@
 Module INPUT
 ! Module to read init file
-
+use second_Monitor
 USE second_precision, ONLY: dp
 use constants
 USE auxillaries
@@ -162,6 +162,7 @@ CHARACTER(len=256)  :: Vap_atoms = 'ModelLib/O_C.dat'
 NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_props, Vap_atoms
 
 INTEGER :: acdc_iterations = 4
+CHARACTER(1000) :: INITIALIZE_WITH = ''
 Logical :: use_raoult = .True.
 Logical :: variable_density = .False.
 Logical :: skip_acdc = .True. ! If True, skips ACDC with very low concentrations and negligible formation rates
@@ -170,12 +171,12 @@ real(dp) :: start_time_s = 0d0
 real(dp) :: dmps_multi = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
 
 NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,dmps_tres_min, &
-                      start_time_s, dmps_multi
+                      start_time_s, dmps_multi, INITIALIZE_WITH
 
 type(vapour_ambient)  :: VAPOUR_PROP
 type(atoms):: Natoms  ! atoms of hydrogen, oxygen, nitrogen and carbon. Used for calculating diffusion
 
-real(dp),allocatable :: Diff_org(:), Vol_org(:)
+real(dp),allocatable ::  Vol_org(:)!, Diff_org(:)
 
 contains
 
@@ -190,11 +191,11 @@ subroutine READ_INPUT_DATA()
 
   integer             :: ioi,ioi2, ii, iosp, ioprop, ioi3
   integer             :: i, j, k, xp, yp, path_l(2), N_Xtr = 0
-  integer             :: rows, cols
+  integer             :: rows, cols, n_condensables
   !!! for vapour FILES
   CHARACTER(len=256)  :: species_name
   real(dp)            :: molar_mass, parameter_A, parameter_B, fl_buff(2)
-
+  real(dp), ALLOCATABLE :: atom_line(:)
 
   ! CHECK HOW MANY POSSIBLE INPUT VARIABLES (METEOROLOGICAL, MCM ETC.) THERE ARE IN THE MODEL
   OPEN(2151, file=NAMESDAT, ACTION='READ', status='OLD', iostat=ioi)
@@ -404,24 +405,44 @@ subroutine READ_INPUT_DATA()
    rows = ROWCOUNT(52)
    cols = COLCOUNT(53)
 
-   allocate(VAPOUR_PROP%Vapour_names(rows + 1 ))
-   allocate(VAPOUR_PROP%molar_mass(rows + 1))
-   allocate(VAPOUR_PROP%parameter_A(rows + 1))
-   allocate(VAPOUR_PROP%parameter_B(rows + 1))
-   allocate(VAPOUR_PROP%molec_mass(rows + 1))
-   allocate(VAPOUR_PROP%molec_volume(rows + 1))
-   allocate(VAPOUR_PROP%density(rows + 1))
-   allocate(VAPOUR_PROP%surf_tension(rows + 1))
-   allocate(VAPOUR_PROP%c_sat(rows + 1))
-   allocate(VAPOUR_PROP%vap_conc(rows + 1))
-   allocate(VAPOUR_PROP%cond_type(rows + 1))
-   allocate(VAPOUR_PROP%molec_dia(rows + 1))
-   allocate(VAPOUR_PROP%mfractions(rows + 1))
-   allocate(VAPOUR_PROP%alpha(rows + 1))
 
-   VAPOUR_PROP%vapour_number = rows
-   VAPOUR_PROP%vbs_bins      = rows + 1
+   n_condensables = 0
+  do j = 1,rows
+    read(52,*,iostat=iosp) species_name
+    k = IndexFromName( TRIM(species_name), SPC_NAMES )
+    if (k>0) THEN
+      n_condensables=n_condensables+1
+    end if
+  end do
+  REWIND(52)
 
+   allocate(VAPOUR_PROP%Vapour_names(n_condensables + 1 ))
+   allocate(VAPOUR_PROP%molar_mass(n_condensables + 1))
+   allocate(VAPOUR_PROP%parameter_A(n_condensables + 1))
+   allocate(VAPOUR_PROP%parameter_B(n_condensables + 1))
+   allocate(VAPOUR_PROP%molec_mass(n_condensables + 1))
+   allocate(VAPOUR_PROP%molec_volume(n_condensables + 1))
+   allocate(VAPOUR_PROP%density(n_condensables + 1))
+   allocate(VAPOUR_PROP%surf_tension(n_condensables + 1))
+   allocate(VAPOUR_PROP%c_sat(n_condensables + 1))
+   allocate(VAPOUR_PROP%vap_conc(n_condensables + 1))
+   allocate(VAPOUR_PROP%cond_type(n_condensables + 1))
+   allocate(VAPOUR_PROP%molec_dia(n_condensables + 1))
+   allocate(VAPOUR_PROP%mfractions(n_condensables + 1))
+   allocate(VAPOUR_PROP%alpha(n_condensables + 1))
+
+   VAPOUR_PROP%vapour_number = n_condensables
+   VAPOUR_PROP%vbs_bins      = n_condensables + 1
+
+   if (Use_atoms) THEN
+     allocate(Natoms%N_Carbon(n_condensables))
+     allocate(Natoms%N_Hydrogen(n_condensables))
+     allocate(Natoms%N_Oxygen(n_condensables))
+     allocate(Natoms%N_Nitrogen(n_condensables))
+     allocate(Natoms%comp_prop(cols, n_condensables))
+     allocate(Vol_org(n_condensables))
+     ! allocate(Diff_org(n_condensables))
+   END IF
 
    write(buf,'(i0)') VAPOUR_PROP%vapour_number
    print FMT_SUB, 'Vapours available = '//TRIM(buf)
@@ -431,49 +452,82 @@ subroutine READ_INPUT_DATA()
    VAPOUR_PROP%Mfractions = 0.0
    VAPOUR_PROP%Mfractions(VAPOUR_PROP%vapour_number) = 1d0 !
 
+  if (Use_atoms) THEN
+    write(*,FMT_MSG) 'Reading O_C file '// TRIM(Vap_atoms)
+    OPEN(unit=61, File=TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi3)
+    allocate(atom_line(COLCOUNT(61)))
+  end if
 
-
- do ii = 1, VAPOUR_PROP%vbs_bins
-    if (ii < VAPOUR_PROP%vbs_bins) then !!! all compounds
+  ! ---------------------------------------------------------------------
+  ! ORGANIC VAPOUR PROPERTIES
+  ! ---------------------------------------------------------------------
+  ii = 1
+  do j = 1, rows
       read(52,*,iostat=iosp)   species_name
       read(53,*,iostat=ioprop) molar_mass, parameter_A, parameter_B
-      VAPOUR_PROP%molar_mass(ii)    = molar_mass *1D-3 ! kg/mol
-      VAPOUR_PROP%parameter_A(ii)   = parameter_A
-      VAPOUR_PROP%parameter_B(ii)   = parameter_B
-      VAPOUR_PROP%vapour_names(ii)  = TRIM(species_name)
-      VAPOUR_PROP%molec_mass(ii)    = calculate_molecular_mass(VAPOUR_PROP%molar_mass(ii))  !kg/#
+      if (Use_atoms) READ(61,*) atom_line
 
-      ! Option for simple parametrisation of organic vapour liquid density
-      IF (variable_density) THEN
-        VAPOUR_PROP%density(ii)       = -30d0 * (parameter_A - parameter_B/293.15d0) + 1029d0  !!! kg/m3
-      ELSE
-        VAPOUR_PROP%density(ii)       = 1400.0  ! kg/m3
+      ! Check if the compounds exists in Chemistry and only then add to vapours and optionally to atoms
+      k = IndexFromName( species_name, SPC_NAMES )
+      if (k>0) THEN
+
+        VAPOUR_PROP%molar_mass(ii)    = molar_mass *1D-3 ! kg/mol
+        VAPOUR_PROP%parameter_A(ii)   = parameter_A
+        VAPOUR_PROP%parameter_B(ii)   = parameter_B
+        VAPOUR_PROP%vapour_names(ii)  = TRIM(species_name)
+        VAPOUR_PROP%molec_mass(ii)    = calculate_molecular_mass(VAPOUR_PROP%molar_mass(ii))  !kg/#
+
+        ! Option for simple parametrisation of organic vapour liquid density. Use with caution
+        IF (variable_density) THEN
+          VAPOUR_PROP%density(ii)     = -30d0 * (parameter_A - parameter_B/293.15d0) + 1029d0  !!! kg/m3
+        ELSE
+          VAPOUR_PROP%density(ii)     = 1400.0  ! kg/m3
+        END IF
+        VAPOUR_PROP%molec_volume(ii)  = calculate_molecular_volume(VAPOUR_PROP%density(ii),VAPOUR_PROP%molec_mass(ii))
+        VAPOUR_PROP%surf_tension(ii)  = 0.05
+        VAPOUR_PROP%cond_type(ii)     = 1  ! not an acid (H2SO4 or HCL)
+        VAPOUR_PROP%molec_dia(ii)     = (6D0 * VAPOUR_PROP%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
+        VAPOUR_PROP%alpha(ii)         = 1.0
+        VAPOUR_PROP%c_sat(ii)         = calculate_saturation_vp(VAPOUR_PROP%parameter_A(ii),VAPOUR_PROP%parameter_B(ii), 293.15d0)
+
+        if (Use_atoms) THEN
+          Natoms%N_Carbon(ii)   = atom_line(2)
+          Natoms%N_Oxygen(ii)   = atom_line(3)
+          Natoms%N_Nitrogen(ii) = atom_line(4)
+          Natoms%N_Hydrogen(ii) = atom_line(8)
+        END IF
+
+        ii = ii + 1
       END IF
-      VAPOUR_PROP%molec_volume(ii)  = calculate_molecular_volume(VAPOUR_PROP%density(ii),VAPOUR_PROP%molec_mass(ii))
-      VAPOUR_PROP%surf_tension(ii)  = 0.05
-      VAPOUR_PROP%cond_type(ii)     = 1  ! not an acid (H2SO4 or HCL)
-      VAPOUR_PROP%molec_dia(ii)     = (6D0 * VAPOUR_PROP%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
-      VAPOUR_PROP%alpha(ii)         = 1.0
-      VAPOUR_PROP%c_sat(ii)         = calculate_saturation_vp(VAPOUR_PROP%parameter_A(ii),VAPOUR_PROP%parameter_B(ii), 293.15d0)
-   else !! h2so4
-     VAPOUR_PROP%molar_mass(ii)    = 98.0785 *1d-3
-     VAPOUR_PROP%parameter_A(ii)   = 3.869717803774
-     VAPOUR_PROP%parameter_B(ii)   = 313.607405085
-     VAPOUR_PROP%vapour_names(ii)  = 'H2S04'
-     VAPOUR_PROP%molec_mass(ii)    = calculate_molecular_mass(VAPOUR_PROP%molar_mass(ii))
-     VAPOUR_PROP%density(ii)       = 1819.3946 ! kg/m3
-     VAPOUR_PROP%molec_volume(ii)  = calculate_molecular_volume(VAPOUR_PROP%density(ii),VAPOUR_PROP%molec_mass(ii))
-     VAPOUR_PROP%surf_tension(ii)  = 0.07
-     VAPOUR_PROP%cond_type(ii)     = 2  ! Acid
-     VAPOUR_PROP%molec_dia(ii)     = (6D0 * VAPOUR_PROP%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
-     VAPOUR_PROP%alpha(ii)         = 1.0
-     VAPOUR_PROP%c_sat(ii)         = 0.0 !calculate_saturation_vp(VAPOUR_PROP%parameter_A(ii),VAPOUR_PROP%parameter_B(ii), ambient%temperature)
+    end do
+
+    close(52)
+    close(53)
+    if (Use_atoms) CLOSE(61)
+
+    ! ---------------------------------------------------------------------
+    ! Sulfuric acid treated separately
+    ! ---------------------------------------------------------------------
+    ii = VAPOUR_PROP%vbs_bins
+    VAPOUR_PROP%molar_mass(ii)    = 98.0785 *1d-3
+    VAPOUR_PROP%parameter_A(ii)   = 3.869717803774
+    VAPOUR_PROP%parameter_B(ii)   = 313.607405085
+    VAPOUR_PROP%vapour_names(ii)  = 'H2S04'
+    VAPOUR_PROP%molec_mass(ii)    = calculate_molecular_mass(VAPOUR_PROP%molar_mass(ii))
+    VAPOUR_PROP%density(ii)       = 1819.3946 ! kg/m3
+    VAPOUR_PROP%molec_volume(ii)  = calculate_molecular_volume(VAPOUR_PROP%density(ii),VAPOUR_PROP%molec_mass(ii))
+    VAPOUR_PROP%surf_tension(ii)  = 0.07
+    VAPOUR_PROP%cond_type(ii)     = 2  ! Acid
+    VAPOUR_PROP%molec_dia(ii)     = (6D0 * VAPOUR_PROP%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
+    VAPOUR_PROP%alpha(ii)         = 1.0
+    VAPOUR_PROP%c_sat(ii)         = 0.0 ! Sulfuric acid stays put
+
+   if (Use_atoms) THEN
+     Vol_org = Natoms%N_Carbon*15.9D0 + Natoms%N_Oxygen*6.11D0 &
+             + Natoms%N_Hydrogen*2.31D0 + Natoms%N_Nitrogen*4.54D0
+   ELSE
+     Vol_org = VAPOUR_PROP%molec_volume
    end if
- end do
-
-   close(52)
-   close(53)
-
 
   end if
 
@@ -481,41 +535,6 @@ subroutine READ_INPUT_DATA()
   !!! Calculating the diffusivity of organics based on fullers method !!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  if (Use_atoms) THEN
-
-    write(*,FMT_MSG) 'Reading O_C file '// TRIM(Vap_atoms)
-    ! OPEN(unit=61, File=TRIM(ADJUSTL(CASE_DIR)) // '/'//TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi3)
-    OPEN(unit=61, File=TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi3)
-
-    rows = ROWCOUNT(61)
-    cols = COLCOUNT(61)
-
-    allocate(Natoms%N_Carbon(rows))
-    allocate(Natoms%N_Hydrogen(rows))
-    allocate(Natoms%N_Oxygen(rows))
-    allocate(Natoms%N_Nitrogen(rows))
-    allocate(Natoms%comp_prop(cols, rows))
-    allocate(Vol_org(rows))
-    allocate(Diff_org(rows))
-
-    READ(61,*) Natoms%comp_prop
-
-    Natoms%N_Carbon   = Natoms%comp_prop(2,:)
-    Natoms%N_Oxygen   = Natoms%comp_prop(3,:)
-    Natoms%N_Nitrogen = Natoms%comp_prop(4,:)
-    Natoms%N_Hydrogen = Natoms%comp_prop(8,:)
-
-   !Diffusivity
-   ! dimensionless diffusion volumes
-   ! Atomic diffusion values from (Tang et al., ACP 2015) , Reid et al., 1987
-
-   Vol_org = Natoms%N_Carbon*15.9D0 + Natoms%N_Oxygen*6.11D0+&
-        Natoms%N_Hydrogen*2.31D0 + Natoms%N_Nitrogen*4.54D0
-        ! print'(es12.4)', Vol_org/pack(VAPOUR_PROP%molec_volume, VAPOUR_PROP%cond_type==1)
-   CLOSE(61)
- ELSE
-   Vol_org = VAPOUR_PROP%molec_volume
-end if
   CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
 
 end subroutine READ_INPUT_DATA
@@ -660,8 +679,14 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
   END if
 
   ! In case user wants to start at later point, move clock, but only if the movement skips one filesave
-  if (start_time_s > GTIME%FSAVE_INTERVAL) GTIME = ADD(GTIME, start_time_s)
-
+  if (start_time_s > 0) THEN
+      GTIME = ADD(GTIME, start_time_s)
+      ! If starting time does not coincide perfectly with saving time, netcdf index needs to be one less
+      ! since the next time GTIME%savenow is true, the index is advanced by one anyway. Otherwise an empty
+      ! record would be created in output file
+      ! IF (MODULO(nint(start_time_s*100), NINT(GTIME%FSAVE_INTERVAL*100)) /= 0) GTIME%ind_netcdf = 0
+      ! GTIME%ind_netcdf = GTIME%ind_netcdf - 1
+  end if
 end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
 
 subroutine NAME_MODS_SORT_NAMED_INDICES
