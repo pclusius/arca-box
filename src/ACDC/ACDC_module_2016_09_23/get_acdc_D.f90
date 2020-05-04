@@ -31,7 +31,7 @@ use constants
 														! NB: nacid_acdc is type real (dp), as it is like this in UHMA
 
 	real(real_x), save :: c(neq)					! cluster concentrations
-	character(len=11), dimension(neq) :: c_names		! cluster and flux names
+	character(len=11), dimension(neq),save :: c_names		! cluster and flux names
 	integer, save :: n1base = 0, n1org = 0				! cluster numbers of base and organic molecules
 	integer, save :: nacid_out							! smallest number of acid molecules in the outgrown clusters
 	real(real_x) :: j_out(1)						! formation rate vector (for neu, neg and pos)
@@ -42,7 +42,8 @@ use constants
 	integer, save :: ipar(4)							! parameters for re-calling the monomer settings and rate constants
 	logical, save :: firstcall = .true.
 	integer :: n
-  character(100) :: buf
+    CHARACTER(100):: buf
+    CHARACTER(18):: output_buf(nclust)
 
 	! Initialize the rate constants etc. at every call
 	! because of the varying ambient conditions
@@ -99,15 +100,24 @@ use constants
 	diameter_acdc = diameter_max*1.d-9
 
 	!nacid_acdc = real(nacid_out,kind=real_x)
-  if (time%printnow .and. time%PRINTACDC) THEN
-    call cluster_names(c_names)
-    do n = 1,nclust
-      buf = TRIM(c_names(n)(:))//'/1A from DMA: '
-      print FMT30_CVU, TRIM(buf), c(n)/c(1), '[]'
-    end do
-    print FMT_LEND
-  end if
+  ! if (time%printnow .and. time%PRINTACDC) THEN
+  !   call cluster_names(c_names)
+  !   do n = 1,nclust
+  !     buf = TRIM(c_names(n)(:))//'/1A from DMA: '
+  !     print FMT30_CVU, TRIM(buf), c(n)/c(1), '[]'
+  !   end do
+  !   print FMT_LEND
+  ! end if
 
+  if (time%printnow.and.time%PRINTACDC) THEN
+      do n = 1,nclust
+        write(buf, '(es10.3)') c(n)*1d-6
+        write(output_buf(n), '(a6,": ",a10)') TRIM(c_names(n)),TRIM(buf)
+      end do
+      print *, '---- Cluster population from SA/DMA ----'
+      print'(5(a18," "))', output_buf
+      print FMT_LEND
+  end if
 
 end subroutine get_acdc_D
 

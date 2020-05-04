@@ -45,8 +45,8 @@ use constants
 	integer, save :: ipar(4)							! parameters for re-calling the monomer settings and rate constants
 	logical, save :: firstcall = .true.
 	integer :: n,cb(3)
-  CHARACTER(100):: buf
-  CHARACTER(18):: output_buf(nclust)
+    CHARACTER(100):: buf
+    CHARACTER(18):: output_buf(nclust)
 	! Initialize the rate constants etc. at every call
 	! because of the varying ambient conditions
 	ipar(1:3) = 0
@@ -114,7 +114,7 @@ use constants
         write(buf, '(es10.3)') c(n)*1d-6
         write(output_buf(n), '(a6,": ",a10)') TRIM(c_names(n)),TRIM(buf)
       end do
-      print *, '---- Cluster population ----'
+      print *, '---- Cluster population from SA/NH3 ----'
       print'(5(a18," "))', output_buf
       print FMT_LEND
     end if

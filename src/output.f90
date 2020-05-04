@@ -142,8 +142,8 @@ CONTAINS
       ! call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "time",NINT(GTIME%SIM_TIME_S/GTIME%FSAVE_INTERVAL+1), dtime_id) )
       call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "time",NF90_UNLIMITED, dtime_id) )
       IF (I==3) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "string",textdim, dstring_id) )
-      call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "bins",n_bins_particle, dbins_id) )
-      call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "condensables",vapours%vbs_bins, dcond_id) )
+      IF (I>1)  call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "bins",n_bins_particle, dbins_id) )
+      IF ((I == 3) .and. Aerosol_flag) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "condensables",vapours%vbs_bins, dcond_id) )
       call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "Constant",1, dconstant_id) )
 
       !Create attributes for general stuff
@@ -230,19 +230,20 @@ CONTAINS
 
 
   I=3 ! Particle file. Currently only condensibles are stored here. Particles are added when we get them.
-  do j = 1,size(savepar)
-
-    if (savepar(J)%d == 0) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dconstant_id  , savepar(J)%i) )
-    if (savepar(J)%d == 3) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dbins_id, dtime_id])  , savepar(J)%i) )
-    if (savepar(J)%d == 4) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dcond_id  , savepar(J)%i) )
-    if (savepar(J)%d == 5) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcond_id,dtime_id])  , savepar(J)%i) )
-    if (savepar(J)%d == 7) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcond_id,dbins_id,dtime_id])  , savepar(J)%i) )
-    if (savepar(J)%d == -12) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dstring_id,dcond_id])  , savepar(J)%i) )
-    call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), savepar(J)%i, shuff, compress, compression) )
-    call handler(__LINE__, nf90_put_att(ncfile_ids(I), savepar(J)%i, 'unit' , savepar(J)%u))
-  end do
-
   if (Aerosol_flag) THEN
+
+      do j = 1,size(savepar)
+
+        if (savepar(J)%d == 0) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dconstant_id  , savepar(J)%i) )
+        if (savepar(J)%d == 3) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dbins_id, dtime_id])  , savepar(J)%i) )
+        if (savepar(J)%d == 4) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dcond_id  , savepar(J)%i) )
+        if (savepar(J)%d == 5) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcond_id,dtime_id])  , savepar(J)%i) )
+        if (savepar(J)%d == 7) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dcond_id,dbins_id,dtime_id])  , savepar(J)%i) )
+        if (savepar(J)%d == -12) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dstring_id,dcond_id])  , savepar(J)%i) )
+        call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), savepar(J)%i, shuff, compress, compression) )
+        call handler(__LINE__, nf90_put_att(ncfile_ids(I), savepar(J)%i, 'unit' , savepar(J)%u))
+      end do
+
     do j = 1,size(vapours%vapour_names)
       k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
       if (k>0) THEN
