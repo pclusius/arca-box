@@ -13,14 +13,16 @@ For convenience, there is a client to set up and run the model, this is written 
 
 - netcdf4-python (optional, but highly recommended)
 
-To run the client, open therun.sh in text editor and change the path after "cd" in line 2 to the directory where this
-readme-file and makefile are located:
-
-for example, if this file is located in: ~/05-APCAD/supermodel-phase-1, change the line to
-
-cd ~/05-APCAD/supermodel-phase-1
-
-Run the client by executing thebox.sh
 
 You can (probably) install these with command: <python 3> -m pip install -U <module>, but this might vary from one
 Python installation to another. Also using Python VIRTUALENV is advisable.
+
+TO USE THE CLIENT:
+After the python modules are working, to setup the client, open therun.sh in text editor and change the path after "cd"
+in line 2 to the directory where this readme-file and makefile are located.
+
+For example, if this file is located in: "~/models/thebox", change the line to
+
+cd ~/models/thebox
+
+Run the client by executing thebox.sh
