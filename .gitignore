@@ -5,3 +5,4 @@
 *.nc
 *.dump
 __pycache__
+INOUT/*
