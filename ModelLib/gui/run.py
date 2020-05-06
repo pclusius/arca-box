@@ -1089,11 +1089,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             hm.setLookupTable(lut)
         except:
             pass
-        # if self.diam != []:
-        #     if diam
-
-
-        #
         hm.setLevels(levels)
         window.setMenuEnabled(False)
         window.addItem(hm)
@@ -1105,19 +1100,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.pauseScroll.setChecked(False)
 
         currentWait = self.wait_for.value()
-        # if self.python.isChecked():
-        #     currentPython = True
-        #     self.python.setChecked(False)
-        # else:
-        #     currentPython = False
         self.wait_for.setValue(0)
         self.print_values(tempfile)
-        # self.python.setChecked(currentPython)
         self.wait_for.setValue(currentWait)
 
         try:
-            # tmpfile = Popen(['tee', 'process_diary.txt'], stdin=PIPE, stdout=None).stdin
-            # self.boxProcess = Popen(["./superbox.exe", " input/test"], stdout=tmpfile,stdin=PIPE)
             self.boxProcess = Popen(["./"+exe_name, "%s"%tempfile, '--gui'], stdout=PIPE,stderr=STDOUT,stdin=None)
             self.MonitorWindow.clear()
             self.Timer.start(10)
