@@ -16,7 +16,7 @@ from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,ndarray,where
 import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod
-from os.path import exists
+from os.path import exists, dirname
 from re import sub,IGNORECASE
 import time
 
@@ -80,6 +80,10 @@ GUIName = "HLS BOX 0.3"
 NAMES = []
 namesPyInds = {}
 namesFoInds = {}
+
+## Some messages
+netcdfMissinnMes = ('Please note:',
+'To open NetCDF-files you need netCDF4 for Python\nYou can istall it with pip, package manager or similar.')
 
 ## get current directory (to render relative paths) ----------
 guidir = '/ModelLib/gui'
@@ -346,25 +350,22 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
         if netcdf:
             self.show_netcdf.hide()
-            self.show_netcdf_2.hide()
             self.fLog_2.clicked.connect(self.showOutputUpdate)
             self.fLin_2.clicked.connect(self.showOutputUpdate)
             self.findComp.textChanged.connect(self.filterListOfComp)
             self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
-            self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF (*.nc)"))
+            self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=0))
         else:
             self.sumSelection.setEnabled(False)
             self.show_netcdf.show()
             self.fLin_2.setEnabled(False)
             self.fLog_2.setEnabled(False)
             self.findComp.setEnabled(False)
-            netcdfMissinnMes = ('Please note:',
-            'To open NetCDF-files you need netCDF4 for Python\nYou can istall it with pip, package manager or similar.')
             self.loadNetcdf.clicked.connect(lambda: self.popup(*netcdfMissinnMes))
-            self.loadNetcdfPar.clicked.connect(lambda: self.popup(*netcdfMissinnMes))
+            self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=0))
 
 
-        self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="Sumfile (*.sum *.dat)"))
+        self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=1))
         self.plotResultWindow.setMenuEnabled(False)
         self.plotResultWindow.showGrid(x=True,y=True)
         self.plotResultWindow.setBackground('w')
@@ -372,7 +373,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.plotResultWindow.getAxis('left').setPen(pen)
         self.plotResultWindow.getAxis('bottom').setPen(pen)
         self.sumSelection.stateChanged.connect(self.selectionMode)
-        self.loadCurrentBg.clicked.connect(lambda: self.showParOutput('load current'))
+        self.loadCurrentBg.clicked.connect(lambda: self.showParOutput('load current',1))
         self.oneDayFwd.clicked.connect(lambda: self.moveOneDay(1))
         self.oneDayBack.clicked.connect(lambda: self.moveOneDay(-1))
     # -----------------------
@@ -392,7 +393,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         day = self.dateEdit.date()
         day=day.addDays(days)
         self.dateEdit.setDate(day)
-        self.showParOutput('load current')
+        self.showParOutput('load current',1)
 
     def show_currentInit(self,file):
         self.saveCurrentButton.setEnabled(True)
@@ -502,7 +503,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         for date,file in zip(dates,files_to_create):
             self.index_for_parser = date
             if self.createBashFile.isChecked():
-                bf.write('./'+exe_name+' '+file+'\n')
+                bf.write('./'+exe_name+' '+file+' |tee '+dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME+'/runReport.txt'+'\n' )
             if self.batchRangeDay.isChecked():
                 nml.TIME.DATE='%s'%(date)
                 nml.TIME.INDEX=''
@@ -721,7 +722,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.popup('Created directories', created, icon=1)
         return
 
-    def browse_path(self, target, mode, ftype=None):
+    def browse_path(self, target, mode, ftype=None, plWind=0):
         """Browse for file or folder (depending on 'mode' and write the outcome to 'target')"""
         dialog = QtWidgets.QFileDialog()
         if ftype != None:
@@ -754,7 +755,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             elif mode == 'plot':
                 self.showOutput(path)
             elif mode == 'plotPar':
-                self.showParOutput(path)
+                self.showParOutput(path,plWind)
             elif mode == 'dironly':
                 path = path[path.rfind('/')+1:]
                 target.clear()
@@ -1027,25 +1028,35 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         else:
             self.popup('Oops','Output directories do not exist.\nYou can create them from File->Create output directories')
 
-    def showParOutput(self, file):
-        window = self.surfacePlotWindow_1
-        windowInd = 1
-        levels=(self.lowlev.value(),self.highlev.value())
-        if '.nc' in file[-4:]:
-            windowInd = 0
+    def showParOutput(self, file, windowInd):
+        if windowInd == 0:
             window = self.surfacePlotWindow_0
-            self.parPlotTitle_0.setText(file)
-            self.lowlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_0))
-            self.highlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_0))
-        elif '.sum' in file or  '.dat' in file or file == 'load current':
-            self.lowlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
-            self.highlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
-            if file == 'load current':
-                file = self.pars(self.dmps_file.text(), file=self.indir, stripRoot=self.stripRoot_par.isChecked())
-                if not exists(file):
-                    self.popup('','File not found', icon=2)
-                    return
-            self.parPlotTitle_1.setText(file)
+            titleLoc = self.parPlotTitle_0
+        if windowInd == 1:
+            window = self.surfacePlotWindow_1
+            titleLoc = self.parPlotTitle_1
+        # window = self.surfacePlotWindow_1
+        # windowInd = 1
+        levels=(self.lowlev.value(),self.highlev.value())
+        self.lowlev.valueChanged.connect(lambda: self.drawSurf(window))
+        self.highlev.valueChanged.connect(lambda: self.drawSurf(window))
+        if '.nc' in file[-4:] and not netcdf:
+            self.popup(*netcdfMissinnMes)
+            return
+
+            # windowInd = 0
+            # window = self.surfacePlotWindow_0
+            # self.parPlotTitle_0.setText(file)
+        # elif '.sum' in file or  '.dat' in file or file == 'load current':
+            # self.lowlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
+            # self.highlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
+        if file == 'load current':
+            file = self.pars(self.dmps_file.text(), file=self.indir, stripRoot=self.stripRoot_par.isChecked())
+            if not exists(file):
+                self.popup('','File not found', icon=2)
+                return
+            # self.parPlotTitle_1.setText(file)
+        titleLoc.setText(file)
 
 
         window.clear()
@@ -1071,7 +1082,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         try:
             # If matplotlib is installed, we get colours
             from matplotlib import cm
-            colormap = cm.get_cmap("viridis")  # cm.get_cmap("CMRmap")
+            colormap = cm.get_cmap("jet")  # cm.get_cmap("CMRmap")
             colormap._init()
             lut = (colormap._lut * 255).view(ndarray)  # Convert matplotlib colormap from 0-1 to 0 -255 for Qt
             # Apply the colormap

@@ -1,0 +1,999 @@
+
+                                 --~:| HLS BOX v.0.3 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: INOUT/HYDE/PC_2018-04-26/input/PC_2018-04-26_A1.conf....+
+| Date: 2018-04-26 -> Julian Day: 116                                                              |
+| ENV values from INOUT/HYDE/PC_2018-04-26/input/env180426.dat:                                    |
+|   :........TEMPK will be read from column: 2                                                     |
+|   :........PRESSURE will be read from column: 3                                                  |
+|   :........REL_HUMIDITY will be read from column: 4                                              |
+|   :........CONDENS_SINK will be read from column: 9                                              |
+|   :........SW_RADIATION will be read from column: 5                                              |
+|   :........H2SO4 will be read from column: 7                                                     |
+|   :........NH3 will be read from column: 8                                                       |
+|   :........SO2 will be read from column: 14                                                      |
+|   :........NO will be read from column: 12                                                       |
+|   :........NO2 will be read from column: 11                                                      |
+|   :........CO will be read from column: 10                                                       |
+|   :........O3 will be read from column: 13                                                       |
+| MCM values from INOUT/HYDE/PC_2018-04-26/input/voc180426.dat:                                    |
+|   :........CH3OH will be read from column: 2                                                     |
+|   :........C2H5OH will be read from column: 5                                                    |
+|   :........CH3CHO will be read from column: 4                                                    |
+|   :........BENZENE will be read from column: 11                                                  |
+|   :........TOLUENE will be read from column: 14                                                  |
+|   :........C5H8 will be read from column: 8                                                      |
+|   :........CH3COCH3 will be read from column: 6                                                  |
+|   :........MEK will be read from column: 10                                                      |
+|   :........APINENE will be read from column: 15                                                  |
+|   :........BPINENE will be read from column: 15                                                  |
+|   :........LIMONENE will be read from column: 15                                                 |
+|   :........CH3CO2H will be read from column: 7                                                   |
+|   :........CARENE will be read from column: 15                                                   |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "INOUT/HYDE/PC_2018-04-26/input/env180426.dat".           |
+|   :........Done filling input matrices...                                                        |
+| Filling input matrices...                                                                        |
+|   :........Done filling input matrices...                                                        |
+| Reading DMPS files INOUT/filled_dmps/dm180426.sum                                                |
++..................................................................................................+
+| Reading Vapour name file ModelLib/Vapour_names.dat                                               |
+| Reading Vapour prop file ModelLib/Vapour_properties.dat                                          |
+|   :........Vapours available = 837                                                               |
+|   :........Vapour bins + H2SO4 = 838                                                             |
+| Reading O_C file ModelLib/O_C.dat                                                                |
++.Checking input validity..........................................................................+
+| - Converting temperature from degrees C -> K.                                                    |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Converting NH3 from ppt                                                                        |
+| - Converting DMA from ppq                                                                        |
+| - Converting SO2 from ppb                                                                        |
+| - Converting NO2 from ppb                                                                        |
+| - Converting CO from ppb                                                                         |
+| - Converting O3 from ppb                                                                         |
+| - Converting CH3OH from ppb                                                                      |
+| - Converting C2H5OH from ppb                                                                     |
+| - Converting HCHO from ppt                                                                       |
+| - Converting CH3CHO from ppb                                                                     |
+| - Converting CH4 from ppm                                                                        |
+| - Converting BENZENE from ppb                                                                    |
+| - Converting TOLUENE from ppb                                                                    |
+| - Converting C5H8 from ppb                                                                       |
+| - Converting CH3COCH3 from ppb                                                                   |
+| - Converting MEK from ppb                                                                        |
+| - Converting APINENE from ppb                                                                    |
+| - Converting BPINENE from ppb                                                                    |
+| - Converting LIMONENE from ppb                                                                   |
+| - Converting CH3CO2H from ppb                                                                    |
+| - Converting CARENE from ppb                                                                     |
+| - Adding a constant to ION_PROD_RATE, [in #/cm3]: 3.000E+00                                      |
+| - Multiplying DMA with: 0.000E+00                                                                |
+| - Adding a constant to HCHO, [in ppt]: 4.000E-01                                                 |
+| - Adding a constant to CH4, [in ppm]: 1.950E+00                                                  |
+| - Multiplying APINENE with: 5.100E-01                                                            |
+| - Multiplying BPINENE with: 1.200E-01                                                            |
+| - Multiplying LIMONENE with: 9.000E-02                                                           |
+| - Multiplying CARENE with: 2.800E-01                                                             |
++..................................................................................................+
++.Checking against KPP for chemicals...............................................................+
+| Found H2SO4 from chemistry                                                                       |
+| WARNING: A compound which does not exist in chemistry but could be used elsewhere: NH3 ~~~~~~~~~~+
+|   :........In INITFILE; &NML_MODS (col) <- input from file.                                      |
+| Found SO2 from chemistry                                                                         |
+| Found NO from chemistry                                                                          |
+| Found NO2 from chemistry                                                                         |
+| Found CO from chemistry                                                                          |
+| Found O3 from chemistry                                                                          |
+| Found CH3OH from chemistry                                                                       |
+| Found C2H5OH from chemistry                                                                      |
+| Found HCHO from chemistry                                                                        |
+| Found CH3CHO from chemistry                                                                      |
+| Found CH4 from chemistry                                                                         |
+| Found BENZENE from chemistry                                                                     |
+| Found TOLUENE from chemistry                                                                     |
+| Found C5H8 from chemistry                                                                        |
+| Found CH3COCH3 from chemistry                                                                    |
+| Found MEK from chemistry                                                                         |
+| Found APINENE from chemistry                                                                     |
+| Found BPINENE from chemistry                                                                     |
+| Found LIMONENE from chemistry                                                                    |
+| Found CH3CO2H from chemistry                                                                     |
+| Found CARENE from chemistry                                                                      |
++..................................................................................................+
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     Same as dMalte runs but no coagulation to save time                                          |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: INOUT/HYDE/PC_2018-04-26/A1                                          |
++..................................................................................................+
+ 
++.Beginning simulation.............................................................................+
+
++.Time: 00:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+|   :........Reading in background particles                                                       |
+| CS SA:     6.041E-21 [/s]                                                                        |
+| ACID C:    3.840E+04 [1/cm3]    sum(An)/A1 4.360E-04 []                                          |
+| Temp:      2.769E+02 [K]        Pressure:  9.739E+04 [Pa]     Air_conc 2.548E+19 [1/cm3]         |
+| NH3 C:     5.095E+07 [1/cm3]    J_NH3: 1.150E-12 [1/cm3]      sum(Nn)/N1 1.630E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.150E-12 [1/cm3]          |
+| Jion neutr 2.578E-13 [1/s/cm3]  Jion neg: 4.187E-14 [1/s/cm3] Jion pos: 8.502E-13 [1/s/cm3]      |
+| C-sink:    5.556E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
++..................................................................................................+
+
++.Time: 00:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+|   :........Reading in background particles                                                       |
+| CS SA:     2.832E-03 [/s]                                                                        |
+| ACID C:    4.219E+04 [1/cm3]    sum(An)/A1 4.840E-04 []                                          |
+| Temp:      2.768E+02 [K]        Pressure:  9.739E+04 [Pa]     Air_conc 2.548E+19 [1/cm3]         |
+| NH3 C:     8.624E+07 [1/cm3]    J_NH3: 3.285E-12 [1/cm3]      sum(Nn)/N1 1.073E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 3.285E-12 [1/cm3]          |
+| Jion neutr 8.458E-13 [1/s/cm3]  Jion neg: 1.023E-13 [1/s/cm3] Jion pos: 2.337E-12 [1/s/cm3]      |
+| C-sink:    5.174E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:02 Est. time to finish (m:s) 3:10        Realtime/Modeltime: 447.04         |
++..................................................................................................+
+
++.Time: 00:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+|   :........Reading in background particles                                                       |
+| CS SA:     2.837E-03 [/s]                                                                        |
+| ACID C:    4.246E+04 [1/cm3]    sum(An)/A1 5.341E-04 []                                          |
+| Temp:      2.765E+02 [K]        Pressure:  9.739E+04 [Pa]     Air_conc 2.551E+19 [1/cm3]         |
+| NH3 C:     5.102E+07 [1/cm3]    J_NH3: 5.480E-12 [1/cm3]      sum(Nn)/N1 1.824E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 5.480E-12 [1/cm3]          |
+| Jion neutr 1.526E-12 [1/s/cm3]  Jion neg: 1.892E-13 [1/s/cm3] Jion pos: 3.765E-12 [1/s/cm3]      |
+| C-sink:    4.943E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:05 Est. time to finish (m:s) 3:06        Realtime/Modeltime: 449.80         |
++..................................................................................................+
+
++.Time: 01:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.851E-03 [/s]                                                                        |
+| ACID C:    3.920E+04 [1/cm3]    sum(An)/A1 5.480E-04 []                                          |
+| Temp:      2.761E+02 [K]        Pressure:  9.741E+04 [Pa]     Air_conc 2.556E+19 [1/cm3]         |
+| NH3 C:     5.171E+07 [1/cm3]    J_NH3: 4.322E-12 [1/cm3]      sum(Nn)/N1 1.815E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 4.322E-12 [1/cm3]          |
+| Jion neutr 1.073E-12 [1/s/cm3]  Jion neg: 1.541E-13 [1/s/cm3] Jion pos: 3.094E-12 [1/s/cm3]      |
+| C-sink:    4.872E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:07 Est. time to finish (m:s) 2:58        Realtime/Modeltime: 464.06         |
++..................................................................................................+
+
++.Time: 01:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.864E-03 [/s]                                                                        |
+| ACID C:    2.576E+04 [1/cm3]    sum(An)/A1 6.261E-04 []                                          |
+| Temp:      2.755E+02 [K]        Pressure:  9.740E+04 [Pa]     Air_conc 2.560E+19 [1/cm3]         |
+| NH3 C:     5.209E+07 [1/cm3]    J_NH3: 1.838E-12 [1/cm3]      sum(Nn)/N1 1.867E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.838E-12 [1/cm3]          |
+| Jion neutr 4.549E-13 [1/s/cm3]  Jion neg: 5.563E-14 [1/s/cm3] Jion pos: 1.327E-12 [1/s/cm3]      |
+| C-sink:    4.656E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:10 Est. time to finish (m:s) 3:01        Realtime/Modeltime: 450.50         |
++..................................................................................................+
+
++.Time: 01:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.878E-03 [/s]                                                                        |
+| ACID C:    2.817E+04 [1/cm3]    sum(An)/A1 5.571E-04 []                                          |
+| Temp:      2.752E+02 [K]        Pressure:  9.740E+04 [Pa]     Air_conc 2.564E+19 [1/cm3]         |
+| NH3 C:     5.394E+07 [1/cm3]    J_NH3: 7.553E-13 [1/cm3]      sum(Nn)/N1 1.877E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 7.553E-13 [1/cm3]          |
+| Jion neutr 2.069E-13 [1/s/cm3]  Jion neg: 1.851E-14 [1/s/cm3] Jion pos: 5.299E-13 [1/s/cm3]      |
+| C-sink:    4.485E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:13 Est. time to finish (m:s) 3:05        Realtime/Modeltime: 433.88         |
++..................................................................................................+
+
++.Time: 02:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.892E-03 [/s]                                                                        |
+| ACID C:    4.642E+04 [1/cm3]    sum(An)/A1 6.006E-04 []                                          |
+| Temp:      2.751E+02 [K]        Pressure:  9.739E+04 [Pa]     Air_conc 2.565E+19 [1/cm3]         |
+| NH3 C:     5.129E+07 [1/cm3]    J_NH3: 6.655E-12 [1/cm3]      sum(Nn)/N1 2.013E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 6.655E-12 [1/cm3]          |
+| Jion neutr 1.072E-12 [1/s/cm3]  Jion neg: 2.007E-13 [1/s/cm3] Jion pos: 5.382E-12 [1/s/cm3]      |
+| C-sink:    4.361E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:17 Est. time to finish (m:s) 3:11        Realtime/Modeltime: 413.17         |
++..................................................................................................+
+
++.Time: 02:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.905E-03 [/s]                                                                        |
+| ACID C:    2.546E+04 [1/cm3]    sum(An)/A1 7.641E-04 []                                          |
+| Temp:      2.749E+02 [K]        Pressure:  9.739E+04 [Pa]     Air_conc 2.566E+19 [1/cm3]         |
+| NH3 C:     1.173E+08 [1/cm3]    J_NH3: 7.800E-12 [1/cm3]      sum(Nn)/N1 9.279E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 7.800E-12 [1/cm3]          |
+| Jion neutr 1.979E-12 [1/s/cm3]  Jion neg: 2.051E-13 [1/s/cm3] Jion pos: 5.616E-12 [1/s/cm3]      |
+| C-sink:    4.385E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:20 Est. time to finish (m:s) 3:06        Realtime/Modeltime: 417.78         |
++..................................................................................................+
+
++.Time: 02:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.918E-03 [/s]                                                                        |
+| ACID C:    1.871E+04 [1/cm3]    sum(An)/A1 6.502E-04 []                                          |
+| Temp:      2.746E+02 [K]        Pressure:  9.737E+04 [Pa]     Air_conc 2.568E+19 [1/cm3]         |
+| NH3 C:     2.091E+08 [1/cm3]    J_NH3: 1.310E-12 [1/cm3]      sum(Nn)/N1 5.300E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.310E-12 [1/cm3]          |
+| Jion neutr 5.272E-13 [1/s/cm3]  Jion neg: 2.470E-14 [1/s/cm3] Jion pos: 7.578E-13 [1/s/cm3]      |
+| C-sink:    4.380E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:23 Est. time to finish (m:s) 3:04        Realtime/Modeltime: 415.91         |
++..................................................................................................+
+
++.Time: 03:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.929E-03 [/s]                                                                        |
+| ACID C:    2.614E+04 [1/cm3]    sum(An)/A1 6.296E-04 []                                          |
+| Temp:      2.743E+02 [K]        Pressure:  9.738E+04 [Pa]     Air_conc 2.571E+19 [1/cm3]         |
+| NH3 C:     5.143E+07 [1/cm3]    J_NH3: 1.016E-12 [1/cm3]      sum(Nn)/N1 2.025E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.016E-12 [1/cm3]          |
+| Jion neutr 2.768E-13 [1/s/cm3]  Jion neg: 1.890E-14 [1/s/cm3] Jion pos: 7.206E-13 [1/s/cm3]      |
+| C-sink:    4.346E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:25 Est. time to finish (m:s) 3:01        Realtime/Modeltime: 415.77         |
++..................................................................................................+
+
++.Time: 03:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.940E-03 [/s]                                                                        |
+| ACID C:    1.702E+04 [1/cm3]    sum(An)/A1 7.383E-04 []                                          |
+| Temp:      2.740E+02 [K]        Pressure:  9.739E+04 [Pa]     Air_conc 2.574E+19 [1/cm3]         |
+| NH3 C:     7.110E+07 [1/cm3]    J_NH3: 7.290E-13 [1/cm3]      sum(Nn)/N1 1.502E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 7.290E-13 [1/cm3]          |
+| Jion neutr 1.484E-13 [1/s/cm3]  Jion neg: 1.312E-14 [1/s/cm3] Jion pos: 5.675E-13 [1/s/cm3]      |
+| C-sink:    4.330E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:28 Est. time to finish (m:s) 2:57        Realtime/Modeltime: 419.19         |
++..................................................................................................+
+
++.Time: 03:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.951E-03 [/s]                                                                        |
+| ACID C:    2.563E+04 [1/cm3]    sum(An)/A1 5.024E-04 []                                          |
+| Temp:      2.737E+02 [K]        Pressure:  9.740E+04 [Pa]     Air_conc 2.577E+19 [1/cm3]         |
+| NH3 C:     5.154E+07 [1/cm3]    J_NH3: 3.095E-13 [1/cm3]      sum(Nn)/N1 1.862E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 3.095E-13 [1/cm3]          |
+| Jion neutr 8.277E-14 [1/s/cm3]  Jion neg: 5.911E-15 [1/s/cm3] Jion pos: 2.208E-13 [1/s/cm3]      |
+| C-sink:    4.926E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:31 Est. time to finish (m:s) 2:53        Realtime/Modeltime: 422.06         |
++..................................................................................................+
+
++.Time: 04:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.961E-03 [/s]                                                                        |
+| ACID C:    5.198E+04 [1/cm3]    sum(An)/A1 4.351E-04 []                                          |
+| Temp:      2.734E+02 [K]        Pressure:  9.738E+04 [Pa]     Air_conc 2.580E+19 [1/cm3]         |
+| NH3 C:     2.591E+08 [1/cm3]    J_NH3: 2.035E-11 [1/cm3]      sum(Nn)/N1 3.320E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 2.035E-11 [1/cm3]          |
+| Jion neutr 4.212E-12 [1/s/cm3]  Jion neg: 8.211E-13 [1/s/cm3] Jion pos: 1.531E-11 [1/s/cm3]      |
+| C-sink:    6.165E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:34 Est. time to finish (m:s) 2:50        Realtime/Modeltime: 421.92         |
++..................................................................................................+
+
++.Time: 04:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.972E-03 [/s]                                                                        |
+| ACID C:    3.667E+04 [1/cm3]    sum(An)/A1 5.580E-04 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  9.740E+04 [Pa]     Air_conc 2.583E+19 [1/cm3]         |
+| NH3 C:     2.336E+08 [1/cm3]    J_NH3: 2.395E-11 [1/cm3]      sum(Nn)/N1 4.046E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 2.395E-11 [1/cm3]          |
+| Jion neutr 7.763E-12 [1/s/cm3]  Jion neg: 8.278E-13 [1/s/cm3] Jion pos: 1.536E-11 [1/s/cm3]      |
+| C-sink:    5.274E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:37 Est. time to finish (m:s) 2:48        Realtime/Modeltime: 420.15         |
++..................................................................................................+
+
++.Time: 04:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.983E-03 [/s]                                                                        |
+| ACID C:    2.486E+04 [1/cm3]    sum(An)/A1 6.613E-04 []                                          |
+| Temp:      2.728E+02 [K]        Pressure:  9.740E+04 [Pa]     Air_conc 2.586E+19 [1/cm3]         |
+| NH3 C:     1.890E+08 [1/cm3]    J_NH3: 9.151E-12 [1/cm3]      sum(Nn)/N1 5.471E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 9.151E-12 [1/cm3]          |
+| Jion neutr 3.457E-12 [1/s/cm3]  Jion neg: 2.349E-13 [1/s/cm3] Jion pos: 5.459E-12 [1/s/cm3]      |
+| C-sink:    4.790E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:39 Est. time to finish (m:s) 2:45        Realtime/Modeltime: 421.57         |
++..................................................................................................+
+
++.Time: 05:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     2.994E-03 [/s]                                                                        |
+| ACID C:    1.655E+04 [1/cm3]    sum(An)/A1 6.688E-04 []                                          |
+| Temp:      2.728E+02 [K]        Pressure:  9.739E+04 [Pa]     Air_conc 2.586E+19 [1/cm3]         |
+| NH3 C:     1.810E+08 [1/cm3]    J_NH3: 1.673E-12 [1/cm3]      sum(Nn)/N1 5.657E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.673E-12 [1/cm3]          |
+| Jion neutr 6.724E-13 [1/s/cm3]  Jion neg: 2.942E-14 [1/s/cm3] Jion pos: 9.716E-13 [1/s/cm3]      |
+| C-sink:    4.831E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:42 Est. time to finish (m:s) 2:42        Realtime/Modeltime: 420.42         |
++..................................................................................................+
+
++.Time: 05:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.007E-03 [/s]                                                                        |
+| ACID C:    2.920E+04 [1/cm3]    sum(An)/A1 5.731E-04 []                                          |
+| Temp:      2.729E+02 [K]        Pressure:  9.739E+04 [Pa]     Air_conc 2.585E+19 [1/cm3]         |
+| NH3 C:     8.482E+07 [1/cm3]    J_NH3: 1.873E-12 [1/cm3]      sum(Nn)/N1 1.197E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.873E-12 [1/cm3]          |
+| Jion neutr 5.279E-13 [1/s/cm3]  Jion neg: 3.982E-14 [1/s/cm3] Jion pos: 1.305E-12 [1/s/cm3]      |
+| C-sink:    4.685E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:45 Est. time to finish (m:s) 2:39        Realtime/Modeltime: 420.02         |
++..................................................................................................+
+
++.Time: 05:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.021E-03 [/s]                                                                        |
+| ACID C:    4.082E+04 [1/cm3]    sum(An)/A1 6.218E-04 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  9.739E+04 [Pa]     Air_conc 2.583E+19 [1/cm3]         |
+| NH3 C:     9.412E+07 [1/cm3]    J_NH3: 1.384E-11 [1/cm3]      sum(Nn)/N1 1.117E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.384E-11 [1/cm3]          |
+| Jion neutr 3.840E-12 [1/s/cm3]  Jion neg: 3.947E-13 [1/s/cm3] Jion pos: 9.610E-12 [1/s/cm3]      |
+| C-sink:    4.534E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:48 Est. time to finish (m:s) 2:36        Realtime/Modeltime: 420.44         |
++..................................................................................................+
+
++.Time: 06:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.034E-03 [/s]                                                                        |
+| ACID C:    5.142E+04 [1/cm3]    sum(An)/A1 6.772E-04 []                                          |
+| Temp:      2.730E+02 [K]        Pressure:  9.741E+04 [Pa]     Air_conc 2.584E+19 [1/cm3]         |
+| NH3 C:     1.591E+08 [1/cm3]    J_NH3: 8.937E-11 [1/cm3]      sum(Nn)/N1 6.960E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 8.937E-11 [1/cm3]          |
+| Jion neutr 3.011E-11 [1/s/cm3]  Jion neg: 2.925E-12 [1/s/cm3] Jion pos: 5.634E-11 [1/s/cm3]      |
+| C-sink:    4.380E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:51 Est. time to finish (m:s) 2:33        Realtime/Modeltime: 421.18         |
++..................................................................................................+
+
++.Time: 06:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.047E-03 [/s]                                                                        |
+| ACID C:    6.565E+04 [1/cm3]    sum(An)/A1 7.083E-04 []                                          |
+| Temp:      2.732E+02 [K]        Pressure:  9.742E+04 [Pa]     Air_conc 2.583E+19 [1/cm3]         |
+| NH3 C:     1.409E+08 [1/cm3]    J_NH3: 3.515E-10 [1/cm3]      sum(Nn)/N1 8.070E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 3.515E-10 [1/cm3]          |
+| Jion neutr 1.429E-10 [1/s/cm3]  Jion neg: 1.253E-11 [1/s/cm3] Jion pos: 1.961E-10 [1/s/cm3]      |
+| C-sink:    4.233E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:54 Est. time to finish (m:s) 2:30        Realtime/Modeltime: 421.93         |
++..................................................................................................+
+
++.Time: 06:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.063E-03 [/s]                                                                        |
+| ACID C:    1.240E+05 [1/cm3]    sum(An)/A1 6.369E-04 []                                          |
+| Temp:      2.737E+02 [K]        Pressure:  9.743E+04 [Pa]     Air_conc 2.578E+19 [1/cm3]         |
+| NH3 C:     1.129E+08 [1/cm3]    J_NH3: 1.911E-09 [1/cm3]      sum(Nn)/N1 1.011E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.911E-09 [1/cm3]          |
+| Jion neutr 8.130E-10 [1/s/cm3]  Jion neg: 9.122E-11 [1/s/cm3] Jion pos: 1.007E-09 [1/s/cm3]      |
+| C-sink:    4.233E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:57 Est. time to finish (m:s) 2:28        Realtime/Modeltime: 420.27         |
++..................................................................................................+
+
++.Time: 07:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.080E-03 [/s]                                                                        |
+| ACID C:    2.266E+05 [1/cm3]    sum(An)/A1 6.719E-04 []                                          |
+| Temp:      2.741E+02 [K]        Pressure:  9.742E+04 [Pa]     Air_conc 2.574E+19 [1/cm3]         |
+| NH3 C:     1.034E+08 [1/cm3]    J_NH3: 7.053E-08 [1/cm3]      sum(Nn)/N1 1.102E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 7.053E-08 [1/cm3]          |
+| Jion neutr 4.185E-08 [1/s/cm3]  Jion neg: 4.390E-09 [1/s/cm3] Jion pos: 2.429E-08 [1/s/cm3]      |
+| C-sink:    4.386E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:59 Est. time to finish (m:s) 2:25        Realtime/Modeltime: 420.28         |
++..................................................................................................+
+
++.Time: 07:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.096E-03 [/s]                                                                        |
+| ACID C:    2.852E+05 [1/cm3]    sum(An)/A1 8.028E-04 []                                          |
+| Temp:      2.745E+02 [K]        Pressure:  9.744E+04 [Pa]     Air_conc 2.571E+19 [1/cm3]         |
+| NH3 C:     1.246E+08 [1/cm3]    J_NH3: 5.157E-07 [1/cm3]      sum(Nn)/N1 1.006E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 5.157E-07 [1/cm3]          |
+| Jion neutr 3.467E-07 [1/s/cm3]  Jion neg: 3.172E-08 [1/s/cm3] Jion pos: 1.373E-07 [1/s/cm3]      |
+| C-sink:    3.937E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:03 Est. time to finish (m:s) 2:23        Realtime/Modeltime: 417.99         |
++..................................................................................................+
+
++.Time: 07:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.112E-03 [/s]                                                                        |
+| ACID C:    4.062E+05 [1/cm3]    sum(An)/A1 8.872E-04 []                                          |
+| Temp:      2.752E+02 [K]        Pressure:  9.745E+04 [Pa]     Air_conc 2.564E+19 [1/cm3]         |
+| NH3 C:     1.224E+08 [1/cm3]    J_NH3: 3.290E-06 [1/cm3]      sum(Nn)/N1 1.138E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 3.290E-06 [1/cm3]          |
+| Jion neutr 2.437E-06 [1/s/cm3]  Jion neg: 1.929E-07 [1/s/cm3] Jion pos: 6.605E-07 [1/s/cm3]      |
+| C-sink:    3.606E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:06 Est. time to finish (m:s) 2:20        Realtime/Modeltime: 418.06         |
++..................................................................................................+
+
++.Time: 08:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.134E-03 [/s]                                                                        |
+| ACID C:    5.897E+05 [1/cm3]    sum(An)/A1 1.004E-03 []                                          |
+| Temp:      2.760E+02 [K]        Pressure:  9.745E+04 [Pa]     Air_conc 2.558E+19 [1/cm3]         |
+| NH3 C:     8.463E+07 [1/cm3]    J_NH3: 2.392E-05 [1/cm3]      sum(Nn)/N1 1.810E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 2.392E-05 [1/cm3]          |
+| Jion neutr 1.912E-05 [1/s/cm3]  Jion neg: 1.391E-06 [1/s/cm3] Jion pos: 3.399E-06 [1/s/cm3]      |
+| C-sink:    3.387E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:08 Est. time to finish (m:s) 2:17        Realtime/Modeltime: 417.93         |
++..................................................................................................+
+
++.Time: 08:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.154E-03 [/s]                                                                        |
+| ACID C:    5.795E+05 [1/cm3]    sum(An)/A1 1.237E-03 []                                          |
+| Temp:      2.768E+02 [K]        Pressure:  9.746E+04 [Pa]     Air_conc 2.551E+19 [1/cm3]         |
+| NH3 C:     1.701E+08 [1/cm3]    J_NH3: 4.889E-05 [1/cm3]      sum(Nn)/N1 1.004E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 4.889E-05 [1/cm3]          |
+| Jion neutr 3.888E-05 [1/s/cm3]  Jion neg: 2.971E-06 [1/s/cm3] Jion pos: 7.034E-06 [1/s/cm3]      |
+| C-sink:    3.063E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:11 Est. time to finish (m:s) 2:14        Realtime/Modeltime: 418.12         |
++..................................................................................................+
+
++.Time: 08:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.171E-03 [/s]                                                                        |
+| ACID C:    7.219E+05 [1/cm3]    sum(An)/A1 1.236E-03 []                                          |
+| Temp:      2.769E+02 [K]        Pressure:  9.748E+04 [Pa]     Air_conc 2.550E+19 [1/cm3]         |
+| NH3 C:     9.379E+07 [1/cm3]    J_NH3: 1.183E-04 [1/cm3]      sum(Nn)/N1 1.940E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.183E-04 [1/cm3]          |
+| Jion neutr 1.002E-04 [1/s/cm3]  Jion neg: 5.803E-06 [1/s/cm3] Jion pos: 1.223E-05 [1/s/cm3]      |
+| C-sink:    2.910E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:14 Est. time to finish (m:s) 2:12        Realtime/Modeltime: 417.64         |
++..................................................................................................+
+
++.Time: 09:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.187E-03 [/s]                                                                        |
+| ACID C:    1.017E+06 [1/cm3]    sum(An)/A1 1.285E-03 []                                          |
+| Temp:      2.773E+02 [K]        Pressure:  9.748E+04 [Pa]     Air_conc 2.546E+19 [1/cm3]         |
+| NH3 C:     1.378E+08 [1/cm3]    J_NH3: 5.370E-04 [1/cm3]      sum(Nn)/N1 1.488E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 5.370E-04 [1/cm3]          |
+| Jion neutr 4.670E-04 [1/s/cm3]  Jion neg: 2.616E-05 [1/s/cm3] Jion pos: 4.381E-05 [1/s/cm3]      |
+| C-sink:    2.921E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:17 Est. time to finish (m:s) 2:09        Realtime/Modeltime: 417.17         |
++..................................................................................................+
+
++.Time: 09:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.207E-03 [/s]                                                                        |
+| ACID C:    1.092E+06 [1/cm3]    sum(An)/A1 1.480E-03 []                                          |
+| Temp:      2.777E+02 [K]        Pressure:  9.749E+04 [Pa]     Air_conc 2.543E+19 [1/cm3]         |
+| NH3 C:     1.598E+08 [1/cm3]    J_NH3: 8.972E-04 [1/cm3]      sum(Nn)/N1 1.432E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 8.972E-04 [1/cm3]          |
+| Jion neutr 7.749E-04 [1/s/cm3]  Jion neg: 4.721E-05 [1/s/cm3] Jion pos: 7.509E-05 [1/s/cm3]      |
+| C-sink:    2.606E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:20 Est. time to finish (m:s) 2:06        Realtime/Modeltime: 416.80         |
++..................................................................................................+
+
++.Time: 09:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.231E-03 [/s]                                                                        |
+| ACID C:    1.084E+06 [1/cm3]    sum(An)/A1 1.595E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  9.750E+04 [Pa]     Air_conc 2.539E+19 [1/cm3]         |
+| NH3 C:     5.079E+07 [1/cm3]    J_NH3: 6.134E-04 [1/cm3]      sum(Nn)/N1 4.524E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 6.134E-04 [1/cm3]          |
+| Jion neutr 5.154E-04 [1/s/cm3]  Jion neg: 4.160E-05 [1/s/cm3] Jion pos: 5.638E-05 [1/s/cm3]      |
+| C-sink:    2.358E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:23 Est. time to finish (m:s) 2:03        Realtime/Modeltime: 416.95         |
++..................................................................................................+
+
++.Time: 10:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.246E-03 [/s]                                                                        |
+| ACID C:    9.922E+05 [1/cm3]    sum(An)/A1 1.870E-03 []                                          |
+| Temp:      2.776E+02 [K]        Pressure:  9.753E+04 [Pa]     Air_conc 2.545E+19 [1/cm3]         |
+| NH3 C:     8.604E+07 [1/cm3]    J_NH3: 8.325E-04 [1/cm3]      sum(Nn)/N1 2.920E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 8.325E-04 [1/cm3]          |
+| Jion neutr 6.895E-04 [1/s/cm3]  Jion neg: 5.537E-05 [1/s/cm3] Jion pos: 8.756E-05 [1/s/cm3]      |
+| C-sink:    2.180E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:26 Est. time to finish (m:s) 2:01        Realtime/Modeltime: 416.05         |
++..................................................................................................+
+
++.Time: 10:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.260E-03 [/s]                                                                        |
+| ACID C:    9.790E+05 [1/cm3]    sum(An)/A1 2.166E-03 []                                          |
+| Temp:      2.783E+02 [K]        Pressure:  9.752E+04 [Pa]     Air_conc 2.538E+19 [1/cm3]         |
+| NH3 C:     8.599E+07 [1/cm3]    J_NH3: 1.370E-03 [1/cm3]      sum(Nn)/N1 3.260E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.370E-03 [1/cm3]          |
+| Jion neutr 1.179E-03 [1/s/cm3]  Jion neg: 7.293E-05 [1/s/cm3] Jion pos: 1.182E-04 [1/s/cm3]      |
+| C-sink:    1.740E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:29 Est. time to finish (m:s) 1:58        Realtime/Modeltime: 416.26         |
++..................................................................................................+
+
++.Time: 10:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.281E-03 [/s]                                                                        |
+| ACID C:    9.229E+05 [1/cm3]    sum(An)/A1 2.663E-03 []                                          |
+| Temp:      2.780E+02 [K]        Pressure:  9.755E+04 [Pa]     Air_conc 2.542E+19 [1/cm3]         |
+| NH3 C:     1.343E+08 [1/cm3]    J_NH3: 1.410E-03 [1/cm3]      sum(Nn)/N1 2.359E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.410E-03 [1/cm3]          |
+| Jion neutr 1.148E-03 [1/s/cm3]  Jion neg: 9.638E-05 [1/s/cm3] Jion pos: 1.648E-04 [1/s/cm3]      |
+| C-sink:    1.337E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:32 Est. time to finish (m:s) 1:55        Realtime/Modeltime: 415.39         |
++..................................................................................................+
+
++.Time: 11:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.298E-03 [/s]                                                                        |
+| ACID C:    8.239E+05 [1/cm3]    sum(An)/A1 3.413E-03 []                                          |
+| Temp:      2.776E+02 [K]        Pressure:  9.757E+04 [Pa]     Air_conc 2.546E+19 [1/cm3]         |
+| NH3 C:     6.498E+07 [1/cm3]    J_NH3: 1.985E-03 [1/cm3]      sum(Nn)/N1 5.391E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.985E-03 [1/cm3]          |
+| Jion neutr 1.666E-03 [1/s/cm3]  Jion neg: 1.166E-04 [1/s/cm3] Jion pos: 2.029E-04 [1/s/cm3]      |
+| C-sink:    9.919E-04 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:35 Est. time to finish (m:s) 1:52        Realtime/Modeltime: 415.19         |
++..................................................................................................+
+
++.Time: 11:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.315E-03 [/s]                                                                        |
+| ACID C:    8.965E+05 [1/cm3]    sum(An)/A1 3.374E-03 []                                          |
+| Temp:      2.773E+02 [K]        Pressure:  9.761E+04 [Pa]     Air_conc 2.550E+19 [1/cm3]         |
+| NH3 C:     5.100E+07 [1/cm3]    J_NH3: 1.829E-03 [1/cm3]      sum(Nn)/N1 7.050E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.829E-03 [1/cm3]          |
+| Jion neutr 1.493E-03 [1/s/cm3]  Jion neg: 1.301E-04 [1/s/cm3] Jion pos: 2.063E-04 [1/s/cm3]      |
+| C-sink:    9.721E-04 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:38 Est. time to finish (m:s) 1:49        Realtime/Modeltime: 415.53         |
++..................................................................................................+
+
++.Time: 11:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.331E-03 [/s]                                                                        |
+| ACID C:    7.904E+05 [1/cm3]    sum(An)/A1 3.794E-03 []                                          |
+| Temp:      2.774E+02 [K]        Pressure:  9.761E+04 [Pa]     Air_conc 2.549E+19 [1/cm3]         |
+| NH3 C:     5.097E+07 [1/cm3]    J_NH3: 1.399E-03 [1/cm3]      sum(Nn)/N1 7.020E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.399E-03 [1/cm3]          |
+| Jion neutr 1.080E-03 [1/s/cm3]  Jion neg: 1.237E-04 [1/s/cm3] Jion pos: 1.958E-04 [1/s/cm3]      |
+| C-sink:    1.045E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:41 Est. time to finish (m:s) 1:47        Realtime/Modeltime: 413.18         |
++..................................................................................................+
+
++.Time: 12:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.362E-03 [/s]                                                                        |
+| ACID C:    5.057E+05 [1/cm3]    sum(An)/A1 4.212E-03 []                                          |
+| Temp:      2.760E+02 [K]        Pressure:  9.763E+04 [Pa]     Air_conc 2.562E+19 [1/cm3]         |
+| NH3 C:     5.123E+07 [1/cm3]    J_NH3: 6.288E-04 [1/cm3]      sum(Nn)/N1 6.081E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 6.288E-04 [1/cm3]          |
+| Jion neutr 4.910E-04 [1/s/cm3]  Jion neg: 4.689E-05 [1/s/cm3] Jion pos: 9.090E-05 [1/s/cm3]      |
+| C-sink:    1.205E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:44 Est. time to finish (m:s) 1:44        Realtime/Modeltime: 412.84         |
++..................................................................................................+
+
++.Time: 12:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.368E-03 [/s]                                                                        |
+| ACID C:    6.648E+05 [1/cm3]    sum(An)/A1 2.853E-03 []                                          |
+| Temp:      2.762E+02 [K]        Pressure:  9.766E+04 [Pa]     Air_conc 2.561E+19 [1/cm3]         |
+| NH3 C:     5.122E+07 [1/cm3]    J_NH3: 5.105E-04 [1/cm3]      sum(Nn)/N1 5.576E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 5.105E-04 [1/cm3]          |
+| Jion neutr 4.097E-04 [1/s/cm3]  Jion neg: 3.462E-05 [1/s/cm3] Jion pos: 6.623E-05 [1/s/cm3]      |
+| C-sink:    1.405E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:47 Est. time to finish (m:s) 1:41        Realtime/Modeltime: 412.26         |
++..................................................................................................+
+
++.Time: 12:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.371E-03 [/s]                                                                        |
+| ACID C:    7.876E+05 [1/cm3]    sum(An)/A1 2.567E-03 []                                          |
+| Temp:      2.771E+02 [K]        Pressure:  9.769E+04 [Pa]     Air_conc 2.553E+19 [1/cm3]         |
+| NH3 C:     5.106E+07 [1/cm3]    J_NH3: 4.772E-04 [1/cm3]      sum(Nn)/N1 5.596E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 4.772E-04 [1/cm3]          |
+| Jion neutr 3.617E-04 [1/s/cm3]  Jion neg: 4.267E-05 [1/s/cm3] Jion pos: 7.275E-05 [1/s/cm3]      |
+| C-sink:    1.339E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:50 Est. time to finish (m:s) 1:38        Realtime/Modeltime: 412.41         |
++..................................................................................................+
+
++.Time: 13:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.398E-03 [/s]                                                                        |
+| ACID C:    8.742E+05 [1/cm3]    sum(An)/A1 3.025E-03 []                                          |
+| Temp:      2.767E+02 [K]        Pressure:  9.768E+04 [Pa]     Air_conc 2.557E+19 [1/cm3]         |
+| NH3 C:     5.113E+07 [1/cm3]    J_NH3: 7.980E-04 [1/cm3]      sum(Nn)/N1 6.483E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 7.980E-04 [1/cm3]          |
+| Jion neutr 5.655E-04 [1/s/cm3]  Jion neg: 8.682E-05 [1/s/cm3] Jion pos: 1.457E-04 [1/s/cm3]      |
+| C-sink:    9.952E-04 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:53 Est. time to finish (m:s) 1:36        Realtime/Modeltime: 411.84         |
++..................................................................................................+
+
++.Time: 13:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.403E-03 [/s]                                                                        |
+| ACID C:    9.328E+05 [1/cm3]    sum(An)/A1 3.129E-03 []                                          |
+| Temp:      2.779E+02 [K]        Pressure:  9.769E+04 [Pa]     Air_conc 2.546E+19 [1/cm3]         |
+| NH3 C:     5.093E+07 [1/cm3]    J_NH3: 1.452E-03 [1/cm3]      sum(Nn)/N1 6.785E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.452E-03 [1/cm3]          |
+| Jion neutr 1.134E-03 [1/s/cm3]  Jion neg: 1.276E-04 [1/s/cm3] Jion pos: 1.903E-04 [1/s/cm3]      |
+| C-sink:    1.183E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:57 Est. time to finish (m:s) 1:33        Realtime/Modeltime: 408.85         |
++..................................................................................................+
+
++.Time: 13:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.423E-03 [/s]                                                                        |
+| ACID C:    1.028E+06 [1/cm3]    sum(An)/A1 2.613E-03 []                                          |
+| Temp:      2.782E+02 [K]        Pressure:  9.770E+04 [Pa]     Air_conc 2.544E+19 [1/cm3]         |
+| NH3 C:     5.088E+07 [1/cm3]    J_NH3: 1.180E-03 [1/cm3]      sum(Nn)/N1 6.273E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.180E-03 [1/cm3]          |
+| Jion neutr 9.238E-04 [1/s/cm3]  Jion neg: 1.091E-04 [1/s/cm3] Jion pos: 1.467E-04 [1/s/cm3]      |
+| C-sink:    1.398E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:00 Est. time to finish (m:s) 1:31        Realtime/Modeltime: 407.38         |
++..................................................................................................+
+
++.Time: 14:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.432E-03 [/s]                                                                        |
+| ACID C:    1.161E+06 [1/cm3]    sum(An)/A1 2.137E-03 []                                          |
+| Temp:      2.793E+02 [K]        Pressure:  9.770E+04 [Pa]     Air_conc 2.534E+19 [1/cm3]         |
+| NH3 C:     5.068E+07 [1/cm3]    J_NH3: 9.308E-04 [1/cm3]      sum(Nn)/N1 5.792E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 9.308E-04 [1/cm3]          |
+| Jion neutr 7.264E-04 [1/s/cm3]  Jion neg: 9.408E-05 [1/s/cm3] Jion pos: 1.103E-04 [1/s/cm3]      |
+| C-sink:    1.626E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:04 Est. time to finish (m:s) 1:28        Realtime/Modeltime: 406.13         |
++..................................................................................................+
+
++.Time: 14:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.447E-03 [/s]                                                                        |
+| ACID C:    7.398E+05 [1/cm3]    sum(An)/A1 2.359E-03 []                                          |
+| Temp:      2.796E+02 [K]        Pressure:  9.770E+04 [Pa]     Air_conc 2.531E+19 [1/cm3]         |
+| NH3 C:     5.061E+07 [1/cm3]    J_NH3: 4.085E-04 [1/cm3]      sum(Nn)/N1 4.977E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 4.085E-04 [1/cm3]          |
+| Jion neutr 3.248E-04 [1/s/cm3]  Jion neg: 3.743E-05 [1/s/cm3] Jion pos: 4.634E-05 [1/s/cm3]      |
+| C-sink:    1.885E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:07 Est. time to finish (m:s) 1:26        Realtime/Modeltime: 404.42         |
++..................................................................................................+
+
++.Time: 14:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.459E-03 [/s]                                                                        |
+| ACID C:    5.365E+05 [1/cm3]    sum(An)/A1 1.818E-03 []                                          |
+| Temp:      2.799E+02 [K]        Pressure:  9.769E+04 [Pa]     Air_conc 2.528E+19 [1/cm3]         |
+| NH3 C:     5.057E+07 [1/cm3]    J_NH3: 1.058E-04 [1/cm3]      sum(Nn)/N1 4.103E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.058E-04 [1/cm3]          |
+| Jion neutr 9.128E-05 [1/s/cm3]  Jion neg: 6.521E-06 [1/s/cm3] Jion pos: 8.028E-06 [1/s/cm3]      |
+| C-sink:    2.053E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:10 Est. time to finish (m:s) 1:23        Realtime/Modeltime: 403.43         |
++..................................................................................................+
+
++.Time: 15:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.466E-03 [/s]                                                                        |
+| ACID C:    5.508E+05 [1/cm3]    sum(An)/A1 1.619E-03 []                                          |
+| Temp:      2.795E+02 [K]        Pressure:  9.771E+04 [Pa]     Air_conc 2.532E+19 [1/cm3]         |
+| NH3 C:     5.063E+07 [1/cm3]    J_NH3: 4.416E-05 [1/cm3]      sum(Nn)/N1 3.928E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 4.416E-05 [1/cm3]          |
+| Jion neutr 3.569E-05 [1/s/cm3]  Jion neg: 3.338E-06 [1/s/cm3] Jion pos: 5.136E-06 [1/s/cm3]      |
+| C-sink:    2.134E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:14 Est. time to finish (m:s) 1:20        Realtime/Modeltime: 402.67         |
++..................................................................................................+
+
++.Time: 15:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.474E-03 [/s]                                                                        |
+| ACID C:    5.643E+05 [1/cm3]    sum(An)/A1 1.630E-03 []                                          |
+| Temp:      2.793E+02 [K]        Pressure:  9.773E+04 [Pa]     Air_conc 2.534E+19 [1/cm3]         |
+| NH3 C:     5.068E+07 [1/cm3]    J_NH3: 3.150E-05 [1/cm3]      sum(Nn)/N1 3.950E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 3.150E-05 [1/cm3]          |
+| Jion neutr 2.228E-05 [1/s/cm3]  Jion neg: 3.534E-06 [1/s/cm3] Jion pos: 5.688E-06 [1/s/cm3]      |
+| C-sink:    2.111E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:17 Est. time to finish (m:s) 1:17        Realtime/Modeltime: 402.13         |
++..................................................................................................+
+
++.Time: 15:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.485E-03 [/s]                                                                        |
+| ACID C:    5.204E+05 [1/cm3]    sum(An)/A1 1.715E-03 []                                          |
+| Temp:      2.797E+02 [K]        Pressure:  9.776E+04 [Pa]     Air_conc 2.532E+19 [1/cm3]         |
+| NH3 C:     5.063E+07 [1/cm3]    J_NH3: 2.630E-05 [1/cm3]      sum(Nn)/N1 3.947E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 2.630E-05 [1/cm3]          |
+| Jion neutr 1.776E-05 [1/s/cm3]  Jion neg: 3.332E-06 [1/s/cm3] Jion pos: 5.212E-06 [1/s/cm3]      |
+| C-sink:    2.114E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:20 Est. time to finish (m:s) 1:14        Realtime/Modeltime: 401.44         |
++..................................................................................................+
+
++.Time: 16:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.498E-03 [/s]                                                                        |
+| ACID C:    4.189E+05 [1/cm3]    sum(An)/A1 1.697E-03 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  9.775E+04 [Pa]     Air_conc 2.529E+19 [1/cm3]         |
+| NH3 C:     5.058E+07 [1/cm3]    J_NH3: 1.385E-05 [1/cm3]      sum(Nn)/N1 3.792E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.385E-05 [1/cm3]          |
+| Jion neutr 9.761E-06 [1/s/cm3]  Jion neg: 1.595E-06 [1/s/cm3] Jion pos: 2.491E-06 [1/s/cm3]      |
+| C-sink:    2.143E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:23 Est. time to finish (m:s) 1:11        Realtime/Modeltime: 400.64         |
++..................................................................................................+
+
++.Time: 16:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.535E-03 [/s]                                                                        |
+| ACID C:    3.669E+05 [1/cm3]    sum(An)/A1 1.766E-03 []                                          |
+| Temp:      2.805E+02 [K]        Pressure:  9.776E+04 [Pa]     Air_conc 2.524E+19 [1/cm3]         |
+| NH3 C:     5.048E+07 [1/cm3]    J_NH3: 7.114E-06 [1/cm3]      sum(Nn)/N1 4.009E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 7.114E-06 [1/cm3]          |
+| Jion neutr 5.000E-06 [1/s/cm3]  Jion neg: 7.897E-07 [1/s/cm3] Jion pos: 1.324E-06 [1/s/cm3]      |
+| C-sink:    1.707E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:27 Est. time to finish (m:s) 1:09        Realtime/Modeltime: 399.70         |
++..................................................................................................+
+
++.Time: 16:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.566E-03 [/s]                                                                        |
+| ACID C:    3.397E+05 [1/cm3]    sum(An)/A1 1.968E-03 []                                          |
+| Temp:      2.805E+02 [K]        Pressure:  9.779E+04 [Pa]     Air_conc 2.525E+19 [1/cm3]         |
+| NH3 C:     5.051E+07 [1/cm3]    J_NH3: 5.360E-06 [1/cm3]      sum(Nn)/N1 4.314E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 5.360E-06 [1/cm3]          |
+| Jion neutr 3.463E-06 [1/s/cm3]  Jion neg: 6.746E-07 [1/s/cm3] Jion pos: 1.222E-06 [1/s/cm3]      |
+| C-sink:    1.446E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:30 Est. time to finish (m:s) 1:06        Realtime/Modeltime: 398.92         |
++..................................................................................................+
+
++.Time: 17:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.577E-03 [/s]                                                                        |
+| ACID C:    3.373E+05 [1/cm3]    sum(An)/A1 2.047E-03 []                                          |
+| Temp:      2.802E+02 [K]        Pressure:  9.779E+04 [Pa]     Air_conc 2.528E+19 [1/cm3]         |
+| NH3 C:     5.055E+07 [1/cm3]    J_NH3: 5.322E-06 [1/cm3]      sum(Nn)/N1 4.392E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 5.322E-06 [1/cm3]          |
+| Jion neutr 3.211E-06 [1/s/cm3]  Jion neg: 7.305E-07 [1/s/cm3] Jion pos: 1.381E-06 [1/s/cm3]      |
+| C-sink:    1.403E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:33 Est. time to finish (m:s) 1:03        Realtime/Modeltime: 398.78         |
++..................................................................................................+
+
++.Time: 17:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.584E-03 [/s]                                                                        |
+| ACID C:    3.726E+05 [1/cm3]    sum(An)/A1 2.023E-03 []                                          |
+| Temp:      2.803E+02 [K]        Pressure:  9.781E+04 [Pa]     Air_conc 2.528E+19 [1/cm3]         |
+| NH3 C:     5.055E+07 [1/cm3]    J_NH3: 6.613E-06 [1/cm3]      sum(Nn)/N1 4.460E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 6.613E-06 [1/cm3]          |
+| Jion neutr 3.859E-06 [1/s/cm3]  Jion neg: 9.640E-07 [1/s/cm3] Jion pos: 1.790E-06 [1/s/cm3]      |
+| C-sink:    1.381E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:36 Est. time to finish (m:s) 1:00        Realtime/Modeltime: 398.47         |
++..................................................................................................+
+
++.Time: 17:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.596E-03 [/s]                                                                        |
+| ACID C:    3.857E+05 [1/cm3]    sum(An)/A1 2.124E-03 []                                          |
+| Temp:      2.803E+02 [K]        Pressure:  9.781E+04 [Pa]     Air_conc 2.527E+19 [1/cm3]         |
+| NH3 C:     6.166E+07 [1/cm3]    J_NH3: 9.696E-06 [1/cm3]      sum(Nn)/N1 3.738E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 9.696E-06 [1/cm3]          |
+| Jion neutr 5.531E-06 [1/s/cm3]  Jion neg: 1.431E-06 [1/s/cm3] Jion pos: 2.734E-06 [1/s/cm3]      |
+| C-sink:    1.374E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:39 Est. time to finish (m:s) 0:57        Realtime/Modeltime: 398.05         |
++..................................................................................................+
+
++.Time: 18:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.603E-03 [/s]                                                                        |
+| ACID C:    3.768E+05 [1/cm3]    sum(An)/A1 2.103E-03 []                                          |
+| Temp:      2.806E+02 [K]        Pressure:  9.780E+04 [Pa]     Air_conc 2.524E+19 [1/cm3]         |
+| NH3 C:     5.049E+07 [1/cm3]    J_NH3: 9.415E-06 [1/cm3]      sum(Nn)/N1 4.505E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 9.415E-06 [1/cm3]          |
+| Jion neutr 5.894E-06 [1/s/cm3]  Jion neg: 1.318E-06 [1/s/cm3] Jion pos: 2.202E-06 [1/s/cm3]      |
+| C-sink:    1.383E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:43 Est. time to finish (m:s) 0:54        Realtime/Modeltime: 397.44         |
++..................................................................................................+
+
++.Time: 18:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.620E-03 [/s]                                                                        |
+| ACID C:    3.423E+05 [1/cm3]    sum(An)/A1 2.089E-03 []                                          |
+| Temp:      2.807E+02 [K]        Pressure:  9.781E+04 [Pa]     Air_conc 2.524E+19 [1/cm3]         |
+| NH3 C:     5.048E+07 [1/cm3]    J_NH3: 7.014E-06 [1/cm3]      sum(Nn)/N1 4.417E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 7.014E-06 [1/cm3]          |
+| Jion neutr 4.518E-06 [1/s/cm3]  Jion neg: 9.312E-07 [1/s/cm3] Jion pos: 1.564E-06 [1/s/cm3]      |
+| C-sink:    1.425E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:46 Est. time to finish (m:s) 0:51        Realtime/Modeltime: 396.75         |
++..................................................................................................+
+
++.Time: 18:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.635E-03 [/s]                                                                        |
+| ACID C:    3.080E+05 [1/cm3]    sum(An)/A1 2.074E-03 []                                          |
+| Temp:      2.801E+02 [K]        Pressure:  9.784E+04 [Pa]     Air_conc 2.530E+19 [1/cm3]         |
+| NH3 C:     5.061E+07 [1/cm3]    J_NH3: 4.926E-06 [1/cm3]      sum(Nn)/N1 4.314E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 4.926E-06 [1/cm3]          |
+| Jion neutr 3.153E-06 [1/s/cm3]  Jion neg: 6.120E-07 [1/s/cm3] Jion pos: 1.161E-06 [1/s/cm3]      |
+| C-sink:    1.478E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:49 Est. time to finish (m:s) 0:48        Realtime/Modeltime: 396.01         |
++..................................................................................................+
+
++.Time: 19:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.651E-03 [/s]                                                                        |
+| ACID C:    2.741E+05 [1/cm3]    sum(An)/A1 2.077E-03 []                                          |
+| Temp:      2.796E+02 [K]        Pressure:  9.785E+04 [Pa]     Air_conc 2.535E+19 [1/cm3]         |
+| NH3 C:     5.069E+07 [1/cm3]    J_NH3: 3.538E-06 [1/cm3]      sum(Nn)/N1 4.213E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 3.538E-06 [1/cm3]          |
+| Jion neutr 2.236E-06 [1/s/cm3]  Jion neg: 4.126E-07 [1/s/cm3] Jion pos: 8.895E-07 [1/s/cm3]      |
+| C-sink:    1.543E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:52 Est. time to finish (m:s) 0:45        Realtime/Modeltime: 395.47         |
++..................................................................................................+
+
++.Time: 19:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.668E-03 [/s]                                                                        |
+| ACID C:    2.477E+05 [1/cm3]    sum(An)/A1 2.061E-03 []                                          |
+| Temp:      2.791E+02 [K]        Pressure:  9.788E+04 [Pa]     Air_conc 2.540E+19 [1/cm3]         |
+| NH3 C:     5.081E+07 [1/cm3]    J_NH3: 2.524E-06 [1/cm3]      sum(Nn)/N1 4.128E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 2.524E-06 [1/cm3]          |
+| Jion neutr 1.576E-06 [1/s/cm3]  Jion neg: 2.719E-07 [1/s/cm3] Jion pos: 6.756E-07 [1/s/cm3]      |
+| C-sink:    1.587E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:56 Est. time to finish (m:s) 0:42        Realtime/Modeltime: 395.02         |
++..................................................................................................+
+
++.Time: 19:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.685E-03 [/s]                                                                        |
+| ACID C:    2.084E+05 [1/cm3]    sum(An)/A1 1.994E-03 []                                          |
+| Temp:      2.784E+02 [K]        Pressure:  9.790E+04 [Pa]     Air_conc 2.547E+19 [1/cm3]         |
+| NH3 C:     5.094E+07 [1/cm3]    J_NH3: 1.555E-06 [1/cm3]      sum(Nn)/N1 3.839E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.555E-06 [1/cm3]          |
+| Jion neutr 9.717E-07 [1/s/cm3]  Jion neg: 1.524E-07 [1/s/cm3] Jion pos: 4.307E-07 [1/s/cm3]      |
+| C-sink:    1.948E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:59 Est. time to finish (m:s) 0:39        Realtime/Modeltime: 394.34         |
++..................................................................................................+
+
++.Time: 20:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.700E-03 [/s]                                                                        |
+| ACID C:    1.564E+05 [1/cm3]    sum(An)/A1 1.574E-03 []                                          |
+| Temp:      2.779E+02 [K]        Pressure:  9.793E+04 [Pa]     Air_conc 2.553E+19 [1/cm3]         |
+| NH3 C:     5.105E+07 [1/cm3]    J_NH3: 4.974E-07 [1/cm3]      sum(Nn)/N1 3.223E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 4.974E-07 [1/cm3]          |
+| Jion neutr 3.525E-07 [1/s/cm3]  Jion neg: 3.608E-08 [1/s/cm3] Jion pos: 1.088E-07 [1/s/cm3]      |
+| C-sink:    2.570E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:02 Est. time to finish (m:s) 0:36        Realtime/Modeltime: 393.66         |
++..................................................................................................+
+
++.Time: 20:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.714E-03 [/s]                                                                        |
+| ACID C:    1.688E+05 [1/cm3]    sum(An)/A1 1.247E-03 []                                          |
+| Temp:      2.774E+02 [K]        Pressure:  9.796E+04 [Pa]     Air_conc 2.557E+19 [1/cm3]         |
+| NH3 C:     5.115E+07 [1/cm3]    J_NH3: 1.977E-07 [1/cm3]      sum(Nn)/N1 3.044E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.977E-07 [1/cm3]          |
+| Jion neutr 1.432E-07 [1/s/cm3]  Jion neg: 1.127E-08 [1/s/cm3] Jion pos: 4.316E-08 [1/s/cm3]      |
+| C-sink:    2.659E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:06 Est. time to finish (m:s) 0:33        Realtime/Modeltime: 393.15         |
++..................................................................................................+
+
++.Time: 20:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.733E-03 [/s]                                                                        |
+| ACID C:    1.455E+05 [1/cm3]    sum(An)/A1 1.247E-03 []                                          |
+| Temp:      2.769E+02 [K]        Pressure:  9.797E+04 [Pa]     Air_conc 2.563E+19 [1/cm3]         |
+| NH3 C:     5.125E+07 [1/cm3]    J_NH3: 1.021E-07 [1/cm3]      sum(Nn)/N1 2.808E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.021E-07 [1/cm3]          |
+| Jion neutr 6.078E-08 [1/s/cm3]  Jion neg: 7.256E-09 [1/s/cm3] Jion pos: 3.406E-08 [1/s/cm3]      |
+| C-sink:    3.118E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:09 Est. time to finish (m:s) 0:30        Realtime/Modeltime: 392.74         |
++..................................................................................................+
+
++.Time: 21:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.748E-03 [/s]                                                                        |
+| ACID C:    8.658E+04 [1/cm3]    sum(An)/A1 9.651E-04 []                                          |
+| Temp:      2.766E+02 [K]        Pressure:  9.797E+04 [Pa]     Air_conc 2.565E+19 [1/cm3]         |
+| NH3 C:     5.130E+07 [1/cm3]    J_NH3: 1.643E-08 [1/cm3]      sum(Nn)/N1 2.305E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.643E-08 [1/cm3]          |
+| Jion neutr 1.159E-08 [1/s/cm3]  Jion neg: 9.026E-10 [1/s/cm3] Jion pos: 3.935E-09 [1/s/cm3]      |
+| C-sink:    3.929E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:12 Est. time to finish (m:s) 0:27        Realtime/Modeltime: 392.42         |
++..................................................................................................+
+
++.Time: 21:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.765E-03 [/s]                                                                        |
+| ACID C:    1.128E+05 [1/cm3]    sum(An)/A1 9.450E-04 []                                          |
+| Temp:      2.762E+02 [K]        Pressure:  9.799E+04 [Pa]     Air_conc 2.569E+19 [1/cm3]         |
+| NH3 C:     5.139E+07 [1/cm3]    J_NH3: 6.777E-09 [1/cm3]      sum(Nn)/N1 2.665E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 6.777E-09 [1/cm3]          |
+| Jion neutr 4.312E-09 [1/s/cm3]  Jion neg: 2.948E-10 [1/s/cm3] Jion pos: 2.170E-09 [1/s/cm3]      |
+| C-sink:    2.941E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:15 Est. time to finish (m:s) 0:24        Realtime/Modeltime: 392.11         |
++..................................................................................................+
+
++.Time: 21:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.787E-03 [/s]                                                                        |
+| ACID C:    1.118E+05 [1/cm3]    sum(An)/A1 1.392E-03 []                                          |
+| Temp:      2.758E+02 [K]        Pressure:  9.800E+04 [Pa]     Air_conc 2.573E+19 [1/cm3]         |
+| NH3 C:     5.147E+07 [1/cm3]    J_NH3: 1.959E-08 [1/cm3]      sum(Nn)/N1 3.082E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.959E-08 [1/cm3]          |
+| Jion neutr 6.540E-09 [1/s/cm3]  Jion neg: 1.370E-09 [1/s/cm3] Jion pos: 1.168E-08 [1/s/cm3]      |
+| C-sink:    2.523E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:19 Est. time to finish (m:s) 0:21        Realtime/Modeltime: 391.81         |
++..................................................................................................+
+
++.Time: 22:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.803E-03 [/s]                                                                        |
+| ACID C:    8.373E+04 [1/cm3]    sum(An)/A1 1.396E-03 []                                          |
+| Temp:      2.757E+02 [K]        Pressure:  9.802E+04 [Pa]     Air_conc 2.575E+19 [1/cm3]         |
+| NH3 C:     5.151E+07 [1/cm3]    J_NH3: 1.450E-08 [1/cm3]      sum(Nn)/N1 2.961E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.450E-08 [1/cm3]          |
+| Jion neutr 6.322E-09 [1/s/cm3]  Jion neg: 9.178E-10 [1/s/cm3] Jion pos: 7.259E-09 [1/s/cm3]      |
+| C-sink:    2.702E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:22 Est. time to finish (m:s) 0:18        Realtime/Modeltime: 391.27         |
++..................................................................................................+
+
++.Time: 22:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.822E-03 [/s]                                                                        |
+| ACID C:    8.186E+04 [1/cm3]    sum(An)/A1 1.242E-03 []                                          |
+| Temp:      2.755E+02 [K]        Pressure:  9.801E+04 [Pa]     Air_conc 2.577E+19 [1/cm3]         |
+| NH3 C:     5.154E+07 [1/cm3]    J_NH3: 6.912E-09 [1/cm3]      sum(Nn)/N1 2.908E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 6.912E-09 [1/cm3]          |
+| Jion neutr 3.410E-09 [1/s/cm3]  Jion neg: 3.671E-10 [1/s/cm3] Jion pos: 3.135E-09 [1/s/cm3]      |
+| C-sink:    2.721E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:25 Est. time to finish (m:s) 0:15        Realtime/Modeltime: 391.24         |
++..................................................................................................+
+
++.Time: 22:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.840E-03 [/s]                                                                        |
+| ACID C:    8.320E+04 [1/cm3]    sum(An)/A1 1.222E-03 []                                          |
+| Temp:      2.752E+02 [K]        Pressure:  9.802E+04 [Pa]     Air_conc 2.580E+19 [1/cm3]         |
+| NH3 C:     5.883E+07 [1/cm3]    J_NH3: 5.319E-09 [1/cm3]      sum(Nn)/N1 2.567E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 5.319E-09 [1/cm3]          |
+| Jion neutr 2.286E-09 [1/s/cm3]  Jion neg: 2.689E-10 [1/s/cm3] Jion pos: 2.764E-09 [1/s/cm3]      |
+| C-sink:    2.712E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:28 Est. time to finish (m:s) 0:12        Realtime/Modeltime: 391.11         |
++..................................................................................................+
+
++.Time: 23:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.856E-03 [/s]                                                                        |
+| ACID C:    8.774E+04 [1/cm3]    sum(An)/A1 1.268E-03 []                                          |
+| Temp:      2.750E+02 [K]        Pressure:  9.803E+04 [Pa]     Air_conc 2.582E+19 [1/cm3]         |
+| NH3 C:     9.816E+07 [1/cm3]    J_NH3: 9.077E-09 [1/cm3]      sum(Nn)/N1 1.595E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 9.077E-09 [1/cm3]          |
+| Jion neutr 3.855E-09 [1/s/cm3]  Jion neg: 4.067E-10 [1/s/cm3] Jion pos: 4.815E-09 [1/s/cm3]      |
+| C-sink:    2.672E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:31 Est. time to finish (m:s) 0:09        Realtime/Modeltime: 390.76         |
++..................................................................................................+
+
++.Time: 23:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.874E-03 [/s]                                                                        |
+| ACID C:    6.922E+04 [1/cm3]    sum(An)/A1 1.476E-03 []                                          |
+| Temp:      2.748E+02 [K]        Pressure:  9.804E+04 [Pa]     Air_conc 2.584E+19 [1/cm3]         |
+| NH3 C:     2.161E+08 [1/cm3]    J_NH3: 1.194E-08 [1/cm3]      sum(Nn)/N1 7.622E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.194E-08 [1/cm3]          |
+| Jion neutr 5.809E-09 [1/s/cm3]  Jion neg: 4.201E-10 [1/s/cm3] Jion pos: 5.716E-09 [1/s/cm3]      |
+| C-sink:    2.512E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:35 Est. time to finish (m:s) 0:06        Realtime/Modeltime: 390.35         |
++..................................................................................................+
+
++.Time: 23:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.889E-03 [/s]                                                                        |
+| ACID C:    7.232E+04 [1/cm3]    sum(An)/A1 1.336E-03 []                                          |
+| Temp:      2.748E+02 [K]        Pressure:  9.804E+04 [Pa]     Air_conc 2.584E+19 [1/cm3]         |
+| NH3 C:     1.751E+08 [1/cm3]    J_NH3: 9.706E-09 [1/cm3]      sum(Nn)/N1 9.536E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 9.706E-09 [1/cm3]          |
+| Jion neutr 5.522E-09 [1/s/cm3]  Jion neg: 2.792E-10 [1/s/cm3] Jion pos: 3.905E-09 [1/s/cm3]      |
+| C-sink:    2.468E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:38 Est. time to finish (m:s) 0:03        Realtime/Modeltime: 389.92         |
++..................................................................................................+
+
++.Time: 24:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| CS SA:     3.901E-03 [/s]                                                                        |
+| ACID C:    9.703E+04 [1/cm3]    sum(An)/A1 1.302E-03 []                                          |
+| Temp:      2.748E+02 [K]        Pressure:  9.805E+04 [Pa]     Air_conc 2.584E+19 [1/cm3]         |
+| NH3 C:     1.357E+08 [1/cm3]    J_NH3: 1.445E-08 [1/cm3]      sum(Nn)/N1 1.209E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/cm3]      J-total 1.445E-08 [1/cm3]          |
+| Jion neutr 6.951E-09 [1/s/cm3]  Jion neg: 5.523E-10 [1/s/cm3] Jion pos: 6.950E-09 [1/s/cm3]      |
+| C-sink:    2.534E-03 [1/s]      IPR: 3.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:41 Est. time to finish (m:s) 0:00        Realtime/Modeltime: 389.31         |
++..................................................................................................+
+
++.Main loop ended..................................................................................+
+| Outputfiles closed.                                                                              |
++..................................................................................................+
+
+SIMULATION HAS ENDED.  SO LONG!
+
+
