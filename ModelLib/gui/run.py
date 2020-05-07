@@ -1040,16 +1040,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         levels=(self.lowlev.value(),self.highlev.value())
         self.lowlev.valueChanged.connect(lambda: self.drawSurf(window))
         self.highlev.valueChanged.connect(lambda: self.drawSurf(window))
+        self.cmJet.clicked.connect(lambda: self.drawSurf(window))
         if '.nc' in file[-4:] and not netcdf:
             self.popup(*netcdfMissinnMes)
             return
 
-            # windowInd = 0
-            # window = self.surfacePlotWindow_0
-            # self.parPlotTitle_0.setText(file)
-        # elif '.sum' in file or  '.dat' in file or file == 'load current':
-            # self.lowlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
-            # self.highlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
         if file == 'load current':
             file = self.pars(self.dmps_file.text(), file=self.indir, stripRoot=self.stripRoot_par.isChecked())
             if not exists(file):
@@ -1082,7 +1077,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         try:
             # If matplotlib is installed, we get colours
             from matplotlib import cm
-            colormap = cm.get_cmap("jet")  # cm.get_cmap("CMRmap")
+            if self.cmJet.isChecked():
+                colormap = cm.get_cmap("jet")
+            else:
+                colormap = cm.get_cmap("viridis")
             colormap._init()
             lut = (colormap._lut * 255).view(ndarray)  # Convert matplotlib colormap from 0-1 to 0 -255 for Qt
             # Apply the colormap
