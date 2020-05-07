@@ -25,7 +25,7 @@ PROGRAM Supermodel
 
     REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)    ! Array to hold input variables for the current timestep
     REAL(DP), ALLOCATABLE :: CH_GAS(:)        ! Array to hold all chemistry compounds
-    REAL(DP), ALLOCATABLE :: dmps_fitted(:)   ! array passed to background particle fitting if using dmps_special
+!    REAL(DP), ALLOCATABLE :: dmps_fitted(:)   ! array passed to background particle fitting if using dmps_special
     INTEGER               :: dmps_ln = 0      ! line number from where background particles are read from
     INTEGER               :: dmps_sp_min = 0, dmps_sp_max = 0 ! Indices for dmps_special
 
@@ -45,6 +45,9 @@ PROGRAM Supermodel
     INTEGER         :: I,J          ! Loop indices
     INTEGER         :: ioi          ! iostat variable
     REAL(dp)        :: cpu1, cpu2   ! CPU time in seconds
+
+    !Temporary variables -> will be replaced
+    REAL(dp), ALLOCATABLE :: general_dp(:)    !array with diameters independent of PSD_style
 
     ! speed_up: factor for increasing integration time step for individual prosesses
     ! (1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
@@ -77,21 +80,23 @@ PROGRAM Supermodel
 
       ! Initialize the Particle representation
       CALL INITIALIZE_PSD
+      ALLOCATE(general_dp(n_bins_particle))
+      general_dp = get_dp()
 
       if (use_dmps_special) THEN
         ! Initialize the dummy for dmps_special
-        ALLOCATE(dmps_fitted(n_bins_particle))
+!        ALLOCATE(dmps_fitted(n_bins_particle))
         ! both limits have to be far enough for the smallest and largest diameters
-        if (dmps_lowband_upper_limit > current_PSD%diameter_fs(2)) THEN
-          dmps_sp_min = minloc(abs(current_PSD%diameter_fs-dmps_lowband_upper_limit),1)
+        if (dmps_lowband_upper_limit > general_dp(2)) THEN
+          dmps_sp_min = minloc(abs(get_dp()-dmps_lowband_upper_limit),1)
         ELSE IF (dmps_lowband_upper_limit > 0d0) THEN
           print FMT_FAT0, 'dmps_lowband_upper_limit is is too small and will not be used'
           STOP
         END IF
 
-        if (dmps_highband_lower_limit < current_PSD%diameter_fs(n_bins_particle-1) &
-          .and. dmps_highband_lower_limit > current_PSD%diameter_fs(2)) THEN
-          dmps_sp_max = minloc(abs(current_PSD%diameter_fs-dmps_highband_lower_limit),1)
+        if (dmps_highband_lower_limit < general_dp(n_bins_particle-1) &
+          .and. dmps_highband_lower_limit > general_dp(2)) THEN
+          dmps_sp_max = minloc(abs(get_dp()-dmps_highband_lower_limit),1)
         ELSE IF (dmps_highband_lower_limit > 0d0) THEN
           print FMT_FAT0, 'dmps_highband_lower_limit is is too large and will not be used'
           STOP
@@ -146,14 +151,14 @@ PROGRAM Supermodel
       ! Time 0 (s)--Total particle number---dN/log10(dDp)---dN/log10(dDp)-----dN/log10(dDp) . . dN/log10(dDp)
       ! Time 1 (s)--Total particle number---dN/log10(dDp)---dN/log10(dDp)-----dN/log10(dDp) . . dN/log10(dDp)
       OPEN(101,file=RUN_OUTPUT_DIR//"/particle_conc.sum",status='replace',action='write')
-      WRITE(101,*) 0d0,0d0,CURRENT_PSD%diameter_fs
+      WRITE(101,*) 0d0,0d0,get_dp()
 
       ! Datfile where PSD is in linear form. Format is:
       ! 000----------bin_1 diameter---bin_2 diameter---bin_3 diameter . bin_n diameter
       ! Time 0 (s)---------dN--------------dN----------------dN . . . . . . . dN
       ! Time 1 (s)---------dN--------------dN----------------dN . . . . . . . dN
       OPEN(104,file=RUN_OUTPUT_DIR//"/particle_conc.dat",status='replace',action='write')
-      WRITE(104,*) 0d0,CURRENT_PSD%diameter_fs
+      WRITE(104,*) 0d0,get_dp()
 
     END IF
 
@@ -176,7 +181,7 @@ PROGRAM Supermodel
     CALL PAUSE_FOR_WHILE(wait_for)
 
     if (TRIM(INITIALIZE_WITH) /= '') THEN
-        CALL INITIALIZE_WITH_LAST(CURRENT_PSD%composition_fs, CURRENT_PSD%conc_fs,CH_GAS)
+        CALL INITIALIZE_WITH_LAST(get_composition(), get_conc(),CH_GAS)
     END IF
 
     write(*,*) ''
@@ -278,15 +283,17 @@ PROGRAM Supermodel
             if (gtime%printnow) print FMT_SUB, 'Reading in background particles'
 
             ! Initialization is necessary
-            CURRENT_PSD%conc_fs = 0d0
+            conc_fit = 0d0
 
-            CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(dmps_ln+2, size(par_data, 1)),2:), CURRENT_PSD%conc_fs )
+            CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(dmps_ln+2, size(par_data, 1)),2:), conc_fit )
 
             ! NOTE Sumfile is typically in particles /cm^3, so make sure dmps_multi is correct (in NML_CUSTOM)
-            CURRENT_PSD%conc_fs = CURRENT_PSD%conc_fs * dmps_multi
+            conc_fit = conc_fit * dmps_multi
+            CAll send_conc(current_PSD%dp_range(1),current_PSD%dp_range(2))
 
             do i = 1, n_bins_particle
-              CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density
+              !CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density
+              CALL set_composition(i)
             end do
 
             ! Next time next line is read
@@ -299,23 +306,31 @@ PROGRAM Supermodel
               if (gtime%printnow) print FMT_MSG, 'Reading in background particles partially'
 
             ! Initialization is necessary
-            dmps_fitted = 0d0
+            !dmps_fitted = 0d0
+            conc_fit = 0.d0
 
-            CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(dmps_ln+2, size(par_data, 1)),2:), dmps_fitted )
+            CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(dmps_ln+2, size(par_data, 1)),2:), conc_fit )
+!            CALL send_conc(current_PSD%dp_range(1),current_PSD%dp_range(2)) !set the new concentration for all bins within the range
 
             ! NOTE Sumfile is typically in particles /cm^3, so make sure dmps_multi is correct
             if (dmps_sp_min>0) THEN
-              CURRENT_PSD%conc_fs(:dmps_sp_min) = dmps_fitted(:dmps_sp_min) * dmps_multi
+
+              !CURRENT_PSD%conc_fs(:dmps_sp_min) = conc_fit(:dmps_sp_min) * dmps_multi
+              CALL send_conc(current_PSD%dp_range(1),general_dp(dmps_sp_min)) !set the new concentration for all bins within the range
               if (gtime%printnow) print FMT_SUB, 'Lowband upper limit: '//i2chr(dmps_sp_min)
               do i = 1, dmps_sp_min
-                CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density
+                !CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density
+                CALL set_composition(i)
               end do
             END IF
             if (dmps_sp_max>0) THEN
-              CURRENT_PSD%conc_fs(dmps_sp_max:) = dmps_fitted(dmps_sp_max:) * dmps_multi
+!              CURRENT_PSD%conc_fs(dmps_sp_max:) = conc_fit(dmps_sp_max:) * dmps_multi
+              CALL send_conc(general_dp(dmps_sp_max),current_PSD%dp_range(2)) !set the new concentration for all bins within the range
+
               if (gtime%printnow) print FMT_SUB, 'Highband lower limit: '//i2chr(dmps_sp_max)
               do i = dmps_sp_max, n_bins_particle
-                CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density
+                !CURRENT_PSD%composition_fs(i,:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(i) * VAPOUR_PROP%density
+                CALL set_composition(i)
               end do
             END IF
 
@@ -352,8 +367,9 @@ PROGRAM Supermodel
             CALL Mass_Number_Change('condensation')
             ! if (GTIME%sec >= 45740) print*, new_PSD%conc_fs(1:10)
             ! Update PSD with new concentrations
-            CURRENT_PSD%conc_fs = new_PSD%conc_fs
-            CURRENT_PSD%composition_fs = new_PSD%composition_fs
+            !CURRENT_PSD%conc_fs = new_PSD%conc_fs
+            !CURRENT_PSD%composition_fs = new_PSD%composition_fs
+            current_PSD = new_PSD
 
             do i = 1, n_cond_org
               if (index_cond(i) /= 0) then
@@ -376,8 +392,9 @@ PROGRAM Supermodel
             Call Mass_Number_Change('coagulation')
 
             ! Update PSD with new concentrations
-            CURRENT_PSD%conc_fs = new_PSD%conc_fs
-            CURRENT_PSD%composition_fs = new_PSD%composition_fs
+            !CURRENT_PSD%conc_fs = new_PSD%conc_fs
+            !CURRENT_PSD%composition_fs = new_PSD%composition_fs
+            current_PSD = new_PSD
 
           end if ! end of coagulation
           ! =================================================================================================
@@ -399,8 +416,8 @@ PROGRAM Supermodel
             CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOUR_PROP, CURRENT_PSD)
 
             if (Aerosol_flag) THEN
-              WRITE(101,*) GTIME%sec, sum(CURRENT_PSD%conc_fs*1d-6), CURRENT_PSD%conc_fs*1d-6 / LOG10(current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1))
-              WRITE(104,*) GTIME%sec, CURRENT_PSD%conc_fs*1d-6
+              WRITE(101,*) GTIME%sec, sum(get_conc()*1d-6), get_conc()*1d-6 / LOG10(bin_ratio)
+              WRITE(104,*) GTIME%sec, get_conc()*1d-6
             END IF
 
           END IF
