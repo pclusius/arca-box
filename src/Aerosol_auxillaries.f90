@@ -12,22 +12,6 @@ real(dp) :: precision
 logical :: first_time
 integer :: ii
 
-! This datatype contains all parameters for input vapours
-type :: vapour_ambient
-  real(dp), allocatable :: molar_mass(:), parameter_A(:), parameter_B(:)
-  character(len=256), allocatable :: vapour_names(:)
-  real(dp),allocatable :: alpha(:) !       = 1.0
-  real(dp),allocatable  :: density(:)
-  real(dp),allocatable :: surf_tension(:)
-  integer  :: vapour_number
-  integer  :: vbs_bins
-  integer,allocatable  :: cond_type(:)
-  real(dp),allocatable :: molec_dia(:)
-  real(dp),allocatable :: molec_mass(:), molec_volume(:) ! molecule mass and molecule volume
-  real(dp),allocatable :: c_sat(:), vap_conc(:)!, vapour_type(:), condensing_type(:)
-  real(dp),allocatable :: mfractions(:)        ! dimension(tot_spec) mole fractions
-end type vapour_ambient
-
 
 contains
 
@@ -45,11 +29,11 @@ end subroutine set_speed
 ! Calculate molecular mass in KG
 ! input molar_mass
 ! .....................................................................................................
-pure elemental function calculate_molecular_mass(molar_mass) result(mass)
-  real(dp), intent(in) :: molar_mass
-  real(dp) :: mass
-  mass = molar_mass / Na ! kg/molecule
-end function calculate_molecular_mass
+! pure elemental function calculate_molecular_mass(molar_mass) result(mass)
+!   real(dp), intent(in) :: molar_mass
+!   real(dp) :: mass
+!   mass = molar_mass / Na ! kg/molecule
+! end function calculate_molecular_mass
 
 ! calculate molecular volume
 pure elemental function calculate_molecular_volume(density, molecule_mass) result(volume)

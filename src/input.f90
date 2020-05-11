@@ -173,7 +173,7 @@ real(dp) :: dmps_multi = 1d6 ! Multiplicator to convert dmps linear concentratio
 NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,dmps_tres_min, &
                       start_time_s, dmps_multi, INITIALIZE_WITH
 
-type(vapour_ambient)  :: VAPOUR_PROP
+
 type(atoms):: Natoms  ! atoms of hydrogen, oxygen, nitrogen and carbon. Used for calculating diffusion
 
 real(dp),allocatable ::  Vol_org(:)!, Diff_org(:)
@@ -475,7 +475,7 @@ subroutine READ_INPUT_DATA()
         VAPOUR_PROP%parameter_A(ii)   = parameter_A
         VAPOUR_PROP%parameter_B(ii)   = parameter_B
         VAPOUR_PROP%vapour_names(ii)  = TRIM(species_name)
-        VAPOUR_PROP%molec_mass(ii)    = calculate_molecular_mass(VAPOUR_PROP%molar_mass(ii))  !kg/#
+        VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na  !kg/#
 
         ! Option for simple parametrisation of organic vapour liquid density. Use with caution
         IF (variable_density) THEN
@@ -509,11 +509,13 @@ subroutine READ_INPUT_DATA()
     ! Sulfuric acid treated separately
     ! ---------------------------------------------------------------------
     ii = VAPOUR_PROP%vbs_bins
+    VAPOUR_PROP%ind_H2SO4    = ii
+    VAPOUR_PROP%ind_HOA      = ii-1
     VAPOUR_PROP%molar_mass(ii)    = 98.0785 *1d-3
     VAPOUR_PROP%parameter_A(ii)   = 3.869717803774
     VAPOUR_PROP%parameter_B(ii)   = 313.607405085
     VAPOUR_PROP%vapour_names(ii)  = 'H2S04'
-    VAPOUR_PROP%molec_mass(ii)    = calculate_molecular_mass(VAPOUR_PROP%molar_mass(ii))
+    VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
     VAPOUR_PROP%density(ii)       = 1819.3946 ! kg/m3
     VAPOUR_PROP%molec_volume(ii)  = calculate_molecular_volume(VAPOUR_PROP%density(ii),VAPOUR_PROP%molec_mass(ii))
     VAPOUR_PROP%surf_tension(ii)  = 0.07

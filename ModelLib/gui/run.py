@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
 import vars, gui5, batchDialog1,batchDialog2,batchDialog3,batch
 from subprocess import Popen, PIPE, STDOUT
-from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,ndarray,where
+from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where
 import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod
@@ -1040,16 +1040,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         levels=(self.lowlev.value(),self.highlev.value())
         self.lowlev.valueChanged.connect(lambda: self.drawSurf(window))
         self.highlev.valueChanged.connect(lambda: self.drawSurf(window))
+        self.cmJet.clicked.connect(lambda: self.drawSurf(window))
         if '.nc' in file[-4:] and not netcdf:
             self.popup(*netcdfMissinnMes)
             return
 
-            # windowInd = 0
-            # window = self.surfacePlotWindow_0
-            # self.parPlotTitle_0.setText(file)
-        # elif '.sum' in file or  '.dat' in file or file == 'load current':
-            # self.lowlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
-            # self.highlev.valueChanged.connect(lambda: self.drawSurf(self.surfacePlotWindow_1))
         if file == 'load current':
             file = self.pars(self.dmps_file.text(), file=self.indir, stripRoot=self.stripRoot_par.isChecked())
             if not exists(file):
@@ -1082,7 +1077,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         try:
             # If matplotlib is installed, we get colours
             from matplotlib import cm
-            colormap = cm.get_cmap("jet")  # cm.get_cmap("CMRmap")
+            if self.cmJet.isChecked():
+                colormap = cm.get_cmap("jet")
+            else:
+                colormap = cm.get_cmap("viridis")
             colormap._init()
             lut = (colormap._lut * 255).view(ndarray)  # Convert matplotlib colormap from 0-1 to 0 -255 for Qt
             # Apply the colormap
@@ -1527,27 +1525,18 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.popup('Bummer...', 'Not a valid output file',icon=3)
             return
 
-        # collect all variables and dimensions from netCDF-dataset to hnames
-        self.hnames = [i for i in self.ncs.variables]
-        # self.hnames.sort()
-        dims = [i for i in self.ncs.dimensions]
+        # find out the time dimension, using unlimited dimension here
+        for timedim in self.ncs.dimensions:
+            if self.ncs.dimensions[timedim].isunlimited():
+                break
 
-        # remove string variables (non-numbers and thus not plottable)
-        cache = []
-        for i,v in enumerate(self.hnames):
-            try:
-                int(self.ncs.variables[v][0])
-                cache.append(v)
-            except:
-                pass
-        # remove constants
-        self.hnames = []
-        for i,v in enumerate(cache):
-            if (len(shape(self.ncs.variables[v][:])) >1):
-                self.hnames.append(v)
-            # Shifter ands multiplyers are left off for clarity
-            if not 'Shifter' in v and not 'Multipl' in v:
-                self.hnames.append(v)
+        checker = lambda v,n: v.lower() in timedim and 'Shifter' not in n and 'Multipl' not in n
+
+        # collect all variables and dimensions from netCDF-dataset to hnames
+        cache = array([i.name for i in self.ncs.get_variables_by_attributes(ndim=1)])
+        timevars = [checker(i.dimensions[0], i.name) for i in self.ncs.get_variables_by_attributes(ndim=1)]
+        self.hnames = cache[timevars]
+
         # Now try plot first the third line, which is the first non-time variable
         try:
             time = self.ncs.variables[self.hnames[0]][:]/3600
