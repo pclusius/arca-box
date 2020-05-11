@@ -324,8 +324,9 @@ SUBROUTINE GeneratePSDfromInput(dp_from,conc_from,conc_out)
     ! Convert from dNdlogdo to concentration:
     ! print*, 'diams', dp_sim(2),dp_sim(1)
     ! XXX because diams can be zero this will give SIGFPE with psd==2
-    if (current_PSD%psd_style == 1) conc_out = conc_out * LOG10(dp_sim(2)/dp_sim(1))
-    if (current_PSD%psd_style == 2) conc_out = conc_out * LOG10(current_PSD%grid_ma(2)/current_PSD%grid_ma(1))
+    conc_out = conc_out * LOG10(dp_sim(2)/dp_sim(1))
+    ! if (current_PSD%psd_style == 1) conc_out = conc_out * LOG10(dp_sim(2)/dp_sim(1))
+    ! if (current_PSD%psd_style == 2) conc_out = conc_out * LOG10(current_PSD%grid_ma(2)/current_PSD%grid_ma(1))
 
   ELSE
     print*,'choose other form of representation:'
