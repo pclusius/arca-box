@@ -60,7 +60,6 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
   conc_pp = get_composition()
   n_conc = get_conc()
   diameter = get_dp()
-  where (diameter<=0d0) diameter = -1d-9
   volume = get_volume()
   mass = sum(conc_pp, 2)
 
@@ -197,7 +196,6 @@ SUBROUTINE Coagulation_routine(particles,dconc_coag) ! Add more variables if you
 
   n_conc = get_conc()
   diameter = get_dp()
-  where (diameter<=0d0) diameter = -1d-9
   volume = get_volume()
   mass = get_mass()
   ! print*, 'mass from volume', mass
