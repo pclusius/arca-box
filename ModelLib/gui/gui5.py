@@ -2137,7 +2137,7 @@ class Ui_MainWindow(object):
         self.gauss_y.setSingleStep(0.1)
         self.gauss_y.setObjectName("gauss_y")
         self.Filter_0 = QtWidgets.QCheckBox(self.tab_8)
-        self.Filter_0.setGeometry(QtCore.QRect(10, 270, 85, 20))
+        self.Filter_0.setGeometry(QtCore.QRect(20, 270, 85, 20))
         self.Filter_0.setObjectName("Filter_0")
         self.Filter_1 = QtWidgets.QCheckBox(self.tab_8)
         self.Filter_1.setGeometry(QtCore.QRect(20, 370, 85, 20))
