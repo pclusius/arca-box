@@ -44,15 +44,16 @@ end function calculate_molecular_volume
 
 
 
-SUBROUTINE Calculate_SaturationVapourConcentration(VAPOUR_PROP,TEMPK)
+SUBROUTINE Calculate_SaturationVapourConcentration(VAPOUR_PROP,TEMPK, MLT)
   IMPLICIT NONE
   type(vapour_ambient), INTENT(INOUT) :: VAPOUR_PROP
   real(dp), INTENT(IN) :: TEMPK
+  real(dp), INTENT(IN) :: MLT
   ! Update saturation concentrations to current temperature, omit sulfuric acid
   VAPOUR_PROP%c_sat(1:VAPOUR_PROP%vapour_number) =  calculate_saturation_vp( &
   VAPOUR_PROP%parameter_A(1:VAPOUR_PROP%vapour_number),&
   VAPOUR_PROP%parameter_B(1:VAPOUR_PROP%vapour_number),&
-  TEMPK)
+  TEMPK) * MLT
 
 END SUBROUTINE Calculate_SaturationVapourConcentration
 

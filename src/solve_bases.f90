@@ -1,5 +1,6 @@
 MODULE SOLVEBASES
   USE CONSTANTS
+  USE AUXILLARIES
   USE INPUT
   USE second_Precision
   USE ACDC_NH3
@@ -77,19 +78,18 @@ contains
 
     ! if target J is smaller than lower limits would produce, don't bother iterating further
     if (target_J < 1d-200) THEN
-      if (GTIME%printnow) write(buf,'(a,es9.3,a)') 'Target J is zero. No need for extra formation.'
-      if (GTIME%printnow) print FMT_MSG, TRIM(buf)
+      if (GTIME%printnow) print FMT_MSG, 'Target J is zero. No need for extra formation.'
       testbase = 0
 
     ! if target J is smaller than lower limits would produce, don't bother iterating further
     else if (target_J < J_limits(1)) THEN
-      if (GTIME%printnow) write(buf,'(a,es9.3,a)') 'Target J (',target_J*1d-6,') is smaller than what lower limits produce'
-      if (GTIME%printnow) print FMT_MSG, TRIM(buf)
+      if (GTIME%printnow) print FMT_MSG, 'Target J ('//f2chr(target_J*1d-6)//') is smaller than what lower limits produce'
       testbase = 0
 
     ! if target J is larger than upper limits can produce, don't bother iterating further
     else if (target_J > J_limits(2)) THEN
-      if (GTIME%printnow) print'(es12.3,a,es12.3,es12.3)', target_J*1d-6,' Target J is too large for current upper limits of bases', conc_limits(2), conc_limits(2)*DMA_f
+      if (GTIME%printnow) print FMT_MSG, ' Target J '//f2chr(target_J*1d-6)//' is too large for current upper limits of bases: '&
+                                    //f2chr(conc_limits(2))//' and '//f2chr(conc_limits(2)*DMA_f)
       testbase = GC_AIR_NOW*1d6
 
     ! if target J reasonable, iterate the concentrations

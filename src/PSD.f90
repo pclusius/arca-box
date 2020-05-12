@@ -258,7 +258,9 @@ SUBROUTINE GeneratePSDfromInput(dp_from,conc_from,conc_out)
   INTEGER :: channel      ! bin number which is close and smaller than to input diameter
   INTEGER :: j,k          ! integers for loops
 
-  dp_sim = get_dp() ! XXX diameters can be zero and it will create trouble when taking the bin width
+  conc_out = 0d0
+
+  dp_sim = get_dp()
   n_channels = size(dp_from)
   IF (current_PSD%PSD_style == 1 .or. current_PSD%PSD_style == 2) THEN
     ! ==========================================================================
@@ -486,7 +488,7 @@ END SUBROUTINE PSD_Change_condensation
       new_PSD%conc_fs = current_PSD%conc_fs  ! set the initial value of new particle concentration to the current
       mix_PSD%conc_fs = 0.d0  !initial value is zero -> content is determined below
       !apply changes for all combinations of i and j
-      DO ii = 1, current_PSD%nr_bins !XXX unfortunately without the -1 it will fail
+      DO ii = 1, current_PSD%nr_bins-1
         DO jj = 1, ii
           IF (dconc_coag(ii,jj) > 1.d-100) THEN
             !Reduce the new particle concentration by the number of particles that are lost by coagulation in i and j -> they will be added later to the new bin
@@ -753,8 +755,8 @@ END SUBROUTINE PSD_Change_condensation
     ELSE
       new_PSD%conc_fs(ind) = new_PSD%conc_fs(ind) + mix_PSD%conc_fs(ind)
       print*, 'XXX3',ind, aa, GTIME%sec
-      if (aa<ind) print*, 'dmass HOA', dmass(ind,n_cond_tot-1)
-      print*, dmass(ind,:)
+      ! if (aa<ind) print*, 'dmass HOA', dmass(ind,n_cond_tot-1)
+      ! print*, dmass(ind,:)
       ! if (aa<ind) print*, 'conc', new_PSD%conc_fs(ind)
       ! if (aa<ind) print*, 'mix volume', mix_PSD%volume_fs(ind)
       ! if (aa<ind) print*, 'current volume', current_PSD%volume_fs

@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      Superbox setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: May 05 2020, 11:09:16
+#         Created at: May 12 2020, 00:28:19
 #--------------------------------------------------
 
 &NML_PATH
@@ -44,7 +44,7 @@
  DMPS_HIGHBAND_LOWER_LIMIT = 15e-9
  DMPS_LOWBAND_UPPER_LIMIT = 0
  USE_DMPS = .TRUE.
- USE_DMPS_SPECIAL = .TRUE.
+ USE_DMPS_SPECIAL = .FALSE.
 /
 
 &NML_ENV
@@ -92,7 +92,7 @@
  LAT = 65.0
  LON = -25.0
  WAIT_FOR = 0
- DESCRIPTION = 'Same as dMalte runs with coagulation >15nm range read in, 2h full dmps'
+ DESCRIPTION = 'Same as dMalte runs but no coagulation to save time'
  CH_ALBEDO = 0.2
  DMA_F = 0.0
  RESOLVE_BASE_PRECISION = 0.05
@@ -109,7 +109,7 @@
 
 &NML_CUSTOM
  USE_RAOULT = .true.
- ACDC_ITERATIONS = 4
+ ACDC_ITERATIONS = 1
  VARIABLE_DENSITY = .false.
 /
 
@@ -122,7 +122,7 @@ USE_OPENMP = .false.
 # Following settings are for the GUI and not directly used by the model -----
 # RAW_INPUT = &NML_PARALLEL<br>USE_OPENMP = .false.<br>/<br>
 # INPUT_SETTINGS = 'env_file:env<yy><mm><dd>.dat mcm_file:voc<yy><mm><dd>.dat dmps_file:INOUT/filled_dmps/dm<yy><mm><dd>.sum extra_particles: stripRoot_env:.TRUE. stripRoot_mcm:.TRUE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
-# BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-10 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
+# BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #----------------------------------------------------------------------------
 
 

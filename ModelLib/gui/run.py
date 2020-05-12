@@ -227,6 +227,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.checkBox_aer.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.groupBox_8))
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
         self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,self.print_acdc))
+        self.use_dmps.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_dmps,self.dmps_read_in_time))
         self.dateEdit.dateChanged.connect(self.updatePath)
         self.indexEdit.valueChanged.connect(self.updatePath)
         self.case_name.textChanged.connect(self.updatePath)
@@ -1038,9 +1039,14 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         # window = self.surfacePlotWindow_1
         # windowInd = 1
         levels=(self.lowlev.value(),self.highlev.value())
+        if scipyIs:
+            self.gauss_x.valueChanged.connect(lambda: self.drawSurf(window))
+            self.gauss_y.valueChanged.connect(lambda: self.drawSurf(window))
+            self.Filter_0.clicked.connect(lambda: self.drawSurf(window))
+            self.Filter_1.clicked.connect(lambda: self.drawSurf(window))
         self.lowlev.valueChanged.connect(lambda: self.drawSurf(window))
         self.highlev.valueChanged.connect(lambda: self.drawSurf(window))
-        self.cmJet.clicked.connect(lambda: self.drawSurf(window))
+        self.cmJet.triggered.connect(lambda: self.drawSurf(window))
         if '.nc' in file[-4:] and not netcdf:
             self.popup(*netcdfMissinnMes)
             return
@@ -1066,11 +1072,18 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def drawSurf(self,window, new=0):
-        if window==self.surfacePlotWindow_0: n_levelled = self.z0
-        else: n_levelled = self.z1
+        use_filter = False
+        if window==self.surfacePlotWindow_0:
+            n_levelled = self.z0
+            if self.Filter_0.isChecked():
+                use_filter = True
+        else:
+            n_levelled = self.z1
+            if self.Filter_1.isChecked():
+                use_filter = True
 
         levels=(self.lowlev.value(),self.highlev.value())
-        # if scipyIs: n_levelled = gaussian_filter(n_levelled,(0.6,0.6),mode='constant')
+        if scipyIs and use_filter: n_levelled = gaussian_filter(n_levelled,(self.gauss_x.value(),self.gauss_y.value()),mode='constant')
         n_levelled = where(n_levelled>=levels[1],levels[1]*0.98,n_levelled)
 
         hm = pg.ImageItem(n_levelled)

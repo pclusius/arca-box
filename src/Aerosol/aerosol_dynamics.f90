@@ -177,14 +177,14 @@ SUBROUTINE Coagulation_routine(particles,dconc_coag) ! Add more variables if you
   type(PSD), INTENT(IN) :: particles
   ! REAL(dp), INTENT(IN) :: timestep
   REAL(dp), DIMENSION(n_bins_particle) :: volume
-  REAL(dp) :: dp_max
+  ! REAL(dp) :: dp_max
   ! REAL(dp) :: temperature, pressure
   integer :: i,j,m
   REAL(dp), DIMENSION(n_bins_particle,n_bins_particle) :: coagulation_coef        ! coagulation coefficients [m^3/s]
   REAL(dp), DIMENSION(n_bins_particle,n_bins_particle), intent(inout) :: dconc_coag    ! coagulation coefficients [m^3/s]
   REAL(dp), DIMENSION(n_bins_particle) :: slip_correction,diffusivity,dist, speed_p,free_path_p
   REAL(dp), DIMENSION(n_bins_particle, n_bins_particle) :: Beta_Fuchs
-  REAL(dp), DIMENSION(n_bins_particle+1) :: Vp
+  ! REAL(dp), DIMENSION(n_bins_particle+1) :: Vp
   REAL(dp) :: dyn_visc  ! dynamic viscosity, kg/(m*s)
   REAL(dp) :: l_gas     ! Gas mean free path in air
   REAL(dp) :: a
@@ -206,9 +206,9 @@ SUBROUTINE Coagulation_routine(particles,dconc_coag) ! Add more variables if you
 ! print*, sum(volume)
 ! print*, sum(mass)
 
-  dp_max = diameter(n_bins_particle)*diameter(n_bins_particle)/diameter(n_bins_particle-1)
-  Vp(1:n_bins_particle) = volume(1:n_bins_particle)
-  Vp(n_bins_particle+1) = (pi*dp_max**3.)/6.
+  ! dp_max = diameter(n_bins_particle)*diameter(n_bins_particle)/diameter(n_bins_particle-1)
+  ! Vp(1:n_bins_particle) = volume(1:n_bins_particle)
+  ! Vp(n_bins_particle+1) = (pi*dp_max**3.)/6.
 
   ! The Coagulation coefficient is calculated according to formula 13.56 in Seinfield and Pandis (2006), Page 603
 

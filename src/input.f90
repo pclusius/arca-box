@@ -162,16 +162,18 @@ CHARACTER(len=256)  :: Vap_atoms = 'ModelLib/O_C.dat'
 NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_props, Vap_atoms
 
 INTEGER :: acdc_iterations = 4
+INTEGER :: INITIALIZE_FROM = 0
 CHARACTER(1000) :: INITIALIZE_WITH = ''
 Logical :: use_raoult = .True.
 Logical :: variable_density = .False.
 Logical :: skip_acdc = .True. ! If True, skips ACDC with very low concentrations and negligible formation rates
 real(dp) :: dmps_tres_min = 10.
+real(dp) :: VP_MULTI = 1d0
 real(dp) :: start_time_s = 0d0
 real(dp) :: dmps_multi = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
 
 NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,dmps_tres_min, &
-                      start_time_s, dmps_multi, INITIALIZE_WITH
+                      start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI
 
 
 type(atoms):: Natoms  ! atoms of hydrogen, oxygen, nitrogen and carbon. Used for calculating diffusion

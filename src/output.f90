@@ -407,21 +407,20 @@ PURE CHARACTER(10) FUNCTION UNITS(unit)
 
 END FUNCTION UNITS
 
-SUBROUTINE INITIALIZE_WITH_LAST(c_pp, n_c, chemconc, timepoint)
+SUBROUTINE INITIALIZE_WITH_LAST(c_pp, n_c, chemconc)
     IMPLICIT NONE
     real(dp) :: c_pp(:,:)
     real(dp) :: n_c(:)
     real(dp) :: chemconc(:)
-    integer :: file_id,i,varid, len_time, dimid, datarow
-    integer, INTENT(IN), OPTIONAL :: timepoint
+    integer :: file_id,i,varid, len_time, dimid, datarow = 0
 
     if (Chemistry_flag) THEN
         print FMT_MSG, 'Initializing chemistry with '//TRIM(INITIALIZE_WITH)//'. This takes a while.'
         call handler(__LINE__, nf90_open(TRIM(INITIALIZE_WITH)//'/Chemistry.nc', NF90_NOWRITE, file_id) )
 
-    if (PRESENT(timepoint)) THEN
-        datarow = timepoint
-    else
+    if (INITIALIZE_FROM>0) THEN
+        datarow = INITIALIZE_FROM
+    ELSE
         call handler(__LINE__, nf90_inq_dimid(file_id, 'time', dimid) )
         call handler(__LINE__, nf90_inquire_dimension(file_id, dimid, len=len_time) )
         datarow = len_time
@@ -440,9 +439,9 @@ if (Aerosol_flag) THEN
     call handler(__LINE__, nf90_open(TRIM(INITIALIZE_WITH)//'/Particle.nc', NF90_NOWRITE, file_id) )
 
     ! Get the last index if no index was given
-    if (PRESENT(timepoint)) THEN
-        datarow = timepoint
-    else
+    if (INITIALIZE_FROM>0) THEN
+        datarow = INITIALIZE_FROM
+    ELSE
         call handler(__LINE__, nf90_inq_dimid(file_id, 'time', dimid) )
         call handler(__LINE__, nf90_inquire_dimension(file_id, dimid, len=len_time) )
         datarow = len_time
