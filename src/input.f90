@@ -162,18 +162,20 @@ CHARACTER(len=256)  :: Vap_atoms = 'ModelLib/O_C.dat'
 NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_props, Vap_atoms
 
 INTEGER :: acdc_iterations = 4
+INTEGER :: INITIALIZE_FROM = 0
 CHARACTER(1000) :: INITIALIZE_WITH = ''
 Logical :: use_raoult = .True.
 Logical :: variable_density = .False.
 Logical :: skip_acdc = .True. ! If True, skips ACDC with very low concentrations and negligible formation rates
 real(dp) :: dmps_tres_min = 10.
+real(dp) :: VP_MULTI = 1d0
 real(dp) :: start_time_s = 0d0
 real(dp) :: dmps_multi = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
 
 NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,dmps_tres_min, &
-                      start_time_s, dmps_multi, INITIALIZE_WITH
+                      start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI
 
-type(vapour_ambient)  :: VAPOUR_PROP
+
 type(atoms):: Natoms  ! atoms of hydrogen, oxygen, nitrogen and carbon. Used for calculating diffusion
 
 real(dp),allocatable ::  Vol_org(:)!, Diff_org(:)
@@ -475,7 +477,7 @@ subroutine READ_INPUT_DATA()
         VAPOUR_PROP%parameter_A(ii)   = parameter_A
         VAPOUR_PROP%parameter_B(ii)   = parameter_B
         VAPOUR_PROP%vapour_names(ii)  = TRIM(species_name)
-        VAPOUR_PROP%molec_mass(ii)    = calculate_molecular_mass(VAPOUR_PROP%molar_mass(ii))  !kg/#
+        VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na  !kg/#
 
         ! Option for simple parametrisation of organic vapour liquid density. Use with caution
         IF (variable_density) THEN
@@ -509,11 +511,13 @@ subroutine READ_INPUT_DATA()
     ! Sulfuric acid treated separately
     ! ---------------------------------------------------------------------
     ii = VAPOUR_PROP%vbs_bins
+    VAPOUR_PROP%ind_H2SO4    = ii
+    VAPOUR_PROP%ind_HOA      = ii-1
     VAPOUR_PROP%molar_mass(ii)    = 98.0785 *1d-3
     VAPOUR_PROP%parameter_A(ii)   = 3.869717803774
     VAPOUR_PROP%parameter_B(ii)   = 313.607405085
     VAPOUR_PROP%vapour_names(ii)  = 'H2S04'
-    VAPOUR_PROP%molec_mass(ii)    = calculate_molecular_mass(VAPOUR_PROP%molar_mass(ii))
+    VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
     VAPOUR_PROP%density(ii)       = 1819.3946 ! kg/m3
     VAPOUR_PROP%molec_volume(ii)  = calculate_molecular_volume(VAPOUR_PROP%density(ii),VAPOUR_PROP%molec_mass(ii))
     VAPOUR_PROP%surf_tension(ii)  = 0.07

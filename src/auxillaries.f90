@@ -287,6 +287,22 @@ subroutine handle_file_io(ioi, file, halt)
   END if
 end subroutine handle_file_io
 
+!====================================================================================
+! f2chr and i2chr turns float and integer to characters, Scientific notation for real
+!....................................................................................
+PURE CHARACTER(LEN=12) FUNCTION f2chr(number)
+    IMPLICIT NONE
+    real(dp), INTENT(IN) :: number
+    write(f2chr, '(es12.3)') number
+END FUNCTION f2chr
+
+PURE FUNCTION i2chr(number) result(out)
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: number
+    CHARACTER(len=int(LOG10(MAX(number*1d0, 1d0))+1)) :: out
+    write(out, '(i0)') number
+END FUNCTION i2chr
+
 
 
 end MODULE AUXILLARIES

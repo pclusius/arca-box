@@ -339,14 +339,14 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOURS, cu
     end do
     do j = 1,size(savepar)
       ! if (parbuf(i)%name == 'CONDENSABLES'          ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      if (savepar(j)%name == 'NUMBER_CONCENTRATION'  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, 1d-6*current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      if (savepar(j)%name == 'DIAMETER'              ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%diameter_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      if (savepar(j)%name == 'NUMBER_CONCENTRATION'  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, 1d-6*(.nconc.current_PSD), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      if (savepar(j)%name == 'DIAMETER'              ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, .dp.current_PSD, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
       ! if (savepar(j)%name == 'DRY_DIAMETER'          ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%dp_dry_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
       ! if (parbuf(i)%name == 'ORIGINAL_DRY_DIAMETER' ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%original_dry_radius, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
       ! if (parbuf(i)%name == 'GROWTH_RATE'           ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      if (savepar(j)%name == 'CORE_VOLUME'           ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%volume_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      if (savepar(j)%name == 'MASS'                  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%particle_mass_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
-      if (savepar(j)%name == 'PARTICLE_COMPOSITION'  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%composition_fs, start=(/1,1,GTIME%ind_netcdf/), count=(/vapours%vbs_bins,n_bins_particle/)))
+      if (savepar(j)%name == 'CORE_VOLUME'           ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, .vol.current_PSD, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      if (savepar(j)%name == 'MASS'                  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, .pmass.current_PSD, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
+      if (savepar(j)%name == 'PARTICLE_COMPOSITION'  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, .mcomp.current_PSD, start=(/1,1,GTIME%ind_netcdf/), count=(/vapours%vbs_bins,n_bins_particle/)))
       ! if (parbuf(i)%name == 'SURFACE_TENSION'       ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
       ! if (parbuf(i)%name == 'VAPOR_CONCENTRATION'   ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
 
@@ -407,21 +407,20 @@ PURE CHARACTER(10) FUNCTION UNITS(unit)
 
 END FUNCTION UNITS
 
-SUBROUTINE INITIALIZE_WITH_LAST(c_pp, n_c, chemconc, timepoint)
+SUBROUTINE INITIALIZE_WITH_LAST(c_pp, n_c, chemconc)
     IMPLICIT NONE
     real(dp) :: c_pp(:,:)
     real(dp) :: n_c(:)
     real(dp) :: chemconc(:)
-    integer :: file_id,i,varid, len_time, dimid, datarow
-    integer, INTENT(IN), OPTIONAL :: timepoint
+    integer :: file_id,i,varid, len_time, dimid, datarow = 0
 
     if (Chemistry_flag) THEN
         print FMT_MSG, 'Initializing chemistry with '//TRIM(INITIALIZE_WITH)//'. This takes a while.'
         call handler(__LINE__, nf90_open(TRIM(INITIALIZE_WITH)//'/Chemistry.nc', NF90_NOWRITE, file_id) )
 
-    if (PRESENT(timepoint)) THEN
-        datarow = timepoint
-    else
+    if (INITIALIZE_FROM>0) THEN
+        datarow = INITIALIZE_FROM
+    ELSE
         call handler(__LINE__, nf90_inq_dimid(file_id, 'time', dimid) )
         call handler(__LINE__, nf90_inquire_dimension(file_id, dimid, len=len_time) )
         datarow = len_time
@@ -440,9 +439,9 @@ if (Aerosol_flag) THEN
     call handler(__LINE__, nf90_open(TRIM(INITIALIZE_WITH)//'/Particle.nc', NF90_NOWRITE, file_id) )
 
     ! Get the last index if no index was given
-    if (PRESENT(timepoint)) THEN
-        datarow = timepoint
-    else
+    if (INITIALIZE_FROM>0) THEN
+        datarow = INITIALIZE_FROM
+    ELSE
         call handler(__LINE__, nf90_inq_dimid(file_id, 'time', dimid) )
         call handler(__LINE__, nf90_inquire_dimension(file_id, dimid, len=len_time) )
         datarow = len_time

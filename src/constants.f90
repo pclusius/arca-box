@@ -134,27 +134,22 @@ type PSD
   REAL(dp), ALLOCATABLE :: composition_fs(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,n_cond_tot)
   REAL(dp), ALLOCATABLE :: conc_fs(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
 
-  ! ! FULL STATIONARY METHOD
-  ! REAL(dp), ALLOCATABLE :: diameter_ma(:)          ! particle diameter [m] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: dp_dry_ma(:)            ! dry particle diameter [m] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: volume_ma(:)            ! particle volume   [m³ / particle] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: density_ma(:)           ! particle density  [kg * m⁻³] (n_cond_tot)
-  ! REAL(dp), ALLOCATABLE :: particle_density_ma(:)  ! particle density [kg * m⁻³] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: particle_mass_ma(:)     ! particle mass [kg] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: composition_ma(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,n_cond_tot)
-  ! REAL(dp), ALLOCATABLE :: conc_ma(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
 
-  ! REAL(dp), ALLOCATABLE :: p_diam(:)               ! particle diameter [m] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: p_diam_dry(:)           ! dry particle diameter [m] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: p_vol(:)                ! particle volume   [m³ / m³] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: p_conc(:)               ! particle concentration in each size bin [m⁻³] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: p_dens(:)               ! particle density [kg * m⁻³] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: p_mass(:)               ! particle mass [kg] (nr_bins)
-  ! REAL(dp), ALLOCATABLE :: condensed_dens(:)       ! particle phase density  [kg * m⁻³] (n_cond_tot)
-  ! REAL(dp), ALLOCATABLE :: p_comp_m(:,:)           ! mass of all species in the particle phase [kg/m⁻³] (nr_bins,n_cond_tot)
-  ! REAL(dp), ALLOCATABLE :: p_comp_c(:,:)           ! concentrations of all species in the particle phase [kg/m⁻³] (nr_bins,n_cond_tot)
+  ! MOVING AVERAGE, FIXED GRID
+  REAL(dp), ALLOCATABLE :: diameter_ma(:)          ! particle diameter [m] (nr_bins)
+  REAL(dp), ALLOCATABLE :: dp_dry_ma(:)            ! dry particle diameter [m] (nr_bins)
+  REAL(dp), ALLOCATABLE :: volume_ma(:)            ! particle volume   [m³ / particle] (nr_bins)
+  REAL(dp), ALLOCATABLE :: density_ma(:)           ! particle density  [kg * m⁻³] (n_cond_tot)
+  REAL(dp), ALLOCATABLE :: particle_density_ma(:)  ! particle density [kg * m⁻³] (nr_bins)
+  REAL(dp), ALLOCATABLE :: particle_mass_ma(:)     ! particle mass [kg] (nr_bins)
+  REAL(dp), ALLOCATABLE :: composition_ma(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,n_cond_tot)
+  REAL(dp), ALLOCATABLE :: conc_ma(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
+  REAL(dp), ALLOCATABLE :: grid_ma(:)              ! grid that contains the bin borders [m⁻³] (nr_bins+1)
+
 
 END TYPE PSD
+
+
 
 
 !===============================================================
@@ -168,6 +163,23 @@ type atoms  ! for reading in molar mass of each atom. WIll be used to calculate 
   REAL(dp), allocatable :: comp_prop(:,:)
 end type atoms
 
+! This datatype contains all parameters for input vapours
+type :: vapour_ambient
+  real(dp), allocatable             :: molar_mass(:), parameter_A(:), parameter_B(:)
+  character(len=256), allocatable   :: vapour_names(:)
+  real(dp),allocatable              :: alpha(:) !       = 1.0
+  real(dp),allocatable              :: density(:)
+  real(dp),allocatable              :: surf_tension(:)
+  integer                           :: vapour_number
+  integer                           :: ind_H2SO4
+  integer                           :: ind_HOA
+  integer                           :: vbs_bins
+  integer,allocatable               :: cond_type(:)
+  real(dp),allocatable              :: molec_dia(:)
+  real(dp),allocatable              :: molec_mass(:), molec_volume(:) ! molecule mass and molecule volume
+  real(dp),allocatable              :: c_sat(:), vap_conc(:)!, vapour_type(:), condensing_type(:)
+  real(dp),allocatable              :: mfractions(:)        ! dimension(tot_spec) mole fractions
+end type vapour_ambient
 
 
 ! ------------------------------------------------------------
@@ -179,6 +191,31 @@ end interface operator(+)
 interface operator(.mod.)
   module procedure MOD_CONC
 end interface operator(.mod.)
+
+interface operator(.dp.)
+  module procedure PSD_dia
+end interface operator(.dp.)
+
+interface operator(.nconc.)
+  module procedure PSD_nconc
+end interface operator(.nconc.)
+
+interface operator(.mcomp.)
+  module procedure PSD_mcomp
+end interface operator(.mcomp.)
+
+interface operator(.ncomp.)
+  module procedure PSD_ncomp
+end interface operator(.ncomp.)
+
+interface operator(.vol.)
+  module procedure PSD_vol
+end interface operator(.vol.)
+
+interface operator(.pmass.)
+  module procedure PSD_mass
+end interface operator(.pmass.)
+
 ! ------------------------------------------------------------
 
 type(timetype)  :: GTIME
@@ -189,6 +226,8 @@ REAL(dp)                      :: J_TOTAL = 0d0
 REAL(dp)                      :: clusteracid,clusterbase,dclusteracid,dclusterbase
 REAL(dp)                      :: J_NH3_BY_IONS(3) = 0d0
 REAL(dp)                      :: acdc_cluster_diam = 2.17d-9
+
+type(vapour_ambient)  :: VAPOUR_PROP
 
 REAL(dp) :: RESOLVED_BASE, RESOLVED_J
 REAL(dp) :: GC_AIR_NOW, GTEMPK, GPRES, GRH ! Global Air concentration, Temperature, Pressure and Relative humidity
@@ -314,6 +353,92 @@ PURE FUNCTION UCASE(word)
   FORALL (i=1:len(word), ((ichar(word(i:i))>96) .and. (ichar(word(i:i))<123))) UCASE(i:i) = char(ichar(word(i:i))-32)
 END FUNCTION UCASE
 
+
+! Returns a diameter array of size(nr_bins) that is independant of PSD_style
+FUNCTION PSD_ncomp(PSD_Var)
+  IMPLICIT none
+  type(PSD), INTENT(IN) :: PSD_Var
+  REAL(dp) :: PSD_ncomp(PSD_Var%nr_bins,VAPOUR_PROP%vbs_bins)
+  integer :: i
+
+  IF (PSD_Var%PSD_style == 1) THEN
+      do i=1,PSD_Var%nr_bins
+          PSD_ncomp(i,:) = PSD_Var%composition_fs(i,:) / VAPOUR_PROP%molar_mass * Na
+      end do
+  ELSE IF (PSD_Var%PSD_style == 2) THEN
+      do i=1,PSD_Var%nr_bins
+          PSD_ncomp(i,:) = PSD_Var%composition_ma(i,:) / VAPOUR_PROP%molar_mass * Na
+      end do
+  END IF
+END FUNCTION PSD_ncomp
+
+
+! Returns a diameter array of size(nr_bins) that is independant of PSD_style
+FUNCTION PSD_mcomp(PSD_Var)
+  IMPLICIT none
+  type(PSD), INTENT(IN) :: PSD_Var
+  REAL(dp) :: PSD_mcomp(PSD_Var%nr_bins,VAPOUR_PROP%vbs_bins)
+
+  IF (PSD_Var%PSD_style == 1) THEN
+    PSD_mcomp = PSD_Var%composition_fs
+  ELSE IF (PSD_Var%PSD_style == 2) THEN
+    PSD_mcomp = PSD_Var%composition_ma
+  END IF
+END FUNCTION PSD_mcomp
+
+
+! Returns a diameter array of size(nr_bins) that is independant of PSD_style
+FUNCTION PSD_dia(PSD_Var)
+  IMPLICIT none
+  type(PSD), INTENT(IN) :: PSD_Var
+  REAL(dp) :: PSD_dia(PSD_Var%nr_bins)
+
+  IF (PSD_Var%PSD_style == 1) THEN
+    PSD_dia = PSD_Var%diameter_fs
+  ELSE IF (PSD_Var%PSD_style == 2) THEN
+    PSD_dia = PSD_Var%diameter_ma
+  END IF
+END FUNCTION PSD_dia
+
+
+! Returns a diameter array of size(nr_bins) that is independant of PSD_style
+FUNCTION PSD_vol(PSD_Var)
+  IMPLICIT none
+  type(PSD), INTENT(IN) :: PSD_Var
+  REAL(dp) :: PSD_vol(PSD_Var%nr_bins)
+
+  IF (PSD_Var%PSD_style == 1) THEN
+    PSD_vol = PSD_Var%diameter_fs**3d0 * pi / 6d0
+  ELSE IF (PSD_Var%PSD_style == 2) THEN
+    PSD_vol = PSD_Var%diameter_ma**3d0 * pi / 6d0
+  END IF
+END FUNCTION PSD_vol
+
+! Returns a diameter array of size(nr_bins) that is independant of PSD_style
+FUNCTION PSD_nconc(PSD_Var)
+  IMPLICIT none
+  type(PSD), INTENT(IN) :: PSD_Var
+  REAL(dp) :: PSD_nconc(PSD_Var%nr_bins)
+
+  IF (PSD_Var%PSD_style == 1) THEN
+    PSD_nconc = PSD_Var%conc_fs
+  ELSE IF (PSD_Var%PSD_style == 2) THEN
+    PSD_nconc = PSD_Var%conc_ma
+  END IF
+END FUNCTION PSD_nconc
+
+! Returns a diameter array of size(nr_bins) that is independant of PSD_style
+FUNCTION PSD_mass(PSD_Var)
+  IMPLICIT none
+  type(PSD), INTENT(IN) :: PSD_Var
+  REAL(dp) :: PSD_mass(PSD_Var%nr_bins)
+
+  IF (PSD_Var%PSD_style == 1) THEN
+    PSD_mass = PSD_Var%particle_mass_fs
+  ELSE IF (PSD_Var%PSD_style == 2) THEN
+    PSD_mass = PSD_Var%particle_mass_ma
+  END IF
+END FUNCTION PSD_mass
 
 
 end MODULE constants

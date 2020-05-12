@@ -17,6 +17,7 @@ SUBROUTINE Nucleation_routine (J_TOTAL,particle_conc,composition)
   REAL(dp), intent(in   ) :: J_TOTAL ![m-3 s-1]
   REAL(dp), intent(inout) :: particle_conc  ! [molec m-3], particle number concentration
   REAL(dp), intent(inout) :: composition(:)  ! [molec m-3], particle number concentration
+  integer :: i
   ! REAL(dp) :: Knucl            ! [m3 molec-1 s-1], nucleation coefficient
   ! REAL(dp) :: nucleation_rate  ! [molec m-3 s-1], nucleation rate
 
@@ -25,7 +26,7 @@ SUBROUTINE Nucleation_routine (J_TOTAL,particle_conc,composition)
   ! particle_conc(1) = old_par + nucleation_rate * GTIME%dt_aer
 
   particle_conc = particle_conc  + J_TOTAL * GTIME%dt_aer
-  composition(:) = VAPOUR_PROP%mfractions * CURRENT_PSD%volume_fs(1) * VAPOUR_PROP%density
+  composition(:) = VAPOUR_PROP%mfractions * pack(get_volume(),[(i<2,i=1,n_bins_particle)]) * VAPOUR_PROP%density
 END SUBROUTINE Nucleation_routine
 
 
@@ -41,6 +42,7 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
   type(PSD)           , INTENT(IN) :: particles ! Current PSD properties
   REAL(dp), INTENT(INOUT) :: conc_vap(:)  ! [#/m^3], condensing vapour concentrations, DIM(n_cond_tot)
   REAL(dp), INTENT(INOUT) :: dmass(:,:)   ! [kg/m^3] change of mass per particle in particle phase, DIM(n_bins_particle, n_cond_tot)
+  REAL(dp) :: n_conc(n_bins_particle), diameter(n_bins_particle), volume(n_bins_particle), mass(n_bins_particle) ! [#/m^3] XXX WORKING DUMMIES
   REAL(dp) :: conc_pp(n_bins_particle,n_cond_tot) ! [#/m^3] Particle phase concentrations, DIM(n_bins_particle,n_cond_tot)
   REAL(dp), DIMENSION(n_bins_particle,n_cond_tot) :: CR ! [/s] collisions per second, collision rate * concentration
 
@@ -52,12 +54,18 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
   REAL(dp), DIMENSION(n_cond_tot) :: conc_vap_old
   REAL(dp) :: conc_guess
   REAL(dp) :: sum_org ! Sum of organic concentration in bin, transient variable
-  INTEGER :: ii
+  INTEGER :: ii,i
+
+  conc_pp = 0d0
+  conc_pp = get_composition()
+  n_conc = get_conc()
+  diameter = get_dp()
+  volume = get_volume()
+  mass = sum(conc_pp, 2)
 
   ! Fill the number concentration composition matrix
-  conc_pp = 0d0
   do ii=1, n_bins_particle
-    conc_pp(ii,:) = particles%composition_fs(ii,:) * Na / vapour_prop%molar_mass * current_PSD%conc_fs(ii)
+    conc_pp(ii,:) = conc_pp(ii,:) * Na / vapour_prop%molar_mass * n_conc(ii)
   end do
 
   ! original gas phase concentration
@@ -69,7 +77,7 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
 
   if (use_raoult) THEN
     DO ii=1,n_bins_particle
-      if (particles%volume_fs(ii) >0.0 .and. particles%diameter_fs(ii) > 1D-9) then
+      if (volume(ii) >0.0 .and. diameter(ii) > 1D-9) then
         sum_org = sum(conc_pp(ii,:),DIM=1, Mask=(vapour_prop%cond_type==1))
         if (sum_org>0) THEN
           xorg(ii,:)= conc_pp(ii,:)/sum_org
@@ -82,12 +90,14 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
     END DO
   END if
 
-
   ! Kelvin and Kohler factors.
   DO ii = 1, n_cond_tot
     ! Kelvin factor takes into account the curvature of particles. Unitless
-    Kelvin_Effect(:,ii) = 1D0 + 2D0*vapour_prop%surf_tension(ii)*vapour_prop%molar_mass(ii) &
-                        / (R*GTEMPK*vapour_prop%density(ii)*particles%diameter_fs(:)/2D0)
+    Kelvin_Effect(:,ii) = 1d0
+    WHERE (diameter>0d0)
+        Kelvin_Effect(:,ii) = 1D0 + 2D0*vapour_prop%surf_tension(ii)*vapour_prop%molar_mass(ii) &
+                            / (R*GTEMPK*vapour_prop%density(ii)*diameter/2D0)
+    ENDWHERE
 
     ! Kohler factor the solute partial pressure effect. Unitless
     kohler_effect(:,ii) = Kelvin_Effect(:,ii)*xorg(:,ii)
@@ -104,12 +114,21 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
   DO ii = 1, n_cond_tot
     ! Total number of collisions/s
     if (Use_atoms) THEN
-      CR(:,ii) = particles%conc_fs * collision_rate(ii,particles,vapour_prop)
+     where(diameter>0d0)
+         CR(:,ii) = n_conc * collision_rate(ii,diameter,mass,vapour_prop)
+     elsewhere
+         CR(:,ii) = 0D0
+     ENDWHERE
     ELSE
-      CR(:,ii) = particles%conc_fs * collision_rate_uhma(ii,particles%diameter_fs/2d0,particles%particle_mass_fs,vapour_prop)
+     where(diameter>0d0)
+         CR(:,ii) = n_conc * collision_rate_uhma(ii,diameter,mass,vapour_prop)
+     elsewhere
+         CR(:,ii) = 0D0
+     ENDWHERE
     END IF
 
-    if ((vapour_prop%cond_type(ii) == 2) .and. GTIME%printnow) print FMT10_CVU, 'CS SA: ',sum(CR(:,ii)), ' [/s]'
+
+    if ((ii == vapour_prop%ind_H2SO4) .and. GTIME%printnow) print FMT10_CVU, 'CS SA: ',sum(CR(:,ii)), ' [/s]'
     ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
     conc_guess = (conc_vap(ii) + GTIME%dt_aer*sum(CR(:,ii)*kohler_effect(:,ii)*vapour_prop%c_sat(ii))) &
                / (1D0 + GTIME%dt_aer*sum(CR(:,ii)))
@@ -124,7 +143,7 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
 
     ! Prevents particles to grow over the saturation limit. For organics, no acids or HOA included
     IF (ii <= n_cond_org-1) then
-      WHERE (conc_pp(:,ii)>conc_pp_eq(:,ii) .AND. conc_vap_old(ii)<(Kelvin_Effect(:,ii) * vapour_prop%c_sat(ii))) conc_pp(:,ii) = conc_pp_eq(:,ii)
+      WHERE (diameter>0d0 .and. conc_pp(:,ii)>conc_pp_eq(:,ii) .AND. conc_vap_old(ii)<(Kelvin_Effect(:,ii) * vapour_prop%c_sat(ii))) conc_pp(:,ii) = conc_pp_eq(:,ii)
     END IF
 
     ! Update conc_vap: total conc - particle phase concentration
@@ -139,8 +158,8 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
   END DO
   ! dmass(:,n_cond_tot-1) = max(dmass(:,n_cond_tot-1), 0)
   do ii = 1, n_bins_particle
-    if (current_PSD%conc_fs(ii)>0d0) THEN
-      dmass(ii,:) = dmass(ii,:) / current_PSD%conc_fs(ii)
+    if (n_conc(ii)>0d0) THEN
+      dmass(ii,:) = dmass(ii,:) / n_conc(ii)
     else
       dmass(ii,:) = 0d0
     END if
@@ -154,18 +173,18 @@ END SUBROUTINE Condensation_apc
 
 SUBROUTINE Coagulation_routine(particles,dconc_coag) ! Add more variables if you need it
   use omp_lib
-  REAL(dp), DIMENSION(n_bins_particle) :: particle_conc,diameter, particle_mass
+  REAL(dp), DIMENSION(n_bins_particle) :: n_conc,diameter, mass
   type(PSD), INTENT(IN) :: particles
   ! REAL(dp), INTENT(IN) :: timestep
-  REAL(dp), DIMENSION(n_bins_particle) :: particle_volume
-  REAL(dp) :: dp_max
+  REAL(dp), DIMENSION(n_bins_particle) :: volume
+  ! REAL(dp) :: dp_max
   ! REAL(dp) :: temperature, pressure
   integer :: i,j,m
   REAL(dp), DIMENSION(n_bins_particle,n_bins_particle) :: coagulation_coef        ! coagulation coefficients [m^3/s]
   REAL(dp), DIMENSION(n_bins_particle,n_bins_particle), intent(inout) :: dconc_coag    ! coagulation coefficients [m^3/s]
   REAL(dp), DIMENSION(n_bins_particle) :: slip_correction,diffusivity,dist, speed_p,free_path_p
   REAL(dp), DIMENSION(n_bins_particle, n_bins_particle) :: Beta_Fuchs
-  REAL(dp), DIMENSION(n_bins_particle+1) :: Vp
+  ! REAL(dp), DIMENSION(n_bins_particle+1) :: Vp
   REAL(dp) :: dyn_visc  ! dynamic viscosity, kg/(m*s)
   REAL(dp) :: l_gas     ! Gas mean free path in air
   REAL(dp) :: a
@@ -173,14 +192,23 @@ SUBROUTINE Coagulation_routine(particles,dconc_coag) ! Add more variables if you
   REAL(dp) :: stt
   integer:: omp_rank
   ! dconc_coag = 0d0
-  particle_conc = particles%conc_fs
-  diameter =  particles%diameter_fs
-  particle_mass = particles%particle_mass_fs
-  particle_volume(1:n_bins_particle) = particles%volume_fs
 
-  dp_max = diameter(n_bins_particle)*diameter(n_bins_particle)/diameter(n_bins_particle-1)
-  Vp(1:n_bins_particle) = particle_volume(1:n_bins_particle)
-  Vp(n_bins_particle+1) = (pi*dp_max**3.)/6.
+
+  n_conc = get_conc()
+  diameter = get_dp()
+  volume = get_volume()
+  mass = get_mass()
+  ! print*, 'mass from volume', mass
+  ! print*, 'mass from compos',sum(get_composition(), 2)
+! print FMT_TIME, GTIME%hms
+! print*, sum(n_conc)
+! print*, sum(diameter)
+! print*, sum(volume)
+! print*, sum(mass)
+
+  ! dp_max = diameter(n_bins_particle)*diameter(n_bins_particle)/diameter(n_bins_particle-1)
+  ! Vp(1:n_bins_particle) = volume(1:n_bins_particle)
+  ! Vp(n_bins_particle+1) = (pi*dp_max**3.)/6.
 
   ! The Coagulation coefficient is calculated according to formula 13.56 in Seinfield and Pandis (2006), Page 603
 
@@ -194,8 +222,8 @@ SUBROUTINE Coagulation_routine(particles,dconc_coag) ! Add more variables if you
   diffusivity = slip_correction*kb*GTEMPK/(3D0*pi*dyn_visc*diameter)
 
   ! Speed of particles (m/s)
-  speed_p = SQRT(8D0*kb*GTEMPK/(pi*particle_mass))
-! print*, 'speed 55', SQRT(8D0*kb*GTEMPK/(pi*particle_mass(55)))
+  speed_p = SQRT(8D0*kb*GTEMPK/(pi*mass))
+! print*, 'speed 55', SQRT(8D0*kb*GTEMPK/(pi*mass(55)))
   ! Particle mean free path (m)
   free_path_p = 8D0*diffusivity/(pi*speed_p)
 ! print*, 'fp 55', 8D0*diffusivity(55)/(pi*speed_p(55))
@@ -218,7 +246,7 @@ SUBROUTINE Coagulation_routine(particles,dconc_coag) ! Add more variables if you
   !
   ! do i=1,n_bins_particle
   !     do j=i,n_bins_particle
-  !            coagulation_coef(i,j)=calc_coag_coeff(i,j,diameter/2d0,particle_mass,GTEMPK,GPRES)
+  !            coagulation_coef(i,j)=calc_coag_coeff(i,j,diameter/2d0,mass,GTEMPK,GPRES)
   !     end do
   !     do j=1,i
   !         coagulation_coef(i,j)=coagulation_coef(j,i)
@@ -228,7 +256,7 @@ SUBROUTINE Coagulation_routine(particles,dconc_coag) ! Add more variables if you
 dconc_coag = 0d0
   if (USE_OPENMP) THEN
     call omp_set_num_threads(4)
-    !$OMP PARALLEL shared(particle_conc, coagulation_coef) private(omp_rank, stt,j,m)
+    !$OMP PARALLEL shared(n_conc, coagulation_coef) private(omp_rank, stt,j,m)
     stt=omp_get_wtime()
     omp_rank = omp_get_thread_num()
 
@@ -242,7 +270,7 @@ dconc_coag = 0d0
         END if
         ! print*, 'b',dconc_coag(j,m)
         ! dconc_coag(j,m) = 0d0 ! 1/m^3s
-        dconc_coag(j,m) = a * coagulation_coef(m,j) * particle_conc(j) * particle_conc(m) ! 1/m^3s
+        dconc_coag(j,m) = a * coagulation_coef(m,j) * n_conc(j) * n_conc(m) ! 1/m^3s
         ! print*, 'a',dconc_coag(j,m)
       END DO
     END DO
@@ -260,7 +288,7 @@ dconc_coag = 0d0
         END if
 
         ! if (GTIME%sec>3300) print*, 'bc',dconc_coag(j,m)
-        dconc_coag(j,m) = a * coagulation_coef(m,j) * particle_conc(j) * particle_conc(m) ! 1/m^3s
+        dconc_coag(j,m) = a * coagulation_coef(m,j) * n_conc(j) * n_conc(m) ! 1/m^3s
         ! if (GTIME%sec>3300) print*, 'ac',dconc_coag(j,m)
       END DO
     END DO
@@ -326,16 +354,15 @@ END SUBROUTINE Coagulation_routine
 !
 !
 
-function collision_rate(jj,particles,vapour_prop)
+function collision_rate(jj,diameter, mass,vapour_prop)
 
     implicit none
 
     type(vapour_ambient), INTENT(IN) :: vapour_prop
-    type(PSD), INTENT(IN) :: particles ! used to be generic_psd
 
     integer, INTENT(IN) :: jj                      ! the 'number' of condensing vapour
     REAL(dp),dimension(n_bins_particle) :: collision_rate
-
+    REAL(dp), INTENT(IN) :: diameter(:), mass(:)
     ! integer :: ii
     REAL(dp) :: Diff_org
 
@@ -356,18 +383,18 @@ function collision_rate(jj,particles,vapour_prop)
     dens_air      = Mair*GPRES/(R*GTEMPK)
     air_free_path = 2D0*viscosity/(GPRES*SQRT(8D0*Mair/(pi*R*GTEMPK))) ! gas mean free path in air
     ! knudsen number
-    knudsen = 2D0 * air_free_path/particles%diameter_fs
+    knudsen = 2D0 * air_free_path/diameter
 
     ! Cunninghams slip correction factor (Seinfeld and Pandis eq 9.34 pg 407)
     slip_correction = 1D0 + knudsen * &
-                      (1.257D0 + 0.4D0*exp(-1.1D0/(2D0*air_free_path/particles%diameter_fs)))
+                      (1.257D0 + 0.4D0*exp(-1.1D0/(2D0*air_free_path/diameter)))
 
     ! particle diffusion coefficient (m^2 s^-1)
-    Diff_par = (kb * GTEMPK * slip_correction) / (3D0 * pi * viscosity * particles%diameter_fs)
+    Diff_par = (kb * GTEMPK * slip_correction) / (3D0 * pi * viscosity * diameter)
 
-
-    where (particles%particle_mass_fs> 0)
-      speed_p = SQRT(8D0*kb*GTEMPK/(pi*particles%particle_mass_fs)) ! speed of particle unit(mass)=kg
+    speed_p = 0d0
+    where (mass> 0)
+      speed_p = SQRT(8D0*kb*GTEMPK/(pi*mass)) ! speed of particle unit(mass)=kg
     END where
 
    ! write(*,*) 'Carlton debug check molecvol line 276', molecvol(jj)
@@ -405,7 +432,7 @@ function collision_rate(jj,particles,vapour_prop)
         gasmeanfpH2SO4 = 3D0*(Diff_H2SO4 + Diff_par)/SQRT(speedH2SO4**2D0 + speed_p**2D0)
 
        ! Knudsen number H2SO4
-       KnH2SO4=2D0*gasmeanfpH2SO4/(particles%diameter_fs + d_H2SO4)
+       KnH2SO4=2D0*gasmeanfpH2SO4/(diameter + d_H2SO4)
 
        ! Fuchs-Sutugin correction factor for transit
        f_corH2SO4 = (0.75*vapour_prop%alpha(jj)*(1D0 + KnH2SO4))/ &
@@ -413,7 +440,7 @@ function collision_rate(jj,particles,vapour_prop)
 
        DH2SO4eff = (Diff_H2SO4 + Diff_par)*f_corH2SO4    !m2/s
 
-       collision_rate = 2D0*pi*(particles%diameter_fs + d_H2SO4)*DH2SO4eff  !mass transfer rate m3/s
+       collision_rate = 2D0*pi*(diameter + d_H2SO4)*DH2SO4eff  !mass transfer rate m3/s
 
        ! write(*,*) 'mH2SO4', mH2SO4
 
@@ -439,7 +466,7 @@ function collision_rate(jj,particles,vapour_prop)
        gasmeanfporg=3D0*(Diff_org + Diff_par)/SQRT(speedorg**2D0 + speed_p**2D0)
 
        ! Knudsen number organic comp
-       Knorg=2D0*gasmeanfporg/(particles%diameter_fs + dorg)
+       Knorg=2D0*gasmeanfporg/(diameter + dorg)
 
        ! Fuchs-Sutugin correction factor for transit
        f_cororg=(0.75*vapour_prop%alpha(jj)*(1D0 + Knorg))/&
@@ -447,7 +474,7 @@ function collision_rate(jj,particles,vapour_prop)
 
        Dorgeff = (Diff_org + Diff_par)*f_cororg                    ! m^2/s
 
-       collision_rate = 2D0*pi*(particles%diameter_fs + dorg)*Dorgeff        ! mass transfer coefficient s^-1
+       collision_rate = 2D0*pi*(diameter + dorg)*Dorgeff        ! mass transfer coefficient s^-1
 
      ENDIF
 
@@ -455,14 +482,14 @@ END function collision_rate
 
 
 
-function collision_rate_uhma(jj,radius,mass,vapour_prop)
+function collision_rate_uhma(jj,diameter,mass,vapour_prop)
 
     implicit none
 
     type(vapour_ambient),intent(in) :: vapour_prop
     integer, intent(in) :: jj                                                        ! the 'number' of condensing vapour
-    real(dp),dimension(:),intent(in) :: radius,mass
-    real(dp), dimension(100) :: collision_rate_uhma
+    real(dp),dimension(:),intent(in) :: diameter,mass
+    real(dp), dimension(n_bins_particle) :: collision_rate_uhma, radius
 
     real(dp) :: air_free_path, r_vap, viscosity, r_h2o,temp,rh,pres
     real(dp), dimension(n_bins_particle) :: knudsen, corr, dif_part
@@ -471,7 +498,7 @@ function collision_rate_uhma(jj,radius,mass,vapour_prop)
     real(dp) :: DH2SO40,DH2SO4,Keq1,Keq2,d_H2SO4,mH2SO4,speedH2SO4,Dorg,dX,dens_air,speedorg
     real(dp),dimension(n_bins_particle) :: gasmeanfpH2SO4,speed_p,KnH2SO4,f_corH2SO4,DH2SO4eff,gasmeanfporg,&
                                         Knorg,f_cororg,Dorgeff
-
+    radius = diameter/2d0
     temp=GTEMPK
     rh=grh ! RH unit %,values from 1-100
     pres=gpres

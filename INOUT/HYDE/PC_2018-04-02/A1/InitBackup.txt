@@ -1,6 +1,6 @@
 #--------------------------------------------------
-#      Superbox setting file: INOUT/HYDE/PC_2018-04-02/input/PC_2018-04-02_A1.conf
-#         Created at: May 04 2020, 21:47:13
+#      Superbox setting file: ModelLib/gui/tmp/GUI_INIT.tmp
+#         Created at: May 12 2020, 11:45:51
 #--------------------------------------------------
 
 &NML_PATH
@@ -17,7 +17,7 @@
  EXTRA_DATA = F
  CURRENT_CASE = F
  CONDENSATION = .TRUE.
- COAGULATION = .FALSE.
+ COAGULATION = .TRUE.
  MODEL_H2SO4 = .FALSE.
  RESOLVE_BASE = .FALSE.
  PRINT_ACDC = .FALSE.
@@ -34,7 +34,7 @@
 /
 
 &NML_PARTICLE
- PSD_MODE = 1
+ PSD_MODE = 2
  N_BINS_PARTICLE = 100
  MIN_PARTICLE_DIAM = 1.07d-9
  MAX_PARTICLE_DIAM = 2d-6
