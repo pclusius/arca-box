@@ -1,12 +1,12 @@
 #--------------------------------------------------
 #      Superbox setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: May 13 2020, 00:29:32
+#         Created at: May 13 2020, 00:41:09
 #--------------------------------------------------
 
 &NML_PATH
  INOUT_DIR = 'INOUT/HYDE'
  CASE_NAME = 'PC'
- RUN_NAME = 'XX'
+ RUN_NAME = 'X2'
 /
 
 &NML_FLAG
@@ -34,8 +34,8 @@
 /
 
 &NML_PARTICLE
- PSD_MODE = 2
- N_BINS_PARTICLE = 500
+ PSD_MODE = 1
+ N_BINS_PARTICLE = 100
  MIN_PARTICLE_DIAM = 1.07d-9
  MAX_PARTICLE_DIAM = 1d-6
  DMPS_FILE = 'INOUT/filled_dmps/dm180410.sum'

@@ -1,12 +1,12 @@
 #--------------------------------------------------
 #      Superbox setting file: FS_test
-#         Created at: May 12 2020, 21:39:23
+#         Created at: May 13 2020, 00:48:18
 #--------------------------------------------------
 
 &NML_PATH
  INOUT_DIR = 'INOUT/HYDE'
  CASE_NAME = 'PC'
- RUN_NAME = 'FS1'
+ RUN_NAME = 'X2'
 / 
 
 &NML_FLAG
@@ -17,17 +17,17 @@
  EXTRA_DATA = F
  CURRENT_CASE = F
  CONDENSATION = .TRUE.
- COAGULATION = .TRUE.
+ COAGULATION = .FALSE.
  MODEL_H2SO4 = .FALSE.
  RESOLVE_BASE = .FALSE.
  PRINT_ACDC = .FALSE.
 / 
 
 &NML_TIME
- RUNTIME = 24.0
+ RUNTIME = 15.0
  DT = 10
  FSAVE_INTERVAL = 300
- PRINT_INTERVAL = 300
+ PRINT_INTERVAL = 600
  FSAVE_DIVISION = 0
  DATE = '2018-04-10'
  INDEX = ''
@@ -37,14 +37,14 @@
  PSD_MODE = 1
  N_BINS_PARTICLE = 100
  MIN_PARTICLE_DIAM = 1.07d-9
- MAX_PARTICLE_DIAM = 2d-6
+ MAX_PARTICLE_DIAM = 1d-6
  DMPS_FILE = 'INOUT/filled_dmps/dm180410.sum'
  EXTRA_PARTICLES = ''
- DMPS_READ_IN_TIME = 1.0
- DMPS_HIGHBAND_LOWER_LIMIT = 15e-9
- DMPS_LOWBAND_UPPER_LIMIT = 0
+ DMPS_READ_IN_TIME = 0.0
+ DMPS_HIGHBAND_LOWER_LIMIT = 18e-9
+ DMPS_LOWBAND_UPPER_LIMIT = 
  USE_DMPS = .TRUE.
- USE_DMPS_SPECIAL = .FALSE.
+ USE_DMPS_SPECIAL = .TRUE.
 / 
 
 &NML_ENV
@@ -94,7 +94,7 @@
  WAIT_FOR = 0
  DESCRIPTION = 'Same as dMalte runs but no coagulation to save time'
  CH_ALBEDO = 0.2
- DMA_F = 0.0
+ DMA_F = 0.01
  RESOLVE_BASE_PRECISION = 0.05
  FILL_FORMATION_WITH = ''
 / 
