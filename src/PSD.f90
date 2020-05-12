@@ -777,7 +777,7 @@ END SUBROUTINE PSD_Change_condensation
     INTEGER, INTENT(IN) :: ind   ! The bin which is to be redistributed -> it generally has different diameter than in diameter_ma!
     INTEGER             :: n_b   ! Short for number of bins
     INTEGER             :: aa    ! aa and (aa+-1): bin number where the new concentration moves to
-    REAL(dp)            :: r1,r2 ! Contraction fractions that move to bin a and a-1, respectively
+    ! REAL(dp)            :: r1,r2 ! Contraction fractions that move to bin a and a-1, respectively
     REAL(dp)            :: dp_ind  !diameter of the mix_PSD that is to be redistributed [m]
     REAL(dp)            :: old_new_dp !the diameter of new_PSD before it considers changes [m]
 

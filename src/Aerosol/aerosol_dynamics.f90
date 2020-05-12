@@ -36,10 +36,10 @@ END SUBROUTINE Nucleation_routine
 ! fundamentals of atmospheric modelling. Dmass, which is the flux onto or removed from the particles is the outcome
 ! of this subroutine which is fed to PSD
 ! ======================================================================================================================
-SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
+SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass)
   IMPLICIT NONE
   type(vapour_ambient), INTENT(IN) :: vapour_prop ! Properties of condensing vapours
-  type(PSD)           , INTENT(IN) :: particles ! Current PSD properties
+  ! type(PSD)           , INTENT(IN) :: particles ! Current PSD properties
   REAL(dp), INTENT(INOUT) :: conc_vap(:)  ! [#/m^3], condensing vapour concentrations, DIM(n_cond_tot)
   REAL(dp), INTENT(INOUT) :: dmass(:,:)   ! [kg/m^3] change of mass per particle in particle phase, DIM(n_bins_particle, n_cond_tot)
   REAL(dp) :: n_conc(n_bins_particle), diameter(n_bins_particle), volume(n_bins_particle), mass(n_bins_particle) ! [#/m^3] XXX WORKING DUMMIES
@@ -54,7 +54,7 @@ SUBROUTINE Condensation_apc(vapour_prop, particles, conc_vap, dmass)
   REAL(dp), DIMENSION(n_cond_tot) :: conc_vap_old
   REAL(dp) :: conc_guess
   REAL(dp) :: sum_org ! Sum of organic concentration in bin, transient variable
-  INTEGER :: ii,i
+  INTEGER :: ii
 
   conc_pp = 0d0
   conc_pp = get_composition()
@@ -171,10 +171,10 @@ END SUBROUTINE Condensation_apc
 
 
 
-SUBROUTINE Coagulation_routine(particles,dconc_coag) ! Add more variables if you need it
+SUBROUTINE Coagulation_routine(dconc_coag) ! Add more variables if you need it
   use omp_lib
   REAL(dp), DIMENSION(n_bins_particle) :: n_conc,diameter, mass
-  type(PSD), INTENT(IN) :: particles
+  ! type(PSD), INTENT(IN) :: particles
   ! REAL(dp), INTENT(IN) :: timestep
   REAL(dp), DIMENSION(n_bins_particle) :: volume
   ! REAL(dp) :: dp_max

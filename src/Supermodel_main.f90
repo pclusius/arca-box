@@ -179,7 +179,7 @@ close(334)
 open(unit=333, file=RUN_OUTPUT_DIR//'/error_output.txt')
 
 ! Open netCDF files
-CALL OPEN_FILES( RUN_OUTPUT_DIR, Description, MODS, CH_GAS, VAPOUR_PROP, CURRENT_PSD)
+CALL OPEN_FILES( RUN_OUTPUT_DIR, Description, MODS, CH_GAS, VAPOUR_PROP)
 
 ! If wait_for was defined in user options, wait for a sec
 CALL PAUSE_FOR_WHILE(wait_for)
@@ -364,7 +364,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             CALL Calculate_SaturationVapourConcentration(VAPOUR_PROP, GTEMPK, VP_MULTI)
             ! Solve mass flux
             dmass = 0d0
-            CALL Condensation_apc(VAPOUR_PROP,CURRENT_PSD,conc_vapour,dmass)
+            CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass)
             ! Distribute mass
             CALL Mass_Number_Change('condensation')
             ! Update current_psd
@@ -384,7 +384,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
         ! COAGULATION
         if (Coagulation) then
             ! Solve particle coagulation
-            Call Coagulation_routine(CURRENT_PSD,dconc_coag)
+            Call Coagulation_routine(dconc_coag)
             ! Distribute mass
             Call Mass_Number_Change('coagulation')
             ! Update PSD with new concentrations

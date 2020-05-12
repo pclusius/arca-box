@@ -41,7 +41,7 @@ INTEGER :: gJ_out_DMA_id
 INTEGER :: gJ_out_SUM_id
 INTEGER :: gRES_BASE
 INTEGER :: gRES_J
-INTEGER :: n_condensables=0
+! INTEGER :: n_condensables=0
 public :: OPEN_FILES, SAVE_GASES,CLOSE_FILES,INITIALIZE_WITH_LAST
 
 type(parsave) :: parbuf(20)
@@ -53,14 +53,14 @@ CONTAINS
   ! CREATE (OR OVERWRITE OLD) THREE NETCDF-FILES TO STORE OUTPUT. PARTICLES IS STILL VERY ROUGH SINCE WE DON'T HAVE THEM
   ! YET, BUT GENERAL AND CHEMISTRY ARE THERE ALREADY.
   ! --------------------------------------------------------------------------------------------------------------------
-  SUBROUTINE OPEN_FILES(filename, Description, MODS, CH_GAS, vapours, current_psd)
+  SUBROUTINE OPEN_FILES(filename, Description, MODS, CH_GAS, vapours)
     IMPLICIT NONE
 
     CHARACTER(LEN=*), INTENT(IN)    :: filename
     CHARACTER(*), INTENT(IN)        :: Description
     TYPE(input_mod),INTENT(INOUT)   :: MODS(:)
     TYPE(vapour_ambient),INTENT(IN) :: vapours
-    TYPE(psd),INTENT(IN)            :: current_PSD
+    ! TYPE(psd),INTENT(IN)            :: current_PSD
     REAL(dp), INTENT(IN)            :: CH_GAS(:)
     CHARACTER(255)                  :: PROGRAM_NAME
     INTEGER                         :: i,j,k,ioi,lenD
