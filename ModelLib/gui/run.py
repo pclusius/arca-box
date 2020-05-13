@@ -1091,8 +1091,9 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
         hm = pg.ImageItem(n_levelled)
 
-        hm.translate(0,scale[2])
-        hm.scale(scale[0],scale[1])
+        if self.Y_axis_in_nm.isChecked():
+            hm.translate(0,scale[2])
+            hm.scale(scale[0],scale[1])
 
 
         try:
@@ -1111,7 +1112,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         hm.setLevels(levels)
         window.setMenuEnabled(False)
         window.addItem(hm)
-        window.setLogMode(False, True)
+        if self.Y_axis_in_nm.isChecked():
+            window.setLogMode(False, True)
+        else:
+            window.setLogMode(False, False)
 
 
     def startBox(self):

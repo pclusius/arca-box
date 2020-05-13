@@ -2207,6 +2207,10 @@ class Ui_MainWindow(object):
         self.cmJet.setCheckable(True)
         self.cmJet.setEnabled(True)
         self.cmJet.setObjectName("cmJet")
+        self.Y_axis_in_nm = QtWidgets.QAction(MainWindow)
+        self.Y_axis_in_nm.setCheckable(True)
+        self.Y_axis_in_nm.setChecked(True)
+        self.Y_axis_in_nm.setObjectName("Y_axis_in_nm")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave_to_current)
         self.menuFile.addAction(self.actionSave_2)
@@ -2216,6 +2220,7 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit_Ctrl_Q)
         self.menuPlot.addAction(self.cmJet)
+        self.menuPlot.addAction(self.Y_axis_in_nm)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuPlot.menuAction())
 
@@ -2659,4 +2664,5 @@ class Ui_MainWindow(object):
         self.actionCreate_output_directories.setShortcut(_translate("MainWindow", "Ctrl+D"))
         self.actionSave_selected_to_txt.setText(_translate("MainWindow", "Save selected to .txt"))
         self.cmJet.setText(_translate("MainWindow", "\'Jet\' colors"))
+        self.Y_axis_in_nm.setText(_translate("MainWindow", "y-axis in nm (instead of bin #)"))
 from pyqtgraph import PlotWidget
