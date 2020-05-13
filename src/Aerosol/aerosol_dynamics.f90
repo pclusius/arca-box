@@ -94,10 +94,9 @@ SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass)
   DO ii = 1, n_cond_tot
     ! Kelvin factor takes into account the curvature of particles. Unitless
     Kelvin_Effect(:,ii) = 1d0
-    WHERE (diameter>0d0)
-        Kelvin_Effect(:,ii) = 1D0 + 2D0*vapour_prop%surf_tension(ii)*vapour_prop%molar_mass(ii) &
-                            / (R*GTEMPK*vapour_prop%density(ii)*diameter/2D0)
-    ENDWHERE
+
+    Kelvin_Effect(:,ii) = 1D0 + 2D0*vapour_prop%surf_tension(ii)*vapour_prop%molar_mass(ii) &
+                        / (R*GTEMPK*vapour_prop%density(ii)*diameter/2D0)
 
     ! Kohler factor the solute partial pressure effect. Unitless
     kohler_effect(:,ii) = Kelvin_Effect(:,ii)*xorg(:,ii)
@@ -108,23 +107,15 @@ SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass)
   ! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
   DO ii=1,n_bins_particle
     conc_pp_eq(ii,1:n_cond_tot-1) = conc_vap_old(1:n_cond_tot-1)*SUM(conc_pp_old(ii,1:n_cond_tot-1)) &
-                                    / (Kelvin_Effect(ii,1:n_cond_tot-1)* vapour_prop%c_sat(1:n_cond_tot-1))
+                                    / (Kelvin_Effect(ii,1:n_cond_tot-1)*vapour_prop%c_sat(1:n_cond_tot-1))
   END DO
 
   DO ii = 1, n_cond_tot
     ! Total number of collisions/s
     if (Use_atoms) THEN
-     where(diameter>0d0)
          CR(:,ii) = n_conc * collision_rate(ii,diameter,mass,vapour_prop)
-     elsewhere
-         CR(:,ii) = 0D0
-     ENDWHERE
     ELSE
-     where(diameter>0d0)
          CR(:,ii) = n_conc * collision_rate_uhma(ii,diameter,mass,vapour_prop)
-     elsewhere
-         CR(:,ii) = 0D0
-     ENDWHERE
     END IF
 
 

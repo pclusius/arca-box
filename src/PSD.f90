@@ -599,6 +599,7 @@ END SUBROUTINE PSD_Change_condensation
                             current_PSD%grid_ma(2:current_PSD%nr_bins)) / 2.d0  !the mixing aerosol diameter is in between the grid-limits
                             ! XXX This will give 1 bin less than total and reallocate the variable accordingly, probably not what is wanted
 
+
       !apply changes for all bins
       DO ii = 1, current_PSD%nr_bins
           IF (dconc_dep_mix(ii) > 1.d-100) THEN
@@ -754,7 +755,7 @@ END SUBROUTINE PSD_Change_condensation
     ! The particles stay in the same bin without any changes (should not happen)
     ELSE
       new_PSD%conc_fs(ind) = new_PSD%conc_fs(ind) + mix_PSD%conc_fs(ind)
-      print*, 'XXX3',ind, aa, GTIME%sec
+      print*, 'Trouble ahead: ',ind, aa, GTIME%sec
       ! if (aa<ind) print*, 'dmass HOA', dmass(ind,n_cond_tot-1)
       ! print*, dmass(ind,:)
       ! if (aa<ind) print*, 'conc', new_PSD%conc_fs(ind)

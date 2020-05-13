@@ -1,13 +1,13 @@
 #--------------------------------------------------
-#      Superbox setting file: ModelLib/gui/defaults
-#         Created at: May 13 2020, 10:50:04
+#      Superbox setting file: ModelLib/gui/tmp/GUI_INIT.tmp
+#         Created at: May 13 2020, 16:57:57
 #--------------------------------------------------
 
 &NML_PATH
  INOUT_DIR = 'INOUT/HYDE'
  CASE_NAME = 'PC'
- RUN_NAME = 'XG'
-/ 
+ RUN_NAME = 'XY'
+/
 
 &NML_FLAG
  CHEMISTRY_FLAG = .TRUE.
@@ -21,7 +21,7 @@
  MODEL_H2SO4 = .FALSE.
  RESOLVE_BASE = .FALSE.
  PRINT_ACDC = .FALSE.
-/ 
+/
 
 &NML_TIME
  RUNTIME = 15.0
@@ -31,29 +31,29 @@
  FSAVE_DIVISION = 0
  DATE = '2018-04-10'
  INDEX = ''
-/ 
+/
 
 &NML_PARTICLE
  PSD_MODE = 2
- N_BINS_PARTICLE = 500
- MIN_PARTICLE_DIAM = 1.07d-9
- MAX_PARTICLE_DIAM = 1d-6
+ N_BINS_PARTICLE = 100
+ MIN_PARTICLE_DIAM = 1.00d-9
+ MAX_PARTICLE_DIAM = 2d-5
  DMPS_FILE = 'INOUT/filled_dmps/dm180410.sum'
  EXTRA_PARTICLES = ''
  DMPS_READ_IN_TIME = 0.0
- DMPS_HIGHBAND_LOWER_LIMIT = 18e-9
- DMPS_LOWBAND_UPPER_LIMIT = 
+ DMPS_HIGHBAND_LOWER_LIMIT = 30e-9
+ DMPS_LOWBAND_UPPER_LIMIT =
  USE_DMPS = .TRUE.
  USE_DMPS_SPECIAL = .TRUE.
-/ 
+/
 
 &NML_ENV
  ENV_FILE = 'INOUT/HYDE/PC_2018-04-10/input/env180410.dat'
-/ 
+/
 
 &NML_MCM
  MCM_FILE = 'INOUT/HYDE/PC_2018-04-10/input/voc180410.dat'
-/ 
+/
 
 &NML_MODS
  MODS(1)   = 0   2  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'C' ! TEMPK
@@ -86,7 +86,7 @@
  MODS(153) = 0  15  9.00000d-02  0.00000d+00  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' ! LIMONENE
  MODS(156) = 0   7  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' ! CH3CO2H
  MODS(162) = 0  15  2.80000d-01  0.00000d+00  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' ! CARENE
-/ 
+/
 
 &NML_MISC
  LAT = 65.0
@@ -97,7 +97,7 @@
  DMA_F = 0.01
  RESOLVE_BASE_PRECISION = 0.05
  FILL_FORMATION_WITH = ''
-/ 
+/
 
 &NML_VAP
  VAP_LOGICAL = .TRUE.
@@ -105,13 +105,13 @@
  VAP_NAMES = 'ModelLib/Vapour_names.dat'
  VAP_PROPS = 'ModelLib/Vapour_properties.dat'
  VAP_ATOMS = 'ModelLib/O_C.dat'
-/ 
+/
 
 &NML_CUSTOM
  USE_RAOULT = .true.
  ACDC_ITERATIONS = 1
  VARIABLE_DENSITY = .false.
-/ 
+/
 
 &NML_PARALLEL
 USE_OPENMP = .false.
@@ -119,9 +119,10 @@ USE_OPENMP = .false.
 
 
 
-# Following settings are for the GUI and not directly used by the model ----- 
+# Following settings are for the GUI and not directly used by the model -----
 # RAW_INPUT = &NML_PARALLEL<br>USE_OPENMP = .false.<br>/<br>
 # INPUT_SETTINGS = 'env_file:env<yy><mm><dd>.dat mcm_file:voc<yy><mm><dd>.dat dmps_file:INOUT/filled_dmps/dm<yy><mm><dd>.sum extra_particles: stripRoot_env:.TRUE. stripRoot_mcm:.TRUE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
-#---------------------------------------------------------------------------- 
+#----------------------------------------------------------------------------
+
 

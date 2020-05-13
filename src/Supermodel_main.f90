@@ -302,7 +302,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             dmps_ln = dmps_ln + 1
         END IF
 
-        if (use_dmps_special .and. (GTIME%min >= (dmps_ln*dmps_tres_min)) .and. (GTIME%min/60d0 .ge. DMPS_read_in_time)) THEN
+        if (use_dmps .and. use_dmps_special .and. (GTIME%min >= (dmps_ln*dmps_tres_min)) .and. (GTIME%min/60d0 .ge. DMPS_read_in_time)) THEN
             ! Print user info
             if (gtime%printnow) print FMT_MSG, 'Reading in background particles partially'
             ! Fit the measured particle size distribution to the current model PSD
@@ -337,17 +337,20 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
             END IF
 
+
         ! ADD NUCLEATED PARTICLES TO PSD, IN THE 1st BIN.  This using the mixing method, where two particle distros
         ! are mixed together. NOTE that this step is always done if Aerosol_flag is on, even if ACDC_flag is off. In
         ! case no NPF is wanted, turn off ACDC and make sure NUC_RATE_IN is 0
         dmass = 0d0
         dmass(1,VAPOUR_PROP%ind_HOA) = nominal_dp(1)**3*pi/6d0 * VAPOUR_PROP%density(VAPOUR_PROP%ind_HOA)
+        dconc_dep_mix = 0d0
         dconc_dep_mix(1) = J_TOTAL*GTIME%dt_aer
         ! Negative mixing ratio makes this nucleation
         mix_ratio = -1d0
         CALL Mass_Number_Change('mixing')
         ! Update current_psd
         current_PSD = new_PSD
+
 
         ! ..........................................................................................................
         ! CONDENSATION
