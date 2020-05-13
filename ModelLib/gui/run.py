@@ -356,6 +356,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.findComp.textChanged.connect(self.filterListOfComp)
             self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
             self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=0))
+            self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=1))
         else:
             self.sumSelection.setEnabled(False)
             self.show_netcdf.show()
@@ -363,10 +364,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.fLog_2.setEnabled(False)
             self.findComp.setEnabled(False)
             self.loadNetcdf.clicked.connect(lambda: self.popup(*netcdfMissinnMes))
-            self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=0))
+            self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="sum (*.sum *.dat)",plWind=0))
+            self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="sum (*.sum *.dat)",plWind=1))
 
 
-        self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=1))
         self.plotResultWindow.setMenuEnabled(False)
         self.plotResultWindow.showGrid(x=True,y=True)
         self.plotResultWindow.setBackground('w')
@@ -918,8 +919,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.selected_vars.setCellWidget(row, i+2, unit )
         self.selected_vars.setCellWidget(row, i+3, markBut )
 
-
-
         self.selected_vars.setItem(row, i+4, QtWidgets.QTableWidgetItem('%03d'%(namesFoInds[name])))
 
         self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)
@@ -928,8 +927,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         if createNew:
             vars.mods[name] = Comp()
             vars.mods[name].Find = namesFoInds[name]
-            vars.mods[name].name = name# Human readable name for modified variable
-            # vars.mods[name].gain = min(99,max(1, int(2*self.runtime.value() - 4)))# adjust gain to runtime
+            vars.mods[name].name = name # Human readable name for modified variable
 
     # def toggleColor(self,r):
     #     if self.selected_vars.cellWidget(r,4).currentText() == 'Yes':
@@ -1056,7 +1054,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             if not exists(file):
                 self.popup('','File not found', icon=2)
                 return
-            # self.parPlotTitle_1.setText(file)
         titleLoc.setText(file)
 
 
@@ -1065,20 +1062,26 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         if 'str' in str(type(ret)):
             self.popup('Error', 'File was not completely ok, maybe an interrupted run? Error message: \n'+ret, icon=2)
             return
-        _,diam,n = ret
-        if windowInd==0:self.z0 = n
-        if windowInd==1:self.z1 = n
-        self.drawSurf(window, new=1)
+        time,diam,n = ret
 
+        if windowInd==0:
+            self.z0 = n
+            self.scaling0 = (time[-1]/n.shape[0],log10(diam[-1]/diam[0])/len(diam), log10(diam[0]*1e9))
+        if windowInd==1:
+            self.z1 = n
+            self.scaling1 = (time[-1]/n.shape[0],log10(diam[-1]/diam[0])/len(diam), log10(diam[0]*1e9))
+        self.drawSurf(window, new=1)
 
     def drawSurf(self,window, new=0):
         use_filter = False
         if window==self.surfacePlotWindow_0:
             n_levelled = self.z0
+            scale = self.scaling0
             if self.Filter_0.isChecked():
                 use_filter = True
         else:
             n_levelled = self.z1
+            scale = self.scaling1
             if self.Filter_1.isChecked():
                 use_filter = True
 
@@ -1087,6 +1090,11 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         n_levelled = where(n_levelled>=levels[1],levels[1]*0.98,n_levelled)
 
         hm = pg.ImageItem(n_levelled)
+
+        hm.translate(0,scale[2])
+        hm.scale(scale[0],scale[1])
+
+
         try:
             # If matplotlib is installed, we get colours
             from matplotlib import cm
@@ -1103,6 +1111,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         hm.setLevels(levels)
         window.setMenuEnabled(False)
         window.addItem(hm)
+        window.setLogMode(False, True)
 
 
     def startBox(self):
@@ -1591,8 +1600,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.availableVars.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
             if self.availableVars.currentItem() != None:
                 self.availableVars.currentItem().setSelected(True)
-
-
 
 
     # This function is inwoked when lin/log radio button or any variable in the list is changed:

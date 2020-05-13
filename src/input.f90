@@ -166,6 +166,7 @@ INTEGER :: INITIALIZE_FROM = 0
 CHARACTER(1000) :: INITIALIZE_WITH = ''
 Logical :: use_raoult = .True.
 Logical :: variable_density = .False.
+Logical :: DONT_SAVE_CONDENSABLES = .False.
 Logical :: skip_acdc = .True. ! If True, skips ACDC with very low concentrations and negligible formation rates
 real(dp) :: dmps_tres_min = 10.
 real(dp) :: VP_MULTI = 1d0
@@ -173,7 +174,7 @@ real(dp) :: start_time_s = 0d0
 real(dp) :: dmps_multi = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
 
 NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,dmps_tres_min, &
-                      start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI
+                      start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI, DONT_SAVE_CONDENSABLES
 
 
 type(atoms):: Natoms  ! atoms of hydrogen, oxygen, nitrogen and carbon. Used for calculating diffusion

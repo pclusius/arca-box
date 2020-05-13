@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      Superbox setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: May 13 2020, 16:57:57
+#         Created at: May 14 2020, 01:13:45
 #--------------------------------------------------
 
 &NML_PATH
@@ -24,7 +24,7 @@
 /
 
 &NML_TIME
- RUNTIME = 15.0
+ RUNTIME = 1.0
  DT = 10
  FSAVE_INTERVAL = 300
  PRINT_INTERVAL = 600
@@ -34,14 +34,14 @@
 /
 
 &NML_PARTICLE
- PSD_MODE = 2
+ PSD_MODE = 1
  N_BINS_PARTICLE = 100
- MIN_PARTICLE_DIAM = 1.00d-9
- MAX_PARTICLE_DIAM = 2d-5
+ MIN_PARTICLE_DIAM = 1.07d-8
+ MAX_PARTICLE_DIAM = 1d-5
  DMPS_FILE = 'INOUT/filled_dmps/dm180410.sum'
  EXTRA_PARTICLES = ''
  DMPS_READ_IN_TIME = 0.0
- DMPS_HIGHBAND_LOWER_LIMIT = 30e-9
+ DMPS_HIGHBAND_LOWER_LIMIT = 18e-9
  DMPS_LOWBAND_UPPER_LIMIT =
  USE_DMPS = .TRUE.
  USE_DMPS_SPECIAL = .TRUE.

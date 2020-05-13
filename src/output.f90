@@ -229,7 +229,7 @@ CONTAINS
 
 
 
-  I=3 ! Particle file. Currently only condensibles are stored here. Particles are added when we get them.
+  I=3 ! Particle file.
   if (Aerosol_flag) THEN
 
       do j = 1,size(savepar)
@@ -244,14 +244,16 @@ CONTAINS
         call handler(__LINE__, nf90_put_att(ncfile_ids(I), savepar(J)%i, 'unit' , savepar(J)%u))
       end do
 
-    do j = 1,size(vapours%vapour_names)
-      k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
-      if (k>0) THEN
-        call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(j)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
-        call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
-        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
+      if (DONT_SAVE_CONDENSABLES .eqv. .false.) THEN
+        do j = 1,size(vapours%vapour_names)
+          k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
+          if (k>0) THEN
+            call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(j)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
+            call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
+            call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
+          end if
+        end do
       end if
-    end do
   end if
 
 
@@ -331,12 +333,14 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3, J_ACDC_DMA, VAPOURS, cu
 
   I=3 ! Particle file
   if (Aerosol_flag) THEN
-    do j = 1,size(vapours%vapour_names)
-      k = IndexFromName( vapours%vapour_names(j),   SPC_NAMES )
-      if (k>0) then
-        call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(k), (/GTIME%ind_netcdf/)) )
-      end if
-    end do
+    if (DONT_SAVE_CONDENSABLES .eqv. .false.) THEN
+        do j = 1,size(vapours%vapour_names)
+          k = IndexFromName( vapours%vapour_names(j),   SPC_NAMES )
+          if (k>0) then
+            call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(k), (/GTIME%ind_netcdf/)) )
+          end if
+        end do
+    end if
     do j = 1,size(savepar)
       ! if (parbuf(i)%name == 'CONDENSABLES'          ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%conc_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))
       if (savepar(j)%name == 'NUMBER_CONCENTRATION'  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, 1d-6*(.nconc.current_PSD), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_particle/)))

@@ -41,7 +41,7 @@ def parseSum(file):
     n_conc[n_conc<=0] = 1.01
     n_conc = log10(n_conc)
     n_conc[n_conc<=0] = 0.0
-    return time, diam, n_conc
+    return time-time[0], diam, n_conc
 
 def loadNC(file):
     if ('.sum' in file) or ('.dat' in file):

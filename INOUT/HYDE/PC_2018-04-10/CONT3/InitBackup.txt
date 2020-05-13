@@ -1,12 +1,12 @@
 #--------------------------------------------------
 #      Superbox setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: May 14 2020, 00:00:13
+#         Created at: May 13 2020, 23:19:32
 #--------------------------------------------------
 
 &NML_PATH
  INOUT_DIR = 'INOUT/HYDE'
  CASE_NAME = 'PC'
- RUN_NAME = 'XG'
+ RUN_NAME = 'CONT3'
 /
 
 &NML_FLAG
@@ -24,10 +24,10 @@
 /
 
 &NML_TIME
- RUNTIME = 15.0
+ RUNTIME = 24.0
  DT = 10
  FSAVE_INTERVAL = 300
- PRINT_INTERVAL = 600
+ PRINT_INTERVAL = 300
  FSAVE_DIVISION = 0
  DATE = '2018-04-10'
  INDEX = ''
@@ -35,16 +35,16 @@
 
 &NML_PARTICLE
  PSD_MODE = 2
- N_BINS_PARTICLE = 500
+ N_BINS_PARTICLE = 200
  MIN_PARTICLE_DIAM = 1.07d-9
- MAX_PARTICLE_DIAM = 1d-6
+ MAX_PARTICLE_DIAM = 2d-6
  DMPS_FILE = 'INOUT/filled_dmps/dm180410.sum'
  EXTRA_PARTICLES = ''
  DMPS_READ_IN_TIME = 0.0
- DMPS_HIGHBAND_LOWER_LIMIT = 18e-9
- DMPS_LOWBAND_UPPER_LIMIT =
- USE_DMPS = .TRUE.
- USE_DMPS_SPECIAL = .TRUE.
+ DMPS_HIGHBAND_LOWER_LIMIT = 15e-9
+ DMPS_LOWBAND_UPPER_LIMIT = 0
+ USE_DMPS = .FALSE.
+ USE_DMPS_SPECIAL = .FALSE.
 /
 
 &NML_ENV
@@ -94,7 +94,7 @@
  WAIT_FOR = 0
  DESCRIPTION = 'Same as dMalte runs but no coagulation to save time'
  CH_ALBEDO = 0.2
- DMA_F = 0.01
+ DMA_F = 0.0
  RESOLVE_BASE_PRECISION = 0.05
  FILL_FORMATION_WITH = ''
 /
@@ -111,6 +111,8 @@
  USE_RAOULT = .true.
  ACDC_ITERATIONS = 1
  VARIABLE_DENSITY = .false.
+ INITIALIZE_WITH = 'INOUT/HYDE/PC_2018-04-10/CONT2/'
+ DONT_SAVE_CONDENSABLES = .true.
 /
 
 &NML_PARALLEL
