@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      Superbox setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: May 12 2020, 12:13:14
+#         Created at: May 14 2020, 09:34:06
 #--------------------------------------------------
 
 &NML_PATH
@@ -26,8 +26,8 @@
 &NML_TIME
  RUNTIME = 24.0
  DT = 10
- FSAVE_INTERVAL = 600
- PRINT_INTERVAL = 1200
+ FSAVE_INTERVAL = 300
+ PRINT_INTERVAL = 600
  FSAVE_DIVISION = 0
  DATE = '2018-04-10'
  INDEX = ''
@@ -35,14 +35,14 @@
 
 &NML_PARTICLE
  PSD_MODE = 2
- N_BINS_PARTICLE = 100
+ N_BINS_PARTICLE = 500
  MIN_PARTICLE_DIAM = 1.07d-9
  MAX_PARTICLE_DIAM = 2d-6
  DMPS_FILE = 'INOUT/filled_dmps/dm180410.sum'
  EXTRA_PARTICLES = ''
- DMPS_READ_IN_TIME = 1.0
- DMPS_HIGHBAND_LOWER_LIMIT = 15e-9
- DMPS_LOWBAND_UPPER_LIMIT = 0
+ DMPS_READ_IN_TIME = 8.0
+ DMPS_HIGHBAND_LOWER_LIMIT = 18e-9
+ DMPS_LOWBAND_UPPER_LIMIT =
  USE_DMPS = .TRUE.
  USE_DMPS_SPECIAL = .FALSE.
 /
@@ -92,9 +92,9 @@
  LAT = 65.0
  LON = -25.0
  WAIT_FOR = 0
- DESCRIPTION = 'Same as dMalte runs but no coagulation to save time'
+ DESCRIPTION = 'Base set'
  CH_ALBEDO = 0.2
- DMA_F = 0.0
+ DMA_F = 0.01
  RESOLVE_BASE_PRECISION = 0.05
  FILL_FORMATION_WITH = ''
 /
@@ -116,11 +116,21 @@
 &NML_PARALLEL
 USE_OPENMP = .false.
 /
-
+# Options available in CUSTOM_NML
+#use_raoult
+#skip_acdc
+#acdc_iterations
+#variable_density
+#dmps_tres_min
+#start_time_s, dmps_multi
+#INITIALIZE_WITH
+#INITIALIZE_FROM
+#VP_MULTI
+#DONT_SAVE_CONDENSABLES
 
 
 # Following settings are for the GUI and not directly used by the model -----
-# RAW_INPUT = &NML_PARALLEL<br>USE_OPENMP = .false.<br>/<br>
+# RAW_INPUT = &NML_PARALLEL<br>USE_OPENMP = .false.<br>/<br># Options available in CUSTOM_NML<br>#use_raoult<br>#skip_acdc<br>#acdc_iterations<br>#variable_density<br>#dmps_tres_min<br>#start_time_s, dmps_multi<br>#INITIALIZE_WITH<br>#INITIALIZE_FROM<br>#VP_MULTI<br>#DONT_SAVE_CONDENSABLES
 # INPUT_SETTINGS = 'env_file:env<yy><mm><dd>.dat mcm_file:voc<yy><mm><dd>.dat dmps_file:INOUT/filled_dmps/dm<yy><mm><dd>.sum extra_particles: stripRoot_env:.TRUE. stripRoot_mcm:.TRUE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #----------------------------------------------------------------------------

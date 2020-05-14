@@ -1,12 +1,12 @@
 #--------------------------------------------------
 #      Superbox setting file: ModelLib/gui/defaults
-#         Created at: May 13 2020, 10:50:04
+#         Created at: May 14 2020, 09:40:24
 #--------------------------------------------------
 
 &NML_PATH
  INOUT_DIR = 'INOUT/HYDE'
  CASE_NAME = 'PC'
- RUN_NAME = 'XG'
+ RUN_NAME = 'A1'
 / 
 
 &NML_FLAG
@@ -24,7 +24,7 @@
 / 
 
 &NML_TIME
- RUNTIME = 15.0
+ RUNTIME = 24.0
  DT = 10
  FSAVE_INTERVAL = 300
  PRINT_INTERVAL = 600
@@ -37,14 +37,14 @@
  PSD_MODE = 2
  N_BINS_PARTICLE = 500
  MIN_PARTICLE_DIAM = 1.07d-9
- MAX_PARTICLE_DIAM = 1d-6
+ MAX_PARTICLE_DIAM = 2d-6
  DMPS_FILE = 'INOUT/filled_dmps/dm180410.sum'
  EXTRA_PARTICLES = ''
- DMPS_READ_IN_TIME = 0.0
+ DMPS_READ_IN_TIME = 8.0
  DMPS_HIGHBAND_LOWER_LIMIT = 18e-9
  DMPS_LOWBAND_UPPER_LIMIT = 
  USE_DMPS = .TRUE.
- USE_DMPS_SPECIAL = .TRUE.
+ USE_DMPS_SPECIAL = .FALSE.
 / 
 
 &NML_ENV
@@ -92,7 +92,7 @@
  LAT = 65.0
  LON = -25.0
  WAIT_FOR = 0
- DESCRIPTION = 'Same as dMalte runs but no coagulation to save time'
+ DESCRIPTION = 'Base set'
  CH_ALBEDO = 0.2
  DMA_F = 0.01
  RESOLVE_BASE_PRECISION = 0.05
@@ -108,19 +108,27 @@
 / 
 
 &NML_CUSTOM
- USE_RAOULT = .true.
- ACDC_ITERATIONS = 1
- VARIABLE_DENSITY = .false.
 / 
 
 &NML_PARALLEL
 USE_OPENMP = .false.
 /
-
+# Options available in CUSTOM_NML (and defaults)
+# I: acdc_iterations = 4
+# I: INITIALIZE_FROM = 0
+# C: INITIALIZE_WITH = ''
+# L: use_raoult = .True.
+# L: variable_density = .False.
+# L: DONT_SAVE_CONDENSABLES = .False.
+# L: skip_acdc = .True.
+# R: dmps_tres_min = 10.
+# R: VP_MULTI = 1d0
+# R: start_time_s = 0d0
+# R: dmps_multi = 1d6
 
 
 # Following settings are for the GUI and not directly used by the model ----- 
-# RAW_INPUT = &NML_PARALLEL<br>USE_OPENMP = .false.<br>/<br>
+# RAW_INPUT = &NML_PARALLEL<br>USE_OPENMP = .false.<br>/<br># Options available in CUSTOM_NML (and defaults)<br># I: acdc_iterations = 4<br># I: INITIALIZE_FROM = 0<br># C: INITIALIZE_WITH = ''<br># L: use_raoult = .True.<br># L: variable_density = .False.<br># L: DONT_SAVE_CONDENSABLES = .False.<br># L: skip_acdc = .True.<br># R: dmps_tres_min = 10.<br># R: VP_MULTI = 1d0<br># R: start_time_s = 0d0<br># R: dmps_multi = 1d6
 # INPUT_SETTINGS = 'env_file:env<yy><mm><dd>.dat mcm_file:voc<yy><mm><dd>.dat dmps_file:INOUT/filled_dmps/dm<yy><mm><dd>.sum extra_particles: stripRoot_env:.TRUE. stripRoot_mcm:.TRUE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #---------------------------------------------------------------------------- 

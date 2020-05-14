@@ -289,7 +289,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
         ! Read in background particles
         if (use_dmps .and. GTIME%min >= (dmps_ln*dmps_tres_min) .and. GTIME%min/60d0 < DMPS_read_in_time) THEN
             ! Print user info
-            if (gtime%printnow) print FMT_SUB, 'Reading in background particles from line '//i2chr(dmps_ln)
+            if (gtime%printnow) print FMT_SUB, 'Reading in background particles from line '//i2chr(dmps_ln+2)
             ! Fit measured particle size distribution to the current model PSD
             CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(dmps_ln+2, size(par_data, 1)),2:), conc_fit )
             ! Sets the concentration and composition to the added particles PSD based on the mfractions.
@@ -304,7 +304,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
         if (use_dmps .and. use_dmps_special .and. (GTIME%min >= (dmps_ln*dmps_tres_min)) .and. (GTIME%min/60d0 .ge. DMPS_read_in_time)) THEN
             ! Print user info
-            if (gtime%printnow) print FMT_MSG, 'Reading in background particles partially'
+            if (gtime%printnow) print FMT_MSG, 'Reading in background particles partially from line '//i2chr(dmps_ln+2)
             ! Fit the measured particle size distribution to the current model PSD
             CALL GeneratePSDfromInput( par_data(1,2:),  par_data(min(dmps_ln+2, size(par_data, 1)),2:), conc_fit )
             ! Sumfile is typically in particles /cm^3, so make sure dmps_multi is correct
