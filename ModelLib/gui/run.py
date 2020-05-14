@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
 import vars, gui5, batchDialog1,batchDialog2,batchDialog3,batch
 from subprocess import Popen, PIPE, STDOUT
-from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where
+from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip
 import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod
@@ -378,6 +378,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.loadCurrentBg.clicked.connect(lambda: self.showParOutput('load current',1))
         self.oneDayFwd.clicked.connect(lambda: self.moveOneDay(1))
         self.oneDayBack.clicked.connect(lambda: self.moveOneDay(-1))
+        # self.cbWindow.setBackground('w')
     # -----------------------
     # Load preferences, or create preferences if not found
     # -----------------------
@@ -1067,10 +1068,10 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
         if windowInd==0:
             self.z0 = n
-            self.scaling0 = (time[-1]/n.shape[0],log10(diam[-1]/diam[0])/len(diam), log10(diam[0]*1e9))
+            self.scaling0 = (time[-1]/n.shape[0],log10(diam[-1]/diam[0])/(len(diam)-1), log10(diam[0]*1e9))
         if windowInd==1:
             self.z1 = n
-            self.scaling1 = (time[-1]/n.shape[0],log10(diam[-1]/diam[0])/len(diam), log10(diam[0]*1e9))
+            self.scaling1 = (time[-1]/n.shape[0],log10(diam[-1]/diam[0])/(len(diam)-1), log10(diam[0]*1e9))
         self.drawSurf(window, new=1)
 
     def drawSurf(self,window, new=0):
@@ -1091,7 +1092,16 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         n_levelled = where(n_levelled>=levels[1],levels[1]*0.98,n_levelled)
 
         hm = pg.ImageItem(n_levelled)
+        cb = ndarray((20,1))
+        cb[:,0] = linspace(self.lowlev.value(), self.highlev.value(), 20)
+        ss = pg.ImageItem(cb.T)
 
+        # imv = pg.ImageView(parent=window)
+        # imv.show()
+        # imv.setImage(flip(n_levelled, axis=1))
+
+        ss.translate(0,self.lowlev.value())
+        ss.scale(1,(self.highlev.value()-self.lowlev.value())/19)
         if self.Y_axis_in_nm.isChecked():
             hm.translate(0,scale[2])
             hm.scale(scale[0],scale[1])
@@ -1108,11 +1118,18 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             lut = (colormap._lut * 255).view(ndarray)  # Convert matplotlib colormap from 0-1 to 0 -255 for Qt
             # Apply the colormap
             hm.setLookupTable(lut)
+            ss.setLookupTable(lut)
         except:
             pass
         hm.setLevels(levels)
+        ss.setLevels(levels)
         window.setMenuEnabled(False)
         window.addItem(hm)
+        self.cbWindow.clear()
+        self.cbWindow.enableAutoRange()
+        self.cbWindow.addItem(ss)
+        self.cbWindow.hideAxis('bottom')
+        self.cbWindow.setLogMode(False, True)
         if self.Y_axis_in_nm.isChecked():
             window.setLogMode(False, True)
         else:
