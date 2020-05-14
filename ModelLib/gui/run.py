@@ -706,7 +706,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                     self.PLOT.setLogMode(y=True)
                     return 'log'
 
-    def createCaseFolders(self):
+    def createCaseFolders(self,mode=0):
         cd = ''
         created = ''
         # relpath = self.currentAddress.text().split('/')
@@ -721,7 +721,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
                     mkdir(cd)
                     created = created  + cd +'\n'
         if created == '': created = 'No new directories created (all necessary directories existed already).'
-        self.popup('Created directories', created, icon=1)
+        if mode == 0: self.popup('Created directories', created, icon=1)
         return
 
     def browse_path(self, target, mode, ftype=None, plWind=0):
@@ -1025,7 +1025,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             f.write(self.MonitorWindow.toPlainText())
             f.close()
         else:
-            self.popup('Oops','Output directories do not exist.\nYou can create them from File->Create output directories')
+            return
+            # self.popup('Oops','Output directories do not exist.\nYou can create them from File->Create output directories')
 
     def showParOutput(self, file, windowInd):
         if windowInd == 0:
@@ -1120,6 +1121,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def startBox(self):
         self.closenetcdf()
+        self.createCaseFolders(mode=1)
         self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.pauseScroll.setChecked(False)
 
