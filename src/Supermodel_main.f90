@@ -200,6 +200,12 @@ call cpu_time(cpu1) ! For efficiency calculation
 DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 ! =================================================================================================
 
+IF (GTIME%SEC>600) GTIME%DT = 5
+IF (GTIME%SEC>1042) GTIME%DT = 50
+IF (GTIME%SEC>1200) GTIME%DT = 1
+IF (GTIME%SEC>1900) GTIME%DT = 10
+
+
     ! =================================================================================================
     ! =================================================================================================
     ! PREPARE AND PRINT OUT SOME FUNDAMENTAL STUFF

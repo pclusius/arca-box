@@ -73,7 +73,6 @@ tempfile = 'ModelLib/gui/tmp/GUI_INIT.tmp'
 # initial maximum for function creator tab sliders
 slMxs = [200,190,220,100,200]
 
-## Settings stop here-----------------------------------------------
 # icon
 modellogo = "ModelLib/gui/S_logo.png"
 GUIName = "HLS BOX 0.3"
@@ -132,8 +131,8 @@ class batchW(QtGui.QDialog):
         self.ui.setupUi(self)
         self.ui.bDialogbuttonBox.accepted.connect(self.accept)
         self.ui.bDialogbuttonBox.rejected.connect(self.reject)
-    # Setter for window text
     def settext(self,a):
+        """Setter for window text"""
         c = 1
         for i in range(3):
             if a[0][i]>0:
@@ -141,8 +140,8 @@ class batchW(QtGui.QDialog):
                 exec('self.ui.tb_%d.appendPlainText(\'\'.join(a[2][%d]))'%(c,i))
                 c +=1
 
-# Class for input compounds/variables. Default values are used in parameter creator
 class Comp:
+    """Class for input compounds/variables. Default values are used in Function creator"""
     def __init__(self):
         self.index  = 0
         self.mode  = 0
@@ -155,7 +154,7 @@ class Comp:
         self.mju = 12e0     # Time of peak value
         self.fv  = 0e0      # Angular frequency [hours] of modifying sine function
         self.ph  = 0e0      # Angular frequency [hours] of modifying sine function
-        self.am  = 1e0      # Amplitude of modificaion
+        self.am  = 1e0      # Amplitude of modification
         self.name = 'NONAME'# Human readable name for modified variable
         self.unit = '#/cm3'     # unit name
         self.Find = 1
@@ -368,7 +367,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="sum (*.sum *.dat)",plWind=1))
 
 
-        self.plotResultWindow.setMenuEnabled(False)
+        # self.plotResultWindow.setMenuEnabled(False)
         self.plotResultWindow.showGrid(x=True,y=True)
         self.plotResultWindow.setBackground('w')
         pen = pg.mkPen(color=(0,0,0), width=1)
@@ -403,7 +402,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionSave_to_current.setEnabled(True)
         self.currentInitFile.setText(file)
         self.setWindowTitle(GUIName+': '+file)
-
         self.currentInitFileToSave = file
 
     def updateEnvPath(self):
@@ -415,6 +413,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.dmps_file.setToolTip('Location: "'+nml.PARTICLE.DMPS_FILE+'"')
         self.extra_particles.setToolTip('Location: "'+nml.PARTICLE.EXTRA_PARTICLES+'"')
 
+    def get_case_kwargs(self,r):
+        return {'begin':r[0],'end':r[1],'case':nml.PATH.CASE_NAME,'run':nml.PATH.RUN_NAME, 'common_root':nml.PATH.INOUT_DIR}
 
     def updatePath(self):
         if self.fileLoadOngoing:
@@ -425,15 +425,13 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             r = [self.dateEdit.text()]*2
         else:
             r = [self.indexEdit.value()]*2
-        kwargs = {'begin':r[0],'end':r[1],'case':nml.PATH.CASE_NAME,'run':nml.PATH.RUN_NAME, 'common_root':nml.PATH.INOUT_DIR}
+        kwargs = self.get_case_kwargs(r)
         casedir = batch.batch(**kwargs)
         if len(casedir) == 8:
-            # self.currentAddress.setText(casedir[-2]+'/')
             self.currentAddressTb.setText(casedir[-2]+'/')
             self.indir = casedir[-1]+'/'
         else:
             self.indir = '<Common root does not exist>/'
-            # self.currentAddress.setText(casedir)
             self.currentAddressTb.setText(casedir)
         self.updateEnvPath()
 
@@ -444,7 +442,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         else:
             r = self.batchRangeIndBegin.value(),self.batchRangeIndEnd.value()
 
-        kwargs = {'begin':r[0],'end':r[1],'case':nml.PATH.CASE_NAME,'run':nml.PATH.RUN_NAME, 'common_root':nml.PATH.INOUT_DIR}
+        kwargs = self.get_case_kwargs(r)
         ret = batch.batch(**kwargs)
         if len(ret) == 8:
             dirs_to_create, conflicting_names, files_to_create, files_to_overwrite, existing_runs, dates,_,_ = ret
@@ -598,7 +596,6 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.monA.setValue(dummy.fv)
         self.monPh.setValue(dummy.ph)
         self.monAm.setValue(dummy.am)
-
 
         norm = self.gauss(dummy,yscale,rt)
         try: # delete old legend if it exists:
