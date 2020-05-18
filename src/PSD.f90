@@ -24,6 +24,7 @@ MODULE ParticleSizeDistribution
   CHARACTER(len=15) :: process              ! defines the process that passes information to subroutine Mass_Number_Change (coagulation, condensation, mixing)
   type(PSD) :: current_PSD                  ! Main PSD container. This variable stores the current timestep concentrations
   type(PSD) :: new_PSD, mix_PSD, interm_PSD ! Variables that store PSD values during the calculations
+  type(PSD) :: old_PSD                      ! This is used to save the current state and to restore it in case of an error related to timestep handling
 
 
 
