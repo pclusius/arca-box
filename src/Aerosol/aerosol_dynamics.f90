@@ -12,20 +12,22 @@ IMPLICIT NONE
 CONTAINS
 
 
-SUBROUTINE Nucleation_routine (J_TOTAL,particle_conc,composition)
+SUBROUTINE Nucleation_routine (J_TOTAL,particle_conc,composition, dt_nuc)
   IMPLICIT NONE
   REAL(dp), intent(in   ) :: J_TOTAL ![m-3 s-1]
   REAL(dp), intent(inout) :: particle_conc  ! [molec m-3], particle number concentration
   REAL(dp), intent(inout) :: composition(:)  ! [molec m-3], particle number concentration
+  REAL(dp), INTENT(IN) :: dt_nuc ! integration timestep for condensation [s]
+
   integer :: i
   ! REAL(dp) :: Knucl            ! [m3 molec-1 s-1], nucleation coefficient
   ! REAL(dp) :: nucleation_rate  ! [molec m-3 s-1], nucleation rate
 
   ! Knucl = 1.0e-20_dp  ! [m3 molec-1 s-1]
   ! nucleation_rate=Knucl*CH_h2so4 **2
-  ! particle_conc(1) = old_par + nucleation_rate * GTIME%dt_aer
+  ! particle_conc(1) = old_par + nucleation_rate * GTIME%dt
 
-  particle_conc = particle_conc  + J_TOTAL * GTIME%dt_aer
+  particle_conc = particle_conc  + J_TOTAL * dt_nuc
   composition(:) = VAPOUR_PROP%mfractions * pack(get_volume(),[(i<2,i=1,n_bins_particle)]) * VAPOUR_PROP%density
 END SUBROUTINE Nucleation_routine
 
@@ -36,7 +38,7 @@ END SUBROUTINE Nucleation_routine
 ! fundamentals of atmospheric modelling. Dmass, which is the flux onto or removed from the particles is the outcome
 ! of this subroutine which is fed to PSD
 ! ======================================================================================================================
-SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass)
+SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass, dt_cond, d_dpar,d_vap)
   IMPLICIT NONE
   type(vapour_ambient), INTENT(IN) :: vapour_prop ! Properties of condensing vapours
   ! type(PSD)           , INTENT(IN) :: particles ! Current PSD properties
@@ -54,6 +56,10 @@ SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass)
   REAL(dp), DIMENSION(n_cond_tot) :: conc_vap_old
   REAL(dp) :: conc_guess
   REAL(dp) :: sum_org ! Sum of organic concentration in bin, transient variable
+  REAL(dp), INTENT(IN) :: dt_cond ! integration timestep for condensation [s]
+  REAL(dp), INTENT(INOUT) :: d_dpar(:) ! relative change in particle diameter [1]
+  REAL(dp), INTENT(INOUT) :: d_vap(:) ! relative change in vapor concentrations [1]
+
   INTEGER :: ii
 
   conc_pp = 0d0
@@ -121,12 +127,12 @@ SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass)
 
     if ((ii == vapour_prop%ind_H2SO4) .and. GTIME%printnow) print FMT10_CVU, 'CS SA: ',sum(CR(:,ii)), ' [/s]'
     ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
-    conc_guess = (conc_vap(ii) + GTIME%dt_aer*sum(CR(:,ii)*kohler_effect(:,ii)*vapour_prop%c_sat(ii))) &
-               / (1D0 + GTIME%dt_aer*sum(CR(:,ii)))
+    conc_guess = (conc_vap(ii) + dt_cond*sum(CR(:,ii)*kohler_effect(:,ii)*vapour_prop%c_sat(ii))) &
+               / (1D0 + dt_cond*sum(CR(:,ii)))
 
 
     ! apc scheme here. NOTE that for sulfuric acid vapour_prop%c_sat(ii) = 0 so the last term will vanish
-    conc_pp(:,ii) = conc_pp_old(:,ii) + GTIME%dt_aer*CR(:,ii)*(MIN(conc_guess,conc_tot(ii)) &
+    conc_pp(:,ii) = conc_pp_old(:,ii) + dt_cond*CR(:,ii)*(MIN(conc_guess,conc_tot(ii)) &
                   - kohler_effect(:,ii)*vapour_prop%c_sat(ii))
 
     ! Prevent overestimation of evaporation by setting negative concentrations to zero
@@ -156,13 +162,29 @@ SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass)
     END if
   END DO
 
+  ! derive diameter changes for integration time-step optimization
+  DO ii = 1, n_bins_particle
+    IF (SUM(conc_pp_old(ii,:)) > 0.d0 .and. n_conc(ii) > 1.d-10) THEN
+      d_dpar(ii) = (SUM(conc_pp_old(ii,:)*vapour_prop%molar_mass(:)) / Na /n_conc(ii) + SUM(dmass(ii,:))) /  (SUM(conc_pp_old(ii,:)*vapour_prop%molar_mass(:)) / Na /n_conc(ii))
+      d_dpar(ii) = d_dpar(ii) ** (1.d0/3.d0) - 1.d0
+      !PRINT*, 'i,mass, mass change, d_dp', ii, SUM(conc_pp_old(ii,:)*vapour_prop%molar_mass(:)) / Na /n_conc(ii), SUM(dmass(ii,:)), d_dpar(ii)
+    end if
+  END DO
+
+  ! derive the relative changes in the vapor phase
+  DO ii = 1, n_cond_tot
+    IF (conc_vap(ii) > 1.d5) THEN
+      d_vap(ii) = (conc_vap_old(ii) - conc_vap(ii)) / conc_vap(ii)
+      !PRINT*, 'ii, conc, dconc, d_vap', ii, conc_vap(ii), conc_vap_old(ii), conc_vap(ii) - conc_vap_old(ii), d_vap(ii)
+    END IF
+  END DO
 
 END SUBROUTINE Condensation_apc
 
 
 
 
-SUBROUTINE Coagulation_routine(dconc_coag) ! Add more variables if you need it
+SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar) ! Add more variables if you need it
   use omp_lib
   REAL(dp), DIMENSION(n_bins_particle) :: n_conc,diameter, mass
   ! type(PSD), INTENT(IN) :: particles
@@ -170,7 +192,7 @@ SUBROUTINE Coagulation_routine(dconc_coag) ! Add more variables if you need it
   REAL(dp), DIMENSION(n_bins_particle) :: volume
   ! REAL(dp) :: dp_max
   ! REAL(dp) :: temperature, pressure
-  integer :: i,j,m
+  integer :: i,j,m,ii
   REAL(dp), DIMENSION(n_bins_particle,n_bins_particle) :: coagulation_coef        ! coagulation coefficients [m^3/s]
   REAL(dp), DIMENSION(n_bins_particle,n_bins_particle), intent(inout) :: dconc_coag    ! coagulation coefficients [m^3/s]
   REAL(dp), DIMENSION(n_bins_particle) :: slip_correction,diffusivity,dist, speed_p,free_path_p
@@ -179,6 +201,8 @@ SUBROUTINE Coagulation_routine(dconc_coag) ! Add more variables if you need it
   REAL(dp) :: dyn_visc  ! dynamic viscosity, kg/(m*s)
   REAL(dp) :: l_gas     ! Gas mean free path in air
   REAL(dp) :: a
+  REAL(dp), INTENT(IN) :: dt_coag ! integration timestep for coagulation [s]
+  REAL(dp), INTENT(INOUT) :: d_npar(:) ! relative change in particle number concentrations [1]
 
   REAL(dp) :: stt
   integer:: omp_rank
@@ -268,6 +292,7 @@ dconc_coag = 0d0
     !$OMP END parallel DO
     !$omp END parallel
 
+
   ! If no OPENMP. NOTE the actual loops are identical
   ELSE
     do j =1, n_bins_particle
@@ -288,7 +313,16 @@ if (GTIME%sec>3300) THEN
 
 end if
 ! Convert dconc_coag to units of timestep
-dconc_coag = dconc_coag * GTIME%dt_aer
+dconc_coag = dconc_coag * dt_coag
+
+!Check whether changes are within limits:
+DO ii = 1, n_bins_particle
+  IF (n_conc(ii) > 1.d0 .and. sum(dconc_coag(ii,ii:)) > 1.d-20) THEN
+    d_npar(ii) = sum(dconc_coag(ii, ii:)) / n_conc(ii)
+  ELSE
+    d_npar(ii) = 0.d0
+  END IF
+END DO
 
 END SUBROUTINE Coagulation_routine
 
