@@ -24,7 +24,7 @@ IMPLICIT NONE
 ! ==================================================================================================================
 
 REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)    ! Array to hold input variables for the current timestep
-REAL(DP), ALLOCATABLE :: CH_GAS(:)        ! Array to hold all chemistry compounds
+REAL(DP), ALLOCATABLE :: CH_GAS(:), CH_GAS_old(:)        ! Array to hold all chemistry compounds; old: to restore in case of an error related to timestep handling
 REAL(dp), ALLOCATABLE :: conc_fit(:)      ! An array giving particle conc independant of PSD_style [m⁻³]
 
 INTEGER               :: dmps_ln = 0      ! line number from where background particles are read from
@@ -53,7 +53,22 @@ REAL(dp), ALLOCATABLE :: nominal_dp(:)    ! array with nominal diameters. Stays 
 ! speed_up: factor for increasing integration time step for individual prosesses
 ! (1): Photolysis, (2): chemistry; (3):Nucleation; (4):Condensation; (5): Coagulation; (6): Deposition
 INTEGER          :: speed_up(10) = 1
+!defines the minimum/maximum relative change caused by a process within a timestep
+REAL(dp), DIMENSION(5,2) :: change_range
+!change_range(1,1:2)      -> minimum and maximum relative change in particle diameter
+!change_range(2,1:2)      -> minimum and maximum relative change in particle number
+!change_range(3,1:2)      -> minimum and maximum relative change in vapour concentration
+REAL(dp), ALLOCATABLE :: d_dpar(:)  ! array reporting relative changes to the diameter array within a single timestep
+REAL(dp), ALLOCATABLE :: d_npar(:)  ! array reporting relative changes to the particle number array within a single timestep
+REAL(dp), ALLOCATABLE :: d_vap(:)   ! array reporting relative changes to the vapour concentration array within a single timestep
+
 TYPE(error_type) :: error
+
+! ==================================================================================================================
+! Define change range -> should come from input later
+change_range(1,1:2) = (/1.d-4, 2.d-2/)    ! -> minimum and maximum relative change in particle diameter
+change_range(2,1:2) = (/1.d-1, 5.d0/)    ! -> minimum and maximum relative change in particle number
+change_range(3,1:2) = (/1.d-1, 10.d0/)    ! -> minimum and maximum relative change in vapour concentration
 
 ! ==================================================================================================================
 
@@ -89,6 +104,10 @@ IF (Aerosol_flag) THEN
 
     ! Initialize the dummy for dmps fitting
     ALLOCATE(conc_fit(n_bins_particle))
+
+    ! Allocate the change vectors for integration timestep control
+    ALLOCATE(d_dpar(n_bins_particle))
+    ALLOCATE(d_npar(n_bins_particle))
 
     if (use_dmps_special .and. use_dmps) THEN
         write(*, FMT_MSG) 'Using dmps_special:'
@@ -135,6 +154,9 @@ TSTEP_CONC = 0
 ALLOCATE(CH_GAS(size(SPC_NAMES)))
 CH_GAS = 0
 
+! Allocate the change vectors for integration timestep control
+ALLOCATE(d_vap(size(SPC_NAMES)))
+
 
 ! ==================================================================================================================
 ! Prepare output files etc.
@@ -176,7 +198,7 @@ end do
 close(504)
 close(334)
 
-open(unit=333, file=RUN_OUTPUT_DIR//'/error_output.txt')
+open(unit=333, file=RUN_OUTPUT_DIR//'/error_output.txt', action='write')
 
 ! Open netCDF files
 CALL OPEN_FILES( RUN_OUTPUT_DIR, Description, MODS, CH_GAS, VAPOUR_PROP)
@@ -199,6 +221,13 @@ call cpu_time(cpu1) ! For efficiency calculation
 ! =================================================================================================
 DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 ! =================================================================================================
+
+    ! =================================================================================================
+    ! Store the current state of the aerosol
+    ! (i.e. everything that is potentially changed by aerosol dynamics)
+    ! =================================================================================================
+    old_PSD = current_PSD
+    CH_GAS_old = CH_GAS
 
     ! =================================================================================================
     ! =================================================================================================
@@ -251,7 +280,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
         END DO
         ! Solar Zenith angle. For this to properly work, lat, lon and Date need to be defined in INIT_FILE
         call BETA(CH_Beta)
-        Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt_chm), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
+        Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(3)), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
                     CH_H2O, GC_AIR_NOW, TSTEP_CONC(inm_CS), TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
         if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
@@ -338,13 +367,14 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             END IF
 
 
+
         ! ADD NUCLEATED PARTICLES TO PSD, IN THE 1st BIN.  This using the mixing method, where two particle distros
         ! are mixed together. NOTE that this step is always done if Aerosol_flag is on, even if ACDC_flag is off. In
         ! case no NPF is wanted, turn off ACDC and make sure NUC_RATE_IN is 0
         dmass = 0d0
         dmass(1,VAPOUR_PROP%ind_HOA) = nominal_dp(1)**3*pi/6d0 * VAPOUR_PROP%density(VAPOUR_PROP%ind_HOA)
         dconc_dep_mix = 0d0
-        dconc_dep_mix(1) = J_TOTAL*GTIME%dt_aer
+        dconc_dep_mix(1) = J_TOTAL*GTIME%dt*speed_up(3)
         ! Negative mixing ratio makes this nucleation
         mix_ratio = -1d0
         CALL Mass_Number_Change('mixing')
@@ -354,7 +384,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
         ! ..........................................................................................................
         ! CONDENSATION
-        if (Condensation) THEN
+        if (Condensation .and.(.not. error%error_state) .and. mod(int(GTIME%sec/GTIME%dt),int(speed_up(4))) == 0) THEN  !.and. mod(GTIME%sec) if (mod(int(tsum/t),int(nspeed(1)))==0) then
             ! Pick the condensables from chemistry and change units from #/cm^3 to #/m^3
             conc_vapour = 0d0
             do i = 1, n_cond_org
@@ -367,43 +397,106 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             CALL Calculate_SaturationVapourConcentration(VAPOUR_PROP, GTEMPK, VP_MULTI)
             ! Solve mass flux
             dmass = 0d0
-            CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass)
-            ! Distribute mass
-            CALL Mass_Number_Change('condensation')
-            ! Update current_psd
-            current_PSD = new_PSD
+            CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(4),d_dpar,d_vap)
 
-            ! Update vapour concentrations to chemistry
-            do i = 1, n_cond_org
-                if (index_cond(i) /= 0) CH_GAS(index_cond(i)) = conc_vapour(i) *1D-6
-            end do
-            ! Again sulfuric acid always needs special treatment
-            CH_GAS(ind_H2SO4) = conc_vapour(n_cond_tot)*1d-6
+            ! ERROR HANDLING
+            IF (maxval(ABS(d_dpar)) > change_range(1,2) .or. maxval(ABS(d_vap)) > change_range(3,2)) THEN   !if the changes in diameter are too big
+              error%error_state = .true.
+              error%error_process = 4
+              !PRINT*,'ERROR',maxloc(abs(d_dpar)), d_dpar(maxloc(abs(d_dpar))),maxloc(abs(d_vap)), d_vap(maxloc(abs(d_vap)))
+              IF (maxval(ABS(d_dpar)) > change_range(1,2)) THEN
+                error%error_specification = 'large diameter change'   !d_dpar(maxloc(abs(d_dpar)))
+              ELSE IF (maxval(ABS(d_vap)) > change_range(3,2)) THEN
+                error%error_specification = 'large vapour conc change'   !d_vap(maxloc(abs(d_vap)))
+              END IF
+              PRINT*,'error cond:', GTIME%sec, error%error_state, error%error_specification
+              PRINT*,'what, where:', d_dpar(maxloc(abs(d_dpar))), maxloc(abs(d_dpar))
+              dmass = 0.d0
+            ELSE  ! everything fine -> apply changes
+              ! Distribute mass
+              CALL Mass_Number_Change('condensation')
+              !PRINT*, 'condensation',GTIME%dt*speed_up(4)
+              ! Update current_psd
+              current_PSD = new_PSD
+
+              ! Update vapour concentrations to chemistry
+              do i = 1, n_cond_org
+                  if (index_cond(i) /= 0) CH_GAS(index_cond(i)) = conc_vapour(i) *1D-6
+              end do
+              ! Again sulfuric acid always needs special treatment
+              CH_GAS(ind_H2SO4) = conc_vapour(n_cond_tot)*1d-6
+              !Check whether timestep can be increased:
+              IF (maxval(ABS(d_dpar)) < change_range(1,1)) THEN
+                speed_up(4) = speed_up(4) * 2
+                Print*,'cond. speed UP:', GTIME%sec, speed_up(4)
+              END IF
+            END IF
 
           end if ! end of condensation
 
 
         ! ..........................................................................................................
         ! COAGULATION
-        if (Coagulation) then
+        if (Coagulation .and.(.not. error%error_state) .and. mod(int(GTIME%sec/GTIME%dt),int(speed_up(5))) == 0) then
             ! Solve particle coagulation
-            Call Coagulation_routine(dconc_coag)
+            Call Coagulation_routine(dconc_coag, GTIME%dt*speed_up(5),d_npar)
+            !PRINT*, 'd_npar', d_npar
+            ! ERROR HANDLING
+            IF (maxval(ABS(d_npar)) > change_range(2,2)) THEN   !if the changes in diameter are too big
+              error%error_state = .true.
+              error%error_process = 5
+              !PRINT*,'ERROR',maxloc(abs(d_dpar)), d_dpar(maxloc(abs(d_dpar))),maxloc(abs(d_vap)), d_vap(maxloc(abs(d_vap)))
+              error%error_specification = 'large particle number change'   !d_dpar(maxloc(abs(d_dpar))
+              PRINT*,'error coag:', GTIME%sec, error%error_state, error%error_specification
+              dconc_coag = 0.d0
+            ELSE  ! everything fine -> apply changes
             ! Distribute mass
             Call Mass_Number_Change('coagulation')
             ! Update PSD with new concentrations
             current_PSD = new_PSD
+            !Check whether timestep can be increased:
+            IF (maxval(ABS(d_npar)) < change_range(2,1)) THEN
+              speed_up(5) = speed_up(5) * 2
+              Print*,'coag. speed UP:', GTIME%sec, speed_up(5)
+            END IF
+          END IF
         end if ! end of coagulation
+
+        !Deposition_routine is not coded yet -> needs to be added
+        ! ! ..........................................................................................................
+        ! ! Deposition
+        ! if (Deposition .and.(.not. error%error_state) .and. mod(int(GTIME%sec/GTIME%dt),int(speed_up(6))) == 0) then
+        !     ! Solve particle coagulation
+        !     Call Deposition_routine(dconc_dep_mix, GTIME%dt*speed_up(6))
+        !     ! Distribute mass
+        !     Call Mass_Number_Change('deposition')
+        !     ! Update PSD with new concentrations
+        !     current_PSD = new_PSD
+        ! end if ! end of coagulation
 
     end if
     ! End Aerosol =====================================================================================
 
 
-    ! SPEED handling, currently not implimented
-    IF (error%error_state) THEN
+    ! SPEED handling
+    IF (error%error_state) THEN  ! In case of a timestep error (i.e. too large changes in aerosol dynamics)
+        PRINT*,'error - acitve', error%error_state, error%error_process
         CALL error_handling(error, speed_up,GTIME%dt,GTIME%sec)
+        !RESET ERROR
         error%error_state = .false.
-    ! If there was no error during the actual timestep
-    ELSE
+        error%error_process = 0
+        error%error_specification = ''
+        !Reset the system to the state at previous timestep
+        current_PSD = old_PSD
+        CH_GAS = CH_GAS_old
+        !Reset relative change vectors documenting the precision:
+        d_dpar = 0.d0
+        d_npar = 0.d0
+        d_vap = 0.d0
+        PRINT*,'error handled:', error%error_state, error%error_process
+        write(333,*)'error handled:', error%error_state, error%error_process
+        print*,''
+    ELSE      ! If there was no error during the actual timestep
         ! Write printouts to screen
         if (GTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
         ! Save to netcdf
@@ -457,20 +550,28 @@ SUBROUTINE error_handling(error,speed_up,dt_box,sim_time_sec)
     type(error_type) :: error
 
     !Write some error information to file
+    write(*,*) 'Precision error at simulation time [s]', sim_time_sec
     write(333,*) 'Precision error at simulation time [s]', sim_time_sec
+    write(*,*) 'current simulation timestep [s]', dt_box
+    write(333,*) 'current simulation timestep [s]', dt_box
+    write(*,*) 'Process causing troubles', error%error_process
+    write(333,*) 'Process causing troubles', error%error_process
+    write(*,*) '  ERROR TYPE: ', trim(error%error_specification)
     write(333,*) '  ERROR TYPE: ', trim(error%error_specification)
     !reduce the speed_up factor or, if necessary, the integration time step:
     IF (speed_up(error%error_process) > 1) THEN
         speed_up(error%error_process) = speed_up(error%error_process) / 2
         write(333,*) '  => reduce speed_up:',speed_up(error%error_process)*2, '->',speed_up(error%error_process)
+        write(*,*) '  => reduce speed_up:',speed_up(error%error_process)*2, '->',speed_up(error%error_process)
     ELSE
         dt_box = dt_box / 2.d0
         write(333,*) '  => reduce dt [s]:', dt_box
+        write(*,*) '  => reduce dt [s]:', dt_box
         DO i = 1,10
             IF (i /= error%error_process) speed_up(i) = speed_up(i) * 2
         END DO
     END IF
-
+    write(333,*) ''
 END SUBROUTINE error_handling
 
 
@@ -569,6 +670,7 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
     if ((GTIME%sec)>0) print '("| ",a,i0,a,i0.2,a,i0,a,i0.2,t65,a,f6.2,t100,"|")', 'Elapsed time (m:s) ',int(cpu2 - cpu1)/60,':',modulo(int(cpu2 - cpu1),60) ,' Est. time to finish (m:s) ',&
                             int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec))/60,':', MODULO(int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec)),60),&
                             'Realtime/Modeltime: ', (GTIME%sec-start_time_s)/(cpu2 - cpu1)
+    print*, 'current integration time step', GTIME%dt
 
     print FMT_LEND,
 END SUBROUTINE PRINT_KEY_INFORMATION
