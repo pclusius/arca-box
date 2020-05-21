@@ -61,6 +61,7 @@ REAL(dp), DIMENSION(5,2) :: change_range
 REAL(dp), ALLOCATABLE :: d_dpar(:)  ! array reporting relative changes to the diameter array within a single timestep
 REAL(dp), ALLOCATABLE :: d_npar(:)  ! array reporting relative changes to the particle number array within a single timestep
 REAL(dp), ALLOCATABLE :: d_vap(:)   ! array reporting relative changes to the vapour concentration array within a single timestep
+LOGICAL :: use_error
 
 TYPE(error_type) :: error
 
@@ -69,7 +70,8 @@ TYPE(error_type) :: error
 change_range(1,1:2) = (/1.d-4, 2.d-2/)    ! -> minimum and maximum relative change in particle diameter
 change_range(2,1:2) = (/1.d-1, 5.d0/)    ! -> minimum and maximum relative change in particle number
 change_range(3,1:2) = (/1.d-1, 10.d0/)    ! -> minimum and maximum relative change in vapour concentration
-
+!use precision optimization or not: -> should come from input later
+use_error = .true.
 ! ==================================================================================================================
 
 ! Welcoming message
@@ -280,7 +282,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
         END DO
         ! Solar Zenith angle. For this to properly work, lat, lon and Date need to be defined in INIT_FILE
         call BETA(CH_Beta)
-        Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(3)), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
+        Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
                     CH_H2O, GC_AIR_NOW, TSTEP_CONC(inm_CS), TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
         if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
@@ -372,7 +374,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
         ! are mixed together. NOTE that this step is always done if Aerosol_flag is on, even if ACDC_flag is off. In
         ! case no NPF is wanted, turn off ACDC and make sure NUC_RATE_IN is 0
         dmass = 0d0
-        dmass(1,VAPOUR_PROP%ind_HOA) = nominal_dp(1)**3*pi/6d0 * VAPOUR_PROP%density(VAPOUR_PROP%ind_HOA)
+        dmass(1,VAPOUR_PROP%ind_HOA) = nominal_dp(1)**3*pi/6d0 * VAPOUR_PROP%density(VAPOUR_PROP%ind_H2SO4)
         dconc_dep_mix = 0d0
         dconc_dep_mix(1) = J_TOTAL*GTIME%dt*speed_up(3)
         ! Negative mixing ratio makes this nucleation
@@ -400,7 +402,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(4),d_dpar,d_vap)
 
             ! ERROR HANDLING
-            IF (maxval(ABS(d_dpar)) > change_range(1,2) .or. maxval(ABS(d_vap)) > change_range(3,2)) THEN   !if the changes in diameter are too big
+            IF ((maxval(ABS(d_dpar)) > change_range(1,2) .or. maxval(ABS(d_vap)) > change_range(3,2)) .and. use_error) THEN   !if the changes in diameter are too big
               error%error_state = .true.
               error%error_process = 4
               !PRINT*,'ERROR',maxloc(abs(d_dpar)), d_dpar(maxloc(abs(d_dpar))),maxloc(abs(d_vap)), d_vap(maxloc(abs(d_vap)))
@@ -426,7 +428,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
               ! Again sulfuric acid always needs special treatment
               CH_GAS(ind_H2SO4) = conc_vapour(n_cond_tot)*1d-6
               !Check whether timestep can be increased:
-              IF (maxval(ABS(d_dpar)) < change_range(1,1)) THEN
+              IF (maxval(ABS(d_dpar)) < change_range(1,1) .and. use_error) THEN
                 speed_up(4) = speed_up(4) * 2
                 Print*,'cond. speed UP:', GTIME%sec, speed_up(4)
               END IF
@@ -439,10 +441,11 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
         ! COAGULATION
         if (Coagulation .and.(.not. error%error_state) .and. mod(int(GTIME%sec/GTIME%dt),int(speed_up(5))) == 0) then
             ! Solve particle coagulation
+            dconc_coag = 0.d0
             Call Coagulation_routine(dconc_coag, GTIME%dt*speed_up(5),d_npar)
             !PRINT*, 'd_npar', d_npar
             ! ERROR HANDLING
-            IF (maxval(ABS(d_npar)) > change_range(2,2)) THEN   !if the changes in diameter are too big
+            IF (maxval(ABS(d_npar)) > change_range(2,2) .and. use_error) THEN   !if the changes in diameter are too big
               error%error_state = .true.
               error%error_process = 5
               !PRINT*,'ERROR',maxloc(abs(d_dpar)), d_dpar(maxloc(abs(d_dpar))),maxloc(abs(d_vap)), d_vap(maxloc(abs(d_vap)))
@@ -455,7 +458,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             ! Update PSD with new concentrations
             current_PSD = new_PSD
             !Check whether timestep can be increased:
-            IF (maxval(ABS(d_npar)) < change_range(2,1)) THEN
+            IF (maxval(ABS(d_npar)) < change_range(2,1) .and. use_error) THEN
               speed_up(5) = speed_up(5) * 2
               Print*,'coag. speed UP:', GTIME%sec, speed_up(5)
             END IF
