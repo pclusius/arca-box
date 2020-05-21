@@ -520,11 +520,14 @@ END SUBROUTINE PSD_Change_condensation
       new_PSD%diameter_ma = current_PSD%diameter_ma
       !apply changes for all combinations of i and j
       DO ii = 1, current_PSD%nr_bins
-        DO jj = 1, ii
+        DO jj = ii, current_PSD%nr_bins
           IF (dconc_coag(ii,jj) > 1.d-100) THEN
+            IF (dconc_coag(ii,jj) > new_PSD%conc_ma(ii)) PRINT*, 'ii',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(ii),new_PSD%conc_ma(jj)
+            IF (dconc_coag(ii,jj) > new_PSD%conc_ma(jj)) PRINT*, 'jj',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(jj),new_PSD%conc_ma(ii)
             !Reduce the new particle concentration by the number of particles that are lost by coagulation in i and j -> they will be added later to the new bin
             new_PSD%conc_ma(ii) = new_PSD%conc_ma(ii) - dconc_coag(ii,jj)  !reduce number in i
             new_PSD%conc_ma(jj) = new_PSD%conc_ma(jj) - dconc_coag(ii,jj)  !reduce number in j (if i=j we have to reduce twice (which is done here) as 1 collision removes 2 particles)
+
             !Determine new mass compositions: (total mass of collision products (i+j) + total mass already in mix bin i) / devided by sum of concentration (collisions + mix)
             mix_PSD%composition_ma(ii,:) = (current_PSD%composition_ma(ii,:) + current_PSD%composition_ma(jj,:))  !composition of of collision result bins: i + j
             !update concentration in the mix_PSD
@@ -820,7 +823,6 @@ END SUBROUTINE PSD_Change_condensation
 
       ! Determine new particle concentration in bin aa
       new_PSD%conc_ma(aa) = new_PSD%conc_ma(aa) + mix_PSD%conc_ma(ind)
-
     ! The particles shrink beyond the lower size limit -> change concentration but not composition or diameter (should not happen)
     ELSE
       new_PSD%conc_ma(1) = new_PSD%conc_ma(1) + mix_PSD%conc_ma(ind)
