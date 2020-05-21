@@ -489,8 +489,8 @@ END SUBROUTINE PSD_Change_condensation
       new_PSD%conc_fs = current_PSD%conc_fs  ! set the initial value of new particle concentration to the current
       mix_PSD%conc_fs = 0.d0  !initial value is zero -> content is determined below
       !apply changes for all combinations of i and j
-      DO ii = 1, current_PSD%nr_bins-1
-        DO jj = 1, ii
+      DO ii = 1, current_PSD%nr_bins
+        DO jj = ii, current_PSD%nr_bins
           IF (dconc_coag(ii,jj) > 1.d-100) THEN
             !Reduce the new particle concentration by the number of particles that are lost by coagulation in i and j -> they will be added later to the new bin
             new_PSD%conc_fs(ii) = new_PSD%conc_fs(ii) - dconc_coag(ii,jj)  !reduce number in i
