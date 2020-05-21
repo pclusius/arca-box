@@ -96,6 +96,7 @@ end type timetype
 ! error type which is used to optimize computation speed at given simulatin precision
 !===============================================================
 TYPE error_type
+!  LOGICAL :: use_error = .true.   !use the precision handling or not: default -> use it (use_error = .true.)
   LOGICAL :: error_state = .false.  !there is no error at the start
   INTEGER :: error_process  !process where the error occurs
   CHARACTER(150) :: error_specification  !specification on error type (e.g."particle conc" during coagulation)
