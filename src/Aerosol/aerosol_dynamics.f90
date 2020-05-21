@@ -155,7 +155,7 @@ SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass, dt_cond, d_dpar,d_vap)
   END DO
   ! dmass(:,n_cond_tot-1) = max(dmass(:,n_cond_tot-1), 0)
   do ii = 1, n_bins_particle
-    if (n_conc(ii)>0d0) THEN
+    if (n_conc(ii)>1d-10) THEN
       dmass(ii,:) = dmass(ii,:) / n_conc(ii)
     else
       dmass(ii,:) = 0d0
@@ -168,7 +168,9 @@ SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass, dt_cond, d_dpar,d_vap)
       d_dpar(ii) = (SUM(conc_pp_old(ii,:)*vapour_prop%molar_mass(:)) / Na /n_conc(ii) + SUM(dmass(ii,:))) /  (SUM(conc_pp_old(ii,:)*vapour_prop%molar_mass(:)) / Na /n_conc(ii))
       d_dpar(ii) = d_dpar(ii) ** (1.d0/3.d0) - 1.d0
       !PRINT*, 'i,mass, mass change, d_dp', ii, SUM(conc_pp_old(ii,:)*vapour_prop%molar_mass(:)) / Na /n_conc(ii), SUM(dmass(ii,:)), d_dpar(ii)
-    end if
+    ELSE
+      d_dpar(ii) = 0.d0
+    END IF
   END DO
 
   ! derive the relative changes in the vapor phase
@@ -277,7 +279,7 @@ dconc_coag = 0d0
 
     !$OMP PARALLEL DO
     do j =1, n_bins_particle
-      do m = 1, j
+      do m = j, n_bins_particle   !Lukas: j -> n_bins_particle
         if (m==j) then
           a=0.5_dp
         else
@@ -285,7 +287,7 @@ dconc_coag = 0d0
         END if
         ! print*, 'b',dconc_coag(j,m)
         ! dconc_coag(j,m) = 0d0 ! 1/m^3s
-        dconc_coag(j,m) = a * coagulation_coef(m,j) * n_conc(j) * n_conc(m) ! 1/m^3s
+        IF (n_conc(j) > 1.d0 .and. n_conc(m) > 1.d0) dconc_coag(j,m) = a * coagulation_coef(j,m) * n_conc(j) * n_conc(m) ! 1/m^3s
         ! print*, 'a',dconc_coag(j,m)
       END DO
     END DO
@@ -296,7 +298,7 @@ dconc_coag = 0d0
   ! If no OPENMP. NOTE the actual loops are identical
   ELSE
     do j =1, n_bins_particle
-      do m = 1, j
+      do m = j, n_bins_particle
         if (m==j) then
           a=0.5_dp
         else
@@ -304,7 +306,7 @@ dconc_coag = 0d0
         END if
 
         ! if (GTIME%sec>3300) print*, 'bc',dconc_coag(j,m)
-        dconc_coag(j,m) = a * coagulation_coef(m,j) * n_conc(j) * n_conc(m) ! 1/m^3s
+        IF (n_conc(j) > 1.d0 .and. n_conc(m) > 1.d0) dconc_coag(j,m) = a * coagulation_coef(j,m) * n_conc(j) * n_conc(m) ! 1/m^3s
         ! if (GTIME%sec>3300) print*, 'ac',dconc_coag(j,m)
       END DO
     END DO
