@@ -67,12 +67,16 @@ Logical :: ACDC                = .true.
 Logical :: model_H2SO4         = .false.
 Logical :: Condensation        = .false.
 Logical :: Coagulation         = .false.
+Logical :: Deposition          = .false.
+Logical :: Chem_Deposition     = .false.
 Logical :: Extra_data          = .false.
 Logical :: Current_case        = .false.
 Logical :: RESOLVE_BASE        = .false.
 Logical :: PRINT_ACDC          = .false.
+Logical :: Use_speed           = .false.
 NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, NUCLEATION, ACDC, &
-         Extra_data, Current_case, Condensation, Coagulation, model_H2SO4, RESOLVE_BASE, PRINT_ACDC
+         Extra_data, Current_case, Condensation, Coagulation, Deposition, Chem_Deposition, model_H2SO4, RESOLVE_BASE, &
+         PRINT_ACDC, Use_speed
 
 Logical :: USE_OPENMP   = .false.
 NAMELIST /NML_PARALLEL/ USE_OPENMP
@@ -130,10 +134,12 @@ type(inert_particles) :: BG_PAR
 
 
 ! ENVIRONMENTAL INPUT
-CHARACTER(len=256)  :: ENV_path = ''
-CHARACTER(len=256)  :: ENV_file = ''
-CHARACTER(len=1)    :: TempUnit = '' ! K or C
-NAMELIST /NML_ENV/ ENV_path, ENV_file!, TempUnit
+CHARACTER(len=256)  :: ENV_FILE = ''
+CHARACTER(len=256)  :: LOSSES_FILE = ''
+REAL(dp)            :: CHAMBER_FLOOR_AREA = 0d0
+REAL(dp)            :: CHAMBER_CIRCUMFENCE = 0d0
+REAL(dp)            :: CHAMBER_HEIGHT = 0d0
+NAMELIST /NML_ENV/ ENV_file, LOSSES_FILE, CHAMBER_FLOOR_AREA, CHAMBER_CIRCUMFENCE, CHAMBER_HEIGHT
 
 ! MCM INPUT
 CHARACTER(len=256)  :: MCM_path = ''
@@ -166,8 +172,12 @@ INTEGER :: INITIALIZE_FROM = 0
 CHARACTER(1000) :: INITIALIZE_WITH = ''
 Logical :: use_raoult = .True.
 Logical :: variable_density = .False.
+
+! if true, will not save condensible vapour concentration in Particle.nc. They will always be saved also in Chemistry.nc
 Logical :: DONT_SAVE_CONDENSABLES = .False.
-Logical :: skip_acdc = .True. ! If True, skips ACDC with very low concentrations and negligible formation rates
+
+! If True, skips ACDC with very low concentrations and negligible formation rates
+Logical :: skip_acdc = .True.
 real(dp) :: dmps_tres_min = 10.
 real(dp) :: VP_MULTI = 1d0
 real(dp) :: start_time_s = 0d0
@@ -175,6 +185,19 @@ real(dp) :: dmps_multi = 1d6 ! Multiplicator to convert dmps linear concentratio
 
 NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,dmps_tres_min, &
                       start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI, DONT_SAVE_CONDENSABLES
+
+
+! ==================================================================================================================
+! Define change range
+REAL(dp), DIMENSION(2), PARAMETER :: diameter_prec_def = (/1.d-4, 2.d-2/) ! -> minimum and maximum relative change in particle diameter
+REAL(dp), DIMENSION(2), PARAMETER :: pnumber_prec_def = (/1.d-1, 5.d0/)   ! -> minimum and maximum relative change in particle number
+REAL(dp), DIMENSION(2), PARAMETER :: vapour_prec_def = (/1.d-1, 10.d0/)   ! -> minimum and maximum relative change in particle concentration
+REAL(dp), DIMENSION(2), PARAMETER :: some_prec_def = (/1.d-1, 10.d0/)     ! -> minimum and maximum relative change in xxx
+REAL(dp), DIMENSION(2), PARAMETER :: some2_prec_def = (/1.d-1, 10.d0/)    ! -> minimum and maximum relative change in xxx
+
+! Defines the minimum/maximum relative change caused by a process within a timestep
+REAL(dp), DIMENSION(5,2) :: change_range = TRANSPOSE(RESHAPE([diameter_prec_def,pnumber_prec_def,vapour_prec_def,some_prec_def,some2_prec_def], [2,5]))
+NAMELIST /NML_PRECISION/ change_range
 
 
 type(atoms):: Natoms  ! atoms of hydrogen, oxygen, nitrogen and carbon. Used for calculating diffusion
@@ -517,7 +540,7 @@ subroutine READ_INPUT_DATA()
     VAPOUR_PROP%molar_mass(ii)    = 98.0785 *1d-3
     VAPOUR_PROP%parameter_A(ii)   = 3.869717803774
     VAPOUR_PROP%parameter_B(ii)   = 313.607405085
-    VAPOUR_PROP%vapour_names(ii)  = 'H2S04'
+    VAPOUR_PROP%vapour_names(ii)  = 'H2SO4'
     VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
     VAPOUR_PROP%density(ii)       = 1819.3946 ! kg/m3
     VAPOUR_PROP%molec_volume(ii)  = calculate_molecular_volume(VAPOUR_PROP%density(ii),VAPOUR_PROP%molec_mass(ii))
@@ -609,6 +632,9 @@ subroutine READ_INIT_FILE
   ! do k=1, ROWCOUNT(50); READ(50,NML = NML_use_testcase, IOSTAT=IOS(i)) ! #11
   ! IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
+  do k=1, ROWCOUNT(50); READ(50,NML = NML_PRECISION, IOSTAT=IOS(i)) ! #11
+  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+
   do k=1, ROWCOUNT(50); READ(50,NML = NML_PARALLEL, IOSTAT=IOS(i)) ! #10
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
@@ -616,7 +642,6 @@ subroutine READ_INIT_FILE
   IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
 
   CLOSE(50)
-
 
 
   IF (SUM(ABS(IOS)) /= 0) then
@@ -839,6 +864,7 @@ END SUBROUTINE CHECK_MODIFIERS
 SUBROUTINE CONVERT_TEMPS_TO_KELVINS
   !use constants, ONLY: UCASE
   IMPLICIT NONE
+  CHARACTER(len=1) :: TempUnit = 'X'
 
   if (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
       print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins. This may lead to SIGFPE."
@@ -850,12 +876,12 @@ SUBROUTINE CONVERT_TEMPS_TO_KELVINS
 
   IF (UCASE(TempUnit) == 'K') THEN
       print FMT_MSG, '- Temperature input in Kelvins.'
-    ELSEIF (UCASE(TempUnit) == 'C') THEN
+  ELSEIF (UCASE(TempUnit) == 'C') THEN
       print FMT_MSG, '- Converting temperature from degrees C -> K.'
       MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
       MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
       CONC_MAT(:,inm_TempK) = CONC_MAT(:,inm_TempK) + 273.15d0
-    ELSE
+  ELSE
       print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
   END IF
   ! Check if a double conversion is attempted

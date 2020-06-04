@@ -306,6 +306,14 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         self.PLOT.showGrid(x=True,y=True)
         self.PLOT.showButtons()
         self.updteGraph()
+
+    # -----------------------
+    # tab Losses
+    # -----------------------
+
+        self.browseLosses.clicked.connect(lambda: self.browse_path(self.losses_file, 'file'))
+        self.deposition.stateChanged.connect(lambda: self.grayIfNotChecked(self.deposition,self.deposition_group))
+
     # -----------------------
     # tab Advanced
     # -----------------------
@@ -516,6 +524,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
 
             nml.ENV.ENV_FILE = self.pars(self.env_file.text(), file, self.stripRoot_env.isChecked())
             nml.MCM.MCM_FILE = self.pars(self.mcm_file.text(), file, self.stripRoot_mcm.isChecked())
+            nml.ENV.LOSSES_FILE = self.pars(self.losses_file.text(), file, False)
             nml.PARTICLE.DMPS_FILE = self.pars(self.dmps_file.text(), file, self.stripRoot_par.isChecked())
             nml.PARTICLE.EXTRA_PARTICLES = self.pars(self.extra_particles.text(), file, self.stripRoot_xtr.isChecked())
 
@@ -1233,6 +1242,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.FLAG.CURRENT_CASE='F'
         nml.FLAG.CONDENSATION=self.checkboxToFOR(self.condensation)
         nml.FLAG.COAGULATION=self.checkboxToFOR(self.coagulation)
+        nml.FLAG.DEPOSITION=self.checkboxToFOR(self.deposition)
+        nml.FLAG.CHEM_DEPOSITION=self.checkboxToFOR(self.chemDeposition)
         nml.FLAG.MODEL_H2SO4=self.checkboxToFOR(self.model_h2so4)
         nml.FLAG.RESOLVE_BASE=self.checkboxToFOR(self.resolve_base)
         nml.FLAG.PRINT_ACDC=self.checkboxToFOR(self.print_acdc)
@@ -1266,8 +1277,12 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.PARTICLE.USE_DMPS=self.checkboxToFOR(self.use_dmps)
         nml.PARTICLE.USE_DMPS_SPECIAL=self.checkboxToFOR(self.use_dmps_special)
         # class _ENV:
-        # nml.ENV.ENV_PATH=self.inout_dir.text()
         nml.ENV.ENV_FILE=self.pars(self.env_file.text(), file=self.indir, stripRoot=self.stripRoot_env.isChecked())
+        nml.ENV.LOSSES_FILE=self.pars(self.losses_file.text(), file=self.indir, stripRoot=False)
+        nml.ENV.CHAMBER_FLOOR_AREA=self.floorArea.value()
+        nml.ENV.CHAMBER_CIRCUMFENCE=self.chamberCircumfence.value()
+        nml.ENV.CHAMBER_HEIGHT=self.chamberHeight.value()
+
         # class _MCM:
         # nml.MCM.MCM_PATH=self.inout_dir.text()
         nml.MCM.MCM_FILE=self.pars(self.mcm_file.text(), file=self.indir, stripRoot=self.stripRoot_mcm.isChecked())
@@ -1440,6 +1455,8 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             # elif 'CURRENT_CASE' == key: self.      .setChecked(strng)
             elif 'CONDENSATION' == key: self.condensation.setChecked(strng)
             elif 'COAGULATION' == key: self.coagulation.setChecked(strng)
+            elif 'DEPOSITION' == key: self.deposition.setChecked(strng)
+            elif 'CHEM_DEPOSITION' == key: self.chemDeposition.setChecked(strng)
             elif 'MODEL_H2SO4' == key: self.model_h2so4.setChecked(strng)
             elif 'RESOLVE_BASE' == key: self.resolve_base.setChecked(strng)
             elif 'RUNTIME' == key and isFl: self.runtime.setValue(float(strng))
@@ -1466,9 +1483,14 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'USE_DMPS_SPECIAL' == key: self.use_dmps_special.setChecked(strng)
             # elif 'ENV_PATH' == key: self.inout_dir.setText(strng)
             elif 'ENV_FILE' == key: self.env_file.setText(strng)
+            elif 'CHAMBER_FLOOR_AREA' == key and isFl: self.floorArea.setValue(float(strng))#  0.20000000000000001     ,
+            elif 'CHAMBER_CIRCUMFENCE' == key and isFl: self.chamberCircumfence.setValue(float(strng))#  0.20000000000000001     ,
+            elif 'CHAMBER_HEIGHT' == key and isFl: self.chamberHeight.setValue(float(strng))#  0.20000000000000001     ,
+
             # elif 'TEMPUNIT' == key: print(strng)# "K
             # elif 'MCM_PATH' == key: print(strng)# "
             elif 'MCM_FILE' == key: self.mcm_file.setText(strng)# "
+            elif 'LOSSES_FILE' == key: self.losses_file.setText(strng)# "
             elif 'LAT' == key and isFl: self.lat.setValue(float(strng))
             elif 'LON' == key and isFl: self.lon.setValue(float(strng))
             elif 'WAIT_FOR' == key and isFl: self.wait_for.setValue(int(strng))

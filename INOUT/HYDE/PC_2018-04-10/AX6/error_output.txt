@@ -1,0 +1,16 @@
+ Starting run at            0
+ Precision error at simulation time [s]   1080.0000000000000     
+ current simulation timestep [s]   10.000000000000000     
+ Process causing troubles           4
+   ERROR TYPE: large diameter change
+   => reduce speed_up:           4 ->           2
+ 
+error state: F, error process: 0
+ Precision error at simulation time [s]   71060.000000000000     
+ current simulation timestep [s]   10.000000000000000     
+ Process causing troubles           4
+   ERROR TYPE: large diameter change
+   => reduce speed_up:           2 ->           1
+ 
+error state: F, error process: 0
+ ---------- SIMULATION REACHED END SUCCESFULLY ------------

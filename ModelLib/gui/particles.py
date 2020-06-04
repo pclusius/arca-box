@@ -49,7 +49,7 @@ def loadNC(file):
     try:
         import netCDF4
     except:
-        return 'This feature need netCDF for Python'
+        return 'This feature needs netCDF4 for Python'
     try:
         nc = netCDF4.Dataset(Path(file), 'r')
     except:

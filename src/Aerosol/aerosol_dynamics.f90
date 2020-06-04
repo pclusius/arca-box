@@ -102,7 +102,7 @@ SUBROUTINE Condensation_apc(vapour_prop, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     Kelvin_Effect(:,ii) = 1d0
 
     Kelvin_Effect(:,ii) = 1D0 + 2D0*vapour_prop%surf_tension(ii)*vapour_prop%molar_mass(ii) &
-                        / (R*GTEMPK*vapour_prop%density(ii)*diameter/2D0)
+                        / (Rg*GTEMPK*vapour_prop%density(ii)*diameter/2D0)
 
     ! Kohler factor the solute partial pressure effect. Unitless
     kohler_effect(:,ii) = Kelvin_Effect(:,ii)*xorg(:,ii)
@@ -232,7 +232,7 @@ SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar) ! Add more variables
   ! Dynamic viscosity of air
   dyn_visc = 1.8D-5*(GTEMPK/298.0d0)**0.85
   ! Gas mean free path in air (m)
-  l_gas=2D0*dyn_visc/(GPRES*SQRT(8D0*Mair/(pi*R*GTEMPK)))
+  l_gas=2D0*dyn_visc/(GPRES*SQRT(8D0*Mair/(pi*Rg*GTEMPK)))
   ! Cunninghams slip correction factor (Seinfeld and Pandis eq 9.34)
   slip_correction = 1D0+(2D0*l_gas/(diameter)) * (1.257D0+0.4D0*exp(-1.1D0/(2D0*l_gas/diameter)))
   ! Diffusivity for the different particle sizes m^2/s
@@ -311,9 +311,7 @@ dconc_coag = 0d0
       END DO
     END DO
   END IF
-if (GTIME%sec>3300) THEN
 
-end if
 ! Convert dconc_coag to units of timestep
 dconc_coag = dconc_coag * dt_coag
 
@@ -407,8 +405,8 @@ function collision_rate(jj,diameter, mass,vapour_prop)
 
     ! viscosity of air, density oif air and mean free path in air
     viscosity     = 1.8D-5*(GTEMPK/298D0)**0.85D0  ! dynamic viscosity of air
-    dens_air      = Mair*GPRES/(R*GTEMPK)
-    air_free_path = 2D0*viscosity/(GPRES*SQRT(8D0*Mair/(pi*R*GTEMPK))) ! gas mean free path in air
+    dens_air      = Mair*GPRES/(Rg*GTEMPK)
+    air_free_path = 2D0*viscosity/(GPRES*SQRT(8D0*Mair/(pi*Rg*GTEMPK))) ! gas mean free path in air
     ! knudsen number
     knudsen = 2D0 * air_free_path/diameter
 
@@ -485,7 +483,7 @@ function collision_rate(jj,diameter, mass,vapour_prop)
 
        ELSE
          Diff_org=5D0/(16D0*Na*dorg**2D0*dens_air)*&
-         sqrt(R*GTEMPK*Mair/(2D0*pi)*((vapour_prop%molar_mass(jj) + Mair)/vapour_prop%molar_mass(jj)))
+         sqrt(Rg*GTEMPK*Mair/(2D0*pi)*((vapour_prop%molar_mass(jj) + Mair)/vapour_prop%molar_mass(jj)))
        END IF
 
        speedorg=SQRT(8D0*Kb*GTEMPK/(pi*vapour_prop%molec_mass(jj))) !speed of organic molecules
@@ -590,9 +588,9 @@ function collision_rate_uhma(jj,diameter,mass,vapour_prop)
       !Organics mass transfer rate (m3/s)
 
        dX= (6.*molecvol(jj)/pi)**(1./3.)    !estimated diameter ( m)
-       dens_air=mair*1e-3* pres/(R*temp)     ! density of air  kg/m3
+       dens_air=mair*1e-3* pres/(Rg*temp)     ! density of air  kg/m3
        Dorg=5./(16.*Na*dX**2.*dens_air)*&
-          sqrt(R*temp*mair*1e-3/(2.*pi)*((molarmass1(jj)+mair*1e-3)/molarmass1(jj))) ! diffusivity organic compound
+          sqrt(Rg*temp*mair*1e-3/(2.*pi)*((molarmass1(jj)+mair*1e-3)/molarmass1(jj))) ! diffusivity organic compound
 
        speedorg=SQRT(8D0*kb*temp/(pi*molecmass(jj))) !spped of organic molecules
        gasmeanfporg=0
@@ -620,6 +618,59 @@ function collision_rate_uhma(jj,diameter,mass,vapour_prop)
 
    ENDIF
 end function collision_rate_uhma
+
+
+
+! Loss rate calculation by P. Roldin
+SUBROUTINE deposition_velocity(d_p,ustar,Av,Au,Ad,V_chamber,T,p,E_field,dn_par, dt)
+    IMPLICIT NONE
+    REAL(dp), DIMENSION(n_bins_particle), INTENT(in) :: d_p
+    REAL(dp), DIMENSION(n_bins_particle) :: D,vs,Sc,r,aa,bb,Ii,vdv,vdu,vdd,ve,Cc,dens
+    REAL(dp), INTENT(in) :: ustar,Av,Au,Ad,V_chamber,T,p, E_field, dt
+    REAL(dp), DIMENSION(:), INTENT(inout) :: dn_par ! s^-1
+    REAL(dp), DIMENSION(size(dn_par)) :: k_dep ! s^-1
+    REAL(dp) :: dyn_visc,kin_visc,l_gas,dens_air,e
+    ! REAL(dp), DIMENSION(3) :: n
+    ! INTEGER :: j
+    dens = (get_mass())/(pi*(get_dp())**3/6)
+    ! Dry deposition model from Lai and Nazaroff J. Aerosol Sci., 31, 463–476, 2000. !%%%%%%%%
+    dens_air=Mair*p/(Rg*T)		! Air density
+    dyn_visc=1.8D-5*(T/298.)**0.85 ! dynamic viscosity
+    kin_visc=dyn_visc/dens_air ! Pa s kinematic viscosity of air at T=273.15 K
+    l_gas=2D0*dyn_visc/(p*SQRT(8D0*Mair/(pi*Rg*T))) ! Gas mean free path in air (m)
+    Cc = 1D0+(2D0*l_gas/(d_p))*(1.257+0.4*exp(-1.1/(2D0*l_gas/d_p))) ! Cunninghams correction factor (seinfeld and Pandis eq 9.34
+    D = Cc*kb*T/(3D0*pi*dyn_visc*d_p)              ! Diffusivitys for the different particle sizes m^2/s
+    vs=dens*d_p**2D0*g_0*Cc/(18.*dyn_visc)           ! gravitational setting velocity
+    Sc=kin_visc*D**(-1D0)
+    r=d_p*ustar*(2D0*kin_visc)**(-1D0)
+
+
+    aa=0.5*LOG((10.92*Sc**(-1D0/3D0)+4.3)**3D0/(Sc**(-1D0)+0.0609))+SQRT(3D0)&
+    *ATAN((8.6-10.92*Sc**(-1D0/3D0))/(SQRT(3D0)*10.92*Sc**(-1D0/3D0)))
+
+    bb=0.5*LOG((10.92*Sc**(-1D0/3D0)+r)**3/(Sc**(-1D0)+7.669D-4*r**3D0))&
+    +SQRT(3D0)*ATAN((2D0*r-10.92*Sc**(-1D0/3D0))/(SQRT(3D0)*10.92*Sc**(-1D0/3D0)))
+    Ii=3.64*Sc**(2D0/3D0)*(aa-bb)+39.
+
+    vdv=ustar/Ii ! Deposition velocity vertical surface
+    vdu=vs/(1D0-EXP(-vs*Ii/ustar)) ! Deposition velocity upward horizontal surface
+    vdd=vs/(EXP(vs*Ii/ustar)-1D0) ! Deposition velocity downward horizontal surface
+    k_dep=(vdv*Av+vdu*Au+vdd*Ad)/V_chamber ! First order loss coefficient (s^-1) for non-charged particles, rectangular cavity
+
+    ! Enhanced deposition velocity of charged particles (McMurry and Rader, 1985):
+
+    ! n=(/1D0, 2D0, 3D0/) ! number of elemental charges (1,2,3)
+    ! e=1.602D-19 ! Columbs
+
+    ! DO j=1,3
+    ! ve=n(j)*e*Cc*E_field/(3D0*pi*dyn_visc*d_p) ! Characteristic average deposition velocity due to electrstatic forces
+    ! k_dep(j+1,:)=ve*(Av+Au+Ad)/V_chamber+k_dep(1,:) ! First order loss rate coefficient (s^-1) due to particle charge (1,2 or 3), rectangular cavity
+    ! END DO
+    if (GTIME%printnow) print*, 'G-mean k_dep', EXP(SUM(LOG(k_dep))/n_bins_particle)
+    dn_par = (get_conc()) - (get_conc())*EXP(-k_dep*dt) ! calculates how the particle number concentration changes in each size bin due to dry deposition
+
+END SUBROUTINE deposition_velocity
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 

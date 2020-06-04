@@ -4,15 +4,16 @@ IMPLICIT NONE
 PUBLIC
 
 real(dp), parameter    :: Na = 6.022140857d23  ! 1/mol Avogadro constant
-real(dp), parameter    :: R  = 8.3144598       ! [J/K/mol] Universal gas constant
-real(dp), parameter    :: kb = R/Na            ! [J/K] Boltzmann constant
+real(dp), parameter    :: Rg = 8.3144598       ! [J/K/mol] Universal gas constant
+real(dp), parameter    :: kb = Rg/Na           ! [J/K] Boltzmann constant
 real(dp), parameter    :: pi = ACOS(-1d0)      ! pi
 real(dp), parameter    :: K0 = 273.15d0        ! [K] Zero degree celcius in K
 integer(sp), parameter :: min_s = 60           ! [s] seconds in minute
 integer(sp), parameter :: hour_s  = 3600       ! [s] seconds in hour
 integer(sp), parameter :: day_s = 24*hour_s
 real(dp), parameter    :: um3_to_m3 = (1D-6)**3 ! used for  vol_concentration
-REAL(dp), PARAMETER    :: Mair = 28.96D-3          ! Mean molecular weight of air (kg)
+REAL(dp), PARAMETER    :: Mair = 28.9647D-3          ! Mean molecular weight of air (kg)
+REAL(dp), PARAMETER    :: g_0 = 9.80665D0          ! Gravitational acceleration
 
 ! Saturation vapour pressure of water in Pa
 REAL, PARAMETER       :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
@@ -96,9 +97,9 @@ end type timetype
 ! error type which is used to optimize computation speed at given simulatin precision
 !===============================================================
 TYPE error_type
-!  LOGICAL :: use_error = .true.   !use the precision handling or not: default -> use it (use_error = .true.)
   LOGICAL :: error_state = .false.  !there is no error at the start
   INTEGER :: error_process  !process where the error occurs
+  CHARACTER(150) :: process_name(6) = ['            ', '            ', '            ', 'Condensation', 'Coagulation ', 'Deposition  ']
   CHARACTER(150) :: error_specification  !specification on error type (e.g."particle conc" during coagulation)
 END TYPE error_type
 

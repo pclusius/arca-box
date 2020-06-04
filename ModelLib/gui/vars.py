@@ -82,9 +82,12 @@ class INITFILE:
             self.CURRENT_CASE=0
             self.CONDENSATION=0
             self.COAGULATION=0
+            self.DEPOSITION=0
+            self.CHEM_DEPOSITION=0
             self.MODEL_H2SO4=0
             self.RESOLVE_BASE=0
             self.PRINT_ACDC=0
+            self.USE_SPEED=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_FLAG%s')"%(cmd, eol))
@@ -96,9 +99,12 @@ class INITFILE:
             exec("%s(' CURRENT_CASE = %s%s')"%(cmd,self.CURRENT_CASE,eol))
             exec("%s(' CONDENSATION = %s%s')"%(cmd,self.CONDENSATION,eol))
             exec("%s(' COAGULATION = %s%s')"%(cmd,self.COAGULATION,eol))
+            exec("%s(' DEPOSITION = %s%s')"%(cmd,self.DEPOSITION,eol))
+            exec("%s(' CHEM_DEPOSITION = %s%s')"%(cmd,self.CHEM_DEPOSITION,eol))
             exec("%s(' MODEL_H2SO4 = %s%s')"%(cmd,self.MODEL_H2SO4,eol))
             exec("%s(' RESOLVE_BASE = %s%s')"%(cmd,self.RESOLVE_BASE,eol))
             exec("%s(' PRINT_ACDC = %s%s')"%(cmd,self.PRINT_ACDC,eol))
+            exec("%s(' USE_SPEED = %s%s')"%(cmd,self.USE_SPEED,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _TIME:
@@ -157,15 +163,19 @@ class INITFILE:
 
     class _ENV:
         def __init__(self):
-            # self.ENV_PATH=0
             self.ENV_FILE=0
-            # self.TEMPUNIT='C'
+            self.LOSSES_FILE=0
+            self.CHAMBER_FLOOR_AREA=0
+            self.CHAMBER_CHAMBER_HEIGHTAREA=0
+            self.CHAMBER_HEIGHT=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_ENV%s')"%(cmd, eol))
-            # exec("%s(' ENV_PATH = \\'%s\\'%s')"%(cmd,self.ENV_PATH,eol))
             exec("%s(' ENV_FILE = \\'%s\\'%s')"%(cmd,self.ENV_FILE,eol))
-            # exec("%s(' TEMPUNIT = \\'%s\\'%s')"%(cmd,self.TEMPUNIT,eol))
+            exec("%s(' LOSSES_FILE = \\'%s\\'%s')"%(cmd,self.LOSSES_FILE,eol))
+            exec("%s(' CHAMBER_FLOOR_AREA = %s%s')"%(cmd,self.CHAMBER_FLOOR_AREA,eol))
+            exec("%s(' CHAMBER_CIRCUMFENCE = %s%s')"%(cmd,self.CHAMBER_CIRCUMFENCE,eol))
+            exec("%s(' CHAMBER_HEIGHT = %s%s')"%(cmd,self.CHAMBER_HEIGHT,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _MCM:
