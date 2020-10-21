@@ -840,7 +840,7 @@ class QtBoxGui(gui5.Ui_MainWindow,QtWidgets.QMainWindow):
         f = open('makefile','r')
         data = f.read()
         f.close()
-        pattern = '(CHMDIR)( )*(=)( )*[a-z|A-Z|0-9]*'
+        pattern = '(CHMDIR)( )*(=)( )*[a-z|A-Z|0-9|-_]*'
         data = sub(pattern,replacement, data)
         f = open('makefile','w')
         f.write(data)
