@@ -19,9 +19,9 @@ def part(file, time):
     return particles
 
 
-# file = '/home/pecl/05-APCAD/supermodel-phase-1/INOUT/HYDE/PC_2018-04-10/AREF/Particle.nc'
+# file = '/home/pecl/05-ARCA/supermodel-phase-1/INOUT/HYDE/PC_2018-04-10/AREF/Particles.nc'
 # print('ref vika', part(file, -1)[:12])
 # # print('ref vika', comp(file, -1, 0)[-12:])
-# file = '/home/pecl/05-APCAD/supermodel-phase-1/INOUT/HYDE/PC_2018-04-10/ACONT/Particle.nc'
+# file = '/home/pecl/05-ARCA/supermodel-phase-1/INOUT/HYDE/PC_2018-04-10/ACONT/Particles.nc'
 # # print('cont eka', comp(file, 0, 0)[-12:])
 # print('cont eka', part(file, 0)[:12])

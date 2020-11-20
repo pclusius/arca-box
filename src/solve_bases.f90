@@ -44,17 +44,17 @@ contains
     target_J = TSTEP_CONC(inm_JIN) * 1d6
     SA  = TSTEP_CONC(inm_H2SO4) * 1d6
     T   = TSTEP_CONC(inm_TEMPK)
-    CS  = TSTEP_CONC(inm_CS)
+    CS  = GCS
     IPR = TSTEP_CONC(inm_IPR) * 1d6
 
     ! If only part of the formation is iterated, here using DMA, the target is the difference between observed and ACDC J
     IF (UCASE(Fill_formation_with) == 'DMA') THEN
-      target_J = max(0d0, target_J - J_ACDC_NH3*1d6)
+      target_J = max(0d0, target_J - J_ACDC_NH3_M3)
       ! limits are shifted down for pure DMA; upper limit is still ample; lower might sometimes be still too much
       conc_limits = conc_limits*0.1d0
     ! If only part of the formation is iterated, here using NH3, the target is the difference between observed and ACDC J
     ELSE IF  (UCASE(Fill_formation_with) == 'NH3') THEN
-      target_J = max(0d0, target_J - J_ACDC_DMA*1d6)
+      target_J = max(0d0, target_J - J_ACDC_DMA_M3)
     END IF
 
     i=0 ! reset counter for total number of ACDC runs
@@ -83,13 +83,13 @@ contains
 
     ! if target J is smaller than lower limits would produce, don't bother iterating further
     else if (target_J < J_limits(1)) THEN
-      if (GTIME%printnow) print FMT_MSG, 'Target J ('//f2chr(target_J*1d-6)//') is smaller than what lower limits produce'
+      if (GTIME%printnow) print FMT_MSG, 'Target J ('//TRIM(f2chr(target_J*1d-6))//') is smaller than what lower limits produce'
       testbase = 0
 
     ! if target J is larger than upper limits can produce, don't bother iterating further
     else if (target_J > J_limits(2)) THEN
-      if (GTIME%printnow) print FMT_MSG, ' Target J '//f2chr(target_J*1d-6)//' is too large for current upper limits of bases: '&
-                                    //f2chr(conc_limits(2))//' and '//f2chr(conc_limits(2)*DMA_f)
+      if (GTIME%printnow) print FMT_MSG, ' Target J '//TRIM(f2chr(target_J*1d-6))//' is too large for current upper limits of bases: '&
+                                    //TRIM(f2chr(conc_limits(2)))//' and '//TRIM(f2chr(conc_limits(2)*DMA_f))
       testbase = GC_AIR_NOW*1d6
 
     ! if target J reasonable, iterate the concentrations
@@ -160,6 +160,7 @@ contains
           END IF
           CALL get_acdc_D(SA,BASE,dummy1,CS,T,GTIME,.true.,testJ,dummy2)
           JACDC = JACDC + testJ
+          if (JACDC>0d0) RESOLVED_J_FACTR = testJ/JACDC
         END IF
       END IF
 

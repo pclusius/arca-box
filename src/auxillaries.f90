@@ -177,44 +177,42 @@ END FUNCTION COLCOUNT
 !..............................................................................
 REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
   IMPLICIT NONE
-  type(timetype), OPTIONAL, intent(in)  :: timein
-  type(timetype)  :: time
+  real(dp), OPTIONAL, intent(in)  :: timein
   REAL(dp), intent(in) :: conctime(:), conc(:)
-  REAL(dp) :: now
+  REAL(dp) :: x
   INTEGER, OPTIONAL :: row
   CHARACTER(*), OPTIONAL :: unit
   INTEGER :: rw, i
   if (PRESENT(timein)) THEN
-    time = timein
+    x = timein
   ELSE
-    time = GTIME
-  END IF
-  if (PRESENT(unit)) THEN
-    if (unit .eq. 'sec') THEN
-      now = time%sec
-    ELSEIF (unit .eq. 'min') THEN
-      now = time%min
-    ELSEIF (unit .eq. 'hrs') THEN
-      now = time%hrs
-    ELSEIF (unit .eq. 'day') THEN
-      now = time%day
+    if (PRESENT(unit)) THEN
+        if (unit .eq. 'sec') THEN
+            x = GTIME%sec
+        ELSEIF (unit .eq. 'min') THEN
+            x = GTIME%min
+        ELSEIF (unit .eq. 'hrs') THEN
+            x = GTIME%hrs
+        ELSEIF (unit .eq. 'day') THEN
+            x = GTIME%day
+        ELSE
+            print FMT_WARN0, 'UNKNOWN TIME UNIT, can not interpolate, trying with days'
+            x = GTIME%day
+        END IF
     ELSE
-      print FMT_WARN0, 'UNKNOWN TIME UNIT, can not interpolate, trying with days'
-      now = time%day
+        x = GTIME%day
     END IF
-  ELSE
-    now = time%day
   END IF
-  now = now + conctime(1)
+  x = x + conctime(1)
   rw = 0
   if (PRESENT(row)) THEN
     rw = row
-    if ((now > conctime(rw)) .and. (now < conctime(rw+1))) THEN
+    if ((x > conctime(rw)) .and. (x < conctime(rw+1))) THEN
         continue
     else
-      print FMT_WARN1,'Wrong row number is sent in to INTERP, searching for the real row now.', REAL(rw)
+      print FMT_WARN1,'Wrong row number is sent in to INTERP, searching for the real row x.', REAL(rw)
       rw = 0
-      do WHILE (now>=conctime(rw+1))
+      do WHILE (x>=conctime(rw+1))
         rw = rw + 1
       end do
       print FMT_NOTE1,'real row is: ', REAL(rw)
@@ -222,7 +220,7 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
   else
     rw=1
     do i=1,size(conctime)
-      if (conctime(i) > now) exit
+      if (conctime(i) > x) exit
     end do
     rw = i-1
     if (rw==size(conctime)) THEN
@@ -232,7 +230,7 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
     end if
   end if
 
-  INTERP = (conc(rw+1)-conc(rw)) / (conctime(rw+1)-conctime(rw)) * (now-conctime(rw)) + conc(rw)
+  INTERP = (conc(rw+1)-conc(rw)) / (conctime(rw+1)-conctime(rw)) * (x-conctime(rw)) + conc(rw)
 
 END FUNCTION INTERP
 
@@ -244,9 +242,9 @@ END FUNCTION INTERP
 ! Output:
 ! integer
 !..............................................................................
-PURE INTEGER FUNCTION IndexFromName(name, list_of_names)
+PURE INTEGER FUNCTION IndexFromName(NAME, list_of_names)
   IMPLICIT NONE
-  character(*), INTENT(IN) :: name
+  character(*), INTENT(IN) :: NAME
   character(*), optional, INTENT(IN) :: list_of_names(:)
   integer :: i,m
   if (PRESENT(list_of_names)) then
@@ -294,6 +292,7 @@ PURE CHARACTER(LEN=12) FUNCTION f2chr(number)
     IMPLICIT NONE
     real(dp), INTENT(IN) :: number
     write(f2chr, '(es12.3)') number
+    f2chr = ADJUSTL(f2chr)
 END FUNCTION f2chr
 
 PURE FUNCTION i2chr(number) result(out)
@@ -302,6 +301,77 @@ PURE FUNCTION i2chr(number) result(out)
     CHARACTER(len=int(LOG10(MAX(number*1d0, 1d0))+1)) :: out
     write(out, '(i0)') number
 END FUNCTION i2chr
+
+PURE LOGICAL FUNCTION equal(a,b)
+    IMPLICIT NONE
+    REAL(dp), INTENT(IN) :: a,b
+    equal = ABS(a-b) .lt. 1d-200
+END FUNCTION equal
+
+
+!====================================================================================
+! Calculates multimodal particle size distribution, used for intialization. Modevector
+! is of length <number of modes>*3 and contains the ount median diameter, (CMD),
+! geometric standard deviation (GSD) and relative size in total particle count
+! (relative sizes must add up to 1). diameters is the diameter vector of the model
+! (the bins), psd is the output vector and N is the total particle count in the output
+! vector
+!....................................................................................
+subroutine Multimodal(modevector, diameters, psd, N)
+    implicit none
+    real(dp), INTENT(in)    :: modevector(:)
+    real(dp), INTENT(in)    :: diameters(:)
+    real(dp), INTENT(inout) :: psd(:)
+    real(dp), allocatable   :: x(:), sumv(:)
+    real(dp)                :: N ,mu,sig           ! size factor and total count
+    INTEGER                 :: ii,nModes
+
+    IF (MODULO(size(modevector),3) .ne. 0) THEN
+        print*, 'The vector for modes is not correct'
+        STOP
+    ELSE
+        nModes = size(modevector)/3
+        if (GTIME%printnow) print*, 'Building PSD from ',nModes,' modes'
+    END IF
+
+    ALLOCATE(x(size(psd)))
+    ALLOCATE(sumv(size(psd)))
+    sumv = 0d0
+
+    x = LOG10(diameters)
+
+    DO ii = 1,nModes
+        mu   = LOG10(modevector((ii-1)*3+1))
+        sig  = modevector((ii-1)*3+2)
+        sumv = sumv + modevector((ii-1)*3+3) * gauss(x, mu, sig)
+    END DO
+
+    psd = N * sumv / (sum( sumv ))
+
+    ! psd = psd * LOG10(dp_sim(2)/dp_sim(1))
+
+end subroutine Multimodal
+
+
+pure function gauss(x,mu,sig) result(zz)
+    real(dp), INTENT(IN) :: x(:)
+    real(dp), INTENT(IN) :: mu,sig
+    real(dp), allocatable :: zz(:)
+    allocate(zz(size(x)))
+    zz = exp(-(x-mu)**2/(2*sig**2))/sqrt(2*pi*sig**2)
+end function gauss
+
+
+pure elemental function saturation_conc_m3(A,B, Temperature) result(Vapour_concentration)
+  real(dp), intent(in) :: A, B, temperature
+  real(dp) :: Vapour_concentration, vapour_pressure
+
+  ! Using antoine equation log_10(p) = A- (B/T)
+  vapour_pressure      = 10 ** (A - (B/temperature)) ! in atm
+  Vapour_concentration = (vapour_pressure*101325)/(kb * temperature) ! #/m3
+
+end function saturation_conc_m3
+
 
 
 

@@ -1,0 +1,773 @@
+
+
+
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
++..................................................................................................
++.USING INDEX INSTEAD OF DATE -> ASSUMING LIGHT DIRECTION IS FROM DIRECTLY UP......................+
++..................................................................................................
+| ENV values from :                                                                                |
++..................................................................................................+
++.Checking input validity..........................................................................+
+| - Converting temperature from degrees C -> K.                                                    |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Adding a constant to TEMPK, [in K]: 5.000E+00                                                  |
+| - Adding a constant to PRESSURE, [in hPa]: 1.000E+03                                             |
+| - Adding a constant to REL_HUMIDITY, [in #/cm3]: 7.000E+01                                       |
+| - Adding a constant to CONDENS_SINK, [in #/cm3]: 1.000E-02                                       |
+| - Adding a constant to ION_PROD_RATE, [in #/cm3]: 1.000E+00                                      |
+| - Replacing input for H2SO4 with parametrized function.                                          |
+| - Replacing input for NUC_RATE_IN with parametrized function.                                    |
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     Why                                                                                          |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: INOUT//PC_0000/SOLVEB_SUB                                            |
++..................................................................................................+
+ 
++.Beginning simulation with constant timestep......................................................+
+
++.Time: 00:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+|  Target J 2.877E-02 is too large for current upper limits of bases: 1.000E+18 and 1.000E+16      |
+| target J: 2.88E-02 resolved J: 0.00E+00. NH3 2.60E+19 DMA:2.60E+17 (4 iterations)                |
++..................................................................................................+
+| ACID C:    4.477E+05 [1/cm3]    sum(An)/A1 1.168E-01 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 5.178E-08 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.877E-02 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:10:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 3.43E-02 resolved J: 3.52E-02. NH3 1.15E+11 DMA:1.15E+09 (12 iterations)               |
++..................................................................................................+
+| ACID C:    5.718E+05 [1/cm3]    sum(An)/A1 1.448E-02 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 6.868E-08 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 3.433E-02 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:00 Est. time to finish (m:s) 0:32        Realtime/Modeltime:  757.48        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:20:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 4.08E-02 resolved J: 3.91E-02. NH3 3.59E+10 DMA:3.59E+08 (18 iterations)               |
++..................................................................................................+
+| ACID C:    7.310E+05 [1/cm3]    sum(An)/A1 4.766E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 9.252E-08 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 4.083E-02 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:01 Est. time to finish (m:s) 0:39        Realtime/Modeltime:  606.88        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:30:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 4.84E-02 resolved J: 4.74E-02. NH3 1.91E+10 DMA:1.91E+08 (14 iterations)               |
++..................................................................................................+
+| ACID C:    9.316E+05 [1/cm3]    sum(An)/A1 2.727E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 1.253E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 4.843E-02 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:03 Est. time to finish (m:s) 0:44        Realtime/Modeltime:  520.77        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:40:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 5.73E-02 resolved J: 5.64E-02. NH3 1.17E+10 DMA:1.17E+08 (20 iterations)               |
++..................................................................................................+
+| ACID C:    1.180E+06 [1/cm3]    sum(An)/A1 1.809E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 1.697E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 5.727E-02 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:04 Est. time to finish (m:s) 0:47        Realtime/Modeltime:  484.28        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:50:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 6.75E-02 resolved J: 6.82E-02. NH3 7.77E+09 DMA:7.77E+07 (16 iterations)               |
++..................................................................................................+
+| ACID C:    1.483E+06 [1/cm3]    sum(An)/A1 1.328E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.287E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 6.752E-02 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:06 Est. time to finish (m:s) 0:47        Realtime/Modeltime:  472.32        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 7.94E-02 resolved J: 8.01E-02. NH3 5.42E+09 DMA:5.42E+07 (16 iterations)               |
++..................................................................................................+
+| ACID C:    1.844E+06 [1/cm3]    sum(An)/A1 1.029E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 3.068E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 7.937E-02 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:07 Est. time to finish (m:s) 0:46        Realtime/Modeltime:  465.36        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:10:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 9.30E-02 resolved J: 9.39E-02. NH3 3.96E+09 DMA:3.96E+07 (20 iterations)               |
++..................................................................................................+
+| ACID C:    2.269E+06 [1/cm3]    sum(An)/A1 8.399E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 4.081E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 9.302E-02 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:09 Est. time to finish (m:s) 0:45        Realtime/Modeltime:  459.69        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:20:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.09E-01 resolved J: 1.12E-01. NH3 3.02E+09 DMA:3.02E+07 (20 iterations)               |
++..................................................................................................+
+| ACID C:    2.757E+06 [1/cm3]    sum(An)/A1 7.186E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 5.364E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.087E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:10 Est. time to finish (m:s) 0:44        Realtime/Modeltime:  459.80        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:30:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.27E-01 resolved J: 1.22E-01. NH3 2.31E+09 DMA:2.31E+07 (20 iterations)               |
++..................................................................................................+
+| ACID C:    3.309E+06 [1/cm3]    sum(An)/A1 6.166E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 6.998E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.266E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:11 Est. time to finish (m:s) 0:43        Realtime/Modeltime:  455.61        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:40:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.47E-01 resolved J: 1.46E-01. NH3 1.89E+09 DMA:1.89E+07 (22 iterations)               |
++..................................................................................................+
+| ACID C:    3.919E+06 [1/cm3]    sum(An)/A1 5.623E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 8.938E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.471E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:13 Est. time to finish (m:s) 0:42        Realtime/Modeltime:  447.56        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:50:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.70E-01 resolved J: 1.73E-01. NH3 1.57E+09 DMA:1.57E+07 (22 iterations)               |
++..................................................................................................+
+| ACID C:    4.579E+06 [1/cm3]    sum(An)/A1 5.219E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 1.124E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.704E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:14 Est. time to finish (m:s) 0:42        Realtime/Modeltime:  441.04        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.97E-01 resolved J: 2.02E-01. NH3 1.35E+09 DMA:1.35E+07 (20 iterations)               |
++..................................................................................................+
+| ACID C:    5.277E+06 [1/cm3]    sum(An)/A1 4.922E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 1.388E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.967E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:16 Est. time to finish (m:s) 0:40        Realtime/Modeltime:  440.17        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:10:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 2.27E-01 resolved J: 2.35E-01. NH3 1.18E+09 DMA:1.18E+07 (18 iterations)               |
++..................................................................................................+
+| ACID C:    5.997E+06 [1/cm3]    sum(An)/A1 4.710E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 1.682E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.265E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:17 Est. time to finish (m:s) 0:39        Realtime/Modeltime:  439.35        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:20:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 2.60E-01 resolved J: 2.54E-01. NH3 1.03E+09 DMA:1.03E+07 (20 iterations)               |
++..................................................................................................+
+| ACID C:    6.720E+06 [1/cm3]    sum(An)/A1 4.478E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.006E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.600E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:19 Est. time to finish (m:s) 0:38        Realtime/Modeltime:  437.95        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:30:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 2.98E-01 resolved J: 2.95E-01. NH3 9.39E+08 DMA:9.39E+06 (20 iterations)               |
++..................................................................................................+
+| ACID C:    7.424E+06 [1/cm3]    sum(An)/A1 4.398E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.334E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.976E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:20 Est. time to finish (m:s) 0:37        Realtime/Modeltime:  436.19        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:40:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 3.40E-01 resolved J: 3.43E-01. NH3 8.78E+08 DMA:8.78E+06 (22 iterations)               |
++..................................................................................................+
+| ACID C:    8.085E+06 [1/cm3]    sum(An)/A1 4.372E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.658E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 3.396E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:22 Est. time to finish (m:s) 0:35        Realtime/Modeltime:  436.15        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:50:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 3.86E-01 resolved J: 3.74E-01. NH3 8.20E+08 DMA:8.20E+06 (18 iterations)               |
++..................................................................................................+
+| ACID C:    8.680E+06 [1/cm3]    sum(An)/A1 4.310E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.969E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 3.864E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:23 Est. time to finish (m:s) 0:34        Realtime/Modeltime:  434.24        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 03:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 4.38E-01 resolved J: 4.42E-01. NH3 8.02E+08 DMA:8.02E+06 (22 iterations)               |
++..................................................................................................+
+| ACID C:    9.186E+06 [1/cm3]    sum(An)/A1 4.383E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 3.232E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 4.383E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:24 Est. time to finish (m:s) 0:33        Realtime/Modeltime:  433.68        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 03:10:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 4.96E-01 resolved J: 4.91E-01. NH3 7.84E+08 DMA:7.84E+06 (20 iterations)               |
++..................................................................................................+
+| ACID C:    9.583E+06 [1/cm3]    sum(An)/A1 4.418E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 3.447E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 4.957E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:26 Est. time to finish (m:s) 0:32        Realtime/Modeltime:  430.79        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 03:20:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 5.59E-01 resolved J: 5.52E-01. NH3 7.84E+08 DMA:7.84E+06 (20 iterations)               |
++..................................................................................................+
+| ACID C:    9.854E+06 [1/cm3]    sum(An)/A1 4.501E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 3.591E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 5.590E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:27 Est. time to finish (m:s) 0:30        Realtime/Modeltime:  428.69        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 03:30:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 6.28E-01 resolved J: 6.27E-01. NH3 8.02E+08 DMA:8.02E+06 (22 iterations)               |
++..................................................................................................+
+| ACID C:    9.987E+06 [1/cm3]    sum(An)/A1 4.634E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 3.653E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 6.285E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:29 Est. time to finish (m:s) 0:29        Realtime/Modeltime:  425.85        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 03:40:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 7.05E-01 resolved J: 6.71E-01. NH3 8.20E+08 DMA:8.20E+06 (18 iterations)               |
++..................................................................................................+
+| ACID C:    9.976E+06 [1/cm3]    sum(An)/A1 4.726E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 3.638E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 7.045E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:31 Est. time to finish (m:s) 0:28        Realtime/Modeltime:  424.92        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 03:50:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 7.87E-01 resolved J: 7.79E-01. NH3 8.78E+08 DMA:8.78E+06 (22 iterations)               |
++..................................................................................................+
+| ACID C:    9.823E+06 [1/cm3]    sum(An)/A1 4.970E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 3.529E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 7.874E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:32 Est. time to finish (m:s) 0:26        Realtime/Modeltime:  424.52        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 04:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 8.77E-01 resolved J: 8.50E-01. NH3 9.39E+08 DMA:9.39E+06 (20 iterations)               |
++..................................................................................................+
+| ACID C:    9.534E+06 [1/cm3]    sum(An)/A1 5.177E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 3.350E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 8.775E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:33 Est. time to finish (m:s) 0:25        Realtime/Modeltime:  424.64        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 04:10:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 9.75E-01 resolved J: 9.34E-01. NH3 1.03E+09 DMA:1.03E+07 (20 iterations)               |
++..................................................................................................+
+| ACID C:    9.121E+06 [1/cm3]    sum(An)/A1 5.453E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 3.106E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 9.749E-01 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:35 Est. time to finish (m:s) 0:24        Realtime/Modeltime:  424.39        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 04:20:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.08E+00 resolved J: 1.11E+00. NH3 1.18E+09 DMA:1.18E+07 (18 iterations)               |
++..................................................................................................+
+| ACID C:    8.601E+06 [1/cm3]    sum(An)/A1 5.929E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.808E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.080E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:36 Est. time to finish (m:s) 0:22        Realtime/Modeltime:  424.63        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 04:30:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.19E+00 resolved J: 1.22E+00. NH3 1.35E+09 DMA:1.35E+07 (20 iterations)               |
++..................................................................................................+
+| ACID C:    7.995E+06 [1/cm3]    sum(An)/A1 6.390E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.487E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.193E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:38 Est. time to finish (m:s) 0:21        Realtime/Modeltime:  423.51        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 04:40:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.31E+00 resolved J: 1.26E+00. NH3 1.54E+09 DMA:1.54E+07 (12 iterations)               |
++..................................................................................................+
+| ACID C:    7.326E+06 [1/cm3]    sum(An)/A1 6.827E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.159E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.314E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:39 Est. time to finish (m:s) 0:19        Realtime/Modeltime:  423.67        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 04:50:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.44E+00 resolved J: 1.38E+00. NH3 1.84E+09 DMA:1.84E+07 (16 iterations)               |
++..................................................................................................+
+| ACID C:    6.618E+06 [1/cm3]    sum(An)/A1 7.546E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 1.831E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.442E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:41 Est. time to finish (m:s) 0:18        Realtime/Modeltime:  423.97        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 05:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.58E+00 resolved J: 1.59E+00. NH3 2.31E+09 DMA:2.31E+07 (20 iterations)               |
++..................................................................................................+
+| ACID C:    5.894E+06 [1/cm3]    sum(An)/A1 8.640E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 1.520E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.579E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:42 Est. time to finish (m:s) 0:16        Realtime/Modeltime:  424.28        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 05:10:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.72E+00 resolved J: 1.67E+00. NH3 2.89E+09 DMA:2.89E+07 (18 iterations)               |
++..................................................................................................+
+| ACID C:    5.176E+06 [1/cm3]    sum(An)/A1 9.834E-04 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 1.240E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.723E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:43 Est. time to finish (m:s) 0:15        Realtime/Modeltime:  424.04        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 05:20:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 1.88E+00 resolved J: 1.82E+00. NH3 3.79E+09 DMA:3.79E+07 (16 iterations)               |
++..................................................................................................+
+| ACID C:    4.482E+06 [1/cm3]    sum(An)/A1 1.163E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 9.934E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.875E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:45 Est. time to finish (m:s) 0:14        Realtime/Modeltime:  424.38        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 05:30:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 2.03E+00 resolved J: 2.00E+00. NH3 5.19E+09 DMA:5.19E+07 (20 iterations)               |
++..................................................................................................+
+| ACID C:    3.829E+06 [1/cm3]    sum(An)/A1 1.432E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 7.829E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.035E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:46 Est. time to finish (m:s) 0:12        Realtime/Modeltime:  423.00        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 05:40:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 2.20E+00 resolved J: 2.19E+00. NH3 7.43E+09 DMA:7.43E+07 (20 iterations)               |
++..................................................................................................+
+| ACID C:    3.227E+06 [1/cm3]    sum(An)/A1 1.840E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 6.089E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.201E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:48 Est. time to finish (m:s) 0:11        Realtime/Modeltime:  423.39        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 05:50:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 2.37E+00 resolved J: 2.29E+00. NH3 1.11E+10 DMA:1.11E+08 (16 iterations)               |
++..................................................................................................+
+| ACID C:    2.684E+06 [1/cm3]    sum(An)/A1 2.476E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 4.686E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.374E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:49 Est. time to finish (m:s) 0:09        Realtime/Modeltime:  423.23        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 06:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 2.55E+00 resolved J: 2.59E+00. NH3 1.91E+10 DMA:1.91E+08 (14 iterations)               |
++..................................................................................................+
+| ACID C:    2.205E+06 [1/cm3]    sum(An)/A1 3.826E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 3.581E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.553E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:50 Est. time to finish (m:s) 0:08        Realtime/Modeltime:  423.65        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 06:10:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 2.74E+00 resolved J: 2.85E+00. NH3 3.92E+10 DMA:3.92E+08 (14 iterations)               |
++..................................................................................................+
+| ACID C:    1.789E+06 [1/cm3]    sum(An)/A1 7.130E-03 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.737E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.737E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:52 Est. time to finish (m:s) 0:07        Realtime/Modeltime:  423.67        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 06:20:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+| target J: 2.93E+00 resolved J: 2.87E+00. NH3 1.38E+11 DMA:1.38E+09 (16 iterations)               |
++..................................................................................................+
+| ACID C:    1.436E+06 [1/cm3]    sum(An)/A1 2.304E-02 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.138E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.926E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:53 Est. time to finish (m:s) 0:05        Realtime/Modeltime:  424.14        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 06:30:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+|  Target J 3.119E+00 is too large for current upper limits of bases: 1.000E+18 and 1.000E+16      |
+| target J: 3.12E+00 resolved J: 0.00E+00. NH3 2.60E+19 DMA:2.60E+17 (4 iterations)                |
++..................................................................................................+
+| ACID C:    1.142E+06 [1/cm3]    sum(An)/A1 1.450E-01 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 1.613E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 3.119E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:54 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  428.40        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 06:40:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+|  Target J 3.315E+00 is too large for current upper limits of bases: 1.000E+18 and 1.000E+16      |
+| target J: 3.31E+00 resolved J: 0.00E+00. NH3 2.60E+19 DMA:2.60E+17 (4 iterations)                |
++..................................................................................................+
+| ACID C:    9.003E+05 [1/cm3]    sum(An)/A1 1.349E-01 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 1.188E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 3.315E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:55 Est. time to finish (m:s) 0:02        Realtime/Modeltime:  434.63        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 06:50:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+|  Target J 3.512E+00 is too large for current upper limits of bases: 1.000E+18 and 1.000E+16      |
+| target J: 3.51E+00 resolved J: 0.00E+00. NH3 2.60E+19 DMA:2.60E+17 (4 iterations)                |
++..................................................................................................+
+| ACID C:    7.060E+05 [1/cm3]    sum(An)/A1 1.270E-01 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 8.807E-08 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 3.512E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:55 Est. time to finish (m:s) 0:01        Realtime/Modeltime:  440.81        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 07:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within  5.00% of target):            |
+|  Target J 3.710E+00 is too large for current upper limits of bases: 1.000E+18 and 1.000E+16      |
+| target J: 3.71E+00 resolved J: 0.00E+00. NH3 2.60E+19 DMA:2.60E+17 (4 iterations)                |
++..................................................................................................+
+| ACID C:    5.522E+05 [1/cm3]    sum(An)/A1 1.208E-01 []                                          |
+| Temp:      2.781E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.604E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 6.585E-08 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 3.710E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.000E-02 [1/s]      IPR: 1.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:56 Est. time to finish (m:s) 0:00        Realtime/Modeltime:  446.78        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+ 
++.Main loop ended..................................................................................+
+| Outputfiles in INOUT//PC_0000/SOLVEB_SUB closed.                                                 |
++..................................................................................................+
+
+SIMULATION HAS ENDED.  SO LONG!

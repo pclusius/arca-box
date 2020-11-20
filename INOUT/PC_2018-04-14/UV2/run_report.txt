@@ -1,0 +1,52 @@
+
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
+| Date: 2018-04-14 -> Julian Day: 104                                                              |
+| ENV values from INOUT/PC_2018-04-14/input/env180414.dat:                                         |
+|   :........PRESSURE will be read from column: 3                                                  |
+|   :........REL_HUMIDITY will be read from column: 4                                              |
+|   :........SW_RADIATION will be read from column: 5                                              |
+|   :........H2SO4 will be read from column: 7                                                     |
+|   :........NH3 will be read from column: 8                                                       |
+|   :........SO2 will be read from column: 14                                                      |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "INOUT/PC_2018-04-14/input/env180414.dat".                |
+|   :........Done filling input matrices...                                                        |
+| Filling input matrices...                                                                        |
+|   :........Done filling input matrices...                                                        |
++..................................................................................................+
++.Checking input validity..........................................................................+
+| - Converting temperature from degrees C -> K.                                                    |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Converting NH3 from ppt                                                                        |
+| - Converting DMA from ppt                                                                        |
+| - Converting SO2 from ppb                                                                        |
+| - Multiplying TEMPK with: 0.000E+00                                                              |
+| - Adding a constant to TEMPK, [in K]: *********                                                  |
+| - Multiplying PRESSURE with: 0.000E+00                                                           |
+| - Adding a constant to PRESSURE, [in hPa]: 1.000E+02                                             |
+| - Replacing input for ION_PROD_RATE with parametrized function.                                  |
+| - Multiplying H2SO4 with: 1.000E-03                                                              |
+| - Multiplying NH3 with: 1.000E-03                                                                |
+| - Multiplying DMA with: 1.000E-03                                                                |
+| - Multiplying SO2 with: 1.000E-03                                                                |
++..................................................................................................+
++.Checking against KPP for chemicals...............................................................+
+| Found H2SO4 from chemistry                                                                       |
+| WARNING: A compound which does not exist in chemistry but could be used elsewhere: NH3 ~~~~~~~~~~+
+|   :........In INITFILE; &NML_MODS (col) <- input from file.                                      |
+| Found SO2 from chemistry                                                                         |
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     CO sensitivity test 100% CO                                                                  |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: INOUT//PC_2018-04-14/UV2                                             |
++..................................................................................................+
+| Initializing chemistry with INOUT/PC_2018-04-14/UV. This takes a while.                          |
+ 
++.Beginning simulation with constant timestep......................................................+
+Starting simulation at: 

@@ -31,12 +31,12 @@ MODULE CHEMISTRY
     PUBLIC :: CHEMCALC
 
     ! Making the J_values and number of complex reaction reates public so they are available in the main program
-    PUBLIC :: J_values, NKVALUES
+    PUBLIC :: J_values!, NKVALUES
 
     ! Global variables:
     REAL(DP), DIMENSION(NPHOT) :: J_values
 
-    INTEGER, PARAMETER :: NKVALUES = 42   ! Number of rate coefficients used in KPP. Hand-copied from second_Main.f90
+!    INTEGER, PARAMETER :: NKVALUES = 42   ! Number of rate coefficients used in KPP. Hand-copied from second_Main.f90
 
     ! File path for the input values:
     CHARACTER(LEN=*), PARAMETER :: filename1 = 'ModelLib'
@@ -117,18 +117,18 @@ CONTAINS
         IF (first_call) THEN ! do only once
             first_call = .FALSE.
             ! For solar radiation distribution: measured data is read in for 280-500 nm but value at 500 nm is used for 505 - 650 nm
-            OPEN(501, file = filename1//'/General/swr_distribution.txt', status = "old")
+            OPEN(960, file = filename1//'/General/swr_distribution.txt', status = "old")
             DO J1 = 1,84
-                READ(501,*) swr_dis(J1)
+                READ(960,*) swr_dis(J1)
             ENDDO
-            CLOSE(501)
+            CLOSE(960)
         ENDIF
 
         I_ACF = 0.       ! all values for actinic flux are set to zero at the first time step
 
-        ! Calculated actinic flux based on measured global shortwave radaiton and Hyytiälä swr-distribution
+        ! Calculated actinic flux based on measured global shortwave radiaton and Hyytiälä swr-distribution
         DO J1 = 1,75
-            I_ACF(J1) = SWDWN * swr_dis(J1) * (1 + 2 * Albedo * COS(ZSD*3.14/180) + Albedo)
+            I_ACF(J1) = SWDWN * swr_dis(J1) * (1 + 2 * Albedo * COS(ZSD*3.1416/180) + Albedo)
         ENDDO
 
         J_values = 0.    ! all J-values are set to zero at the first time step
@@ -151,7 +151,7 @@ CONTAINS
 
         ! Some safety check by Sampo Smolander
         DO I = 1,NPHOT
-            IF (J_values(I) < -1d9 .OR. J_values(I) > 1d9 ) then
+            IF (J_values(I) < -1d9 .OR. J_values(I) > 1d12 ) then
                 WRITE(*,*) 'Note by Sampo: J_value(I) has bad value.'
                 WRITE(*,*) 'I, J_value(I) = ', I, J_values(I)
                 STOP

@@ -10,7 +10,7 @@ def paths(addr):
     else:
         return -1
 
-def batch(begin = '2020-01-01', end='2020-01-05', case='Melpitz', run='X1', common_root=''):
+def batch(begin = '2020-01-01', end='2020-01-05', case='Melpitz', run='X1', common_root='',caselist=[]):
     if common_root != '':
         if common_root[-1] != '/':
             common_root = common_root+'/'
@@ -18,19 +18,31 @@ def batch(begin = '2020-01-01', end='2020-01-05', case='Melpitz', run='X1', comm
             return 'Common root does not exist. For safety this directory must exist beforehand.'
 
     if 'int' in str(type(begin)):
-        if begin > end:
+        if begin > end and len(caselist)==0:
             return 'Ending index cannot be smaller than beginning'
         ind_range = range(begin,end+1)
         fmt = "%0"+str(max(4,len(str(end))))+"d"
         index_strings =[fmt %i for i in ind_range]
+        try:
+            if len(caselist)>0:
+                index_strings =[fmt %int(i) for i in caselist]
+        except:
+            return 'List of indexes need to be integers, each on their own row. \nAlso check the index radio button to use indices.'
+
     if 'str' in str(type(begin)):
         begin = datetime.strptime(begin, "%Y-%m-%d")
         end = datetime.strptime(end, "%Y-%m-%d")
-        if begin > end:
+        if begin > end and len(caselist)==0:
             return 'End date cannot be before beginning'
 
         ind_range = range((end-begin).days+1)
         index_strings = [datetime.strftime(begin+timedelta(days=i), "%Y-%m-%d") for i in ind_range]
+        if len(caselist)>0:
+            try:
+                # Here date is turned to datetime and back to string to check for correct format
+                index_strings = [datetime.strftime(datetime.strptime(i, "%Y-%m-%d"), "%Y-%m-%d") for i in caselist]
+            except:
+                return 'List of dates need to be yyyy-mm-dd, each on their own row'
 
     case = case.upper()
     run = run.upper()

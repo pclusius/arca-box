@@ -3,38 +3,35 @@
 # compiler
 F90 = gfortran
 
+OPTI = O3
+
 # Put .o and .mod files here:
-#OBJDIR = src#/build
  OBJDIR  = build
  SRCDIR  = src
  CHMDIR = Hyde
- AERDIR  = Aerosol
+
 # When compiling, search for files in these directories:
 VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31:Aerosol
 
 # Options reminders:
 # -w suppresses warning messages
 
-# For programming (faster compiling):
 BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
--Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all -O2 -fopenmp
-#BOX_OPTS = -ffree-line-length-none -cpp -DLINUX -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
-#-Warray-temporaries -Wtabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all
+-Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all -$(OPTI) -fopenmp
 
 CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR) -I$(OBJDIR)# -O2
 
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 
-
 CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Parameters.o second_Initialize.o second_Util.o second_Monitor.o second_JacobianSP.o \
                second_LinearAlgebra.o second_Jacobian.o second_Global.o second_Rates.o second_Integrator.o second_Function.o \
                second_Model.o second_Main.o)
 
-BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o Aerosol_auxillaries.o input.o solve_bases.o Chemistry.o PSD.o aerosol_dynamics.o output.o)
+BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o input.o solve_bases.o Chemistry.o PSD.o aerosols.o output.o custom_functions.o)
 
-PSD_OBJECTS = $(addprefix $(OBJDIR)/, constants.o Aerosol_auxillaries.o input.o Chemistry.o)
+PSD_OBJECTS = $(addprefix $(OBJDIR)/, constants.o input.o Chemistry.o)
 
-AEROSOL_OBJECTS = $(addprefix $(OBJDIR)/, constants.o input.o Aerosol_auxillaries.o)
+AEROSOL_OBJECTS = $(addprefix $(OBJDIR)/, constants.o input.o auxillaries.o)
 
 ACDC_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AN_ions.o acdc_system_extras.o monomer_settings_acdc_NH3_ions.o solution_settings.o driver_acdc_J_ions.o \
              acdc_equations_AN_ions.o get_acdc_J_ions.o)
@@ -42,43 +39,35 @@ ACDC_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AN_ions.o acdc
 ACDC_D_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AD_new.o monomer_settings_acdc_DMA.o solution_settings.o driver_acdc_D.o \
                   acdc_equations_AD_new.o get_acdc_D.o)
 
-
-
+# If you get errors related to LIBNET, this is the place to start troubleshooting
 NETLIBS =  -I/usr/include -L/usr/lib/x86_64-linux-gnu/ -lnetcdf  -lnetcdff -lcurl
 #NETLIBS = -I$(NETCDF_INCLUDE) -L$(NETCDF_LIB) -L$(H5_LIB) -lnetcdf -lnetcdff -lcurl -lhdf5 -lhdf5_hl
 
-all: superbox.exe
+all: arcabox.exe
 
 # Here is the link step:
-superbox.exe: Superbox.o $(BOX_OBJECTS) $(CHEM_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS) $(PSD_OBJECTS)
+arcabox.exe: arcabox.o $(BOX_OBJECTS) $(CHEM_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS) $(PSD_OBJECTS)
 	$(F90) $(BOX_OPTS) $^ -o $@ $(NETLIBS)
+
 
 
 # Here are the compile steps
 # Main program
-
-#$(OBJDIR)/Superbox.o: Superbox.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(UHMA_OBJECTS) $(MEGAN_OBJECTS)
-$(OBJDIR)/Superbox.o: src/Supermodel_main.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS) $(PSD_OBJECTS)
+$(OBJDIR)/arcabox.o: src/ARCA_main.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS) $(PSD_OBJECTS)
 	 $(F90) $(BOX_OPTS) -c $< -o $@
-
-# Chemistry
-# $(OBJDIR)/%.o: $(SRCDIR)/chemistry/%.f90#
-# 	$(F90) $(CHEM_OPTS) -c $< -o $@
 
 #PSD representation
 $(OBJDIR)/PSD.o: src/PSD.f90 $(PSD_OBJECTS)
 	$(F90) $(BOX_OPTS) -c $< -o $@
 
 #Aerosol dynamic
-$(OBJDIR)/aerosol_dynamics.o: $(SRCDIR)/$(AERDIR)/aerosol_dynamics.f90 $(AEROSOL_OBJECTS)
+$(OBJDIR)/aerosols.o: $(SRCDIR)/aerosols.f90 $(AEROSOL_OBJECTS)
 	$(F90) $(BOX_OPTS) -c $< -o $@
-
 
 $(OBJDIR)/solve_bases.o: src/solve_bases.f90 $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
 	 $(F90) $(BOX_OPTS) -c $< -o $@
 
 # Chemistry
-
 $(OBJDIR)/second_Precision.o: chemistry/$(CHMDIR)/second_Precision.f90
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 $(OBJDIR)/second_Parameters.o: chemistry/$(CHMDIR)/second_Parameters.f90 second_Precision.o
@@ -110,14 +99,11 @@ second_Integrator.o second_Rates.o second_Jacobian.o second_LinearAlgebra.o seco
 $(OBJDIR)/second_Main.o: chemistry/$(CHMDIR)/second_Main.f90 second_Model.o second_Initialize.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 
-
-
-# ACDC
-##NH3
+# ACDC, NH3
 $(OBJDIR)/%.o: $(SRCDIR)/ACDC/ACDC_module_ions_2018_08_31/%.f90
 	$(F90) $(ACDC_OPTS) -c $< -o $@
 
-#DMA
+# ACDC, DMA
 $(OBJDIR)/%.o: $(SRCDIR)/ACDC/ACDC_module_2016_09_23/%.f90
 	$(F90) $(ACDC_OPTS) -c $< -o $@
 
@@ -127,10 +113,10 @@ $(OBJDIR)/solution_settings.o: ACDC/ACDC_module_ions_2018_08_31/solvers/solution
 	 $(F90) $(ACDC_OPTS) -c $< -o $@
 #
 $(OBJDIR)/vode.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vode.f
-	gfortran -std=legacy -O3 -c $< -o $@
+	$(F90) -std=legacy -O3 -c $< -o $@
 
 $(OBJDIR)/vodea.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vodea.f
-	gfortran -std=legacy -O3 -c $< -o $@
+	$(F90) -std=legacy -O3 -c $< -o $@
 
 $(OBJDIR)/chemistry.o: Chemistry.f90 data_format.o second_Parameters.o settings.o second_Main.o
 	$(F90) $(BOX_OPTS) -c $< -o $@
@@ -139,11 +125,8 @@ $(OBJDIR)/chemistry.o: Chemistry.f90 data_format.o second_Parameters.o settings.
 $(OBJDIR)/%.o: $(SRCDIR)/%.f90
 	$(F90) $(BOX_OPTS) -c $< -o $@ $(NETLIBS)
 
-
 BOX_MODS = $(BOX_OBJECTS:.o=.mod)
 
-# UHMA_MODS = $(UHMA_OBJECTS:.o=.mod)
-# CHEM_MODS = $(CHEM_OBJECTS:.o=.mod)
 CHEM_MODS = second_precision.mod second_monitor.mod second_parameters.mod second_initialize.mod second_util.mod second_jacobiansp.mod \
                 second_linearalgebra.mod second_jacobian.mod second_global.mod second_rates.mod second_integrator.mod second_function.mod \
                 second_model.mod second_main.mod
@@ -151,22 +134,28 @@ CHEM_MODS = second_precision.mod second_monitor.mod second_parameters.mod second
 ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
 ACDC_D_MODS = $(ACDC_D_OBJECTS:.o=.mod)
 
-# This entry allows you to type 'make clean' to get rid of all object and module files
 
+# This entry allows you to type 'make clean' to get rid of all object and module files
 # With 'clean', don't remove chemistry object files, since it takes very long (30 min.) to compile them,
 # and there usually is no need to recompile them
 clean:
 	-@cd $(OBJDIR) ; rm $(BOX_OBJECTS) $(BOX_MODS)       2>/dev/null || true
 	-@cd $(OBJDIR) ; rm $(ACDC_OBJECTS) $(ACDC_MODS)     2>/dev/null || true
 	-@cd $(OBJDIR) ; rm $(ACDC_D_OBJECTS) $(ACDC_D_MODS) 2>/dev/null || true
-	-@cd $(OBJDIR) ; rm Superbox.o                       2>/dev/null || true
-	-@rm superbox.exe                                    2>/dev/null || true
+	-@cd $(OBJDIR) ; rm arcabox.o                        2>/dev/null || true
+	-@rm arcabox.exe                                     2>/dev/null || true
 	-@cd $(OBJDIR) ; rm *.mod *.o                        2>/dev/null || true ## added by carlton.. as some .mod files were not removed
-	# -@cd $(OBJDIR) ; rm $(UHMA_OBJECTS) $(UHMA_MODS)   2>/dev/null || true
-# If you really want to remove chemistry objects too, use this
-cleanall:
+
+dust:
 	-@cd $(OBJDIR) ; rm $(BOX_OBJECTS) $(BOX_MODS)       2>/dev/null || true
-	-@cd $(OBJDIR) ; rm $(ACDC_OBJECTS) $(ACDC_MODS)      2>/dev/null || true
-	-@cd $(OBJDIR) ; rm $(ACDC_D_OBJECTS) $(ACDC_D_MODS)  2>/dev/null || true
-	-@cd $(OBJDIR) ; rm Superbox.o                        2>/dev/null || true
-	-@rm superbox.exe                                     2>/dev/null || true
+	-@cd $(OBJDIR) ; rm arcabox.o                        2>/dev/null || true
+	-@rm arcabox.exe                                     2>/dev/null || true
+
+# # If you really want to remove chemistry objects too, use this
+# cleanall:
+# 	-@cd $(OBJDIR) ; rm $(BOX_OBJECTS) $(BOX_MODS)       2>/dev/null || true
+# 	-@cd $(OBJDIR) ; rm $(ACDC_OBJECTS) $(ACDC_MODS)      2>/dev/null || true
+# 	-@cd $(OBJDIR) ; rm $(ACDC_D_OBJECTS) $(ACDC_D_MODS)  2>/dev/null || true
+# 	-@cd $(OBJDIR) ; rm arcabox.o                        2>/dev/null || true
+# 	-@rm arcabox.exe                                     2>/dev/null || true
+#   -@cd $(OBJDIR) ; rm *.mod *.o                        2>/dev/null || true ## added by carlton.. as some .mod files were not removed

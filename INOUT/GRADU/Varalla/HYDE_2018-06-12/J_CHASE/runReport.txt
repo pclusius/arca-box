@@ -1,0 +1,39 @@
+
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: INOUT/GRADU/HYDE_2018-06-12/input/HYDE_2018-06-12_J_CHAS+.conf
+| Date: 2018-06-12 -> Julian Day: 163                                                              |
+| ENV values from /home/pecl/01-TUTKIMUS/Gradu/Casestudy/2018-06-12/input/all2018-06-12.dat:       |
+|   :........TEMPK will be read from column: 20                                                    |
+|   :........PRESSURE will be read from column: 16                                                 |
+|   :........REL_HUMIDITY will be read from column: 17                                             |
+|   :........SW_RADIATION will be read from column: 19                                             |
+|   :........SO2 will be read from column: 18                                                      |
+|   :........NO will be read from column: 13                                                       |
+|   :........NO2 will be read from column: 14                                                      |
+|   :........CO will be read from column: 6                                                        |
+|   :........O3 will be read from column: 15                                                       |
+| MCM values from /home/pecl/01-TUTKIMUS/Gradu/Casestudy/2018-06-12/input/all2018-06-12.dat:       |
+|   :........CH3OH will be read from column: 10                                                    |
+|   :........C2H5OH will be read from column: 7                                                    |
+|   :........CH3CHO will be read from column: 2                                                    |
+|   :........BENZENE will be read from column: 5                                                   |
+|   :........TOLUENE will be read from column: 21                                                  |
+|   :........C5H8 will be read from column: 8                                                      |
+|   :........CH3COCH3 will be read from column: 4                                                  |
+|   :........MEK will be read from column: 9                                                       |
+|   :........APINENE will be read from column: 11                                                  |
+|   :........BPINENE will be read from column: 11                                                  |
+|   :........LIMONENE will be read from column: 11                                                 |
+|   :........CH3CO2H will be read from column: 3                                                   |
+|   :........CARENE will be read from column: 11                                                   |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "/home/pecl/01-TUTKIMUS/Gradu/Casestudy/2018-06-12/input/a|l2018-06-12.dat".
+|   :........Done filling input matrices...                                                        |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "/home/pecl/01-TUTKIMUS/Gradu/Casestudy/2018-06-12/input/a|l2018-06-12.dat".
+|   :........Done filling input matrices...                                                        |
+| Reading DMPS files /home/pecl/01-TUTKIMUS/Gradu/Casestudy/filleddmps/dm180612.sum                |
+| FATAL ERROR: Could not open /home/pecl/01-TUTKIMUS/Gradu/Casestudy/filleddmps/dm180612.sum, does it exist?
+|   :........Terminating on DMPS pardata                                                           |
++..................................................................................................+

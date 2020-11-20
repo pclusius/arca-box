@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=ARCA Box Model 0.9
+Comment=Atmospherically Relevant Chemistry and Aerosol Box model
+Exec=/home/pecl/05-ARCA/supermodel-phase-1/run_arca.sh
+Icon=/home/pecl/05-ARCA/supermodel-phase-1/ModelLib/gui/thebox_ico.png
+Terminal=true
+Type=Application
+Categories=GNOME;GTK;Core;
+StartupWMClass=ARCAbox utility

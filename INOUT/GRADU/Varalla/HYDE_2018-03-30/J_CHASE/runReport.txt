@@ -1,0 +1,225 @@
+
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: INOUT/GRADU/HYDE_2018-03-30/input/HYDE_2018-03-30_J_CHAS+.conf
+| Date: 2018-03-30 -> Julian Day: 89                                                               |
+| ENV values from /home/pecl/01-TUTKIMUS/Gradu/Casestudy/2018-03-30/input/all2018-03-30.dat:       |
+|   :........TEMPK will be read from column: 20                                                    |
+|   :........PRESSURE will be read from column: 16                                                 |
+|   :........REL_HUMIDITY will be read from column: 17                                             |
+|   :........SW_RADIATION will be read from column: 19                                             |
+|   :........SO2 will be read from column: 18                                                      |
+|   :........NO will be read from column: 13                                                       |
+|   :........NO2 will be read from column: 14                                                      |
+|   :........CO will be read from column: 6                                                        |
+|   :........O3 will be read from column: 15                                                       |
+| MCM values from /home/pecl/01-TUTKIMUS/Gradu/Casestudy/2018-03-30/input/all2018-03-30.dat:       |
+|   :........CH3OH will be read from column: 10                                                    |
+|   :........C2H5OH will be read from column: 7                                                    |
+|   :........CH3CHO will be read from column: 2                                                    |
+|   :........BENZENE will be read from column: 5                                                   |
+|   :........TOLUENE will be read from column: 21                                                  |
+|   :........C5H8 will be read from column: 8                                                      |
+|   :........CH3COCH3 will be read from column: 4                                                  |
+|   :........MEK will be read from column: 9                                                       |
+|   :........APINENE will be read from column: 11                                                  |
+|   :........BPINENE will be read from column: 11                                                  |
+|   :........LIMONENE will be read from column: 11                                                 |
+|   :........CH3CO2H will be read from column: 3                                                   |
+|   :........CARENE will be read from column: 11                                                   |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "/home/pecl/01-TUTKIMUS/Gradu/Casestudy/2018-03-30/input/a|l2018-03-30.dat".
+|   :........Done filling input matrices...                                                        |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "/home/pecl/01-TUTKIMUS/Gradu/Casestudy/2018-03-30/input/a|l2018-03-30.dat".
+|   :........Done filling input matrices...                                                        |
+| Reading DMPS files /home/pecl/01-TUTKIMUS/Gradu/Casestudy/filleddmps/dm180330.sum                |
++..................................................................................................+
+| Reading Vapour name file ModelLib/Vapour_names.dat                                               |
+| Reading Vapour prop file ModelLib/Vapour_properties.dat                                          |
+|   :........Vapours available = 837                                                               |
+|   :........Vapour bins + H2SO4 = 838                                                             |
+| Reading O_C file ModelLib/O_C.dat                                                                |
++.Checking input validity..........................................................................+
+| - Converting temperature from degrees C -> K.                                                    |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Converting SO2 from ppb                                                                        |
+| - Converting NO from ppb                                                                         |
+| - Converting NO2 from ppb                                                                        |
+| - Converting CO from ppb                                                                         |
+| - Converting O3 from ppb                                                                         |
+| - Converting CH3OH from ppb                                                                      |
+| - Converting C2H5OH from ppb                                                                     |
+| - Converting HCHO from ppt                                                                       |
+| - Converting CH3CHO from ppb                                                                     |
+| - Converting CH4 from ppm                                                                        |
+| - Converting BENZENE from ppb                                                                    |
+| - Converting TOLUENE from ppb                                                                    |
+| - Converting C5H8 from ppb                                                                       |
+| - Converting CH3COCH3 from ppb                                                                   |
+| - Converting MEK from ppb                                                                        |
+| - Converting APINENE from ppb                                                                    |
+| - Converting BPINENE from ppb                                                                    |
+| - Converting LIMONENE from ppb                                                                   |
+| - Converting CH3CO2H from ppb                                                                    |
+| - Converting CARENE from ppb                                                                     |
+| - Replacing input for ION_PROD_RATE with parametrized function.                                  |
+| - Replacing input for NUC_RATE_IN with parametrized function.                                    |
+| - Adding a constant to HCHO, [in ppt]: 4.000E-01                                                 |
+| - Adding a constant to CH4, [in ppm]: 1.950E+00                                                  |
+| - Multiplying APINENE with: 5.100E-01                                                            |
+| - Multiplying BPINENE with: 1.200E-01                                                            |
+| - Multiplying LIMONENE with: 9.000E-02                                                           |
+| - Multiplying CARENE with: 2.800E-01                                                             |
++..................................................................................................+
++.Checking against KPP for chemicals...............................................................+
+| Found SO2 from chemistry                                                                         |
+| Found NO from chemistry                                                                          |
+| Found NO2 from chemistry                                                                         |
+| Found CO from chemistry                                                                          |
+| Found O3 from chemistry                                                                          |
+| Found CH3OH from chemistry                                                                       |
+| Found C2H5OH from chemistry                                                                      |
+| Found HCHO from chemistry                                                                        |
+| Found CH3CHO from chemistry                                                                      |
+| Found CH4 from chemistry                                                                         |
+| Found BENZENE from chemistry                                                                     |
+| Found TOLUENE from chemistry                                                                     |
+| Found C5H8 from chemistry                                                                        |
+| Found CH3COCH3 from chemistry                                                                    |
+| Found MEK from chemistry                                                                         |
+| Found APINENE from chemistry                                                                     |
+| Found BPINENE from chemistry                                                                     |
+| Found LIMONENE from chemistry                                                                    |
+| Found CH3CO2H from chemistry                                                                     |
+| Found CARENE from chemistry                                                                      |
++..................................................................................................+
+| Using dmps_special:                                                                              |
+|   :........Upper bins replaced from 26 to 60                                                     |
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     Iterating for formation rates. Target rate is a 2 hours (at FWMH) peak with shoulders, max   |
+|     imum value 0.45/s/cm3, based on mean value of some of the days where formation rates were    |
+|     calculated.                                                                                  |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: INOUT/GRADU/HYDE_2018-03-30/J_CHASE                                  |
++..................................................................................................+
+ 
++.Beginning simulation with constant timestep......................................................+
+
++.Time: 00:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+ #########################
+ ### Did not converge! ###
+ #########################
+ #########################
+ ### Did not converge! ###
+ #########################
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within 10.00% of target):            |
+|  Target J 1.000E-04 is too large for current upper limits of bases: 1.000E+18 and 1.000E+16      |
+| target J: 1.00E-04 resolved J: 0.00E+00. NH3 2.70E+19 DMA:2.70E+17 (4 iterations)                |
++..................................................................................................+
+|   :........Reading in background particles from line 2                                           |
+   3.5972981999999998E-009   4.3281491000000003E-009   5.2088424999999999E-009   6.2691143999999998E-009   7.5446338999999998E-009   9.0799484999999994E-009   1.0927549000000000E-008   1.3150584000000000E-008   1.5826216000000002E-008   1.9046159999999999E-008   2.3074274000000000E-008   2.6668531999999998E-008   3.0821452000000000E-008   3.5623560000000001E-008   4.1173808999999997E-008   4.7588182999999998E-008   5.5001953000000000E-008   6.3569813000000003E-008   7.3472046000000006E-008   8.4914837999999998E-008   9.8138848999999998E-008   1.1342032000000000E-007   1.3108162000000001E-007   1.5148967999999999E-007   1.7507247000000001E-007   2.0232551000000000E-007   2.3381804000000000E-007   2.7020999999999998E-007   3.1226566999999999E-007   3.6086751999999998E-007   4.1703541999999999E-007   4.8194867000000004E-007   5.5697058999999996E-007   6.4367740999999998E-007   7.4388886999999995E-007   8.5970947000000005E-007
+| Mean GR nm/h 2.039E-04 for 1.480E+00-5.648E+00 nm                                                |
+| Mean GR nm/h 9.596E-04 for 5.648E+00-1.885E+01 nm                                                |
+| ACID C:    1.057E+03 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.670E+02 [K]        Pressure:  9.941E+04 [Pa]     Air_conc 2.697E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.000E-04 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.735E-03 [1/s]      IPR: 3.830E+00 [1/s/cm3]                                         |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:10:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within 10.00% of target):            |
+| target J: 1.00E-04 resolved J: 1.03E-04. NH3 1.09E+07 DMA:1.09E+05 (18 iterations)               |
++..................................................................................................+
+|   :........Reading in background particles from line 3                                           |
+   1.1122873508038766E-002   2.2020368804706657E-003   4.8830356770624764E-002   2.1682834961821936E-002   7.5440452114167641E-009   8.9617884576747141E-003   1.0431175250581936E-002   5.4708423376126844E-002   7.5073246963654486E-002  0.20690703702720120       0.23240888686748029       0.42188081404073097       0.43268666099353537       0.46656394743228169       0.46563525460544292       0.44078822941317908       0.31387111130461359       0.21228042664061081       0.14967389067630130       0.11532604470193934       0.11044767999341502        8.5398268251649534E-002   6.1732599339659432E-002   4.1102043563987209E-002   2.7478836303877683E-002   2.2531264346728294E-002   1.7084432495055986E-002   1.1534740387761543E-002   8.2976027892336796E-003   3.7671186023954793E-003   1.3347494540556330E-003   2.5523264918820985E-004   1.3700880314885444E-003   6.4362718548976187E-007   2.4880463539476879E-004   3.7328740116275848E-004
+| Mean GR nm/h 2.888E-01 for 1.480E+00-5.648E+00 nm                                                |
+| Mean GR nm/h 7.012E-01 for 5.648E+00-1.885E+01 nm                                                |
+| ACID C:    4.307E+05 [1/cm3]    sum(An)/A1 3.226E-03 []                                          |
+| Temp:      2.669E+02 [K]        Pressure:  9.941E+04 [Pa]     Air_conc 2.698E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 2.156E-04 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.000E-04 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.655E-03 [1/s]      IPR: 3.803E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:03 Est. time to finish (m:s) 6:57        Realtime/Modeltime:  196.98        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:20:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within 10.00% of target):            |
+| Target J (1.000E-04) is smaller than what lower limits produce                                   |
+| target J: 1.00E-04 resolved J: 0.00E+00. NH3 0.00E+00 DMA:0.00E+00 (4 iterations)                |
++..................................................................................................+
+|   :........Reading in background particles from line 4                                           |
+   2.2245743418779329E-002   4.4040694327922318E-003   9.7660708332407017E-002   4.3365663654529471E-002   7.5434565228335284E-009   1.7923567835400930E-002   2.0862339573614875E-002  0.10941683360166969       0.15014647810109297       0.41381405500824237       0.46481775066068659       0.84376160141293000       0.86537329116561867       0.93312785924100339       0.93127046803707692       0.88157641123817509       0.62774216760727419       0.42456078971140865       0.29934770788055659       0.23065200448904069       0.22089526184798103       0.17079642308297907       0.12346506759769886        8.2203935638294409E-002   5.4957497535285366E-002   4.5062326367946590E-002   3.4168631172071973E-002   2.3069210565523086E-002   1.6594893312797357E-002   7.5338763372709587E-003   2.6690818726912658E-003   5.0998334970641962E-004   2.7396190923870889E-003   6.4357696097952376E-007   4.9686538191953753E-004   7.4571509285551699E-004
+| Mean GR nm/h 2.041E-01 for 1.480E+00-5.648E+00 nm                                                |
+| Mean GR nm/h 1.138E+00 for 5.648E+00-1.885E+01 nm                                                |
+| ACID C:    5.634E+05 [1/cm3]    sum(An)/A1 7.260E-01 []                                          |
+| Temp:      2.667E+02 [K]        Pressure:  9.941E+04 [Pa]     Air_conc 2.699E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 4.130E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.000E-04 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.588E-03 [1/s]      IPR: 3.742E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:06 Est. time to finish (m:s) 7:00        Realtime/Modeltime:  193.91        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:30:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within 10.00% of target):            |
+| Target J (1.000E-04) is smaller than what lower limits produce                                   |
+| target J: 1.00E-04 resolved J: 0.00E+00. NH3 0.00E+00 DMA:0.00E+00 (4 iterations)                |
++..................................................................................................+
+|   :........Reading in background particles from line 5                                           |
+   3.3368613329519903E-002   6.6061019851137966E-003  0.14649105989418928        6.5048492347237002E-002   7.5428678342502944E-009   2.6885347213127148E-002   3.1293503896647812E-002  0.16412524382721255       0.22521970923853146       0.62072107298928347       0.69722661445389289        1.2656423887851289        1.2980599213377022        1.3996917710497252        1.3969056814687109        1.3223645930631711       0.94161322390993474       0.63684115278220643       0.44902152508481186       0.34597796427614208       0.33134284370254702       0.25619457791430861       0.18519753585573828       0.12330582771260161        8.2436158766693038E-002   6.7593388389164885E-002   5.1252829849087959E-002   3.4603680743284633E-002   2.4892183836361038E-002   1.1300634072146439E-002   4.0034142913268995E-003   7.6473405022462956E-004   4.1091501532856340E-003   6.4352673646928554E-007   7.4492612844430633E-004   1.1181427845482757E-003
+| Mean GR nm/h 6.338E-01 for 1.480E+00-5.648E+00 nm                                                |
+| Mean GR nm/h 1.408E+00 for 5.648E+00-1.885E+01 nm                                                |
+| ACID C:    5.854E+05 [1/cm3]    sum(An)/A1 7.697E-01 []                                          |
+| Temp:      2.666E+02 [K]        Pressure:  9.941E+04 [Pa]     Air_conc 2.701E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 4.553E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.000E-04 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.615E-03 [1/s]      IPR: 3.638E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:09 Est. time to finish (m:s) 6:49        Realtime/Modeltime:  197.98        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:40:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
++..................................................................................................
+| SOLVING FOR BASE NEEDED TO PRODUCE OBSERVED FORMATION RATE (within 10.00% of target):            |
+| Target J (1.000E-04) is smaller than what lower limits produce                                   |
+| target J: 1.00E-04 resolved J: 0.00E+00. NH3 0.00E+00 DMA:0.00E+00 (4 iterations)                |
++..................................................................................................+
+|   :........Reading in background particles from line 6                                           |
+   4.4491483240260463E-002   8.8081345374353623E-003  0.19532141145597154        8.6731321039944534E-002   7.5422791456670587E-009   3.5847126590853359E-002   4.1724668219680745E-002  0.21883365405275540       0.30029294037596993       0.82762809097032475       0.92963547824709925        1.6875231761573279        1.7307465515097855        1.8662556828584469        1.8625408949003448        1.7631527748881672        1.2554842802125954       0.84912151585300422       0.59869534228906718       0.46130392406324339       0.44179042555711306       0.34159273274563817       0.24693000411377772       0.16440771978690882       0.10991481999810072        9.0124450410383181E-002   6.8337028526103946E-002   4.6138150921046173E-002   3.3189474359924719E-002   1.5067391807021917E-002   5.3377467099625323E-003   1.0194847507428394E-003   5.4786812141841782E-003   6.4347651195904743E-007   9.9298687496907523E-004   1.4905704762410341E-003
+| Mean GR nm/h 5.667E-01 for 1.480E+00-5.648E+00 nm                                                |
+| Mean GR nm/h 1.271E+00 for 5.648E+00-1.885E+01 nm                                                |
+| ACID C:    5.853E+05 [1/cm3]    sum(An)/A1 7.712E-01 []                                          |
+| Temp:      2.665E+02 [K]        Pressure:  9.941E+04 [Pa]     Air_conc 2.702E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 4.560E-07 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.000E-04 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.651E-03 [1/s]      IPR: 3.491E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:12 Est. time to finish (m:s) 6:48        Realtime/Modeltime:  196.89        |
+ current integration time step   10.000000000000000     
++..................................................................................................+

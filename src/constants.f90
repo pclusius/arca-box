@@ -3,17 +3,20 @@ USE SECOND_PRECISION,  ONLY : dp, sp
 IMPLICIT NONE
 PUBLIC
 
-real(dp), parameter    :: Na = 6.022140857d23  ! 1/mol Avogadro constant
-real(dp), parameter    :: Rg = 8.3144598       ! [J/K/mol] Universal gas constant
-real(dp), parameter    :: kb = Rg/Na           ! [J/K] Boltzmann constant
-real(dp), parameter    :: pi = ACOS(-1d0)      ! pi
-real(dp), parameter    :: K0 = 273.15d0        ! [K] Zero degree celcius in K
-integer(sp), parameter :: min_s = 60           ! [s] seconds in minute
-integer(sp), parameter :: hour_s  = 3600       ! [s] seconds in hour
-integer(sp), parameter :: day_s = 24*hour_s
-real(dp), parameter    :: um3_to_m3 = (1D-6)**3 ! used for  vol_concentration
-REAL(dp), PARAMETER    :: Mair = 28.9647D-3          ! Mean molecular weight of air (kg)
-REAL(dp), PARAMETER    :: g_0 = 9.80665D0          ! Gravitational acceleration
+real(dp), parameter    :: Na = 6.022140857d23    ! 1/mol Avogadro constant
+real(dp), parameter    :: Rg = 8.3144598         ! [J/K/mol] Universal gas constant
+real(dp), parameter    :: kb = Rg/Na             ! [J/K] Boltzmann constant
+real(dp), parameter    :: pi = ACOS(-1d0)        ! pi
+real(dp), parameter    :: K0 = 273.15d0          ! [K] Zero degree celcius in K
+integer(sp), parameter :: min_s = 60             ! [s] seconds in minute
+integer(sp), parameter :: hour_s  = 3600         ! [s] seconds in hour
+integer(sp), parameter :: day_s = 24*hour_s      ! Seconds in a day
+real(dp), parameter    :: um3_to_m3 = (1D-6)**3  ! used for  vol_concentration
+REAL(dp), PARAMETER    :: Mair = 28.9647D-3      ! Mean molecular weight of air (kg)
+REAL(dp), PARAMETER    :: g_0 = 9.80665D0        ! Gravitational acceleration
+REAL(dp), PARAMETER    :: Diff_H2SO4_0 = 0.09D-4 ! H2SO4 diffusivity at 0 RH (why no temperature and pressure dependence?)
+REAL(dp), PARAMETER    :: Keq1 = 0.13D0          ! H2SO4 diffusivity RH dependence parameters, Hanson & Eisele
+REAL(dp), PARAMETER    :: Keq2 = 0.016D0         ! H2SO4 diffusivity RH dependence parameters, Hanson & Eisele
 
 ! Saturation vapour pressure of water in Pa
 REAL, PARAMETER       :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
@@ -48,8 +51,9 @@ type input_mod
   real(dp)  :: fv  = 0d0    ! Angular frequency [hours] of modifying sine function
   real(dp)  :: ph  = 0d0    ! Angular frequency [hours] of modifying sine function
   real(dp)  :: am  = 1d0    ! Amplitude of modificaion
-  CHARACTER(5)  :: UNIT = '#'      ! Unit for the given number. CASE INSENSITIVE
+  CHARACTER(5)  :: UNIT = '-'      ! Unit for the given number. CASE INSENSITIVE
   CHARACTER(16) :: NAME = 'NONAME' ! Human readable name for modified variable
+  LOGICAL :: ISPROVIDED = .false. ! Human readable name for modified variable
 
   ! UNITS FOR INPUT (case insensitive):
   ! #      = number concentration in 1/cm3. DEFAULT ASSUMPTION
@@ -107,14 +111,14 @@ END TYPE error_type
 !===============================================================
 ! Type for storing the (currently only the extra) particles
 !===============================================================
-TYPE inert_particles
-  REAL(dp), ALLOCATABLE :: binseries(:,:) ! the time series and bins
+TYPE particle_grid
+  REAL(dp), ALLOCATABLE :: conc_matrix(:,:) ! the time series of bins
   REAL(dp), ALLOCATABLE :: options(:)     ! Additional information, like molar mass, density etc.
   REAL(dp), ALLOCATABLE :: time(:)        ! Time vector of the particles
   REAL(dp), ALLOCATABLE :: sections(:)    ! diameters for the centers of the sections
   REAL(dp), ALLOCATABLE :: conc_modelbins(:) ! current concentration fitted to model bins
   CHARACTER(20) :: name  ! Name for the stuff
-END TYPE inert_particles
+END TYPE particle_grid
 
 
 
@@ -157,29 +161,36 @@ END TYPE PSD
 !===============================================================
 ! type describing the atom content
 !===============================================================
-type atoms  ! for reading in molar mass of each atom. WIll be used to calculate diffusion
-  real(dp), allocatable :: N_Carbon(:)
-  real(dp), allocatable :: N_Oxygen(:)
-  real(dp), allocatable :: N_Hydrogen(:)
-  real(dp), allocatable :: N_Nitrogen(:)
-  REAL(dp), allocatable :: comp_prop(:,:)
-end type atoms
+! type atoms  ! for reading in molar mass of each atom. WIll be used to calculate diffusion
+!   real(dp), allocatable :: N_Carbon(:)
+!   real(dp), allocatable :: N_Oxygen(:)
+!   real(dp), allocatable :: N_Hydrogen(:)
+!   real(dp), allocatable :: N_Nitrogen(:)
+!   REAL(dp), allocatable :: comp_prop(:,:)
+! end type atoms
 
 ! This datatype contains all parameters for input vapours
 type :: vapour_ambient
   real(dp), allocatable             :: molar_mass(:), parameter_A(:), parameter_B(:)
-  character(len=256), allocatable   :: vapour_names(:)
+  character(len=25), allocatable    :: vapour_names(:)
   real(dp),allocatable              :: alpha(:) !       = 1.0
   real(dp),allocatable              :: density(:)
   real(dp),allocatable              :: surf_tension(:)
-  integer                           :: vapour_number
+  real(dp),allocatable              :: diff(:)
+  real(dp),allocatable              :: c_speed(:)
+  integer                           :: n_condorg
+  integer                           :: n_condtot
   integer                           :: ind_H2SO4
-  integer                           :: ind_HOA
-  integer                           :: vbs_bins
+  integer                           :: ind_GENERIC
   integer,allocatable               :: cond_type(:)
-  real(dp),allocatable              :: molec_dia(:)
-  real(dp),allocatable              :: molec_mass(:), molec_volume(:) ! molecule mass and molecule volume
-  real(dp),allocatable              :: c_sat(:), vap_conc(:)!, vapour_type(:), condensing_type(:)
+  real(dp),allocatable              :: molec_dia(:)         ! molecule diameter [m]
+  real(dp),allocatable              :: wet_dia(:)           ! wet molecule diameter [m]
+  real(dp),allocatable              :: wet_mass(:)          ! wet molecule mass [kg]
+  real(dp),allocatable              :: molec_mass(:)        ! molecule mass [kg]
+  real(dp),allocatable              :: molec_volume(:)      ! molecule volume [m³]
+  real(dp),allocatable              :: diff_vol(:)          ! diffusion volume [m³]
+  real(dp),allocatable              :: diff_dia(:)          ! diffusion diameter [m³]
+  real(dp),allocatable              :: c_sat(:)             ! vapour_type(:), condensing_type(:)
   real(dp),allocatable              :: mfractions(:)        ! dimension(tot_spec) mole fractions
 end type vapour_ambient
 
@@ -222,17 +233,17 @@ end interface operator(.pmass.)
 
 type(timetype)  :: GTIME
 type(input_mod), allocatable  :: MODS(:) ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
-REAL(dp)                      :: J_ACDC_NH3 = 0d0
-REAL(dp)                      :: J_ACDC_DMA = 0d0
-REAL(dp)                      :: J_TOTAL = 0d0
+REAL(dp)                      :: J_ACDC_NH3_M3 = 0d0
+REAL(dp)                      :: J_ACDC_DMA_M3 = 0d0
+REAL(dp)                      :: J_TOTAL_M3 = 0d0
 REAL(dp)                      :: clusteracid,clusterbase,dclusteracid,dclusterbase
 REAL(dp)                      :: J_NH3_BY_IONS(3) = 0d0
-REAL(dp)                      :: acdc_cluster_diam = 2.17d-9
+REAL(dp)                      :: acdc_cluster_diam = 1.4d-9
 
 type(vapour_ambient)  :: VAPOUR_PROP
 
-REAL(dp) :: RESOLVED_BASE, RESOLVED_J
-REAL(dp) :: GC_AIR_NOW, GTEMPK, GPRES, GRH ! Global Air concentration, Temperature, Pressure and Relative humidity
+REAL(dp) :: RESOLVED_BASE, RESOLVED_J, RESOLVED_J_FACTR
+REAL(dp) :: GC_AIR_NOW, GTEMPK, GPRES, GRH, GCS ! Global Air concentration, Temperature, Pressure, Relative humidity and H2SO4 condensation sink
 CONTAINS
 
 ! =================================================================================================
@@ -360,7 +371,7 @@ END FUNCTION UCASE
 FUNCTION PSD_ncomp(PSD_Var)
   IMPLICIT none
   type(PSD), INTENT(IN) :: PSD_Var
-  REAL(dp) :: PSD_ncomp(PSD_Var%nr_bins,VAPOUR_PROP%vbs_bins)
+  REAL(dp) :: PSD_ncomp(PSD_Var%nr_bins,VAPOUR_PROP%n_condtot)
   integer :: i
 
   IF (PSD_Var%PSD_style == 1) THEN
@@ -379,7 +390,7 @@ END FUNCTION PSD_ncomp
 FUNCTION PSD_mcomp(PSD_Var)
   IMPLICIT none
   type(PSD), INTENT(IN) :: PSD_Var
-  REAL(dp) :: PSD_mcomp(PSD_Var%nr_bins,VAPOUR_PROP%vbs_bins)
+  REAL(dp) :: PSD_mcomp(PSD_Var%nr_bins,VAPOUR_PROP%n_condtot)
 
   IF (PSD_Var%PSD_style == 1) THEN
     PSD_mcomp = PSD_Var%composition_fs

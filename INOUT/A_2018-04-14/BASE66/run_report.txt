@@ -1,0 +1,521 @@
+
+
+
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
+| Date: 2018-04-14 -> Julian Day: 104                                                              |
+| ENV values from :                                                                                |
+|   :........TEMPK should be read from column: 2 but no ENV_FILE. Using parametrisation?           |
+|   :........PRESSURE should be read from column: 3 but no ENV_FILE. Using parametrisation?        |
++..................................................................................................+
+| Reading Vapour name file ModelLib/Vapour_names.dat                                               |
+| Reading Vapour prop file ModelLib/Vapour_properties.dat                                          |
+|   :........Vapours available = 837                                                               |
+|   :........Vapour bins + H2SO4 = 838                                                             |
+| Reading O_C file ModelLib/O_C.dat                                                                |
++.Checking input validity..........................................................................+
+| - Converting temperature from degrees C -> K.                                                    |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Adding a constant to PRESSURE, [in hPa]: 1.000E+03                                             |
++..................................................................................................+
++.Checking against KPP for chemicals...............................................................+
++..................................................................................................+
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     Test for compiling                                                                           |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: INOUT//A_2018-04-14/BASE66                                           |
++..................................................................................................+
+ 
++.Beginning simulation with constant timestep......................................................+
+
++.Time: 00:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Using parametrisation for organic nucleation with 1 nucleating compounds                         |
+| Organic formation rate: 0.000E+00 [/s/cm3]                                                       |
+ Building PSD from            1  modes
+| Mean GR nm/h -1.655E-13 for 1.480E+00-5.895E+00 nm                                               |
+| Mean GR nm/h 0.000E+00 for 5.895E+00-2.059E+01 nm                                                |
+ Trouble ahead:            1           1   0.0000000000000000      mix conc:   831512.11577932735     
+ G-mean k_dep   8.2577021549120878E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    4.983E-05 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+ Trouble ahead:            1           1   10.000000000000000      mix conc:   831512.11577932735     
+ Trouble ahead:            1           1   20.000000000000000      mix conc:   802882.87113884941     
+ Trouble ahead:            1           1   30.000000000000000      mix conc:   775239.56378848676     
+ Trouble ahead:            1           1   40.000000000000000      mix conc:   748548.23127638316     
+ Trouble ahead:            1           1   50.000000000000000      mix conc:   722776.08138948330     
+ Trouble ahead:            1           1   60.000000000000000      mix conc:   697891.45181728911     
+ Trouble ahead:            1           1   70.000000000000000      mix conc:   673863.77120648837     
+ Trouble ahead:            1           1   80.000000000000000      mix conc:   650663.52155847300     
+ Trouble ahead:            1           1   90.000000000000000      mix conc:   628262.20192343323     
+ Trouble ahead:            1           1   100.00000000000000      mix conc:   606632.29334627348     
+ Trouble ahead:            1           1   110.00000000000000      mix conc:   585747.22502120223     
+ Trouble ahead:            1           1   120.00000000000000      mix conc:   565581.34161326231     
+ Trouble ahead:            1           1   130.00000000000000      mix conc:   546109.87170658424     
+ Trouble ahead:            1           1   140.00000000000000      mix conc:   527308.89734047069     
+ Trouble ahead:            1           1   150.00000000000000      mix conc:   509155.32459580258     
+ Trouble ahead:            1           1   160.00000000000000      mix conc:   491626.85519553506     
+ Trouble ahead:            1           1   170.00000000000000      mix conc:   474701.95908430591     
+ Trouble ahead:            1           1   180.00000000000000      mix conc:   458359.84795338311     
+ Trouble ahead:            1           1   190.00000000000000      mix conc:   442580.44967834448     
+ Trouble ahead:            1           1   200.00000000000000      mix conc:   427344.38363801670     
+ Trouble ahead:            1           1   210.00000000000000      mix conc:   412632.93688427442     
+ Trouble ahead:            1           1   220.00000000000000      mix conc:   398428.04113334749     
+ Trouble ahead:            1           1   230.00000000000000      mix conc:   384712.25055032072     
+ Trouble ahead:            1           1   240.00000000000000      mix conc:   371468.72029945505     
+ Trouble ahead:            1           1   250.00000000000000      mix conc:   358681.18583392445     
+ Trouble ahead:            1           1   260.00000000000000      mix conc:   346333.94289947522     
+ Trouble ahead:            1           1   270.00000000000000      mix conc:   334411.82822737552     
+ Trouble ahead:            1           1   280.00000000000000      mix conc:   322900.20089289488     
+ Trouble ahead:            1           1   290.00000000000000      mix conc:   311784.92431635945     
+ Trouble ahead:            1           1   300.00000000000000      mix conc:   301052.34888462332     
+ Trouble ahead:            1           1   310.00000000000000      mix conc:   290689.29517156380     
+ Trouble ahead:            1           1   320.00000000000000      mix conc:   280683.03773694340     
+ Trouble ahead:            1           1   330.00000000000000      mix conc:   271021.28948369657     
+ Trouble ahead:            1           1   340.00000000000000      mix conc:   261692.18655438608     
+ Trouble ahead:            1           1   350.00000000000000      mix conc:   252684.27374823237     
+ Trouble ahead:            1           1   360.00000000000000      mix conc:   243986.49044077750     
+ Trouble ahead:            1           1   370.00000000000000      mix conc:   235588.15698883982     
+ Trouble ahead:            1           1   380.00000000000000      mix conc:   227478.96160403758     
+ Trouble ahead:            1           1   390.00000000000000      mix conc:   219648.94767872008     
+ Trouble ahead:            1           1   400.00000000000000      mix conc:   212088.50154870847     
+ Trouble ahead:            1           1   410.00000000000000      mix conc:   204788.34067778816     
+ Trouble ahead:            1           1   420.00000000000000      mix conc:   197739.50224941270     
+ Trouble ahead:            1           1   430.00000000000000      mix conc:   190933.33215157379     
+ Trouble ahead:            1           1   440.00000000000000      mix conc:   184361.47434129199     
+ Trouble ahead:            1           1   450.00000000000000      mix conc:   178015.86057563205     
+ Trouble ahead:            1           1   460.00000000000000      mix conc:   171888.70049661162     
+ Trouble ahead:            1           1   470.00000000000000      mix conc:   165972.47205780193     
+ Trouble ahead:            1           1   480.00000000000000      mix conc:   160259.91228084022     
+ Trouble ahead:            1           1   490.00000000000000      mix conc:   154744.00833048276     
+ Trouble ahead:            1           1   500.00000000000000      mix conc:   149417.98889721395     
+ Trouble ahead:            1           1   510.00000000000000      mix conc:   144275.31587681366     
+ Trouble ahead:            1           1   520.00000000000000      mix conc:   139309.67633664221     
+ Trouble ahead:            1           1   530.00000000000000      mix conc:   134514.97475876118     
+ Trouble ahead:            1           1   540.00000000000000      mix conc:   129885.32555034812     
+ Trouble ahead:            1           1   550.00000000000000      mix conc:   125415.04581218938     
+ Trouble ahead:            1           1   560.00000000000000      mix conc:   121098.64835635648     
+ Trouble ahead:            1           1   570.00000000000000      mix conc:   116930.83496447712     
+ Trouble ahead:            1           1   580.00000000000000      mix conc:   112906.48987830560     
+ Trouble ahead:            1           1   590.00000000000000      mix conc:   109020.67351458894     
+
++.Time: 00:10:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 0.000E+00 [/s/cm3]                                                       |
+| Mean GR nm/h -1.696E-13 for 1.480E+00-5.895E+00 nm                                               |
+| Mean GR nm/h 0.000E+00 for 5.895E+00-2.059E+01 nm                                                |
+ Trouble ahead:            1           1   600.00000000000000      mix conc:   105268.61639649468     
+ G-mean k_dep   8.2577021549120878E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    4.499E-05 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:06 Est. time to finish (m:s) 0:34        Realtime/Modeltime:   87.08        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+ Trouble ahead:            1           1   610.00000000000000      mix conc:   101645.71329413740     
+ Trouble ahead:            1           1   620.00000000000000      mix conc:   98147.517566997834     
+ Trouble ahead:            1           1   630.00000000000000      mix conc:   94769.735701272773     
+ Trouble ahead:            1           1   640.00000000000000      mix conc:   91508.222035441489     
+ Trouble ahead:            1           1   650.00000000000000      mix conc:   88358.973667558748     
+ Trouble ahead:            1           1   660.00000000000000      mix conc:   85318.125538011809     
+ Trouble ahead:            1           1   670.00000000000000      mix conc:   82381.945681694298     
+ Trouble ahead:            1           1   680.00000000000000      mix conc:   79546.830643758425     
+ Trouble ahead:            1           1   690.00000000000000      mix conc:   76809.301053307281     
+ Trouble ahead:            1           1   700.00000000000000      mix conc:   74165.997349584723     
+ Trouble ahead:            1           1   710.00000000000000      mix conc:   71613.675655406551     
+ Trouble ahead:            1           1   720.00000000000000      mix conc:   69149.203792759654     
+ Trouble ahead:            1           1   730.00000000000000      mix conc:   66769.557435668539     
+ Trouble ahead:            1           1   740.00000000000000      mix conc:   64471.816395599948     
+ Trouble ahead:            1           1   750.00000000000000      mix conc:   62253.161034837292     
+ Trouble ahead:            1           1   760.00000000000000      mix conc:   60110.868803415178     
+ Trouble ahead:            1           1   770.00000000000000      mix conc:   58042.310895356357     
+ Trouble ahead:            1           1   780.00000000000000      mix conc:   56044.949020099695     
+ Trouble ahead:            1           1   790.00000000000000      mix conc:   54116.332285149270     
+ Trouble ahead:            1           1   800.00000000000000      mix conc:   52254.094186113267     
+ Trouble ahead:            1           1   810.00000000000000      mix conc:   50455.949700430734     
+ Trouble ahead:            1           1   820.00000000000000      mix conc:   48719.692481214057     
+ Trouble ahead:            1           1   830.00000000000000      mix conc:   47043.192147757654     
+ Trouble ahead:            1           1   840.00000000000000      mix conc:   45424.391669380777     
+ Trouble ahead:            1           1   850.00000000000000      mix conc:   43861.304839389624     
+ Trouble ahead:            1           1   860.00000000000000      mix conc:   42352.013836053578     
+ Trouble ahead:            1           1   870.00000000000000      mix conc:   40894.666867595864     
+ Trouble ahead:            1           1   880.00000000000000      mix conc:   39487.475898305689     
+ Trouble ahead:            1           1   890.00000000000000      mix conc:   38128.714452975677     
+ Trouble ahead:            1           1   900.00000000000000      mix conc:   36816.715496966222     
+ Trouble ahead:            1           1   910.00000000000000      mix conc:   35549.869389290790     
+ Trouble ahead:            1           1   920.00000000000000      mix conc:   34326.621906206972     
+ Trouble ahead:            1           1   930.00000000000000      mix conc:   33145.472332882819     
+ Trouble ahead:            1           1   940.00000000000000      mix conc:   32004.971620794688     
+ Trouble ahead:            1           1   950.00000000000000      mix conc:   30903.720608590218     
+ Trouble ahead:            1           1   960.00000000000000      mix conc:   29840.368304231299     
+ Trouble ahead:            1           1   970.00000000000000      mix conc:   28813.610226304649     
+ Trouble ahead:            1           1   980.00000000000000      mix conc:   27822.186802462660     
+ Trouble ahead:            1           1   990.00000000000000      mix conc:   26864.881823025160     
+ Trouble ahead:            1           1   1000.0000000000000      mix conc:   25940.520947842557     
+ Trouble ahead:            1           1   1010.0000000000000      mix conc:   25047.970264585154     
+ Trouble ahead:            1           1   1020.0000000000000      mix conc:   24186.134896686654     
+ Trouble ahead:            1           1   1030.0000000000000      mix conc:   23353.957659231895     
+ Trouble ahead:            1           1   1040.0000000000000      mix conc:   22550.417761136865     
+ Trouble ahead:            1           1   1050.0000000000000      mix conc:   21774.529552025699     
+ Trouble ahead:            1           1   1060.0000000000000      mix conc:   21025.341312265868     
+ Trouble ahead:            1           1   1070.0000000000000      mix conc:   20301.934084674205     
+ Trouble ahead:            1           1   1080.0000000000000      mix conc:   19603.420546458045     
+ Trouble ahead:            1           1   1090.0000000000000      mix conc:   18928.943920006379     
+ Trouble ahead:            1           1   1100.0000000000000      mix conc:   18277.676921191454     
+ Trouble ahead:            1           1   1110.0000000000000      mix conc:   17648.820743889963     
+ Trouble ahead:            1           1   1120.0000000000000      mix conc:   17041.604079475092     
+ Trouble ahead:            1           1   1130.0000000000000      mix conc:   16455.282170075636     
+ Trouble ahead:            1           1   1140.0000000000000      mix conc:   15889.135894438199     
+ Trouble ahead:            1           1   1150.0000000000000      mix conc:   15342.470885270410     
+ Trouble ahead:            1           1   1160.0000000000000      mix conc:   14814.616676979747     
+ Trouble ahead:            1           1   1170.0000000000000      mix conc:   14304.925882761820     
+ Trouble ahead:            1           1   1180.0000000000000      mix conc:   13812.773400026575     
+ Trouble ahead:            1           1   1190.0000000000000      mix conc:   13337.555643186759     
+
++.Time: 00:20:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 0.000E+00 [/s/cm3]                                                       |
+| Mean GR nm/h -1.705E-13 for 1.480E+00-5.895E+00 nm                                               |
+| Mean GR nm/h 0.000E+00 for 5.895E+00-2.059E+01 nm                                                |
+ Trouble ahead:            1           1   1200.0000000000000      mix conc:   12878.689802865774     
+ G-mean k_dep   8.2577021549120878E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    4.095E-05 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:13 Est. time to finish (m:s) 0:27        Realtime/Modeltime:   87.44        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+ Trouble ahead:            1           1   1210.0000000000000      mix conc:   12435.613130615358     
+ Trouble ahead:            1           1   1220.0000000000000      mix conc:   12007.782248264057     
+ Trouble ahead:            1           1   1230.0000000000000      mix conc:   11594.672481048257     
+ Trouble ahead:            1           1   1240.0000000000000      mix conc:   11195.777213706770     
+ Trouble ahead:            1           1   1250.0000000000000      mix conc:   10810.607268747897     
+ Trouble ahead:            1           1   1260.0000000000000      mix conc:   10438.690306125160     
+ Trouble ahead:            1           1   1270.0000000000000      mix conc:   10079.570243584723     
+ Trouble ahead:            1           1   1280.0000000000000      mix conc:   9732.8066969722040     
+ Trouble ahead:            1           1   1290.0000000000000      mix conc:   9397.9744398115326     
+ Trouble ahead:            1           1   1300.0000000000000      mix conc:   9074.6628814922369     
+ Trouble ahead:            1           1   1310.0000000000000      mix conc:   8762.4755634239646     
+ Trouble ahead:            1           1   1320.0000000000000      mix conc:   8461.0296725398093     
+ Trouble ahead:            1           1   1330.0000000000000      mix conc:   8169.9555715506713     
+ Trouble ahead:            1           1   1340.0000000000000      mix conc:   7888.8963453739070     
+ Trouble ahead:            1           1   1350.0000000000000      mix conc:   7617.5073631790856     
+ Trouble ahead:            1           1   1360.0000000000000      mix conc:   7355.4558555131289     
+ Trouble ahead:            1           1   1370.0000000000000      mix conc:   7102.4205059854767     
+ Trouble ahead:            1           1   1380.0000000000000      mix conc:   6858.0910570118922     
+ Trouble ahead:            1           1   1390.0000000000000      mix conc:   6622.1679291325854     
+ Trouble ahead:            1           1   1400.0000000000000      mix conc:   6394.3618534374718     
+ Trouble ahead:            1           1   1410.0000000000000      mix conc:   6174.3935166468518     
+ Trouble ahead:            1           1   1420.0000000000000      mix conc:   5961.9932184119634     
+ Trouble ahead:            1           1   1430.0000000000000      mix conc:   5756.9005404144928     
+ Trouble ahead:            1           1   1440.0000000000000      mix conc:   5558.8640268585923     
+ Trouble ahead:            1           1   1450.0000000000000      mix conc:   5367.6408759633377     
+ Trouble ahead:            1           1   1460.0000000000000      mix conc:   5182.9966420766241     
+ Trouble ahead:            1           1   1470.0000000000000      mix conc:   5004.7049480447895     
+ Trouble ahead:            1           1   1480.0000000000000      mix conc:   4832.5472074848240     
+ Trouble ahead:            1           1   1490.0000000000000      mix conc:   4666.3123566181675     
+ Trouble ahead:            1           1   1500.0000000000000      mix conc:   4505.7965953367684     
+ Trouble ahead:            1           1   1510.0000000000000      mix conc:   4350.8031371836096     
+ Trouble ahead:            1           1   1520.0000000000000      mix conc:   4201.1419679406472     
+ Trouble ahead:            1           1   1530.0000000000000      mix conc:   4056.6296125278027     
+ Trouble ahead:            1           1   1540.0000000000000      mix conc:   3917.0889099268024     
+ Trouble ahead:            1           1   1550.0000000000000      mix conc:   3782.3487958536030     
+ Trouble ahead:            1           1   1560.0000000000000      mix conc:   3652.2440929125028     
+ Trouble ahead:            1           1   1570.0000000000000      mix conc:   3526.6153079743954     
+ Trouble ahead:            1           1   1580.0000000000000      mix conc:   3405.3084365303816     
+ Trouble ahead:            1           1   1590.0000000000000      mix conc:   3288.1747737805599     
+ Trouble ahead:            1           1   1600.0000000000000      mix conc:   3175.0707322260992     
+ Trouble ahead:            1           1   1610.0000000000000      mix conc:   3065.8576655406960     
+ Trouble ahead:            1           1   1620.0000000000000      mix conc:   2960.4016985051212     
+ Trouble ahead:            1           1   1630.0000000000000      mix conc:   2858.5735627962072     
+ Trouble ahead:            1           1   1640.0000000000000      mix conc:   2760.2484384286154     
+ Trouble ahead:            1           1   1650.0000000000000      mix conc:   2665.3058006547881     
+ Trouble ahead:            1           1   1660.0000000000000      mix conc:   2573.6292721351751     
+ Trouble ahead:            1           1   1670.0000000000000      mix conc:   2485.1064801972125     
+ Trouble ahead:            1           1   1680.0000000000000      mix conc:   2399.6289190079201     
+ Trouble ahead:            1           1   1690.0000000000000      mix conc:   2317.0918164909103     
+ Trouble ahead:            1           1   1700.0000000000000      mix conc:   2237.3940058244257     
+ Trouble ahead:            1           1   1710.0000000000000      mix conc:   2160.4378013627716     
+ Trouble ahead:            1           1   1720.0000000000000      mix conc:   2086.1288788287507     
+ Trouble ahead:            1           1   1730.0000000000000      mix conc:   2014.3761596301383     
+ Trouble ahead:            1           1   1740.0000000000000      mix conc:   1945.0916991581355     
+ Trouble ahead:            1           1   1750.0000000000000      mix conc:   1878.1905789307955     
+ Trouble ahead:            1           1   1760.0000000000000      mix conc:   1813.5908024489531     
+ Trouble ahead:            1           1   1770.0000000000000      mix conc:   1751.2131946369361     
+ Trouble ahead:            1           1   1780.0000000000000      mix conc:   1690.9813047445587     
+ Trouble ahead:            1           1   1790.0000000000000      mix conc:   1632.8213125913082     
+
++.Time: 00:30:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 0.000E+00 [/s/cm3]                                                       |
+| Mean GR nm/h -1.870E-13 for 1.480E+00-5.895E+00 nm                                               |
+| Mean GR nm/h 0.000E+00 for 5.895E+00-2.059E+01 nm                                                |
+ Trouble ahead:            1           1   1800.0000000000000      mix conc:   1576.6619380376146     
+ G-mean k_dep   8.2577021549120878E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    3.755E-05 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:20 Est. time to finish (m:s) 0:20        Realtime/Modeltime:   87.43        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+ Trouble ahead:            1           1   1810.0000000000000      mix conc:   1522.4343535721191     
+ Trouble ahead:            1           1   1820.0000000000000      mix conc:   1470.0720999076862     
+ Trouble ahead:            1           1   1830.0000000000000      mix conc:   1419.5110044825396     
+ Trouble ahead:            1           1   1840.0000000000000      mix conc:   1370.6891027665627     
+ Trouble ahead:            1           1   1850.0000000000000      mix conc:   1323.5465622761367     
+ Trouble ahead:            1           1   1860.0000000000000      mix conc:   1278.0256092043267     
+ Trouble ahead:            1           1   1870.0000000000000      mix conc:   1234.0704575763539     
+ Trouble ahead:            1           1   1880.0000000000000      mix conc:   1191.6272408434054     
+ Trouble ahead:            1           1   1890.0000000000000      mix conc:   1150.6439458308892     
+ Trouble ahead:            1           1   1900.0000000000000      mix conc:   1111.0703489600394     
+ Trouble ahead:            1           1   1910.0000000000000      mix conc:   1072.8579546646392     
+ Trouble ahead:            1           1   1920.0000000000000      mix conc:   1035.9599359272809     
+ Trouble ahead:            1           1   1930.0000000000000      mix conc:   1000.3310768622124     
+ Trouble ahead:            1           1   1940.0000000000000      mix conc:   965.92771727432080     
+ Trouble ahead:            1           1   1950.0000000000000      mix conc:   932.70769912620801     
+ Trouble ahead:            1           1   1960.0000000000000      mix conc:   900.63031484770784     
+ Trouble ahead:            1           1   1970.0000000000000      mix conc:   869.65625742438749     
+ Trouble ahead:            1           1   1980.0000000000000      mix conc:   839.74757220383265     
+ Trouble ahead:            1           1   1990.0000000000000      mix conc:   810.86761036054691     
+ Trouble ahead:            1           1   2000.0000000000000      mix conc:   782.98098396241528     
+ Trouble ahead:            1           1   2010.0000000000000      mix conc:   756.05352258356061     
+ Trouble ahead:            1           1   2020.0000000000000      mix conc:   730.05223141039801     
+ Trouble ahead:            1           1   2030.0000000000000      mix conc:   704.94525078946856     
+ Trouble ahead:            1           1   2040.0000000000000      mix conc:   680.70181716743389     
+ Trouble ahead:            1           1   2050.0000000000000      mix conc:   657.29222537530916     
+ Trouble ahead:            1           1   2060.0000000000000      mix conc:   634.68779221066382     
+ Trouble ahead:            1           1   2070.0000000000000      mix conc:   612.86082127311602     
+ Trouble ahead:            1           1   2080.0000000000000      mix conc:   591.78456900998663     
+ Trouble ahead:            1           1   2090.0000000000000      mix conc:   571.43321193043994     
+ Trouble ahead:            1           1   2100.0000000000000      mix conc:   551.78181494792182     
+ Trouble ahead:            1           1   2110.0000000000000      mix conc:   532.80630081203572     
+ Trouble ahead:            1           1   2120.0000000000000      mix conc:   514.48342059236347     
+ Trouble ahead:            1           1   2130.0000000000000      mix conc:   496.79072517803911     
+ Trouble ahead:            1           1   2140.0000000000000      mix conc:   479.70653775808785     
+ Trouble ahead:            1           1   2150.0000000000000      mix conc:   463.20992724880517     
+ Trouble ahead:            1           1   2160.0000000000000      mix conc:   447.28068263555042     
+ Trouble ahead:            1           1   2170.0000000000000      mix conc:   431.89928819750327     
+ Trouble ahead:            1           1   2180.0000000000000      mix conc:   417.04689958498591     
+ Trouble ahead:            1           1   2190.0000000000000      mix conc:   402.70532072000759     
+ Trouble ahead:            1           1   2200.0000000000000      mix conc:   388.85698149169309     
+ Trouble ahead:            1           1   2210.0000000000000      mix conc:   375.48491621925393     
+ Trouble ahead:            1           1   2220.0000000000000      mix conc:   362.57274285606280     
+ Trouble ahead:            1           1   2230.0000000000000      mix conc:   350.10464290934590     
+ Trouble ahead:            1           1   2240.0000000000000      mix conc:   338.06534205084841     
+ Trouble ahead:            1           1   2250.0000000000000      mix conc:   326.44009139470353     
+ Trouble ahead:            1           1   2260.0000000000000      mix conc:   315.21464941953599     
+ Trouble ahead:            1           1   2270.0000000000000      mix conc:   304.37526451262607     
+ Trouble ahead:            1           1   2280.0000000000000      mix conc:   293.90865811473566     
+ Trouble ahead:            1           1   2290.0000000000000      mix conc:   283.80200844491515     
+ Trouble ahead:            1           1   2300.0000000000000      mix conc:   274.04293478532941     
+ Trouble ahead:            1           1   2310.0000000000000      mix conc:   264.61948230683964     
+ Trouble ahead:            1           1   2320.0000000000000      mix conc:   255.52010741672427     
+ Trouble ahead:            1           1   2330.0000000000000      mix conc:   246.73366361056583     
+ Trouble ahead:            1           1   2340.0000000000000      mix conc:   238.24938781096577     
+ Trouble ahead:            1           1   2350.0000000000000      mix conc:   230.05688717631787     
+ Trouble ahead:            1           1   2360.0000000000000      mix conc:   222.14612636347707     
+ Trouble ahead:            1           1   2370.0000000000000      mix conc:   214.50741522869507     
+ Trouble ahead:            1           1   2380.0000000000000      mix conc:   207.13139695174303     
+ Trouble ahead:            1           1   2390.0000000000000      mix conc:   200.00903656865981     
+
++.Time: 00:40:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 0.000E+00 [/s/cm3]                                                       |
+| Mean GR nm/h -1.556E-13 for 1.480E+00-5.895E+00 nm                                               |
+| Mean GR nm/h 0.000E+00 for 5.895E+00-2.059E+01 nm                                                |
+ Trouble ahead:            1           1   2400.0000000000000      mix conc:   193.13160989906035     
+ G-mean k_dep   8.2577021549120878E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    3.463E-05 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:27 Est. time to finish (m:s) 0:13        Realtime/Modeltime:   87.50        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+ Trouble ahead:            1           1   2410.0000000000000      mix conc:   186.49069285442692     
+ Trouble ahead:            1           1   2420.0000000000000      mix conc:   180.07815111427715     
+ Trouble ahead:            1           1   2430.0000000000000      mix conc:   173.88613015753944     
+ Trouble ahead:            1           1   2440.0000000000000      mix conc:   167.90704563692495     
+ Trouble ahead:            1           1   2450.0000000000000      mix conc:   162.13357408448013     
+ Trouble ahead:            1           1   2460.0000000000000      mix conc:   156.55864393693324     
+ Trouble ahead:            1           1   2470.0000000000000      mix conc:   151.17542686982551     
+ Trouble ahead:            1           1   2480.0000000000000      mix conc:   145.97732942979951     
+ Trouble ahead:            1           1   2490.0000000000000      mix conc:   140.95798495479033     
+ Trouble ahead:            1           1   2500.0000000000000      mix conc:   136.11124577220664     
+ Trouble ahead:            1           1   2510.0000000000000      mix conc:   131.43117566554008     
+ Trouble ahead:            1           1   2520.0000000000000      mix conc:   126.91204260016363     
+ Trouble ahead:            1           1   2530.0000000000000      mix conc:   122.54831169940088     
+ Trouble ahead:            1           1   2540.0000000000000      mix conc:   118.33463846225376     
+ Trouble ahead:            1           1   2550.0000000000000      mix conc:   114.26586221447515     
+ Trouble ahead:            1           1   2560.0000000000000      mix conc:   110.33699978495402     
+ Trouble ahead:            1           1   2570.0000000000000      mix conc:   106.54323939966280     
+ Trouble ahead:            1           1   2580.0000000000000      mix conc:   102.87993478567891     
+ Trouble ahead:            1           1   2590.0000000000000      mix conc:   99.342599478053231     
+ Trouble ahead:            1           1   2600.0000000000000      mix conc:   95.926901322544467     
+ Trouble ahead:            1           1   2610.0000000000000      mix conc:   92.628657167480981     
+ Trouble ahead:            1           1   2620.0000000000000      mix conc:   89.443827738241978     
+ Trouble ahead:            1           1   2630.0000000000000      mix conc:   86.368512688074006     
+ Trouble ahead:            1           1   2640.0000000000000      mix conc:   83.398945819175708     
+ Trouble ahead:            1           1   2650.0000000000000      mix conc:   80.531490468193113     
+ Trouble ahead:            1           1   2660.0000000000000      mix conc:   77.762635050465704     
+ Trouble ahead:            1           1   2670.0000000000000      mix conc:   75.088988757564493     
+ Trouble ahead:            1           1   2680.0000000000000      mix conc:   72.507277402844934     
+ Trouble ahead:            1           1   2690.0000000000000      mix conc:   70.014339409923124     
+ Trouble ahead:            1           1   2700.0000000000000      mix conc:   67.607121939157992     
+ Trouble ahead:            1           1   2710.0000000000000      mix conc:   65.282677147389094     
+ Trouble ahead:            1           1   2720.0000000000000      mix conc:   63.038158576348280     
+ Trouble ahead:            1           1   2730.0000000000000      mix conc:   60.870817665315315     
+ Trouble ahead:            1           1   2740.0000000000000      mix conc:   58.778000383743162     
+ Trouble ahead:            1           1   2750.0000000000000      mix conc:   56.757143979726614     
+ Trouble ahead:            1           1   2760.0000000000000      mix conc:   54.805773840326907     
+ Trouble ahead:            1           1   2770.0000000000000      mix conc:   52.921500459904607     
+ Trouble ahead:            1           1   2780.0000000000000      mix conc:   51.102016512744513     
+ Trouble ahead:            1           1   2790.0000000000000      mix conc:   49.345094026384444     
+ Trouble ahead:            1           1   2800.0000000000000      mix conc:   47.648581652182351     
+ Trouble ahead:            1           1   2810.0000000000000      mix conc:   46.010402029778319     
+ Trouble ahead:            1           1   2820.0000000000000      mix conc:   44.428549242217798     
+ Trouble ahead:            1           1   2830.0000000000000      mix conc:   42.901086358620219     
+ Trouble ahead:            1           1   2840.0000000000000      mix conc:   41.426143061378568     
+ Trouble ahead:            1           1   2850.0000000000000      mix conc:   40.001913354982875     
+ Trouble ahead:            1           1   2860.0000000000000      mix conc:   38.626653353659371     
+ Trouble ahead:            1           1   2870.0000000000000      mix conc:   37.298679145112658     
+ Trouble ahead:            1           1   2880.0000000000000      mix conc:   36.016364727754421     
+ Trouble ahead:            1           1   2890.0000000000000      mix conc:   34.778140018888585     
+ Trouble ahead:            1           1   2900.0000000000000      mix conc:   33.582488931413117     
+ Trouble ahead:            1           1   2910.0000000000000      mix conc:   32.427947516681250     
+ Trouble ahead:            1           1   2920.0000000000000      mix conc:   31.313102171244282     
+ Trouble ahead:            1           1   2930.0000000000000      mix conc:   30.236587905280761     
+ Trouble ahead:            1           1   2940.0000000000000      mix conc:   29.197086670588163     
+ Trouble ahead:            1           1   2950.0000000000000      mix conc:   28.193325746088153     
+ Trouble ahead:            1           1   2960.0000000000000      mix conc:   27.224076178867392     
+ Trouble ahead:            1           1   2970.0000000000000      mix conc:   26.288151278842886     
+ Trouble ahead:            1           1   2980.0000000000000      mix conc:   25.384405165207376     
+ Trouble ahead:            1           1   2990.0000000000000      mix conc:   24.511731362872762     
+
++.Time: 00:50:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 0.000E+00 [/s/cm3]                                                       |
+| Mean GR nm/h -1.721E-13 for 1.480E+00-5.895E+00 nm                                               |
+| Mean GR nm/h 0.000E+00 for 5.895E+00-2.059E+01 nm                                                |
+ Trouble ahead:            1           1   3000.0000000000000      mix conc:   23.669061447192639     
+ G-mean k_dep   8.2577021549120878E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    3.208E-05 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:34 Est. time to finish (m:s) 0:06        Realtime/Modeltime:   87.58        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+ Trouble ahead:            1           1   3010.0000000000000      mix conc:   22.855363735301758     
+ Trouble ahead:            1           1   3020.0000000000000      mix conc:   22.069642022470184     
+ Trouble ahead:            1           1   3030.0000000000000      mix conc:   21.310934361921856     
+ Trouble ahead:            1           1   3040.0000000000000      mix conc:   20.578311886624263     
+ Trouble ahead:            1           1   3050.0000000000000      mix conc:   19.870877671603431     
+ Trouble ahead:            1           1   3060.0000000000000      mix conc:   19.187765635391802     
+ Trouble ahead:            1           1   3070.0000000000000      mix conc:   18.528139479261629     
+ Trouble ahead:            1           1   3080.0000000000000      mix conc:   17.891191662944628     
+ Trouble ahead:            1           1   3090.0000000000000      mix conc:   17.276142415582751     
+ Trouble ahead:            1           1   3100.0000000000000      mix conc:   16.682238780697535     
+ Trouble ahead:            1           1   3110.0000000000000      mix conc:   16.108753694008680     
+ Trouble ahead:            1           1   3120.0000000000000      mix conc:   15.554985092971302     
+ Trouble ahead:            1           1   3130.0000000000000      mix conc:   15.020255056940487     
+ Trouble ahead:            1           1   3140.0000000000000      mix conc:   14.503908976910422     
+ Trouble ahead:            1           1   3150.0000000000000      mix conc:   14.005314753810001     
+ Trouble ahead:            1           1   3160.0000000000000      mix conc:   13.523862024372741     
+ Trouble ahead:            1           1   3170.0000000000000      mix conc:   13.058961413632963     
+ Trouble ahead:            1           1   3180.0000000000000      mix conc:   12.610043813131435     
+ Trouble ahead:            1           1   3190.0000000000000      mix conc:   12.176559683947215     
+ Trouble ahead:            1           1   3200.0000000000000      mix conc:   11.757978383700541     
+ Trouble ahead:            1           1   3210.0000000000000      mix conc:   11.353787516703154     
+ Trouble ahead:            1           1   3220.0000000000000      mix conc:   10.963492306459283     
+ Trouble ahead:            1           1   3230.0000000000000      mix conc:   10.586614989748727     
+ Trouble ahead:            1           1   3240.0000000000000      mix conc:   10.222694231549404     
+ Trouble ahead:            1           1   3250.0000000000000      mix conc:   9.8712845600829056     
+ Trouble ahead:            1           1   3260.0000000000000      mix conc:   9.5319558212904649     
+ Trouble ahead:            1           1   3270.0000000000000      mix conc:   9.2042926520712740     
+ Trouble ahead:            1           1   3280.0000000000000      mix conc:   8.8878939716377197     
+ Trouble ahead:            1           1   3290.0000000000000      mix conc:   8.5823724903642216     
+ Trouble ahead:            1           1   3300.0000000000000      mix conc:   8.2873542355282144     
+ Trouble ahead:            1           1   3310.0000000000000      mix conc:   8.0024780933618338     
+ Trouble ahead:            1           1   3320.0000000000000      mix conc:   7.7273953668537958     
+ Trouble ahead:            1           1   3330.0000000000000      mix conc:   7.4617693487593000     
+ Trouble ahead:            1           1   3340.0000000000000      mix conc:   7.2052749092949444     
+ Trouble ahead:            1           1   3350.0000000000000      mix conc:   6.9575980980136949     
+ Trouble ahead:            1           1   3360.0000000000000      mix conc:   6.7184357593721273     
+ Trouble ahead:            1           1   3370.0000000000000      mix conc:   6.4874951615187131     
+ Trouble ahead:            1           1   3380.0000000000000      mix conc:   6.2644936378488989     
+ Trouble ahead:            1           1   3390.0000000000000      mix conc:   6.0491582408873521     
+ Trouble ahead:            1           1   3400.0000000000000      mix conc:   5.8412254080737274     
+ Trouble ahead:            1           1   3410.0000000000000      mix conc:   5.6404406390423940     
+ Trouble ahead:            1           1   3420.0000000000000      mix conc:   5.4465581840007733     
+ Trouble ahead:            1           1   3430.0000000000000      mix conc:   5.2593407428246053     
+ Trouble ahead:            1           1   3440.0000000000000      mix conc:   5.0785591745014740     
+ Trouble ahead:            1           1   3450.0000000000000      mix conc:   4.9039922165667456     
+ Trouble ahead:            1           1   3460.0000000000000      mix conc:   4.7354262141882213     
+ Trouble ahead:            1           1   3470.0000000000000      mix conc:   4.5726548585675051     
+ Trouble ahead:            1           1   3480.0000000000000      mix conc:   4.4154789343378917     
+ Trouble ahead:            1           1   3490.0000000000000      mix conc:   4.2637060756491207     
+ Trouble ahead:            1           1   3500.0000000000000      mix conc:   4.1171505306403837     
+ Trouble ahead:            1           1   3510.0000000000000      mix conc:   3.9756329340129750     
+ Trouble ahead:            1           1   3520.0000000000000      mix conc:   3.8389800874240403     
+ Trouble ahead:            1           1   3530.0000000000000      mix conc:   3.7070247474324964     
+ Trouble ahead:            1           1   3540.0000000000000      mix conc:   3.5796054207372587     
+ Trouble ahead:            1           1   3550.0000000000000      mix conc:   3.4565661664570677     
+ Trouble ahead:            1           1   3560.0000000000000      mix conc:   3.3377564052096926     
+ Trouble ahead:            1           1   3570.0000000000000      mix conc:   3.2230307347566827     
+ Trouble ahead:            1           1   3580.0000000000000      mix conc:   3.1122487519878068     
+ Trouble ahead:            1           1   3590.0000000000000      mix conc:   3.0052748810272187     
+
++.Time: 01:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 0.000E+00 [/s/cm3]                                                       |
+| Mean GR nm/h -1.845E-13 for 1.480E+00-5.895E+00 nm                                               |
+| Mean GR nm/h 0.000E+00 for 5.895E+00-2.059E+01 nm                                                |
+ Trouble ahead:            1           1   3600.0000000000000      mix conc:   2.9019782072507647     
+ G-mean k_dep   8.2577021549120878E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    2.984E-05 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:41 Est. time to finish (m:s) 0:00        Realtime/Modeltime:   87.11        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+ 
++.Main loop ended..................................................................................+
+| Outputfiles in INOUT//A_2018-04-14/BASE66 closed.                                                |
++..................................................................................................+
+
+SIMULATION HAS ENDED.  SO LONG!

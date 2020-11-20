@@ -20,7 +20,7 @@ def lin_to_log(diam, sum):
     return dm_nconc_f
 
 
-def parseSum(file):
+def parseSum(file, assume_log):
     lin = False
     try:
         data = genfromtxt(Path(file))
@@ -29,11 +29,15 @@ def parseSum(file):
     if data[0,1] == 0:
         n_conc = data[1:,2:]
         diam = data[0,2:]
+    elif assume_log:
+        n_conc = data[1:,1:]
+        diam = data[0,1:]
+        print('Assuming lognormalized input (menu: Plot->Assume lognormal input)')
     else:
         lin = True
         n_conc = data[1:,1:]
         diam = data[0,1:]
-        print('Assuming raw output')
+        print('Assuming raw input')
     time = data[1:,0]
     nan_to_num(n_conc,copy=False)
     if lin:
@@ -43,9 +47,9 @@ def parseSum(file):
     n_conc[n_conc<=0] = 0.0
     return time-time[0], diam, n_conc
 
-def loadNC(file):
+def loadNC(file, passon=False):
     if ('.sum' in file) or ('.dat' in file):
-        return parseSum(file)
+        return parseSum(file, passon)
     try:
         import netCDF4
     except:

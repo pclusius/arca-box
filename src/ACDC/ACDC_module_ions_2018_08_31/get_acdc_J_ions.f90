@@ -4,7 +4,7 @@ private
 public :: get_acdc_J
 CONTAINS
 
-subroutine get_acdc_J(c_acid,c_base,c_org,cs_ref,temp,ipr,time,solve_ss,j_acdc,diameter_acdc, Nuc_by_charge)
+subroutine get_acdc_J(c_acid,c_base,c_org,cs_ref,temp,ipr,time,solve_ss,j_acdc,diameter_acdc, Nuc_by_charge, iters)
 use acdc_system, only : nclust, neq					! number of clusters and equations
 use acdc_system, only : cluster_names				! names of the clusters and fluxes
 use acdc_system, only : n1A,n1N 				    ! cluster numbers of acid and base monomers
@@ -24,6 +24,7 @@ use constants
 	real(kind(1.d0)), intent(in) :: cs_ref				! reference coagulation sink (1/s)
 	real(kind(1.d0)), intent(in) :: temp				! temperature (K)
 	real(kind(1.d0)), intent(in) :: ipr					! ion production rate (1/s/m^3)
+	integer, intent(in), optional :: iters				! multiplicator for dt
 	logical, intent(in) :: solve_ss						! solve the steady state or run only for the given time
 	! Output: formed particles/time and their acid content
 	real(kind(1.d0)), intent(out) :: j_acdc				! simulated formation rate (1/s/m^3)
@@ -80,8 +81,10 @@ use constants
 		! Override the input time with a maximum time that
 		! the driver is allowed to try to get to the steady state
 		t_in = 5.d6
-	else
-		t_in = time%dt
+	else if (PRESENT(iters)) THEN
+        t_in = time%dt*iters
+    ELSE
+        t_in = time%dt
 	end if
 
 	! Set the vapor concentrations

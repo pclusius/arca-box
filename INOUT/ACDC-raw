@@ -1,5 +1,5 @@
 #--------------------------------------------------
-#      Superbox setting file: INOUT/ACDC-raw
+#      arcabox setting file: INOUT/ACDC-raw
 #         Created at: May 04 2020, 13:38:41
 #--------------------------------------------------
 
@@ -44,7 +44,7 @@
  DMPS_HIGHBAND_LOWER_LIMIT = 1e-8
  DMPS_LOWBAND_UPPER_LIMIT = 0
  USE_DMPS = .TRUE.
- USE_DMPS_SPECIAL = .FALSE.
+ USE_DMPS_PARTIAL = .FALSE.
 / 
 
 &NML_ENV
@@ -78,7 +78,7 @@
 &NML_VAP
  VAP_LOGICAL = .TRUE.
  USE_ATOMS = .TRUE.
- VAP_NAMES = 'ModelLib/Vapour_names.dat'
+ VAP_NAMES = 'ModelLib/Vapours.dat'
  VAP_PROPS = 'ModelLib/Vapour_properties.dat'
  VAP_ATOMS = 'ModelLib/O_C.dat'
 / 

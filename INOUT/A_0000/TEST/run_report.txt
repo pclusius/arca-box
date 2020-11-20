@@ -1,0 +1,146 @@
+
+
+
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
++..................................................................................................
++.USING INDEX INSTEAD OF DATE -> ASSUMING LIGHT DIRECTION IS FROM DIRECTLY UP......................+
++..................................................................................................
+| ENV values from :                                                                                |
+|   :........TEMPK should be read from column: 2 but no ENV_FILE. Using parametrisation?           |
+|   :........PRESSURE should be read from column: 3 but no ENV_FILE. Using parametrisation?        |
++..................................................................................................+
+| Reading Vapour name file ModelLib/Vapour_names.dat                                               |
+| Reading Vapour prop file ModelLib/Vapour_properties.dat                                          |
+|   :........Vapours available = 837                                                               |
+|   :........Vapour bins + H2SO4 = 838                                                             |
+| Reading O_C file ModelLib/O_C.dat                                                                |
++.Checking input validity..........................................................................+
+| - Converting temperature from degrees C -> K.                                                    |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Adding a constant to PRESSURE, [in hPa]: 1.000E+03                                             |
++..................................................................................................+
++.Checking against KPP for chemicals...............................................................+
++..................................................................................................+
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     Test for compiling                                                                           |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: INOUT//A_0000/TEST                                                   |
++..................................................................................................+
+ 
++.Beginning simulation with constant timestep......................................................+
+
++.Time: 00:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Mean GR nm/h 0.000E+00 for 1.480E+00-6.041E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 6.041E+00-2.069E+01 nm                                                |
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:10:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Mean GR nm/h 0.000E+00 for 1.480E+00-6.041E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 6.041E+00-2.069E+01 nm                                                |
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:01 Est. time to finish (m:s) 0:09        Realtime/Modeltime:  328.86        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:20:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Mean GR nm/h 0.000E+00 for 1.480E+00-6.041E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 6.041E+00-2.069E+01 nm                                                |
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:03 Est. time to finish (m:s) 0:07        Realtime/Modeltime:  340.92        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:30:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Mean GR nm/h 0.000E+00 for 1.480E+00-6.041E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 6.041E+00-2.069E+01 nm                                                |
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:05 Est. time to finish (m:s) 0:05        Realtime/Modeltime:  345.16        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:40:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Mean GR nm/h 0.000E+00 for 1.480E+00-6.041E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 6.041E+00-2.069E+01 nm                                                |
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:06 Est. time to finish (m:s) 0:03        Realtime/Modeltime:  344.95        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:50:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Mean GR nm/h 0.000E+00 for 1.480E+00-6.041E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 6.041E+00-2.069E+01 nm                                                |
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:08 Est. time to finish (m:s) 0:01        Realtime/Modeltime:  346.64        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:00:00 ..................................................................................+
+|   :........NH3 IGNORED                                                                           |
+|   :........DMA IGNORED                                                                           |
+| Mean GR nm/h 0.000E+00 for 1.480E+00-6.041E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 6.041E+00-2.069E+01 nm                                                |
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.731E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.652E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:10 Est. time to finish (m:s) 0:00        Realtime/Modeltime:  348.49        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+ 
++.Main loop ended..................................................................................+
+| Outputfiles in INOUT//A_0000/TEST closed.                                                        |
++..................................................................................................+
+
+SIMULATION HAS ENDED.  SO LONG!

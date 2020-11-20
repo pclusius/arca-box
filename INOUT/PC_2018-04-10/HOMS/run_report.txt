@@ -1,0 +1,148 @@
+
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
+| Date: 2018-04-10 -> Julian Day: 100                                                              |
+| ENV values from INOUT/PC_2018-04-10/input/env180410.dat:                                         |
+|   :........TEMPK will be read from column: 2                                                     |
+|   :........PRESSURE will be read from column: 3                                                  |
+|   :........REL_HUMIDITY will be read from column: 4                                              |
+|   :........CONDENS_SINK will be read from column: 9                                              |
+|   :........SW_RADIATION will be read from column: 5                                              |
+|   :........H2SO4 will be read from column: 7                                                     |
+|   :........NH3 will be read from column: 8                                                       |
+|   :........SO2 will be read from column: 14                                                      |
+|   :........NO will be read from column: 12                                                       |
+|   :........NO2 will be read from column: 11                                                      |
+|   :........CO will be read from column: 10                                                       |
+|   :........O3 will be read from column: 13                                                       |
+| MCM values from INOUT/PC_2018-04-10/input/voc180410.dat:                                         |
+|   :........CH3OH will be read from column: 2                                                     |
+|   :........C2H5OH will be read from column: 5                                                    |
+|   :........CH3CHO will be read from column: 4                                                    |
+|   :........BENZENE will be read from column: 11                                                  |
+|   :........TOLUENE will be read from column: 14                                                  |
+|   :........C5H8 will be read from column: 8                                                      |
+|   :........CH3COCH3 will be read from column: 6                                                  |
+|   :........MEK will be read from column: 10                                                      |
+|   :........APINENE will be read from column: 15                                                  |
+|   :........BPINENE will be read from column: 15                                                  |
+|   :........LIMONENE will be read from column: 15                                                 |
+|   :........CH3CO2H will be read from column: 7                                                   |
+|   :........CARENE will be read from column: 15                                                   |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "INOUT/PC_2018-04-10/input/env180410.dat".                |
+|   :........Done filling input matrices...                                                        |
+| Filling input matrices...                                                                        |
+|   :........Done filling input matrices...                                                        |
+| Reading DMPS files INOUT/filled_dmps/dm180410.sum                                                |
++..................................................................................................+
+| Reading Vapour name file ModelLib/Vapours.dat                                                    |
+|   :........Vapours available = 763                                                               |
+|   :........Vapour bins + H2SO4 = 764                                                             |
++.Checking input validity..........................................................................+
+| - Converting temperature from degrees C -> K.                                                    |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Converting NH3 from ppt                                                                        |
+| - Converting DMA from ppt                                                                        |
+| - Converting SO2 from ppb                                                                        |
+| - Converting NO2 from ppb                                                                        |
+| - Converting CO from ppb                                                                         |
+| - Converting O3 from ppb                                                                         |
+| - Converting CH3OH from ppb                                                                      |
+| - Converting C2H5OH from ppb                                                                     |
+| - Converting HCHO from ppt                                                                       |
+| - Converting CH3CHO from ppb                                                                     |
+| - Converting CH4 from ppm                                                                        |
+| - Converting BENZENE from ppb                                                                    |
+| - Converting TOLUENE from ppb                                                                    |
+| - Converting C5H8 from ppb                                                                       |
+| - Converting CH3COCH3 from ppb                                                                   |
+| - Converting MEK from ppb                                                                        |
+| - Converting APINENE from ppb                                                                    |
+| - Converting BPINENE from ppb                                                                    |
+| - Converting LIMONENE from ppb                                                                   |
+| - Converting CH3CO2H from ppb                                                                    |
+| - Converting CARENE from ppb                                                                     |
+| - Replacing input for ION_PROD_RATE with parametrized function.                                  |
+| - Multiplying DMA with: 5.000E-02                                                                |
+| - Adding a constant to HCHO, [in ppt]: 4.000E-01                                                 |
+| - Adding a constant to CH4, [in ppm]: 1.950E+00                                                  |
+| - Multiplying APINENE with: 5.100E-01                                                            |
+| - Multiplying BPINENE with: 1.200E-01                                                            |
+| - Multiplying LIMONENE with: 9.000E-02                                                           |
+| - Multiplying CARENE with: 2.800E-01                                                             |
++..................................................................................................+
++.Checking against KPP for chemicals...............................................................+
+| Found H2SO4 from chemistry                                                                       |
+| WARNING: A compound which does not exist in chemistry but could be used elsewhere: NH3 ~~~~~~~~~~+
+|   :........In INITFILE; &NML_MODS (col) <- input from file.                                      |
+| WARNING: A compound which does not exist in chemistry but could be used elsewhere: DMA ~~~~~~~~~~+
+| Found SO2 from chemistry                                                                         |
+| Found NO from chemistry                                                                          |
+| Found NO2 from chemistry                                                                         |
+| Found CO from chemistry                                                                          |
+| Found O3 from chemistry                                                                          |
+| Found CH3OH from chemistry                                                                       |
+| Found C2H5OH from chemistry                                                                      |
+| Found HCHO from chemistry                                                                        |
+| Found CH3CHO from chemistry                                                                      |
+| Found CH4 from chemistry                                                                         |
+| Found BENZENE from chemistry                                                                     |
+| Found TOLUENE from chemistry                                                                     |
+| Found C5H8 from chemistry                                                                        |
+| Found CH3COCH3 from chemistry                                                                    |
+| Found MEK from chemistry                                                                         |
+| Found APINENE from chemistry                                                                     |
+| Found BPINENE from chemistry                                                                     |
+| Found LIMONENE from chemistry                                                                    |
+| Found CH3CO2H from chemistry                                                                     |
+| Found CARENE from chemistry                                                                      |
++..................................................................................................+
+| Using dmps_special:                                                                              |
+|   :........Upper bins replaced from indices 39 to 100                                            |
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     CO sensitivity test 100% CO                                                                  |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: INOUT//PC_2018-04-10/HOMS                                            |
++..................................................................................................+
+ 
++.Beginning simulation with constant timestep......................................................+
+
++.Time: 00:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Using parametrisation for organic nucleation with 1 nucleating compounds                         |
+| Organic formation rate: 2.707E-08 [/s/cm3]                                                       |
+|   :........Replacing PSD with background particles from 1. measurement (row 2 in file)           |
+ mass lost to walls:    6.3757534054033727E-002
+| Mean GR nm/h 5.166E-04 for 1.070E+00-6.158E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 6.158E+00-1.928E+01 nm                                                |
+| ACID C:    1.035E+05 [1/cm3]    sum(An)/A1 1.902E-03 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  9.934E+04 [Pa]     Air_conc 2.644E+19 [1/cm3]         |
+| NH3 C:     7.221E+07 [1/cm3]    J_NH3: 1.166E-07 [1/s/cm3]    sum(Nn)/N1 2.862E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.436E-07 [1/s/cm3]        |
+| Jion neutr 5.799E-08 [1/s/cm3]  Jion neg: 4.540E-09 [1/s/cm3] Jion pos: 5.402E-08 [1/s/cm3]      |
+| C-sink:    7.500E-16 [1/s]      IPR: 3.830E+00 [1/s/cm3]                                         |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:10:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.973E-06 [/s/cm3]                                                       |
+|   :........Replacing PSD with background particles from 2. measurement (row 3 in file)           |
+ mass lost to walls:    5.7833257277678740E-002
+| Mean GR nm/h 6.054E-02 for 1.070E+00-6.158E+00 nm                                                |
+| Mean GR nm/h 2.332E-01 for 6.158E+00-1.928E+01 nm                                                |
+| ACID C:    1.042E+05 [1/cm3]    sum(An)/A1 1.983E-03 []                                          |
+| Temp:      2.722E+02 [K]        Pressure:  9.935E+04 [Pa]     Air_conc 2.644E+19 [1/cm3]         |
+| NH3 C:     1.298E+08 [1/cm3]    J_NH3: 1.762E-07 [1/s/cm3]    sum(Nn)/N1 1.648E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.149E-06 [1/s/cm3]        |
+| Jion neutr 9.537E-08 [1/s/cm3]  Jion neg: 6.021E-09 [1/s/cm3] Jion pos: 7.483E-08 [1/s/cm3]      |
+| C-sink:    1.376E-03 [1/s]      IPR: 3.803E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:03 Est. time to finish (m:s) 7:28        Realtime/Modeltime:  191.23        |
+ current integration time step   10.000000000000000     
++..................................................................................................+

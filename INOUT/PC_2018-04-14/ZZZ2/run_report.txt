@@ -1,0 +1,329 @@
+
+
+
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
+| Date: 2018-04-14 -> Julian Day: 104                                                              |
+| ENV values from :                                                                                |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "/home/pecl/Desktop/tzzt.dat".                            |
+|   :........Done filling input matrices...                                                        |
++..................................................................................................+
+| Reading Vapour name file ModelLib/Vapour_names.dat                                               |
+| Reading Vapour prop file ModelLib/Vapour_properties.dat                                          |
+|   :........Vapours available = 838                                                               |
+|   :........Vapour bins + H2SO4 = 839                                                             |
+| Reading O_C file ModelLib/O_C.dat                                                                |
++.Checking input validity..........................................................................+
+| - Temperature input in Kelvins.                                                                  |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Adding a constant to TEMPK, [in K]: 2.800E+02                                                  |
+| - Adding a constant to PRESSURE, [in hPa]: 1.000E+03                                             |
+| - Adding a constant to REL_HUMIDITY, [in #/cm3]: 5.000E+01                                       |
+| - Adding a constant to APINENE, [in #/cm3]: 1.000E+09                                            |
++..................................................................................................+
++.Checking against KPP for chemicals...............................................................+
+| Found APINENE from chemistry                                                                     |
++..................................................................................................+
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     CO sensitivity test 100% CO                                                                  |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: INOUT//PC_2018-04-14/ZZZ2                                            |
++..................................................................................................+
+ 
++.Beginning simulation with constant timestep......................................................+
+
++.Time: 00:00:00 ..................................................................................+
+ mass lost to walls:    2.2243180246303069     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:10:00 ..................................................................................+
+ mass lost to walls:    2.2243180246303069     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:03 Est. time to finish (m:s) 0:51        Realtime/Modeltime:  199.03        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:20:00 ..................................................................................+
+ mass lost to walls:    2.2243180246303069     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:05 Est. time to finish (m:s) 0:47        Realtime/Modeltime:  202.88        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:30:00 ..................................................................................+
+ mass lost to walls:    2.2243180246303069     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:08 Est. time to finish (m:s) 0:44        Realtime/Modeltime:  202.82        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:40:00 ..................................................................................+
+ mass lost to walls:    2.2243180246303069     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:11 Est. time to finish (m:s) 0:41        Realtime/Modeltime:  204.45        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 00:50:00 ..................................................................................+
+ mass lost to walls:    2.2243180246303069     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:14 Est. time to finish (m:s) 0:38        Realtime/Modeltime:  204.73        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:00:00 ..................................................................................+
+ mass lost to walls:    2.2243180246301790     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:17 Est. time to finish (m:s) 0:35        Realtime/Modeltime:  205.13        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:10:00 ..................................................................................+
+ mass lost to walls:    2.2243180246301222     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:19 Est. time to finish (m:s) 0:30        Realtime/Modeltime:  216.04        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:20:00 ..................................................................................+
+ mass lost to walls:    2.2243180246302501     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:21 Est. time to finish (m:s) 0:26        Realtime/Modeltime:  225.69        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:30:00 ..................................................................................+
+ mass lost to walls:    2.2243180246300511     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:23 Est. time to finish (m:s) 0:23        Realtime/Modeltime:  233.34        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:40:00 ..................................................................................+
+ mass lost to walls:    2.2243180246302643     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:24 Est. time to finish (m:s) 0:19        Realtime/Modeltime:  240.32        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 01:50:00 ..................................................................................+
+ mass lost to walls:    2.2243180246093459     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:26 Est. time to finish (m:s) 0:17        Realtime/Modeltime:  246.86        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:00:00 ..................................................................................+
+ mass lost to walls:    2.2243180245692713     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:28 Est. time to finish (m:s) 0:14        Realtime/Modeltime:  252.16        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:10:00 ..................................................................................+
+ mass lost to walls:    2.2243180244151546     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:30 Est. time to finish (m:s) 0:11        Realtime/Modeltime:  257.01        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:20:00 ..................................................................................+
+ mass lost to walls:    2.2243180237812226     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:32 Est. time to finish (m:s) 0:09        Realtime/Modeltime:  261.13        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:30:00 ..................................................................................+
+ mass lost to walls:    2.2243180213575897     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:33 Est. time to finish (m:s) 0:06        Realtime/Modeltime:  264.93        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:40:00 ..................................................................................+
+ mass lost to walls:    2.2243180119752708     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:35 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  268.42        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 02:50:00 ..................................................................................+
+ mass lost to walls:    2.2243179758478107     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:37 Est. time to finish (m:s) 0:02        Realtime/Modeltime:  271.72        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+
++.Time: 03:00:00 ..................................................................................+
+ mass lost to walls:    2.2243178365370397     
+| Mean GR nm/h 0.000E+00 for 1.480E+00-5.904E+00 nm                                                |
+| Mean GR nm/h 0.000E+00 for 5.904E+00-2.036E+01 nm                                                |
+ G-mean k_dep   9.6117242865378336E-005
+| ACID C:    0.000E+00 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
+| Temp:      2.800E+02 [K]        Pressure:  1.000E+05 [Pa]     Air_conc 2.587E+19 [1/cm3]         |
+| NH3 C:     0.000E+00 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
+| Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    0.000E+00 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:39 Est. time to finish (m:s) 0:00        Realtime/Modeltime:  274.39        |
+ current integration time step   10.000000000000000     
++..................................................................................................+
+ 
++.Main loop ended..................................................................................+
+| Outputfiles in INOUT//PC_2018-04-14/ZZZ2 closed.                                                 |
++..................................................................................................+
+
+SIMULATION HAS ENDED.  SO LONG!

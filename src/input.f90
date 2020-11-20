@@ -4,7 +4,6 @@ use second_Monitor
 USE second_precision, ONLY: dp
 use constants
 USE auxillaries
-USE Aerosol_auxillaries
 
 Implicit none
 
@@ -39,6 +38,7 @@ INTEGER :: inm_O3 = 0
 INTEGER :: inm_JIN = 0
 
 INTEGER, ALLOCATABLE :: INDRELAY_CH(:)
+INTEGER, ALLOCATABLE :: index_cond(:)
 
 REAL(dp), allocatable, private :: INPUT_ENV(:,:)  ! will be of same shape as the files
 REAL(dp), allocatable, private :: INPUT_MCM(:,:)  ! will be of same shape as the files
@@ -52,41 +52,42 @@ CHARACTER(len=5)   :: gui        ! magic word for gui in use
 LOGICAL            :: ingui = .False. ! True if program is invoked from gui, from command line
 
 ! MAIN PATHS
-CHARACTER(len=256):: WORK_DIR   = ''
+! CHARACTER(len=256):: WORK_DIR   = ''
 CHARACTER(len=256):: INOUT_DIR   = 'INOUT'
 CHARACTER(len=256):: CASE_NAME  = 'DEFAULTCASE'
 CHARACTER(len=30) :: RUN_NAME   = 'DEFAULTRUN'
-NAMELIST /NML_Path/ Work_dir, INOUT_DIR, Case_name, RUN_NAME
+NAMELIST /NML_Path/ INOUT_DIR, Case_name, RUN_NAME
 
 ! MODULES IN USE OPTIONS
 Logical :: Chemistry_flag      = .false.
 Logical :: Aerosol_flag        = .false.
 Logical :: ACDC_solve_ss       = .false.
-Logical :: NUCLEATION          = .false.
-Logical :: ACDC                = .true.
+! Logical :: NUCLEATION          = .false.
+Logical :: ORG_NUCL            = .false.
+Logical :: ACDC                = .false.
 Logical :: model_H2SO4         = .false.
 Logical :: Condensation        = .false.
 Logical :: Coagulation         = .false.
 Logical :: Deposition          = .false.
 Logical :: Chem_Deposition     = .false.
-Logical :: Extra_data          = .false.
-Logical :: Current_case        = .false.
+! Logical :: Extra_data          = .false.
 Logical :: RESOLVE_BASE        = .false.
 Logical :: PRINT_ACDC          = .false.
 Logical :: Use_speed           = .false.
-NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, NUCLEATION, ACDC, &
-         Extra_data, Current_case, Condensation, Coagulation, Deposition, Chem_Deposition, model_H2SO4, RESOLVE_BASE, &
-         PRINT_ACDC, Use_speed
+! Logical :: INIT_W_MODAL        = .true.
+NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, ACDC, & !NUCLEATION,
+         Condensation, Coagulation, Deposition, Chem_Deposition, model_H2SO4, RESOLVE_BASE, &
+         PRINT_ACDC, Use_speed, ORG_NUCL!,INIT_W_MODAL, Extra_data
 
-Logical :: USE_OPENMP   = .false.
-NAMELIST /NML_PARALLEL/ USE_OPENMP
+! Logical :: USE_OPENMP   = .false.
+! NAMELIST /NML_PARALLEL/ USE_OPENMP
 
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0
 real(dp)  :: FSAVE_INTERVAL = 300d0
 real(dp)  :: PRINT_INTERVAL = 15*60d0
 INTEGER   :: FSAVE_DIVISION = 0
-INTEGER   :: dt = -1
+real(dp)  :: dt = -1d0
 CHARACTER(len=10)  :: DATE = '1800-01-01', INDEX = ''
 NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, DATE, INDEX
 
@@ -98,9 +99,9 @@ NAMELIST /NML_MODS/ MODS
 ! Particle related variables
 INTEGER             :: PSD_MODE = 0
 ! PSD representation used
-! 0 = Lukas basic
-! 1 = Lukas advanced
-! 2 = Lukas premium
+! 0 = Fully stationary
+! 1 = Moving average
+! 2 = Fully moving, not yet implemented
 INTEGER             :: n_bins_particle = 100    ! number of bins in the particle range
 REAL(dp)            :: min_particle_diam = 1d-9 ! lower limit of particle range [m]
 REAL(dp)            :: max_particle_diam = 2d-6 ! upper limit of particle range [m]
@@ -121,16 +122,22 @@ INTEGER             :: n_xpar_options = 3    ! number of options in the extra_pa
 ! (nr_times + 1, nr_bins * particle phase species)
 ! Note: the number of channels does not have to be the number of size bins
 CHARACTER(len=256)  :: extra_particles = '' ! file containing paths to extra particle sumfile
-REAL(dp)            :: dmps_highband_lower_limit = 0d0    !for use_dmps_special, read all dmps data above this diameter [m]
-REAL(dp)            :: dmps_lowband_upper_limit = 0d0  !for use_dmps_special, read all dmps data below this diameter [m]
-logical             :: use_dmps = .false.
-logical             :: use_dmps_special = .false.
-NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_particle,min_particle_diam,max_particle_diam, DMPS_file,extra_particles,& !DMPS_dir,extra_p_dir,
-                        DMPS_read_in_time,dmps_highband_lower_limit, dmps_lowband_upper_limit,use_dmps,use_dmps_special
+CHARACTER(len=500)  :: mmodal_input    = '' ! String defining the Modal PSD
 
-type(inert_particles), ALLOCATABLE :: xtras(:)
+REAL(dp)            :: dmps_highband_lower_limit = 0d0    !for use_dmps_partial, read all dmps data above this diameter [m]
+REAL(dp)            :: dmps_lowband_upper_limit = 0d0  !for use_dmps_partial, read all dmps data below this diameter [m]
+logical             :: use_dmps = .false.
+logical             :: use_dmps_partial = .false.
+REAL(dp)            :: N_MODAL = -1d0   !for use_dmps_partial, read all dmps data below this diameter [m]
+NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_particle,min_particle_diam,max_particle_diam, DMPS_file,extra_particles,& !DMPS_dir,extra_p_dir,
+                        DMPS_read_in_time,dmps_highband_lower_limit, dmps_lowband_upper_limit,use_dmps,use_dmps_partial, mmodal_input, N_MODAL
+
+REAL(dp), ALLOCATABLE            :: MMODES(:)  !for use_dmps_partial, read all dmps data below this diameter [m]
+type(particle_grid), ALLOCATABLE :: xtras(:)
 ! BG_PAR is here in case you want to use it Carlton and Lukas, in the end we remove either BG_PAR or par_data mmkay.
-type(inert_particles) :: BG_PAR
+type(particle_grid) :: BG_PAR       ! Var to store the particle size distribution. This might become redundant
+type(particle_grid) :: PAR_LOSSES   ! Var to store losses file, which could be either one row or a matrix, but has time
+                                    ! and size dependency
 
 
 ! ENVIRONMENTAL INPUT
@@ -139,12 +146,15 @@ CHARACTER(len=256)  :: LOSSES_FILE = ''
 REAL(dp)            :: CHAMBER_FLOOR_AREA = 0d0
 REAL(dp)            :: CHAMBER_CIRCUMFENCE = 0d0
 REAL(dp)            :: CHAMBER_HEIGHT = 0d0
-NAMELIST /NML_ENV/ ENV_file, LOSSES_FILE, CHAMBER_FLOOR_AREA, CHAMBER_CIRCUMFENCE, CHAMBER_HEIGHT
+REAL(dp)            :: EDDYK = 5d-2
+REAL(dp)            :: ustar = 5d-2
+REAL(dp)            :: ALPHAWALL = 5d-5
+NAMELIST /NML_ENV/ ENV_file, LOSSES_FILE, CHAMBER_FLOOR_AREA, CHAMBER_CIRCUMFENCE, CHAMBER_HEIGHT,EDDYK, ustar, ALPHAWALL
 
 ! MCM INPUT
-CHARACTER(len=256)  :: MCM_path = ''
+! CHARACTER(len=256)  :: MCM_path = ''
 CHARACTER(len=256)  :: MCM_file = ''
-NAMELIST /NML_MCM / MCM_path, MCM_file
+NAMELIST /NML_MCM /MCM_file! ,  MCM_path
 
 ! MISC OPTIONS
 real(dp)  :: lat              ! Latitude for Photochemistry
@@ -155,37 +165,45 @@ real(dp)  :: resolve_BASE_precision = 1d-2
 CHARACTER(3) :: Fill_formation_with = ''
 INTEGER   :: JD = -1
 INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value for fixed amount of seconds
-LOGICAL   :: python   = .false. ! 1 = the program will offer to plot the output file GENERAL
 CHARACTER(1000)  :: Description='*'
-CHARACTER(100)   :: Solver = ''
-NAMELIST /NML_MISC/ JD, lat, lon, wait_for,python, Description,Solver, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
+NAMELIST /NML_MISC/ lat, lon, wait_for, Description, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
 
-Logical  :: VAP_logical = .False.
+Logical  :: VAP_logical = .True.
 Logical  :: Use_atoms = .True.
 CHARACTER(len=256)  :: Vap_names
-CHARACTER(len=256)  :: Vap_props
+! CHARACTER(len=256)  :: Vap_props
 CHARACTER(len=256)  :: Vap_atoms = 'ModelLib/O_C.dat'
-NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_props, Vap_atoms
+NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_atoms !, Vap_props
 
+INTEGER :: limit_vapours = 999999
 INTEGER :: acdc_iterations = 4
 INTEGER :: INITIALIZE_FROM = 0
 CHARACTER(1000) :: INITIALIZE_WITH = ''
 Logical :: use_raoult = .True.
 Logical :: variable_density = .False.
 
-! if true, will not save condensible vapour concentration in Particle.nc. They will always be saved also in Chemistry.nc
-Logical :: DONT_SAVE_CONDENSABLES = .False.
+! if true, will not save condensible vapour concentration in Particles.nc. They will always be saved also in Chemistry.nc
+Logical :: DONT_SAVE_CONDENSIBLES = .False.
 
 ! If True, skips ACDC with very low concentrations and negligible formation rates
 Logical :: skip_acdc = .True.
 real(dp) :: dmps_tres_min = 10.
 real(dp) :: VP_MULTI = 1d0
 real(dp) :: start_time_s = 0d0
-real(dp) :: dmps_multi = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
+real(dp) :: END_DMPS_SPECIAL = 1d100 ! Any number larger than runtime will do as defaults
+real(dp) :: FLOAT_CHEMISTRY_AFTER_HRS = 1d100 ! Any number larger than runtime will do as defaults
+real(dp) :: dmps_multi       = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
+Logical :: NO2_IS_NOX        = .false.
+Logical :: NO_NEGATIVE_CONCENTRATIONS = .false.
+Logical :: USE_RH_CORRECTION = .true.
+LOGICAL :: TEMP_DEP_SURFACE_TENSION = .False.
+LOGICAL :: use_diff_dia_from_diff_vol = .False.
 
 NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,dmps_tres_min, &
-                      start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI, DONT_SAVE_CONDENSABLES
-
+                      start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI, &
+                      DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
+                      NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
+                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol
 
 ! ==================================================================================================================
 ! Define change range
@@ -200,13 +218,8 @@ REAL(dp), DIMENSION(5,2) :: change_range = TRANSPOSE(RESHAPE([diameter_prec_def,
 NAMELIST /NML_PRECISION/ change_range
 
 
-type(atoms):: Natoms  ! atoms of hydrogen, oxygen, nitrogen and carbon. Used for calculating diffusion
-
-real(dp),allocatable ::  Vol_org(:)!, Diff_org(:)
 
 contains
-
-
 
 ! ======================================================================================================================
 ! Subroutine reads all user input from INITFILE and input files and processes the input etc.
@@ -215,22 +228,24 @@ subroutine READ_INPUT_DATA()
   IMPLICIT NONE
   CHARACTER(len=256)  :: buf
 
+  integer, allocatable :: Natoms(:,:)
+  integer,allocatable  ::  a_to_va(:)
   integer             :: ioi,ioi2, ii, iosp, ioprop, ioi3
-  integer             :: i, j, k, xp, yp, path_l(2), N_Xtr = 0
-  integer             :: rows, cols, n_condensables
-  !!! for vapour FILES
+  integer             :: i, j, k, jj, path_l(2), N_Xtr = 0
+  integer             :: rows, cols
+  LOGICAL             :: elements_missing = .false.
+  real(dp)            :: molar_mass, parameter_A, parameter_B, dummy
   CHARACTER(len=256)  :: species_name
-  real(dp)            :: molar_mass, parameter_A, parameter_B, fl_buff(2)
-  real(dp), ALLOCATABLE :: atom_line(:)
+  CHARACTER(len=20), ALLOCATABLE  :: atoms_name(:)
 
   ! CHECK HOW MANY POSSIBLE INPUT VARIABLES (METEOROLOGICAL, MCM ETC.) THERE ARE IN THE MODEL
-  OPEN(2151, file=NAMESDAT, ACTION='READ', status='OLD', iostat=ioi)
+  OPEN(800, file=NAMESDAT, ACTION='READ', status='OLD', iostat=ioi)
   IF (ioi /= 0) THEN
     print FMT_FAT0, 'Could not open NAMES.dat. This should be in directory defined in NAMESDAT: '//NAMESDAT
     STOP
   END IF
-  N_VARS = rowcount(2151)
-  CLOSE(2151)
+  N_VARS = rowcount(800)
+  CLOSE(800)
 
   ! BASED ON N_VARS, ALLOCATE VECTORS
   ALLOCATE(MODS(N_VARS))
@@ -241,6 +256,7 @@ subroutine READ_INPUT_DATA()
   CALL READ_INIT_FILE
   CALL PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
   CALL REPORT_INPUT_COLUMNS_TO_USER
+  CALL PARSE_MULTIMODAL
 
   ! set up number of ACDC iterations.
   if (ACDC_solve_ss) acdc_iterations = 1
@@ -250,17 +266,17 @@ subroutine READ_INPUT_DATA()
   ! This is very much under construction
   IF ((ENV_file /= '') .or. (MCM_file /= '' .and. Chemistry_flag)) THEN
     IF (ENV_file /= '') THEN
-      OPEN(unit=51, File=TRIM(ENV_file), ACTION='READ', STATUS='OLD', iostat=ioi)
+      OPEN(unit=801, File=TRIM(ENV_file), ACTION='READ', STATUS='OLD', iostat=ioi)
       CALL handle_file_io(ioi, ENV_file, 'stop')
 
     ELSE
-      OPEN(unit=51, File=TRIM(MCM_file), ACTION='READ', STATUS='OLD',iostat=ioi)
+      OPEN(unit=801, File=TRIM(MCM_file), ACTION='READ', STATUS='OLD',iostat=ioi)
       CALL handle_file_io(ioi, MCM_file, 'stop')
 
     END IF
-    ALLOCATE(CONC_MAT(ROWCOUNT(51,'#'),N_VARS))
-    ALLOCATE(TIMEVEC(ROWCOUNT(51,'#')))
-    CLOSE(51)
+    ALLOCATE(CONC_MAT(ROWCOUNT(801,'#'),N_VARS))
+    ALLOCATE(TIMEVEC(ROWCOUNT(801,'#')))
+    CLOSE(801)
     ! Deal with a situation where we have no input. We still need conc_mat and timevec.
   ELSE
     ALLOCATE(CONC_MAT(2,N_VARS))
@@ -271,29 +287,29 @@ subroutine READ_INPUT_DATA()
 
   ! READ ENV INPUT
   if (ENV_file /= '') THEN
-    OPEN(unit=51, File=TRIM(ENV_file), ACTION='READ', STATUS='OLD', iostat=ioi)
+    OPEN(unit=801, File=TRIM(ENV_file), ACTION='READ', STATUS='OLD', iostat=ioi)
     CALL handle_file_io(ioi, ENV_file, 'Terminating on CONCMAT allocation')
 
-    rows = ROWCOUNT(51,'#')
-    cols = COLCOUNT(51)
+    rows = ROWCOUNT(801,'#')
+    cols = COLCOUNT(801)
 
     ALLOCATE(INPUT_ENV(rows,cols))
     INPUT_ENV = 0
-    call FILL_INPUT_BUFF(51,cols,INPUT_ENV,ENV_file)
+    call FILL_INPUT_BUFF(801,cols,INPUT_ENV,ENV_file)
     timevec = INPUT_ENV(:,1)
-    CLOSE(51)
+    CLOSE(801)
   END IF
 
   ! READ MCM INPUT
   if (MCM_file /= '') THEN
-    OPEN(unit=51, File=TRIM(MCM_file), ACTION='READ', STATUS='OLD')
-    rows = ROWCOUNT(51,'#')
-    cols = COLCOUNT(51)
+    OPEN(unit=801, File=TRIM(MCM_file), ACTION='READ', STATUS='OLD')
+    rows = ROWCOUNT(801,'#')
+    cols = COLCOUNT(801)
     allocate(INPUT_MCM(rows,cols))
     INPUT_MCM = 0
-    call FILL_INPUT_BUFF(51,cols,INPUT_MCM,MCM_file)
+    call FILL_INPUT_BUFF(801,cols,INPUT_MCM,MCM_file)
     timevec = INPUT_MCM(:,1)
-    CLOSE(51)
+    CLOSE(801)
   END IF
 
   CALL PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
@@ -304,61 +320,30 @@ subroutine READ_INPUT_DATA()
 
     write(*,FMT_MSG) 'Reading DMPS files '// TRIM(DMPS_file)
 
-    OPEN(unit=51, File=TRIM(DMPS_file), STATUS='OLD', iostat=ioi)
-    CALL handle_file_io(ioi, DMPS_file, 'Terminating on DMPS pardata')
-
-    rows = ROWCOUNT(51,'#')
-    cols = COLCOUNT(51)
-
-    ! Allocate par_data, for this we find out if the particle file has the total particle number as second column in
-    ! which case it gets omitted
-    read(51,*) fl_buff
-    IF (fl_buff(2) > 0d0) THEN
-      allocate(par_data(rows,cols))
-    ELSE
-      allocate(par_data(rows,cols-1))
-    END IF
-    REWIND(51)
-
-    DO I=1,rows
-      IF (fl_buff(2) > 0d0) then
-        read(51,*) par_data(I,:)
-      END IF
-      IF (fl_buff(2) < 1d-200) THEN
-        read(51,*) par_data(I,1), fl_buff(1), par_data(I,2:)
-      END IF
-    END DO
-    CLOSE(51)
-
-    ! BG_PAR is here in case you want to use it Carlton and Lukas, in the end we remove either BG_PAR or par_data mmkay.
-    allocate(BG_PAR%binseries(size(par_data(:,1))-1, size(par_data(1,:))-1))
-    allocate(BG_PAR%options(1))
-    allocate(BG_PAR%time(size(par_data(:,1))-1))
-    allocate(BG_PAR%sections(size(par_data(1,:))-1))
+    CALL PARSE_PARTICLE_GRID(DMPS_file, BG_PAR)
+    ALLOCATE(par_data(size(BG_PAR%conc_matrix,1)+1, size(BG_PAR%conc_matrix,2)+1))
+    par_data(2:,1) = BG_PAR%time
+    par_data(1,2:) = BG_PAR%sections
+    par_data(2:,2:) = BG_PAR%conc_matrix
     BG_PAR%name = 'BACKGROUND_CONC'
-    BG_PAR%time = par_data(2:, 1)
-    BG_PAR%sections = par_data(1, 2:)
-    BG_PAR%binseries = par_data(2:, 2:)
 
   END IF
 
+  IF ((TRIM(LOSSES_FILE) /= '') .and. Aerosol_flag) CALL PARSE_PARTICLE_GRID(LOSSES_FILE, PAR_LOSSES)
 
-
-  IF (extra_particles /= '') THEN
+  IF (TRIM(extra_particles) /= '') THEN
     ! First we open the extra particle files to count the dimensions needed for the matrix
-    OPEN(unit=51, File=TRIM(extra_particles) , STATUS='OLD', iostat=ioi)
-    N_Xtr = ROWCOUNT(51)
+    OPEN(unit=801, File=TRIM(extra_particles) , STATUS='OLD', iostat=ioi)
+    N_Xtr = ROWCOUNT(801)
     write(buf, '(a, i0, a)') 'reading XTRAS: ', N_Xtr,' lines'
     PRINT FMT_SUB, TRIM(buf)
     ! Now we can allocate it
     allocate(XTRAS(N_Xtr))
 
     DO I=1,N_Xtr
-      ! PRINT*,'N_Xtr', N_Xtr
       allocate(XTRAS(I)%options(n_xpar_options))
-      allocate(XTRAS(I)%conc_modelbins(n_bins_particle))
 
-      read(51,'(a)') buf
+      read(801,'(a)') buf
 
       ! Get the indexes for slicing, path, name and options from each line of the input file
       path_l = 0
@@ -373,39 +358,11 @@ subroutine READ_INPUT_DATA()
       XTRAS(I)%name = ADJUSTL(TRIM(BUF(path_l(1):path_l(2))))
       read(BUF(path_l(2):), *) XTRAS(I)%options
 
-      OPEN(unit=51+I, File=TRIM(buf(1:path_l(1))) , STATUS='OLD', iostat=ioi)
-      CALL handle_file_io(ioi, buf(1:path_l(1)), 'Terminating when trying to open extra particles, check the paths in extra_particles')
-
-      yp = ROWCOUNT(51+I)
-      xp = COLCOUNT(51+I)
-
-      allocate(XTRAS(I)%time(yp-1))
-
-      read(51+I,*) fl_buff
-      IF (fl_buff(2) > 0d0) THEN
-        allocate(XTRAS(I)%binseries(yp-1,xp-1))
-        allocate(XTRAS(I)%sections(xp-1))
-      ELSE
-        allocate(XTRAS(I)%binseries(yp-1,xp-2))
-        allocate(XTRAS(I)%sections(xp-2))
-      END IF
-      REWIND(51+I)
-
-      DO j=1,yp
-        if (j==1) THEN
-          read(51+I,*) fl_buff(1:xp-size(XTRAS(I)%sections)), XTRAS(I)%sections
-        ELSE
-          read(51+I,*) fl_buff(1:xp-size(XTRAS(I)%sections)), XTRAS(I)%binseries(J-1,:)
-          XTRAS(I)%time(j-1) = fl_buff(1)
-        END IF
-      END DO
-      CLOSE(51+I)
+      CALL PARSE_PARTICLE_GRID(buf(1:path_l(1)), XTRAS(I))
+      print FMT_MSG, 'Extra particle input for '//XTRAS(i)%name
 
     END DO
-    CLOSE(51)
-    do i=1,N_Xtr
-      print FMT_MSG, 'Extra particle input for '//XTRAS(i)%name
-    end do
+
   END IF
 
 
@@ -414,157 +371,177 @@ subroutine READ_INPUT_DATA()
 
   print FMT_LEND,
 
-  IF (VAP_logical .and. Aerosol_flag) then
-   write(*,FMT_MSG) 'Reading Vapour name file '// TRIM(Vap_names)
-   OPEN(unit=52, File= TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
-   write(*,FMT_MSG) 'Reading Vapour prop file '// TRIM(Vap_props)
-   OPEN(unit=53, File= TRIM(Vap_props) , STATUS='OLD', iostat=ioi2)
+  IF (Aerosol_flag .and. CONDENSATION) then
+    write(*,FMT_MSG) 'Reading Vapour name file '// TRIM(Vap_names)
+    OPEN(unit=802, File= TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
+    ! write(*,FMT_MSG) 'Reading Vapour prop file '// TRIM(Vap_props)
+    ! OPEN(unit=803, File= TRIM(Vap_props) , STATUS='OLD', iostat=ioi2)
 
-   IF (ioi /= 0) THEN
-     print FMT_FAT0, 'Vap_names file was defined but not readable, exiting. Check NML_vap in INIT file'
-   END IF
-   IF (ioi2 /= 0) THEN
-       print FMT_FAT0, 'Vap_props was defined but not readable, exiting. Check NML_vap in INIT file'
-   END IF
-   IF (ioi2 /= 0 .or. ioi2 /= 0) STOP
+    IF (ioi /= 0) THEN
+     print FMT_FAT0, 'Vapour file was not readable, exiting. See that vapour properties are defined or turn of the condensation module'
+    END IF
+    ! IF (ioi2 /= 0) THEN
+    !    print FMT_FAT0, 'Vap_props was defined but not readable, exiting. Check NML_vap in INIT file'
+    ! END IF
+    ! IF (ioi2 /= 0 .or. ioi2 /= 0) STOP
+    IF (ioi /= 0) STOP
 
-   rows = ROWCOUNT(52)
-   cols = COLCOUNT(53)
+    rows = ROWCOUNT(802)
+    cols = COLCOUNT(802)
 
-
-   n_condensables = 0
+    VAPOUR_PROP%n_condorg = 0
   do j = 1,rows
-    read(52,*,iostat=iosp) species_name
-    k = IndexFromName( TRIM(species_name), SPC_NAMES )
-    if (k>0) THEN
-      n_condensables=n_condensables+1
+    read(802,*,iostat=iosp) species_name
+    if (j<=limit_vapours .or. j==rows) THEN
+        k = IndexFromName( TRIM(species_name), SPC_NAMES )
+        if (k>0) THEN
+            VAPOUR_PROP%n_condorg = VAPOUR_PROP%n_condorg + 1
+        end if
     end if
   end do
-  REWIND(52)
+  REWIND(802)
 
-   allocate(VAPOUR_PROP%Vapour_names(n_condensables + 1 ))
-   allocate(VAPOUR_PROP%molar_mass(n_condensables + 1))
-   allocate(VAPOUR_PROP%parameter_A(n_condensables + 1))
-   allocate(VAPOUR_PROP%parameter_B(n_condensables + 1))
-   allocate(VAPOUR_PROP%molec_mass(n_condensables + 1))
-   allocate(VAPOUR_PROP%molec_volume(n_condensables + 1))
-   allocate(VAPOUR_PROP%density(n_condensables + 1))
-   allocate(VAPOUR_PROP%surf_tension(n_condensables + 1))
-   allocate(VAPOUR_PROP%c_sat(n_condensables + 1))
-   allocate(VAPOUR_PROP%vap_conc(n_condensables + 1))
-   allocate(VAPOUR_PROP%cond_type(n_condensables + 1))
-   allocate(VAPOUR_PROP%molec_dia(n_condensables + 1))
-   allocate(VAPOUR_PROP%mfractions(n_condensables + 1))
-   allocate(VAPOUR_PROP%alpha(n_condensables + 1))
+    VAPOUR_PROP%n_condtot = VAPOUR_PROP%n_condorg + 1
+    allocate(VAPOUR_PROP%Vapour_names (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%molar_mass   (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%parameter_A  (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%parameter_B  (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%molec_mass   (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%molec_volume (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%density      (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%surf_tension (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%diff         (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%c_speed      (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%c_sat        (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%cond_type    (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%molec_dia    (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%mfractions   (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%alpha        (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%diff_vol     (VAPOUR_PROP%n_condtot) )
+    allocate(VAPOUR_PROP%diff_dia     (VAPOUR_PROP%n_condtot) )
+    ALLOCATE(index_cond(VAPOUR_PROP%n_condorg))
+    index_cond = 0
 
-   VAPOUR_PROP%vapour_number = n_condensables
-   VAPOUR_PROP%vbs_bins      = n_condensables + 1
+    if (USE_RH_CORRECTION) THEN
+        ! These are only allocated for sulfuric acid, maybe nitric acid in the future.
+        ! Uses same index as in VAPOUR_PROP%ind_H2SO4
+        allocate(VAPOUR_PROP%wet_dia(VAPOUR_PROP%ind_GENERIC+1:VAPOUR_PROP%n_condtot))
+        allocate(VAPOUR_PROP%wet_mass(VAPOUR_PROP%ind_GENERIC+1:VAPOUR_PROP%n_condtot))
+    END IF
 
-   if (Use_atoms) THEN
-     allocate(Natoms%N_Carbon(n_condensables))
-     allocate(Natoms%N_Hydrogen(n_condensables))
-     allocate(Natoms%N_Oxygen(n_condensables))
-     allocate(Natoms%N_Nitrogen(n_condensables))
-     allocate(Natoms%comp_prop(cols, n_condensables))
-     allocate(Vol_org(n_condensables))
-     ! allocate(Diff_org(n_condensables))
-   END IF
 
-   write(buf,'(i0)') VAPOUR_PROP%vapour_number
+
+
+   write(buf,'(i0)') VAPOUR_PROP%n_condorg
    print FMT_SUB, 'Vapours available = '//TRIM(buf)
-   write(buf,'(i0)') VAPOUR_PROP%vbs_bins
+   write(buf,'(i0)') VAPOUR_PROP%n_condtot
    print FMT_SUB, 'Vapour bins + H2SO4 = '//TRIM(buf)
    !!! reading the vap names and vap vapour_properties
    VAPOUR_PROP%Mfractions = 0.0
-   VAPOUR_PROP%Mfractions(VAPOUR_PROP%vapour_number) = 1d0 !
+   VAPOUR_PROP%Mfractions(VAPOUR_PROP%n_condorg) = 1d0 !
 
-  if (Use_atoms) THEN
-    write(*,FMT_MSG) 'Reading O_C file '// TRIM(Vap_atoms)
-    OPEN(unit=61, File=TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi3)
-    allocate(atom_line(COLCOUNT(61)))
-  end if
+    ! ---------------------------------------------------------------------
+    ! ORGANIC VAPOUR PROPERTIES
+    ! ---------------------------------------------------------------------
+    ii = 1
+    do j = 1, rows
+        read(802,*,iostat=iosp)   species_name, molar_mass, parameter_A, parameter_B
+        if (j<=limit_vapours .or. j==rows) THEN ! j==rows is because "GENERIC" is selected even if limitvapours<rows
 
-  ! ---------------------------------------------------------------------
-  ! ORGANIC VAPOUR PROPERTIES
-  ! ---------------------------------------------------------------------
-  ii = 1
-  do j = 1, rows
-      read(52,*,iostat=iosp)   species_name
-      read(53,*,iostat=ioprop) molar_mass, parameter_A, parameter_B
-      if (Use_atoms) READ(61,*) atom_line
+            ! Check if the compounds exists in Chemistry and only then add to vapours
+            k = IndexFromName( species_name, SPC_NAMES )
 
-      ! Check if the compounds exists in Chemistry and only then add to vapours and optionally to atoms
-      k = IndexFromName( species_name, SPC_NAMES )
-      if (k>0) THEN
+            if (k>0) THEN
+                ! fill the hash table for vapour index -> chemistry index
+                index_cond(ii) = k
 
-        VAPOUR_PROP%molar_mass(ii)    = molar_mass *1D-3 ! kg/mol
-        VAPOUR_PROP%parameter_A(ii)   = parameter_A
-        VAPOUR_PROP%parameter_B(ii)   = parameter_B
-        VAPOUR_PROP%vapour_names(ii)  = TRIM(species_name)
-        VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na  !kg/#
+                VAPOUR_PROP%molar_mass(ii)    = molar_mass *1D-3 ! kg/mol
+                VAPOUR_PROP%parameter_A(ii)   = parameter_A
+                VAPOUR_PROP%parameter_B(ii)   = parameter_B
+                VAPOUR_PROP%vapour_names(ii)  = TRIM(species_name)
+                VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na  !kg/#
 
-        ! Option for simple parametrisation of organic vapour liquid density. Use with caution
-        IF (variable_density) THEN
-          VAPOUR_PROP%density(ii)     = -30d0 * (parameter_A - parameter_B/293.15d0) + 1029d0  !!! kg/m3
-        ELSE
-          VAPOUR_PROP%density(ii)     = 1400.0  ! kg/m3
+                ! Option for simple parametrisation of organic vapour liquid density. Use with caution, not yet thoroughly implemented
+                IF (variable_density) THEN
+                    VAPOUR_PROP%density(ii)     = -30d0 * (parameter_A - parameter_B/293.15d0) + 1029d0  ! kg/m3
+                ELSE
+                    VAPOUR_PROP%density(ii)     = 1400.0  ! kg/m3
+                END IF
+                VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
+                VAPOUR_PROP%diff_vol(ii)      = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
+                VAPOUR_PROP%surf_tension(ii)  = 0.05
+                VAPOUR_PROP%cond_type(ii)     = 1  ! not an acid (H2SO4 or HCL)
+                VAPOUR_PROP%alpha(ii)         = 1.0
+                VAPOUR_PROP%c_sat(ii)         = saturation_conc_m3(VAPOUR_PROP%parameter_A(ii),VAPOUR_PROP%parameter_B(ii), 293.15d0)
+
+                ii = ii + 1
+            END IF
         END IF
-        VAPOUR_PROP%molec_volume(ii)  = calculate_molecular_volume(VAPOUR_PROP%density(ii),VAPOUR_PROP%molec_mass(ii))
-        VAPOUR_PROP%surf_tension(ii)  = 0.05
-        VAPOUR_PROP%cond_type(ii)     = 1  ! not an acid (H2SO4 or HCL)
-        VAPOUR_PROP%molec_dia(ii)     = (6D0 * VAPOUR_PROP%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
-        VAPOUR_PROP%alpha(ii)         = 1.0
-        VAPOUR_PROP%c_sat(ii)         = calculate_saturation_vp(VAPOUR_PROP%parameter_A(ii),VAPOUR_PROP%parameter_B(ii), 293.15d0)
-
-        if (Use_atoms) THEN
-          Natoms%N_Carbon(ii)   = atom_line(2)
-          Natoms%N_Oxygen(ii)   = atom_line(3)
-          Natoms%N_Nitrogen(ii) = atom_line(4)
-          Natoms%N_Hydrogen(ii) = atom_line(8)
-        END IF
-
-        ii = ii + 1
-      END IF
     end do
 
-    close(52)
-    close(53)
-    if (Use_atoms) CLOSE(61)
+    close(802)
 
+    if (Use_atoms) THEN
+        OPEN(unit=804, File=TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi3)
+        call handle_file_io(ioi3, Vap_atoms, 'Terminating the program.')
+        write(*,FMT_MSG) 'Reading the list of elemental composition: '// TRIM(Vap_atoms)
+
+        allocate(Natoms(4,ROWCOUNT(804)))
+        allocate(atoms_name(ROWCOUNT(804)))
+
+        DO j=1,ROWCOUNT(804)
+            READ(804,*) atoms_name(j), Natoms(:,j)
+        END DO
+        CLOSE(804)
+
+        DO j=1,VAPOUR_PROP%n_condorg
+            jj = IndexFromName(VAPOUR_PROP%vapour_names(j), atoms_name)
+            if (jj>0) THEN
+                vapour_prop%diff_vol(j) = (Natoms(1,jj)*15.9D0 + Natoms(2,jj)*6.11D0 &
+                                          + Natoms(4,jj)*2.31D0 + Natoms(3,jj)*4.54D0) ![Å^3]
+            ELSE
+                elements_missing = .true.
+            END IF
+        END DO
+        if (elements_missing) print FMT_WARN0, 'Not all organics had atom content, using generic diameter'
+
+        deallocate(Natoms)
+        deallocate(atoms_name)
+
+    end if
+
+    ! Now the volumes are updated, the diameter can be calculated
+    VAPOUR_PROP%molec_dia = (6D0 * VAPOUR_PROP%molec_volume / pi )**(1D0/3D0)  ! molecular diameter [m]
+    if (use_diff_dia_from_diff_vol) THEN
+        VAPOUR_PROP%diff_dia = (6D0 * 1d-30 * VAPOUR_PROP%diff_vol / pi )**(1D0/3D0)  ! molecular diameter [m]
+    ELSE
+        VAPOUR_PROP%diff_dia = VAPOUR_PROP%molec_dia  ! molecular diameter [m]
+    END IF
     ! ---------------------------------------------------------------------
     ! Sulfuric acid treated separately
     ! ---------------------------------------------------------------------
-    ii = VAPOUR_PROP%vbs_bins
-    VAPOUR_PROP%ind_H2SO4    = ii
-    VAPOUR_PROP%ind_HOA      = ii-1
-    VAPOUR_PROP%molar_mass(ii)    = 98.0785 *1d-3
-    VAPOUR_PROP%parameter_A(ii)   = 3.869717803774
-    VAPOUR_PROP%parameter_B(ii)   = 313.607405085
+    ii = VAPOUR_PROP%n_condtot
     VAPOUR_PROP%vapour_names(ii)  = 'H2SO4'
-    VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
-    VAPOUR_PROP%density(ii)       = 1819.3946 ! kg/m3
-    VAPOUR_PROP%molec_volume(ii)  = calculate_molecular_volume(VAPOUR_PROP%density(ii),VAPOUR_PROP%molec_mass(ii))
-    VAPOUR_PROP%surf_tension(ii)  = 0.07
+    VAPOUR_PROP%ind_H2SO4         = ii
     VAPOUR_PROP%cond_type(ii)     = 2  ! Acid
+    VAPOUR_PROP%molar_mass(ii)    = 98.0785 *1d-3
+    VAPOUR_PROP%parameter_A(ii)   = 0
+    VAPOUR_PROP%parameter_B(ii)   = 20000d0
+    VAPOUR_PROP%density(ii)       = 1819.3946 ! kg/m3
+    VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
+    VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
+    VAPOUR_PROP%diff_vol(ii)      = 4*6.11D0 + 2*2.31D0 + 22.9D0 ! O=4, H=2, S=1
+    VAPOUR_PROP%diff_dia(ii)      = VAPOUR_PROP%molec_dia(ii)
+    VAPOUR_PROP%surf_tension(ii)  = 0.07
     VAPOUR_PROP%molec_dia(ii)     = (6D0 * VAPOUR_PROP%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
     VAPOUR_PROP%alpha(ii)         = 1.0
     VAPOUR_PROP%c_sat(ii)         = 0.0 ! Sulfuric acid stays put
 
-   if (Use_atoms) THEN
-     Vol_org = Natoms%N_Carbon*15.9D0 + Natoms%N_Oxygen*6.11D0 &
-             + Natoms%N_Hydrogen*2.31D0 + Natoms%N_Nitrogen*4.54D0
-   ELSE
-     Vol_org = VAPOUR_PROP%molec_volume
-   end if
+    VAPOUR_PROP%ind_GENERIC       = ii-1
 
   end if
 
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!! Calculating the diffusivity of organics based on fullers method !!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
   CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
-
 end subroutine READ_INPUT_DATA
 
 
@@ -588,7 +565,7 @@ subroutine READ_INIT_FILE
   CALL GETARG(2,gui)
   if (gui == '--gui') ingui = .true.
 
-  OPEN(UNIT=50, FILE=TRIM(ADJUSTL(Fname_init)), STATUS='OLD', ACTION='READ', iostat=IOS(1))
+  OPEN(UNIT=888, FILE=TRIM(ADJUSTL(Fname_init)), STATUS='OLD', ACTION='READ', iostat=IOS(1))
   ! Handle file not found error
   IF (IOS(1) /= 0) THEN
     write(*,FMT_FAT0) 'There is no INITFILE '//TRIM(ADJUSTL(Fname_init))//', exiting. Good bye.'
@@ -599,49 +576,49 @@ subroutine READ_INIT_FILE
   ! if INITFILE was found, we read it. In case there is a problem in namelist filling, give en error.
   write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM: '//TRIM(ADJUSTL(Fname_init))
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_TIME, IOSTAT=IOS(i)) ! #1
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_TIME, IOSTAT=IOS(i)) ! #1
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_Flag, IOSTAT=IOS(i)) ! #2
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_Flag, IOSTAT=IOS(i)) ! #2
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_Path, IOSTAT=IOS(i)) ! #3
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_Path, IOSTAT=IOS(i)) ! #3
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_MISC, IOSTAT=IOS(i)) ! #4
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_MISC, IOSTAT=IOS(i)) ! #4
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_VAP, IOSTAT=IOS(i)) ! #5
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_VAP, IOSTAT=IOS(i)) ! #5
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_PARTICLE, IOSTAT=IOS(i)) ! #6
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_PARTICLE, IOSTAT=IOS(i)) ! #6
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_ENV, IOSTAT=IOS(i)) ! #7
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_ENV, IOSTAT=IOS(i)) ! #7
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_MCM, IOSTAT=IOS(i)) ! #8
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_MCM, IOSTAT=IOS(i)) ! #8
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_MODS, IOSTAT=IOS(i)) ! #9
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_MODS, IOSTAT=IOS(i)) ! #9
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  ! do k=1, ROWCOUNT(50); READ(50,NML = NML_DIST, IOSTAT=IOS(i)) ! #10
-  ! IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  ! do k=1, ROWCOUNT(888); READ(888,NML = NML_DIST, IOSTAT=IOS(i)) ! #10
+  ! IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  ! do k=1, ROWCOUNT(50); READ(50,NML = NML_use_testcase, IOSTAT=IOS(i)) ! #11
-  ! IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  ! do k=1, ROWCOUNT(888); READ(888,NML = NML_use_testcase, IOSTAT=IOS(i)) ! #11
+  ! IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_PRECISION, IOSTAT=IOS(i)) ! #11
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_PRECISION, IOSTAT=IOS(i)) ! #10
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_PARALLEL, IOSTAT=IOS(i)) ! #10
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  ! do k=1, ROWCOUNT(888); READ(888,NML = NML_PARALLEL, IOSTAT=IOS(i)) ! #11
+  ! IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(50); READ(50,NML = NML_CUSTOM, IOSTAT=IOS(i)) ! #11
-  IF (IOS(i) == 0) EXIT;end do; REWIND(50); i=i+1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_CUSTOM, IOSTAT=IOS(i)) ! #12
+  IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1
 
-  CLOSE(50)
+  CLOSE(888)
 
 
   IF (SUM(ABS(IOS)) /= 0) then
@@ -652,18 +629,26 @@ subroutine READ_INIT_FILE
   end if
 
   ! Also save all settings to initfile. Use this file to rerun if necessary
-  open(9129, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE')
-  write(9129,NML = NML_TIME       ) ! directories and test cases
-  write(9129,NML = NML_Flag       ) ! flags
-  write(9129,NML = NML_Path       ) ! time related stuff
-  write(9129,NML = NML_MISC       ) ! dmps_file information
-  write(9129,NML = NML_VAP        ) ! environmental information
-  write(9129,NML = NML_PARTICLE   ) ! MCM_file information
-  write(9129,NML = NML_ENV        ) ! modification parameters
-  write(9129,NML = NML_MCM        ) ! misc input
-  write(9129,NML = NML_MODS       ) ! vapour input
-  write(9129,NML = NML_PARALLEL   ) ! vapour input
-  close(9129)
+  open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE')
+  write(889,NML = NML_TIME       ) ! directories and test cases
+  write(889,NML = NML_Flag       ) ! flags
+  write(889,NML = NML_Path       ) ! time related stuff
+  write(889,NML = NML_MISC       ) ! dmps_file information
+  write(889,NML = NML_VAP        ) ! environmental information
+  write(889,NML = NML_PARTICLE   ) ! MCM_file information
+  write(889,NML = NML_ENV        ) ! modification parameters
+  write(889,NML = NML_MCM        ) ! misc input
+  write(889,NML = NML_CUSTOM     ) ! custom input
+  write(889,NML = NML_MODS       ) ! vapour input
+  close(889)
+
+  DO i=1, N_VARS
+    IF (TRIM(MODS(i)%UNIT) == '-') THEN
+        MODS(i)%UNIT = '#'
+    ELSE
+        MODS(i)%ISPROVIDED = .true.
+    END IF
+  END DO
 
 end subroutine READ_INIT_FILE
 
@@ -675,6 +660,7 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
   CHARACTER(100) :: buf
   GTIME%SIM_TIME_H = runtime
   GTIME%SIM_TIME_S = runtime*3600d0
+  GTIME%dt = DT
   ! figure out the correct save interval
   IF (FSAVE_DIVISION > 0) THEN
     GTIME%FSAVE_INTERVAL = INT(GTIME%SIM_TIME_S/GTIME%dt) / FSAVE_DIVISION * GTIME%dt
@@ -691,7 +677,13 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
     if (ioi == 0) read(date(6:7),*,iostat=ioi) m
     if (ioi == 0) read(date(9:) ,*,iostat=ioi) d
     if (ioi /= 0) THEN
-      print FMT_WARN0, 'Proper date not provided in INITFILE'
+      if (INDEX /= '') THEN
+        print FMT_HDR,
+        print FMT_HDR, 'USING INDEX INSTEAD OF DATE -> ASSUMING LIGHT DIRECTION IS FROM DIRECTLY UP'
+        print FMT_HDR,
+      ELSE
+        print FMT_WARN0, 'Date provided in the INITFILE is not a proper date'
+      END IF
     ELSE
       if (MODULO(y,4) == 0) THEN
         if ((MODULO(y,100) == 0) .and. (MODULO(y,400) /= 0)) THEN
@@ -722,9 +714,9 @@ end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
 subroutine NAME_MODS_SORT_NAMED_INDICES
   implicit none
   INTEGER :: i
-  OPEN(2151, file=NAMESDAT, ACTION='READ', status='OLD')
+  OPEN(800, file=NAMESDAT, ACTION='READ', status='OLD')
   DO i = 1,N_VARS
-    READ(2151, *) MODS(I)%NAME
+    READ(800, *) MODS(I)%NAME
     IF (TRIM(MODS(I)%NAME) == 'TEMPK'        ) inm_TempK = i
     IF (TRIM(MODS(I)%NAME) == 'PRESSURE'     ) inm_pres = i
     IF (TRIM(MODS(I)%NAME) == 'REL_HUMIDITY' ) inm_RH = i
@@ -745,7 +737,7 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
     IF (TRIM(MODS(I)%NAME) == '#'            ) LENV = i
 
   END DO
-  close(2151)
+  close(800)
 
 end subroutine NAME_MODS_SORT_NAMED_INDICES
 
@@ -768,7 +760,6 @@ subroutine REPORT_INPUT_COLUMNS_TO_USER
       END IF
     END IF
   END DO
-
 end subroutine REPORT_INPUT_COLUMNS_TO_USER
 
 SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
@@ -788,6 +779,10 @@ SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
     END IF
 
   END DO
+  if (NO2_IS_NOX) THEN
+     CONC_MAT(:,inm_NO2) =  CONC_MAT(:,inm_NO2)- CONC_MAT(:,inm_NO)
+  END IF
+
 
 END SUBROUTINE PUT_INPUT_IN_THEIR_PLACES
 
@@ -891,6 +886,9 @@ SUBROUTINE CONVERT_TEMPS_TO_KELVINS
   TempUnit = 'K'
   MODS(inm_TempK)%UNIT = TempUnit
 
+  if (NO_NEGATIVE_CONCENTRATIONS) WHERE (CONC_MAT<0d0) CONC_MAT = 0d0
+
+
 END SUBROUTINE CONVERT_TEMPS_TO_KELVINS
 
 
@@ -909,6 +907,8 @@ SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
       print FMT_MSG, '- Converting pressure from kPa to Pascals.'
     ELSEIF (TRIM(buf) == 'ATM') THEN
       print FMT_MSG, '- Converting pressure from atm to Pascals.'
+    ELSEIF (TRIM(buf) == 'BAR') THEN
+      print FMT_MSG, '- Converting pressure from bar to Pascals.'
     ELSEIF (TRIM(buf) == 'PA') THEN
       print FMT_MSG, '- Pressure is given in Pascals.'
     else
@@ -941,7 +941,7 @@ END SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
 PURE FUNCTION pp_conc(particles) result(out)
   IMPLICIT NONE
   type(PSD), intent(in) :: particles
-  real(dp), dimension(n_bins_particle, VAPOUR_PROP%vbs_bins) :: out
+  real(dp), dimension(n_bins_particle, VAPOUR_PROP%n_condtot) :: out
   integer :: i
 
   if (particles%PSD_style == 1) THEN
@@ -951,7 +951,65 @@ PURE FUNCTION pp_conc(particles) result(out)
   end if
 END FUNCTION pp_conc
 
+SUBROUTINE PARSE_PARTICLE_GRID(file, parvar)
+    IMPLICIT NONE
+    CHARACTER(len=*), INTENT(IN)     :: file   ! 1. row is diameter, 1. column is time
+    TYPE(particle_grid), INTENT(INOUT) :: parvar ! The particle grid to be allocated and filled with data in file
+    integer :: rows, cols, ioi, I
+    real(dp):: fl_buff(2)
+    LOGICAL :: extracolumn
 
+    ALLOCATE(parvar%conc_modelbins(n_bins_particle))
 
+    open(8889, file=TRIM(file), IOSTAT=ioi)
+    call handle_file_io(ioi, file, 'Exiting the program')
+
+    rows = rowcount(8889)
+    cols = colcount(8889)
+
+    read(8889,*) fl_buff
+    REWIND(8889)
+    IF (fl_buff(2) > 0d0) THEN
+        allocate(parvar%conc_matrix(rows-1,cols-1))
+        ALLOCATE(parvar%sections(cols-1))
+        extracolumn = .false.
+    ELSE
+        allocate(parvar%conc_matrix(rows-1,cols-2))
+        ALLOCATE(parvar%sections(cols-2))
+        extracolumn = .true.
+    END IF
+
+    ALLOCATE(parvar%time(rows-1))
+    IF (extracolumn) THEN
+        read(8889,*) fl_buff(1), fl_buff(2), parvar%sections(:)
+    ELSE
+        read(8889,*) fl_buff(1), parvar%sections(:)
+    END IF
+    DO I=1,rows-1
+        IF (extracolumn) THEN
+            read(8889,*) parvar%time(I), fl_buff(1), parvar%conc_matrix(I,:)
+        ELSE
+            read(8889,*) parvar%time(I), parvar%conc_matrix(I,:)
+        END IF
+    END DO
+    CLOSE(8889)
+
+END SUBROUTINE PARSE_PARTICLE_GRID
+
+SUBROUTINE PARSE_MULTIMODAL()
+    IMPLICIT NONE
+    real(dp) :: buffer(100)
+    INTEGER  :: ioi, sze
+    buffer = -9999d0
+    read(mmodal_input, *, IOSTAT=ioi) buffer
+    sze =  SIZE(PACK(buffer,buffer>0))
+    if (sze>=3) THEN
+        ALLOCATE(MMODES(sze))
+        MMODES = PACK(buffer,buffer>0)
+    ELSE
+        N_MODAL = -1d0
+    ENDIF
+
+END SUBROUTINE PARSE_MULTIMODAL
 
 end module INPUT
