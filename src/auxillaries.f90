@@ -230,7 +230,8 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
     end if
   end if
 
-  INTERP = (conc(rw+1)-conc(rw)) / (conctime(rw+1)-conctime(rw)) * (x-conctime(rw)) + conc(rw)
+    INTERP = (conc(rw+1)-conc(rw)) / (conctime(rw+1)-conctime(rw)) * (x-conctime(rw)) + conc(rw)
+    if (NO_NEGATIVE_CONCENTRATIONS) INTERP = max(0d0, INTERP)
 
 END FUNCTION INTERP
 
@@ -298,7 +299,7 @@ END FUNCTION f2chr
 PURE FUNCTION i2chr(number) result(out)
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: number
-    CHARACTER(len=int(LOG10(MAX(number*1d0, 1d0))+1)) :: out
+    CHARACTER(len=int(LOG10(MAX(number*1d0, 1d0))+2)-min(0,sign(1,number))) :: out
     write(out, '(i0)') number
 END FUNCTION i2chr
 
@@ -324,7 +325,9 @@ subroutine Multimodal(modevector, diameters, psd, N)
     real(dp), INTENT(inout) :: psd(:)
     real(dp), allocatable   :: x(:), sumv(:)
     real(dp)                :: N ,mu,sig           ! size factor and total count
-    INTEGER                 :: ii,nModes
+    INTEGER                 :: ii,nModes, uprInd, nb
+
+    nb = size(psd)
 
     IF (MODULO(size(modevector),3) .ne. 0) THEN
         print*, 'The vector for modes is not correct'
@@ -334,8 +337,8 @@ subroutine Multimodal(modevector, diameters, psd, N)
         if (GTIME%printnow) print*, 'Building PSD from ',nModes,' modes'
     END IF
 
-    ALLOCATE(x(size(psd)))
-    ALLOCATE(sumv(size(psd)))
+    ALLOCATE(x(nb))
+    ALLOCATE(sumv(nb))
     sumv = 0d0
 
     x = LOG10(diameters)
@@ -347,8 +350,8 @@ subroutine Multimodal(modevector, diameters, psd, N)
     END DO
 
     psd = N * sumv / (sum( sumv ))
-
-    ! psd = psd * LOG10(dp_sim(2)/dp_sim(1))
+    uprInd = nb - min(nb-1, 8)
+    WHERE (psd(uprInd:) > 1d-12) psd(uprInd:) = 0d0
 
 end subroutine Multimodal
 

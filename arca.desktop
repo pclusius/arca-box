@@ -1,4 +1,3 @@
-#!/usr/bin/env xdg-open
 [Desktop Entry]
 Name=ARCA Box Model 0.9
 Comment=Atmospherically Relevant Chemistry and Aerosol Box model
@@ -8,3 +7,4 @@ Terminal=true
 Type=Application
 Categories=GNOME;GTK;Core;
 StartupWMClass=ARCAbox utility
+    

@@ -2033,7 +2033,7 @@ class Ui_MainWindow(object):
         self.MonitorWindow = QtWidgets.QPlainTextEdit(self.tab_5)
         self.MonitorWindow.setGeometry(QtCore.QRect(10, 30, 930, 520))
         font = QtGui.QFont()
-        font.setFamily("Monospace")
+        font.setFamily("Courier")
         font.setStyleStrategy(QtGui.QFont.PreferDefault)
         self.MonitorWindow.setFont(font)
         self.MonitorWindow.setAcceptDrops(False)

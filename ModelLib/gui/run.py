@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 =============================================================================
-Created By  : Atmospheric modelling group AMG, Universities of Helsinki, Lund
+Created By: Atmospheric modelling group AMG, Universities of Helsinki, Lund
 and Saltzburg. To report bugs and make feature request contact
 petri.clusius@helsinki.fi
 =============================================================================
@@ -12,12 +12,12 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
 import vars, gui7, batchDialog1,batchDialog2,batchDialog3,batch, mmplot
 from subprocess import Popen, PIPE, STDOUT
-from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip
+from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros
 from numpy import sum as npsum
 import numpy.ma as ma
-import numpy as np
 from re import sub, finditer
-from os import walk, mkdir, getcwd, chdir, chmod
+from os import walk, mkdir, getcwd, chdir, chmod, environ
+from os import name as osname
 from os.path import exists, dirname
 from re import sub,IGNORECASE
 import time
@@ -39,6 +39,25 @@ except:
 # -----------------------------------------------------------------------------
 # Generally these default settings should not changed, do so with your own risk
 # -----------------------------------------------------------------------------
+
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) # enable highdpi scaling
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)    # use highdpi icons
+# See if scaling is necessary, currently only on Windows
+if osname.upper() == 'NT':
+    try:
+        import ctypes
+        sf = (ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100)
+        if sf<1.3:
+            sf = 1
+        sf = 1/sf
+        u32 = ctypes.windll.user32
+        scrhgt = u32.GetSystemMetrics(1)
+        if scrhgt < 850:
+            sf = sf * scrhgt / 850.
+    except:
+        sf=1
+        print("Could not get the scaling factor of the screen, using %3.2f. Let's hope the GUI looks ok"%sf)
+    environ["QT_SCALE_FACTOR"] = "%3.2f"%sf
 
 ## Some constants --------------------------------------------
 # widths of the columns in "Input variables" tab
@@ -169,10 +188,10 @@ class MMPlot(QtGui.QDialog):
     def splot(self,vals,N, nb, x0,x1):
         """Harry Plotter"""
         def gaussian(x, mu, sig, A=1):
-            return A*np.exp(-(x-mu)**2/(2*sig**2))/np.sqrt(2*np.pi*sig**2)
+            return A*exp(-(x-mu)**2/(2*sig**2))/sqrt(2*pi*sig**2)
         try:
             N = float(N)
-            luvut = np.array(vals.split()).astype(float)
+            luvut = array(vals.split()).astype(float)
             nb=int(nb)
             x0=float(x0)
             x1=float(x1)
@@ -180,14 +199,16 @@ class MMPlot(QtGui.QDialog):
                 return
         except:
             return
-        x = 10**np.linspace(np.log10(x0),np.log10(x1),nb)
-        acl = np.zeros(len(x))
-        k = np.log10(x[1]/x[0])
+        x = 10**linspace(log10(x0),log10(x1),nb)
+        acl = zeros(len(x))
+        k = log10(x[1]/x[0])
         for i in range(len(luvut)//3):
             if abs(luvut[3*i+1])>0:
                 acl = acl + luvut[3*i+2]*(gaussian(log10(x), log10(luvut[3*i+0]),luvut[3*i+1]))
         if sum( acl )>0:
             Z = N * acl / (sum( acl ))
+            ndel = -min(nb-1, 8)
+            Z[ndel:] = where(Z[ndel:]>1e-12, 0,Z[ndel:])
             self.mmplW.HPLotter.plot(x,Z/k,pen=pg.mkPen('r', width=4), clear=True, name='PSD')
             self.mmplW.HPLotter.setLogMode(x=True)
             self.mmplW.HPLotter.showGrid(x=True,y=True)
@@ -280,7 +301,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         self.checkBox_aer.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.groupBox_8))
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
         self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,self.print_acdc))
-        self.use_dmps.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_dmps,self.dmps_read_in_time))
+        # self.use_dmps.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_dmps,self.dmps_read_in_time))
         self.dateEdit.dateChanged.connect(self.updatePath)
         self.indexEdit.valueChanged.connect(self.updatePath)
         self.case_name.textChanged.connect(self.updatePath)
@@ -303,6 +324,10 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         self.saveCurrentButton.setEnabled(False)
         self.actionSave_to_current.setEnabled(False)
         self.currentInitFile.setText('None loaded/saved')
+
+        self.min_particle_diam.textChanged.connect(lambda: self.seeInAction(pop=False))
+        self.max_particle_diam.textChanged.connect(lambda: self.seeInAction(pop=False))
+        self.n_bins_particle.valueChanged.connect(lambda: self.seeInAction(pop=False))
 
     # -----------------------
     # tab Input variables
@@ -356,6 +381,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         self.PLOT.showGrid(x=True,y=True)
         self.PLOT.showButtons()
         self.legend = self.PLOT.addLegend()
+        self.skene = self.legend.scene()
         self.second = False
         self.updteGraph(first=True)
 
@@ -466,8 +492,11 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def seeInAction(self, pop=True):
         nb = self.n_bins_particle.value()
-        x0 = self.min_particle_diam.text().replace('d','e')
-        x1 = self.max_particle_diam.text().replace('d','e')
+        try:
+            x0 = float(self.min_particle_diam.text().replace('d','e'))
+            x1 = float(self.max_particle_diam.text().replace('d','e'))
+        except:
+            pass
         if self.mmp.isHidden() and pop:
             self.mmp.show()
             self.mmp.move(self.x(),self.y()+self.height()-self.mmp.height())
@@ -609,7 +638,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         for date,file in zip(dates,files_to_create):
             self.index_for_parser = date
             if self.createBashFile.isChecked():
-                bf.write('./'+exe_name+' '+file+' |tee '+dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME+'/runReport.txt'+'\n' )
+                bf.write('./'+exe_name+' '+file+' |tee '+dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME+'/port.txt'+'\n' )
             if self.batchRangeDay.isChecked():
                 nml.TIME.DATE='%s'%(date)
                 nml.TIME.INDEX=''
@@ -657,13 +686,14 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def scales(self):
+        xf=1
         rt = self.runtime.value()
         scf = 24
-        wScale = scf/2/200.0
-        pScale = scf*1.1905/200.0
-        aScale = 0.02
-        phScale = scf/0.4/200.0
-        ampScale = 1/20.0
+        wScale = scf/2/200.0*xf
+        pScale = scf*1.1905/200.0*xf
+        aScale = 0.02*xf
+        phScale = scf/0.4/200.0*xf
+        ampScale = 1/20.0*xf
         return wScale,pScale,aScale,phScale,ampScale,rt
 
 
@@ -674,7 +704,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         yscale = self.radio(self.fLin, self.fLog)
 
         dummy.sig = self.fWidth.value()*wScale
-        if abs(dummy.sig)<0.01: dummy.sig = 0.01
+        if abs(dummy.sig)<0.001: dummy.sig = 0.001
         try:
             dummy.min = float(self.fMin.text())
         except:
@@ -705,9 +735,11 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         self.monAm.setValue(dummy.am)
 
         norm = self.gauss(dummy,yscale,rt)
-        if first or self.second:
-            self.legend.scene().removeItem(self.legend)
+        if (first or self.second) and self.legend in self.skene.items():
+            self.skene.removeItem(self.legend)
             self.legend = self.PLOT.addLegend()
+            if self.legend not in self.skene.items():
+                self.skene.addItem(self.legend)
         if first:
             self.currentPIVar = label
             self.editableselfPI = self.PLOT.plot(x,norm,pen=pg.mkPen('r', width=4), clear=True, name=label)
@@ -917,7 +949,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def remv_item(self):
         """removes items from variable table"""
-        self.selected_vars.setSortingEnabled(False)
+        # self.selected_vars.setSortingEnabled(False)
         for i in reversed(range(self.selected_vars.rowCount())):
             if self.selected_vars.cellWidget(i,6).isChecked():
                 name = self.selected_vars.item(i,0).text()
@@ -928,7 +960,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
                 vars.mods.pop(name)
                 namesPyInds['PRESSURE']
         self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)
-        self.selected_vars.setSortingEnabled(True)
+        # self.selected_vars.setSortingEnabled(False)
         self.updateOtherTabs()
 
 
@@ -1025,7 +1057,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def add_new_line(self, name, unit_ind, cols=[],createNew=True, unt=0):
         """adds items to variable table"""
-        self.selected_vars.setSortingEnabled(False);
+        # self.selected_vars.setSortingEnabled(False);
         row = self.selected_vars.rowCount()
         self.selected_vars.insertRow(row)
         item = self.namesdat.item(namesPyInds[name])
@@ -1067,7 +1099,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
 
         self.selected_vars.setItem(row, i+4, QtWidgets.QTableWidgetItem('%03d'%(namesFoInds[name])))
         self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)
-        self.selected_vars.setSortingEnabled(True)
+        # self.selected_vars.setSortingEnabled(False)
         self.updateOtherTabs()
         if createNew:
             vars.mods[name] = Comp()
@@ -1188,7 +1220,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         self.toggle_frame(self.frameStart)
         self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         if exists(self.currentAddressTb.text()):
-            f = open(self.currentAddressTb.text()+'/run_report.txt', 'w')
+            f = open(self.saveCurrentOutputDir+'/runReport.txt', 'w')
             f.write(self.MonitorWindow.toPlainText())
             f.close()
         else:
@@ -1316,6 +1348,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
 
         try:
             self.boxProcess = Popen(["./"+exe_name, "%s"%tempfile, '--gui'], stdout=PIPE,stderr=STDOUT,stdin=None)
+            self.saveCurrentOutputDir = self.currentAddressTb.text()
             self.MonitorWindow.clear()
             self.Timer.start(10)
             self.pollTimer.start(2000)
@@ -1418,7 +1451,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
 
         # class _PARTICLE:
         nml.PARTICLE.PSD_MODE=self.psd_mode.currentIndex()
-        nml.PARTICLE.N_BINS_PARTICLE=self.n_bins_particle.value()
+        nml.PARTICLE.N_BINS_PAR=self.n_bins_particle.value()
         nml.PARTICLE.MIN_PARTICLE_DIAM=self.min_particle_diam.text()
         nml.PARTICLE.MAX_PARTICLE_DIAM=self.max_particle_diam.text()
         nml.PARTICLE.N_MODAL=self.n_modal.text()
@@ -1620,7 +1653,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'DATE' == key: self.dateEdit.setDate(parse_date(strng))
             elif 'INDEX' == key and isFl: self.indexEdit.setValue(int(strng))
             elif 'PSD_MODE' == key and isFl: self.psd_mode.setCurrentIndex(int(strng))
-            elif 'N_BINS_PARTICLE' == key and isFl: self.n_bins_particle.setValue(int(strng))
+            elif 'N_BINS_PAR' == key and isFl: self.n_bins_particle.setValue(int(strng))
             elif 'MIN_PARTICLE_DIAM' == key: self.min_particle_diam.setText(strng)#   1.0000000000000001E-009,
             elif 'MAX_PARTICLE_DIAM' == key: self.max_particle_diam.setText(strng)#   9.9999999999999995E-007,
             elif 'N_MODAL' == key: self.n_modal.setText(strng)#   9.9999999999999995E-007,
@@ -1801,6 +1834,9 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         if self.measdmps:
             y2 = npsum(massdmps[:,inds],axis=1)*1e3
             miny, maxy = min(miny,y2.min()),max(maxy,y2.max())
+        if maxy>0:
+            if abs(1-miny/maxy) <1e-12:
+                maxy = miny*100000
         if self.measdmps and self.showAlsoMeasInMassConc.isChecked():
             self.outplot_mass = self.plotResultWindow_2.plot(time,
                                                             y2,
@@ -2036,7 +2072,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         if self.running != None:
             if self.ReplChem.isChecked():
                 self.editMakefile(mod=self.chemistryModules.currentText())
-                self.compile = Popen(["make", "clean"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+                self.compile = Popen(["make", "clean_chemistry"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
                 while True:
                     self.running = self.compile.poll()
                     if self.running != None: break

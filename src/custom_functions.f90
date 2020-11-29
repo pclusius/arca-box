@@ -12,18 +12,22 @@ implicit NONE
 contains
 subroutine AFTER_CHEM(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
     implicit none
-    real(dp) :: TSTEP_CONC(:)
-    real(dp) :: CH_GAS(:)
-    real(dp) :: J_TOTAL_M3
+    real(dp), INTENT(INOUT) :: TSTEP_CONC(:)
+    real(dp), INTENT(INOUT) :: CH_GAS(:)
+    real(dp), INTENT(INOUT) :: J_TOTAL_M3
+
     ! -------------------------------
+
 end subroutine AFTER_CHEM
 
 subroutine AFTER_NUCL(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
     implicit none
-    real(dp) :: TSTEP_CONC(:)
-    real(dp) :: CH_GAS(:)
-    real(dp) :: J_TOTAL_M3
+    real(dp), INTENT(INOUT) :: TSTEP_CONC(:)
+    real(dp), INTENT(INOUT) :: CH_GAS(:)
+    real(dp), INTENT(INOUT) :: J_TOTAL_M3
+
     ! -------------------------------
+
 end subroutine AFTER_NUCL
 
 end module custom_functions

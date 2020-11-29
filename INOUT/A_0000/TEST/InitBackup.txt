@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      ARCA box setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: Nov 13 2020, 13:43:34
+#         Created at: Nov 26 2020, 18:31:34
 #--------------------------------------------------
 
 &NML_PATH
@@ -10,12 +10,11 @@
 /
 
 &NML_FLAG
- CHEMISTRY_FLAG = .TRUE.
+ CHEMISTRY_FLAG = .FALSE.
  AEROSOL_FLAG = .TRUE.
  ACDC_SOLVE_SS = .FALSE.
- ACDC = .TRUE.
- EXTRA_DATA = F
- CONDENSATION = .TRUE.
+ ACDC = .FALSE.
+ CONDENSATION = .FALSE.
  COAGULATION = .TRUE.
  DEPOSITION = .FALSE.
  CHEM_DEPOSITION = .FALSE.
@@ -38,14 +37,14 @@
 
 &NML_PARTICLE
  PSD_MODE = 1
- N_BINS_PARTICLE = 42
+ N_BINS_PAR = 70
  MIN_PARTICLE_DIAM = 1.48d-9
- MAX_PARTICLE_DIAM = 2d-6
- N_MODAL =
+ MAX_PARTICLE_DIAM = 1d-6
+ N_MODAL = 1000
  DMPS_FILE = ''
  EXTRA_PARTICLES = ''
- MMODAL_INPUT = ''
- DMPS_READ_IN_TIME = 1.0
+ MMODAL_INPUT = '50e-9 0.2 0.8 150e-9 0.3 0.2'
+ DMPS_READ_IN_TIME = 0.0
  DMPS_HIGHBAND_LOWER_LIMIT = 20e-9
  DMPS_LOWBAND_UPPER_LIMIT =
  USE_DMPS = .FALSE.
@@ -59,6 +58,8 @@
  CHAMBER_CIRCUMFENCE = 99.0
  CHAMBER_HEIGHT = 50.0
  EDDYK = 0.5
+ USTAR = 0.05
+ ALPHAWALL = 5e-05
 /
 
 &NML_MCM
@@ -66,8 +67,8 @@
 /
 
 &NML_MODS
- MODS(1)   = 0   2  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'C' ! TEMPK
- MODS(2)   = 0   3  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'hPa' ! PRESSURE
+ MODS(1)   =  1   2  1.00000d+00  0.00000d+00 -1.00000d+01  5.00000d+00 3.780000d0 3.428640d0 0.000000d0 0.000000d0 1.000000d0 'C' ! TEMPK
+ MODS(2)   =  1   3  1.00000d+00  1.00000d+03  9.99000d+02  1.10000d+03 3.780000d0 3.428640d0 0.000000d0 0.000000d0 1.000000d0 'hPa' ! PRESSURE
 /
 
 &NML_MISC
@@ -82,10 +83,9 @@
 /
 
 &NML_VAP
- USE_ATOMS = .TRUE.
+ USE_ATOMS = .FALSE.
  VAP_NAMES = 'ModelLib/Vapours.dat'
- VAP_PROPS = 'ModelLib/Vapour_properties.dat'
- VAP_ATOMS = 'ModelLib/O_C.dat'
+ VAP_ATOMS = 'ModelLib/Elements1175.dat'
 /
 
 &NML_CUSTOM
@@ -114,7 +114,7 @@ change_range = 1.e-4, 2.e-2, 1.e-1, 5.e0,
 # Following settings are for the GUI and not directly used by the model -----
 # RAW_INPUT = &NML_PRECISION<br>change_range = 1.e-4, 2.e-2, 1.e-1, 5.e0, <br>/<br><br># Options available in CUSTOM_NML (and defaults)<br># I: acdc_iterations = 4<br># I: INITIALIZE_FROM = 0<br># C: INITIALIZE_WITH = ''<br># L: use_raoult = .True.<br># L: variable_density = .False.<br># L: DONT_SAVE_CONDENSIBLES = .False.<br># L: skip_acdc = .True.<br># R: dmps_tres_min = 10.<br># R: VP_MULTI = 1d0<br># R: start_time_s = 0d0<br># R: dmps_multi = 1d6<br># R: END_DMPS_SPECIAL = 1d50
 # INPUT_SETTINGS = 'env_file: mcm_file: dmps_file: extra_particles: stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
-# BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.TRUE. indexRadioDate:.FALSE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
+# BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.TRUE. indexRadioDate:.FALSE. createBashFile:.FALSE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #----------------------------------------------------------------------------
 
 

@@ -108,7 +108,7 @@ class INITFILE:
     class _PARTICLE:
         def __init__(self):
             self.PSD_MODE=0
-            self.N_BINS_PARTICLE=0
+            self.N_BINS_PAR=0
             self.MIN_PARTICLE_DIAM=0
             self.MAX_PARTICLE_DIAM=0
             self.N_MODAL=0
@@ -124,7 +124,7 @@ class INITFILE:
         def printall(self,cmd,f,eol):
             exec("%s('&NML_PARTICLE%s')"%(cmd, eol))
             exec("%s(' PSD_MODE = %s%s')"%(cmd,self.PSD_MODE,eol))
-            exec("%s(' N_BINS_PARTICLE = %s%s')"%(cmd,self.N_BINS_PARTICLE,eol))
+            exec("%s(' N_BINS_PAR = %s%s')"%(cmd,self.N_BINS_PAR,eol))
             exec("%s(' MIN_PARTICLE_DIAM = %s%s')"%(cmd,self.MIN_PARTICLE_DIAM,eol))
             exec("%s(' MAX_PARTICLE_DIAM = %s%s')"%(cmd,self.MAX_PARTICLE_DIAM,eol))
             exec("%s(' N_MODAL = %s%s')"%(cmd,self.N_MODAL,eol))
@@ -196,9 +196,9 @@ class INITFILE:
                         maxstr = '%12.5e'%(m.max)
                         maxstr = maxstr.replace('e', 'd', 1)
                         if m.pmInUse == 'Yes' or m.pmInUse == 'yes':
-                            mode = m.mode
-                        else: mode = 0
-                        strr = "MODS(%d)%s= %d %3d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 %s%s%s ! %s"%(
+                            mode = max(1,abs(m.mode))
+                        else: mode = abs(m.mode) * -1
+                        strr = "MODS(%d)%s= %2d %3d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 %s%s%s ! %s"%(
                         m.Find,' '*(4-len(str(m.Find))),mode,m.col, multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, "\\'", unit,"\\'", m.name)
                         exec("%s(' %s%s')"%(cmd,strr,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))

@@ -3,7 +3,7 @@
 # compiler
 F90 = gfortran
 
-OPTI = O3
+OPTI = O2
 
 # Put .o and .mod files here:
  OBJDIR  = build
@@ -16,10 +16,10 @@ VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_
 # Options reminders:
 # -w suppresses warning messages
 
-BOX_OPTS = -g -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
--Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all -$(OPTI) -fopenmp
+BOX_OPTS = -g -Wno-unused -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
+-Wno-unused-dummy-argument -Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all -$(OPTI)
 
-CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR) -I$(OBJDIR)# -O2
+CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR) -I$(OBJDIR) -$(OPTI)
 
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 
@@ -27,7 +27,7 @@ CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Parameters.o se
                second_LinearAlgebra.o second_Jacobian.o second_Global.o second_Rates.o second_Integrator.o second_Function.o \
                second_Model.o second_Main.o)
 
-BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o input.o solve_bases.o Chemistry.o PSD.o aerosols.o output.o custom_functions.o)
+BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o input.o solve_bases.o Chemistry.o psd_scheme.o aerosol_dynamics.o output.o custom_functions.o)
 
 PSD_OBJECTS = $(addprefix $(OBJDIR)/, constants.o input.o Chemistry.o)
 
@@ -50,18 +50,17 @@ arcabox.exe: arcabox.o $(BOX_OBJECTS) $(CHEM_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_O
 	$(F90) $(BOX_OPTS) $^ -o $@ $(NETLIBS)
 
 
-
 # Here are the compile steps
 # Main program
 $(OBJDIR)/arcabox.o: src/ARCA_main.f90 $(CHEM_OBJECTS) $(BOX_OBJECTS) $(ACDC_OBJECTS) $(ACDC_D_OBJECTS) $(PSD_OBJECTS)
 	 $(F90) $(BOX_OPTS) -c $< -o $@
 
-#PSD representation
-$(OBJDIR)/PSD.o: src/PSD.f90 $(PSD_OBJECTS)
+#PSD_scheme
+$(OBJDIR)/psd_scheme.o: src/PSD_scheme.f90 $(PSD_OBJECTS)
 	$(F90) $(BOX_OPTS) -c $< -o $@
 
 #Aerosol dynamic
-$(OBJDIR)/aerosols.o: $(SRCDIR)/aerosols.f90 $(AEROSOL_OBJECTS)
+$(OBJDIR)/aerosol_dynamics.o: $(SRCDIR)/aerosol_dynamics.f90 $(AEROSOL_OBJECTS)
 	$(F90) $(BOX_OPTS) -c $< -o $@
 
 $(OBJDIR)/solve_bases.o: src/solve_bases.f90 $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
@@ -139,23 +138,17 @@ ACDC_D_MODS = $(ACDC_D_OBJECTS:.o=.mod)
 # With 'clean', don't remove chemistry object files, since it takes very long (30 min.) to compile them,
 # and there usually is no need to recompile them
 clean:
-	-@cd $(OBJDIR) ; rm $(BOX_OBJECTS) $(BOX_MODS)       2>/dev/null || true
-	-@cd $(OBJDIR) ; rm $(ACDC_OBJECTS) $(ACDC_MODS)     2>/dev/null || true
-	-@cd $(OBJDIR) ; rm $(ACDC_D_OBJECTS) $(ACDC_D_MODS) 2>/dev/null || true
-	-@cd $(OBJDIR) ; rm arcabox.o                        2>/dev/null || true
-	-@rm arcabox.exe                                     2>/dev/null || true
-	-@cd $(OBJDIR) ; rm *.mod *.o                        2>/dev/null || true ## added by carlton.. as some .mod files were not removed
+	-@rm $(BOX_OBJECTS) $(BOX_MODS) 2>/dev/null || true
+	-@cd $(OBJDIR) ; rm arcabox.o   2>/dev/null || true
+	-@rm arcabox.exe                2>/dev/null || true
 
-dust:
-	-@cd $(OBJDIR) ; rm $(BOX_OBJECTS) $(BOX_MODS)       2>/dev/null || true
-	-@cd $(OBJDIR) ; rm arcabox.o                        2>/dev/null || true
-	-@rm arcabox.exe                                     2>/dev/null || true
+cleanall:
+	-@rm arcabox.exe                2>/dev/null || true
+	-@cd $(OBJDIR) ; rm *.mod *.o   2>/dev/null || true ## added by carlton.. as some .mod files were not removed
 
-# # If you really want to remove chemistry objects too, use this
-# cleanall:
-# 	-@cd $(OBJDIR) ; rm $(BOX_OBJECTS) $(BOX_MODS)       2>/dev/null || true
-# 	-@cd $(OBJDIR) ; rm $(ACDC_OBJECTS) $(ACDC_MODS)      2>/dev/null || true
-# 	-@cd $(OBJDIR) ; rm $(ACDC_D_OBJECTS) $(ACDC_D_MODS)  2>/dev/null || true
-# 	-@cd $(OBJDIR) ; rm arcabox.o                        2>/dev/null || true
-# 	-@rm arcabox.exe                                     2>/dev/null || true
-#   -@cd $(OBJDIR) ; rm *.mod *.o                        2>/dev/null || true ## added by carlton.. as some .mod files were not removed
+clean_chemistry:
+	-@rm $(BOX_OBJECTS) $(BOX_MODS)  2>/dev/null || true
+	-@rm $(CHEM_OBJECTS)             2>/dev/null || true
+	-@cd $(OBJDIR) ; rm $(CHEM_MODS) 2>/dev/null || true
+	-@cd $(OBJDIR) ; rm arcabox.o    2>/dev/null || true
+	-@rm arcabox.exe                 2>/dev/null || true

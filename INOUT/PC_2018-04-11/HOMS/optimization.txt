@@ -1,0 +1,143 @@
+ 00:26:40-> Coag. speed multiplier now:           2
+ 03:18:20-> Coag. speed multiplier now:           4
+ 05:40:40-> Coag. speed multiplier now:           8
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   10.000000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.083E-01   , UL: 5.000E-01
+   => reduce dt [s]:   5.0000000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   5.0000000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.217E-01   , UL: 5.000E-01
+   => reduce dt [s]:   2.5000000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   2.5000000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.276E-01   , UL: 5.000E-01
+   => reduce dt [s]:   1.2500000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   1.2500000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.300E-01   , UL: 5.000E-01
+   => reduce dt [s]:  0.62500000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]  0.62500000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.310E-01   , UL: 5.000E-01
+   => reduce dt [s]:  0.31250000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]  0.31250000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.397E-01   , UL: 5.000E-01
+   => reduce dt [s]:  0.15625000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]  0.15625000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.451E-01   , UL: 5.000E-01
+   => reduce dt [s]:   7.8125000000000000E-002
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   7.8125000000000000E-002
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.478E-01   , UL: 5.000E-01
+   => reduce dt [s]:   3.9062500000000000E-002
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   3.9062500000000000E-002
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.491E-01   , UL: 5.000E-01
+   => reduce dt [s]:   1.9531250000000000E-002
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   1.9531250000000000E-002
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.497E-01   , UL: 5.000E-01
+   => reduce dt [s]:   9.7656250000000000E-003
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   9.7656250000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.501E-01   , UL: 5.000E-01
+   => reduce dt [s]:   4.8828125000000000E-003
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.502E-01   , UL: 5.000E-01
+   => reduce dt [s]:   2.4414062500000000E-003
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   2.4414062500000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.503E-01   , UL: 5.000E-01
+   => reduce dt [s]:   1.2207031250000000E-003
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   1.2207031250000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.504E-01   , UL: 5.000E-01
+   => reduce dt [s]:   6.1035156250000000E-004
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   6.1035156250000000E-004
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.504E-01   , UL: 5.000E-01
+   => reduce dt [s]:   3.0517578125000000E-004
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   3.0517578125000000E-004
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.504E-01   , UL: 5.000E-01
+   => reduce dt [s]:   1.5258789062500000E-004
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   1.5258789062500000E-004
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.504E-01   , UL: 5.000E-01
+   => reduce dt [s]:   7.6293945312500000E-005
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   7.6293945312500000E-005
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.504E-01   , UL: 5.000E-01
+   => reduce dt [s]:   3.8146972656250000E-005
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   3.8146972656250000E-005
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.504E-01   , UL: 5.000E-01
+   => reduce dt [s]:   1.9073486328125000E-005
+ 
+error state: F, error process: 0
+ Precision error at time 07:18:20 (26300  sec)
+ current simulation timestep [s]   1.9073486328125000E-005
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 5.504E-01   , UL: 5.000E-01
+   => reduce dt [s]:   9.5367431640625000E-006
+ 
+error state: F, error process: 0
