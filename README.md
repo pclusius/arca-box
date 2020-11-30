@@ -10,7 +10,7 @@ setup.py (for example, if you call Python 3 with python3, the command is "python
 install the necessary Python Modules, if they are not available. If you want to use some other installation procedure for
 them, just answer "n" for the prompt.
 
-Next you will be asked if the Fortran model should be compiled. If this is succesful, a script file is written in the
+Next you will be asked if the Fortran model should be compiled. If this is succesful*, a script file is written in the
 root folder, and the GUI can be started from there by calling "sh run_arca.sh"
 
 
@@ -34,3 +34,9 @@ The necessary Python modules are:
 Learn more of using ARCA from this video: https://www.helsinki.fi/fi/unitube/video/b2c6775e-ad5f-4cee-9fd5-e502af2fb256
 
 Note that the program is constantly developed and the look and functionality may differ from this video.
+
+
+* If the compiling failed, it might because the netCDF4 libs were not properly configured in the makefile. These would
+vary from one system to another, and therefore we cannot guarantee that the makefile currently is able to find them. In
+this case open the makefile, and comment the line which starts "NETLIBS" and uncomment the next line. Also if you are
+using some other Fortran compiler than gfortran, you need to define this in the beginning of the makefile (F90 = gfortran)
