@@ -36,7 +36,7 @@ Learn more of using ARCA from this video: https://www.helsinki.fi/fi/unitube/vid
 Note that the program is constantly developed and the look and functionality may differ from this video.
 
 
-* If the compiling failed, it might because the netCDF4 libs were not properly configured in the makefile. These would
+\* If the compiling failed, it might because the netCDF4 libs were not properly configured in the makefile. These would
 vary from one system to another, and therefore we cannot guarantee that the makefile currently is able to find them. In
 this case open the makefile, and comment the line which starts "NETLIBS" and uncomment the next line. Also if you are
 using some other Fortran compiler than gfortran, you need to define this in the beginning of the makefile (F90 = gfortran)
