@@ -29,6 +29,14 @@ if pyt == 'y' or pyt == 'Y':
 
     outpyt = os.system("%s -m pip install --user numpy scipy matplotlib netCDF4 PyQt5 pyqtgraph"%python)
 
+    if outpyt != 0:
+        upgr = input('Unfortunately the Python module installation did not work, updating setuptools could help.\nProceed and try again? (y/n)?: ')
+        if upgr == 'y' or upgr == 'Y':
+            outpyt = os.system("%s -m pip install --upgrade setuptools"%python)
+            outpyt += os.system("%s -m pip install --user numpy scipy matplotlib netCDF4 PyQt5 pyqtgraph"%python)
+        if outpyt != 0:
+            print('Unfortunately still some Python modules failed to install.')
+
 comp = input('Compile the Fortran module (y/n)?: ')
 
 if comp == 'y' or comp == 'Y':
@@ -50,7 +58,7 @@ if out == 0:
     f.write('%s ModelLib/gui/run.py %s'%(python, le))
     f.close()
 
-    if posix: 
+    if posix:
         out = os.system("chmod a+x run_arca.sh")
         if out==0:
             print("\nChanged the permission of 'run_arca.sh'")
@@ -77,8 +85,8 @@ StartupWMClass=ARCAbox utility
         print('\nSetup of GUI succesful. Run ARCA from terminal with "sh run_arca.sh", or by double clicking the ARCA box icon\n')
 
 else:
-    print("""Compiling the Fortran executable failed. First check that Fortran compiler is working. 
-The default compiler is gfortran, if some other compiler is used, change the variable "F90" in the 
+    print("""Compiling the Fortran executable failed. First check that Fortran compiler is working.
+The default compiler is gfortran, if some other compiler is used, change the variable "F90" in the
 "makefile" to corresponding compiler. If the compiler is ok, make sure that netcdf-fortran and curl-dev
 is installed from Cygwin. Email the developers if you keep having troubles.
 """)
