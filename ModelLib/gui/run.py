@@ -10,7 +10,7 @@ petri.clusius@helsinki.fi
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-import vars, gui7, batchDialog1,batchDialog2,batchDialog3,batch, mmplot
+import vars, gui8, batchDialog1,batchDialog2,batchDialog3,batch, mmplot
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros
 from numpy import sum as npsum
@@ -79,8 +79,11 @@ units = {
 exe_name = 'arcabox.exe'
 # Path to variable names -------------------------------------------
 path_to_names = 'ModelLib/NAMES.dat'
+# GUI root
+gui_path = 'ModelLib/gui/'
 # GUI defaults are saved into this file. If it doesn't exist, it gets created in first start
-defaults_file_path = 'ModelLib/gui/defaults'
+defaults_file_path = gui_path+'defaults'
+minimal_settings_path = gui_path+'minimal'
 
 # This path will be added to Common out if no other option is given
 default_inout = 'INOUT'
@@ -89,7 +92,7 @@ default_case = 'DEFAULTCASE'.upper()
 # This run name will be used as run name if no other name is given
 default_run  = 'DEFAULTRUN'.upper()
 # name and location of the temporary settings file used for test runs
-tempfile = 'ModelLib/gui/tmp/GUI_INIT.tmp'
+tempfile = gui_path+'tmp/GUI_INIT.tmp'
 # initial maximum for function creator tab sliders
 slMxs = (200,190,220,100,200)
 # 10 colors for plots
@@ -103,9 +106,8 @@ org_no = (243,243,243)
 org_yes = (172,147,147)
 
 # icon
-modellogo = "ModelLib/gui/ArcaLogo.png"
+modellogo = gui_path+"ArcaLogo.png"
 CurrentVersion = "ARCA Box Model 0.9"
-
 # Some messages
 netcdfMissinnMes = ('Please note:',
 'To open NetCDF-files you need netCDF4 for Python.\nYou can istall it with pip, package manager (or perhaps: python3 -m pip install --user netCDF4.')
@@ -238,7 +240,7 @@ class Comp:
         self.sliderVls = [39,84,0,0,20]
         self.sl_x = [1,1,1,1,1]
 
-class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
+class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     """Main program window."""
     def __init__(self):
         super(QtBoxGui,self).__init__()
@@ -262,6 +264,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         self.saveCurrentButton.clicked.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='silent'))
         self.actionSave_to_current.triggered.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='silent'))
         self.actionCreate_output_directories.triggered.connect(self.createCaseFolders)
+        self.actionLoad_minimal_settings.triggered.connect(lambda: self.load_initfile(minimal_settings_path))
         self.loadButton.clicked.connect(lambda: self.browse_path(None, 'load'))
         self.actionSave_2.triggered.connect(lambda: self.save_file())
         self.actionPrint.triggered.connect(lambda: self.print_values())
@@ -478,12 +481,16 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Load preferences, or create preferences if not found
     # -----------------------
-        try: self.load_initfile(defaults_file_path)
-        except: self.save_file(file=defaults_file_path, mode='silent')
+        try:
+            self.load_initfile(defaults_file_path)
+        except:
+            try:
+                self.load_initfile(minimal_settings_path)
+            except:
+                pass
+            self.save_file(file=defaults_file_path, mode='silent')
         self.get_available_chemistry()
         self.updateEnvPath()
-
-
 
 
     # -----------------------
@@ -638,7 +645,7 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         for date,file in zip(dates,files_to_create):
             self.index_for_parser = date
             if self.createBashFile.isChecked():
-                bf.write('./'+exe_name+' '+file+' |tee '+dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME+'/port.txt'+'\n' )
+                bf.write('./'+exe_name+' '+file+' |tee '+dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME+'/RunReport.txt'+'\n' )
             if self.batchRangeDay.isChecked():
                 nml.TIME.DATE='%s'%(date)
                 nml.TIME.INDEX=''
@@ -1492,6 +1499,11 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.VAP.USE_ATOMS=self.checkboxToFOR(self.use_atoms)
         nml.VAP.VAP_ATOMS=self.vap_atoms.text()
 
+        # class _PRECISION:
+        nml.PRECISION.DIAMETER_PREC_DEF="%f,%f"%(self.prec_low_1.value(), self.prec_high_1.value())
+        nml.PRECISION.PNUMBER_PREC_DEF="%f,%f"%(self.prec_low_2.value(), self.prec_high_2.value())
+        nml.PRECISION.VAPOUR_PREC_DEF="%f,%f"%(self.prec_low_3.value(), self.prec_high_3.value())
+
         for i in range(self.selected_vars.rowCount()):
             name = self.selected_vars.item(i,0).text()
             vars.mods[name].col = int(self.selected_vars.item(i,1).text())
@@ -1520,6 +1532,10 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def load_initfile(self,file):
+        if not exists(file):
+            if file != defaults_file_path:
+                self.popup('Ooops', 'File "%s" not found'%file, icon=3)
+                return
         self.fileLoadOngoing = True
         self.markReverseSelection('all')
         self.remv_item()
@@ -1685,6 +1701,17 @@ class QtBoxGui(gui7.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'USE_ATOMS' == key: self.use_atoms.setChecked(strng)
             elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
+
+            elif 'DIAMETER_PREC_DEF' == key:
+                self.prec_low_1.setValue(float(strng.split(',')[0]))
+                self.prec_high_1.setValue(float(strng.split(',')[1]))
+            elif 'PNUMBER_PREC_DEF' == key:
+                self.prec_low_2.setValue(float(strng.split(',')[0]))
+                self.prec_high_2.setValue(float(strng.split(',')[1]))
+            elif 'VAPOUR_PREC_DEF' == key:
+                self.prec_low_3.setValue(float(strng.split(',')[0]))
+                self.prec_high_3.setValue(float(strng.split(',')[1]))
+
             elif in_custom:
                 nml.CUSTOM.CUSTOMS.append([key, strng])
                 pass

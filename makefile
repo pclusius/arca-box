@@ -27,9 +27,9 @@ CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Parameters.o se
                second_LinearAlgebra.o second_Jacobian.o second_Global.o second_Rates.o second_Integrator.o second_Function.o \
                second_Model.o second_Main.o)
 
-BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o input.o solve_bases.o Chemistry.o psd_scheme.o aerosol_dynamics.o output.o custom_functions.o)
+BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o input.o solve_bases.o chemistry.o psd_scheme.o aerosol_dynamics.o output.o custom_functions.o)
 
-PSD_OBJECTS = $(addprefix $(OBJDIR)/, constants.o input.o Chemistry.o)
+PSD_OBJECTS = $(addprefix $(OBJDIR)/, constants.o input.o chemistry.o)
 
 AEROSOL_OBJECTS = $(addprefix $(OBJDIR)/, constants.o input.o auxillaries.o)
 
@@ -117,7 +117,7 @@ $(OBJDIR)/vode.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vode.f
 $(OBJDIR)/vodea.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vodea.f
 	$(F90) -std=legacy -O3 -c $< -o $@
 
-$(OBJDIR)/chemistry.o: Chemistry.f90 data_format.o second_Parameters.o settings.o second_Main.o
+$(OBJDIR)/chemistry.o: chemistry.f90 data_format.o second_Parameters.o settings.o second_Main.o
 	$(F90) $(BOX_OPTS) -c $< -o $@
 
 # Actual model files

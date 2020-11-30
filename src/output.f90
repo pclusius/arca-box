@@ -412,10 +412,11 @@ END FUNCTION UNITS
 SUBROUTINE INITIALIZE_WITH_LAST(c_pp, n_c, chemconc)
     IMPLICIT NONE
     real(dp) :: c_pp(:,:)
+    real(dp), ALLOCATABLE :: c_pp_tp(:,:)
     real(dp) :: n_c(:)
     real(dp) :: chemconc(:)
     integer :: file_id,i,varid, len_time, dimid, datarow = 0
-
+    ALLOCATE(c_pp_tp(size(c_pp, dim=2), size(c_pp, dim=1) ))
     if (Chemistry_flag) THEN
         print FMT_MSG, 'Initializing chemistry with '//TRIM(INITIALIZE_WITH)//'. This takes a while.'
         call handler(__LINE__, nf90_open(TRIM(INITIALIZE_WITH)//'/Chemistry.nc', NF90_NOWRITE, file_id) )
@@ -427,7 +428,6 @@ SUBROUTINE INITIALIZE_WITH_LAST(c_pp, n_c, chemconc)
         call handler(__LINE__, nf90_inquire_dimension(file_id, dimid, len=len_time) )
         datarow = len_time
     END if
-
     do i = 1,size(chemconc)
         call handler(__LINE__, nf90_inq_varid(file_id, TRIM(SPC_NAMES(i)), varid))
         call handler(__LINE__, nf90_get_var(file_id, varid, chemconc(i), start = ([( datarow )]) ))
@@ -455,8 +455,11 @@ if (Aerosol_flag) THEN
     n_c = n_c*1d6
 
     call handler(__LINE__, nf90_inq_varid(file_id, 'PARTICLE_COMPOSITION', varid))
-    call handler(__LINE__, nf90_get_var(file_id, varid, c_pp, start=(/1,1,datarow/), count=(/size(c_pp, 2), n_bins_par/)))
+    ! TRANSPOSE(get_composition()), (/1,1,GTIME%ind_netcdf/), (/vapours%n_condtot,n_bins_par,1/))
 
+
+    call handler(__LINE__, nf90_get_var(file_id, varid, c_pp_tp, start=(/1,1,datarow/), count=(/size(c_pp, 2), n_bins_par/)))
+    c_pp = TRANSPOSE(c_pp_tp)
     call handler(__LINE__, nf90_close(file_id) ) ! close netcdf dataset
 END IF
 

@@ -1,0 +1,381 @@
+
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.READING USER DEFINED INTIAL VALUES FROM: INOUT/PC_2018-04-30/input/PC_2018-04-30_CONTROL.conf....+
+| Date: 2018-04-30 -> Julian Day: 120                                                              |
+| ENV values from INOUT/HYDEAPRIL/PC_2018-04-30/input/env180430.dat:                               |
+|   :........TEMPK will be read from column: 2                                                     |
+|   :........PRESSURE will be read from column: 3                                                  |
+|   :........REL_HUMIDITY will be read from column: 4                                              |
+|   :........CONDENS_SINK will be read from column: 9                                              |
+|   :........SW_RADIATION will be read from column: 5                                              |
+|   :........H2SO4 will be read from column: 7                                                     |
+|   :........NH3 will be read from column: 8                                                       |
+|   :........SO2 will be read from column: 14                                                      |
+|   :........NO will be read from column: 12                                                       |
+|   :........NO2 will be read from column: 11                                                      |
+|   :........CO will be read from column: 10                                                       |
+|   :........O3 will be read from column: 13                                                       |
+| MCM values from INOUT/HYDEAPRIL/PC_2018-04-30/input/voc180430.dat:                               |
+|   :........CH3OH will be read from column: 2                                                     |
+|   :........C2H5OH will be read from column: 5                                                    |
+|   :........CH3CHO will be read from column: 4                                                    |
+|   :........BENZENE will be read from column: 11                                                  |
+|   :........TOLUENE will be read from column: 14                                                  |
+|   :........C5H8 will be read from column: 8                                                      |
+|   :........CH3COCH3 will be read from column: 6                                                  |
+|   :........MEK will be read from column: 10                                                      |
+|   :........APINENE will be read from column: 15                                                  |
+|   :........BPINENE will be read from column: 15                                                  |
+|   :........LIMONENE will be read from column: 15                                                 |
+|   :........CH3CO2H will be read from column: 7                                                   |
+|   :........CARENE will be read from column: 15                                                   |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "INOUT/HYDEAPRIL/PC_2018-04-30/input/env180430.dat".      |
+|   :........Done filling input matrices...                                                        |
+| Filling input matrices...                                                                        |
+|   :........Done filling input matrices...                                                        |
+| Reading DMPS files INOUT/filled_dmps/dm180430.sum                                                |
++..................................................................................................+
+| Reading Vapour name file ModelLib/Vapours.dat                                                    |
+|   :........Compounds picked from Vapours file: 575                                               |
+|   :........Total number of condensibes       : 576                                               |
+| Reading the list of elemental composition: ModelLib/Elemental_content.dat                        |
++.Checking input validity..........................................................................+
+| - Converting temperature from degrees C -> K.                                                    |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Converting NH3 from ppt                                                                        |
+| - Converting SO2 from ppb                                                                        |
+| - Converting NO2 from ppb                                                                        |
+| - Converting CO from ppb                                                                         |
+| - Converting O3 from ppb                                                                         |
+| - Converting CH3OH from ppb                                                                      |
+| - Converting C2H5OH from ppb                                                                     |
+| - Converting HCHO from ppt                                                                       |
+| - Converting CH3CHO from ppb                                                                     |
+| - Converting CH4 from ppm                                                                        |
+| - Converting BENZENE from ppb                                                                    |
+| - Converting TOLUENE from ppb                                                                    |
+| - Converting C5H8 from ppb                                                                       |
+| - Converting CH3COCH3 from ppb                                                                   |
+| - Converting MEK from ppb                                                                        |
+| - Converting APINENE from ppb                                                                    |
+| - Converting BPINENE from ppb                                                                    |
+| - Converting LIMONENE from ppb                                                                   |
+| - Converting CH3CO2H from ppb                                                                    |
+| - Converting CARENE from ppb                                                                     |
+| - Replacing input for ION_PROD_RATE with parametrized function.                                  |
+| - Adding a constant to HCHO, [in ppt]: 4.000E-01                                                 |
+| - Adding a constant to CH4, [in ppm]: 1.950E+00                                                  |
+| - Multiplying APINENE with: 5.100E-01                                                            |
+| - Multiplying BPINENE with: 1.200E-01                                                            |
+| - Multiplying LIMONENE with: 9.000E-02                                                           |
+| - Multiplying CARENE with: 2.800E-01                                                             |
++..................................................................................................+
++.Checking against KPP for chemicals...............................................................+
+| Found H2SO4 from chemistry                                                                       |
+|   :........Replacing HSO4 input with modelled chemistry                                          |
+| WARNING: A compound which does not exist in chemistry but could be used elsewhere: NH3 ~~~~~~~~~~+
+|   :........In INITFILE; &NML_MODS (col) <- input from file.                                      |
+| WARNING: A compound which does not exist in chemistry but could be used elsewhere: DMA ~~~~~~~~~~+
+| Found SO2 from chemistry                                                                         |
+| Found NO from chemistry                                                                          |
+| Found NO2 from chemistry                                                                         |
+| Found CO from chemistry                                                                          |
+| Found O3 from chemistry                                                                          |
+| Found CH3OH from chemistry                                                                       |
+| Found C2H5OH from chemistry                                                                      |
+| Found HCHO from chemistry                                                                        |
+| Found CH3CHO from chemistry                                                                      |
+| Found CH4 from chemistry                                                                         |
+| Found BENZENE from chemistry                                                                     |
+| Found TOLUENE from chemistry                                                                     |
+| Found C5H8 from chemistry                                                                        |
+| Found CH3COCH3 from chemistry                                                                    |
+| Found MEK from chemistry                                                                         |
+| Found APINENE from chemistry                                                                     |
+| Found BPINENE from chemistry                                                                     |
+| Found LIMONENE from chemistry                                                                    |
+| Found CH3CO2H from chemistry                                                                     |
+| Found CARENE from chemistry                                                                      |
++..................................................................................................+
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     CONTROL case with nominal values and ~500 vapours                                            |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: INOUT/PC_2018-04-30/CONTROL                                          |
++..................................................................................................+
+ 
++.Beginning simulation with constant timestep......................................................+
+
++.Time: 00:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Using parametrisation for organic nucleation with 1  nucleating compounds                        |
+| Organic formation rate: 8.027E-10 [/s/cm3]                                                       |
+ Building PSD from            2  modes
+|   :........Replacing PSD with background particles from 1. measurement (row 2 in file)           |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             7.37E-06    0.00E+00    0.00E+00    [nm/h]                                       |
+ 00:00:00   0.0000000000000000      max höyrynmuutos   0.0000000000000000     
+| ACID C:    1.259E+03 [1/cm3]    sum(An)/A1 8.032E-04 []                                          |
+| Temp:      2.771E+02 [K]        Pressure:  9.932E+04 [Pa]     Air_conc 2.596E+19 [1/cm3]         |
+| NH3 C:     3.398E+08 [1/cm3]    J_NH3: 1.137E-18 [1/s/cm3]    sum(Nn)/N1 4.140E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 8.027E-10 [1/s/cm3]        |
+| Jion neutr 2.912E-20 [1/s/cm3]  Jion neg: 1.396E-21 [1/s/cm3] Jion pos: 1.107E-18 [1/s/cm3]      |
+| C-sink:    6.142E-18 [1/s]      IPR: 3.830E+00 [1/s/cm3]                                         |
++..................................................................................................+
+
++.Time: 00:10:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 4.304E-07 [/s/cm3]                                                       |
+ Building PSD from            2  modes
+|   :........Replacing PSD with background particles from 2. measurement (row 3 in file)           |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             3.54E-02    6.47E-02    2.65E-01    [nm/h]                                       |
+ 00:10:00   600.00000000000000      max höyrynmuutos   8.2212818519304730E-004
+| ACID C:    2.447E+04 [1/cm3]    sum(An)/A1 7.857E-04 []                                          |
+| Temp:      2.769E+02 [K]        Pressure:  9.933E+04 [Pa]     Air_conc 2.598E+19 [1/cm3]         |
+| NH3 C:     3.337E+08 [1/cm3]    J_NH3: 1.889E-12 [1/s/cm3]    sum(Nn)/N1 4.224E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 4.304E-07 [1/s/cm3]        |
+| Jion neutr 4.079E-13 [1/s/cm3]  Jion neg: 2.852E-14 [1/s/cm3] Jion pos: 1.453E-12 [1/s/cm3]      |
+| C-sink:    1.993E-03 [1/s]      IPR: 3.803E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:04 Est. time to finish (m:s) 10:12       Realtime/Modeltime:  140.04        |
++..................................................................................................+
+
++.Time: 00:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 2.084E-07 [/s/cm3]                                                       |
+ Building PSD from            2  modes
+|   :........Replacing PSD with background particles from 3. measurement (row 4 in file)           |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             4.04E-02    5.43E-02    3.02E-01    [nm/h]                                       |
+ 00:20:00   1200.0000000000000      max höyrynmuutos   1.0982246124962088E-003
+| ACID C:    1.114E+04 [1/cm3]    sum(An)/A1 9.020E-04 []                                          |
+| Temp:      2.770E+02 [K]        Pressure:  9.933E+04 [Pa]     Air_conc 2.597E+19 [1/cm3]         |
+| NH3 C:     3.177E+08 [1/cm3]    J_NH3: 5.775E-13 [1/s/cm3]    sum(Nn)/N1 4.384E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.084E-07 [1/s/cm3]        |
+| Jion neutr 2.122E-13 [1/s/cm3]  Jion neg: 6.431E-15 [1/s/cm3] Jion pos: 3.588E-13 [1/s/cm3]      |
+| C-sink:    2.098E-03 [1/s]      IPR: 3.742E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:07 Est. time to finish (m:s) 8:47        Realtime/Modeltime:  161.61        |
++..................................................................................................+
+
++.Time: 00:30:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.504E-07 [/s/cm3]                                                       |
+ Building PSD from            2  modes
+|   :........Replacing PSD with background particles from 4. measurement (row 5 in file)           |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             3.94E-02    1.06E-01    2.95E-01    [nm/h]                                       |
+ 00:30:00   1800.0000000000000      max höyrynmuutos   1.2990331742381079E-003
+| ACID C:    8.519E+03 [1/cm3]    sum(An)/A1 7.636E-04 []                                          |
+| Temp:      2.769E+02 [K]        Pressure:  9.932E+04 [Pa]     Air_conc 2.598E+19 [1/cm3]         |
+| NH3 C:     7.043E+07 [1/cm3]    J_NH3: 1.767E-14 [1/s/cm3]    sum(Nn)/N1 1.833E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.504E-07 [1/s/cm3]        |
+| Jion neutr 6.809E-15 [1/s/cm3]  Jion neg: 1.284E-16 [1/s/cm3] Jion pos: 1.073E-14 [1/s/cm3]      |
+| C-sink:    2.153E-03 [1/s]      IPR: 3.638E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:10 Est. time to finish (m:s) 8:08        Realtime/Modeltime:  173.31        |
++..................................................................................................+
+
++.Time: 00:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.434E-07 [/s/cm3]                                                       |
+ Building PSD from            2  modes
+|   :........Replacing PSD with background particles from 5. measurement (row 6 in file)           |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             5.96E-02    1.39E-01    2.97E-01    [nm/h]                                       |
+ 00:40:00   2400.0000000000000      max höyrynmuutos   1.3290162190795077E-003
+| ACID C:    8.445E+03 [1/cm3]    sum(An)/A1 7.571E-04 []                                          |
+| Temp:      2.767E+02 [K]        Pressure:  9.935E+04 [Pa]     Air_conc 2.601E+19 [1/cm3]         |
+| NH3 C:     1.362E+08 [1/cm3]    J_NH3: 8.747E-15 [1/s/cm3]    sum(Nn)/N1 9.469E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.434E-07 [1/s/cm3]        |
+| Jion neutr 9.746E-16 [1/s/cm3]  Jion neg: 6.626E-17 [1/s/cm3] Jion pos: 7.706E-15 [1/s/cm3]      |
+| C-sink:    2.113E-03 [1/s]      IPR: 3.491E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:13 Est. time to finish (m:s) 7:42        Realtime/Modeltime:  181.72        |
++..................................................................................................+
+
++.Time: 00:50:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.407E-07 [/s/cm3]                                                       |
+ Building PSD from            2  modes
+|   :........Replacing PSD with background particles from 6. measurement (row 7 in file)           |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             4.79E-02    1.58E-01    2.93E-01    [nm/h]                                       |
+ 00:50:00   3000.0000000000000      max höyrynmuutos   1.3985105064075627E-003
+| ACID C:    8.432E+03 [1/cm3]    sum(An)/A1 7.330E-04 []                                          |
+| Temp:      2.766E+02 [K]        Pressure:  9.933E+04 [Pa]     Air_conc 2.601E+19 [1/cm3]         |
+| NH3 C:     1.212E+08 [1/cm3]    J_NH3: 8.136E-15 [1/s/cm3]    sum(Nn)/N1 1.018E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.407E-07 [1/s/cm3]        |
+| Jion neutr 8.919E-16 [1/s/cm3]  Jion neg: 6.447E-17 [1/s/cm3] Jion pos: 7.180E-15 [1/s/cm3]      |
+| C-sink:    2.113E-03 [1/s]      IPR: 3.321E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:16 Est. time to finish (m:s) 7:29        Realtime/Modeltime:  185.62        |
++..................................................................................................+
+
++.Time: 01:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.395E-07 [/s/cm3]                                                       |
+ Building PSD from            2  modes
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             3.57E-01    2.63E-01    2.83E-01    [nm/h]                                       |
+ 01:00:00   3600.0000000000000      max höyrynmuutos   5.2260028486862042E-003
+| ACID C:    8.432E+03 [1/cm3]    sum(An)/A1 7.268E-04 []                                          |
+| Temp:      2.769E+02 [K]        Pressure:  9.934E+04 [Pa]     Air_conc 2.599E+19 [1/cm3]         |
+| NH3 C:     2.434E+08 [1/cm3]    J_NH3: 1.170E-14 [1/s/cm3]    sum(Nn)/N1 4.978E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.395E-07 [1/s/cm3]        |
+| Jion neutr 1.594E-15 [1/s/cm3]  Jion neg: 9.050E-17 [1/s/cm3] Jion pos: 1.002E-14 [1/s/cm3]      |
+| C-sink:    7.978E-03 [1/s]      IPR: 3.168E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:19 Est. time to finish (m:s) 7:20        Realtime/Modeltime:  188.15        |
++..................................................................................................+
+
++.Time: 01:10:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.405E-07 [/s/cm3]                                                       |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             4.47E-01    3.34E-01    3.55E-01    [nm/h]                                       |
+ 01:10:00   4200.0000000000000      max höyrynmuutos   9.6770132589510741E-003
+| ACID C:    8.539E+03 [1/cm3]    sum(An)/A1 7.155E-04 []                                          |
+| Temp:      2.769E+02 [K]        Pressure:  9.934E+04 [Pa]     Air_conc 2.598E+19 [1/cm3]         |
+| NH3 C:     3.059E+08 [1/cm3]    J_NH3: 1.459E-14 [1/s/cm3]    sum(Nn)/N1 3.861E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.405E-07 [1/s/cm3]        |
+| Jion neutr 2.258E-15 [1/s/cm3]  Jion neg: 1.161E-16 [1/s/cm3] Jion pos: 1.221E-14 [1/s/cm3]      |
+| C-sink:    7.984E-03 [1/s]      IPR: 3.065E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:22 Est. time to finish (m:s) 7:21        Realtime/Modeltime:  186.18        |
++..................................................................................................+
+
++.Time: 01:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 3.419E-07 [/s/cm3]                                                       |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             4.18E-01    2.63E-01    2.70E-01    [nm/h]                                       |
+ 01:20:00   4800.0000000000000      max höyrynmuutos   1.0372508995998876E-002
+| ACID C:    2.073E+04 [1/cm3]    sum(An)/A1 6.563E-04 []                                          |
+| Temp:      2.769E+02 [K]        Pressure:  9.935E+04 [Pa]     Air_conc 2.598E+19 [1/cm3]         |
+| NH3 C:     1.833E+08 [1/cm3]    J_NH3: 3.476E-13 [1/s/cm3]    sum(Nn)/N1 6.288E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 3.419E-07 [1/s/cm3]        |
+| Jion neutr 6.376E-14 [1/s/cm3]  Jion neg: 4.901E-15 [1/s/cm3] Jion pos: 2.789E-13 [1/s/cm3]      |
+| C-sink:    7.982E-03 [1/s]      IPR: 3.017E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:25 Est. time to finish (m:s) 7:21        Realtime/Modeltime:  184.72        |
++..................................................................................................+
+
++.Time: 01:30:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.762E-07 [/s/cm3]                                                       |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             4.46E-01    3.02E-01    3.23E-01    [nm/h]                                       |
+ 01:30:00   5400.0000000000000      max höyrynmuutos   1.0368199832891840E-002
+| ACID C:    1.067E+04 [1/cm3]    sum(An)/A1 7.424E-04 []                                          |
+| Temp:      2.768E+02 [K]        Pressure:  9.933E+04 [Pa]     Air_conc 2.599E+19 [1/cm3]         |
+| NH3 C:     9.663E+07 [1/cm3]    J_NH3: 1.106E-13 [1/s/cm3]    sum(Nn)/N1 1.153E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.762E-07 [1/s/cm3]        |
+| Jion neutr 3.221E-14 [1/s/cm3]  Jion neg: 1.586E-15 [1/s/cm3] Jion pos: 7.678E-14 [1/s/cm3]      |
+| C-sink:    7.974E-03 [1/s]      IPR: 3.003E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:29 Est. time to finish (m:s) 7:22        Realtime/Modeltime:  182.95        |
++..................................................................................................+
+
++.Time: 01:40:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.401E-07 [/s/cm3]                                                       |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             4.73E-01    3.54E-01    3.81E-01    [nm/h]                                       |
+ 01:40:00   6000.0000000000000      max höyrynmuutos   1.0617458689897292E-002
+| ACID C:    8.590E+03 [1/cm3]    sum(An)/A1 6.416E-04 []                                          |
+| Temp:      2.770E+02 [K]        Pressure:  9.934E+04 [Pa]     Air_conc 2.597E+19 [1/cm3]         |
+| NH3 C:     1.191E+08 [1/cm3]    J_NH3: 7.040E-15 [1/s/cm3]    sum(Nn)/N1 9.162E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.401E-07 [1/s/cm3]        |
+| Jion neutr 1.498E-15 [1/s/cm3]  Jion neg: 6.271E-17 [1/s/cm3] Jion pos: 5.480E-15 [1/s/cm3]      |
+| C-sink:    7.977E-03 [1/s]      IPR: 3.001E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:33 Est. time to finish (m:s) 7:22        Realtime/Modeltime:  181.71        |
++..................................................................................................+
+
++.Time: 01:50:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.544E-07 [/s/cm3]                                                       |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             4.14E-01    2.64E-01    3.03E-01    [nm/h]                                       |
+ 01:50:00   6600.0000000000000      max höyrynmuutos   1.1251511119621352E-002
+| ACID C:    9.756E+03 [1/cm3]    sum(An)/A1 6.013E-04 []                                          |
+| Temp:      2.771E+02 [K]        Pressure:  9.934E+04 [Pa]     Air_conc 2.597E+19 [1/cm3]         |
+| NH3 C:     1.172E+08 [1/cm3]    J_NH3: 6.858E-15 [1/s/cm3]    sum(Nn)/N1 9.044E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.544E-07 [1/s/cm3]        |
+| Jion neutr 8.070E-16 [1/s/cm3]  Jion neg: 6.368E-17 [1/s/cm3] Jion pos: 5.987E-15 [1/s/cm3]      |
+| C-sink:    7.976E-03 [1/s]      IPR: 3.005E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:36 Est. time to finish (m:s) 7:17        Realtime/Modeltime:  182.41        |
++..................................................................................................+
+
++.Time: 02:00:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.263E-07 [/s/cm3]                                                       |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             4.39E-01    3.25E-01    3.43E-01    [nm/h]                                       |
+ 02:00:00   7200.0000000000000      max höyrynmuutos   1.2229489084000802E-002
+| ACID C:    8.255E+03 [1/cm3]    sum(An)/A1 5.858E-04 []                                          |
+| Temp:      2.770E+02 [K]        Pressure:  9.933E+04 [Pa]     Air_conc 2.597E+19 [1/cm3]         |
+| NH3 C:     8.511E+07 [1/cm3]    J_NH3: 3.143E-15 [1/s/cm3]    sum(Nn)/N1 1.197E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.263E-07 [1/s/cm3]        |
+| Jion neutr 3.789E-16 [1/s/cm3]  Jion neg: 3.058E-17 [1/s/cm3] Jion pos: 2.733E-15 [1/s/cm3]      |
+| C-sink:    7.972E-03 [1/s]      IPR: 3.027E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:39 Est. time to finish (m:s) 7:12        Realtime/Modeltime:  183.01        |
++..................................................................................................+
+
++.Time: 02:10:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 1.063E-07 [/s/cm3]                                                       |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             3.69E-01    2.31E-01    2.11E-01    [nm/h]                                       |
+ 02:10:00   7800.0000000000000      max höyrynmuutos   1.1865778387660734E-002
+| ACID C:    7.499E+03 [1/cm3]    sum(An)/A1 6.053E-04 []                                          |
+| Temp:      2.770E+02 [K]        Pressure:  9.934E+04 [Pa]     Air_conc 2.598E+19 [1/cm3]         |
+| NH3 C:     8.618E+07 [1/cm3]    J_NH3: 1.700E-15 [1/s/cm3]    sum(Nn)/N1 1.225E-05 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 1.063E-07 [1/s/cm3]        |
+| Jion neutr 1.449E-16 [1/s/cm3]  Jion neg: 1.385E-17 [1/s/cm3] Jion pos: 1.541E-15 [1/s/cm3]      |
+| C-sink:    7.966E-03 [1/s]      IPR: 3.083E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:42 Est. time to finish (m:s) 7:10        Realtime/Modeltime:  182.77        |
++..................................................................................................+
+
++.Time: 02:20:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 2.268E-07 [/s/cm3]                                                       |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             3.66E-01    2.24E-01    2.11E-01    [nm/h]                                       |
+ 02:20:00   8400.0000000000000      max höyrynmuutos   1.1947965780338082E-002
+| ACID C:    1.769E+04 [1/cm3]    sum(An)/A1 6.201E-04 []                                          |
+| Temp:      2.770E+02 [K]        Pressure:  9.935E+04 [Pa]     Air_conc 2.597E+19 [1/cm3]         |
+| NH3 C:     1.254E+08 [1/cm3]    J_NH3: 8.369E-14 [1/s/cm3]    sum(Nn)/N1 9.046E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 2.268E-07 [1/s/cm3]        |
+| Jion neutr 1.001E-14 [1/s/cm3]  Jion neg: 1.052E-15 [1/s/cm3] Jion pos: 7.262E-14 [1/s/cm3]      |
+| C-sink:    7.966E-03 [1/s]      IPR: 3.183E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:45 Est. time to finish (m:s) 7:07        Realtime/Modeltime:  182.62        |
++..................................................................................................+
+
++.Time: 02:30:00 ..................................................................................+
+|   :........DMA IGNORED                                                                           |
+| Organic formation rate: 8.970E-08 [/s/cm3]                                                       |
+| Growth rates (nm/h) between sizes (nm, starting from smallest bin)                               |
+| Sizes:     1.5    -->   6.0   -->  20.0   -->  30.0 [nm]                                         |
+| GR:             3.77E-01    2.89E-01    3.19E-01    [nm/h]                                       |
+ 02:30:00   9000.0000000000000      max höyrynmuutos   1.1769047771425135E-002
+| ACID C:    7.835E+03 [1/cm3]    sum(An)/A1 8.038E-04 []                                          |
+| Temp:      2.769E+02 [K]        Pressure:  9.935E+04 [Pa]     Air_conc 2.599E+19 [1/cm3]         |
+| NH3 C:     2.888E+08 [1/cm3]    J_NH3: 5.089E-14 [1/s/cm3]    sum(Nn)/N1 4.257E-06 []            |
+| DMA C:     0.000E+00 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 8.970E-08 [1/s/cm3]        |
+| Jion neutr 1.294E-14 [1/s/cm3]  Jion neg: 5.020E-16 [1/s/cm3] Jion pos: 3.744E-14 [1/s/cm3]      |
+| C-sink:    7.960E-03 [1/s]      IPR: 3.310E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:49 Est. time to finish (m:s) 7:02        Realtime/Modeltime:  183.09        |
++..................................................................................................+

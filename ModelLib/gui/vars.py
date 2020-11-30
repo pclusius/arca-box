@@ -13,6 +13,7 @@ class INITFILE:
         self.MODS = self._MODS(names)
         self.MISC = self._MISC()
         self.VAP = self._VAP()
+        self.PRECISION = self._PRECISION()
         self.CUSTOM = self._CUSTOM()
         self.RAW = self._RAW()
         self.SETTINGS = self._SETTINGS()
@@ -34,6 +35,7 @@ class INITFILE:
         self.MODS.printall(cmd,f,eol,mods)
         self.MISC.printall(cmd,f,eol)
         self.VAP.printall(cmd,f,eol)
+        self.PRECISION.printall(cmd,f,eol)
         self.CUSTOM.printall(cmd,f,eol)
         self.RAW.printall(cmd,f,eol)
         self.SETTINGS.printall(cmd,f,eol)
@@ -237,6 +239,19 @@ class INITFILE:
             exec("%s(' USE_ATOMS = %s%s')"%(cmd,self.USE_ATOMS,eol))
             exec("%s(' VAP_NAMES = \\'%s\\'%s')"%(cmd,self.VAP_NAMES,eol))
             exec("%s(' VAP_ATOMS = \\'%s\\'%s')"%(cmd,self.VAP_ATOMS,eol))
+            exec("%s('/ \\n%s')"%(cmd, eol))
+
+    class _PRECISION:
+        def __init__(self):
+            self.DIAMETER_PREC_DEF=''
+            self.PNUMBER_PREC_DEF=''
+            self.VAPOUR_PREC_DEF=''
+
+        def printall(self,cmd,f,eol):
+            exec("%s('&NML_PRECISION%s')"%(cmd, eol))
+            exec("%s(' DIAMETER_PREC_DEF = %s%s')"%(cmd,self.DIAMETER_PREC_DEF,eol))
+            exec("%s(' PNUMBER_PREC_DEF = %s%s')"%(cmd,self.PNUMBER_PREC_DEF,eol))
+            exec("%s(' VAPOUR_PREC_DEF = %s%s')"%(cmd,self.VAPOUR_PREC_DEF,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _CUSTOM:
