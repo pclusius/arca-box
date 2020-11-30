@@ -8,3 +8,6 @@ __pycache__
 run_arca.sh
 arca.desktop
 *.nc
+INOUT/**
+*
+!INOUT/
