@@ -8,66 +8,73 @@ This script combines different files to create input for THEBOX.
 The first file in input vector defines the time column; other files are interpolated to that time.
 '''
 dates = [
-'180401',
-'180402',
-'180403',
-'180404',
-'180405',
-'180406',
-'180407',
-'180408',
-'180409',
-'180410',
-'180411',
-'180412',
-'180413',
-'180414',
-'180415',
-'180416',
-'180417',
-'180418',
-'180419',
-'180420',
-'180421',
-'180422',
-'180423',
-'180424',
-'180425',
-'180426',
-'180427',
-'180428',
-'180429',
-'180430',
+'2016-06-12',
+'2017-04-08',
+'2017-05-28',
+'2017-07-15',
+'2018-05-31',
+'2016-10-02',
+'2017-05-23',
+'2017-06-03',
+'2018-05-27',
+'2019-07-31',
+'2017-03-19',
+'2017-03-28',
+'2017-04-04',
+'2018-03-30',
+'2018-06-12',
 ]
 
 
+# input = ([
+# 'SMEAR_TEMP_168.dat',
+# 'SMEAR_PRESS.dat',
+# 'SMEAR_RH.dat',
+# 'SMEAR_SWR.dat',
+# 'SA_tower.dat',
+# 'SA_ground.dat',
+# 'NH3.dat',
+# 'SMEAR_CS.dat',
+# 'SMEAR_GAS_CO.dat',
+# 'SMEAR_GAS_NO2.dat',
+# 'SMEAR_GAS_NO.dat',
+# 'SMEAR_GAS_O3.dat',
+# 'SMEAR_GAS_SO2.dat',
+# ])
 input = ([
-'SMEAR_TEMP_168.dat',
-'SMEAR_PRESS.dat',
-'SMEAR_RH.dat',
-'SMEAR_SWR.dat',
-'SA_tower.dat',
-'SA_ground.dat',
-'NH3.dat',
-'SMEAR_CS.dat',
-'SMEAR_GAS_CO.dat',
-'SMEAR_GAS_NO2.dat',
-'SMEAR_GAS_NO.dat',
-'SMEAR_GAS_O3.dat',
-'SMEAR_GAS_SO2.dat',
+'acetaldehyde.dat',
+'acetic_acid.dat',
+'acetone.dat',
+'benzene.dat',
+'CO.dat',
+'ethanol.dat',
+'isoprene.dat',
+'mek.dat',
+'methanol.dat',
+'mono.dat',
+'monofrag.dat',
+'NO.dat',
+'NOX.dat',
+'O3.dat',
+'pres.dat',
+'rh.dat',
+'SO2.dat',
+'SWR.dat',
+'temp.dat',
+'toluene.dat',
 ])
 
 combofile = 'VOC_0042.dat'
 
-multicolumn = True
+multicolumn = False
 
 if not multicolumn:
     for date in dates:
-        data_folder = '../../INOUT/HYDE/PC_20'+date[0:2]+'-'+date[2:4]+'-'+date[4:]+'/input'
+        data_folder = '/home/pecl/01-TUTKIMUS/Gradu/Casestudy/'+date+'/input'
         column = 0
         header = ''
-        source_dir = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+date
-        filename    = 'env'+date+'.dat'
+        source_dir = data_folder#'/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+date
+        filename    = 'all'+date+'.dat'
         for file in input:
             if column == 0:
                 time,meas = np.genfromtxt(source_dir+'/'+file, usecols=(0,1), unpack=True)
@@ -89,7 +96,7 @@ if not multicolumn:
 
 if multicolumn:
     for date in dates:
-        data_folder = '../../INOUT/HYDE/PC_20'+date[0:2]+'-'+date[2:4]+'-'+date[4:]+'/input'
+        data_folder = '../../INOUT/PC_20'+date[0:2]+'-'+date[2:4]+'-'+date[4:]+'/input'
         column = 0
         header = ''
         source_dir = '/home/pecl/04-MALTE/dMalte/Malte_in/Box/April2018/PC'+date

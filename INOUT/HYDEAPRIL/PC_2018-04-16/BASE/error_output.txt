@@ -1,0 +1,8 @@
+ Precision error at simulation time [s]   57190.000000000000     
+ current simulation timestep [s]   10.000000000000000     
+ Process causing troubles: Condensation
+   ERROR TYPE: large diameter change
+   => reduce dt [s]:   5.0000000000000000     
+ 
+error state: F, error process: 0
+ ---------- SIMULATION REACHED END SUCCESFULLY ------------

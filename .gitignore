@@ -5,3 +5,7 @@
 *.nc
 *.dump
 __pycache__
+**/.DS_Store
+run_arca.sh
+arca.desktop
+INOUT/**

@@ -1,2 +1,4 @@
 *.ui
 __init__.py
+dev/*
+tmp/*
