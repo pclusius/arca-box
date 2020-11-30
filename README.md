@@ -1,10 +1,24 @@
 You will need C and Fortran compilers (gcc, gfortran, iFortran and/or similar) to compile the model. Model relies on
-NetCDF4 to save files, so you'll need that too. ON WINDOWS, THE BEST WAY TO THIS IS WITH CYGWIN. See this tutorial video:
-https://www.helsinki.fi/fi/unitube/video/7419bbe3-3fc8-493a-b076-7307d2e8191c
+NetCDF4 to save files, so you'll need that too. ON WINDOWS, THE BEST WAY INSTALL THE NECESSARY PACKAGES IS WITH CYGWIN.
+See this tutorial video: https://www.helsinki.fi/fi/unitube/video/7419bbe3-3fc8-493a-b076-7307d2e8191c
 
-For convenience, there is a client to set up and run the model, this is written in Python 3.6. Necessary libraries are:
+To use the graphical user interface, you need Python 3. We strongly encourage to use the native Python on Windows
+instead of Linux Subsystem (although this may work also).
+
+After Python 3 is available, there is a client to set up the model. Go to directory install/, start the terminal and run
+setup.py (for example, if you call Python 3 with python3, the command is "python3 setup.py"). The setup will ask you to
+install the necessary Python Modules, if they are not available. If you want to use some other installation procedure for
+them, just answer "n" for the prompt.
+
+Next you will be asked if the Fortran model should be compiled. If this is succesful, a script file is written in the
+root folder, and the GUI can be started from there by calling "sh run_arca.sh"
+
+
+The necessary Python modules are:
 
 - numpy
+
+- scipy
 
 - PyQt5
 
@@ -12,16 +26,9 @@ For convenience, there is a client to set up and run the model, this is written 
 
 - netcdf4-python (optional, but highly recommended)
 
+- matplotlib (also optional, but recommended)
 
-You can (probably) install these with command: <python 3> -m pip install -U <module>, but this might vary from one
-Python installation to another. Also using Python VIRTUALENV is advisable.
 
-TO USE THE CLIENT:
-After the python modules are working, to setup the client, run setup.py and see that the model compiles.
-The script asks for the command used to run python, enter it. After the script is finished, start the model
-by typing the command:
-
-sh run_arca.sh
 
 
 Learn more of using ARCA from this video: https://www.helsinki.fi/fi/unitube/video/b2c6775e-ad5f-4cee-9fd5-e502af2fb256
