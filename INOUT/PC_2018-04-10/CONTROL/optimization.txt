@@ -1,2 +1,0 @@
- Time step was not optimized, dt:    10.000000000000000     
- ---------- SIMULATION REACHED END SUCCESFULLY ------------
