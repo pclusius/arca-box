@@ -1352,6 +1352,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
         currentWait = self.wait_for.value()
         self.wait_for.setValue(0)
+        if not exists(gui_path+'tmp'):
+            mkdir(gui_path+'tmp')
         self.print_values(tempfile)
         self.wait_for.setValue(currentWait)
 
