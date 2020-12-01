@@ -512,16 +512,11 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRCION%con),d_dpar,d_vap)
 
             ! ERROR HANDLING
-            IF ((maxval(ABS(d_dpar)) > change_range(1,2) .or. sum(ABS(d_vap))/vapour_prop%n_condtot > change_range(3,2)) .and. use_speed) THEN   !if the changes in diameter are too big
+            IF ((maxval(ABS(d_dpar)) > change_range(1,2) .or. maxval(ABS(d_vap)) > change_range(3,2)) .and. use_speed) THEN   ! if the changes in diameter are too big
                 ! IF (n_of_Rounds>=0) THEN
-                print*, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
                 PRCION%err = .true.
                 PRCION%proc = PRCION%con
                 ! end if
-                print*, 'dpar ja höy', maxval(ABS(d_dpar)) > change_range(1,2), sum(ABS(d_vap))/vapour_prop%n_condtot > change_range(3,2)
-                print*, 'dpar ja höy', maxval(ABS(d_dpar)),  change_range(1,2), sum(ABS(d_vap))/vapour_prop%n_condtot,  change_range(3,2)
-                print*, maxloc(ABS(d_vap)), VAPOUR_PROP%vapour_names( maxloc(ABS(d_vap)))
-
                 IF (maxval(ABS(d_dpar)) > change_range(1,2)) THEN
                     PRCION%err_text = 'Too large diameter change: '//f2chr(maxval(abs(d_dpar)))   !d_dpar(maxloc(abs(d_dpar)))
                 ELSE IF (sum(ABS(d_vap))/vapour_prop%n_condtot > change_range(3,2)) THEN
@@ -715,7 +710,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
     if (Handbrake_on) THEN
         n_of_Rounds = n_of_Rounds +1
-        IF (n_of_Rounds > 30) THEN
+        IF (n_of_Rounds > 50) THEN
             Handbrake_on = .false.
             Use_speed = .true.
             n_of_Rounds = 0
@@ -778,14 +773,13 @@ SUBROUTINE error_handling(PRCION,speed_up)
         write(608,*) '  => reduce speed_up:',speed_up(PRCION%proc)*2, '->',speed_up(PRCION%proc)
         write(*,FMT_SUB) '  => reduce speed_up:'//i2chr(speed_up(PRCION%proc)*2)//'->'//i2chr(speed_up(PRCION%proc))
     ELSE
-        if (GTIME%dt/5>=DT_0) THEN
+        if (GTIME%dt*4>=DT_0) THEN
             GTIME%dt = GTIME%dt / 2.d0
             write(608,*) '  => reduce dt [s]:', GTIME%dt
             write(*,FMT_WARN0) '  => reduce dt [s]:'//f2chr(GTIME%dt)
         ELSE
             write(*,FMT_WARN0) '  Can not reduce dt any more'//f2chr(GTIME%dt)
         END IF
-        print*, gtime%hms,GTIME%sec, 'max höyrynmuutos', sum(ABS(d_vap))/vapour_prop%n_condtot
         ! DO i = 1,size(speed_up)
         !     IF (i /= PRCION%proc) speed_up(i) = speed_up(i) * 2
         ! END DO
