@@ -645,7 +645,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
     end if
     ! End Aerosol =====================================================================================
 
-    if (gtime%printnow) print*, gtime%hms,GTIME%sec, 'max höyrynmuutos', sum(ABS(d_vap))/vapour_prop%n_condtot
+    if (gtime%printnow) print*, gtime%hms,GTIME%sec, 'max rel. change in vapours', maxval(ABS(d_vap)), VAPOUR_PROP%vapour_names(maxloc(ABS(d_vap)))
     ! SPEED handling
     IF (PRCION%err) THEN  ! In case of a timestep error (i.e. too large changes in aerosol dynamics)
         print*, n_of_Rounds

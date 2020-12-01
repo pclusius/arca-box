@@ -29,7 +29,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: kohler_effect
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp_old
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: xorg         ! mole fraction of each organic compound in each bin
-    REAL(dp), DIMENSION(n_bins_par, n_cond_tot) :: conc_pp_eq
+    REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp_eq
     REAL(dp), DIMENSION(n_cond_tot)             :: conc_tot
     REAL(dp), DIMENSION(n_cond_tot)             :: conc_vap_old
     REAL(dp)                                    :: n_conc(n_bins_par)
@@ -53,7 +53,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
   diameter = get_dp()
   volume = get_volume()
   mass = sum(conc_pp, 2)
-
+  conc_pp_eq = 0d0
   ! Fill the number concentration composition matrix
   do ii=1, n_bins_par
     conc_pp(ii,:) = conc_pp(ii,:) * Na / VAPOUR_PROP%molar_mass * n_conc(ii)
@@ -123,6 +123,9 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
                 .AND. conc_vap_old(ii)<(Kelvin_Effect(:,ii) * VAPOUR_PROP%c_sat(ii))) &
                 conc_pp(:,ii) = conc_pp_eq(:,ii)
     END IF
+
+    ! XXX NOTE We change GENERIC back to what it was before
+    conc_pp(:,VAPOUR_PROP%ind_GENERIC) = conc_pp_old(:,VAPOUR_PROP%ind_GENERIC)
 
     ! Update conc_vap: total conc - particle phase concentration
     conc_vap(ii) = conc_tot(ii) - sum(conc_pp(:,ii))

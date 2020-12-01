@@ -477,6 +477,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.ncs_mass = 0
         self.showAlsoMeasInMassConc.stateChanged.connect(self.updateMass)
         self.showAlsoMeasInMassConc.stateChanged.connect(self.updateNumbers)
+        self.TimerPlot = QtCore.QTimer(self);
 
     # -----------------------
     # Load preferences, or create preferences if not found
