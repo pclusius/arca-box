@@ -114,6 +114,7 @@ class INITFILE:
             self.MIN_PARTICLE_DIAM=0
             self.MAX_PARTICLE_DIAM=0
             self.N_MODAL=0
+            self.MMODAL_INPUT_INUSE=-1
             self.DMPS_FILE=0
             self.EXTRA_PARTICLES=0
             self.MMODAL_INPUT=0
@@ -130,6 +131,7 @@ class INITFILE:
             exec("%s(' MIN_PARTICLE_DIAM = %s%s')"%(cmd,self.MIN_PARTICLE_DIAM,eol))
             exec("%s(' MAX_PARTICLE_DIAM = %s%s')"%(cmd,self.MAX_PARTICLE_DIAM,eol))
             exec("%s(' N_MODAL = %s%s')"%(cmd,self.N_MODAL,eol))
+            exec("%s(' MMODAL_INPUT_INUSE = %s%s')"%(cmd,self.MMODAL_INPUT_INUSE,eol))
             exec("%s(' DMPS_FILE = \\'%s\\'%s')"%(cmd,self.DMPS_FILE,eol))
             exec("%s(' EXTRA_PARTICLES = \\'%s\\'%s')"%(cmd,self.EXTRA_PARTICLES,eol))
             exec("%s(' MMODAL_INPUT = \\'%s\\'%s')"%(cmd,self.MMODAL_INPUT,eol))

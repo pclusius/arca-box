@@ -125,14 +125,15 @@ INTEGER             :: n_xpar_options = 3    ! number of options in the extra_pa
 ! Note: the number of channels does not have to be the number of size bins
 CHARACTER(len=256)  :: extra_particles = '' ! file containing paths to extra particle sumfile
 CHARACTER(len=500)  :: mmodal_input    = '' ! String defining the Modal PSD
-
+INTEGER             :: mmodal_input_inuse  = -1 ! Switch toggling the Modal PSD
 REAL(dp)            :: dmps_highband_lower_limit = 0d0    !for use_dmps_partial, read all dmps data above this diameter [m]
 REAL(dp)            :: dmps_lowband_upper_limit = 0d0  !for use_dmps_partial, read all dmps data below this diameter [m]
 logical             :: use_dmps = .false.
 logical             :: use_dmps_partial = .false.
 REAL(dp)            :: N_MODAL = -1d0   !for use_dmps_partial, read all dmps data below this diameter [m]
 NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_par,min_particle_diam,max_particle_diam, DMPS_file,extra_particles,& !DMPS_dir,extra_p_dir,
-                        DMPS_read_in_time,dmps_highband_lower_limit, dmps_lowband_upper_limit,use_dmps,use_dmps_partial, mmodal_input, N_MODAL
+                        DMPS_read_in_time,dmps_highband_lower_limit, dmps_lowband_upper_limit,use_dmps,use_dmps_partial, &
+                        mmodal_input, N_MODAL, mmodal_input_inuse
 
 REAL(dp), ALLOCATABLE            :: MMODES(:)  !for use_dmps_partial, read all dmps data below this diameter [m]
 type(particle_grid), ALLOCATABLE :: xtras(:)
@@ -952,6 +953,7 @@ SUBROUTINE PARSE_MULTIMODAL()
     ELSE
         N_MODAL = -1d0
     ENDIF
+    IF (mmodal_input_inuse == 0) N_MODAL = -1d0
 
 END SUBROUTINE PARSE_MULTIMODAL
 

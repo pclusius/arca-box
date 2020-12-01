@@ -507,7 +507,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         if self.mmp.isHidden() and pop:
             self.mmp.show()
             self.mmp.move(self.x(),self.y()+self.height()-self.mmp.height())
-
             self.mmp.splot(self.mmodal_input.text(),self.n_modal.text(),nb,x0,x1)
         elif self.mmp.isVisible() and not pop:
             self.mmp.splot(self.mmodal_input.text(),self.n_modal.text(),nb,x0,x1)
@@ -1396,6 +1395,13 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             return '.FALSE.'
 
 
+    def checkboxToINT(self, widget):
+        if widget.isChecked() == True:
+            return 1
+        else:
+            return 0
+
+
     def update_nml(self):
         # class _SETTINGS:
         nml.SETTINGS.BATCH = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s' %(
@@ -1465,6 +1471,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.PARTICLE.N_BINS_PAR=self.n_bins_particle.value()
         nml.PARTICLE.MIN_PARTICLE_DIAM=self.min_particle_diam.text()
         nml.PARTICLE.MAX_PARTICLE_DIAM=self.max_particle_diam.text()
+        nml.PARTICLE.MMODAL_INPUT_INUSE=self.checkboxToINT(self.multiModalBox)
         nml.PARTICLE.N_MODAL=self.n_modal.text()
         nml.PARTICLE.DMPS_FILE=self.pars(self.dmps_file.text(), file=self.indir, stripRoot=self.stripRoot_par.isChecked())
         nml.PARTICLE.EXTRA_PARTICLES=self.pars(self.extra_particles.text(), file=self.indir, stripRoot=self.stripRoot_xtr.isChecked())
@@ -1677,6 +1684,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'MIN_PARTICLE_DIAM' == key: self.min_particle_diam.setText(strng)#   1.0000000000000001E-009,
             elif 'MAX_PARTICLE_DIAM' == key: self.max_particle_diam.setText(strng)#   9.9999999999999995E-007,
             elif 'N_MODAL' == key: self.n_modal.setText(strng)#   9.9999999999999995E-007,
+            elif 'MMODAL_INPUT_INUSE' == key: self.multiModalBox.setChecked(int(strng))#   9.9999999999999995E-007,
             elif 'DMPS_FILE' == key: self.dmps_file.setText(strng)
             elif 'EXTRA_PARTICLES' == key: self.extra_particles.setText(strng)
             elif 'MMODAL_INPUT' == key: self.mmodal_input.setText(strng)
