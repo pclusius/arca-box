@@ -237,8 +237,8 @@ write(*,*) ''
 
 open(unit=608, file=RUN_OUTPUT_DIR//'/optimization.txt',status='replace',action='write')
 
+DT_0 = GTIME%dt
 if (Use_speed) THEN
-    DT_0 = GTIME%dt
     print FMT_HDR, 'Simulation time step will be optimized for speed and precision'
     ! print '("| ",a,6(f7.2, " % "),t100,"|")', 'precision limits: ', change_range(1:3,:)*100
     ! print '("| ",a,4(f7.2, " % "),t100,"|")', '                  ', change_range(4:5,:)*100
@@ -704,7 +704,6 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
         ! Add main timestep to GTIME'
         GTIME = ADD(GTIME)
-
 
     END IF ! SPEED handling
 
