@@ -246,9 +246,9 @@ do j=1, n_bins_par
             a= 1.0_dp
         END if
         IF (n_conc(j) > 1.d0 .and. n_conc(m) > 1.d0) dconc_coag(j,m) = a * coagulation_coef(j,m) * n_conc(j) * n_conc(m) * dt_coag ! 1/m^3 '/ dt
-        if (GTIME%printnow .and. ((dconc_coag(j,m)>n_conc(j)) .or. (dconc_coag(j,m)>n_conc(m)))) THEN
+        if ((dconc_coag(j,m)>n_conc(j)) .or. (dconc_coag(j,m)>n_conc(m))) THEN
             print FMT_WARN0, 'It seems that the upper size range is too small and should be increased (a good start is by 200%)'
-            print FMT_WARN0, j,m,coagulation_coef(j,m),n_conc(j),n_conc(m)
+            print FMT_WARN0, i2chr(j)//', '//i2chr(m)//', '//f2chr(coagulation_coef(j,m))//', '//f2chr(n_conc(j))//', '//f2chr(n_conc(m))
         END IF
     END DO
 

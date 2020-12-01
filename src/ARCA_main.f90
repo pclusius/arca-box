@@ -550,6 +550,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
                 CH_GAS(index_cond) = conc_vapour(1:VAPOUR_PROP%n_condorg) *1D-6
                 ! Again sulfuric acid always needs special treatment
                 CH_GAS(ind_H2SO4) = conc_vapour(n_cond_tot)*1d-6
+
                 ! Check whether timestep can be increased:
                 IF (maxval(ABS(d_dpar)) < change_range(1,1) .and. sum(ABS(d_vap))/vapour_prop%n_condtot < change_range(3,1) .and. use_speed) THEN
                     speed_up(PRCION%con) = speed_up(PRCION%con) * 2
@@ -645,7 +646,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
     end if
     ! End Aerosol =====================================================================================
 
-    if (gtime%printnow) print*, gtime%hms,GTIME%sec, 'max rel. change in vapours', maxval(ABS(d_vap)), VAPOUR_PROP%vapour_names(maxloc(ABS(d_vap)))
+    if (gtime%printnow) print*, gtime%hms,GTIME%sec, 'max rel. change in vapours', d_vap(maxloc(ABS(d_vap))), VAPOUR_PROP%vapour_names(maxloc(ABS(d_vap)))
     ! SPEED handling
     IF (PRCION%err) THEN  ! In case of a timestep error (i.e. too large changes in aerosol dynamics)
         print*, n_of_Rounds

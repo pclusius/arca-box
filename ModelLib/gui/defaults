@@ -1,32 +1,32 @@
 #--------------------------------------------------
 #      ARCA box setting file: ModelLib/gui/defaults
-#         Created at: Nov 30 2020, 13:52:18
+#         Created at: Dec 01 2020, 11:55:21
 #--------------------------------------------------
 
 &NML_PATH
  INOUT_DIR = 'INOUT/'
  CASE_NAME = 'PC'
- RUN_NAME = 'ALKU_1PR'
+ RUN_NAME = 'CONTROL'
 / 
 
 &NML_FLAG
  CHEMISTRY_FLAG = .TRUE.
  AEROSOL_FLAG = .TRUE.
  ACDC_SOLVE_SS = .FALSE.
- ACDC = .FALSE.
+ ACDC = .TRUE.
  CONDENSATION = .TRUE.
  COAGULATION = .TRUE.
  DEPOSITION = .FALSE.
  CHEM_DEPOSITION = .FALSE.
- MODEL_H2SO4 = .FALSE.
+ MODEL_H2SO4 = .TRUE.
  RESOLVE_BASE = .FALSE.
- ORG_NUCL = .FALSE.
+ ORG_NUCL = .TRUE.
  PRINT_ACDC = .FALSE.
  USE_SPEED = .FALSE.
 / 
 
 &NML_TIME
- RUNTIME = 18.0
+ RUNTIME = 24.0
  DT = 10.0
  FSAVE_INTERVAL = 300
  PRINT_INTERVAL = 600
@@ -37,22 +37,23 @@
 
 &NML_PARTICLE
  PSD_MODE = 1
- N_BINS_PAR = 100
+ N_BINS_PAR = 80
  MIN_PARTICLE_DIAM = 1.48d-9
  MAX_PARTICLE_DIAM = 2d-6
  N_MODAL = 2000
+ MMODAL_INPUT_INUSE = 0
  DMPS_FILE = 'INOUT/filled_dmps/dm180414.sum'
  EXTRA_PARTICLES = ''
  MMODAL_INPUT = '10e-9 0.1 1 250e-9 0.2 1'
- DMPS_READ_IN_TIME = 0.0
+ DMPS_READ_IN_TIME = 1.0
  DMPS_HIGHBAND_LOWER_LIMIT = 20e-9
  DMPS_LOWBAND_UPPER_LIMIT = 
- USE_DMPS = .FALSE.
+ USE_DMPS = .TRUE.
  USE_DMPS_PARTIAL = .FALSE.
 / 
 
 &NML_ENV
- ENV_FILE = 'INOUT/PC_2018-04-14/input/env180414.dat'
+ ENV_FILE = 'INOUT/HYDEAPRIL/PC_2018-04-14/input/env180414.dat'
  LOSSES_FILE = ''
  CHAMBER_FLOOR_AREA = 779.8
  CHAMBER_CIRCUMFENCE = 99.0
@@ -63,7 +64,7 @@
 / 
 
 &NML_MCM
- MCM_FILE = 'INOUT/PC_2018-04-14/input/voc180414.dat'
+ MCM_FILE = 'INOUT/HYDEAPRIL/PC_2018-04-14/input/voc180414.dat'
 / 
 
 &NML_MODS
@@ -103,7 +104,7 @@
  LAT = 65.0
  LON = -25.0
  WAIT_FOR = 0
- DESCRIPTION = 'HOMS SPEED NEW, 1% lower limit'
+ DESCRIPTION = 'CONTROL case with nominal values and ~500 vapours'
  CH_ALBEDO = 0.2
  DMA_F = 0.01
  RESOLVE_BASE_PRECISION = 0.05
@@ -119,7 +120,7 @@
 &NML_PRECISION
  DIAMETER_PREC_DEF = 1.000000,10.000000
  PNUMBER_PREC_DEF = 1.000000,10.000000
- VAPOUR_PREC_DEF = 0.100000,105.000000
+ VAPOUR_PREC_DEF = 0.100000,10.000000
 / 
 
 &NML_CUSTOM
@@ -144,7 +145,7 @@
 
 # Following settings are for the GUI and not directly used by the model ----- 
 # RAW_INPUT = # Options available in CUSTOM_NML (and defaults)<br># I: acdc_iterations = 4<br># I: INITIALIZE_FROM = 0<br># C: INITIALIZE_WITH = ''<br># L: use_raoult = .True.<br># L: variable_density = .False.<br># L: DONT_SAVE_CONDENSIBLES = .False.<br># L: skip_acdc = .True.<br># R: dmps_tres_min = 10.<br># R: VP_MULTI = 1d0<br># R: start_time_s = 0d0<br># R: dmps_multi = 1d6<br># R: END_DMPS_SPECIAL = 1d50<br># R: FLOAT_CHEMISTRY_AFTER_HRS = 1d100
-# INPUT_SETTINGS = 'env_file:INOUT/input/PC_<yyyy>-<mm>-<dd>/input/env<yy><mm><dd>.dat mcm_file:INOUT/input/PC_<yyyy>-<mm>-<dd>/input/voc<yy><mm><dd>.dat dmps_file:INOUT/filled_dmps/dm<yy><mm><dd>.sum extra_particles: stripRoot_env:.TRUE. stripRoot_mcm:.TRUE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
+# INPUT_SETTINGS = 'env_file:INOUT/HYDEAPRIL/PC_<yyyy>-<mm>-<dd>/input/env<yy><mm><dd>.dat mcm_file:INOUT/HYDEAPRIL/PC_<yyyy>-<mm>-<dd>/input/voc<yy><mm><dd>.dat dmps_file:INOUT/filled_dmps/dm<yy><mm><dd>.sum extra_particles: stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #---------------------------------------------------------------------------- 
 
