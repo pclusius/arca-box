@@ -514,6 +514,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             ! ERROR HANDLING
             IF ((maxval(ABS(d_dpar)) > change_range(1,2) .or. sum(ABS(d_vap))/vapour_prop%n_condtot > change_range(3,2)) .and. use_speed) THEN   !if the changes in diameter are too big
                 ! IF (n_of_Rounds>=0) THEN
+                print*, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
                 PRCION%err = .true.
                 PRCION%proc = PRCION%con
                 ! end if

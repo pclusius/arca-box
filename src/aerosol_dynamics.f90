@@ -11,7 +11,6 @@ IMPLICIT NONE
 CONTAINS
 
 
-
 ! ======================================================================================================================
 ! Main condensation subroutine. We use the Analytical predictor of condensation scheme Jacobson 1997c, 2002 and
 ! fundamentals of atmospheric modelling. Dmass, which is the flux onto or removed from the particles is the outcome
@@ -44,7 +43,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
 
   INTEGER :: ii
   if (TEMP_DEP_SURFACE_TENSION) THEN
-      st = 0.1d0 * (1D0/3D0) * ((76.1d0 - 0.155d0*(GTEMPK-273.15d0))*1d-3)
+      st = (1D0/3D0) * ((76.1d0 - 0.155d0*(GTEMPK-273.15d0))*1d-3)
   ELSE
     st = VAPOUR_PROP%surf_tension(1)
   END IF
@@ -95,8 +94,8 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
 
   ! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
   DO ii=1,n_bins_par
-    conc_pp_eq(ii,1:n_cond_tot-2) = conc_vap_old(1:n_cond_tot-2)*SUM(conc_pp_old(ii,1:n_cond_tot-2)) &
-                                    / (Kelvin_Effect(ii,1:n_cond_tot-2)*VAPOUR_PROP%c_sat(1:n_cond_tot-2))
+    conc_pp_eq(ii,1:n_cond_tot-1) = conc_vap_old(1:n_cond_tot-1)*SUM(conc_pp_old(ii,1:n_cond_tot-1)) &
+                                    / (Kelvin_Effect(ii,1:n_cond_tot-1)*VAPOUR_PROP%c_sat(1:n_cond_tot-1))
   END DO
 
   DO ii = 1, n_cond_tot
@@ -120,7 +119,9 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
 
     ! Prevents particles to grow over the saturation limit. For organics, no acids or GENERIC included
     IF (ii < VAPOUR_PROP%ind_GENERIC) then
-      WHERE (diameter>0d0 .and. conc_pp(:,ii)>conc_pp_eq(:,ii) .AND. conc_vap_old(ii)<(Kelvin_Effect(:,ii) * VAPOUR_PROP%c_sat(ii))) conc_pp(:,ii) = conc_pp_eq(:,ii)
+      WHERE (diameter>0d0 .and. conc_pp(:,ii)>conc_pp_eq(:,ii) &
+                .AND. conc_vap_old(ii)<(Kelvin_Effect(:,ii) * VAPOUR_PROP%c_sat(ii))) &
+                conc_pp(:,ii) = conc_pp_eq(:,ii)
     END IF
 
     ! Update conc_vap: total conc - particle phase concentration
@@ -146,7 +147,8 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
   ! derive diameter changes for integration time-step optimization
   DO ii = 1, n_bins_par
     IF (SUM(conc_pp_old(ii,:)) > 0.d0 .and. n_conc(ii) > 1.d-10) THEN
-      d_dpar(ii) = (SUM(conc_pp_old(ii,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ii) + SUM(dmass(ii,:))) /  (SUM(conc_pp_old(ii,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ii))
+      d_dpar(ii) = (SUM(conc_pp_old(ii,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ii) + SUM(dmass(ii,:))) &
+                    / (SUM(conc_pp_old(ii,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ii))
       if (d_dpar(ii)<0) THEN
           d_dpar(ii) = -1d0*((-1d0*d_dpar(ii)) ** (1.d0/3.d0)) - 1.d0
       ELSE
@@ -404,7 +406,6 @@ function collision_rate(jj,diameter, mass,VAPOUR_PROP)
                      /(Knudsen**2D0 + Knudsen+0.283*Knudsen*VAPOUR_PROP%alpha(jj) + 0.75d0 * VAPOUR_PROP%alpha(jj))
     D_vap_eff      = (VAPOUR_PROP%diff(jj) + Diff_par) * FS_corr ! m^2/s
     collision_rate = 2D0*pi*(diameter + VAPOUR_PROP%diff_dia(jj)) * D_vap_eff       ! mass transfer coefficient s^-1
-
 
 END function collision_rate
 !

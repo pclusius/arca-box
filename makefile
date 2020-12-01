@@ -3,7 +3,7 @@
 # compiler
 F90 = gfortran
 
-OPTI = O2
+OPTI = O0
 
 # Put .o and .mod files here:
  OBJDIR  = build
@@ -117,7 +117,7 @@ $(OBJDIR)/vode.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vode.f
 $(OBJDIR)/vodea.o: ACDC/ACDC_module_ions_2018_08_31/solvers/vodea.f
 	$(F90) -std=legacy -O3 -c $< -o $@
 
-$(OBJDIR)/chemistry.o: chemistry.f90 data_format.o second_Parameters.o settings.o second_Main.o
+$(OBJDIR)/chemistry.o: chemistry.f90 second_Parameters.o second_Main.o
 	$(F90) $(BOX_OPTS) -c $< -o $@
 
 # Actual model files
