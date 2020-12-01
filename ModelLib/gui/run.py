@@ -477,8 +477,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.ncs_mass = 0
         self.showAlsoMeasInMassConc.stateChanged.connect(self.updateMass)
         self.showAlsoMeasInMassConc.stateChanged.connect(self.updateNumbers)
-        self.TimerPlot = QtCore.QTimer(self);
-
+        # self.TimerPlot = QtCore.QTimer(self);
+        self.pollTimer.timeout.connect(self.livePlot)
+        self.liveUpdate.setEnabled(False)
     # -----------------------
     # Load preferences, or create preferences if not found
     # -----------------------
@@ -497,6 +498,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Class methods
     # -----------------------
+    def livePlot(self):
+        if self.liveUpdate.isChecked():
+            self.showParOutput(self.saveCurrentOutputDir+'/particle_conc.sum',0)
+
 
     def seeInAction(self, pop=True):
         nb = self.n_bins_particle.value()
@@ -1221,7 +1226,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def stopBox(self):
         self.Timer.stop()
+        # self.TimerPlot.stop()
         self.pollTimer.stop()
+        self.liveUpdate.setChecked(False)
+        self.liveUpdate.setEnabled(False)
         self.boxProcess.kill()
         tout = self.boxProcess.wait(timeout=10)
         self.boxProcess.poll()
@@ -1362,7 +1370,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             self.saveCurrentOutputDir = self.currentAddressTb.text()
             self.MonitorWindow.clear()
             self.Timer.start(10)
+            # self.TimerPlot.start(1000)
             self.pollTimer.start(2000)
+            self.liveUpdate.setEnabled(True)
             self.toggle_frame(self.frameStart)
             self.toggle_frame(self.frameStop)
         except:
