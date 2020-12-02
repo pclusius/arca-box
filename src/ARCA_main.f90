@@ -772,7 +772,7 @@ SUBROUTINE error_handling(PRCION,speed_up)
         write(608,*) '  => reduce speed_up:',speed_up(PRCION%proc)*2, '->',speed_up(PRCION%proc)
         write(*,FMT_SUB) '  => reduce speed_up:'//i2chr(speed_up(PRCION%proc)*2)//'->'//i2chr(speed_up(PRCION%proc))
     ELSE
-        if (GTIME%dt*4>=DT_0) THEN
+        if (GTIME%dt*20>=DT_0) THEN
             GTIME%dt = GTIME%dt / 2.d0
             write(608,*) '  => reduce dt [s]:', GTIME%dt
             write(*,FMT_WARN0) '  => reduce dt [s]:'//f2chr(GTIME%dt)
@@ -951,7 +951,7 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
     if ((GTIME%sec)>0 .and. (cpu2 - cpu1 > 0d0)) print '("| ",a,i0,a,i0.2,a,i0,a,i0.2,t65,a,f7.2,t100,"|")', 'Elapsed time (m:s) ',int(cpu2 - cpu1)/60,':',modulo(int(cpu2 - cpu1),60) ,' Est. time to finish (m:s) ',&
                             int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec))/60,':', MODULO(int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec)),60),&
                             'Realtime/Modeltime: ', (GTIME%sec-start_time_s)/(cpu2 - cpu1)
-    ! print FMT_, 'current integration time step', GTIME%dt
+    print '("| ",a,4("  ",i0),t100,"|")', 'Current integration time step: '//f2chr(GTIME%dt), speed_up
 
     print FMT_LEND,
 END SUBROUTINE PRINT_KEY_INFORMATION
