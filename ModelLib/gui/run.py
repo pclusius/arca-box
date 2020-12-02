@@ -513,12 +513,12 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         justInOut = ossplit(path)[1]
         self.inout_dir.setText(justInOut)
         paths = [
-            0,0,self.vap_names, # 3
-            0,0,self.vap_atoms, # 4
-            self.stripRoot_env.isChecked(),1,self.env_file, # 5
-            self.stripRoot_mcm.isChecked(),1,self.mcm_file, # 6
-            self.stripRoot_par.isChecked(),1,self.dmps_file, # 7
-            False,1,self.losses_file # 8
+            0,                              0,self.vap_names,
+            0,                              0,self.vap_atoms,
+            self.stripRoot_env.isChecked(), 1,self.env_file,
+            self.stripRoot_mcm.isChecked(), 1,self.mcm_file,
+            self.stripRoot_par.isChecked(), 1,self.dmps_file,
+            False,                          1,self.losses_file
         ]
         original_names = []
         for i,f in enumerate(paths):
@@ -1289,7 +1289,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.toggle_frame(self.frameStop)
         self.toggle_frame(self.frameStart)
         self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
-        if exists(self.currentAddressTb.text()):
+        if exists(self.saveCurrentOutputDir):
             f = open(self.saveCurrentOutputDir+'/runReport.txt', 'w')
             f.write(self.MonitorWindow.toPlainText())
             f.close()
