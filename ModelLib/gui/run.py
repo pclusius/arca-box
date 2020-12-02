@@ -18,7 +18,8 @@ import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod, environ
 from os import name as osname
-from os.path import exists, dirname
+from os.path import exists, dirname, split as ossplit
+from shutil import copyfile as cpf
 from re import sub,IGNORECASE
 import time
 
@@ -268,6 +269,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.loadButton.clicked.connect(lambda: self.browse_path(None, 'load'))
         self.actionSave_2.triggered.connect(lambda: self.save_file())
         self.actionPrint.triggered.connect(lambda: self.print_values())
+        self.actionExport_current_case.triggered.connect(lambda: self.browse_path(None, 'export'))
         self.actionOpen.triggered.connect(lambda: self.browse_path(None, 'load'))
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
@@ -498,6 +500,53 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Class methods
     # -----------------------
+    def exportCurrentCase(self, InitFileFull):
+        path, Initfile = ossplit(InitFileFull)
+        if path == '':
+            self.popup('Sorry but no', 'Don\'t export to program root', 3)
+            return
+        if not exists(path+'/exportedData'): mkdir(path+'/exportedData')
+        self.updatePath()
+        curInit = self.currentInitFile.text()
+        inout = self.inout_dir.text()
+        indir = self.indir
+        justInOut = ossplit(path)[1]
+        self.inout_dir.setText(justInOut)
+        paths = [
+            0,0,self.vap_names, # 3
+            0,0,self.vap_atoms, # 4
+            self.stripRoot_env.isChecked(),1,self.env_file, # 5
+            self.stripRoot_mcm.isChecked(),1,self.mcm_file, # 6
+            self.stripRoot_par.isChecked(),1,self.dmps_file, # 7
+            False,1,self.losses_file # 8
+        ]
+        original_names = []
+        for i,f in enumerate(paths):
+            if i%3==2:
+                original_names.append(f.text())
+                if paths[i-1]==0:
+                    real = f.text()
+                    if real != '':
+                        cpf(real,path+'/exportedData/'+ossplit(real)[1])
+                        j = f.text().rstrip('/')
+                        f.setText(justInOut+'/exportedData/'+ossplit(real)[1])
+                else:
+                    real = self.pars(f.text(), file=indir, stripRoot=paths[i-2])
+                    if real != '':
+                        cpf(real,path+'/exportedData/'+ossplit(real)[1])
+                        t = self.pars(f.text(), file=indir, stripRoot=True)
+                        f.setText(justInOut+'/exportedData/'+ossplit(t)[1])
+
+        self.updatePath()
+        self.save_file(file=InitFileFull, mode='silent', changeTitle=False)
+        for o,t in zip(original_names, paths[2::3]):
+            t.setText(o)
+        self.inout_dir.setText(inout)
+        self.currentInitFile.setText(curInit)
+        self.updatePath()
+        return
+
+
     def livePlot(self):
         if self.liveUpdate.isChecked():
             self.showParOutput(self.saveCurrentOutputDir+'/particle_conc.sum',0)
@@ -903,6 +952,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         options |= dialog.DontUseNativeDialog
         if mode == 'dir':
             path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
+        if mode == 'export':
+            path = dialog.getSaveFileName(self, 'Save INITFILE', options=options)[0]
         else:
             dialog.setOption(QtWidgets.QFileDialog.DontUseNativeDialog)
             dialog.setWindowTitle('Choose File')
@@ -929,12 +980,14 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 path = path[path.rfind('/')+1:]
                 target.clear()
                 target.insert(path)
+            elif mode == 'export':
+                self.exportCurrentCase(path)
             else:
                 target.clear()
                 target.insert(path)
 
 
-    def save_file(self, file=None, mode=None,nobatch=True):
+    def save_file(self, file=None, mode=None,nobatch=True, changeTitle=True):
         if nobatch:
             self.update_nml()
         if file==None:
@@ -946,7 +999,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             if file[:currentdir_l] == currentdir:
                 file = file[currentdir_l+1:]
             self.print_values(file, mode)
-            if file != defaults_file_path:
+            if file != defaults_file_path and changeTitle:
                 self.show_currentInit(file)
 
 
