@@ -601,17 +601,13 @@ SUBROUTINE bin_redistribute_fs(ind)
     ! Move to largest bin or beyond
     IF (aa == 0) THEN
         n_b = new_PSD%nr_bins  ! to save some space
-        if (GTIME%sec>24960) print*, GTIME%sec, '---------------------------' 
-        if (GTIME%sec>24960) print*, 'isoin bin conc', new_PSD%conc_fs(n_b), 'mixattava, ind', mix_PSD%conc_fs(ind), ind,'summa', (new_PSD%conc_fs(n_b) + mix_PSD%conc_fs(ind))
         ! New composition in new_PSD%nr_bins
         new_PSD%composition_fs(n_b,:) = (new_PSD%composition_fs(n_b,:) * new_PSD%conc_fs(n_b) &
                                 + mix_PSD%composition_fs(ind,:) * mix_PSD%conc_fs(ind)) &
                                 / (new_PSD%conc_fs(n_b) + mix_PSD%conc_fs(ind))
         ! Determine new particle concentration in largest bin
 
-        if (GTIME%sec>24960) print*, 'new isoin bin conc',  new_PSD%conc_fs(n_b),'new bin ind conc', current_PSD%conc_fs(ind)
         new_PSD%conc_fs(n_b) = new_PSD%conc_fs(n_b) + current_PSD%conc_fs(ind)
-        if (GTIME%sec>24960) print*, 'finally', new_PSD%conc_fs(n_b)
         ! Coagulation: (partly) leads to change in bin; condensation: growth or shrinkage
     ELSE IF (aa > 1 .and. aa <= current_PSD%nr_bins) THEN
 
