@@ -1855,7 +1855,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             elif '# INPUT_SETTINGS' == key:
                 sets = strng.split()
                 for kv in sets:
-                    kk, val = kv.split(':')
+                    sp_i = kv.find(':')
+                    kk, val = kv[:sp_i], kv[sp_i+1:]
                     if 'FALSE' in val or 'TRUE' in val:
                         if 'TRUE' in val:
                             exec('self.'+kk+'.setChecked(True)')
@@ -1867,7 +1868,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             elif '# BATCH_SETTINGS' == key:
                 sets = strng.split()
                 for kv in sets:
-                    kk, val = kv.split(':')
+                    sp_i = kv.find(':')
+                    kk, val = kv[:sp_i], kv[sp_i+1:]
                     if 'FALSE' in val or 'TRUE' in val:
                         if 'TRUE' in val:
                             exec('self.'+kk+'.setChecked(True)')
