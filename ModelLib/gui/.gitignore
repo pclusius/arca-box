@@ -2,3 +2,5 @@
 __init__.py
 dev/*
 tmp/*
+defaults
+*.pickle

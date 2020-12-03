@@ -75,11 +75,10 @@ Logical :: Chem_Deposition     = .false.
 Logical :: RESOLVE_BASE        = .false.
 Logical :: PRINT_ACDC          = .false.
 Logical :: Use_speed           = .false.
-Logical :: EXTRAFUNCS          = .false.
 ! Logical :: INIT_W_MODAL        = .true.
 NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, ACDC, & !NUCLEATION,
          Condensation, Coagulation, Deposition, Chem_Deposition, model_H2SO4, RESOLVE_BASE, &
-         PRINT_ACDC, Use_speed, ORG_NUCL, EXTRAFUNCS!,INIT_W_MODAL, Extra_data
+         PRINT_ACDC, Use_speed, ORG_NUCL!,INIT_W_MODAL, Extra_data
 
 ! Logical :: USE_OPENMP   = .false.
 ! NAMELIST /NML_PARALLEL/ USE_OPENMP
@@ -201,6 +200,8 @@ LOGICAL  :: use_diff_dia_from_diff_vol = .False.
 CHARACTER(len=256)      :: GR_sizes = '6d-9 20d-9 30d-9'
 REAL(dp), ALLOCATABLE   :: GR_bins(:)  ! used for GR calculation [m]
 Logical                 :: CALC_GR = .True.
+Logical                 :: AFTER_CHEM_ON = .false.
+Logical                 :: AFTER_NUCL_ON = .false.
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .false.
 
@@ -208,7 +209,8 @@ NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,dm
                       start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
-                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, GR_sizes
+                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, GR_sizes,AFTER_CHEM_ON, &
+                      AFTER_NUCL_ON
 
 ! ==================================================================================================================
 ! Define change range in percentage

@@ -359,7 +359,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
         if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
 
-        IF (EXTRAFUNCS) CALL AFTER_CHEM(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
+        IF (AFTER_CHEM_ON) CALL AFTER_CHEM(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
     END IF ! IF (Chemistry_flag)
     ! =================================================================================================
 
@@ -390,7 +390,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
         IF (ORG_NUCL) CALL ORGANIC_NUCL(J_TOTAL_M3)
 
-        IF (EXTRAFUNCS) CALL AFTER_NUCL(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
+        IF (AFTER_NUCL_ON) CALL AFTER_NUCL(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
 
     END if
 

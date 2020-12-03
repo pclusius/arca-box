@@ -1,10 +1,10 @@
 #--------------------------------------------------
 #      ARCA box setting file: ModelLib/gui/defaults
-#         Created at: Dec 01 2020, 11:55:21
+#         Created at: Dec 03 2020, 08:03:59
 #--------------------------------------------------
 
 &NML_PATH
- INOUT_DIR = 'INOUT/'
+ INOUT_DIR = 'INOUT'
  CASE_NAME = 'PC'
  RUN_NAME = 'CONTROL'
 / 
@@ -13,14 +13,14 @@
  CHEMISTRY_FLAG = .TRUE.
  AEROSOL_FLAG = .TRUE.
  ACDC_SOLVE_SS = .FALSE.
- ACDC = .TRUE.
+ ACDC = .FALSE.
  CONDENSATION = .TRUE.
  COAGULATION = .TRUE.
  DEPOSITION = .FALSE.
  CHEM_DEPOSITION = .FALSE.
  MODEL_H2SO4 = .TRUE.
  RESOLVE_BASE = .FALSE.
- ORG_NUCL = .TRUE.
+ ORG_NUCL = .FALSE.
  PRINT_ACDC = .FALSE.
  USE_SPEED = .FALSE.
 / 
@@ -39,7 +39,7 @@
  PSD_MODE = 1
  N_BINS_PAR = 80
  MIN_PARTICLE_DIAM = 1.48d-9
- MAX_PARTICLE_DIAM = 2d-6
+ MAX_PARTICLE_DIAM = 5d-6
  N_MODAL = 2000
  MMODAL_INPUT_INUSE = 0
  DMPS_FILE = 'INOUT/filled_dmps/dm180414.sum'
@@ -124,7 +124,6 @@
 / 
 
 &NML_CUSTOM
- END_DMPS_SPECIAL = 8.4
 / 
 
 # Options available in CUSTOM_NML (and defaults)
@@ -141,10 +140,14 @@
 # R: dmps_multi = 1d6
 # R: END_DMPS_SPECIAL = 1d50
 # R: FLOAT_CHEMISTRY_AFTER_HRS = 1d100
+# L: NO_NEGATIVE_CONCENTRATIONS = .false.
+# L: AFTER_NUCL_ON = .false.
+# L: AFTER_CHEM_ON = .false.
+
 
 
 # Following settings are for the GUI and not directly used by the model ----- 
-# RAW_INPUT = # Options available in CUSTOM_NML (and defaults)<br># I: acdc_iterations = 4<br># I: INITIALIZE_FROM = 0<br># C: INITIALIZE_WITH = ''<br># L: use_raoult = .True.<br># L: variable_density = .False.<br># L: DONT_SAVE_CONDENSIBLES = .False.<br># L: skip_acdc = .True.<br># R: dmps_tres_min = 10.<br># R: VP_MULTI = 1d0<br># R: start_time_s = 0d0<br># R: dmps_multi = 1d6<br># R: END_DMPS_SPECIAL = 1d50<br># R: FLOAT_CHEMISTRY_AFTER_HRS = 1d100
+# RAW_INPUT = # Options available in CUSTOM_NML (and defaults)<br># I: acdc_iterations = 4<br># I: INITIALIZE_FROM = 0<br># C: INITIALIZE_WITH = ''<br># L: use_raoult = .True.<br># L: variable_density = .False.<br># L: DONT_SAVE_CONDENSIBLES = .False.<br># L: skip_acdc = .True.<br># R: dmps_tres_min = 10.<br># R: VP_MULTI = 1d0<br># R: start_time_s = 0d0<br># R: dmps_multi = 1d6<br># R: END_DMPS_SPECIAL = 1d50<br># R: FLOAT_CHEMISTRY_AFTER_HRS = 1d100<br># L: NO_NEGATIVE_CONCENTRATIONS = .false.<br># L: AFTER_NUCL_ON = .false.<br># L: AFTER_CHEM_ON = .false.<br>
 # INPUT_SETTINGS = 'env_file:INOUT/HYDEAPRIL/PC_<yyyy>-<mm>-<dd>/input/env<yy><mm><dd>.dat mcm_file:INOUT/HYDEAPRIL/PC_<yyyy>-<mm>-<dd>/input/voc<yy><mm><dd>.dat dmps_file:INOUT/filled_dmps/dm<yy><mm><dd>.sum extra_particles: stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #---------------------------------------------------------------------------- 

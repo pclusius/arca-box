@@ -22,6 +22,7 @@ from os.path import exists, dirname, split as ossplit
 from shutil import copyfile as cpf
 from re import sub,IGNORECASE
 import time
+import pickle
 
 try:
     from scipy.ndimage.filters import gaussian_filter
@@ -217,8 +218,6 @@ class MMPlot(QtGui.QDialog):
             self.mmplW.HPLotter.showGrid(x=True,y=True)
 
 
-
-
 class Comp:
     """Class for input compounds/variables. Default values are used in Function creator"""
     def __init__(self):
@@ -272,10 +271,12 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionExport_current_case.triggered.connect(lambda: self.browse_path(None, 'export'))
         self.actionOpen.triggered.connect(lambda: self.browse_path(None, 'load'))
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
+        self.actionSet_monitor_font_2.triggered.connect(lambda: self.setFont(self.MonitorWindow,'monitor'))
+        self.actionSet_Global_font.triggered.connect(lambda: self.setFont(self.tabWidget,'global'))
+        self.actionReset_fonts.triggered.connect(self.resetFont)
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
-
     # -----------------------
     # tab General options
     # -----------------------
@@ -440,6 +441,31 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.Timer.timeout.connect(self.updateOutput)
         self.pollTimer.timeout.connect(self.pollMonitor)
         self.pollTimer.timeout.connect(self.updateOutput)
+        try:
+            sf = pickle.load(open(gui_path+'monitorfont.pickle', "rb"))
+            font = self.MonitorWindow.font()
+            font.setFamily(sf[0])
+            font.setPointSize(sf[1])
+            font.setBold(sf[2])
+            font.setItalic(sf[3])
+            self.MonitorWindow.setFont(font)
+        except:
+            font = self.MonitorWindow.font()
+            savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
+            pickle.dump(savefont, open(gui_path+'monitorfont.pickle', 'wb'))
+
+        try:
+            sf = pickle.load(open(gui_path+'globalfont.pickle', "rb"))
+            font = self.tabWidget.font()
+            font.setFamily(sf[0])
+            font.setPointSize(sf[1])
+            font.setBold(sf[2])
+            font.setItalic(sf[3])
+            self.tabWidget.setFont(font)
+        except:
+            font = self.tabWidget.font()
+            savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
+            pickle.dump(savefont, open(gui_path+'globalfont.pickle', 'wb'))
 
     # -----------------------
     # tab Output Graph
@@ -500,6 +526,37 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Class methods
     # -----------------------
+
+    def setFont(self, wdgt, name, reset=False):
+        if not reset:
+            dialog = QtWidgets.QFontDialog()
+            font, ok = dialog.getFont(wdgt.font(), parent=self)
+            if ok:
+                wdgt.setFont(font)
+                savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
+                pickle.dump(savefont, open(gui_path+name+'font.pickle', 'wb'))
+        else:
+            font = QtGui.QFont()
+            font.setBold(False)
+            font.setItalic(False)
+            font.setWeight(50)
+            if name == 'monitor':
+                if osname.upper() == 'NT':
+                    font.setFamily('Consolas')
+                else:
+                    font.setFamily('monospace')
+                font.setStyleStrategy(QtGui.QFont.PreferDefault)
+            wdgt.setFont(font)
+            savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
+            pickle.dump(savefont, open(gui_path+name+'font.pickle', 'wb'))
+
+
+    def resetFont(self):
+        self.setFont(self.MonitorWindow, 'monitor', reset=True)
+        print(self.MonitorWindow.font().family())
+        self.setFont(self.tabWidget, 'global', reset=True)
+
+
     def exportCurrentCase(self, InitFileFull):
         path, Initfile = ossplit(InitFileFull)
         if path == '':
