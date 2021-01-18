@@ -57,8 +57,19 @@ the call for the user's Python 3.
 
 
 
+
 How to use ARCA box?
 --------------------
 Learn more of using ARCA from this video: https://www.helsinki.fi/fi/unitube/video/b2c6775e-ad5f-4cee-9fd5-e502af2fb256
 
 Note that the program is constantly developed and the look and functionality may differ from this video.
+
+
+
+Installation troubleshooting
+----------------------------
+If you get errors when installing the Python modules, try upgrading pip:
+
+python3 -m pip install --upgrade pip
+
+and then run the setup.py again.

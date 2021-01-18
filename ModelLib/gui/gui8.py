@@ -2981,6 +2981,8 @@ class Ui_MainWindow(object):
         self.actionSet_monitor_font_2.setObjectName("actionSet_monitor_font_2")
         self.actionReset_fonts = QtWidgets.QAction(MainWindow)
         self.actionReset_fonts.setObjectName("actionReset_fonts")
+        self.actionCreate_vapour_file = QtWidgets.QAction(MainWindow)
+        self.actionCreate_vapour_file.setObjectName("actionCreate_vapour_file")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave_to_current)
         self.menuFile.addAction(self.actionSave_2)
@@ -3001,6 +3003,8 @@ class Ui_MainWindow(object):
         self.menuSet_font.addAction(self.actionReset_fonts)
         self.menuTools.addAction(self.actionPrint_input_headers)
         self.menuTools.addAction(self.menuSet_font.menuAction())
+        self.menuTools.addSeparator()
+        self.menuTools.addAction(self.actionCreate_vapour_file)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuPlot.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
@@ -3521,4 +3525,5 @@ class Ui_MainWindow(object):
         self.actionSet_Global_font.setText(_translate("MainWindow", "Set Global font"))
         self.actionSet_monitor_font_2.setText(_translate("MainWindow", "Set monitor font"))
         self.actionReset_fonts.setText(_translate("MainWindow", "Reset fonts"))
+        self.actionCreate_vapour_file.setText(_translate("MainWindow", "Create vapour file"))
 from pyqtgraph import PlotWidget

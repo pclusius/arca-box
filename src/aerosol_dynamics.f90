@@ -127,8 +127,31 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     ! XXX NOTE We change GENERIC back to what it was before
     conc_pp(:,VAPOUR_PROP%ind_GENERIC) = conc_pp_old(:,VAPOUR_PROP%ind_GENERIC)
 
+    ! if (GTIME%sec==0 .and. (MODULO(ii,10)==0 .or. ii == VAPOUR_PROP%ind_H2SO4)) THEN
+    !     IF (ii == VAPOUR_PROP%ind_H2SO4) THEN
+    !         OPEN(unit=499,file='CSCHECK/CS_'//TRIM(VAPOUR_PROP%vapour_names(ii)),status='replace',action='write')
+    !         write(499,*), VAPOUR_PROP%vapour_names(ii), 'Loss by CS     Actual loss   Csat   molar mass'
+    !     ELSE
+    !         OPEN(unit=ii/10+110,file='CSCHECK/CS_'//TRIM(VAPOUR_PROP%vapour_names(ii)),status='replace',action='write')
+    !         write(ii/10+110,*), VAPOUR_PROP%vapour_names(ii), 'Loss by CS     Actual loss   Csat   molar mass'
+    !     END IF
+    ! END IF
+    ! if (GTIME%savenow .and. (MODULO(ii,10)==0 .or. ii == VAPOUR_PROP%ind_H2SO4)) THEN
+    !     IF (ii == VAPOUR_PROP%ind_H2SO4) THEN
+    !         write(499,*), conc_vap_old(ii)*sum(CR(:,ii))*GTIME%dt, conc_vap_old(ii) - (conc_tot(ii) - sum(conc_pp(:,ii))), VAPOUR_PROP%c_sat(ii), VAPOUR_PROP%molar_mass(ii)
+    !         flush(499)
+    !     ELSE
+    !         write(ii/10+110,*), conc_vap_old(ii)*sum(CR(:,ii))*GTIME%dt, conc_vap_old(ii) - (conc_tot(ii) - sum(conc_pp(:,ii))), VAPOUR_PROP%c_sat(ii), VAPOUR_PROP%molar_mass(ii)
+    !         flush(ii/10+110)
+    !     END IF
+    ! END IF
+
     ! Update conc_vap: total conc - particle phase concentration
-    conc_vap(ii) = conc_tot(ii) - sum(conc_pp(:,ii))
+    if (ii == VAPOUR_PROP%ind_H2SO4) THEN
+        continue
+    ELSE
+        conc_vap(ii) = conc_tot(ii) - sum(conc_pp(:,ii))
+    END IF
     ! if (ii==VAPOUR_PROP%ind_GENERIC) print*, 'vapor conc after', conc_vap(ii)
 
 
@@ -247,8 +270,8 @@ do j=1, n_bins_par
         END if
         IF (n_conc(j) > 1.d0 .and. n_conc(m) > 1.d0) dconc_coag(j,m) = a * coagulation_coef(j,m) * n_conc(j) * n_conc(m) * dt_coag ! 1/m^3 '/ dt
         if ((dconc_coag(j,m)>n_conc(j)) .or. (dconc_coag(j,m)>n_conc(m))) THEN
-            print FMT_WARN0, 'It seems that the upper size range is too small and should be increased (a good start is by 200%)'
-            print FMT_WARN0, i2chr(j)//', '//i2chr(m)//', '//f2chr(coagulation_coef(j,m))//', '//f2chr(n_conc(j))//', '//f2chr(n_conc(m))
+            ! print FMT_WARN0, 'It seems that the upper size range is too small and should be increased (a good start is by 200%)'
+            ! print FMT_WARN0, i2chr(j)//', '//i2chr(m)//', '//f2chr(coagulation_coef(j,m))//', '//f2chr(n_conc(j))//', '//f2chr(n_conc(m))
         END IF
     END DO
 

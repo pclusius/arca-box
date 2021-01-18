@@ -10,7 +10,7 @@ petri.clusius@helsinki.fi
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-import vars, gui8, batchDialog1,batchDialog2,batchDialog3,batch, mmplot
+import vars, gui8, batchDialog1,batchDialog2,batchDialog3,batch, mmplot, vdialog
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros
 from numpy import sum as npsum
@@ -18,9 +18,9 @@ import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod, environ
 from os import name as osname
-from os.path import exists, dirname, split as ossplit
+from os.path import exists, dirname, getmtime, abspath, split as ossplit
 from shutil import copyfile as cpf
-from re import sub,IGNORECASE
+from re import sub,IGNORECASE, findall
 import time
 import pickle
 
@@ -38,9 +38,12 @@ except:
     print('Consider adding netCDF4 to your Python')
     netcdf = False
 
+
 # -----------------------------------------------------------------------------
 # Generally these default settings should not changed, do so with your own risk
 # -----------------------------------------------------------------------------
+
+environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) # enable highdpi scaling
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)    # use highdpi icons
@@ -181,6 +184,64 @@ class batchW(QtGui.QDialog):
                 exec('self.ui.tb_%d.appendPlainText(\'\'.join(a[2][%d]))'%(c,i))
                 c +=1
 
+# The popup window for Vapour pressure file
+class VpressWin(QtGui.QDialog):
+    def __init__(self, parent = None):
+        super(VpressWin, self).__init__(parent)
+        self.vp = vdialog.Ui_Dialog()
+        self.vp.setupUi(self)
+        self.vp.VapourClose.clicked.connect(self.reject)
+        self.vp.useUMan.toggled.connect(lambda: qt_box.grayIfNotChecked(self.vp.useUMan,self.vp.smilesFile))
+        self.vp.usePRAM.toggled.connect(lambda: qt_box.grayIfNotChecked(self.vp.usePRAM,self.vp.PRAMframe))
+        self.vp.massSmilesButton.clicked.connect(lambda: qt_box.browse_path(self.vp.lineEdit, 'file'))
+        self.vp.PramButton.clicked.connect(lambda: qt_box.browse_path(self.vp.pramFile, 'file'))
+        self.vp.browseVapourPath.clicked.connect(self.filename)
+        self.vp.createVapourFileButton.clicked.connect(self.saveVapours)
+
+    def filename(self):
+        dialog = QtWidgets.QFileDialog()
+        options = dialog.Options()
+        options |= dialog.DontUseNativeDialog
+        file = dialog.getSaveFileName(self, 'Save Vapours', options=options)[0]
+        if file != '': self.vp.VapourPath.setText(file)
+    def saveVapours(self):
+        filterlist = []
+        if self.vp.filterWChem.isChecked():
+            chemistry = qt_box.chemistryModules.currentText()
+            try:
+                count = 0
+                with open('src/chemistry/'+chemistry+'/second_Parameters.f90','r') as f:
+                    for line in f:
+                        x = findall(r'INDF?_\w+',line.upper())
+                        if x != []:
+                            filterlist.append(x[0].replace('INDF_','').replace('IND_',''))
+                            count += 1
+            except:
+                print('Could not parse current compounds from chemistry... saving all available vapours.')
+
+        if self.vp.VapourPath.text() == '':
+            qt_box.popup('Oops...', 'Output filename must be defined.',1)
+            return
+        import sys
+        sys.path.append(abspath(currentdir+"/ModelLib/Scripts"))
+        import GetVapourPressures as gvp
+        if self.vp.useUMan.isChecked(): source = 'UMan'
+        else: source = 'AMG'
+        if self.vp.limPsat.text() == '' : plim = 1e-6
+        else : plim = self.vp.limPsat.text()
+
+        gvp.getVaps(args={
+        'server':source,
+        'smilesfile':self.vp.lineEdit.text(),
+        'pram':self.vp.usePRAM.isChecked(),
+        'pramfile':self.vp.pramFile.text(),
+        'psat_lim':plim,
+        'saveto':self.vp.VapourPath.text(),
+        'filter':filterlist,
+        'save_atoms':self.vp.saveElements.isChecked()
+        })
+
+
 # The popup window for multimode plot
 class MMPlot(QtGui.QDialog):
     def __init__(self, parent = None):
@@ -245,7 +306,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     def __init__(self):
         super(QtBoxGui,self).__init__()
         self.setupUi(self)
-
+        # print(QtGui.QGuiApplication.screens()[1].size().height())
     # -----------------------
     # Common stuff
     # -----------------------
@@ -274,6 +335,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionSet_monitor_font_2.triggered.connect(lambda: self.setFont(self.MonitorWindow,'monitor'))
         self.actionSet_Global_font.triggered.connect(lambda: self.setFont(self.tabWidget,'global'))
         self.actionReset_fonts.triggered.connect(self.resetFont)
+        self.actionCreate_vapour_file.triggered.connect(self.vapours)
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
@@ -428,6 +490,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # tab Process Monitor
     # -----------------------
+        self.currentEndLine = 0
+        self.fulltext = ''
+        self.tabWidget.currentChanged.connect(self.activeTab)
         fixedFont = QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
         fixedFont.setPointSize(10)
         self.MonitorWindow.setFont(fixedFont)
@@ -505,19 +570,26 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.ncs_mass = 0
         self.showAlsoMeasInMassConc.stateChanged.connect(self.updateMass)
         self.showAlsoMeasInMassConc.stateChanged.connect(self.updateNumbers)
-        # self.TimerPlot = QtCore.QTimer(self);
         self.pollTimer.timeout.connect(self.livePlot)
         self.liveUpdate.setEnabled(False)
+        self.lastModTime = 0
+        self.firstParPlot = [0,0]
+
+        self.resize(980, 840)
     # -----------------------
     # Load preferences, or create preferences if not found
     # -----------------------
         try:
+            # if defaults exist, use them
             self.load_initfile(defaults_file_path)
         except:
             try:
+                # If defaults did not exist, load minimal working settings
                 self.load_initfile(minimal_settings_path)
             except:
+                # If they also were missing, use "factory settings"
                 pass
+            # Save the obtained settings as default
             self.save_file(file=defaults_file_path, mode='silent')
         self.get_available_chemistry()
         self.updateEnvPath()
@@ -526,6 +598,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Class methods
     # -----------------------
+    def activeTab(self,i):
+        if i == 6:
+            # return
+            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
 
     def setFont(self, wdgt, name, reset=False):
         if not reset:
@@ -568,7 +644,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         inout = self.inout_dir.text()
         indir = self.indir
         justInOut = ossplit(path)[1]
-        self.inout_dir.setText(justInOut)
+        self.inout_dir.setText('INOUT/'+justInOut)
         paths = [
             0,                              0,self.vap_names,
             0,                              0,self.vap_atoms,
@@ -586,13 +662,13 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                     if real != '':
                         cpf(real,path+'/exportedData/'+ossplit(real)[1])
                         j = f.text().rstrip('/')
-                        f.setText(justInOut+'/exportedData/'+ossplit(real)[1])
+                        f.setText('INOUT/'+justInOut+'/exportedData/'+ossplit(real)[1])
                 else:
                     real = self.pars(f.text(), file=indir, stripRoot=paths[i-2])
                     if real != '':
                         cpf(real,path+'/exportedData/'+ossplit(real)[1])
                         t = self.pars(f.text(), file=indir, stripRoot=True)
-                        f.setText(justInOut+'/exportedData/'+ossplit(t)[1])
+                        f.setText('INOUT/'+justInOut+'/exportedData/'+ossplit(t)[1])
 
         self.updatePath()
         self.save_file(file=InitFileFull, mode='silent', changeTitle=False)
@@ -606,7 +682,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def livePlot(self):
         if self.liveUpdate.isChecked():
-            self.showParOutput(self.saveCurrentOutputDir+'/particle_conc.sum',0)
+            if getmtime(self.saveCurrentOutputDir+'/particle_conc.sum') != self.lastModTime:
+                self.showParOutput(self.saveCurrentOutputDir+'/particle_conc.sum',0)
+                self.lastModTime = getmtime(self.saveCurrentOutputDir+'/particle_conc.sum')
 
 
     def seeInAction(self, pop=True):
@@ -1009,7 +1087,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         options |= dialog.DontUseNativeDialog
         if mode == 'dir':
             path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
-        if mode == 'export':
+        elif mode == 'export':
             path = dialog.getSaveFileName(self, 'Save INITFILE', options=options)[0]
         else:
             dialog.setOption(QtWidgets.QFileDialog.DontUseNativeDialog)
@@ -1143,6 +1221,13 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                         self.namesdat.item(namesPyInds[comp]).setSelected(True)
                         count = count +1
         self.popup('File parsed', 'Selected %d variables'%count, icon=1)
+
+    def vapours(self):
+        """Envoke script to create new vapor file."""
+        self.Wwin = VpressWin()
+        response = self.Wwin.exec()
+        if response == 0:
+            return
 
 
     def loadFixedFromChemistry(self):
@@ -1346,6 +1431,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.toggle_frame(self.frameStop)
         self.toggle_frame(self.frameStart)
         self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        try: self.tabWidget.currentChanged.disconnect(self.activeTab)
+        except: pass
+
         if exists(self.saveCurrentOutputDir):
             f = open(self.saveCurrentOutputDir+'/runReport.txt', 'w')
             f.write(self.MonitorWindow.toPlainText())
@@ -1362,14 +1450,15 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             window = self.surfacePlotWindow_1
             titleLoc = self.parPlotTitle_1
         levels=(self.lowlev.value(),self.highlev.value())
-        if scipyIs:
+        if self.firstParPlot[windowInd] == 0 and scipyIs:
             self.gauss_x.valueChanged.connect(lambda: self.drawSurf(window))
             self.gauss_y.valueChanged.connect(lambda: self.drawSurf(window))
             self.Filter_0.clicked.connect(lambda: self.drawSurf(window))
             self.Filter_1.clicked.connect(lambda: self.drawSurf(window))
-        self.lowlev.valueChanged.connect(lambda: self.drawSurf(window))
-        self.highlev.valueChanged.connect(lambda: self.drawSurf(window))
-        self.cmJet.triggered.connect(lambda: self.drawSurf(window))
+            self.lowlev.valueChanged.connect(lambda: self.drawSurf(window))
+            self.highlev.valueChanged.connect(lambda: self.drawSurf(window))
+            self.cmJet.triggered.connect(lambda: self.drawSurf(window))
+            self.firstParPlot[windowInd] = 1
         if '.nc' in file[-4:] and not netcdf:
             self.popup(*netcdfMissinnMes)
             return
@@ -1490,23 +1579,25 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def pollMonitor(self):
-        fulltext = self.boxProcess.stdout.readline().decode("utf-8")
-        if fulltext != '.\r\n' and fulltext != '.\n':
-            self.MonitorWindow.insertPlainText(fulltext)
+        self.fulltext = self.boxProcess.stdout.readline().decode("utf-8")
+        if self.fulltext != '.\r\n' and self.fulltext != '.\n':
+            self.MonitorWindow.insertPlainText(self.fulltext)
         self.monStatus = self.boxProcess.poll()
-        if self.monStatus != None and fulltext == '':
+        if self.monStatus != None and self.fulltext == '':
             self.stopBox()
 
 
     def updateOutput(self):
-        fulltext = self.boxProcess.stdout.readline().decode("utf-8")
-        if fulltext != '.\r\n' and fulltext != '.\n':
-            self.MonitorWindow.insertPlainText(fulltext)
-        if self.pauseScroll.isChecked() == False:
-            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
-        if 'SIMULATION HAS ENDED' in str(fulltext)[-50:]:
-            self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
-            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
+        self.fulltext = self.boxProcess.stdout.readline().decode("utf-8")
+        if self.fulltext != '.\r\n' and self.fulltext != '.\n':
+            self.MonitorWindow.insertPlainText(self.fulltext)
+            if '+~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=' in self.fulltext:
+                self.currentEndLine = self.MonitorWindow.verticalScrollBar().maximum()
+                self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
+            if self.pauseScroll.isChecked() == False:
+                self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
+            if 'SIMULATION HAS ENDED' in str(self.fulltext)[-50:]:
+                self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
 
 
     def checkboxToFOR(self, widget):
@@ -1620,7 +1711,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.MISC.LAT=self.lat.value()
         nml.MISC.LON=self.lon.value()
         nml.MISC.WAIT_FOR=self.wait_for.value()
-        nml.MISC.DESCRIPTION=self.description.toPlainText()
+        nml.MISC.DESCRIPTION=self.description.toPlainText().replace('\n','<br>')
         nml.MISC.CH_ALBEDO=self.ch_albedo.value()
         nml.MISC.DMA_F=self.dma_f.value()
         nml.MISC.RESOLVE_BASE_PRECISION=self.resolve_base_precision.value()
@@ -1826,7 +1917,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'LAT' == key and isFl: self.lat.setValue(float(strng))
             elif 'LON' == key and isFl: self.lon.setValue(float(strng))
             elif 'WAIT_FOR' == key and isFl: self.wait_for.setValue(int(strng))
-            elif 'DESCRIPTION' == key: self.description.setPlainText(strng)# "Just some keying
+            elif 'DESCRIPTION' == key: self.description.setPlainText(strng.replace('<br>','\n'))# "Just some keying
             elif 'CH_ALBEDO' == key and isFl: self.ch_albedo.setValue(float(strng))#  0.20000000000000001     ,
             elif 'DMA_F' == key and isFl: self.dma_f.setValue(float(strng))
             elif 'RESOLVE_BASE_PRECISION' == key and isFl: self.resolve_base_precision.setValue(float(strng))

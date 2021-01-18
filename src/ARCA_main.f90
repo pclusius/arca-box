@@ -264,10 +264,26 @@ end if
 
 call cpu_time(cpu1) ! For efficiency calculation
 
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+!@@@@@@@@@@@@        @@@@@@@@@@@@@@                ,@@@@@@@@@@@@@@@@@@,            @@@@@@@@@@@@@@@@.       ,@@@@@@@@@@@@
+!@@@@@@@@@@@          @@@@@@@@@@@@@                     @@@@@@@@@@.                    @@@@@@@@@@@/         *@@@@@@@@@@@
+!@@@@@@@@@@            @@@@@@@@@@@@       #@@@@%         &@@@@@@           (%%(       @@@@@@@@@@@#           #@@@@@@@@@@
+!@@@@@@@@@      @       @@@@@@@@@@@       #@@@@@@@&       @@@@&        @@@@@@@@@@@@@@@@@@@@@@@@@#      @      #@@@@@@@@@
+!@@@@@@@@      &@@       @@@@@@@@@@       #@@@@@@@@       @@@@       &@@@@@@@@@@@@@@@@@@@@@@@@@%      @@@      %@@@@@@@@
+!@@@@@@@      .@@@@       @@@@@@@@@       #@@@@@@@       @@@@        @@@@@@@@@@@@@@@@@@@@@@@@@@      @@@@@      @@@@@@@@
+!@@@@@@       @@@@@@      ,@@@@@@@@                    ,@@@@@       .@@@@   MAIN LOOP   @@@@@@      #@@@@@#      @@@@@@@
+!@@@@@       @@@@@@@@      *@@@@@@@                 @@@@@@@@@        @@@@@ STARTS HERE @@@@@@       @@@@@@@.      @@@@@@
+!@@@@                       /@@@@@@       #@@@        @@@@@@@@       #@@@@@@@@@@@@@@@@@@@@@@                       @@@@@
+!@@@                         #@@@@@       #@@@@%        @@@@@@#        @@@@@@@@@@@@@@@@@@@@                         @@@@
+!@@       &@@@@@@@@@@@@       &@@@@       #@@@@@@        @@@@@@@          .%@@&/       @@@       @@@@@@@@@@@@@       @@@
+!@       ,@@@@@@@@@@@@@@       &@@@       #@@@@@@@*        @@@@@@@                     @@       @@@@@@@@@@@@@@@       @@
+!       *@@@@@@@@@@@@@@@@       @@@       #@@@@@@@@@        @@@@@@@@@@             @@@@@       @@@@@@@@@@@@@@@@@       @
+!=======================================================================================================================
 
-! =================================================================================================
-! =================================================================================================
 DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
+    ! if (Gtime%sec>25800) Gtime%dt = 1d0
+    ! if (Gtime%sec>65400) Gtime%dt = 1d-1
+
 ! =================================================================================================
     ! =================================================================================================
     ! Store the current state of the aerosol
@@ -294,7 +310,6 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
     ELSE
       if (ingui) print'(a)', '.'
     END IF
-
     ! GC_AIR_NOW, TEMPK, PRES and RH are calculated as global variables and are available everywhere.
     ! H2SO4 CS is based on the input, if provided, otherwise it is calculated from the aerosol population
     ! USE GC_AIR_NOW FOR CURRENT AIR CONCENTRATION IN CM^3
@@ -353,7 +368,6 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             ! Solar angle above horizon. For this to properly work, lat, lon and Date need to be defined in INIT_FILE
             call BETA(CH_Beta)
         END IF
-
         Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
                     CH_H2O, GC_AIR_NOW, GCS, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
@@ -512,17 +526,17 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRCION%con),d_dpar,d_vap)
 
             ! ERROR HANDLING
-            IF ((maxval(ABS(d_dpar)) > change_range(1,2) .or. maxval(ABS(d_vap)) > change_range(3,2)) .and. use_speed) THEN   ! if the changes in diameter are too big
+            IF ((maxval(ABS(d_dpar)) > change_range(1,2) .or. maxval((d_vap)) > change_range(3,2)) .and. use_speed) THEN   ! if the changes in diameter are too big
                 ! IF (n_of_Rounds>=0) THEN
                 PRCION%err = .true.
                 PRCION%proc = PRCION%con
                 ! end if
                 IF (maxval(ABS(d_dpar)) > change_range(1,2)) THEN
                     PRCION%err_text = 'Too large diameter change: '//f2chr(maxval(abs(d_dpar)))   !d_dpar(maxloc(abs(d_dpar)))
-                ELSE IF (sum(ABS(d_vap))/vapour_prop%n_condtot > change_range(3,2)) THEN
-                    PRCION%err_text = 'Too large vapour concentration change: '//f2chr(sum(ABS(d_vap))/vapour_prop%n_condtot)//', UL: '//f2chr(change_range(3,2))   !d_vap(maxloc(abs(d_vap)))
+                ELSE IF (MAXVAL(d_vap) > change_range(3,2)) THEN
+                    PRCION%err_text = 'Too large vapour concentration change: '//f2chr(MAXVAL(d_vap))//', UL: '//f2chr(change_range(3,2))   !d_vap(maxloc(abs(d_vap)))
                 ELSE
-                    PRCION%err_text = 'Too large diameter and vapour concentration change: '//f2chr(maxval(abs(d_dpar)))//', '//f2chr(sum(ABS(d_vap))/vapour_prop%n_condtot)   !d_vap(maxloc(abs(d_vap)))
+                    PRCION%err_text = 'Too large diameter and vapour concentration change: '//f2chr(maxval(abs(d_dpar)))//', '//f2chr(MAXVAL(d_vap))   !d_vap(maxloc(abs(d_vap)))
                 END IF
                 PRINT*,'Precision error in condensation at '//GTIME%hms//', '//PRCION%err_text
                 ! PRINT*,'what, where:', d_dpar(maxloc(abs(d_dpar))), maxloc(abs(d_dpar))
@@ -547,7 +561,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
                 CH_GAS(ind_H2SO4) = conc_vapour(n_cond_tot)*1d-6
 
                 ! Check whether timestep can be increased:
-                IF (maxval(ABS(d_dpar)) < change_range(1,1) .and. sum(ABS(d_vap))/vapour_prop%n_condtot < change_range(3,1) .and. use_speed) THEN
+                IF (maxval(ABS(d_dpar)) < change_range(1,1) .and. MAXVAL(d_vap) < change_range(3,1) .and. use_speed) THEN
                     speed_up(PRCION%con) = speed_up(PRCION%con) * 2
                     Print*,GTIME%hms//'-> Cond. speed multiplier now:', speed_up(PRCION%con)
                     WRITE(608,*) GTIME%hms//'-> Cond. speed multiplier now:', speed_up(PRCION%con)
@@ -641,10 +655,10 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
     end if
     ! End Aerosol =====================================================================================
 
-    if (gtime%printnow) print*, gtime%hms,GTIME%sec, 'max rel. change in vapours', d_vap(maxloc(ABS(d_vap))), VAPOUR_PROP%vapour_names(maxloc(ABS(d_vap)))
+    if (gtime%printnow .and. Aerosol_flag) print*, gtime%hms,GTIME%sec, 'max rel. change in vapours', d_vap(maxloc((d_vap))), VAPOUR_PROP%vapour_names(maxloc((d_vap)))
     ! SPEED handling
     IF (PRCION%err) THEN  ! In case of a timestep error (i.e. too large changes in aerosol dynamics)
-        print*, n_of_Rounds
+        ! print*, n_of_Rounds
 
         PRINT*,'Precision error is active', PRCION%err, TRIM(PRCION%pr_name(PRCION%proc))
         CALL error_handling(PRCION, speed_up)
@@ -696,7 +710,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
         END IF
 
-        if (GTIME%dt<DT_0 .and. minval(speed_up(optis_in_use))>1 .and. MODULO(int(GTIME%sec), int(DT_0)*2)==0) THEN
+        if (GTIME%dt<DT_0 .and. minval(speed_up(optis_in_use))>1 .and. MODULO(int(GTIME%sec*1d6, di), int(DT_0*1d6, di))==0) THEN
             print*, GTIME%hms//': Upping the main dt from ', GTIME%dt, 'to', GTIME%dt*2
             GTIME%dt = GTIME%dt * 2
             speed_up = speed_up / 2
@@ -724,8 +738,23 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
     !     END IF
     END IF
 
-END DO	! Main loop ends
-! ==================================================================================================================
+END DO
+!=======================================================================================================================
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+!       *@@ MAIN LOOP  @@       @@@       #@@@@@@@@@        @@@@@@@@@@             @@@@@       @@@@@@@@@@@@@@@@@       @
+!@       ,@ ENDS HERE  @       &@@@       #@@@@@@@*        @@@@@@@                     @@       @@@@@@@@@@@@@@@       @@
+!@@       &@@@@@@@@@@@@       &@@@@       #@@@@@@        @@@@@@@          .%@@&/       @@@       @@@@@@@@@@@@@       @@@
+!@@@                         #@@@@@       #@@@@%        @@@@@@#        @@@@@@@@@@@@@@@@@@@@                         @@@@
+!@@@@                       /@@@@@@       #@@@        @@@@@@@@       #@@@@@@@@@@@@@@@@@@@@@@                       @@@@@
+!@@@@@       @@@@@@@@      *@@@@@@@                 @@@@@@@@@        @@@@@@@@@@@@@@@@@@@@@@@@       @@@@@@@.      @@@@@@
+!@@@@@@       @@@@@@      ,@@@@@@@@                    ,@@@@@       .@@@@@@@@@@@@@@@@@@@@@@@@@      #@@@@@#      @@@@@@@
+!@@@@@@@      @@@@@       @@@@@@@@@       #@@@@@@@       @@@@        @@@@@@@@@@@@@@@@@@@@@@@@@@      @@@@@      @@@@@@@@
+!@@@@@@@@      &@@       @@@@@@@@@@       #@@@@@@@@       @@@@       &@@@@@@@@@@@@@@@@@@@@@@@@@%      @@@      %@@@@@@@@
+!@@@@@@@@@      @       @@@@@@@@@@@       #@@@@@@@&       @@@@&        @@@@@@@@@@@@@@@@@@@@@@@@@#      @      #@@@@@@@@@
+!@@@@@@@@@@            @@@@@@@@@@@@       #@@@@%         &@@@@@@           (%%(       @@@@@@@@@@@#           #@@@@@@@@@@
+!@@@@@@@@@@@          @@@@@@@@@@@@@                     @@@@@@@@@@.                    @@@@@@@@@@@/         *@@@@@@@@@@@
+!@@@@@@@@@@@@        @@@@@@@@@@@@@@                ,@@@@@@@@@@@@@@@@@@,            @@@@@@@@@@@@@@@@.       ,@@@@@@@@@@@@
+!=======================================================================================================================
 
 
 CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
@@ -772,16 +801,19 @@ SUBROUTINE error_handling(PRCION,speed_up)
         write(608,*) '  => reduce speed_up:',speed_up(PRCION%proc)*2, '->',speed_up(PRCION%proc)
         write(*,FMT_SUB) '  => reduce speed_up:'//i2chr(speed_up(PRCION%proc)*2)//'->'//i2chr(speed_up(PRCION%proc))
     ELSE
-        if (GTIME%dt*20>=DT_0) THEN
+        if (GTIME%dt*2000>=DT_0) THEN
             GTIME%dt = GTIME%dt / 2.d0
             write(608,*) '  => reduce dt [s]:', GTIME%dt
             write(*,FMT_WARN0) '  => reduce dt [s]:'//f2chr(GTIME%dt)
         ELSE
-            write(*,FMT_WARN0) '  Can not reduce dt any more'//f2chr(GTIME%dt)
+            write(*,FMT_WARN0) '  Can not reduce dt any more'//f2chr(GTIME%dt)//', giving up precision.'
+            if (MAXVAL(d_dpar) > change_range(1,2)) change_range(1,2) = change_range(1,2)*2
+            if (MAXVAL(d_npar) > change_range(2,2)) change_range(2,2) = change_range(2,2)*2
+            if (MAXVAL(d_vap) > change_range(3,2)) change_range(3,2) = change_range(3,2)*2
         END IF
-        ! DO i = 1,size(speed_up)
-        !     IF (i /= PRCION%proc) speed_up(i) = speed_up(i) * 2
-        ! END DO
+        DO i = 1,size(speed_up)
+            IF (i /= PRCION%proc) speed_up(i) = speed_up(i) * 2
+        END DO
         n_of_Rounds = n_of_Rounds + 1
     END IF
     write(608,*) ''
@@ -789,7 +821,6 @@ END SUBROUTINE error_handling
 
 
 ! =================================================================================================
-!
 ! ACDC Nucleation. See that all values here are in SI-UNITS: CUBIC METERS, KELVINS AND PASCALS.
 ! Written by Tinja Olenius
 ! .................................................................................................
@@ -952,8 +983,8 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
                             int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec))/60,':', MODULO(int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec)),60),&
                             'Realtime/Modeltime: ', (GTIME%sec-start_time_s)/(cpu2 - cpu1)
     print '("| ",a,4("  ",i0),t100,"|")', 'Current integration time step: '//f2chr(GTIME%dt), speed_up
+    print FMT_LOOPEND,
 
-    print FMT_LEND,
 END SUBROUTINE PRINT_KEY_INFORMATION
 
 

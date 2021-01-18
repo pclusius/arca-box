@@ -420,8 +420,8 @@ SUBROUTINE PSD_Change_coagulation
         DO ii = 1, current_PSD%nr_bins
             DO jj = ii, current_PSD%nr_bins
                 IF (dconc_coag(ii,jj) > 1.d-100) THEN
-                    IF (dconc_coag(ii,jj) > new_PSD%conc_ma(ii)) PRINT*, 'ii',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(ii),new_PSD%conc_ma(jj)
-                    IF (dconc_coag(ii,jj) > new_PSD%conc_ma(jj)) PRINT*, 'jj',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(jj),new_PSD%conc_ma(ii)
+                    ! IF (dconc_coag(ii,jj) > new_PSD%conc_ma(ii)) PRINT*, 'ii',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(ii),new_PSD%conc_ma(jj)
+                    ! IF (dconc_coag(ii,jj) > new_PSD%conc_ma(jj)) PRINT*, 'jj',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(jj),new_PSD%conc_ma(ii)
                     ! Reduce the new particle concentration by the number of particles that are lost by coagulation in i and j -> they will be added later to the new bin
                     new_PSD%conc_ma(ii) = new_PSD%conc_ma(ii) - dconc_coag(ii,jj)  !reduce number in i
                     new_PSD%conc_ma(jj) = new_PSD%conc_ma(jj) - dconc_coag(ii,jj)  !reduce number in j (if i=j we have to reduce twice (which is done here) as 1 collision removes 2 particles)
@@ -599,7 +599,7 @@ SUBROUTINE bin_redistribute_fs(ind)
 
 
     ! Move to largest bin or beyond
-    IF (aa == 0) THEN
+    IF (aa < 1) THEN
         n_b = new_PSD%nr_bins  ! to save some space
         ! New composition in new_PSD%nr_bins
         new_PSD%composition_fs(n_b,:) = (new_PSD%composition_fs(n_b,:) * new_PSD%conc_fs(n_b) &
@@ -607,7 +607,7 @@ SUBROUTINE bin_redistribute_fs(ind)
                                 / (new_PSD%conc_fs(n_b) + mix_PSD%conc_fs(ind))
         ! Determine new particle concentration in largest bin
 
-        new_PSD%conc_fs(n_b) = new_PSD%conc_fs(n_b) + current_PSD%conc_fs(ind)
+        ! new_PSD%conc_fs(n_b) = new_PSD%conc_fs(n_b) + current_PSD%conc_fs(ind)
         ! Coagulation: (partly) leads to change in bin; condensation: growth or shrinkage
     ELSE IF (aa > 1 .and. aa <= current_PSD%nr_bins) THEN
 

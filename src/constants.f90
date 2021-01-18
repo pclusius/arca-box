@@ -17,6 +17,7 @@ REAL(dp), PARAMETER    :: g_0 = 9.80665D0        ! Gravitational acceleration
 REAL(dp), PARAMETER    :: Diff_H2SO4_0 = 0.09D-4 ! H2SO4 diffusivity at 0 RH (why no temperature and pressure dependence?)
 REAL(dp), PARAMETER    :: Keq1 = 0.13D0          ! H2SO4 diffusivity RH dependence parameters, Hanson & Eisele
 REAL(dp), PARAMETER    :: Keq2 = 0.016D0         ! H2SO4 diffusivity RH dependence parameters, Hanson & Eisele
+INTEGER, PARAMETER     :: di = selected_int_kind(16)
 
 ! Saturation vapour pressure of water in Pa
 REAL, PARAMETER        :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
@@ -235,12 +236,12 @@ PURE type(timetype) function ADD(time, sec)
     ADD%day = ADD%sec/3600d0/24d0
     write(ADD%hms, '(i2.2, ":" i2.2, ":" i2.2)') nint(ADD%sec)/3600, &
     int(MODULO(nint(ADD%sec),3600)/60d0), MODULO(MODULO(nint(ADD%sec),3600), 60)
-    IF (MODULO(nint(ADD%sec*100), NINT(ADD%PRINT_INTERVAL*100)) == 0) THEN
+    IF (MODULO(nint(ADD%sec*1d8,di), NINT(ADD%PRINT_INTERVAL*1d8,di)) == 0) THEN
         ADD%printnow = .true.
     ELSE
         ADD%printnow = .false.
     END IF
-    IF (MODULO(nint(ADD%sec*100), NINT(ADD%FSAVE_INTERVAL*100)) == 0) THEN
+    IF (MODULO(nint(ADD%sec*1d8,di), NINT(ADD%FSAVE_INTERVAL*1d8,di)) == 0) THEN
         ADD%savenow = .true.
     ELSE
         ADD%savenow = .false.

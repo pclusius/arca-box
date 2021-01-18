@@ -469,7 +469,7 @@ IF (Aerosol_flag) then
         call handle_file_io(ioi, Vap_atoms, 'Terminating the program.')
         write(*,FMT_MSG) 'Reading the list of elemental composition: '// TRIM(Vap_atoms)
 
-        allocate(Natoms(4,ROWCOUNT(804)))
+        allocate(Natoms(4,ROWCOUNT(804))) ! C,O,N,H
         allocate(atoms_name(ROWCOUNT(804)))
 
         DO j=1,ROWCOUNT(804)
@@ -756,15 +756,18 @@ subroutine FILL_INPUT_BUFF(unit,cols,INPUT_BF,Input_file)
     integer, intent(in)     :: cols
     CHARACTER(*)            :: Input_file
     integer                 :: i,j,k,ioi,unit
+    CHARACTER(len=6000)     :: dump
 
     i = 1
     print FMT_MSG, 'Filling input matrices...'
     DO k = 1, ROWCOUNT(unit)
         READ(unit,*, iostat=ioi) (INPUT_BF(i,j),j=1,cols)
         IF ((ioi /= 0) .and. (i==1)) THEN
+            REWIND(unit)
+            READ(unit,*, iostat=ioi) dump
             print FMT_SUB, 'First row omitted from file "'// TRIM(Input_file) //'".'
         ELSE IF ((ioi /= 0) .and. (i>1)) THEN
-            print FMT_WARN1, 'Bad value in file '// TRIM(Input_file) //'". Maybe an non-numeric on line number', real(k)
+            print FMT_WARN1, 'Bad value in file '// TRIM(Input_file) //'". Maybe a non-numeric on line '//i2chr(k)
         ELSE
             i=i+1
         END IF
