@@ -50,7 +50,7 @@ def ManU(temp, smiles):
 def askfor(key):
     return
 
-def getVaps(runforever=False, slave=True, args={}):
+def getVaps(runforever=False, args={}):
     filter = False
     save_atoms = False
     needed = ['server','smilesfile','pram','pramfile','psat_lim','saveto']
@@ -59,11 +59,7 @@ def getVaps(runforever=False, slave=True, args={}):
         if key in args.keys():
             pass
         else:
-            if not slave:
-                args[key] = askfor(key)
-            else:
-                print('not enough arguments...')
-                return
+            return ('not enough arguments...',)
     if 'filter' in args.keys():
         if args['filter'] != []: filter = True
     if 'save_atoms' in args.keys():
@@ -92,7 +88,8 @@ def getVaps(runforever=False, slave=True, args={}):
             print('    Retrieved %d compounds %s'%(count,ending))
         except:
             print('Could not contact server or got bad data, are you connected to network?')
-            return
+            return('Could not contact server or got bad data, are you connected to network?',)
+
 
         N = len(string_a)
         MAB = np.zeros((N,3))
@@ -107,7 +104,8 @@ def getVaps(runforever=False, slave=True, args={}):
             print('Saving compounds with Psat < %6.2e to %s ... '%(float(args['psat_lim']), args['saveto']))
         except:
             print('Saturation vapour pressure limit was not a float.')
-            return
+            return('Saturation vapour pressure limit was not a float.',)
+
 
 
     if args['server'] == 'UMan':
@@ -116,7 +114,8 @@ def getVaps(runforever=False, slave=True, args={}):
             smilesdir, smilesfile = os.path.split(args['smilesfile'])
         except:
             print('file not found:', args['smilesfile'])
-            return
+            return('file not found: '+args['smilesfile'],)
+
 
         i = 0
         for line in f:
@@ -150,7 +149,12 @@ def getVaps(runforever=False, slave=True, args={}):
         n_homs = 0
 
         if args['pram']:
-            homs = np.genfromtxt(args['pramfile'], dtype=str)
+            try:
+                homs = np.genfromtxt(args['pramfile'], dtype=str)
+            except:
+                print('file not found:', args['pramfile'])
+                return('file not found: '+args['pramfile'],)
+
             props = os.path.split(args['pramfile'])
             props = os.path.join(props[0],props[1].replace('_names','_prop'))
             hom_mass, HomA,HomB = np.genfromtxt(props,usecols=(0,1,2), unpack=True)
@@ -263,7 +267,7 @@ def getVaps(runforever=False, slave=True, args={}):
     if save_atoms:
         fa.close()
     print('    Done, saved %d compounds' %count)
-
+    return ('Done', 'Succesfully saved %d compounds' %count)
 
 # ------------------------
 if __name__ == '__main__':

@@ -198,13 +198,17 @@ class VpressWin(QtGui.QDialog):
         self.vp.browseVapourPath.clicked.connect(self.filename)
         self.vp.createVapourFileButton.clicked.connect(self.saveVapours)
 
+
     def filename(self):
         dialog = QtWidgets.QFileDialog()
         options = dialog.Options()
         options |= dialog.DontUseNativeDialog
         file = dialog.getSaveFileName(self, 'Save Vapours', options=options)[0]
         if file != '': self.vp.VapourPath.setText(file)
+
+
     def saveVapours(self):
+        """This tool creates the Vapour and Elements files from user input or from the AMG server."""
         filterlist = []
         if self.vp.filterWChem.isChecked():
             chemistry = qt_box.chemistryModules.currentText()
@@ -222,15 +226,13 @@ class VpressWin(QtGui.QDialog):
         if self.vp.VapourPath.text() == '':
             qt_box.popup('Oops...', 'Output filename must be defined.',1)
             return
-        import sys
-        sys.path.append(abspath(currentdir+"/ModelLib/Scripts"))
         import GetVapourPressures as gvp
         if self.vp.useUMan.isChecked(): source = 'UMan'
         else: source = 'AMG'
         if self.vp.limPsat.text() == '' : plim = 1e-6
         else : plim = self.vp.limPsat.text()
 
-        gvp.getVaps(args={
+        message = gvp.getVaps(args={
         'server':source,
         'smilesfile':self.vp.lineEdit.text(),
         'pram':self.vp.usePRAM.isChecked(),
@@ -240,6 +242,8 @@ class VpressWin(QtGui.QDialog):
         'filter':filterlist,
         'save_atoms':self.vp.saveElements.isChecked()
         })
+        if len(message)==1: qt_box.popup('Oops...', 'No dice: '+message[0],3)
+        if len(message)==2: qt_box.popup(message[0],message[1],0)
 
 
 # The popup window for multimode plot
