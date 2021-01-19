@@ -143,7 +143,7 @@ def getVaps(runforever=False, slave=True, args={}):
                 for j in range(rest):
                     print('Fetching compounds from %i to %i of %d.'%(j*100, (j+1)*100, N))
                     buffer[j*100:(j+1)*100,:] = ManU(temp, smiles[j*100:(j+1)*100])
-            print('Fetching compounds %i to %i.'%(N-n_first, N))
+            print('Fetching compounds %i to %i.'%(N-n_first+1, N))
             buffer[-n_first:,:] = ManU(temp, smiles[-n_first:])
             pickle.dump( buffer, open( os.path.join(smilesdir, smilesfile+"_UMan_Fetch.pickle"), "wb" ) )
 
