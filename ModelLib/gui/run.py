@@ -10,7 +10,7 @@ petri.clusius@helsinki.fi
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-import vars, gui8, batchDialog1,batchDialog2,batchDialog3,batch, mmplot, vdialog
+import vars, gui8, batchDialog1,batchDialog2,batchDialog3,batch, mmplot, vdialog, cc
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros
 from numpy import sum as npsum
@@ -184,6 +184,26 @@ class batchW(QtGui.QDialog):
                 exec('self.ui.tb_%d.appendPlainText(\'\'.join(a[2][%d]))'%(c,i))
                 c +=1
 
+# The popup window for Create KPP files
+class CCWin(QtGui.QDialog):
+    def __init__(self, parent = None):
+        super(CCWin, self).__init__(parent)
+        self.ccw = cc.Ui_Dialog()
+        self.ccw.setupUi(self)
+        self.ccw.ccClose.clicked.connect(self.reject)
+        self.ccw.createKPPsettings.clicked.connect(self.kpp)
+    def kpp(self):
+        cmds = self.ccw.cmdString.text().split()
+        self.kppProcess = Popen(["python3", 'ModelLib/gui/chemistry_package_PZ/create_chemistry.py', *cmds], stdout=PIPE,stderr=STDOUT,stdin=None)
+        lines = True
+        while lines:
+            self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
+            self.ccw.ccMonitor.insertPlainText(self.ccout)
+            if self.kppProcess.poll() != None and self.ccout == '':
+                lines= False
+                self.kppProcess.kill()
+
+
 # The popup window for Vapour pressure file
 class VpressWin(QtGui.QDialog):
     def __init__(self, parent = None):
@@ -340,6 +360,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionSet_Global_font.triggered.connect(lambda: self.setFont(self.tabWidget,'global'))
         self.actionReset_fonts.triggered.connect(self.resetFont)
         self.actionCreate_vapour_file.triggered.connect(self.vapours)
+        self.actionCreateNewChemistry.triggered.connect(self.createCC)
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
@@ -1230,6 +1251,14 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         """Envoke script to create new vapor file."""
         self.Wwin = VpressWin()
         response = self.Wwin.exec()
+        if response == 0:
+            return
+
+
+    def createCC(self):
+        """Envoke script to create new chemistry."""
+        self.ccwin = CCWin()
+        response = self.ccwin.exec()
         if response == 0:
             return
 

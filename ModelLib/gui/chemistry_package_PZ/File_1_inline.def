@@ -1,0 +1,73 @@
+#INLINE F90_GLOBAL
+  INTEGER, PARAMETER :: NPHOT=71
+  REAL(dp) :: J(NPHOT)
+
+  REAL(dp) :: RES1, RES2
+
+  ! generic reaction rate variables
+  REAL(dp) kro2no, kro2ho2, kapho2, kapno, kro2no3, kno3al, kdec, &
+    krosec, kalkoxy, kalkpxy, kroprim, k14isom1
+  ! variables for calculation of kfpan and kbpan
+  REAL(dp) kfpan, kbpan
+  REAL(dp) kc0, kci, krc, fcc, nc, fc
+  REAL(dp) kd0, kdi, krd, fcd, ncd, fd
+  ! variables for calculation of kmt01
+  REAL(dp) kmt01
+  REAL(dp) k10, k1i, kr1, fc1, nc1, f1
+  ! variables for calculation of kmt02
+  REAL(dp) kmt02
+  REAL(dp) k20, k2i, kr2, fc2, nc2, f2
+  ! variables for calculation of kmt03
+  REAL(dp) kmt03
+  REAL(dp) k30, k3i, kr3, fc3, nc3, f3
+  ! variables for calculation of kmt04
+  REAL(dp) kmt04
+  REAL(dp) k40, k4i, kr4, fc4, nc4, f4
+  ! variables for calculation of kmt05
+  REAL(dp) kmt05
+  ! variables for calculation of kmt06
+  REAL(dp) kmt06
+  ! variables for calculation of kmt07
+  REAL(dp) kmt07
+  REAL(dp) k70, k7i, kr7, fc7, nc7, f7
+  ! variables for calculation of kmt08
+  REAL(dp) kmt08
+  REAL(dp) k80, k8i, kr8, fc8, nc8, f8
+  ! variables for calculation of kmt09
+  REAL(dp) kmt09
+  REAL(dp) k90, k9i, kr9, fc9, nc9, f9
+  ! variables for calculation of kmt10
+  REAL(dp) kmt10
+  REAL(dp) k100, k10i, kr10, fc10, nc10, f10
+  ! variables for calculation of kmt11
+  REAL(dp) kmt11
+  REAL(dp) k1,k2,k3,k4
+  ! variables for calculation of kmt12
+  REAL(dp) kmt12
+  REAL(dp) k0, ki, x, ssign,f
+  REAL(dp) k120, k12i, kr12, fc12, nc12, f12
+  ! variables for calculation of kmt13
+  REAL(dp) kmt13
+  REAL(dp) k130, k13i, kr13, nc13, fc13, f13
+  ! variables for calculation of kmt14
+  REAL(dp) kmt14
+  REAL(dp) k140, k14i, kr14, nc14, fc14, f14
+  ! variables for calculation of kmt15
+  REAL(dp) kmt15
+  REAL(dp) k150, k15i, kr15, fc15, nc15, f15
+  ! variables for calculation of kmt16
+  REAL(dp) kmt16
+  REAL(dp) k160, k16i, kr16, nc16, fc16, f16
+  ! variables for calculation of kmt17
+  REAL(dp) kmt17
+  REAL(dp) k170, k17i, kr17, fc17, nc17, f17
+  ! variables for calculation of kmt17
+  REAL(dp) kmt18
+  ! variables for calculation of kbppn
+  REAL(dp) :: kbppn
+  REAL(dp) :: kppn0, kppni, krppn, fcppn, ncppn, fppn
+
+  REAL(dp) kch3o2, k298ch3o2
+  
+  REAL(dp) kp_rooh, kp_ho2, kp_n2o5, kp_no3, kp_all
+#ENDINLINE 

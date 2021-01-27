@@ -1,0 +1,73 @@
+#DEFFIX
+Emi1 = IGNORE ;
+Emi2 = IGNORE ;
+Emi3 = IGNORE ;
+Emi4 = IGNORE ;
+Emi5 = IGNORE ;
+Emi6 = IGNORE ;
+Emi7 = IGNORE ;
+Emi8 = IGNORE ;
+Emi9 = IGNORE ;
+Emi10 = IGNORE ;
+Emi11 = IGNORE ;
+Emi12 = IGNORE ;
+Emi13 = IGNORE ;
+Emi14 = IGNORE ;
+Emi15 = IGNORE ;
+Emi16 = IGNORE ;
+Emi17 = IGNORE ;
+Emi18 = IGNORE ;
+Emi19 = IGNORE ;
+Emi20 = IGNORE ;
+Emi21 = IGNORE ;
+Emi22 = IGNORE ;
+
+#DEFVAR
+C5H8 = IGNORE;
+Myrcene = IGNORE;
+Sabinene = IGNORE;
+LIMONENE = IGNORE;
+Carene = IGNORE;
+Ocimene = IGNORE;
+BPINENE = IGNORE;
+APINENE = IGNORE;
+OMT = IGNORE;
+Farnesene = IGNORE;
+BCARY = IGNORE;
+OSQ = IGNORE;
+MBO = IGNORE;
+CH3OH = IGNORE;
+CH3COCH3 = IGNORE;
+CH4 = IGNORE;
+NO = IGNORE;
+CH3CHO = IGNORE;
+HCHO = IGNORE;
+CO = IGNORE;
+Cineole = IGNORE;
+Linalool = IGNORE;
+
+
+#EQUATIONS
+
+Emi1  = C5H8 :                                             1 ;
+Emi2  = MYRCENE :                                          1 ;
+Emi3  = SABINENE :                                         1 ;
+Emi4  = LIMONENE :                                         1 ;
+Emi5  = CARENE :                                           1 ;
+Emi6  = OCIMENE :                                          1 ;
+Emi7  = BPINENE :                                          1 ;
+Emi8  = APINENE :                                          1 ;
+Emi9  = OMT :                                              1 ;
+Emi10 = FARNESENE :                                        1 ;
+Emi11 = BCARY :                                            1 ;
+Emi12 = OSQ :                                              1 ;
+Emi13 = MBO :                                              1 ;
+Emi14 = CH3OH :                                            1 ;
+Emi15 = CH3COCH3 :                                         1 ;
+Emi16 = CH4 :                                              1 ;
+Emi17 = NO :                                               1 ;
+Emi18 = CH3CHO :                                           1 ;
+Emi19 = HCHO :                                             1 ;
+Emi20 = CO :                                               1 ;
+Emi21 = CINEOLE :                                          1 ;
+Emi22 = LINALOOL :                                         1 ;

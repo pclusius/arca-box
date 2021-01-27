@@ -1,0 +1,81 @@
+Created at 11:01:15, January 20, 2021
+
+Added complex reaction rates from File_1_inline.def.
+
+Fix the bug: "= IGNORE --> dummy = IGNORE".
+
+Deleted the line "USE constants".
+
+Deleted the line "CALL mcm_constants(time, temp, M, N2, O2, RO2, H2O)".
+
+Fix the bug: "O + O3 = --> O + O3 = dummy".
+
+Fix the bug: "OH + HO2 = --> OH + HO2 = dummy".
+
+2 SA are changed to H2SO4.
+
+Add condensation sink RES1 for H2SO4: "H2SO4 = dummy : RES1 ;"
+Comment out KNO
+Comment out KHO2
+Comment out KRO2
+Comment out KNO3
+Comment out KTR
+Comment out K16ISOM
+
+PRAM_v21.txt does not exist.
+terpenes_not_in_mcm.txt does not exist.
+inline.def does not exist.
+The included files besides the root def file (the inline file File_1_inline.def has already been included):
+File_2_PRAM_v21.txt
+File_3_terpenes_not_in_mcm.txt
+File_4_emission.txt
+
+Combined all the species defined in #DEFVAR.
+
+Combined all the species defined in #DEFFIX.
+
+Combined all the RO2 species.
+
+Combined all the equations:
+If the reactants, products and k values of several equations are the same, only one is left.
+If the reactants, products of several equations are the same, but k values are different, all of them are kept,
+and the followed duplicated equations will be shown below.
+The duplicated equations are:
+{3.}      APINOOA = C107O2 + OH :                     KDEC*0.55*0.90 ;
+{4.}      APINOOA = C109O2 + OH :                     KDEC*0.45*0.90 ;
+{5.}      LIMOOA = LIMALAO2 + OH :                    KDEC*0.5*0.7 ;
+{6.}      LIMOOA = LIMALBO2 + OH :                    KDEC*0.5*0.7 ;
+{1153.}     C107O2 = C107O : 	                            9.20D-14*0.7*RO2*0.9 ;
+{1154.}     C107O2 = C107OH : 	                            9.20D-14*0.3*RO2*0.9 ;
+
+The reaction rates of these equations (CI -> SO3) are modified from 7.00D-14 to 7.00D-13:
+{435.} CH2OO + SO2 = HCHO + SO3 : 7.00D-14 ;
+
+{836.} APINBOO + SO2 = PINAL + SO3 : 7.00D-14 ;
+
+{901.} NOPINOO + SO2 = NOPINONE + SO3 : 7.00D-14 ;
+
+{945.} LIMBOO + SO2 = LIMAL + SO3 : 7.00D-14 ;
+
+{1225.} CO2C3OO + SO2 = CO2C3CHO + SO3 : 7.00D-14 ;
+
+{1702.} CH3CHOO + SO2 = CH3CHO + SO3 : 7.00D-14 ;
+
+{1901.} NC41OO + SO2 = HMVKANO3 + SO3 : 7.00D-14 ;
+
+{2366.} HMGLOO + SO2 = HOCH2COCHO + SO3 : 7.00D-14 ;
+
+{2565.} BZFUONOO + SO2 = CO14O3CHO + SO3 : 7.00D-14 ;
+
+{2673.} TLFUONOO + SO2 = ACCOMECHO + SO3 : 7.00D-14 ;
+
+{2875.} LMKBOO + SO2 = LMLKET + SO3 : 7.00D-14 ;
+
+{2904.} M3FOO + SO2 = C532CO + SO3 : 7.00D-14 ;
+
+{3543.} HMGLYOO + SO2 = HOCH2COCHO + SO3 : 7.00D-14 ;
+
+
+Removed all the carriage return character ^M.
+
+The final file is written.

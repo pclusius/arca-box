@@ -71,7 +71,7 @@ def getVaps(runforever=False, args={}):
         import urllib.request
         string_a = []; count = 0
         print('Using AMG server for precalculated values')
-        file = 'https://docs.google.com/spreadsheets/d/1i1vs2LeJkj-fwfo-294fejxGipcJ1IPCQi0bIQT5MPY/export?format=csv'
+        file = 'https://docs.google.com/spreadsheets/d/1KUfhyDydBCdQHsJF5G8pvPRZdTjcYYpsFgCPPhkj--I/export?format=csv'
         try:
             print('Contacting AMG server ... ')
             for line in urllib.request.urlopen(file):

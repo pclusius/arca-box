@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Reactivities xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <reactivity>
+    <name>rOH_inorg</name>
+    <species>OH</species>
+    <reactants>O3, NO, NO2, SO2, CO</reactants>
+  </reactivity>
+
+  <reactivity>
+    <name>rOH_inorg2</name>
+    <species>OH</species>
+    <reactants>H2, H2O2, HONO, HO2NO2, HNO3, NO3</reactants>
+  </reactivity>
+
+  <reactivity>
+    <name>rOH_isop</name>
+    <species>OH</species>
+    <reactants>C5H8</reactants>
+  </reactivity>
+
+  <reactivity>
+    <name>rOH_monoter</name>
+    <species>OH</species>
+    <reactants>APINENE, BPINENE, CARENE, LIMONENE, MYRCENE</reactants>
+  </reactivity>
+
+  <reactivity>
+    <name>rOH_other</name>
+    <species>OH</species>
+    <reactants>+other</reactants>
+  </reactivity>
+
+  <reactivity>
+    <name>rNO3_monoter</name>
+    <species>NO3</species>
+    <reactants>APINENE, BPINENE, LIMONENE, OMT</reactants>
+  </reactivity>
+</Reactivities>
