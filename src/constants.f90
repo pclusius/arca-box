@@ -51,10 +51,11 @@ type input_mod
     real(dp)  :: mju = 12d0   ! Time of peak value
     real(dp)  :: fv  = 0d0    ! Angular frequency [hours] of modifying sine function
     real(dp)  :: ph  = 0d0    ! Angular frequency [hours] of modifying sine function
-    real(dp)  :: am  = 1d0    ! Amplitude of modificaion
+    real(dp)  :: am  = 1d0    ! Amplitude of modification
     CHARACTER(5)  :: UNIT = '-'      ! Unit for the given number. CASE INSENSITIVE
+    CHARACTER(16) :: TIED = ''       ! variable is coupled with this variable
     CHARACTER(16) :: NAME = 'NONAME' ! Human readable name for modified variable
-    LOGICAL :: ISPROVIDED = .false. ! Human readable name for modified variable
+    LOGICAL :: ISPROVIDED = .false.  ! Human readable name for modified variable
 
     ! UNITS FOR INPUT (case insensitive):
     ! #      = number concentration in 1/cm3. DEFAULT ASSUMPTION
@@ -253,40 +254,68 @@ end function ADD
 ! =================================================================================================
 ! Function to calculate concentrations based on the input units and modifyers
 ! .................................................................................................
-PURE REAL(dp) FUNCTION MOD_CONC(c, MODS)
+PURE REAL(dp) FUNCTION MOD_CONC(c, MOD)
     IMPLICIT NONE
-    type(input_mod), INTENT(in) :: MODS
+    type(input_mod), INTENT(in) :: MOD
     REAL(dp), INTENT(in)        :: c
 
-    if (MODS%MODE < 1) THEN
-        MOD_CONC = c * MODS%multi
-        MOD_CONC = MOD_CONC + MODS%shift
+    if (MOD%MODE < 1) THEN
+        MOD_CONC = c * MOD%multi
+        MOD_CONC = MOD_CONC + MOD%shift
     ELSE
-        MOD_CONC = NORMALD(MODS)
+        MOD_CONC = NORMALD(MOD)
     END IF
 
-    ! If the concentration is a mixing ratio, defined in MODS%UNIT, it will be converted to number concentration
-    if (UCASE(TRIM(MODS%UNIT)) == 'PPM') THEN
+    ! If the concentration is a mixing ratio, defined in MOD%UNIT, it will be converted to number concentration
+    if (UCASE(TRIM(MOD%UNIT)) == 'PPM') THEN
         MOD_CONC = MOD_CONC * 1d-6 * GC_AIR_NOW
-    elseif (UCASE(TRIM(MODS%UNIT)) == 'PPB') THEN
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'PPB') THEN
         MOD_CONC = MOD_CONC * 1d-9 * GC_AIR_NOW
-    elseif (UCASE(TRIM(MODS%UNIT)) == 'PPT') THEN
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'PPT') THEN
         MOD_CONC = MOD_CONC * 1d-12 * GC_AIR_NOW
-    elseif (UCASE(TRIM(MODS%UNIT)) == 'PPQ') THEN
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'PPQ') THEN
         MOD_CONC = MOD_CONC * 1d-15 * GC_AIR_NOW
-    elseif (UCASE(TRIM(MODS%UNIT)) == 'HPA') THEN
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'HPA') THEN
         MOD_CONC = MOD_CONC * 1d2
-    elseif (UCASE(TRIM(MODS%UNIT)) == 'KPA') THEN
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'KPA') THEN
         MOD_CONC = MOD_CONC * 1000d0
-    elseif (UCASE(TRIM(MODS%UNIT)) == 'ATM') THEN
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'ATM') THEN
         MOD_CONC = MOD_CONC * 1.01325d5
-    elseif (UCASE(TRIM(MODS%UNIT)) == 'BAR') THEN
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'BAR') THEN
         MOD_CONC = MOD_CONC * 1.d5
-    elseif (UCASE(TRIM(MODS%UNIT)) == 'MBAR') THEN
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'MBAR') THEN
         MOD_CONC = MOD_CONC * 1.d2
     END if
 
 END FUNCTION MOD_CONC
+
+
+PURE REAL(dp) FUNCTION UCONV(c,MOD)
+    IMPLICIT NONE
+    type(input_mod), INTENT(in) :: MOD
+    REAL(dp), INTENT(in)        :: c
+    ! If the concentration is a mixing ratio, defined in MODS%UNIT, it will be converted to number concentration
+    if (UCASE(TRIM(MOD%UNIT)) == 'PPM') THEN
+        UCONV = c * 1d-6 * GC_AIR_NOW
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'PPB') THEN
+        UCONV = c * 1d-9 * GC_AIR_NOW
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'PPT') THEN
+        UCONV = c * 1d-12 * GC_AIR_NOW
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'PPQ') THEN
+        UCONV = c * 1d-15 * GC_AIR_NOW
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'HPA') THEN
+        UCONV = c * 1d2
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'KPA') THEN
+        UCONV = c * 1000d0
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'ATM') THEN
+        UCONV = c * 1.01325d5
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'BAR') THEN
+        UCONV = c * 1.d5
+    elseif (UCASE(TRIM(MOD%UNIT)) == 'MBAR') THEN
+        UCONV = c * 1.d2
+    END if
+
+END FUNCTION UCONV
 
 !==============================================================================
 ! Function to return y-value at [time] from a normal distribution function with
