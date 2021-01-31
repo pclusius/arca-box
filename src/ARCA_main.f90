@@ -90,6 +90,7 @@ Au = Chamber_floor_area
 Ad = Chamber_floor_area
 V_chamber = Chamber_floor_area*CHAMBER_HEIGHT
 
+CALL LINK_VARIABLES
 
 ! ==================================================================================================================
 IF (Chemistry_flag) THEN
@@ -310,16 +311,31 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
     ELSE
       if (ingui) print'(a)', '.'
     END IF
-    ! GC_AIR_NOW, TEMPK, PRES and RH are calculated as global variables and are available everywhere.
+
+    ! Assign values to input variables. N_VARS will cycle through all variables that user can provide
+    ! or alter, and value leave zero if no input was provided.
+    ! GC_AIR_NOW, TEMPK, PRES and RH are saved as global variables and are available everywhere.
     ! H2SO4 CS is based on the input, if provided, otherwise it is calculated from the aerosol population
     ! USE GC_AIR_NOW FOR CURRENT AIR CONCENTRATION IN CM^3
-    GTEMPK = interp(timevec, CONC_MAT(:,inm_tempK)) .mod. MODS(inm_tempK)
-    GPRES = interp(timevec, CONC_MAT(:,inm_PRES)) .mod. MODS(inm_PRES)
-    GRH = interp(timevec, CONC_MAT(:,inm_RH)) .mod. MODS(inm_RH)
-    GC_AIR_NOW = C_AIR_cc(GTEMPK, GPRES)
+
+    DO I = 1, N_VARS
+        IF (MODS(i)%ISPROVIDED) TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I)) .mod. MODS(I)
+        IF (I == 2) THEN
+            GTEMPK = TSTEP_CONC(inm_TempK)
+            GPRES  = TSTEP_CONC(inm_pres)
+            GC_AIR_NOW = C_AIR_cc(GTEMPK, GPRES)
+        END IF
+    END DO
+    DO I = 1, N_VARS
+        IF ((MODS(i)%ISPROVIDED).and.(MODS(i)%TIED /= '')) THEN
+            TSTEP_CONC(I) = TSTEP_CONC(INDRELAY_TIED(I)) * MODS(I)%MULTI + UCONV(MODS(I)%SHIFT, MODS(I))
+        END IF
+    END DO
+
+    GRH = TSTEP_CONC(inm_RH)
 
     IF (MODS(inm_CS)%ISPROVIDED) THEN
-        GCS = interp(timevec, CONC_MAT(:,inm_CS)) .mod. MODS(inm_CS)
+        GCS = TSTEP_CONC(inm_CS)
     ELSE
         IF (equal(GTIME%sec, 0d0)) THEN
             GCS = 0d-3
@@ -334,12 +350,6 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
     ! Calculate Water vapour pressure and concentration
     CALL WATER(ES,EW,CH_H2O)
 
-    ! Assign values to input variables. N_VARS will cycle through all variables that user can provide
-    ! or tamper, and leave zero if no input or mod was provided
-    DO I = 1, N_VARS
-        IF (MODS(i)%ISPROVIDED) TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I)) .mod. MODS(I)
-        IF (I == inm_CS) TSTEP_CONC(I) = GCS
-    END DO
     ! =================================================================================================
 
     ! =================================================================================================
@@ -1176,5 +1186,28 @@ SUBROUTINE PRINT_GROWTH_RATE
 
 END SUBROUTINE PRINT_GROWTH_RATE
 
+SUBROUTINE LINK_VARIABLES
+    IMPLICIT NONE
+    INTEGER :: i
+    print FMT_HDR, 'Checking for linked variables'
+    DO i=1,N_VARS
+        IF ((MODS(i)%ISPROVIDED).and.(MODS(i)%TIED /= '')) THEN
+            if (I < 3) THEN
+                PRINT FMT_FAT0, "Tying temperature or pressure to other variables is not possible."
+                stop
+            END IF
+            ii = IndexFromName(MODS(i)%TIED)
+            IF (ii == 0) THEN
+                print FMT_FAT0, TRIM(MODS(i)%NAME)//' is tied to "'//TRIM(MODS(i)%TIED)//'" which is unavailable.'
+                stop
+            ELSE
+                print FMT_MSG, 'Tying '//TRIM(MODS(i)%NAME)//' to '//TRIM(MODS(i)%TIED)
+                INDRELAY_TIED(I) = ii
+            END IF
+        END IF
+    END DO
+    print FMT_LEND,
+
+END SUBROUTINE LINK_VARIABLES
 
 END PROGRAM ARCA_main

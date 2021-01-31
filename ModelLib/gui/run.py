@@ -214,6 +214,7 @@ class Variation(QtGui.QDialog):
         self.vary.Close.clicked.connect(self.reject)
         self.vary.runVariations.clicked.connect(self.vars)
         self.vary.Browse.clicked.connect(self.br)
+        self.vary.opsFromFile.clicked.connect(self.loadOps)
         self.vary.table.setColumnWidth(0, 90)
         for i in range(1,6):
             self.vary.table.setColumnWidth(i, 70)
@@ -237,10 +238,20 @@ class Variation(QtGui.QDialog):
                     ops[i,j] = float(self.vary.table.item(i,j).text())
         print(variations.zzzz(p, ossplit(p)[0], ops, dryrun=False, nopause=True))
 
-    def br(self):
-        target = self.vary.lineEdit
+    def loadOps(self):
+        path = self.pickF(None)
+        if exists(path):
+            with open(path) as f:
+                for line in f:
+                    if not line[0] == '#':
+                        if len(line.split()) <= 7:
+                            self.addL(line.split())
+                        else:
+                            print('File has additional junk')
+
+    def pickF(self, ftype):
         dialog = QtWidgets.QFileDialog()
-        dialog.setNameFilter("Arca batch file (*.bash)")
+        dialog.setNameFilter(ftype)
         options = dialog.Options()
         options |= dialog.DontUseNativeDialog
         dialog.setOption(QtWidgets.QFileDialog.DontUseNativeDialog)
@@ -248,6 +259,11 @@ class Variation(QtGui.QDialog):
         if dialog.exec() == 1:
             path = dialog.selectedFiles()[0]
         else: path=''
+        return path
+
+    def br(self):
+        path = self.pickF("Arca batch file (*.bash)")
+        target = self.vary.lineEdit
         if path != '':
             target.clear()
             target.insert(path)
@@ -261,9 +277,8 @@ class Variation(QtGui.QDialog):
                 jjj += 1
             print('-'*35)
 
-    def addL(self):
+    def addL(self, cols = ['1','1','1','1','0','0','0']):
         self.vary.table.insertRow(self.vary.table.rowCount())
-        cols = ['1','1','1','1','0','0','0']
         for i in range(len(cols)):
             tag = QtWidgets.QTableWidgetItem(cols[i])
             tag.setFont(bold)

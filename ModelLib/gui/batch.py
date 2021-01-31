@@ -23,9 +23,13 @@ def batch(begin = '2020-01-01', end='2020-01-05', case='Melpitz', run='X1', comm
         ind_range = range(begin,end+1)
         fmt = "%0"+str(max(4,len(str(end))))+"d"
         index_strings =[fmt %i for i in ind_range]
+        keepday = False
         try:
             if len(caselist)>0:
-                index_strings =[fmt %int(i) for i in caselist]
+                if caselist[0] == 'SameDay':
+                    keepday = True
+                else:
+                    index_strings =[fmt %int(i) for i in caselist]
         except:
             return 'List of indexes need to be integers, each on their own row. \nAlso check the index radio button to use indices.'
 
@@ -46,7 +50,6 @@ def batch(begin = '2020-01-01', end='2020-01-05', case='Melpitz', run='X1', comm
 
     case = case.upper()
     run = run.upper()
-
 
     dirs_to_create = []
     files_to_create = []
@@ -72,6 +75,8 @@ def batch(begin = '2020-01-01', end='2020-01-05', case='Melpitz', run='X1', comm
                     existing_runs.append(p)
 
     return dirs_to_create, conflicting_names, files_to_create, files_to_overwrite, existing_runs, index_strings, outdir+'/'+run, indir
+
+
 # batch()
 def tagparser(tag, index):
     tag = tag.replace('<','')
