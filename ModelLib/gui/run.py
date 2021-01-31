@@ -10,7 +10,7 @@ petri.clusius@helsinki.fi
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-import vars, gui8, batchDialog1,batchDialog2,batchDialog3,batch, mmplot, vdialog, cc
+import vars, gui8, batchDialog1,batchDialog2,batchDialog3,batch, mmplot, vdialog, cc, varWin, variations
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros
 from numpy import sum as npsum
@@ -66,7 +66,7 @@ if osname.upper() == 'NT':
 
 ## Some constants --------------------------------------------
 # widths of the columns in "Input variables" tab
-column_widths = [140,70,70,70,70,90,50,3]
+column_widths = [120,90,70,70,70,90,50,3]
 
 # available units for variables, used to fill the tables and graphs with appropriate units
 units = {
@@ -107,7 +107,7 @@ colors = [(120,0,0),(180,0,0),(220,0,0),(255,10,0),(255,85,0),
 env_no = (215,238,244)
 env_yes = (128,179,255)
 # BG colour for ORG vars
-org_no = (243,243,243)
+org_no = (243,240,239)
 org_yes = (172,147,147)
 
 # icon
@@ -151,10 +151,9 @@ with open(path_to_names) as f:
     for line in f:
         name = line[:-1]
         if '#' in line:
-            NAMES.append('MCM compounds start here')
             divider_i=i
-        else:
-            NAMES.append(name)
+            name = 'MCM compounds start here'
+        NAMES.append(name)
         namesPyInds[name] = i
         namesFoInds[name] = i+1
         i += 1
@@ -204,6 +203,79 @@ class CCWin(QtGui.QDialog):
                 self.kppProcess.kill()
 
 
+# The popup window for variations
+class Variation(QtGui.QDialog):
+    def __init__(self, parent = None):
+        super(Variation, self).__init__(parent)
+        self.vary = varWin.Ui_Dialog()
+        self.vary.setupUi(self)
+        self.vary.addLine.clicked.connect(self.addL)
+        self.vary.removeLine.clicked.connect(self.remL)
+        self.vary.Close.clicked.connect(self.reject)
+        self.vary.runVariations.clicked.connect(self.vars)
+        self.vary.Browse.clicked.connect(self.br)
+        self.vary.table.setColumnWidth(0, 90)
+        for i in range(1,6):
+            self.vary.table.setColumnWidth(i, 70)
+        self.vary.table.setColumnWidth(6, 50)
+
+    def vars(self):
+        p=self.vary.lineEdit.text()
+        if self.vary.table.rowCount() == 0: return
+        ops = zeros((self.vary.table.rowCount(), 7))
+        for i in range(self.vary.table.rowCount()):
+            for j in range(7):
+                if j==0:
+                    try:
+                        ops[i,j] = float(self.vary.table.item(i,j).text())
+                    except:
+                        if self.vary.table.item(i,j).text().upper() in self.indices:
+                            ops[i,j] = self.indices[self.vary.table.item(i,j).text().upper()]
+                        else:
+                            print('Check the input, compound '+self.vary.table.item(i,j).text().upper()+' was not found.')
+                else:
+                    ops[i,j] = float(self.vary.table.item(i,j).text())
+        print(variations.zzzz(p, ossplit(p)[0], ops, dryrun=False, nopause=True))
+
+    def br(self):
+        target = self.vary.lineEdit
+        dialog = QtWidgets.QFileDialog()
+        dialog.setNameFilter("Arca batch file (*.bash)")
+        options = dialog.Options()
+        options |= dialog.DontUseNativeDialog
+        dialog.setOption(QtWidgets.QFileDialog.DontUseNativeDialog)
+        dialog.setWindowTitle('Choose File')
+        if dialog.exec() == 1:
+            path = dialog.selectedFiles()[0]
+        else: path=''
+        if path != '':
+            target.clear()
+            target.insert(path)
+            self.indices = variations.zzzz(path, ossplit(path)[0],variations.ops, dryrun=True)
+            jjj = 0
+            print('\nFollowing variables and their indices are picked from chosen bash file\'s')
+            print('first run. Use the indices to define the variables that are to be varied:')
+            for k in self.indices.keys():
+                if jjj%5==0: print('-'*35)
+                print('%-16s: %-3d' %(k, self.indices[k]))
+                jjj += 1
+            print('-'*35)
+
+    def addL(self):
+        self.vary.table.insertRow(self.vary.table.rowCount())
+        cols = ['1','1','1','1','0','0','0']
+        for i in range(len(cols)):
+            tag = QtWidgets.QTableWidgetItem(cols[i])
+            tag.setFont(bold)
+            tag.setTextAlignment(QtCore.Qt.AlignCenter)
+            self.vary.table.setItem(self.vary.table.rowCount()-1, i, tag)
+
+    def remL(self):
+        ii = self.vary.table.selectionModel().selectedIndexes()
+        for i in ii:
+            self.vary.table.removeRow(i.row())
+
+
 # The popup window for Vapour pressure file
 class VpressWin(QtGui.QDialog):
     def __init__(self, parent = None):
@@ -225,6 +297,18 @@ class VpressWin(QtGui.QDialog):
         options |= dialog.DontUseNativeDialog
         file = dialog.getSaveFileName(self, 'Save Vapours', options=options)[0]
         if file != '': self.vp.VapourPath.setText(file)
+
+
+
+
+
+    def browse(self):
+
+        dialog = QtWidgets.QFileDialog()
+        options = dialog.Options()
+        options |= dialog.DontUseNativeDialog
+        file = dialog.getSaveFileName(self, 'Save Vapours', options=options)[0]
+        if file != '': self.vary.lineEdit.setText(file)
 
 
     def saveVapours(self):
@@ -318,6 +402,7 @@ class Comp:
         self.fv     = 0e0      # Angular frequency [hours] of modifying sine function
         self.ph     = 0e0      # Angular frequency [hours] of modifying sine function
         self.am     = 1e0      # Amplitude of modification
+        self.tied   = ''       # Variable is tied to this compound
         self.name   = 'NONAME' # Human readable name for modified variable
         self.unit   = '#/cm3'  # unit name
         self.Find   = 1
@@ -361,6 +446,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionReset_fonts.triggered.connect(self.resetFont)
         self.actionCreate_vapour_file.triggered.connect(self.vapours)
         self.actionCreateNewChemistry.triggered.connect(self.createCC)
+        self.actionVariations.triggered.connect(self.createVAR)
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
@@ -369,8 +455,21 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
         self.namesdat.clear()
         self.namesdat.addItems(NAMES)
-        item = self.namesdat.item(divider_i)
-        item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
+        for i in range(len(NAMES)):
+            item = self.namesdat.item(i)
+            if i<divider_i:
+                # item.setForeground(QtGui.QColor(0, 70, 0))
+                # item.setBackground(QtGui.QColor(200, 230, 200))
+                item.setBackground(QtGui.QColor(*env_no))
+            elif i==divider_i:
+                item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
+                item.setBackground(QtGui.QColor(*org_yes))
+                item.setForeground(QtGui.QColor(250, 250, 250))
+            else:
+                # item.setBackground(QtGui.QColor(200, 200, 230))
+                item.setBackground(QtGui.QColor(*org_no))
+                # item.setForeground(QtGui.QColor(0, 0, 70))
+
         self.runtime.valueChanged.connect(lambda: self.updteGraph())
         self.runtime.valueChanged.connect(lambda: self.runtime_s.setValue(int(self.runtime.value()*3600)))
         self.runtime_s.editingFinished.connect(lambda: self.runtime.setValue(self.runtime_s.value()/3600))
@@ -433,7 +532,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.selected_vars.verticalHeader().setVisible(False);
         self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed', ftype="KPP def (*.def)"))
         self.loadFixedChemistry.clicked.connect(self.loadFixedFromChemistry)
-
+        self.findInput.textChanged.connect(self.filterListOfInput)
     # -----------------------
     # tab Function creator
     # -----------------------
@@ -751,8 +850,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.dmps_file.setToolTip('Location: "'+nml.PARTICLE.DMPS_FILE+'"')
         self.extra_particles.setToolTip('Location: "'+nml.PARTICLE.EXTRA_PARTICLES+'"')
 
-    def get_case_kwargs(self,r):
-        return {'begin':r[0],'end':r[1],'case':nml.PATH.CASE_NAME,'run':nml.PATH.RUN_NAME, 'common_root':nml.PATH.INOUT_DIR}
 
     def get_case_kwargs(self,r):
         return {'begin':r[0],'end':r[1],'case':nml.PATH.CASE_NAME,'run':nml.PATH.RUN_NAME, 'common_root':nml.PATH.INOUT_DIR}
@@ -880,7 +977,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
         if self.createBashFile.isChecked():
             bf.close()
-        if self.createBashFile.isChecked():
             try:
                 chmod(bashfile, 0o755)
             except:
@@ -1099,7 +1195,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         if mode == 0: self.popup('Created directories', created, icon=1)
         return
 
-    def browse_path(self, target, mode, ftype=None, plWind=0):
+    def browse_path(self, target, mode, ftype=None, plWind=0, cmd = ''):
         """Browse for file or folder (depending on 'mode' and write the outcome to 'target')"""
         dialog = QtWidgets.QFileDialog()
         if ftype != None:
@@ -1263,6 +1359,14 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             return
 
 
+    def createVAR(self):
+        """Envoke script to create Variations."""
+        self.varWin = Variation()
+        response = self.varWin.exec()
+        if response == 0:
+            return
+
+
     def loadFixedFromChemistry(self):
         '''Opens the chemistry fortran file and searches for fixed variables and selects them from the available vars'''
         chemistry = self.chemistryModules.currentText()
@@ -1295,10 +1399,22 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                     self.selected_vars.item(row,c).setFont(bold)
             except:
                 self.selected_vars.item(row,c).setFont(bold)
-
+        if c==1:
+            try:
+                float(self.selected_vars.item(row,c).text())
+                self.selected_vars.item(row,c).setFont(roman)
+                vars.mods[self.selected_vars.item(row,0).text()].tied = ''
+            except:
+                xx=self.selected_vars.item(row,1).text()
+                vars.mods[self.selected_vars.item(row,0).text()].tied = xx
+                self.selected_vars.item(row,c).setFont(bold)
 
     def add_new_line(self, name, unit_ind, cols=[],createNew=True, unt=0):
         """adds items to variable table"""
+        if createNew:
+            vars.mods[name] = Comp()
+            vars.mods[name].Find = namesFoInds[name]
+            vars.mods[name].name = name # Human readable name for modified variable
         # self.selected_vars.setSortingEnabled(False);
         row = self.selected_vars.rowCount()
         self.selected_vars.insertRow(row)
@@ -1325,7 +1441,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.selected_vars.horizontalHeader().setStretchLastSection(True)
 
         for i in range(4):
-            self.selected_vars.setItem(row, i, QtWidgets.QTableWidgetItem(cols[i]))
+            tag = QtWidgets.QTableWidgetItem(cols[i])
+            if i==0: tag.setFlags(tag.flags() & ~QtCore.Qt.ItemIsEditable)
+            self.selected_vars.setItem(row, i, tag)
             if namesPyInds[name]<divider_i:
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*env_no))
             else:
@@ -1343,10 +1461,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)
         # self.selected_vars.setSortingEnabled(False)
         self.updateOtherTabs()
-        if createNew:
-            vars.mods[name] = Comp()
-            vars.mods[name].Find = namesFoInds[name]
-            vars.mods[name].name = name # Human readable name for modified variable
 
 
     def toggleColorPre(self, n):
@@ -1762,7 +1876,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
         for i in range(self.selected_vars.rowCount()):
             name = self.selected_vars.item(i,0).text()
-            vars.mods[name].col = int(self.selected_vars.item(i,1).text())
+            if vars.mods[name].tied != '':
+                vars.mods[name].col = (self.selected_vars.item(i,1).text())
+            else:
+                vars.mods[name].col = int(self.selected_vars.item(i,1).text())
             vars.mods[name].multi = float(self.selected_vars.item(i,2).text())
             vars.mods[name].shift = float(self.selected_vars.item(i,3).text())
             vars.mods[name].pmInUse = self.selected_vars.cellWidget(i,4).currentText()
@@ -1878,6 +1995,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                         if i< n:
                             unt = props[i].strip('\'\"').replace('#','#/cm3')
                             vars.mods[name].unit = unt
+                            i=i+1
+                        if i< n:
+                            vars.mods[name].tied = (props[i].strip('\'\"'))
+                            vars.mods[name].col  = vars.mods[name].tied
 
             else:
                 if line.strip() == '/' and in_custom:
@@ -2352,6 +2473,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 self.popup('', 'Compiled succesfully', icon=0)
             else:
                 self.popup('', 'Error in compiling, see output from terminal', icon=2)
+            if self.ReplChem.isChecked(): self.ReplChem.setChecked(False)
 
 
     def remake(self):
@@ -2387,6 +2509,31 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 else:
                     if text in c.upper():
                         self.availableVars.addItem(c)
+
+
+    def filterListOfInput(self):
+        for z in self.namesdat.selectedItems():
+            z.setSelected(False)
+        text = self.findInput.text().upper()
+        strict = False
+        if text != '':
+            if text[-1] == '.':
+                text = text[:-1]
+                strict = True
+        if text == '':
+            self.namesdat.scrollToItem(self.namesdat.item(0), QtGui.QAbstractItemView.PositionAtTop)
+        else:
+            for c in NAMES:
+                if strict:
+                    if text == c.upper():
+                        if not namesPyInds[c] == divider_i:
+                            self.namesdat.item(namesPyInds[c]).setSelected(True)
+                else:
+                    if text in c.upper():
+                        if not namesPyInds[c] == divider_i:
+                            item = self.namesdat.item(namesPyInds[c])
+                            item.setSelected(True)
+                            self.namesdat.scrollToItem(item, QtGui.QAbstractItemView.PositionAtTop)
 
 
     def printHeaders(self):

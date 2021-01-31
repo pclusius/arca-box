@@ -202,8 +202,10 @@ class INITFILE:
                         if m.pmInUse == 'Yes' or m.pmInUse == 'yes':
                             mode = max(1,abs(m.mode))
                         else: mode = abs(m.mode) * -1
-                        strr = "MODS(%d)%s= %2d %3d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 %s%s%s ! %s"%(
-                        m.Find,' '*(4-len(str(m.Find))),mode,m.col, multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, "\\'", unit,"\\'", m.name)
+                        if 'str' in str(type(m.col)) :
+                            m.col = -1
+                        strr = "MODS(%d)%s= %2d %3d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 %s%s%s %s%s%s ! %s"%(
+                        m.Find,' '*(4-len(str(m.Find))),mode,m.col, multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, "\\'", unit,"\\'", "\\'", m.tied,"\\'", m.name)
                         exec("%s(' %s%s')"%(cmd,strr,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
