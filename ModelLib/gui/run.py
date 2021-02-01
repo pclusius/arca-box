@@ -209,7 +209,7 @@ class Variation(QtGui.QDialog):
         super(Variation, self).__init__(parent)
         self.vary = varWin.Ui_Dialog()
         self.vary.setupUi(self)
-        self.vary.addLine.clicked.connect(self.addL)
+        self.vary.addLine.clicked.connect(lambda: self.addL())
         self.vary.removeLine.clicked.connect(self.remL)
         self.vary.Close.clicked.connect(self.reject)
         self.vary.runVariations.clicked.connect(self.vars)
