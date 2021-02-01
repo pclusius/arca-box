@@ -2013,7 +2013,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                             i=i+1
                         if i< n:
                             vars.mods[name].tied = (props[i].strip('\'\"'))
-                            vars.mods[name].col  = vars.mods[name].tied
+                            if vars.mods[name].tied in NAMES:
+                                vars.mods[name].col  = vars.mods[name].tied
 
             else:
                 if line.strip() == '/' and in_custom:
