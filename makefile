@@ -8,7 +8,7 @@ OPTI = O2
 # Put .o and .mod files here:
  OBJDIR  = build
  SRCDIR  = src
- CHMDIR = fix_test
+ CHMDIR = Hyde
 
 # When compiling, search for files in these directories:
 VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31:Aerosol

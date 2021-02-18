@@ -160,7 +160,7 @@ with open(path_to_names) as f:
 
 ## -----------------------------------------------------------
 nml = vars.INITFILE(NAMES)
-
+mmc = {'True': 'k', 'False': 0.95}
 # The popup window for batch file preview
 class batchW(QtGui.QDialog):
     def __init__(self, parent = None, n=0):
@@ -365,41 +365,41 @@ class VpressWin(QtGui.QDialog):
         if len(message)==2: qt_box.popup(message[0],message[1],0)
 
 
-# The popup window for multimode plot
-class MMPlot(QtGui.QDialog):
-    def __init__(self, parent = None):
-        super(MMPlot, self).__init__(parent)
-        self.mmplW = mmplot.Ui_Dialog()
-        self.mmplW.setupUi(self)
-        self.parent = parent
-
-    def splot(self,vals,N, nb, x0,x1):
-        """Harry Plotter"""
-        def gaussian(x, mu, sig, A=1):
-            return A*exp(-(x-mu)**2/(2*sig**2))/sqrt(2*pi*sig**2)
-        try:
-            N = float(N)
-            luvut = array(vals.split()).astype(float)
-            nb=int(nb)
-            x0=float(x0)
-            x1=float(x1)
-            if len(luvut) < 3:
-                return
-        except:
-            return
-        x = 10**linspace(log10(x0),log10(x1),nb)
-        acl = zeros(len(x))
-        k = log10(x[1]/x[0])
-        for i in range(len(luvut)//3):
-            if abs(luvut[3*i+1])>0:
-                acl = acl + luvut[3*i+2]*(gaussian(log10(x), log10(luvut[3*i+0]),luvut[3*i+1]))
-        if sum( acl )>0:
-            Z = N * acl / (sum( acl ))
-            ndel = -min(nb-1, 8)
-            Z[ndel:] = where(Z[ndel:]>1e-12, 0,Z[ndel:])
-            self.mmplW.HPLotter.plot(x,Z/k,pen=pg.mkPen('r', width=4), clear=True, name='PSD')
-            self.mmplW.HPLotter.setLogMode(x=True)
-            self.mmplW.HPLotter.showGrid(x=True,y=True)
+# # The popup window for multimode plot
+# class MMPlot(QtGui.QDialog):
+#     def __init__(self, parent = None):
+#         super(MMPlot, self).__init__(parent)
+#         self.mmplW = mmplot.Ui_Dialog()
+#         self.mmplW.setupUi(self)
+#         self.parent = parent
+#
+#     def splot(self,vals,N, nb, x0,x1):
+#         """Harry Plotter"""
+#         def gaussian(x, mu, sig, A=1):
+#             return A*exp(-(x-mu)**2/(2*sig**2))/sqrt(2*pi*sig**2)
+#         try:
+#             N = float(N)
+#             luvut = array(vals.split()).astype(float)
+#             nb=int(nb)
+#             x0=float(x0)
+#             x1=float(x1)
+#             if len(luvut) < 3:
+#                 return
+#         except:
+#             return
+#         x = 10**linspace(log10(x0),log10(x1),nb)
+#         acl = zeros(len(x))
+#         k = log10(x[1]/x[0])
+#         for i in range(len(luvut)//3):
+#             if abs(luvut[3*i+1])>0:
+#                 acl = acl + luvut[3*i+2]*(gaussian(log10(x), log10(luvut[3*i+0]),luvut[3*i+1]))
+#         if sum( acl )>0:
+#             Z = N * acl / (sum( acl ))
+#             ndel = -min(nb-1, 8)
+#             Z[ndel:] = where(Z[ndel:]>1e-12, 0,Z[ndel:])
+#             self.mmplW.HPLotter.plot(x,Z/k,pen=pg.mkPen('r', width=4), clear=True, name='PSD')
+#             self.mmplW.HPLotter.setLogMode(x=True)
+#             self.mmplW.HPLotter.showGrid(x=True,y=True)
 
 
 class Comp:
@@ -532,9 +532,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionSave_to_current.setEnabled(False)
         self.currentInitFile.setText('None loaded/saved')
 
-        self.min_particle_diam.textChanged.connect(lambda: self.seeInAction(pop=False))
-        self.max_particle_diam.textChanged.connect(lambda: self.seeInAction(pop=False))
-        self.n_bins_particle.valueChanged.connect(lambda: self.seeInAction(pop=False))
+        self.min_particle_diam.textChanged.connect(self.seeInAction)
+        self.max_particle_diam.textChanged.connect(self.seeInAction)
+        self.n_bins_particle.valueChanged.connect(self.seeInAction)
 
     # -----------------------
     # tab Input variables
@@ -548,6 +548,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed', ftype="KPP def (*.def)"))
         self.loadFixedChemistry.clicked.connect(self.loadFixedFromChemistry)
         self.findInput.textChanged.connect(self.filterListOfInput)
+
     # -----------------------
     # tab Function creator
     # -----------------------
@@ -621,10 +622,11 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.batchRangeIndEnd.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
         self.chemistryModules.setEnabled(False)
         self.ReplChem.stateChanged.connect(lambda: self.grayIfNotChecked(self.ReplChem,self.chemistryModules))
-        self.testMM.clicked.connect(lambda: self.seeInAction())
-        self.mmodal_input.textChanged.connect(lambda: self.seeInAction(pop=False))
-        self.n_modal.textChanged.connect(lambda: self.seeInAction(pop=False))
-        self.mmp = MMPlot(self)
+        self.mmodal_input.textChanged.connect(self.seeInAction)
+        self.n_modal.textChanged.connect(self.seeInAction)
+        self.multiModalBox.toggled.connect(lambda: self.HPLotter.setBackground(mmc[str(self.multiModalBox.isChecked())]))
+        self.mmodal_input.textChanged.connect(lambda: self.HPLotter.setBackground(mmc[str(self.multiModalBox.isChecked())]))
+
 
     # -----------------------
     # tab Process Monitor
@@ -765,6 +767,35 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
             pickle.dump(savefont, open(gui_path+name+'font.pickle', 'wb'))
 
+    def splot(self,vals,N, nb, x0,x1):
+        """Harry Plotter"""
+        def gaussian(x, mu, sig, A=1):
+            return A*exp(-(x-mu)**2/(2*sig**2))/sqrt(2*pi*sig**2)
+        try:
+            N = float(N)
+            luvut = array(vals.split()).astype(float)
+            nb=int(nb)
+            x0=float(x0)
+            x1=float(x1)
+            if len(luvut) < 3:
+                return
+        except:
+            return
+        x = 10**linspace(log10(x0),log10(x1),nb)
+        acl = zeros(len(x))
+        k = log10(x[1]/x[0])
+        for i in range(len(luvut)//3):
+            if abs(luvut[3*i+1])>0:
+                acl = acl + luvut[3*i+2]*(gaussian(log10(x), log10(luvut[3*i+0]),luvut[3*i+1]))
+        if sum( acl )>0:
+            Z = N * acl / (sum( acl ))
+            ndel = -min(nb-1, 8)
+            Z[ndel:] = where(Z[ndel:]>1e-12, 0,Z[ndel:])
+            self.HPLotter.plot(x,Z/k,pen=pg.mkPen('w', width=4), clear=True, name='PSD')
+            self.HPLotter.setLogMode(x=True)
+            self.HPLotter.showGrid(x=True,y=True)
+
+
 
     def resetFont(self):
         self.setFont(self.MonitorWindow, 'monitor', reset=True)
@@ -826,19 +857,14 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 self.lastModTime = getmtime(self.saveCurrentOutputDir+'/particle_conc.sum')
 
 
-    def seeInAction(self, pop=True):
+    def seeInAction(self):
         nb = self.n_bins_particle.value()
         try:
             x0 = float(self.min_particle_diam.text().replace('d','e'))
             x1 = float(self.max_particle_diam.text().replace('d','e'))
         except:
             pass
-        if self.mmp.isHidden() and pop:
-            self.mmp.show()
-            self.mmp.move(self.x(),self.y()+self.height()-self.mmp.height())
-            self.mmp.splot(self.mmodal_input.text(),self.n_modal.text(),nb,x0,x1)
-        elif self.mmp.isVisible() and not pop:
-            self.mmp.splot(self.mmodal_input.text(),self.n_modal.text(),nb,x0,x1)
+        self.splot(self.mmodal_input.text(),self.n_modal.text(),nb,x0,x1)
 
 
     def moveOneDay(self, days):
@@ -1454,6 +1480,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         if cols==[]:
             cols = [name, '-1','1.0', '0.0',0]
         self.selected_vars.horizontalHeader().setStretchLastSection(True)
+        self.selected_vars.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
 
         for i in range(4):
             tag = QtWidgets.QTableWidgetItem(cols[i])

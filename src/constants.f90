@@ -294,7 +294,7 @@ PURE REAL(dp) FUNCTION UCONV(c,MOD)
     IMPLICIT NONE
     type(input_mod), INTENT(in) :: MOD
     REAL(dp), INTENT(in)        :: c
-    
+
     ! If the concentration is a mixing ratio, defined in MODS%UNIT, it will be converted to number concentration
     if (UCASE(TRIM(MOD%UNIT)) == 'PPM') THEN
         UCONV = c * 1d-6 * GC_AIR_NOW

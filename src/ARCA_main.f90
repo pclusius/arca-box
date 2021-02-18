@@ -383,7 +383,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
         if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
 
-        IF (AFTER_CHEM_ON) CALL AFTER_CHEM(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
+        IF (AFTER_CHEM_ON) CALL AFTER_CHEM(TSTEP_CONC,CH_GAS,CH_GAS_old,CH_RO2,CH_RO2_old,J_TOTAL_M3)
     END IF ! IF (Chemistry_flag)
     ! =================================================================================================
 

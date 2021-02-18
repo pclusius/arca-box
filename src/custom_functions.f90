@@ -47,10 +47,13 @@ implicit NONE
 
 contains
 
-subroutine AFTER_CHEM(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
+subroutine AFTER_CHEM(TSTEP_CONC,CH_GAS,CH_GAS_old,CH_RO2,CH_RO2_old,J_TOTAL_M3)
     implicit none
     real(dp), INTENT(INOUT) :: TSTEP_CONC(:)
     real(dp), INTENT(INOUT) :: CH_GAS(:)
+    real(dp), INTENT(INOUT) :: CH_GAS_old(:)
+    real(dp), INTENT(INOUT) :: CH_RO2
+    real(dp), INTENT(INOUT) :: CH_RO2_old
     real(dp), INTENT(INOUT) :: J_TOTAL_M3
 
     ! -------------------------------

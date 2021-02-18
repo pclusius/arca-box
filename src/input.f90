@@ -180,7 +180,7 @@ NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_atoms !, Vap_props
 
 CHARACTER(1000) :: INITIALIZE_WITH = ''
 INTEGER  :: limit_vapours = 999999
-INTEGER  :: acdc_iterations = 4
+INTEGER  :: acdc_iterations = 1
 INTEGER  :: INITIALIZE_FROM = 0
 Logical  :: use_raoult = .True.
 Logical  :: variable_density = .False.
