@@ -506,8 +506,12 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.browsePar.clicked.connect(lambda: self.browse_path(self.dmps_file, 'file'))
         self.browseXtr.clicked.connect(lambda: self.browse_path(self.extra_particles, 'file'))
         self.checkBox_aer.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.groupBox_8))
+        self.checkBox_aer.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,None, 4))
+        self.checkBox_che.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_che,None, 2))
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
-        self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,self.print_acdc))
+        self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,None, hide=3))
+        self.simpleton.stateChanged.connect(lambda: self.grayIfNotChecked(self.simpleton,None, hide=6))
+        self.simpleton.stateChanged.connect(lambda: self.grayIfNotChecked(self.simpleton,None, hide=5))
         # self.use_dmps.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_dmps,self.dmps_read_in_time))
         self.dateEdit.dateChanged.connect(self.updatePath)
         self.indexEdit.valueChanged.connect(self.updatePath)
@@ -1541,11 +1545,17 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 grayWidget.setEnabled(False)
 
 
-    def grayIfNotChecked(self, guard, frame):
-        if guard.isChecked() == True:
-            frame.setEnabled(True)
+    def grayIfNotChecked(self, guard, frame, hide=-1):
+        if hide>=0:
+            if guard.isChecked() == True:
+                self.tabWidget.setTabEnabled(hide,True)
+            else:
+                self.tabWidget.setTabEnabled(hide,False)
         else:
-            frame.setEnabled(False)
+            if guard.isChecked() == True:
+                frame.setEnabled(True)
+            else:
+                frame.setEnabled(False)
 
 
     def grayIfChecked(self, guard, frame):

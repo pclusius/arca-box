@@ -245,7 +245,7 @@ if __name__ == '__main__':
       help='A list of included files. Specify like: -f a.txt b.txt ...')
 
   args = parser.parse_args()
-
+  print(args)
   # parser.add_argument('integers', metavar='N', type=int, nargs='+',
   #                     help='an integer for the accumulator')
   # parser.add_argument('--sum', dest='accumulate', action='store_const',

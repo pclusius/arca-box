@@ -36,13 +36,6 @@ class Ui_Dialog(object):
         self.ccMonitor = QtWidgets.QPlainTextEdit(Dialog)
         self.ccMonitor.setGeometry(QtCore.QRect(10, 170, 511, 251))
         self.ccMonitor.setObjectName("ccMonitor")
-        self.label = QtWidgets.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(60, 210, 431, 161))
-        font = QtGui.QFont()
-        font.setPointSize(24)
-        font.setItalic(True)
-        self.label.setFont(font)
-        self.label.setObjectName("label")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -53,4 +46,3 @@ class Ui_Dialog(object):
         self.groupBox_2.setTitle(_translate("Dialog", "Command string"))
         self.createKPPsettings.setText(_translate("Dialog", "Create KPP settings"))
         self.ccClose.setText(_translate("Dialog", "Close"))
-        self.label.setText(_translate("Dialog", "STILL IN DEVELOPMENT"))
