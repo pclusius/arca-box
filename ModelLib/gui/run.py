@@ -10,13 +10,13 @@ petri.clusius@helsinki.fi
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-import vars, gui8, batchDialog1,batchDialog2,batchDialog3,batch, mmplot, vdialog, cc, varWin, variations
+import vars, gui8, batchDialog1,batchDialog2,batchDialog3,batch,mmplot,vdialog,cc,varWin,variations,about,input, t_editor
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros
 from numpy import sum as npsum
 import numpy.ma as ma
 from re import sub, finditer
-from os import walk, mkdir, getcwd, chdir, chmod, environ
+from os import walk, mkdir, getcwd, chdir, chmod, environ, system
 from os import name as osname
 from os.path import exists, dirname, getmtime, abspath, split as ossplit
 from shutil import copyfile as cpf
@@ -111,7 +111,7 @@ org_no = (243,240,239)
 org_yes = (172,147,147)
 
 # icon
-modellogo = gui_path+"ArcaLogo.png"
+modellogo = gui_path+"/icons/ArcaLogo.png"
 CurrentVersion = "ARCA Box Model 0.9"
 # Some messages
 netcdfMissinnMes = ('Please note:',
@@ -184,6 +184,16 @@ class batchW(QtGui.QDialog):
                 c +=1
 
 # The popup window for Create KPP files
+class About(QtGui.QDialog):
+    def __init__(self, parent = None):
+        super(About, self).__init__(parent)
+        self.ab = about.Ui_Dialog()
+        self.ab.setupUi(self)
+        self.ab.okgreat.clicked.connect(self.reject)
+        self.ab.logo.setPixmap(QtGui.QPixmap(modellogo.replace('.png', 'HR.png')))
+
+
+# The popup window for Create KPP files
 class CCWin(QtGui.QDialog):
     def __init__(self, parent = None):
         super(CCWin, self).__init__(parent)
@@ -191,6 +201,7 @@ class CCWin(QtGui.QDialog):
         self.ccw.setupUi(self)
         self.ccw.ccClose.clicked.connect(self.reject)
         self.ccw.createKPPsettings.clicked.connect(self.kpp)
+
     def kpp(self):
         cmds = self.ccw.cmdString.text().split()
         self.kppProcess = Popen(["python3", 'ModelLib/gui/chemistry_package_PZ/create_chemistry.py', *cmds], stdout=PIPE,stderr=STDOUT,stdin=None)
@@ -305,7 +316,6 @@ class VpressWin(QtGui.QDialog):
         self.vp.browseVapourPath.clicked.connect(self.filename)
         self.vp.createVapourFileButton.clicked.connect(self.saveVapours)
 
-
     def filename(self):
         dialog = QtWidgets.QFileDialog()
         options = dialog.Options()
@@ -313,18 +323,12 @@ class VpressWin(QtGui.QDialog):
         file = dialog.getSaveFileName(self, 'Save Vapours', options=options)[0]
         if file != '': self.vp.VapourPath.setText(file)
 
-
-
-
-
     def browse(self):
-
         dialog = QtWidgets.QFileDialog()
         options = dialog.Options()
         options |= dialog.DontUseNativeDialog
         file = dialog.getSaveFileName(self, 'Save Vapours', options=options)[0]
         if file != '': self.vary.lineEdit.setText(file)
-
 
     def saveVapours(self):
         """This tool creates the Vapour and Elements files from user input or from the AMG server."""
@@ -364,42 +368,27 @@ class VpressWin(QtGui.QDialog):
         if len(message)==1: qt_box.popup('Oops...', 'No dice: '+message[0],3)
         if len(message)==2: qt_box.popup(message[0],message[1],0)
 
+# The popup window for Create KPP files
+class Input(QtGui.QDialog):
+    def __init__(self, parent = None, default = 0):
+        super(Input, self).__init__(parent)
+        self.inp = input.Ui_Dialog()
+        self.inp.setupUi(self)
+        self.inp.input.setValue(default)
 
-# # The popup window for multimode plot
-# class MMPlot(QtGui.QDialog):
-#     def __init__(self, parent = None):
-#         super(MMPlot, self).__init__(parent)
-#         self.mmplW = mmplot.Ui_Dialog()
-#         self.mmplW.setupUi(self)
-#         self.parent = parent
-#
-#     def splot(self,vals,N, nb, x0,x1):
-#         """Harry Plotter"""
-#         def gaussian(x, mu, sig, A=1):
-#             return A*exp(-(x-mu)**2/(2*sig**2))/sqrt(2*pi*sig**2)
-#         try:
-#             N = float(N)
-#             luvut = array(vals.split()).astype(float)
-#             nb=int(nb)
-#             x0=float(x0)
-#             x1=float(x1)
-#             if len(luvut) < 3:
-#                 return
-#         except:
-#             return
-#         x = 10**linspace(log10(x0),log10(x1),nb)
-#         acl = zeros(len(x))
-#         k = log10(x[1]/x[0])
-#         for i in range(len(luvut)//3):
-#             if abs(luvut[3*i+1])>0:
-#                 acl = acl + luvut[3*i+2]*(gaussian(log10(x), log10(luvut[3*i+0]),luvut[3*i+1]))
-#         if sum( acl )>0:
-#             Z = N * acl / (sum( acl ))
-#             ndel = -min(nb-1, 8)
-#             Z[ndel:] = where(Z[ndel:]>1e-12, 0,Z[ndel:])
-#             self.mmplW.HPLotter.plot(x,Z/k,pen=pg.mkPen('r', width=4), clear=True, name='PSD')
-#             self.mmplW.HPLotter.setLogMode(x=True)
-#             self.mmplW.HPLotter.showGrid(x=True,y=True)
+
+# The popup window for editing simple text files
+class Editor(QtGui.QDialog):
+    def __init__(self, parent = None, file = None):
+        super(Editor, self).__init__(parent)
+        self.editor = t_editor.Ui_Dialog()
+        self.editor.setupUi(self)
+        self.setWindowTitle("Editing "+file)
+
+        f = open(file, 'r')
+        t = f.read()
+        self.editor.editedText.appendPlainText(t)
+
 
 
 class Comp:
@@ -435,6 +424,23 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # Common stuff
     # -----------------------
         self.setWindowTitle(CurrentVersion)
+
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(gui_path+"icons/save.png"))
+        self.saveCurrentButton.setIcon(icon)
+
+        icon.addPixmap(QtGui.QPixmap(gui_path+"icons/saveas.png"))
+        self.saveButton.setIcon(icon)
+
+        icon.addPixmap(QtGui.QPixmap(gui_path+"icons/load.png"))
+        self.loadButton.setIcon(icon)
+
+        icon.addPixmap(QtGui.QPixmap(gui_path+"icons/defaults.png"))
+        self.saveDefaults.setIcon(icon)
+
+        icon.addPixmap(QtGui.QPixmap(gui_path+"icons/recompile.png"))
+        self.recompile.setIcon(icon)
+
         self.inout_dir.setPlaceholderText("\""+default_inout+"\" if left empty")
         self.case_name.setPlaceholderText("\""+default_case+"\" if left empty")
         self.run_name.setPlaceholderText("\""+default_run+"\" if left empty")
@@ -443,8 +449,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.fileLoadOngoing = False
         self.prints = 1
         self.plots  = 0
+        self.wait_for = 0
         self.show_extra_plots = ''
-        self.printButton.clicked.connect(lambda: self.print_values())
+        # self.printButton.clicked.connect(lambda: self.print_values())
         self.saveButton.clicked.connect(lambda: self.save_file())
         self.saveCurrentButton.clicked.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='silent'))
         self.actionSave_to_current.triggered.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='silent'))
@@ -462,6 +469,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionCreate_vapour_file.triggered.connect(self.vapours)
         self.actionCreateNewChemistry.triggered.connect(self.createCC)
         self.actionVariations.triggered.connect(self.createVAR)
+        self.actionSetDelay.triggered.connect(lambda: self.inputPopup("self.wait_for"))
+        self.actionAbout_ARCA.triggered.connect(self.createAb)
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
@@ -519,7 +528,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.run_name.textChanged.connect(self.updatePath)
         self.inout_dir.textChanged.connect(self.updatePath)
         self.indexRadioDate.toggled.connect(self.updatePath)
-        self.useSpeed.stateChanged.connect(lambda: self.grayIfNotChecked(self.useSpeed,self.precLimits))
+        # self.useSpeed.stateChanged.connect(lambda: self.grayIfNotChecked(self.useSpeed,self.precLimits))
         self.dateEdit.dateChanged.connect(self.updateEnvPath)
         self.dateEdit.dateChanged.connect(lambda: self.curDate.setText(self.dateEdit.text()))
         self.indexEdit.valueChanged.connect(self.updateEnvPath)
@@ -603,34 +612,43 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.browseLosses.clicked.connect(lambda: self.browse_path(self.losses_file, 'file'))
 
     # -----------------------
-    # tab Advanced
+    # tab Chemistry
     # -----------------------
-        self.frameBase.setEnabled(False)
-        self.butVapourNames.clicked.connect(lambda: self.browse_path(self.vap_names, 'file'))
-        self.butVapourAtoms.clicked.connect(lambda: self.browse_path(self.vap_atoms, 'file'))
-        self.use_atoms.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_atoms,self.vap_atoms))
-        self.use_atoms.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_atoms,self.butVapourAtoms))
-        self.Org_nucl.stateChanged.connect(lambda: self.grayIfChecked(self.Org_nucl,self.resolve_base))
-        self.resolve_base.stateChanged.connect(lambda: self.grayIfNotChecked(self.resolve_base,self.frameBase))
-        self.use_dmps_partial.stateChanged.connect(lambda: self.toggle_gray(self.use_dmps_partial,self.gridLayout_11))
+
+        self.kppTool.clicked.connect(self.vapours)
+        self.vapTool.clicked.connect(self.createCC)
         self.recompile.clicked.connect(self.remake)
         self.TimerCompile = QtCore.QTimer(self);
         self.TimerCompile.timeout.connect(self.progress)
         self.compileProgressBar.hide()
         self.running = 0
+        self.get_available_chemistry()
+        self.chemLabel.setText('Current chemistry scheme in makefile: '+self.get_available_chemistry(checkonly=True))
+
+    # -----------------------
+    # tab Aerosols
+    # -----------------------
+        # self.frameBase.setEnabled(False)
+        self.butVapourNames.clicked.connect(lambda: self.browse_path(self.vap_names, 'file'))
+        self.butVapourAtoms.clicked.connect(lambda: self.browse_path(self.vap_atoms, 'file'))
+        self.use_atoms.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_atoms,self.vap_atoms))
+        self.use_atoms.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_atoms,self.butVapourAtoms))
+        self.Org_nucl.stateChanged.connect(lambda: self.grayIfChecked(self.Org_nucl,self.resolve_base))
+        # self.resolve_base.stateChanged.connect(lambda: self.grayIfNotChecked(self.resolve_base,self.frameBase))
+        self.use_dmps_partial.stateChanged.connect(lambda: self.toggle_gray(self.use_dmps_partial,self.gridLayout_11))
         self.saveBatch.clicked.connect(lambda: self.batchCaller())
         self.batchFrFile.clicked.connect(lambda: self.browse_path(self.ListbatchCaller, 'batchList'))
         self.batchRangeDayBegin.dateChanged.connect(lambda: self.batchRangeDay.setChecked(True))
         self.batchRangeDayEnd.dateChanged.connect(lambda: self.batchRangeDay.setChecked(True))
         self.batchRangeIndBegin.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
         self.batchRangeIndEnd.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
-        self.chemistryModules.setEnabled(False)
-        self.ReplChem.stateChanged.connect(lambda: self.grayIfNotChecked(self.ReplChem,self.chemistryModules))
+        # self.chemistryModules.setEnabled(False)
+        # self.ReplChem.stateChanged.connect(lambda: self.grayIfNotChecked(self.ReplChem,self.chemistryModules))
         self.mmodal_input.textChanged.connect(self.seeInAction)
         self.n_modal.textChanged.connect(self.seeInAction)
         self.multiModalBox.toggled.connect(lambda: self.HPLotter.setBackground(mmc[str(self.multiModalBox.isChecked())]))
         self.mmodal_input.textChanged.connect(lambda: self.HPLotter.setBackground(mmc[str(self.multiModalBox.isChecked())]))
-
+        self.OrgNuclVapFile.clicked.connect(lambda: self.editTxtFile("ModelLib/nucl_homs.txt"))
 
     # -----------------------
     # tab Process Monitor
@@ -638,6 +656,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.currentEndLine = 0
         self.fulltext = ''
         self.tabWidget.currentChanged.connect(self.activeTab)
+        # xxxxxxxxxxx ETSI activeTab ja päivitä indeksit!ink
         fixedFont = QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
         fixedFont.setPointSize(10)
         self.MonitorWindow.setFont(fixedFont)
@@ -736,9 +755,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 pass
             # Save the obtained settings as default
             self.save_file(file=defaults_file_path, mode='silent')
-        self.get_available_chemistry()
         self.updateEnvPath()
-
 
     # -----------------------
     # Class methods
@@ -883,7 +900,17 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionSave_to_current.setEnabled(True)
         self.currentInitFile.setText(file)
         self.setWindowTitle(CurrentVersion+': '+file)
+        self.saveCurrentButton.setToolTip('Save to '+ossplit(file)[1])
         self.currentInitFileToSave = file
+
+
+    def inputPopup(self, v):
+        """Envoke Question for main loop delay. (or any other question)"""
+        exec('iii = '+v, locals(), globals())
+        self.inwin = Input(default=iii)
+        response = self.inwin.exec()
+        if response != 0:
+            exec("%s = %d" %(v,self.inwin.inp.input.value()))
 
 
     def updateEnvPath(self):
@@ -1334,24 +1361,36 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def updateOtherTabs(self):
         """updates variable lists in other tabs"""
-        self.names_sel.clear()
+        # self.names_sel.clear()
         self.names_sel_2.clear()
         for i in range(self.selected_vars.rowCount()):
-            self.names_sel.addItem(self.selected_vars.item(i,0).text())
+            # self.names_sel.addItem(self.selected_vars.item(i,0).text())
             self.names_sel_2.addItem(self.selected_vars.item(i,0).text())
 
 
-    def get_available_chemistry(self):
+    def get_available_chemistry(self, checkonly=False):
         with open('makefile','r') as mk:
             for line in mk:
                 if 'CHMDIR' in line and not '$' in line:
                     a,dir = line.replace('=','').split()
+        if checkonly:
+            return dir
         for (dirpath, dirnames, filenames) in walk('src/chemistry'):
             break
         for i,d in enumerate(dirnames):
             self.chemistryModules.addItem(d)
             if d == dir:
-                self.chemistryModules.setCurrentIndex(i)
+                if checkonly:
+                    return dir
+                else:
+                    self.chemistryModules.setCurrentIndex(i)
+                    return
+        self.chemistryModules.setCurrentIndex(-1)
+        self.popup('Possible problems with makefile', '''
+Chemistry scheme in "makefile" does not match with any
+scheme names available in source. Please check your
+makefile for variable "CHMDIR". You can also assign
+a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def editMakefile(self,mod):
@@ -1411,6 +1450,23 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         if response == 0:
             return
 
+    def createAb(self):
+        """Envoke script to show About ARCA."""
+        self.abwin = About()
+        response = self.abwin.exec()
+        if response == 0:
+            return
+
+    def editTxtFile(self, file):
+        """Envoke script to edit some plain text file."""
+        self.edwin = Editor(file=file)
+        response = self.edwin.exec()
+        if response == 0:
+            return
+        else:
+            t = self.edwin.editor.editedText.toPlainText()
+        with open(file, 'w') as f:
+            f.write(t)
 
     def loadFixedFromChemistry(self):
         '''Opens the chemistry fortran file and searches for fixed variables and selects them from the available vars'''
@@ -1756,12 +1812,12 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.pauseScroll.setChecked(False)
 
-        currentWait = self.wait_for.value()
-        self.wait_for.setValue(0)
+        currentWait = self.wait_for
+        self.wait_for = 0
         if not exists(gui_path+'tmp'):
             mkdir(gui_path+'tmp')
         self.print_values(tempfile)
-        self.wait_for.setValue(currentWait)
+        self.wait_for = currentWait
 
         try:
             self.boxProcess = Popen(["./"+exe_name, "%s"%tempfile, '--gui'], stdout=PIPE,stderr=STDOUT,stdin=None)
@@ -1861,6 +1917,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         nml.FLAG.RESOLVE_BASE=self.checkboxToFOR(self.resolve_base)
         nml.FLAG.PRINT_ACDC=self.checkboxToFOR(self.print_acdc)
         nml.FLAG.USE_SPEED=self.checkboxToFOR(self.useSpeed)
+        nml.FLAG.AFTER_CHEM_ON=self.checkboxToFOR(self.after_chem_on)
+        nml.FLAG.AFTER_NUCL_ON=self.checkboxToFOR(self.after_nucl_on)
 
         # class _TIME:
         nml.TIME.RUNTIME=self.runtime.value()
@@ -1909,12 +1967,13 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         # class _MISC:
         nml.MISC.LAT=self.lat.value()
         nml.MISC.LON=self.lon.value()
-        nml.MISC.WAIT_FOR=self.wait_for.value()
+        nml.MISC.WAIT_FOR=self.wait_for
         nml.MISC.DESCRIPTION=self.description.toPlainText().replace('\n','<br>')
         nml.MISC.CH_ALBEDO=self.ch_albedo.value()
         nml.MISC.DMA_F=self.dma_f.value()
         nml.MISC.RESOLVE_BASE_PRECISION=self.resolve_base_precision.value()
         nml.MISC.FILL_FORMATION_WITH=self.resolveHelper()
+        nml.MISC.SKIP_ACDC=self.checkboxToFOR(self.skip_acdc)
 
         # class _VAP:
         nml.VAP.VAP_NAMES=self.vap_names.text()
@@ -2093,6 +2152,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'DT' == key and isFl: self.dt.setValue(float(strng)),
             elif 'PRINT_ACDC' == key: self.print_acdc.setChecked(strng)
             elif 'USE_SPEED' == key: self.useSpeed.setChecked(strng)
+            elif 'AFTER_CHEM_ON' == key: self.after_chem_on.setChecked(strng)
+            elif 'AFTER_NUCL_ON' == key: self.after_nucl_on.setChecked(strng)
             elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(int(strng))
             elif 'PRINT_INTERVAL' == key and isFl: self.print_interval.setValue(int(strng))
             elif 'FSAVE_DIVISION' == key and isFl: self.fsave_division.setValue(int(strng))
@@ -2123,12 +2184,13 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             elif 'LOSSES_FILE' == key: self.losses_file.setText(strng)# "
             elif 'LAT' == key and isFl: self.lat.setValue(float(strng))
             elif 'LON' == key and isFl: self.lon.setValue(float(strng))
-            elif 'WAIT_FOR' == key and isFl: self.wait_for.setValue(int(strng))
+            elif 'WAIT_FOR' == key and isFl: self.wait_for = (int(strng))
             elif 'DESCRIPTION' == key: self.description.setPlainText(strng.replace('<br>','\n'))# "Just some keying
             elif 'CH_ALBEDO' == key and isFl: self.ch_albedo.setValue(float(strng))#  0.20000000000000001     ,
             elif 'DMA_F' == key and isFl: self.dma_f.setValue(float(strng))
             elif 'RESOLVE_BASE_PRECISION' == key and isFl: self.resolve_base_precision.setValue(float(strng))
             elif 'FILL_FORMATION_WITH' == key: self.fill_formation_with.setCurrentIndex(solve_for_parser(strng))
+            elif 'SKIP_ACDC' == key: self.skip_acdc.setChecked(strng)
             elif 'USE_ATOMS' == key: self.use_atoms.setChecked(strng)
             elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
@@ -2521,7 +2583,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.running = self.compile.poll()
         if self.running != None:
             self.TimerCompile.stop()
+            self.recompile.setEnabled(True)
             self.compileProgressBar.hide()
+            self.compileProgressBar.setInvertedAppearance(False)
+            self.compileProgressBar.setValue(0)
             if self.running == 0:
                 self.popup('', 'Compiled succesfully', icon=0)
             else:
@@ -2538,11 +2603,14 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                     self.running = self.compile.poll()
                     if self.running != None: break
             self.compile = Popen(["make"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+            self.recompile.setEnabled(False)
             self.compileProgressBar.show()
             self.inv = 1
             self.compileProgressBar.setValue(0)
             self.TimerCompile.start(10)
-
+            self.chemLabel.setText('Current chemistry scheme in makefile: '+self.get_available_chemistry(checkonly=True))
+            self.chemistryModules.setCurrentIndex(self.chemistryModules.findText(self.get_available_chemistry(checkonly=True)))
+            self.currentAddressTb.deselect()
 
     def filterListOfComp(self):
         text = self.findComp.text().upper()

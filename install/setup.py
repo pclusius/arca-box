@@ -66,7 +66,7 @@ if out == 0:
     if os.name == 'nt':
             print('\nSetup of GUI succesful. Run ARCA from Cygwin terminal with "sh run_arca.sh"')
     else:
-        out = os.system("cp %s/ModelLib/gui/thebox_ico.png ~/.icons/arca.png"%curr_path)
+        out = os.system("cp %s/ModelLib/gui/icons/thebox_ico.png ~/.icons/arca.png"%curr_path)
         if out==0:
             print("\nSuccesful copied ARCA icon to ~/.icons/")
 
@@ -75,7 +75,7 @@ if out == 0:
 Name=ARCA Box Model 0.9
 Comment=Atmospherically Relevant Chemistry and Aerosol Box model
 Exec=%s/run_arca.sh
-Icon=%s/ModelLib/gui/thebox_ico.png
+Icon=%s/ModelLib/gui/icons/thebox_ico.png
 Terminal=true
 Type=Application
 Categories=GNOME;GTK;Core;

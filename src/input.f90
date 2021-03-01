@@ -76,10 +76,13 @@ Logical :: Chem_Deposition     = .false.
 Logical :: RESOLVE_BASE        = .false.
 Logical :: PRINT_ACDC          = .false.
 Logical :: Use_speed           = .false.
+Logical :: AFTER_CHEM_ON       = .false.
+Logical :: AFTER_NUCL_ON       = .false.
 ! Logical :: INIT_W_MODAL        = .true.
+
 NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, ACDC, & !NUCLEATION,
          Condensation, Coagulation, Deposition, Chem_Deposition, model_H2SO4, RESOLVE_BASE, &
-         PRINT_ACDC, Use_speed, ORG_NUCL!,INIT_W_MODAL, Extra_data
+         PRINT_ACDC, Use_speed, ORG_NUCL, AFTER_CHEM_ON, AFTER_NUCL_ON !,INIT_W_MODAL, Extra_data
 
 ! Logical :: USE_OPENMP   = .false.
 ! NAMELIST /NML_PARALLEL/ USE_OPENMP
@@ -167,9 +170,10 @@ real(dp)  :: DMA_f = 0
 real(dp)  :: resolve_BASE_precision = 1d-2
 CHARACTER(3) :: Fill_formation_with = ''
 INTEGER   :: JD = -1
+Logical   :: skip_acdc = .True.
 INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value for fixed amount of seconds
 CHARACTER(1000)  :: Description='*'
-NAMELIST /NML_MISC/ lat, lon, wait_for, Description, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with
+NAMELIST /NML_MISC/ lat, lon, wait_for, Description, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with, skip_acdc
 
 Logical                 :: VAP_logical = .True.
 Logical                 :: Use_atoms = .False.
@@ -187,7 +191,6 @@ Logical  :: variable_density = .False.
 ! if true, will not save condensible vapour concentration in Particles.nc. They will always be saved also in Chemistry.nc
 Logical  :: DONT_SAVE_CONDENSIBLES = .False.
 ! If True, skips ACDC with very low concentrations and negligible formation rates
-Logical  :: skip_acdc = .True.
 real(dp) :: dmps_tres_min = 10.
 real(dp) :: VP_MULTI = 1d0
 real(dp) :: start_time_s = 0d0
@@ -201,17 +204,14 @@ LOGICAL  :: use_diff_dia_from_diff_vol = .False.
 CHARACTER(len=256)      :: GR_sizes = '6d-9 20d-9 30d-9'
 REAL(dp), ALLOCATABLE   :: GR_bins(:)  ! used for GR calculation [m]
 Logical                 :: CALC_GR = .True.
-Logical                 :: AFTER_CHEM_ON = .false.
-Logical                 :: AFTER_NUCL_ON = .false.
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .false.
 
-NAMELIST /NML_CUSTOM/ use_raoult, skip_acdc, acdc_iterations,variable_density,dmps_tres_min, &
+NAMELIST /NML_CUSTOM/ use_raoult, acdc_iterations,variable_density,dmps_tres_min, &
                       start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
-                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, GR_sizes,AFTER_CHEM_ON, &
-                      AFTER_NUCL_ON
+                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, GR_sizes
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -373,7 +373,7 @@ IF (Aerosol_flag) then
     call handle_file_io(ioi, Vap_names, &
         'If Condensation is used, "Vapour file" must be defined (in tab "Advanced").')
 
-    rows = ROWCOUNT(802)
+    rows = ROWCOUNT(802, '#')
     cols = COLCOUNT(802)
 
     VAPOUR_PROP%n_condorg = 0
@@ -472,19 +472,22 @@ IF (Aerosol_flag) then
         call handle_file_io(ioi, Vap_atoms, 'Terminating the program.')
         write(*,FMT_MSG) 'Reading the list of elemental composition: '// TRIM(Vap_atoms)
 
-        allocate(Natoms(4,ROWCOUNT(804))) ! C,O,N,H
+        allocate(Natoms(5,ROWCOUNT(804))) ! C,O,N,H
         allocate(atoms_name(ROWCOUNT(804)))
 
+        Natoms = 0
+
         DO j=1,ROWCOUNT(804)
-            READ(804,*) atoms_name(j), Natoms(:,j)
+            READ(804,*, iostat=ioi) atoms_name(j), molar_mass, Natoms(:,j)
         END DO
+
         CLOSE(804)
 
         DO j=1,VAPOUR_PROP%n_condorg
             jj = IndexFromName(VAPOUR_PROP%vapour_names(j), atoms_name)
             if (jj>0) THEN
                 vapour_prop%diff_vol(j) = (Natoms(1,jj)*15.9D0 + Natoms(2,jj)*6.11D0 &
-                                          + Natoms(4,jj)*2.31D0 + Natoms(3,jj)*4.54D0) ![Å^3]
+                                          + Natoms(4,jj)*2.31D0 + Natoms(3,jj)*4.54D0) + Natoms(5,jj) * 22.9D0 ![Å^3]
             ELSE
                 elements_missing = .true.
             END IF
@@ -509,9 +512,9 @@ IF (Aerosol_flag) then
     ii = VAPOUR_PROP%n_condtot
     VAPOUR_PROP%vapour_names(ii)  = 'H2SO4'
     VAPOUR_PROP%cond_type(ii)     = 2  ! Acid
-    VAPOUR_PROP%molar_mass(ii)    = 98.0785 *1d-3
-    VAPOUR_PROP%psat_a(ii)   = 0
-    VAPOUR_PROP%psat_b(ii)   = 20000d0
+    VAPOUR_PROP%molar_mass(ii)    = 98.0785 * 1d-3
+    VAPOUR_PROP%psat_a(ii)        = 0
+    VAPOUR_PROP%psat_b(ii)        = 20000d0
     VAPOUR_PROP%density(ii)       = 1819.3946 ! kg/m3
     VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
     VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)

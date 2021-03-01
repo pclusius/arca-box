@@ -68,6 +68,8 @@ class INITFILE:
             self.ORG_NUCL=0
             self.PRINT_ACDC=0
             self.USE_SPEED=0
+            self.AFTER_CHEM_ON=0
+            self.AFTER_NUCL_ON=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_FLAG%s')"%(cmd, eol))
@@ -84,6 +86,8 @@ class INITFILE:
             exec("%s(' ORG_NUCL = %s%s')"%(cmd,self.ORG_NUCL,eol))
             exec("%s(' PRINT_ACDC = %s%s')"%(cmd,self.PRINT_ACDC,eol))
             exec("%s(' USE_SPEED = %s%s')"%(cmd,self.USE_SPEED,eol))
+            exec("%s(' AFTER_CHEM_ON = %s%s')"%(cmd,self.AFTER_CHEM_ON,eol))
+            exec("%s(' AFTER_NUCL_ON = %s%s')"%(cmd,self.AFTER_NUCL_ON,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _TIME:
@@ -219,6 +223,7 @@ class INITFILE:
             self.DMA_F=0
             self.RESOLVE_BASE_PRECISION=0
             self.FILL_FORMATION_WITH=0
+            self.SKIP_ACDC=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_MISC%s')"%(cmd, eol))
@@ -230,6 +235,7 @@ class INITFILE:
             exec("%s(' DMA_F = %s%s')"%(cmd,self.DMA_F,eol))
             exec("%s(' RESOLVE_BASE_PRECISION = %s%s')"%(cmd,self.RESOLVE_BASE_PRECISION,eol))
             exec("%s(' FILL_FORMATION_WITH = \\'%s\\'%s')"%(cmd,self.FILL_FORMATION_WITH,eol))
+            exec("%s(' SKIP_ACDC = %s%s')"%(cmd,self.SKIP_ACDC,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _VAP:
