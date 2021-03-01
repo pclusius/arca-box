@@ -420,27 +420,11 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         super(QtBoxGui,self).__init__()
         self.setupUi(self)
         # print(QtGui.QGuiApplication.screens()[1].size().height())
+
     # -----------------------
     # Common stuff
     # -----------------------
         self.setWindowTitle(CurrentVersion)
-
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(gui_path+"icons/save.png"))
-        self.saveCurrentButton.setIcon(icon)
-
-        icon.addPixmap(QtGui.QPixmap(gui_path+"icons/saveas.png"))
-        self.saveButton.setIcon(icon)
-
-        icon.addPixmap(QtGui.QPixmap(gui_path+"icons/load.png"))
-        self.loadButton.setIcon(icon)
-
-        icon.addPixmap(QtGui.QPixmap(gui_path+"icons/defaults.png"))
-        self.saveDefaults.setIcon(icon)
-
-        icon.addPixmap(QtGui.QPixmap(gui_path+"icons/recompile.png"))
-        self.recompile.setIcon(icon)
-
         self.inout_dir.setPlaceholderText("\""+default_inout+"\" if left empty")
         self.case_name.setPlaceholderText("\""+default_case+"\" if left empty")
         self.run_name.setPlaceholderText("\""+default_run+"\" if left empty")
@@ -451,7 +435,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.plots  = 0
         self.wait_for = 0
         self.show_extra_plots = ''
-        # self.printButton.clicked.connect(lambda: self.print_values())
         self.saveButton.clicked.connect(lambda: self.save_file())
         self.saveCurrentButton.clicked.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='silent'))
         self.actionSave_to_current.triggered.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='silent'))
@@ -615,8 +598,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # tab Chemistry
     # -----------------------
 
-        self.kppTool.clicked.connect(self.vapours)
-        self.vapTool.clicked.connect(self.createCC)
+        self.kppTool.clicked.connect(self.createCC)
+        self.vapTool.clicked.connect(self.vapours)
         self.recompile.clicked.connect(self.remake)
         self.TimerCompile = QtCore.QTimer(self);
         self.TimerCompile.timeout.connect(self.progress)
@@ -897,6 +880,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def show_currentInit(self,file):
         self.saveCurrentButton.setEnabled(True)
+        self.saveCurrentButton.setStyleSheet("background-image: url('%s'); background-repeat: no-repeat" %(gui_path+"icons/save.png"))
         self.actionSave_to_current.setEnabled(True)
         self.currentInitFile.setText(file)
         self.setWindowTitle(CurrentVersion+': '+file)
@@ -1361,10 +1345,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def updateOtherTabs(self):
         """updates variable lists in other tabs"""
-        # self.names_sel.clear()
         self.names_sel_2.clear()
         for i in range(self.selected_vars.rowCount()):
-            # self.names_sel.addItem(self.selected_vars.item(i,0).text())
             self.names_sel_2.addItem(self.selected_vars.item(i,0).text())
 
 
