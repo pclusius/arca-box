@@ -118,6 +118,7 @@ org_yes = (172,147,147)
 
 # icon
 modellogo = gui_path+"/icons/ArcaLogo.png"
+boxicon = gui_path+"/icons/thebox_ico.png"
 CurrentVersion = "ARCA Box Model 0.9"
 # Some messages
 netcdfMissinnMes = ('Please note:',
@@ -482,6 +483,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # Common stuff
     # -----------------------
         self.setWindowTitle(CurrentVersion)
+        self.setWindowIcon(QtGui.QIcon(boxicon))
         self.inout_dir.setPlaceholderText("\""+default_inout+"\" if left empty")
         self.case_name.setPlaceholderText("\""+default_case+"\" if left empty")
         self.run_name.setPlaceholderText("\""+default_run+"\" if left empty")

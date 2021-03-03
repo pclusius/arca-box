@@ -602,13 +602,25 @@ SUBROUTINE bin_redistribute_fs(ind)
     IF (aa < 1) THEN
         n_b = new_PSD%nr_bins  ! to save some space
         ! New composition in new_PSD%nr_bins
-        new_PSD%composition_fs(n_b,:) = (new_PSD%composition_fs(n_b,:) * new_PSD%conc_fs(n_b) &
-                                + mix_PSD%composition_fs(ind,:) * mix_PSD%conc_fs(ind)) &
-                                / (new_PSD%conc_fs(n_b) + mix_PSD%conc_fs(ind))
-        ! Determine new particle concentration in largest bin
+        !new_PSD%composition_fs(n_b,:) = (new_PSD%composition_fs(n_b,:) * new_PSD%conc_fs(n_b) &
+        !                        + mix_PSD%composition_fs(ind,:) * mix_PSD%conc_fs(ind)) &
+        !                        / (new_PSD%conc_fs(n_b) + mix_PSD%conc_fs(ind))
 
-        ! new_PSD%conc_fs(n_b) = new_PSD%conc_fs(n_b) + current_PSD%conc_fs(ind)
-        ! Coagulation: (partly) leads to change in bin; condensation: growth or shrinkage
+        ! Particle concentration should be updated
+        IF ( current_PSD%volume_fs(n_b) - mix_PSD%volume_fs(ind) < 0.d0 ) THEN  !the growth is into last bin and beyond => leave particles in last bin
+          new_PSD%conc_fs(n_b) = new_PSD%conc_fs(n_b) + mix_PSD%conc_fs(ind)
+        ELSE !the growth is into second last and last bin => redistribute particles and update composition in second-last bin
+          ! Fraction of particles in size bin aa-1
+          r1 = (current_PSD%volume_fs(n_b) - mix_PSD%volume_fs(ind)) &
+          / (current_PSD%volume_fs(n_b) - current_PSD%volume_fs(n_b-1))
+          ! Fraction of particles in size bin (aa)
+          r2 = 1.0_dp - r1
+          ! Determine new particle number concentrations:
+          new_PSD%conc_fs(n_b-1) = new_PSD%conc_fs(n_b-1) + r1 * mix_PSD%conc_fs(ind)
+          new_PSD%conc_fs(n_b) = new_PSD%conc_fs(n_b) + r2 * mix_PSD%conc_fs(ind)
+          ! Don't update the composition any more in aa-1; would be possible, but what for?
+        END IF
+
     ELSE IF (aa > 1 .and. aa <= current_PSD%nr_bins) THEN
 
         ! Fraction of particles in size bin aa-1
@@ -705,7 +717,7 @@ SUBROUTINE bin_redistribute_ma(ind)
         ! Determine new particle concentration in bin aa
         new_PSD%conc_ma(aa) = new_PSD%conc_ma(aa) + mix_PSD%conc_ma(ind)
 
-    ! The particles shrink beyond the lower size limit -> change concentration but not composition or diameter (should not happen)
+    ! The particles shrink below the lower size limit -> change concentration but not composition or diameter (should not happen)
     ELSE
         new_PSD%conc_ma(1) = new_PSD%conc_ma(1) + mix_PSD%conc_ma(ind)
         new_PSD%diameter_ma(1) = new_PSD%grid_ma(1)

@@ -162,6 +162,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     dmass(:,ii) = (conc_pp(:,ii) - conc_pp_old(:,ii))*VAPOUR_PROP%molar_mass(ii) / Na
   END DO
   ! dmass(:,n_cond_tot-1) = max(dmass(:,n_cond_tot-1), 0)
+  ! only apply condensation if there are particles
   do ii = 1, n_bins_par
     if (n_conc(ii)>1d-10) THEN
       dmass(ii,:) = dmass(ii,:) / n_conc(ii)
@@ -171,8 +172,8 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
   END DO
 
   ! derive diameter changes for integration time-step optimization
-  DO ii = 1, n_bins_par
-    IF (SUM(conc_pp_old(ii,:)) > 0.d0 .and. n_conc(ii) > 1.d-10) THEN
+  DO ii = 1, n_bins_par - 1
+    IF (SUM(conc_pp_old(ii,:)) > 0.d0 .and. n_conc(ii) > 1.d-10) THEN   !only if there are particles and if they had a composition in the last timestep
       d_dpar(ii) = (SUM(conc_pp_old(ii,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ii) + SUM(dmass(ii,:))) &
                     / (SUM(conc_pp_old(ii,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ii))
       if (d_dpar(ii)<0) THEN
@@ -275,7 +276,7 @@ do j=1, n_bins_par
         END IF
     END DO
 
-    ! Check whether changes are within limits:
+    ! Check whether changes are worth to be applied:
     IF (n_conc(j) > 1.d0 .and. sum(dconc_coag(j,j:)) > 1.d-20) THEN
         d_npar(j) = sum(dconc_coag(j, j:)) / n_conc(j)
     ELSE
