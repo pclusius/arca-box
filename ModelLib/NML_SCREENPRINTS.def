@@ -1,0 +1,8 @@
+&NML_SCREENPRINTS
+ clusterfractions = .TRUE.
+ jions = .TRUE.
+ timestep_multipliers = .TRUE.
+ time_efficiency = .TRUE.
+ Jorganic = .TRUE.
+ GR = .TRUE.
+/

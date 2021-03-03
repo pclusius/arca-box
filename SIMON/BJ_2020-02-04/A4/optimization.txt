@@ -1,0 +1,912 @@
+ 04:30:00-> Coag. speed multiplier now:           2
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   10.000000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 2.034E+01   , UL: 1.050E+00
+   => reduce dt [s]:   5.0000000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   5.0000000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.873E+01   , UL: 1.050E+00
+   => reduce dt [s]:   2.5000000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   2.5000000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.799E+01   , UL: 1.050E+00
+   => reduce dt [s]:   1.2500000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   1.2500000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.764E+01   , UL: 1.050E+00
+   => reduce dt [s]:  0.62500000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]  0.62500000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.747E+01   , UL: 1.050E+00
+   => reduce dt [s]:  0.31250000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]  0.31250000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.738E+01   , UL: 1.050E+00
+   => reduce dt [s]:  0.15625000000000000     
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]  0.15625000000000000     
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.734E+01   , UL: 1.050E+00
+   => reduce dt [s]:   7.8125000000000000E-002
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   7.8125000000000000E-002
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.732E+01   , UL: 1.050E+00
+   => reduce dt [s]:   3.9062500000000000E-002
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   3.9062500000000000E-002
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.731E+01   , UL: 1.050E+00
+   => reduce dt [s]:   1.9531250000000000E-002
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   1.9531250000000000E-002
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.731E+01   , UL: 1.050E+00
+   => reduce dt [s]:   9.7656250000000000E-003
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   9.7656250000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.730E+01   , UL: 1.050E+00
+   => reduce dt [s]:   4.8828125000000000E-003
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.730E+01   , UL: 1.050E+00
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.730E+01   , UL: 2.100E+00
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.730E+01   , UL: 4.200E+00
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.730E+01   , UL: 8.400E+00
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large vapour concentration change: 1.730E+01   , UL: 1.680E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0
+ Precision error at time 07:33:10 (27190  sec)
+ current simulation timestep [s]   4.8828125000000000E-003
+ Cause of problem: Condensation
+   ERROR TYPE: Too large diameter change: 2.962E+01
+ 
+error state: F, error process: 0

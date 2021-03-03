@@ -139,7 +139,7 @@ Amm_EnergyFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/HS298.15K_426c
 Amm_DipoleFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/dip_pol_298.15K_426clusters2016Apr25.txt"
 DMASystemFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/input_AD.inp"
 DMA_EnergyFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/dH_dS.txt"
-
+SCREENPRINT_NML = "ModelLib/NML_SCREENPRINTS.def"
 # Create chemistry script location
 ccloc = 'ModelLib/gui/chemistry_package_PZ'
 
@@ -750,6 +750,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
             pickle.dump(savefont, open(gui_path+'globalfont.pickle', 'wb'))
 
+        self.viewPrintNML.clicked.connect(lambda: self.editTxtFile(SCREENPRINT_NML))
     # -----------------------
     # tab Output Graph
     # -----------------------
@@ -1903,18 +1904,41 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if self.monStatus != None and self.fulltext == '':
             self.stopBox()
 
+    # def updateOutput(self):
+    #     self.fulltext = self.boxProcess.stdout.readline().decode("utf-8")
+    #     if self.fulltext != '.\r\n' and self.fulltext != '.\n':
+    #         self.MonitorWindow.insertPlainText(self.fulltext)
+    #         if '+~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=' in self.fulltext:
+    #             self.currentEndLine = self.MonitorWindow.verticalScrollBar().maximum()
+    #             self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
+    #         if self.pauseScroll.isChecked() == False:
+    #             self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
+    #         if 'SIMULATION HAS ENDED' in str(self.fulltext)[-50:]:
+    #             self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
+
 
     def updateOutput(self):
         self.fulltext = self.boxProcess.stdout.readline().decode("utf-8")
         if self.fulltext != '.\r\n' and self.fulltext != '.\n':
             self.MonitorWindow.insertPlainText(self.fulltext)
-            if '+~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=' in self.fulltext:
-                self.currentEndLine = self.MonitorWindow.verticalScrollBar().maximum()
-                self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
-            if self.pauseScroll.isChecked() == False:
-                self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
-            if 'SIMULATION HAS ENDED' in str(self.fulltext)[-50:]:
-                self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
+            # if '+~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=' in self.fulltext:
+            #     self.currentEndLine = self.MonitorWindow.verticalScrollBar().maximum()
+            #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
+        if self.pauseScroll.isChecked() == False:
+            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
+        if 'SIMULATION HAS ENDED' in str(self.fulltext)[-50:]:
+            self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
+            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
+
+    # def updateOutput(self):
+    #     fulltext = self.boxProcess.stdout.readline().decode("utf-8")
+    #     if fulltext != '.\n':
+    #         self.MonitorWindow.insertPlainText(fulltext)
+    #     if self.pauseScroll.isChecked() == False:
+    #         self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
+    #     if 'SIMULATION HAS ENDED' in str(fulltext)[-50:]:
+    #         self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
+    #         self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
 
 
     def checkboxToFOR(self, widget):
