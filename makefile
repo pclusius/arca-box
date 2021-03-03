@@ -3,7 +3,7 @@
 # compiler
 F90 = gfortran
 
-OPTI = O2
+OPTI = O1
 
 # Put .o and .mod files here:
  OBJDIR  = build
@@ -11,19 +11,19 @@ OPTI = O2
  CHMDIR = Hyde
 
 # When compiling, search for files in these directories:
-VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31:Aerosol
+VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31:Aerosol:$(OBJDIR)/$(CHMDIR)
 
 # Options reminders:
 # -w suppresses warning messages
 
-BOX_OPTS = -g -Wno-unused -ffree-line-length-none -cpp -DLINUX -DNETOUT -DISACDC -J$(OBJDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
+BOX_OPTS = -g -Wno-unused -ffree-line-length-none -cpp -DLINUX -DCHEM=\"$(CHMDIR)\" -DISACDC -J$(OBJDIR) -I$(OBJDIR)/$(CHMDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
 -Wno-unused-dummy-argument -Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow -pg -g -fcheck=all -$(OPTI)
 
-CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR) -I$(OBJDIR) -$(OPTI)
+CHEM_OPTS = -w -cpp -pg -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR)/$(CHMDIR) -I$(OBJDIR)/$(CHMDIR) -$(OPTI)
 
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 
-CHEM_OBJECTS = $(addprefix $(OBJDIR)/, second_Precision.o second_Parameters.o second_Initialize.o second_Util.o second_Monitor.o second_JacobianSP.o \
+CHEM_OBJECTS = $(addprefix $(OBJDIR)/$(CHMDIR)/, second_Precision.o second_Parameters.o second_Initialize.o second_Util.o second_Monitor.o second_JacobianSP.o \
                second_LinearAlgebra.o second_Jacobian.o second_Global.o second_Rates.o second_Integrator.o second_Function.o \
                second_Model.o second_Main.o)
 
@@ -67,35 +67,36 @@ $(OBJDIR)/solve_bases.o: src/solve_bases.f90 $(ACDC_OBJECTS) $(ACDC_D_OBJECTS)
 	 $(F90) $(BOX_OPTS) -c $< -o $@
 
 # Chemistry
-$(OBJDIR)/second_Precision.o: chemistry/$(CHMDIR)/second_Precision.f90
+$(OBJDIR)/$(CHMDIR)/second_Precision.o: chemistry/$(CHMDIR)/second_Precision.f90
+	 @mkdir -p $(@D)
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Parameters.o: chemistry/$(CHMDIR)/second_Parameters.f90 second_Precision.o
+$(OBJDIR)/$(CHMDIR)/second_Parameters.o: chemistry/$(CHMDIR)/second_Parameters.f90 second_Precision.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Global.o: chemistry/$(CHMDIR)/second_Global.f90 second_Parameters.o
+$(OBJDIR)/$(CHMDIR)/second_Global.o: chemistry/$(CHMDIR)/second_Global.f90 second_Parameters.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Initialize.o: chemistry/$(CHMDIR)/second_Initialize.f90 second_Parameters.o second_Global.o
+$(OBJDIR)/$(CHMDIR)/second_Initialize.o: chemistry/$(CHMDIR)/second_Initialize.f90 second_Parameters.o second_Global.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Util.o: chemistry/$(CHMDIR)/second_Util.f90 second_Parameters.o second_Monitor.o
+$(OBJDIR)/$(CHMDIR)/second_Util.o: chemistry/$(CHMDIR)/second_Util.f90 second_Parameters.o second_Monitor.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Monitor.o: chemistry/$(CHMDIR)/second_Monitor.f90
+$(OBJDIR)/$(CHMDIR)/second_Monitor.o: chemistry/$(CHMDIR)/second_Monitor.f90
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_JacobianSP.o: chemistry/$(CHMDIR)/second_JacobianSP.f90
+$(OBJDIR)/$(CHMDIR)/second_JacobianSP.o: chemistry/$(CHMDIR)/second_JacobianSP.f90
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_LinearAlgebra.o: chemistry/$(CHMDIR)/second_LinearAlgebra.f90 second_Parameters.o second_JacobianSP.o
+$(OBJDIR)/$(CHMDIR)/second_LinearAlgebra.o: chemistry/$(CHMDIR)/second_LinearAlgebra.f90 second_Parameters.o second_JacobianSP.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Jacobian.o: chemistry/$(CHMDIR)/second_Jacobian.f90 second_Parameters.o second_JacobianSP.o
+$(OBJDIR)/$(CHMDIR)/second_Jacobian.o: chemistry/$(CHMDIR)/second_Jacobian.f90 second_Parameters.o second_JacobianSP.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Rates.o: chemistry/$(CHMDIR)/second_Rates.f90 second_Parameters.o second_Global.o
+$(OBJDIR)/$(CHMDIR)/second_Rates.o: chemistry/$(CHMDIR)/second_Rates.f90 second_Parameters.o second_Global.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Integrator.o: chemistry/$(CHMDIR)/second_Integrator.f90 second_Precision.o second_Global.o second_Parameters.o second_JacobianSP.o \
+$(OBJDIR)/$(CHMDIR)/second_Integrator.o: chemistry/$(CHMDIR)/second_Integrator.f90 second_Precision.o second_Global.o second_Parameters.o second_JacobianSP.o \
 second_LinearAlgebra.o second_Function.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Function.o: chemistry/$(CHMDIR)/second_Function.f90 second_Parameters.o
+$(OBJDIR)/$(CHMDIR)/second_Function.o: chemistry/$(CHMDIR)/second_Function.f90 second_Parameters.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Model.o: chemistry/$(CHMDIR)/second_Model.f90 second_Precision.o second_Parameters.o second_Global.o second_Function.o \
+$(OBJDIR)/$(CHMDIR)/second_Model.o: chemistry/$(CHMDIR)/second_Model.f90 second_Precision.o second_Parameters.o second_Global.o second_Function.o \
 second_Integrator.o second_Rates.o second_Jacobian.o second_LinearAlgebra.o second_Monitor.o second_Util.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
-$(OBJDIR)/second_Main.o: chemistry/$(CHMDIR)/second_Main.f90 second_Model.o second_Initialize.o
+$(OBJDIR)/$(CHMDIR)/second_Main.o: chemistry/$(CHMDIR)/second_Main.f90 second_Model.o second_Initialize.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 
 # ACDC, NH3
@@ -126,29 +127,28 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.f90
 
 BOX_MODS = $(BOX_OBJECTS:.o=.mod)
 
-CHEM_MODS = second_precision.mod second_monitor.mod second_parameters.mod second_initialize.mod second_util.mod second_jacobiansp.mod \
+CHEM_MODS = (second_precision.mod second_monitor.mod second_parameters.mod second_initialize.mod second_util.mod second_jacobiansp.mod \
                 second_linearalgebra.mod second_jacobian.mod second_global.mod second_rates.mod second_integrator.mod second_function.mod \
-                second_model.mod second_main.mod
+                second_model.mod second_main.mod)
 
 ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
 ACDC_D_MODS = $(ACDC_D_OBJECTS:.o=.mod)
 
-
 # This entry allows you to type 'make clean' to get rid of all object and module files
 # With 'clean', don't remove chemistry object files, since it takes very long (30 min.) to compile them,
 # and there usually is no need to recompile them
+
 clean:
 	-@rm $(BOX_OBJECTS) $(BOX_MODS) 2>/dev/null || true
 	-@cd $(OBJDIR) ; rm arcabox.o   2>/dev/null || true
 	-@rm arcabox.exe                2>/dev/null || true
 
-cleanall:
+cleaneverything:
+	-@cd $(OBJDIR) ; rm -r *        2>/dev/null || true
 	-@rm arcabox.exe                2>/dev/null || true
-	-@cd $(OBJDIR) ; rm *.mod *.o   2>/dev/null || true ## added by carlton.. as some .mod files were not removed
 
-clean_chemistry:
-	-@rm $(BOX_OBJECTS) $(BOX_MODS)  2>/dev/null || true
-	-@rm $(CHEM_OBJECTS)             2>/dev/null || true
-	-@cd $(OBJDIR) ; rm $(CHEM_MODS) 2>/dev/null || true
-	-@cd $(OBJDIR) ; rm arcabox.o    2>/dev/null || true
-	-@rm arcabox.exe                 2>/dev/null || true
+clean_current_chemistry:
+	-@rm $(BOX_OBJECTS) $(BOX_MODS) 2>/dev/null || true
+	-@cd $(OBJDIR)/$(CHMDIR) ; rm *.mod *.o    2>/dev/null || true
+	-@cd $(OBJDIR) ; rm arcabox.o    					 2>/dev/null || true
+	-@rm arcabox.exe                					 2>/dev/null || true

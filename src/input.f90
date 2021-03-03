@@ -173,7 +173,9 @@ INTEGER   :: JD = -1
 Logical   :: skip_acdc = .True.
 INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value for fixed amount of seconds
 CHARACTER(1000)  :: Description='*'
-NAMELIST /NML_MISC/ lat, lon, wait_for, Description, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with, skip_acdc
+CHARACTER(len=256)      :: GR_sizes = '6d-9 20d-9 30d-9'
+NAMELIST /NML_MISC/ lat, lon, wait_for, Description, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with, skip_acdc, &
+                    GR_sizes
 
 Logical                 :: VAP_logical = .True.
 Logical                 :: Use_atoms = .False.
@@ -201,7 +203,6 @@ Logical  :: NO2_IS_NOX        = .false.
 Logical  :: USE_RH_CORRECTION = .true.
 LOGICAL  :: TEMP_DEP_SURFACE_TENSION = .False.
 LOGICAL  :: use_diff_dia_from_diff_vol = .False.
-CHARACTER(len=256)      :: GR_sizes = '6d-9 20d-9 30d-9'
 REAL(dp), ALLOCATABLE   :: GR_bins(:)  ! used for GR calculation [m]
 Logical                 :: CALC_GR = .True.
 
@@ -211,7 +212,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, acdc_iterations,variable_density,dmps_tres_min
                       start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
-                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, GR_sizes
+                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -225,7 +226,9 @@ CHARACTER(22)          :: range_names(3)    = ['particle diameter     ',&
 REAL(dp), DIMENSION(3,2) :: change_range = 0
 NAMELIST /NML_PRECISION/ change_range, diameter_prec_def,pnumber_prec_def,vapour_prec_def
 
-
+! Options for screen output
+LOGICAL :: clusterfractions,jions,timestep_multipliers,time_efficiency,Jorganic,GR
+NAMELIST /NML_SCREENPRINTS/ clusterfractions,jions,timestep_multipliers,time_efficiency,Jorganic,GR
 
 contains
 

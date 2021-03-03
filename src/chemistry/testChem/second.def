@@ -701,6 +701,33 @@ C5DIALO = IGNORE ;
 { WARNING: The following species do not have SMILES strings in the database. 
           If any of these are peroxy radicals the RO2 sum will be wrong. 
     }
+CARENE = IGNORE ;
+CAMPHENE = IGNORE ;
+MYRCENE = IGNORE ;
+SABINENE = IGNORE ;
+OCIMENE = IGNORE ;
+OMT = IGNORE ;
+FARNESENE = IGNORE ;
+OSQ = IGNORE ;
+CINEOLE = IGNORE ;
+LINALOOL = IGNORE ;
+NAPINAO2 = IGNORE ;
+NAPINBO2 = IGNORE ;
+APINOOA = IGNORE ;
+APINOOB = IGNORE ;
+APINAO2 = IGNORE ;
+APINBO2 = IGNORE ;
+APINCO2 = IGNORE ;
+BPINAO2 = IGNORE ;
+BPINBO2 = IGNORE ;
+BPINCO2 = IGNORE ;
+NOPINONE = IGNORE ;
+CH2OOF = IGNORE ;
+NOPINOOA = IGNORE ;
+NBPINAO2 = IGNORE ;
+NBPINBO2 = IGNORE ;
+
+
 #INLINE F90_RCONST 
  !end of USE statements 
  !
@@ -1527,7 +1554,6 @@ KBPPN = (KPPN0*KPPNI)*FCPPN/(KPPN0+KPPNI)
 {631.} CH3COCH2O2 = ACETOL : 2*(K298CH3O2*8.0D-12)**0.5*RO2*0.2 ;
 {632.} CH3COCH2O2 = CH3COCH2O : 2*(K298CH3O2*8.0D-12)**0.5*RO2*0.6 ;
 {633.} CH3COCH2O2 = MGLYOX : 2*(K298CH3O2*8.0D-12)**0.5*RO2*0.2 ;
-{1496.}	   BPINCO2 + R_HOM_OH_O8 = HOM20_OH_O9 : 		      0.2E-13*EXP(0./TEMP) ;
 {634.} C2H5CO3 + HO2 = C2H5O2 + OH : KAPHO2*0.44 ;
 {635.} C2H5CO3 + HO2 = PERPROACID : KAPHO2*0.41 ;
 {636.} C2H5CO3 + HO2 = PROPACID + O3 : KAPHO2*0.15 ;
@@ -2689,3 +2715,50 @@ KBPPN = (KPPN0*KPPNI)*FCPPN/(KPPN0+KPPNI)
 {1792.} ALCOCH2OOH = CHOCOCH2O + OH : J(41)+J(34) ;
 {1793.} CHOCOCH2O = HCHO + HCOCO : KDEC ;
 H2SO4 = dummy : RES1 ;
+CARENE + NO3 = NAPINAO2 :                                  9.10D-12 * 0.65 ;
+CARENE + NO3 = NAPINBO2 :                                  9.10D-12 * 0.35;
+CARENE + O3 = APINOOA :                                    3.70D-17 * 0.6 ;
+CARENE + O3 = APINOOB :                                    3.70D-17 * 0.4 ;
+CARENE + OH = APINAO2 :                                    1.60D-11*EXP(500./TEMP)* 0.572 ;
+CARENE + OH = APINBO2 :                                    1.60D-11*EXP(500./TEMP)* 0.353;
+CARENE + OH = APINCO2 :                                    1.60D-11*EXP(500./TEMP)* 0.075;
+
+CAMPHENE + OH = BPINAO2 :                                  1.01D-10*0.849    ;
+CAMPHENE + OH = BPINBO2 :                                  1.01D-10*0.076    ;
+CAMPHENE + OH = BPINCO2 :                                  1.01D-10*0.075    ;
+CAMPHENE + O3 = NOPINONE + CH2OOF :                        1.28D-17*0.4    ;
+CAMPHENE + O3 = NOPINOOA + HCHO :                          1.28D-17**0.6    ;
+CAMPHENE + NO3 = NBPINAO2 :                                6.78D-13*0.8    ;
+CAMPHENE + NO3 = NBPINBO2 :                                6.78D-13*0.2    ;
+
+MYRCENE + OH = dummy :                                     2.15D-10 ;
+MYRCENE + O3 = 0.63 * OH + dummy :                         4.70D-16 ;
+MYRCENE + NO3 = dummy :                                    1.1D-11 ;
+
+SABINENE + OH = dummy :                                    1.17D-10 ;
+SABINENE + O3 = 0.33 * OH + dummy :                        8.60D-17 ;
+SABINENE + NO3 = dummy :                                   1.00D-11 ;
+
+OCIMENE + OH = dummy :                                     2.52D-10 ;
+OCIMENE + O3 = 0.55 * OH + dummy :                         5.4D-16 ;
+OCIMENE + NO3 = dummy :                                    2.2D-11 ;
+
+OMT + OH = dummy :                                         1.20D-11*EXP(444/TEMP)   ;
+OMT + O3 = 0.5 * OH + dummy :                              1.01D-15*EXP(-732/TEMP)      ;
+OMT + NO3 = dummy :                                        1.19D-12*EXP(490/TEMP)     ;
+
+FARNESENE + OH = dummy :                                   2.00D-10 ;
+FARNESENE + O3 = 0.5 * OH + dummy :                        1.16D-14 ;
+FARNESENE + NO3 = dummy :                                  1.90D-11 ;
+
+OSQ + OH = dummy :                                         2.00D-10 ;
+OSQ + O3 = 0.5 * OH + dummy :                              1.16D-14 ;
+OSQ + NO3 = dummy :                                        1.90D-11 ;
+
+// These are from Atkinson ES&T 24, 1497, 1990
+CINEOLE + OH = dummy :                                     1.11D-11 ;
+CINEOLE + NO3 = dummy :                                    1.69D-16 ;
+
+// These reactions are from François Bernard J. Phys. Chem. A, 2012, 116 (24), pp 6113–6126
+LINALOOL + OH = dummy :                                    1.7D-10 ;
+LINALOOL + O3 = dummy :                                    4.1D-16 ;

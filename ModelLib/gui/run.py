@@ -18,7 +18,7 @@ import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system
 from os import name as osname
-from os.path import exists, dirname, getmtime, abspath, split as ossplit
+from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin
 from shutil import copyfile as cpf
 from re import sub,IGNORECASE, findall
 import time
@@ -38,6 +38,12 @@ except:
     print('Consider adding netCDF4 to your Python')
     netcdf = False
 
+try:
+    import platform
+    operatingsystem = platform.system()
+    # "Windows"/"Linux"/"Darwin"
+except:
+    operatingsystem = 'Linux'
 
 # -----------------------------------------------------------------------------
 # Generally these default settings should not changed, do so with your own risk
@@ -48,7 +54,7 @@ environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) # enable highdpi scaling
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)    # use highdpi icons
 # See if scaling is necessary, currently only on Windows
-if osname.upper() == 'NT':
+if osname.upper() == 'NT' or operatingsystem == 'Windows': # this or is only till I sort out if platform usually works for people
     try:
         import ctypes
         sf = (ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100)
@@ -124,6 +130,18 @@ currentdir   = currentdir.replace(guidir, '')
 currentdir_l = len(currentdir)
 chdir(currentdir)
 
+# files that can be modified with the Editor
+nucl_homs = "ModelLib/nucl_homs.txt"
+custom_functions = "src/custom_functions.f90"
+AmmSystemFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/input_ANnarrow_neutral_neg_pos.inp"
+Amm_EnergyFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/HS298.15K_426clusters2016Apr25.txt"
+Amm_DipoleFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/dip_pol_298.15K_426clusters2016Apr25.txt"
+DMASystemFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/input_AD.inp"
+DMA_EnergyFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/dH_dS.txt"
+
+# Create chemistry script location
+ccloc = 'ModelLib/gui/chemistry_package_PZ'
+
 # Guess initially the current python version and check the calling script for precise version
 currentPythonVer = 'python'
 try:
@@ -192,7 +210,6 @@ class About(QtGui.QDialog):
         self.ab.okgreat.clicked.connect(self.reject)
         self.ab.logo.setPixmap(QtGui.QPixmap(modellogo.replace('.png', 'HR.png')))
 
-
 # The popup window for Create KPP files
 class CCWin(QtGui.QDialog):
     def __init__(self, parent = None):
@@ -201,17 +218,65 @@ class CCWin(QtGui.QDialog):
         self.ccw.setupUi(self)
         self.ccw.ccClose.clicked.connect(self.reject)
         self.ccw.createKPPsettings.clicked.connect(self.kpp)
+        self.ccw.openOutput.clicked.connect(self.openOutputDir)
+        self.ccw.browseOut.clicked.connect(lambda: qt_box.browse_path(self.ccw.outDir, 'dir'))
+        self.ccw.browseSourceFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.sourceFile, 'file'))
+        self.ccw.browseIncludes.clicked.connect(lambda: qt_box.browse_path(self.ccw.includedFiles, 'append'))
 
     def kpp(self):
-        cmds = self.ccw.cmdString.text().split()
-        self.kppProcess = Popen(["python3", 'ModelLib/gui/chemistry_package_PZ/create_chemistry.py', *cmds], stdout=PIPE,stderr=STDOUT,stdin=None)
+        cmds = self.ccw.sourceFile.text().split()
+        includes = self.ccw.includedFiles.text().split()
+        if self.ccw.inclPram.isChecked():
+            includes.append(osjoin(ccloc,'PRAM_v21.txt'))
+        if self.ccw.InclTerp.isChecked():
+            includes.append(osjoin(ccloc,'terpenes_not_in_mcm.txt'))
+        out = osjoin(self.ccw.outDir.text(),'second.def')
+        log = osjoin(self.ccw.outDir.text(),'second.log')
+        if len(includes)>0:
+            self.kppProcess = Popen(["python3", ccloc+'/create_chemistry.py',
+                                    *cmds,'-o',out, '-f', *includes,
+                                    '-l', log]
+                                    , stdout=PIPE,stderr=STDOUT,stdin=None)
+        else:
+            self.kppProcess = Popen(["python3", ccloc+'/create_chemistry.py', *cmds,'-o',out,
+                                '-l',log], stdout=PIPE,stderr=STDOUT,stdin=None)
         lines = True
+        warnings = False
+        output = ['Chemistry definitions were created.\n']
+        boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp"\n2) Recompile ARCA in tab "Chemistry".'
         while lines:
             self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
+            if 'WARNING' in self.ccout:
+                warnings = True
+                output.append('Duplicate equations were found.')
+                output.append(self.ccout)
+            if 'CRITICAL' in self.ccout:
+                warnings = True
+                output.append('Included file was not found:')
+                output.append(self.ccout)
             self.ccw.ccMonitor.insertPlainText(self.ccout)
             if self.kppProcess.poll() != None and self.ccout == '':
                 lines= False
                 self.kppProcess.kill()
+
+        cpf(osjoin(ccloc,'mcm_module.f90'),osjoin(self.ccw.outDir.text(),'mcm_module.f90'))
+        cpf(osjoin(ccloc,'second.kpp'),osjoin(self.ccw.outDir.text(),'second.kpp'))
+        if warnings: output.append('Read the .log and resolve the problems, then:')
+        qt_box.popup('Chemistry created', '\n'.join(output)+boilerplate,0)
+
+    def openOutputDir(self,dir):
+        import os
+        dir = self.ccw.outDir.text()
+        if dir == '': dir = './'
+        if operatingsystem == 'Windows':
+            os.startfile(dir)
+        if operatingsystem == 'Linux':
+            os.system('xdg-open "%s"' % dir)
+        if operatingsystem == 'Darwin':
+            os.system('open "%s"' % dir)
+        else:
+            return
+
 
 
 # The popup window for variations
@@ -323,13 +388,6 @@ class VpressWin(QtGui.QDialog):
         file = dialog.getSaveFileName(self, 'Save Vapours', options=options)[0]
         if file != '': self.vp.VapourPath.setText(file)
 
-    def browse(self):
-        dialog = QtWidgets.QFileDialog()
-        options = dialog.Options()
-        options |= dialog.DontUseNativeDialog
-        file = dialog.getSaveFileName(self, 'Save Vapours', options=options)[0]
-        if file != '': self.vary.lineEdit.setText(file)
-
     def saveVapours(self):
         """This tool creates the Vapour and Elements files from user input or from the AMG server."""
         filterlist = []
@@ -389,8 +447,6 @@ class Editor(QtGui.QDialog):
         t = f.read()
         self.editor.editedText.appendPlainText(t)
 
-
-
 class Comp:
     """Class for input compounds/variables. Default values are used in Function creator"""
     def __init__(self):
@@ -414,6 +470,7 @@ class Comp:
         self.sliderVls = [39,84,0,0,20]
         self.sl_x = [1,1,1,1,1]
 
+
 class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     """Main program window."""
     def __init__(self):
@@ -436,8 +493,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.wait_for = 0
         self.show_extra_plots = ''
         self.saveButton.clicked.connect(lambda: self.save_file())
-        self.saveCurrentButton.clicked.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='silent'))
-        self.actionSave_to_current.triggered.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='silent'))
+        self.saveCurrentButton.clicked.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='noteOnTer'))
+        self.actionSave_to_current.triggered.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='noteOnTer'))
         self.actionCreate_output_directories.triggered.connect(self.createCaseFolders)
         self.actionLoad_minimal_settings.triggered.connect(lambda: self.load_initfile(minimal_settings_path))
         self.loadButton.clicked.connect(lambda: self.browse_path(None, 'load'))
@@ -449,9 +506,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionSet_monitor_font_2.triggered.connect(lambda: self.setFont(self.MonitorWindow,'monitor'))
         self.actionSet_Global_font.triggered.connect(lambda: self.setFont(self.tabWidget,'global'))
         self.actionReset_fonts.triggered.connect(self.resetFont)
-        self.actionCreate_vapour_file.triggered.connect(self.vapours)
+        self.actionCreate_Vapour_file.triggered.connect(self.vapours)
         self.actionCreateNewChemistry.triggered.connect(self.createCC)
         self.actionVariations.triggered.connect(self.createVAR)
+        self.actionRecompile_model.triggered.connect(self.remake)
         self.actionSetDelay.triggered.connect(lambda: self.inputPopup("self.wait_for"))
         self.actionAbout_ARCA.triggered.connect(self.createAb)
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
@@ -497,13 +555,13 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.browseMcm.clicked.connect(lambda: self.browse_path(self.mcm_file, 'file'))
         self.browsePar.clicked.connect(lambda: self.browse_path(self.dmps_file, 'file'))
         self.browseXtr.clicked.connect(lambda: self.browse_path(self.extra_particles, 'file'))
-        self.checkBox_aer.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.groupBox_8))
-        self.checkBox_aer.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,None, 4))
+        # self.checkBox_aer.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.groupBox_8))
+        self.checkBox_aer.toggled.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,None, 4))
         self.checkBox_che.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_che,None, 2))
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
         self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,None, hide=3))
-        self.simpleton.stateChanged.connect(lambda: self.grayIfNotChecked(self.simpleton,None, hide=6))
-        self.simpleton.stateChanged.connect(lambda: self.grayIfNotChecked(self.simpleton,None, hide=5))
+        # self.simpleton.stateChanged.connect(lambda: self.grayIfNotChecked(self.simpleton,None, hide=6))
+        # self.simpleton.stateChanged.connect(lambda: self.grayIfNotChecked(self.simpleton,None, hide=5))
         # self.use_dmps.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_dmps,self.dmps_read_in_time))
         self.dateEdit.dateChanged.connect(self.updatePath)
         self.indexEdit.valueChanged.connect(self.updatePath)
@@ -605,7 +663,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.TimerCompile.timeout.connect(self.progress)
         self.compileProgressBar.hide()
         self.running = 0
-        self.get_available_chemistry()
+        self.get_available_chemistry(checkonly=False)
         self.chemLabel.setText('Current chemistry scheme in makefile: '+self.get_available_chemistry(checkonly=True))
 
     # -----------------------
@@ -616,9 +674,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.butVapourAtoms.clicked.connect(lambda: self.browse_path(self.vap_atoms, 'file'))
         self.use_atoms.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_atoms,self.vap_atoms))
         self.use_atoms.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_atoms,self.butVapourAtoms))
-        self.Org_nucl.stateChanged.connect(lambda: self.grayIfChecked(self.Org_nucl,self.resolve_base))
+        self.Org_nucl.toggled.connect(lambda: self.grayIfChecked(self.Org_nucl,self.resolve_base))
+        self.resolve_base.toggled.connect(lambda: self.grayIfChecked(self.resolve_base,self.groupBox_16))
         # self.resolve_base.stateChanged.connect(lambda: self.grayIfNotChecked(self.resolve_base,self.frameBase))
-        self.use_dmps_partial.stateChanged.connect(lambda: self.toggle_gray(self.use_dmps_partial,self.gridLayout_11))
+        # self.use_dmps_partial.toggled.connect(lambda: self.toggle_gray(self.use_dmps_partial,self.gridLayout_11))
         self.saveBatch.clicked.connect(lambda: self.batchCaller())
         self.batchFrFile.clicked.connect(lambda: self.browse_path(self.ListbatchCaller, 'batchList'))
         self.batchRangeDayBegin.dateChanged.connect(lambda: self.batchRangeDay.setChecked(True))
@@ -626,12 +685,22 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.batchRangeIndBegin.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
         self.batchRangeIndEnd.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
         # self.chemistryModules.setEnabled(False)
-        # self.ReplChem.stateChanged.connect(lambda: self.grayIfNotChecked(self.ReplChem,self.chemistryModules))
+        self.ReplChem.clicked.connect(lambda: self.get_available_chemistry(checkonly=False))
         self.mmodal_input.textChanged.connect(self.seeInAction)
         self.n_modal.textChanged.connect(self.seeInAction)
         self.multiModalBox.toggled.connect(lambda: self.HPLotter.setBackground(mmc[str(self.multiModalBox.isChecked())]))
         self.mmodal_input.textChanged.connect(lambda: self.HPLotter.setBackground(mmc[str(self.multiModalBox.isChecked())]))
-        self.OrgNuclVapFile.clicked.connect(lambda: self.editTxtFile("ModelLib/nucl_homs.txt"))
+        self.OrgNuclVapFile.clicked.connect(lambda: self.editTxtFile(nucl_homs))
+        self.viewCustomNucl.clicked.connect(lambda: self.editTxtFile(custom_functions))
+        self.viewCustomChem.clicked.connect(lambda: self.editTxtFile(custom_functions))
+        self.use_dmps.toggled.connect(lambda: self.grayIfChecked(self.use_dmps,self.multiModalBox))
+        self.multiModalBox.toggled.connect(lambda: self.grayIfChecked(self.multiModalBox,self.use_dmps))
+
+        self.EditAmmSystem.clicked.connect(lambda: self.editTxtFile(AmmSystemFile))
+        self.EditAmm_E.clicked.connect(lambda: self.editTxtFile(Amm_EnergyFile))
+        self.EditAmmDipoles.clicked.connect(lambda: self.editTxtFile(Amm_DipoleFile))
+        self.EditDMASystem.clicked.connect(lambda: self.editTxtFile(DMASystemFile))
+        self.EditDMA_E.clicked.connect(lambda: self.editTxtFile(DMA_EnergyFile))
 
     # -----------------------
     # tab Process Monitor
@@ -639,7 +708,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.currentEndLine = 0
         self.fulltext = ''
         self.tabWidget.currentChanged.connect(self.activeTab)
-        # xxxxxxxxxxx ETSI activeTab ja päivitä indeksit!ink
+        self.tabWidget_4.currentChanged.connect(self.activeSubTab)
         fixedFont = QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
         fixedFont.setPointSize(10)
         self.MonitorWindow.setFont(fixedFont)
@@ -744,9 +813,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # Class methods
     # -----------------------
     def activeTab(self,i):
-        if i == 6:
-            # return
-            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
+        if i == 6: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
+
+    def activeSubTab(self,i):
+        if i == 0: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
 
     def setFont(self, wdgt, name, reset=False):
         if not reset:
@@ -856,9 +926,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def livePlot(self):
         if self.liveUpdate.isChecked():
-            if getmtime(self.saveCurrentOutputDir+'/particle_conc.sum') != self.lastModTime:
-                self.showParOutput(self.saveCurrentOutputDir+'/particle_conc.sum',0)
-                self.lastModTime = getmtime(self.saveCurrentOutputDir+'/particle_conc.sum')
+            if getmtime(osjoin(self.saveCurrentOutputDir,'particle_conc.sum')) != self.lastModTime:
+                self.showParOutput(osjoin(self.saveCurrentOutputDir,'particle_conc.sum'),0)
+                self.lastModTime = getmtime(osjoin(self.saveCurrentOutputDir,'particle_conc.sum'))
 
 
     def seeInAction(self):
@@ -1050,7 +1120,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 address = sub('<[iydm]*>', self.taghandler, address, flags=IGNORECASE)
             # else:
             if stripRoot:
-                return file[:file.rfind('/')+1] + address[address.rfind('/')+1:]
+                return (file[:file.rfind('/')+1] + address[address.rfind('/')+1:])
             return address
         else:
             return ''
@@ -1294,6 +1364,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 target.insert(path)
             elif mode == 'export':
                 self.exportCurrentCase(path)
+            elif mode == 'append':
+                target.insert(' '+path)
             else:
                 target.clear()
                 target.insert(path)
@@ -1357,18 +1429,20 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                     a,dir = line.replace('=','').split()
         if checkonly:
             return dir
+        self.chemistryModules.clear()
         for (dirpath, dirnames, filenames) in walk('src/chemistry'):
             break
+        ii = -1
         for i,d in enumerate(dirnames):
             self.chemistryModules.addItem(d)
             if d == dir:
                 if checkonly:
                     return dir
                 else:
-                    self.chemistryModules.setCurrentIndex(i)
-                    return
-        self.chemistryModules.setCurrentIndex(-1)
-        self.popup('Possible problems with makefile', '''
+                    ii=i
+        self.chemistryModules.setCurrentIndex(ii)
+        if ii==-1:
+            self.popup('Possible problems with makefile', '''
 Chemistry scheme in "makefile" does not match with any
 scheme names available in source. Please check your
 makefile for variable "CHMDIR". You can also assign
@@ -1455,7 +1529,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         chemistry = self.chemistryModules.currentText()
         try:
             count = 0
-            with open('src/chemistry/'+chemistry+'/second_Parameters.f90','r') as f:
+            with open(osjoin('src/chemistry/',chemistry,'second_Parameters.f90'),'r') as f:
                 for line in f:
                     ind = line.upper().find('INDF_')
                     if ind > 0 and not '!' in line:
@@ -1624,10 +1698,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
             nml.printall(vars.mods, target='f',f=f)
             f.close()
             if not mode=='silent':
+                if mode == 'noteOnTer':
+                    print('Settings were saved to file "'+file+'"')
+                    return
                 if file == defaults_file_path:
                     self.popup('', 'Defaults saved', icon=0)
                 elif file != tempfile:
-                    self.popup('Saved settings to', file, icon=0)
+                    self.popup('Saved settings', 'Settings were saved to '+file, icon=0)
+
         else:
             print(('\n')*10, )
             print('#',('-')*50)
@@ -1672,7 +1750,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         except: pass
 
         if exists(self.saveCurrentOutputDir):
-            f = open(self.saveCurrentOutputDir+'/runReport.txt', 'w')
+            f = open(osjoin(self.saveCurrentOutputDir,'runReport.txt'), 'w')
             f.write(self.MonitorWindow.toPlainText())
             f.close()
         else:
@@ -1956,6 +2034,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.MISC.RESOLVE_BASE_PRECISION=self.resolve_base_precision.value()
         nml.MISC.FILL_FORMATION_WITH=self.resolveHelper()
         nml.MISC.SKIP_ACDC=self.checkboxToFOR(self.skip_acdc)
+        nml.MISC.GR_SIZES=self.GR_sizes.text()
 
         # class _VAP:
         nml.VAP.VAP_NAMES=self.vap_names.text()
@@ -1980,7 +2059,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
         nml.RAW.RAW = self.rawEdit.toPlainText()
         nml.CUSTOM.CUSTOMS = []
-        for i in range(1,33):
+        for i in range(1,31):
             key = 'customKey_%d'%i
             value = 'customVal_%d'%i
             exec('nml.CUSTOM.CUSTOMS.append([self.%s.text(),self.%s.text()])'%(key,value))
@@ -2176,6 +2255,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'USE_ATOMS' == key: self.use_atoms.setChecked(strng)
             elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
+            elif 'GR_SIZES' == key: self.GR_sizes.setText(strng)
 
             elif 'DIAMETER_PREC_DEF' == key:
                 self.prec_low_1.setValue(float(strng.split(',')[0]))
@@ -2457,13 +2537,13 @@ a chemistry module in tab "Chemistry"''', icon=2)
         except:
             return
         # Exctract that variable from netCDF-dataset and save to Y
-        self.plotTitle = self.plotTitle[:self.plotTitle.find(':')+2] + comp+' ['+units.get(comp,units['REST'])[0]+']'
+        self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' ['+units.get(comp,units['REST'])[0]+']'
         if not self.sumSelection.isChecked():
             Y = self.ncs.variables[comp][:]
         else:
             if self.availableVars.selectedItems() != []:
                 Y = sum(self.ncs.variables[c.text()][:] for c in self.availableVars.selectedItems())
-                self.plotTitle = self.plotTitle[:self.plotTitle.find(':')+2] + self.availableVars.selectedItems()[0].text()+' etc.'
+                self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + self.availableVars.selectedItems()[0].text()+' etc.'
             else:
                 Y = self.ncs.variables[comp][:]
 
@@ -2574,13 +2654,18 @@ a chemistry module in tab "Chemistry"''', icon=2)
             else:
                 self.popup('', 'Error in compiling, see output from terminal', icon=2)
             if self.ReplChem.isChecked(): self.ReplChem.setChecked(False)
+            if self.makeClean.isChecked(): self.makeClean.setChecked(False)
 
 
     def remake(self):
         if self.running != None:
             if self.ReplChem.isChecked():
                 self.editMakefile(mod=self.chemistryModules.currentText())
-                self.compile = Popen(["make", "clean_chemistry"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
+                if self.makeClean.isChecked():
+                    target = "clean_current_chemistry"
+                else:
+                    target = "clean"
+                self.compile = Popen(["make", target])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
                 while True:
                     self.running = self.compile.poll()
                     if self.running != None: break

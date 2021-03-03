@@ -224,6 +224,7 @@ class INITFILE:
             self.RESOLVE_BASE_PRECISION=0
             self.FILL_FORMATION_WITH=0
             self.SKIP_ACDC=0
+            self.GR_SIZES=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_MISC%s')"%(cmd, eol))
@@ -236,6 +237,7 @@ class INITFILE:
             exec("%s(' RESOLVE_BASE_PRECISION = %s%s')"%(cmd,self.RESOLVE_BASE_PRECISION,eol))
             exec("%s(' FILL_FORMATION_WITH = \\'%s\\'%s')"%(cmd,self.FILL_FORMATION_WITH,eol))
             exec("%s(' SKIP_ACDC = %s%s')"%(cmd,self.SKIP_ACDC,eol))
+            exec("%s(' GR_SIZES = \\'%s\\'%s')"%(cmd,self.GR_SIZES,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _VAP:

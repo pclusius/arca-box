@@ -1,12 +1,12 @@
 #--------------------------------------------------
 #      ARCA box setting file: ModelLib/gui/defaults
-#         Created at: maalis 01 2021, 18:28:07
+#         Created at: maalis 03 2021, 02:13:35
 #--------------------------------------------------
 
 &NML_PATH
  INOUT_DIR = 'INOUT'
- CASE_NAME = 'DB'
- RUN_NAME = 'CTRL'
+ CASE_NAME = 'HYDE'
+ RUN_NAME = 'BASE'
 / 
 
 &NML_FLAG
@@ -28,7 +28,7 @@
 / 
 
 &NML_TIME
- RUNTIME = 24.0
+ RUNTIME = 6.0
  DT = 10.0
  FSAVE_INTERVAL = 300
  PRINT_INTERVAL = 600
@@ -44,18 +44,18 @@
  MAX_PARTICLE_DIAM = 2d-6
  N_MODAL = 300
  MMODAL_INPUT_INUSE = 0
- DMPS_FILE = 'CRASH/exportedData/dm180414.sum'
+ DMPS_FILE = 'INOUT/filled_dmps/dm180414.sum'
  EXTRA_PARTICLES = ''
  MMODAL_INPUT = '10e-9 0.3 1'
  DMPS_READ_IN_TIME = 1.0
- DMPS_HIGHBAND_LOWER_LIMIT = 20e-9
+ DMPS_HIGHBAND_LOWER_LIMIT = 10e-9
  DMPS_LOWBAND_UPPER_LIMIT = 
  USE_DMPS = .TRUE.
- USE_DMPS_PARTIAL = .FALSE.
+ USE_DMPS_PARTIAL = .TRUE.
 / 
 
 &NML_ENV
- ENV_FILE = 'CRASH/exportedData/env180414.dat'
+ ENV_FILE = 'INOUT/HYDE_2018-04-14/input/env180414.dat'
  LOSSES_FILE = ''
  CHAMBER_FLOOR_AREA = 779.8
  CHAMBER_CIRCUMFENCE = 99.0
@@ -66,11 +66,11 @@
 / 
 
 &NML_MCM
- MCM_FILE = 'CRASH/exportedData/voc180414.dat'
+ MCM_FILE = 'INOUT/HYDE_2018-04-14/input/voc180414.dat'
 / 
 
 &NML_MODS
- MODS(1)   =  0   2  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'C' '' ! TEMPK
+ MODS(1)   =  0   2  1.00000d+00  5.00000d+01  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'C' '' ! TEMPK
  MODS(2)   =  0   3  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'hPa' '' ! PRESSURE
  MODS(3)   =  0   4  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' '' ! REL_HUMIDITY
  MODS(4)   =  0   9  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' '' ! CONDENS_SINK
@@ -106,18 +106,19 @@
  LAT = 65.0
  LON = -25.0
  WAIT_FOR = 0
- DESCRIPTION = 'Case crashes due to strange events in the upper bins'
+ DESCRIPTION = 'The chemistry module is always saved in the output NetCDF files.'
  CH_ALBEDO = 0.2
  DMA_F = 0.01
  RESOLVE_BASE_PRECISION = 0.05
  FILL_FORMATION_WITH = ''
  SKIP_ACDC = .TRUE.
+ GR_SIZES = ''
 / 
 
 &NML_VAP
  USE_ATOMS = .TRUE.
- VAP_NAMES = 'CRASH/exportedData/Vapours.dat'
- VAP_ATOMS = 'CRASH/exportedData/Elemental_content.dat'
+ VAP_NAMES = 'ModelLib/Vapours.dat'
+ VAP_ATOMS = 'ModelLib/elements_Vapours.dat'
 / 
 
 &NML_PRECISION
@@ -145,7 +146,7 @@
 
 # Following settings are for the GUI and not directly used by the model ----- 
 # RAW_INPUT = # Options available in CUSTOM_NML (and defaults)<br># I: INITIALIZE_FROM = 0<br># C: INITIALIZE_WITH = ''<br># L: use_raoult = .True.<br># L: variable_density = .False.<br># L: DONT_SAVE_CONDENSIBLES = .False.<br># R: dmps_tres_min = 10.<br># R: VP_MULTI = 1d0<br># R: start_time_s = 0d0<br># R: dmps_multi = 1d6<br># R: END_DMPS_SPECIAL = 1d50<br># R: FLOAT_CHEMISTRY_AFTER_HRS = 1d100
-# INPUT_SETTINGS = 'env_file:CRASH/exportedData/env180414.dat mcm_file:CRASH/exportedData/voc180414.dat dmps_file:CRASH/exportedData/dm180414.sum extra_particles: stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
+# INPUT_SETTINGS = 'env_file:input/env<yy><mm><dd>.dat mcm_file:voc<yy><mm><dd>.dat dmps_file:INOUT/filled_dmps/dm<yy><mm><dd>.sum extra_particles: stripRoot_env:.TRUE. stripRoot_mcm:.TRUE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #---------------------------------------------------------------------------- 
 

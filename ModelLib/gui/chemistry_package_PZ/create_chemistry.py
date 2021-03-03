@@ -23,7 +23,6 @@ import datetime
 import re
 import argparse
 
-os.chdir('ModelLib/gui/chemistry_package_PZ/')
 #==============================================================================#
 #
 # Helper functions
@@ -572,7 +571,7 @@ if __name__ == '__main__':
       tmp_list.remove(f)
 
       # Write the non-existing file name to log file
-      logging.info('{0} does not exist.'.format(f))
+      logging.critical('{0} does not exist.'.format(f))
       logging.info('')
 
   include_file_list = list(tmp_list)
@@ -793,7 +792,7 @@ if __name__ == '__main__':
   logging.info('and the duplicated equations will be shown below.')
   logging.info('You should decide how to modify the final def file and then use kpp.')
   for e in equation_duplicate_print_list:
-    logging.info(re.sub(r'\n$', '', e))
+    logging.warning(re.sub(r'\n$', '', e))
   logging.info('')
 
 
@@ -840,7 +839,7 @@ if __name__ == '__main__':
   logging.info('')
   logging.info('Removed all the carriage return character ^M.')
   logging.info('')
-  with open(args.modified_mcm_kpp_file_name, 'w') as f:
+  with open(args.modified_mcm_kpp_file_name, 'w+') as f:
     f.writelines(file_lines)
 
   # Write to log file

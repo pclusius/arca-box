@@ -75,11 +75,17 @@ REAL(dp) :: Ad
 REAL(dp) :: V_chamber
 REAL(dp) :: E_field = 0d0
 REAL(dp), ALLOCATABLE :: corgwallTeflon(:)
-
+! CHARACTER(len=8) :: CHEM
+CHARACTER(len=64) :: CurrentChemistry
 
 ! Welcoming message
-print'(a,t35,a)', achar(10),  '--~:| ARCA BOX MODEL 0.9 |:~--'//achar(10)
+#ifdef CHEM
+CurrentChemistry = CHEM
+#endif
 
+print'(a,t35,a)', achar(10),  '--~:| ARCA BOX MODEL 0.9 |:~--'//achar(10)
+print FMT_HDR, 'Compiled with "'//TRIM(currentChemistry)//'" chemistry module'
+print*, ''
 ! ==================================================================================================================
 ! Declare most variables and read user input and options in input.f90
 CALL READ_INPUT_DATA
@@ -156,7 +162,7 @@ IF (Aerosol_flag) THEN
     corgwallTeflon = 0d0
 
     ! Allocate the change vectors for integration timestep control
-    ALLOCATE(d_vap(size(SPC_NAMES)))
+    ALLOCATE(d_vap(VAPOUR_PROP%n_condtot))
 
     print FMT_LEND,
 
@@ -169,7 +175,6 @@ TSTEP_CONC = 0
 ! Allocate and initiate the timestep vector for chemical compounds
 ALLOCATE(CH_GAS(size(SPC_NAMES)))
 CH_GAS = 0
-
 
 ! ==================================================================================================================
 ! Prepare output files etc.
@@ -221,7 +226,7 @@ close(607)
 
 
 ! Open netCDF files
-CALL OPEN_FILES( RUN_OUTPUT_DIR, Description, MODS, CH_GAS, VAPOUR_PROP)
+CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChemistry, MODS, CH_GAS, VAPOUR_PROP)
 
 ! If wait_for was defined in user options, wait for a sec
 CALL PAUSE_FOR_WHILE(wait_for)
@@ -921,13 +926,21 @@ SUBROUTINE ORGANIC_NUCL(J_TOTAL_M3)
         n = rowcount(609)
         print FMT_MSG, 'Using parametrisation for organic nucleation with '//i2chr(n)//' nucleating compounds'
         allocate(inds(n))
+        inds = 0
         DO i=1,n
             read(609, *) name
             if (IndexFromName(TRIM(name), SPC_NAMES)>0) inds(i) = IndexFromName(TRIM(name), SPC_NAMES)
         END DO
+        if (PRODUCT(inds) == 0) THEN
+            print FMT_LEND,
+            print FMT_FAT0, "List of nucleating organic compounds has gases which are not in the chemistry."
+            print FMT_SUB, "Options: Edit the file 'ModelLib/nucl_homs.txt' or turn of organic nucleation."
+            print FMT_SUB, "Bye."
+            print FMT_LEND,
+            STOP
+        END IF
         first_run = .False.
     END IF
-
     ORGS = sum(CH_GAS(inds))
 
     dH = dG - dS*GTEMPK

@@ -56,10 +56,11 @@ CONTAINS
   ! CREATE (OR OVERWRITE OLD) THREE NETCDF-FILES TO STORE OUTPUT. PARTICLES IS STILL VERY ROUGH SINCE WE DON'T HAVE THEM
   ! YET, BUT GENERAL AND CHEMISTRY ARE THERE ALREADY.
   ! --------------------------------------------------------------------------------------------------------------------
-  SUBROUTINE OPEN_FILES(filename, Description, MODS, CH_GAS, vapours)
+  SUBROUTINE OPEN_FILES(filename, Description, currentChemistry, MODS, CH_GAS, vapours)
     IMPLICIT NONE
 
     CHARACTER(LEN=*), INTENT(IN)    :: filename
+    CHARACTER(LEN=*), INTENT(IN)    :: currentChemistry
     CHARACTER(*), INTENT(IN)        :: Description
     TYPE(input_mod),INTENT(INOUT)   :: MODS(:)
     TYPE(vapour_ambient),INTENT(IN) :: vapours
@@ -136,10 +137,11 @@ CONTAINS
 
       !Create attributes for general stuff
       CALL get_command_argument(0, PROGRAM_NAME)
-      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Information', '(c) Atmospheric modelling group 2019 and (c) Simugroup 2019 (ACDC)'))
-      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Contact', 'michael.boy@helsinki.fi (arcabox), tinja.olenius@alumni.helsinki.fi (ACDC)'))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Information', '(c) Multiscale Modelling Group and (c) Computational Aerosol Physics Group (ACDC)'))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Contact', 'arca@helsinki.fi (ARCA box), tinja.olenius@alumni.helsinki.fi (ACDC)'))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Software', 'ARCA box 0.9'))
-      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Package_Name:', TRIM(PROGRAM_NAME(3:))))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Package_Name', TRIM(PROGRAM_NAME(3:))))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Chemistry_module', TRIM(CurrentChemistry)))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Notes', TRIM(Description)))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'experiment', Fname_init))
       call handler(__LINE__, nf90_def_var(ncfile_ids(I), "Time_in_sec", NF90_DOUBLE, dtime_id, timearr_id))
