@@ -226,11 +226,11 @@ class CCWin(QtGui.QDialog):
 
     def kpp(self):
         cmds = self.ccw.sourceFile.text().split()
-        includes = self.ccw.includedFiles.text().split()
+        includes = self.ccw.includedFiles.toPlainText().split()
         if self.ccw.inclPram.isChecked():
             includes.append(osjoin(ccloc,'PRAM_v21.txt'))
-        if self.ccw.InclTerp.isChecked():
-            includes.append(osjoin(ccloc,'terpenes_not_in_mcm.txt'))
+        # if self.ccw.InclTerp.isChecked():
+        #     includes.append(osjoin(ccloc,'terpenes_not_in_mcm.txt'))
         out = osjoin(self.ccw.outDir.text(),'second.def')
         log = osjoin(self.ccw.outDir.text(),'second.log')
         if len(includes)>0:
@@ -295,7 +295,8 @@ class Variation(QtGui.QDialog):
         self.vary.table.setColumnWidth(0, 90)
         for i in range(1,6):
             self.vary.table.setColumnWidth(i, 70)
-        self.vary.table.setColumnWidth(6, 50)
+        # self.vary.table.horizontalHeader().setStretchLastSection(True)
+        self.vary.table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
 
     def vars(self):
         p=self.vary.lineEdit.text()
@@ -477,7 +478,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     def __init__(self):
         super(QtBoxGui,self).__init__()
         self.setupUi(self)
-        # print(QtGui.QGuiApplication.screens()[1].size().height())
 
     # -----------------------
     # Common stuff
@@ -815,6 +815,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Class methods
     # -----------------------
+    def helplink(self, linkStr):
+            QtGui.QDesktopServices.openUrl(QUrl(linkStr))
+
     def activeTab(self,i):
         if i == 6: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
 
@@ -1368,7 +1371,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             elif mode == 'export':
                 self.exportCurrentCase(path)
             elif mode == 'append':
-                target.insert(' '+path)
+                target.appendPlainText(path)
             else:
                 target.clear()
                 target.insert(path)
