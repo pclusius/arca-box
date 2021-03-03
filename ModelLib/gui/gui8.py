@@ -4269,7 +4269,7 @@ class Ui_MainWindow(object):
         self.startButton.setText(_translate("MainWindow", "Run model with current settings"))
         self.stopButton.setText(_translate("MainWindow", "Stop"))
         self.pauseScroll.setText(_translate("MainWindow", "Pause scroll"))
-        self.tabWidget_4.setTabText(self.tabWidget_4.indexOf(self.tab_17), _translate("MainWindow", "Run or recompile"))
+        self.tabWidget_4.setTabText(self.tabWidget_4.indexOf(self.tab_17), _translate("MainWindow", "ARCA monitor"))
         self.groupBox.setTitle(_translate("MainWindow", "NML_CUSTOM"))
         self.label_16.setText(_translate("MainWindow", "Variable"))
         self.label_24.setText(_translate("MainWindow", "Value"))
