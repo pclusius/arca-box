@@ -232,41 +232,50 @@ class CCWin(QtGui.QDialog):
         self.ccw.browseIncludes.clicked.connect(lambda: qt_box.browse_path(self.ccw.includedFiles, 'append'))
 
     def kpp(self):
-        cmds = self.ccw.sourceFile.text().split()
+        cmds = self.ccw.sourceFile.text()
+        if cmds == '':
+            qt_box.popup('No input', 'Please give the main source file (e.g. mcm subset).',3)
+            return
+        if self.ccw.outDir.text() == '' or self.ccw.outDir.text() == './':
+            qt_box.popup('No output directory', 'Please provide the output directory.',3)
+            return
         includes = self.ccw.includedFiles.toPlainText().split()
         if self.ccw.inclPram.isChecked():
             includes.append(osjoin(ccloc,'PRAM_v21.txt'))
-        # if self.ccw.InclTerp.isChecked():
-        #     includes.append(osjoin(ccloc,'terpenes_not_in_mcm.txt'))
         out = osjoin(self.ccw.outDir.text(),'second.def')
         log = osjoin(self.ccw.outDir.text(),'second.log')
         if len(includes)>0:
             self.kppProcess = Popen(["python3", ccloc+'/create_chemistry.py',
-                                    *cmds,'-o',out, '-f', *includes,
+                                    cmds,'-o',out, '-f', *includes,
                                     '-l', log]
                                     , stdout=PIPE,stderr=STDOUT,stdin=None)
         else:
-            self.kppProcess = Popen(["python3", ccloc+'/create_chemistry.py', *cmds,'-o',out,
+            self.kppProcess = Popen(["python3", ccloc+'/create_chemistry.py', cmds,'-o',out,
                                 '-l',log], stdout=PIPE,stderr=STDOUT,stdin=None)
         lines = True
+        error = False
         warnings = False
         output = ['Chemistry definitions were created.\n']
         boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp"\n2) Recompile ARCA in tab "Chemistry".'
         while lines:
             self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
-            if 'WARNING' in self.ccout:
+            if 'WARNING' in self.ccout.upper():
                 warnings = True
                 output.append('Duplicate equations were found.')
                 output.append(self.ccout)
-            if 'CRITICAL' in self.ccout:
+            if 'CRITICAL' in self.ccout.upper():
                 warnings = True
                 output.append('Included file was not found:')
                 output.append(self.ccout)
+            if 'ERROR' in self.ccout.upper():
+                qt_box.popup('Script returned error', 'The script was unable to create chemistry definition, please see the log below.',3)
+                error = True
             self.ccw.ccMonitor.insertPlainText(self.ccout)
             if self.kppProcess.poll() != None and self.ccout == '':
                 lines= False
                 self.kppProcess.kill()
 
+        if error: return
         cpf(osjoin(ccloc,'mcm_module.f90'),osjoin(self.ccw.outDir.text(),'mcm_module.f90'))
         cpf(osjoin(ccloc,'second.kpp'),osjoin(self.ccw.outDir.text(),'second.kpp'))
         if warnings: output.append('Read the .log and resolve the problems, then:')
