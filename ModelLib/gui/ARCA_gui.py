@@ -22,6 +22,7 @@ from shutil import copyfile as cpf
 from re import sub,IGNORECASE, findall
 import time
 import pickle
+from urllib.parse import urljoin
 
 try:
     from scipy.ndimage.filters import gaussian_filter
@@ -135,6 +136,8 @@ helpd = {}
 with open(osjoin(gui_path,'conf','helplinks.txt'), 'r') as b:
     for l in b:
         k,v = l.split(',')
+        if not 'http://' in v:
+            v = urljoin('file:///', osjoin(getcwd(),v))
         helpd[k] = v.strip('\n')
 
 

@@ -27,7 +27,7 @@ def parseSum(file, assume_log):
     try:
         data = genfromtxt(Path(file),invalid_raise=False)
         if len(data.shape)<2: return 'Data in file '+file+' has not enough dimensions'
-    except:
+    except IOError:
         return 'Could not open the file: '+data
     if data[0,1] == 0:
         n_conc = data[1:,2:]

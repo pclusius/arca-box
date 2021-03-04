@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="atmospherically-relevant-chemistry-and-aerosol-box-model-arca">Atmospherically Relevant Chemistry and Aerosol Box model ARCA</h1>
+<div class="figure">
+<img src="ArcaLogoHR.png" alt="image" />
+<p class="caption">image</p>
+</div>
+<h1 id="user-manual">User Manual</h1>
+<h2 id="table-of-contents">## Table of contents</h2>
+<ul>
+<li>What is ARCA, what is it good for</li>
+<li><a href="#pythonModules">Requirements</a></li>
+<li>Installing ARCA</li>
+<li>Installing ARCA on Linux</li>
+<li>Installing ARCA on Windows</li>
+<li><h2 id="installing-arca-on-macos">Installing ARCA on MacOS</h2></li>
+<li>Structure of the model</li>
+<li>Graphical user interface (GUI) - Quick start example</li>
+<li>GUI explained</li>
+<li>Toolbar: File
+<ul>
+<li>Print</li>
+<li>Save</li>
+<li>Export current</li>
+<li>xxx</li>
+</ul></li>
+<li>Recompile</li>
+<li>General options
+<ul>
+<li>Naming convention of input and output</li>
+<li>Simulation identifiers</li>
+<li>Paths and files</li>
+<li>Time options</li>
+<li>Flexible timesptep</li>
+<li>Modules in use</li>
+</ul></li>
+<li>Time dependent input
+<ul>
+<li>Choosing variables</li>
+<li>Selecting variables based on chemistry scheme</li>
+<li>Parametric input</li>
+</ul></li>
+<li>Chemistry scheme
+<ul>
+<li>Location settings</li>
+<li>Changing chemistry scheme</li>
+<li>Chemistry tools</li>
+<li>Create KPP definitions</li>
+<li>Create Vapour file and elemental content file for aerosol module</li>
+<li>Miscellanious options</li>
+<li>Custom functions</li>
+</ul></li>
+</ul>
+<h2 id="how-to-install-arca-and-the-necessary-software-for-it">How to Install ARCA and the necessary software for it</h2>
+<p>You will need C and Fortran compilers (gcc, gfortran, iFortran and/or similar) to compile the model. Model relies on NetCDF4 to save files, so you'll need that too. The user interface is written in Python 3.</p>
+<h2 id="how-to-install-on-linux-mint-ubuntu">How to install on Linux Mint / Ubuntu:</h2>
+<p>https://www.helsinki.fi/fi/unitube/video/80d7a662-f60d-4cd1-b648-31dd0cbe9bd2</p>
+<h2 id="how-to-install-on-windows-10">How to install on Windows 10:</h2>
+<p>The best way install the necessary packages is with Cygwin. See this tutorial video: https://www.helsinki.fi/fi/unitube/video/7419bbe3-3fc8-493a-b076-7307d2e8191c</p>
+<p>To use the graphical user interface, you need Python 3. We strongly encourage to use the native Python on Windows instead of Linux Subsystem (although this may work also).</p>
+<h2 id="for-all-systems-when-fortran-and-python-3-is-available">For all systems, when Fortran and Python 3 is available:</h2>
+<p>After Python 3 is available, there is a script to set up the model. Go to directory install/, start the terminal and run setup.py (for example, if you call Python 3 with python3, the command is &quot;python3 setup.py&quot;). The setup will ask you to install the necessary Python Modules, if they are not available. If you want to use some other installation procedure for them, or you know yo already have the necessary modules, just answer &quot;n&quot; for the prompt.</p>
+<p>Next you will be asked if the Fortran model should be compiled. If this is succesful*, a script file is written in the root folder, and the GUI can be started from there by calling &quot;sh run_arca.sh&quot;</p>
+<p>* If the compiling failed, it might because the netCDF4 libs were not properly configured in the makefile. These would vary from one system to another, and therefore we cannot guarantee that the makefile currently is able to find them. In this case open the makefile, and comment the line which starts &quot;NETLIBS&quot; and uncomment the next line. Also if you are using some other Fortran compiler than gfortran, you need to define this in the beginning of the makefile (F90 = gfortran)</p>
+<h2 id="the-necessary-python-modules-are"><a name="pythonModules"></a>The necessary Python modules are:</h2>
+<ul>
+<li><p>numpy</p></li>
+<li><p>scipy</p></li>
+<li><p>PyQt5</p></li>
+<li><p>pyqtgraph</p></li>
+<li><p>netcdf4-python (optional, but highly recommended)</p></li>
+<li><p>matplotlib (also optional, but recommended)</p></li>
+</ul>
+<p>The setup.py script tries to install these using command [python3] -m pip install --user [module], where [python3] is the call for the user's Python 3.</p>
+<h2 id="how-to-use-arca-box">How to use ARCA box?</h2>
+<p>Learn more of using ARCA from this video: https://www.helsinki.fi/fi/unitube/video/b2c6775e-ad5f-4cee-9fd5-e502af2fb256</p>
+<p>Note that the program is constantly developed and the look and functionality may differ from this video.</p>
+<h2 id="installation-troubleshooting">Installation troubleshooting</h2>
+<p>If you get errors when installing the Python modules, try upgrading pip:</p>
+<p>python3 -m pip install --upgrade pip</p>
+<p>and then run the setup.py again.</p>
+</body>
+</html>
