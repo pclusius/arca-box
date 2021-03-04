@@ -520,8 +520,7 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
         ! ..........................................................................................................
         ! CONDENSATION
         if (Condensation .and.(.not. PRCION%err) .and. mod(int(GTIME%sec/GTIME%dt),speed_up(PRCION%con)) == 0) THEN
-! print*,'in cond at ',GTIME%sec,Gtime%dt
-! IF (n_of_Rounds > 0) PRINT*, 'nO OF ROUNDS:', n_of_Rounds
+
             ! Pick the condensables from chemistry and change units from #/cm^3 to #/m^3
             conc_vapour = 0d0
             conc_vapour(1:VAPOUR_PROP%n_condorg) =  CH_GAS(index_cond)*1D6 ! mol/m3
@@ -819,7 +818,7 @@ SUBROUTINE error_handling(PRCION,speed_up)
         write(608,*) '  => reduce speed_up:',speed_up(PRCION%proc)*2, '->',speed_up(PRCION%proc)
         write(*,FMT_SUB) '  => reduce speed_up:'//i2chr(speed_up(PRCION%proc)*2)//'->'//i2chr(speed_up(PRCION%proc))
     ELSE
-        if (GTIME%dt*2000>=DT_0) THEN
+        if (GTIME%dt*200000>=DT_0) THEN
             GTIME%dt = GTIME%dt / 2.d0
             write(608,*) '  => reduce dt [s]:', GTIME%dt
             write(*,FMT_WARN0) '  => reduce dt [s]:'//f2chr(GTIME%dt)

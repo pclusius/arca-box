@@ -1,5 +1,6 @@
 from numpy import log10, genfromtxt,nan_to_num
 from pathlib import Path
+from os import stat
 
 def log_to_lin(diam, sum):
     log = log10(diam)
@@ -22,8 +23,10 @@ def lin_to_log(diam, sum):
 
 def parseSum(file, assume_log):
     lin = False
+    if stat(file).st_size == 0: return 'File '+file+' is empty.'
     try:
-        data = genfromtxt(Path(file))
+        data = genfromtxt(Path(file),invalid_raise=False)
+        if len(data.shape)<2: return 'Data in file '+file+' has not enough dimensions'
     except:
         return 'Could not open the file: '+data
     if data[0,1] == 0:
