@@ -3,21 +3,20 @@
 """
 =============================================================================
 Created By: Atmospheric modelling group AMG, Universities of Helsinki, Lund
-and Saltzburg. To report bugs and make feature request contact
-petri.clusius@helsinki.fi
+and Saltzburg. To report bugs and/or make feature request contact
+arca@helsinki.fi
 =============================================================================
 """
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-import vars, gui8, batchDialog1,batchDialog2,batchDialog3,batch,mmplot,vdialog,cc,varWin,variations,about,input, t_editor
+from layouts import varWin,gui8,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor
+from modules import variations,vars,batch,GetVapourPressures as gvp
 from subprocess import Popen, PIPE, STDOUT
-from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros
-from numpy import sum as npsum
+from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros, sum as npsum
 import numpy.ma as ma
 from re import sub, finditer
-from os import walk, mkdir, getcwd, chdir, chmod, environ, system
-from os import name as osname
+from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname
 from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin
 from shutil import copyfile as cpf
 from re import sub,IGNORECASE, findall
@@ -31,11 +30,11 @@ except:
     print('Consider adding SciPy to your Python')
     scipyIs = False
 try:
-    import particles as par
+    from modules import particles as par
     import netCDF4
     netcdf = True
 except:
-    print('Consider adding netCDF4 to your Python')
+    print('NetCDF4 for Python is essential for full functionality.')
     netcdf = False
 
 try:
@@ -89,12 +88,14 @@ units = {
 # Name of the executable -------------------------------------------
 exe_name = 'arcabox.exe'
 # Path to variable names -------------------------------------------
-path_to_names = 'ModelLib/NAMES.dat'
+path_to_names = 'ModelLib/required/NAMES.dat'
 # GUI root
 gui_path = 'ModelLib/gui/'
 # GUI defaults are saved into this file. If it doesn't exist, it gets created in first start
-defaults_file_path = gui_path+'defaults'
-minimal_settings_path = gui_path+'minimal'
+defaults_file_path = gui_path+'conf/defaults.init'
+minimal_settings_path = gui_path+'conf/minimal.init'
+monitorfont_pickle = 'conf/monitorfont.pickle'
+globalfont_pickle = 'conf/globalfont.pickle'
 
 # This path will be added to Common out if no other option is given
 default_inout = 'INOUT'
@@ -125,21 +126,27 @@ netcdfMissinnMes = ('Please note:',
 'To open NetCDF-files you need netCDF4 for Python.\nYou can istall it with pip, package manager (or perhaps: python3 -m pip install --user netCDF4.')
 
 # get current directory (to render relative paths) ----------
-guidir = '/ModelLib/gui'
 currentdir   = getcwd()
-currentdir   = currentdir.replace(guidir, '')
+currentdir   = currentdir.replace('/ModelLib/gui', '')
 currentdir_l = len(currentdir)
 chdir(currentdir)
 
+helpd = {}
+with open(osjoin(gui_path,'conf','helplinks.txt'), 'r') as b:
+    for l in b:
+        k,v = l.split(',')
+        helpd[k] = v.strip('\n')
+
+
 # files that can be modified with the Editor
-nucl_homs = "ModelLib/nucl_homs.txt"
+nucl_homs = "ModelLib/required/nucl_homs.txt"
 custom_functions = "src/custom_functions.f90"
 AmmSystemFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/input_ANnarrow_neutral_neg_pos.inp"
 Amm_EnergyFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/HS298.15K_426clusters2016Apr25.txt"
 Amm_DipoleFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/dip_pol_298.15K_426clusters2016Apr25.txt"
 DMASystemFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/input_AD.inp"
 DMA_EnergyFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/dH_dS.txt"
-SCREENPRINT_NML = "ModelLib/NML_SCREENPRINTS.def"
+SCREENPRINT_NML = "ModelLib/required/NML_SCREENPRINTS.def"
 # Create chemistry script location
 ccloc = 'ModelLib/gui/chemistry_package_PZ'
 
@@ -148,7 +155,7 @@ currentPythonVer = 'python'
 try:
     with open('run_arca.sh') as f:
         for line in f:
-            if guidir[1:] in line:
+            if gui_path in line:
                 currentPythonVer = line.split()[0]
 except:
     pass
@@ -297,6 +304,7 @@ class Variation(QtGui.QDialog):
             self.vary.table.setColumnWidth(i, 70)
         # self.vary.table.horizontalHeader().setStretchLastSection(True)
         self.vary.table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        self.vary.Help.clicked.connect(lambda: qt_box.helplink(helpd['variations']))
 
     def vars(self):
         p=self.vary.lineEdit.text()
@@ -409,7 +417,6 @@ class VpressWin(QtGui.QDialog):
         if self.vp.VapourPath.text() == '':
             qt_box.popup('Oops...', 'Output filename must be defined.',1)
             return
-        import GetVapourPressures as gvp
         if self.vp.useUMan.isChecked(): source = 'UMan'
         else: source = 'AMG'
         if self.vp.limPsat.text() == '' : plim = 1e-6
@@ -505,8 +512,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionExport_current_case.triggered.connect(lambda: self.browse_path(None, 'export'))
         self.actionOpen.triggered.connect(lambda: self.browse_path(None, 'load'))
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
-        self.actionSet_monitor_font_2.triggered.connect(lambda: self.setFont(self.MonitorWindow,'monitor'))
-        self.actionSet_Global_font.triggered.connect(lambda: self.setFont(self.tabWidget,'global'))
+        self.actionSet_monitor_font_2.triggered.connect(lambda: self.guiSetFont(self.MonitorWindow,'monitor'))
+        self.actionSet_Global_font.triggered.connect(lambda: self.guiSetFont(self.tabWidget,'global'))
         self.actionReset_fonts.triggered.connect(self.resetFont)
         self.actionCreate_Vapour_file.triggered.connect(self.vapours)
         self.actionCreateNewChemistry.triggered.connect(self.createCC)
@@ -514,6 +521,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionRecompile_model.triggered.connect(self.remake)
         self.actionSetDelay.triggered.connect(lambda: self.inputPopup("self.wait_for"))
         self.actionAbout_ARCA.triggered.connect(self.createAb)
+        self.actionARCA_webpage.triggered.connect(lambda: self.helplink(helpd['arcaweb']))
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
@@ -725,7 +733,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.pollTimer.timeout.connect(self.pollMonitor)
         self.pollTimer.timeout.connect(self.updateOutput)
         try:
-            sf = pickle.load(open(gui_path+'monitorfont.pickle', "rb"))
+            sf = pickle.load(open(osjoin(gui_path,monitorfont_pickle), "rb"))
             font = self.MonitorWindow.font()
             font.setFamily(sf[0])
             font.setPointSize(sf[1])
@@ -735,10 +743,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         except:
             font = self.MonitorWindow.font()
             savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
-            pickle.dump(savefont, open(gui_path+'monitorfont.pickle', 'wb'))
+            pickle.dump(savefont, open(osjoin(gui_path,monitorfont_pickle), 'wb'))
 
         try:
-            sf = pickle.load(open(gui_path+'globalfont.pickle', "rb"))
+            sf = pickle.load(open(osjoin(gui_path,globalfont_pickle), "rb"))
             font = self.tabWidget.font()
             font.setFamily(sf[0])
             font.setPointSize(sf[1])
@@ -748,7 +756,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         except:
             font = self.tabWidget.font()
             savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
-            pickle.dump(savefont, open(gui_path+'globalfont.pickle', 'wb'))
+            pickle.dump(savefont, open(osjoin(gui_path,globalfont_pickle), 'wb'))
 
         self.viewPrintNML.clicked.connect(lambda: self.editTxtFile(SCREENPRINT_NML))
     # -----------------------
@@ -816,7 +824,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # Class methods
     # -----------------------
     def helplink(self, linkStr):
-            QtGui.QDesktopServices.openUrl(QUrl(linkStr))
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(linkStr))
 
     def activeTab(self,i):
         if i == 6: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
@@ -824,14 +832,14 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     def activeSubTab(self,i):
         if i == 0: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
 
-    def setFont(self, wdgt, name, reset=False):
+    def guiSetFont(self, wdgt, name, reset=False):
         if not reset:
             dialog = QtWidgets.QFontDialog()
             font, ok = dialog.getFont(wdgt.font(), parent=self)
             if ok:
                 wdgt.setFont(font)
                 savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
-                pickle.dump(savefont, open(gui_path+name+'font.pickle', 'wb'))
+                pickle.dump(savefont, open(osjoin(gui_path,globalfont_pickle.replace('global', name)), 'wb'))
         else:
             font = QtGui.QFont()
             font.setBold(False)
@@ -845,7 +853,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 font.setStyleStrategy(QtGui.QFont.PreferDefault)
             wdgt.setFont(font)
             savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
-            pickle.dump(savefont, open(gui_path+name+'font.pickle', 'wb'))
+            pickle.dump(savefont, open(osjoin(gui_path,globalfont_pickle.replace('global', name)), 'wb'))
 
     def splot(self,vals,N, nb, x0,x1):
         """Harry Plotter"""
@@ -878,9 +886,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def resetFont(self):
-        self.setFont(self.MonitorWindow, 'monitor', reset=True)
+        self.guiSetFont(self.MonitorWindow, 'monitor', reset=True)
         print(self.MonitorWindow.font().family())
-        self.setFont(self.tabWidget, 'global', reset=True)
+        self.guiSetFont(self.tabWidget, 'global', reset=True)
 
 
     def exportCurrentCase(self, InitFileFull):

@@ -55,7 +55,7 @@ if out == 0:
 
     f.write('#!/bin/bash%s'%le)
     if posix: f.write('cd %s %s'%(curr_path, le))
-    f.write('%s ModelLib/gui/run.py %s'%(python, le))
+    f.write('%s ModelLib/gui/ARCA_gui.py %s'%(python, le))
     f.close()
 
     if posix:

@@ -70,6 +70,13 @@ class Ui_Dialog(object):
         self.opsFromFile = QtWidgets.QToolButton(Dialog)
         self.opsFromFile.setGeometry(QtCore.QRect(630, 180, 31, 31))
         self.opsFromFile.setObjectName("opsFromFile")
+        self.Help = QtWidgets.QToolButton(Dialog)
+        self.Help.setGeometry(QtCore.QRect(630, 330, 27, 21))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.Help.setFont(font)
+        self.Help.setObjectName("Help")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -102,3 +109,4 @@ class Ui_Dialog(object):
         self.addLine.setText(_translate("Dialog", "+"))
         self.opsFromFile.setToolTip(_translate("Dialog", "Load from file"))
         self.opsFromFile.setText(_translate("Dialog", "..."))
+        self.Help.setText(_translate("Dialog", "?"))

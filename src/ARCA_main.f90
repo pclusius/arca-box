@@ -131,6 +131,8 @@ IF (Aerosol_flag) THEN
     ! Allocate the change vectors for integration timestep control
     ALLOCATE(d_dpar(n_bins_par))
     ALLOCATE(d_npar(n_bins_par))
+    d_dpar = 0d0
+    d_npar = 0d0
 
     if (use_dmps_partial .and. use_dmps) THEN
         write(*, FMT_MSG) 'Using dmps_special:'
@@ -163,6 +165,7 @@ IF (Aerosol_flag) THEN
 
     ! Allocate the change vectors for integration timestep control
     ALLOCATE(d_vap(VAPOUR_PROP%n_condtot))
+    d_vap = 0d0
 
     print FMT_LEND,
 

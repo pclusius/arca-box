@@ -8,7 +8,7 @@ USE auxillaries
 Implicit none
 
 ! Relative path to NAMES.DAT
-CHARACTER(18), PARAMETER :: NAMESDAT = 'ModelLib/NAMES.dat'
+CHARACTER(27), PARAMETER :: NAMESDAT = 'ModelLib/required/NAMES.dat'
 
 INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
 INTEGER :: LENV   ! This will store the number of named indices in this code
@@ -52,6 +52,10 @@ real(dp), allocatable :: GGR(:)
 CHARACTER(len=256) :: Fname_init ! init file names
 CHARACTER(len=5)   :: gui        ! magic word for gui in use
 LOGICAL            :: ingui = .False. ! True if program is invoked from gui, from command line
+CHARACTER(len=14), parameter  :: namelists(21) = &
+['NML_TIME      ','NML_Flag      ','NML_Path      ','NML_MISC      ','NML_VAP       ','NML_PARTICLE  ','NML_ENV       ',&
+ 'NML_MCM       ','NML_MODS      ','NML_PRECISION ','NML_CUSTOM    ','              ','              ','              ',&       ! to help troubleshooting
+ '              ','              ','              ','              ','              ','              ','              ']       ! to help troubleshooting
 
 ! MAIN PATHS
 ! CHARACTER(len=256):: WORK_DIR   = ''
@@ -604,7 +608,7 @@ subroutine READ_INIT_FILE
   IF (SUM(ABS(IOS)) /= 0) then
     write(*,FMT_MSG) 'There was a problem with INITFILE. Check the file and refer to manual. Exiting now.'
     DO i=1,size(IOS,1)
-        write(*,FMT_SUB) TRIM(i2chr(i))//'. namelist returned '//TRIM(i2chr(IOS(i)))
+        write(*,FMT_SUB) TRIM(namelists(i))//' ('//TRIM(i2chr(I))//') returned '//TRIM(i2chr(IOS(i)))
     END DO
     write(*,FMT_LEND)
     STOP
