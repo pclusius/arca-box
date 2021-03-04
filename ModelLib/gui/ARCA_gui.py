@@ -136,7 +136,7 @@ helpd = {}
 with open(osjoin(gui_path,'conf','helplinks.txt'), 'r') as b:
     for l in b:
         k,v = l.split(',')
-        if not 'http://' in v:
+        if not 'http://' in v and not 'https://' in v:
             v = urljoin('file:///', osjoin(getcwd(),v))
         helpd[k] = v.strip('\n')
 
