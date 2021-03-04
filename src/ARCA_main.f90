@@ -925,7 +925,7 @@ SUBROUTINE ORGANIC_NUCL(J_TOTAL_M3)
     character(25)  :: name
 
     if (first_run) THEN
-        OPEN(UNIT=609, FILE='ModelLib/nucl_homs.txt', STATUS='OLD', ACTION='READ', iostat=jj)
+        OPEN(UNIT=609, FILE='ModelLib/required/nucl_homs.txt', STATUS='OLD', ACTION='READ', iostat=jj)
         n = rowcount(609)
         print FMT_MSG, 'Using parametrisation for organic nucleation with '//i2chr(n)//' nucleating compounds'
         allocate(inds(n))
@@ -937,7 +937,7 @@ SUBROUTINE ORGANIC_NUCL(J_TOTAL_M3)
         if (PRODUCT(inds) == 0) THEN
             print FMT_LEND,
             print FMT_FAT0, "List of nucleating organic compounds has gases which are not in the chemistry."
-            print FMT_SUB, "Options: Edit the file 'ModelLib/nucl_homs.txt' or turn of organic nucleation."
+            print FMT_SUB, "Options: Edit the file 'ModelLib/required/nucl_homs.txt' or turn of organic nucleation."
             print FMT_SUB, "Bye."
             print FMT_LEND,
             STOP
