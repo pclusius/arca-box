@@ -501,14 +501,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.plots  = 0
         self.wait_for = 0
         self.show_extra_plots = ''
-
-
-        # self.saveButton.clicked.connect(lambda: self.save_file())
-        # def xxx(event):
-        #      self.save_file()
-        # self.saveButton.keyPressEvent=lambda s: xxx(s)
-        self.loadButton.setAutoRaise(False)
-
         self.saveButton.clicked.connect(lambda: self.save_file())
         self.saveCurrentButton.clicked.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='noteOnTer'))
         self.actionSave_to_current.triggered.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='noteOnTer'))
