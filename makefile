@@ -3,7 +3,7 @@
 # compiler
 F90 = gfortran
 
-OPTI = O1
+OPTI = O2
 
 # Put .o and .mod files here:
  OBJDIR  = build

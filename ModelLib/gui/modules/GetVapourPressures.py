@@ -18,7 +18,7 @@ except:
 def fitSimple(T,A,B):
     return A - B/(T)
 
-def ManU(temp, smiles):
+def ManU(temp, smiles,vp_method,bp_method):
     N=len(smiles)
     prop_matrix = np.zeros((N, len(temp) ) )
     url = 'http://umansysprop.seaes.manchester.ac.uk/api/vapour_pressure'
@@ -33,8 +33,8 @@ def ManU(temp, smiles):
             }
 
     get_vapours = {
-                "vp_method": "nannoolal",
-                "bp_method": "nannoolal",
+                "vp_method": vp_method,
+                "bp_method": bp_method,
                 "temperatures": list(temp),
                 "compounds": list(smiles)
                 }
@@ -135,16 +135,16 @@ def getVaps(runforever=False, args={}):
 
         buffer  = np.zeros((N, n_temp))
         try:
-            buffer = pickle.load(open(os.path.join(smilesdir, smilesfile+"_UMan_Fetch.pickle"), "rb"))
+            buffer = pickle.load(open(os.path.join(smilesdir, smilesfile+args['vp_method']+args['bp_method']+"_UMan_Fetch.pickle"), "rb"))
         except:
             if rest>0:
                 print('Fetching compounds in chunks of 100, have patience, this might take a while.')
                 for j in range(rest):
                     print('Fetching compounds from %i to %i of %d.'%(j*100, (j+1)*100, N))
-                    buffer[j*100:(j+1)*100,:] = ManU(temp, smiles[j*100:(j+1)*100])
+                    buffer[j*100:(j+1)*100,:] = ManU(temp, smiles[j*100:(j+1)*100], args['vp_method'], args['bp_method'])
             print('Fetching compounds %i to %i.'%(N-n_first+1, N))
-            buffer[-n_first:,:] = ManU(temp, smiles[-n_first:])
-            pickle.dump( buffer, open( os.path.join(smilesdir, smilesfile+"_UMan_Fetch.pickle"), "wb" ) )
+            buffer[-n_first:,:] = ManU(temp, smiles[-n_first:], args['vp_method'], args['bp_method'])
+            pickle.dump( buffer, open( os.path.join(smilesdir, smilesfile+args['vp_method']+args['bp_method']+"_UMan_Fetch.pickle"), "wb" ) )
 
         n_homs = 0
 

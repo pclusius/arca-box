@@ -1,3 +1,7 @@
-variations,https://www2.helsinki.fi/en/researchgroups/multi-scale-modelling/atmospherically-relevant-chemistry-and-aerosol-box-model
+variations,https://wiki.helsinki.fi/pages/viewpage.action?pageId=370943159
 arcaweb,https://www2.helsinki.fi/en/researchgroups/multi-scale-modelling/atmospherically-relevant-chemistry-and-aerosol-box-model
-arcaweb,manual/man1.html#pythonModules
+manual,https://wiki.helsinki.fi/display/arca/ARCA+online+manual
+filehelp,https://wiki.helsinki.fi/display/arca/Toolbar%3A%3A+File
+umanweb,http://umansysprop.seaes.manchester.ac.uk/tool/vapour_pressure
+CreateVapourFile,https://wiki.helsinki.fi/display/arca/Define+which+gases+contribute+to+SOA+formation
+ccmanual,https://wiki.helsinki.fi/display/arca/Create+chemistry+scheme

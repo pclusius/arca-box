@@ -135,10 +135,12 @@ chdir(currentdir)
 helpd = {}
 with open(osjoin(gui_path,'conf','helplinks.txt'), 'r') as b:
     for l in b:
-        k,v = l.split(',')
-        if not 'http://' in v and not 'https://' in v:
-            v = urljoin('file:///', osjoin(getcwd(),v))
-        helpd[k] = v.strip('\n')
+        ll = l.replace('\n','').replace('\r\n','')
+        if ll != '':
+            k,v = ll.split(',')
+            if not 'http://' in v and not 'https://' in v:
+                v = urljoin('file:///', osjoin(getcwd(),v))
+            helpd[k] = v.strip('\n')
 
 
 # files that can be modified with the Editor
@@ -212,7 +214,7 @@ class batchW(QtGui.QDialog):
                 exec('self.ui.tb_%d.appendPlainText(\'\'.join(a[2][%d]))'%(c,i))
                 c +=1
 
-# The popup window for Create KPP files
+# The popup window for About ARCA
 class About(QtGui.QDialog):
     def __init__(self, parent = None):
         super(About, self).__init__(parent)
@@ -233,6 +235,8 @@ class CCWin(QtGui.QDialog):
         self.ccw.browseOut.clicked.connect(lambda: qt_box.browse_path(self.ccw.outDir, 'dir'))
         self.ccw.browseSourceFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.sourceFile, 'file'))
         self.ccw.browseIncludes.clicked.connect(lambda: qt_box.browse_path(self.ccw.includedFiles, 'append'))
+        self.ccw.mainFrame.setFont(qt_box.font)
+        self.ccw.manualCC.clicked.connect(lambda: qt_box.helplink(helpd['ccmanual']))
 
     def kpp(self):
         cmds = self.ccw.sourceFile.text()
@@ -297,8 +301,6 @@ class CCWin(QtGui.QDialog):
         else:
             return
 
-
-
 # The popup window for variations
 class Variation(QtGui.QDialog):
     def __init__(self, parent = None):
@@ -316,7 +318,8 @@ class Variation(QtGui.QDialog):
             self.vary.table.setColumnWidth(i, 70)
         # self.vary.table.horizontalHeader().setStretchLastSection(True)
         self.vary.table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        self.vary.Help.clicked.connect(lambda: qt_box.helplink(helpd['variations']))
+        self.vary.manualVar.clicked.connect(lambda: qt_box.helplink(helpd['variations']))
+        self.vary.mainFrame.setFont(qt_box.font)
 
     def vars(self):
         p=self.vary.lineEdit.text()
@@ -388,7 +391,6 @@ class Variation(QtGui.QDialog):
         for i in ii:
             self.vary.table.removeRow(i.row())
 
-
 # The popup window for Vapour pressure file
 class VpressWin(QtGui.QDialog):
     def __init__(self, parent = None):
@@ -396,12 +398,15 @@ class VpressWin(QtGui.QDialog):
         self.vp = vdialog.Ui_Dialog()
         self.vp.setupUi(self)
         self.vp.VapourClose.clicked.connect(self.reject)
-        self.vp.useUMan.toggled.connect(lambda: qt_box.grayIfNotChecked(self.vp.useUMan,self.vp.smilesFile))
-        self.vp.usePRAM.toggled.connect(lambda: qt_box.grayIfNotChecked(self.vp.usePRAM,self.vp.PRAMframe))
+        self.vp.UmanFrame.setEnabled(False)
+        self.vp.useUMan.toggled.connect(lambda: qt_box.grayIfNotChecked(self.vp.useUMan,self.vp.UmanFrame))
         self.vp.massSmilesButton.clicked.connect(lambda: qt_box.browse_path(self.vp.lineEdit, 'file'))
         self.vp.PramButton.clicked.connect(lambda: qt_box.browse_path(self.vp.pramFile, 'file'))
         self.vp.browseVapourPath.clicked.connect(self.filename)
         self.vp.createVapourFileButton.clicked.connect(self.saveVapours)
+        self.vp.UmanWWW.clicked.connect(lambda: qt_box.helplink(helpd['umanweb']))
+        self.vp.manualVap.clicked.connect(lambda: qt_box.helplink(helpd['CreateVapourFile']))
+        self.vp.mainFrame.setFont(qt_box.font)
 
     def filename(self):
         dialog = QtWidgets.QFileDialog()
@@ -433,8 +438,12 @@ class VpressWin(QtGui.QDialog):
         else: source = 'AMG'
         if self.vp.limPsat.text() == '' : plim = 1e-6
         else : plim = self.vp.limPsat.text()
+        vp_method = {0:'nannoolal',1:'myrdal_and_yalkowsky',2:'evaporation'}
+        bp_method = {0:'nannoolal',1:'joback_and_reid',2:'stein_and_brown'}
 
         message = gvp.getVaps(args={
+        'vp_method':vp_method[self.vp.vpCombo.currentIndex()],
+        'bp_method':vp_method[self.vp.bpCombo.currentIndex()],
         'server':source,
         'smilesfile':self.vp.lineEdit.text(),
         'pram':self.vp.usePRAM.isChecked(),
@@ -447,14 +456,13 @@ class VpressWin(QtGui.QDialog):
         if len(message)==1: qt_box.popup('Oops...', 'No dice: '+message[0],3)
         if len(message)==2: qt_box.popup(message[0],message[1],0)
 
-# The popup window for Create KPP files
+# The popup window for simple input
 class Input(QtGui.QDialog):
     def __init__(self, parent = None, default = 0):
         super(Input, self).__init__(parent)
         self.inp = input.Ui_Dialog()
         self.inp.setupUi(self)
         self.inp.input.setValue(default)
-
 
 # The popup window for editing simple text files
 class Editor(QtGui.QDialog):
@@ -463,11 +471,12 @@ class Editor(QtGui.QDialog):
         self.editor = t_editor.Ui_Dialog()
         self.editor.setupUi(self)
         self.setWindowTitle("Editing "+file)
-
+        self.editor.editedText.setFont(qt_box.mfont)
         f = open(file, 'r')
         t = f.read()
         self.editor.editedText.appendPlainText(t)
 
+# The Class for storing compound input
 class Comp:
     """Class for input compounds/variables. Default values are used in Function creator"""
     def __init__(self):
@@ -490,7 +499,6 @@ class Comp:
         self.pmInUse = 'No'
         self.sliderVls = [39,84,0,0,20]
         self.sl_x = [1,1,1,1,1]
-
 
 class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     """Main program window."""
@@ -525,7 +533,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionOpen.triggered.connect(lambda: self.browse_path(None, 'load'))
         self.actionQuit_Ctrl_Q.triggered.connect(self.close)
         self.actionSet_monitor_font_2.triggered.connect(lambda: self.guiSetFont(self.MonitorWindow,'monitor'))
-        self.actionSet_Global_font.triggered.connect(lambda: self.guiSetFont(self.tabWidget,'global'))
+        self.actionSet_Global_font.triggered.connect(lambda: self.guiSetFont(self.centralwidget,'global'))
         self.actionReset_fonts.triggered.connect(self.resetFont)
         self.actionCreate_Vapour_file.triggered.connect(self.vapours)
         self.actionCreateNewChemistry.triggered.connect(self.createCC)
@@ -534,6 +542,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionSetDelay.triggered.connect(lambda: self.inputPopup("self.wait_for"))
         self.actionAbout_ARCA.triggered.connect(self.createAb)
         self.actionARCA_webpage.triggered.connect(lambda: self.helplink(helpd['arcaweb']))
+        self.actionOnline_manual.triggered.connect(lambda: self.helplink(helpd['manual']))
+        self.actionOnline_manual.triggered.connect(lambda: self.helplink(helpd['manual']))
+        self.actionFileHelp.triggered.connect(lambda: self.helplink(helpd['filehelp']))
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
@@ -747,28 +758,28 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.pollTimer.timeout.connect(self.updateOutput)
         try:
             sf = pickle.load(open(osjoin(gui_path,monitorfont_pickle), "rb"))
-            font = self.MonitorWindow.font()
-            font.setFamily(sf[0])
-            font.setPointSize(sf[1])
-            font.setBold(sf[2])
-            font.setItalic(sf[3])
-            self.MonitorWindow.setFont(font)
+            self.mfont = self.MonitorWindow.font()
+            self.mfont.setFamily(sf[0])
+            self.mfont.setPointSize(sf[1])
+            self.mfont.setBold(sf[2])
+            self.mfont.setItalic(sf[3])
+            self.MonitorWindow.setFont(self.mfont)
         except:
-            font = self.MonitorWindow.font()
+            self.mfont = self.MonitorWindow.font()
             savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
             pickle.dump(savefont, open(osjoin(gui_path,monitorfont_pickle), 'wb'))
 
         try:
             sf = pickle.load(open(osjoin(gui_path,globalfont_pickle), "rb"))
-            font = self.tabWidget.font()
-            font.setFamily(sf[0])
-            font.setPointSize(sf[1])
-            font.setBold(sf[2])
-            font.setItalic(sf[3])
-            self.tabWidget.setFont(font)
+            self.font = self.centralwidget.font()
+            self.font.setFamily(sf[0])
+            self.font.setPointSize(sf[1])
+            self.font.setBold(sf[2])
+            self.font.setItalic(sf[3])
+            self.centralwidget.setFont(self.font)
         except:
-            font = self.tabWidget.font()
-            savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
+            self.font = self.centralwidget.font()
+            savefont = [self.font.family(),self.font.pointSize(),self.font.bold(),self.font.italic()]
             pickle.dump(savefont, open(osjoin(gui_path,globalfont_pickle), 'wb'))
 
         self.viewPrintNML.clicked.connect(lambda: self.editTxtFile(SCREENPRINT_NML))
@@ -864,6 +875,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 else:
                     font.setFamily('monospace')
                 font.setStyleStrategy(QtGui.QFont.PreferDefault)
+                self.mfont = font
+            else:
+                self.font = font
             wdgt.setFont(font)
             savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
             pickle.dump(savefont, open(osjoin(gui_path,globalfont_pickle.replace('global', name)), 'wb'))
@@ -897,11 +911,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             self.HPLotter.showGrid(x=True,y=True)
 
 
-
     def resetFont(self):
         self.guiSetFont(self.MonitorWindow, 'monitor', reset=True)
         print(self.MonitorWindow.font().family())
-        self.guiSetFont(self.tabWidget, 'global', reset=True)
+        self.guiSetFont(self.centralwidget, 'global', reset=True)
 
 
     def exportCurrentCase(self, InitFileFull):
@@ -911,6 +924,12 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             return
         if not exists(path+'/exportedData'): mkdir(path+'/exportedData')
         self.updatePath()
+        if self.checkBox_aer.isChecked() and not exists(self.vap_names.text()):
+            self.popup('Error', 'Vapour file is not found but aerosol module is ON.', icon=3)
+            return
+        if (self.use_atoms.isChecked() and self.checkBox_aer.isChecked()) and not exists(self.vap_atoms.text()):
+            self.popup('Error', 'Vapour elemental composition file is not found but elemental composition is used.', icon=3)
+            return
         curInit = self.currentInitFile.text()
         inout = self.inout_dir.text()
         indir = self.indir
@@ -931,13 +950,15 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 if paths[i-1]==0:
                     real = f.text()
                     if real != '':
-                        cpf(real,path+'/exportedData/'+ossplit(real)[1])
+                        if exists(real):
+                            cpf(real,path+'/exportedData/'+ossplit(real)[1])
                         j = f.text().rstrip('/')
                         f.setText('INOUT/'+justInOut+'/exportedData/'+ossplit(real)[1])
                 else:
                     real = self.pars(f.text(), file=indir, stripRoot=paths[i-2])
                     if real != '':
-                        cpf(real,path+'/exportedData/'+ossplit(real)[1])
+                        if exists(real):
+                            cpf(real,path+'/exportedData/'+ossplit(real)[1])
                         t = self.pars(f.text(), file=indir, stripRoot=True)
                         f.setText('INOUT/'+justInOut+'/exportedData/'+ossplit(t)[1])
 
@@ -948,6 +969,11 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.inout_dir.setText(inout)
         self.currentInitFile.setText(curInit)
         self.updatePath()
+        self.popup('Success!', '''The current case was succesfully exported. When the exported settings
+are loaded, make sure to update the "Common out" directory to correspond the new
+location. In theory no other modifications should be necessary. Also note that if
+the numerical model or chemistry scheme differs from the current, results may vary''', icon=0)
+
         return
 
 
@@ -1350,6 +1376,11 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
     def browse_path(self, target, mode, ftype=None, plWind=0, cmd = ''):
         """Browse for file or folder (depending on 'mode' and write the outcome to 'target')"""
+        if mode == 'export':
+            if 'Common root does not exist' in self.currentAddressTb.text():
+                self.popup('Error', 'Common root does not exist. Change "Common out" or create the necessary path: "'+self.inout_dir.text()+'"', icon=2)
+                return
+
         dialog = QtWidgets.QFileDialog()
         if ftype != None:
             dialog.setNameFilter(ftype)
@@ -2805,7 +2836,6 @@ a chemistry module in tab "Chemistry"''', icon=2)
             f.close()
             print()
             print()
-
 
 dummy = Comp()
 defCompound = Comp()
