@@ -17,7 +17,7 @@ REAL(dp), PARAMETER    :: g_0 = 9.80665D0        ! Gravitational acceleration
 REAL(dp), PARAMETER    :: Diff_H2SO4_0 = 0.09D-4 ! H2SO4 diffusivity at 0 RH (why no temperature and pressure dependence?)
 REAL(dp), PARAMETER    :: Keq1 = 0.13D0          ! H2SO4 diffusivity RH dependence parameters, Hanson & Eisele
 REAL(dp), PARAMETER    :: Keq2 = 0.016D0         ! H2SO4 diffusivity RH dependence parameters, Hanson & Eisele
-INTEGER, PARAMETER     :: di = selected_int_kind(16)
+INTEGER, PARAMETER     :: dint = selected_int_kind(16)
 
 ! Saturation vapour pressure of water in Pa
 REAL, PARAMETER        :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
@@ -87,6 +87,8 @@ type timetype
     real(dp)      :: PRINT_INTERVAL = 15d0*60d0 ! [sec]
     real(dp)      :: FSAVE_INTERVAL = 5d0 *60d0 ! [sec]
     integer       :: ind_netcdf     = 1         ! index for output file
+    integer       :: prevPrint_i    = 0         ! index for output file
+    integer       :: prevSave_i     = 0         ! index for output file
     integer       :: JD             = 0         ! Julian day of the year, calculated if date is provided
     character(8)  :: hms            = "00:00:00"! Pretty print of time
     logical       :: printnow       = .true.    ! this flag is true when prints are wanted
@@ -189,10 +191,6 @@ end type vapour_ambient
 
 ! ------------------------------------------------------------
 ! PROCEDURES
-interface operator(+)
-    module procedure ADD
-end interface operator(+)
-
 interface operator(.mod.)
     module procedure MOD_CONC
 end interface operator(.mod.)
@@ -222,13 +220,26 @@ CONTAINS
 ! Timetype update function. When timestep is added, this will update all other time-related
 ! variables accordingly
 ! .................................................................................................
-PURE type(timetype) function ADD(time, sec)
+type(timetype) function ADD(time, sec)
     implicit none
     type(timetype), intent(in)            :: time
     real(dp),       intent(in), optional  :: sec
+
     ADD = time
     IF (present(sec)) THEN
+        if (sec < 0) THEN
+            IF ((ADD%PRINT_INTERVAL*(ADD%prevPrint_i))-ADD%sec  >= sec   ) THEN
+                ADD%printnow = .false.
+                ADD%prevPrint_i = ADD%prevPrint_i - 1
+            END IF
+            if ((ADD%FSAVE_INTERVAL*(ADD%prevSave_i))-ADD%sec  >= sec   ) THEN
+                ADD%savenow = .false.
+                ADD%prevSave_i = ADD%prevSave_i - 1
+            END IF
+        END IF
+
         ADD%sec = time%sec + sec
+
     ELSE
         ADD%sec = time%sec + time%dt
     END IF
@@ -237,13 +248,15 @@ PURE type(timetype) function ADD(time, sec)
     ADD%day = ADD%sec/3600d0/24d0
     write(ADD%hms, '(i2.2, ":" i2.2, ":" i2.2)') nint(ADD%sec)/3600, &
     int(MODULO(nint(ADD%sec),3600)/60d0), MODULO(MODULO(nint(ADD%sec),3600), 60)
-    IF (MODULO(nint(ADD%sec*1d8,di), NINT(ADD%PRINT_INTERVAL*1d8,di)) == 0) THEN
+    IF ((ADD%printnow .eqv. .false.) .and. (ADD%sec >= (ADD%PRINT_INTERVAL*(1+ADD%prevPrint_i)))) THEN
         ADD%printnow = .true.
+        ADD%prevPrint_i = ADD%prevPrint_i + 1
     ELSE
         ADD%printnow = .false.
     END IF
-    IF (MODULO(nint(ADD%sec*1d8,di), NINT(ADD%FSAVE_INTERVAL*1d8,di)) == 0) THEN
+    IF ((ADD%savenow .eqv. .false.) .and. (ADD%sec >= (ADD%FSAVE_INTERVAL*(1+ADD%prevSave_i)))) THEN
         ADD%savenow = .true.
+        ADD%prevSave_i = ADD%prevSave_i + 1
     ELSE
         ADD%savenow = .false.
     END IF

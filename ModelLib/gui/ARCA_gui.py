@@ -548,6 +548,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionOnline_manual.triggered.connect(lambda: self.helplink(helpd['manual']))
         self.actionFileHelp.triggered.connect(lambda: self.helplink(helpd['filehelp']))
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
+        self.actionSave_as_defaults.triggered.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
 
@@ -583,6 +584,16 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.add_new_line('TEMPK', 0)
         self.add_new_line('PRESSURE', 1)
         self.dateEdit.dateChanged.connect(lambda: self.indexRadioDate.setChecked(True))
+
+        self.indexRadioDate.toggled.connect(lambda: self.lat.setEnabled(True))
+        self.indexRadioIndex.toggled.connect(lambda: self.lat.setEnabled(False))
+        self.indexRadioDate.toggled.connect(lambda: self.lon.setEnabled(True))
+        self.indexRadioIndex.toggled.connect(lambda: self.lon.setEnabled(False))
+        self.indexRadioDate.toggled.connect(lambda: self.label_9.setEnabled(True))
+        self.indexRadioIndex.toggled.connect(lambda: self.label_9.setEnabled(False))
+        self.indexRadioDate.toggled.connect(lambda: self.label_25.setEnabled(True))
+        self.indexRadioIndex.toggled.connect(lambda: self.label_25.setEnabled(False))
+
         self.indexEdit.valueChanged.connect(lambda: self.indexRadioIndex.setChecked(True))
         self.browseCase.clicked.connect(lambda: self.browse_path(self.case_name, 'dironly'))
         self.browseRun.clicked.connect(lambda: self.browse_path(self.run_name, 'dironly'))

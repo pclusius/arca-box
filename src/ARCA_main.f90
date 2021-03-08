@@ -61,6 +61,7 @@ REAL(dp), ALLOCATABLE :: nominal_dp(:)    ! array with nominal diameters. Stays 
 ! (1): chemistry; (2):Condensation; (3): Coagulation; (4): Deposition
 TYPE(error_type)        :: PRCION
 LOGICAL                 :: Handbrake_on = .false.
+LOGICAL                 :: xxx = .True.
 INTEGER                 :: speed_up(size(PRCION%pr_name,1)) = 1
 INTEGER                 :: n_of_Rounds = 0
 INTEGER                 :: optis_in_use(2) = [2,3]
@@ -289,7 +290,7 @@ call cpu_time(cpu1) ! For efficiency calculation
 !       *@@@@@@@@@@@@@@@@       @@@       #@@@@@@@@@        @@@@@@@@@@             @@@@@       @@@@@@@@@@@@@@@@@       @
 !=======================================================================================================================
 
-DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
+DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
     ! if (Gtime%sec>25800) Gtime%dt = 1d0
     ! if (Gtime%sec>65400) Gtime%dt = 1d-1
 
@@ -727,14 +728,18 @@ DO WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
         END IF
 
-        if (GTIME%dt<DT_0 .and. minval(speed_up(optis_in_use))>1 .and. MODULO(int(GTIME%sec*1d6, di), int(DT_0*1d6, di))==0) THEN
+        if (GTIME%dt<DT_0 .and. minval(speed_up(optis_in_use))>1 .and. MODULO(int(GTIME%sec*1d6, dint), int(DT_0*1d6, dint))==0) THEN
             print*, GTIME%hms//': Upping the main dt from ', GTIME%dt, 'to', GTIME%dt*2
             GTIME%dt = GTIME%dt * 2
             speed_up = speed_up / 2
         END IF
 
-        ! Add main timestep to GTIME'
-        GTIME = ADD(GTIME)
+        ! Add main timestep to GTIME
+        if (GTIME%sec + GTIME%dt <= GTIME%SIM_TIME_S) THEN
+            GTIME = ADD(GTIME)
+        ELSE
+            EXIT
+        END IF
 
     END IF ! SPEED handling
 
@@ -1019,7 +1024,6 @@ END SUBROUTINE PRINT_KEY_INFORMATION
 ! =================================================================================================
 SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
     implicit none
-    GTIME = ADD(GTIME, -GTIME%dt)
     print*,''
     print FMT_HDR, 'Main loop ended'
 

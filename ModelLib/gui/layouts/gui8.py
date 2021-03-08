@@ -3658,9 +3658,12 @@ class Ui_MainWindow(object):
         self.actionOnline_manual.setObjectName("actionOnline_manual")
         self.actionFileHelp = QtWidgets.QAction(MainWindow)
         self.actionFileHelp.setObjectName("actionFileHelp")
+        self.actionSave_as_defaults = QtWidgets.QAction(MainWindow)
+        self.actionSave_as_defaults.setObjectName("actionSave_as_defaults")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave_to_current)
         self.menuFile.addAction(self.actionSave_2)
+        self.menuFile.addAction(self.actionSave_as_defaults)
         self.menuFile.addAction(self.actionCreate_output_directories)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionLoad_minimal_settings)
@@ -4285,4 +4288,5 @@ class Ui_MainWindow(object):
         self.actionARCA_webpage.setShortcut(_translate("MainWindow", "Ctrl+Shift+W"))
         self.actionOnline_manual.setText(_translate("MainWindow", "Online manual"))
         self.actionFileHelp.setText(_translate("MainWindow", "Help"))
+        self.actionSave_as_defaults.setText(_translate("MainWindow", "Save as defaults"))
 from pyqtgraph import PlotWidget
