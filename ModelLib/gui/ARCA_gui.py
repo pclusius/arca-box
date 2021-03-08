@@ -205,6 +205,8 @@ class batchW(QtGui.QDialog):
         self.ui.setupUi(self)
         self.ui.bDialogbuttonBox.accepted.connect(self.accept)
         self.ui.bDialogbuttonBox.rejected.connect(self.reject)
+        self.ui.bDialogbuttonBox.helpRequested.connect(lambda: qt_box.helplink(helpd['batch']))
+
     def settext(self,a):
         """Setter for window text"""
         c = 1
@@ -623,6 +625,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.min_particle_diam.textChanged.connect(self.seeInAction)
         self.max_particle_diam.textChanged.connect(self.seeInAction)
         self.n_bins_particle.valueChanged.connect(self.seeInAction)
+        self.batchHelp.clicked.connect(lambda: self.helplink(helpd['batch']))
 
     # -----------------------
     # tab Input variables

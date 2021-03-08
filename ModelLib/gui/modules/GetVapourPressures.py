@@ -152,8 +152,8 @@ def getVaps(runforever=False, args={}):
             try:
                 homs = np.genfromtxt(args['pramfile'], dtype=str)
             except:
-                print('file not found:', args['pramfile'])
-                return('file not found: '+args['pramfile'],)
+                print('PRAM file not found: "', args['pramfile']+'"')
+                return('PRAM file not found: "'+args['pramfile']+'"',)
 
             props = os.path.split(args['pramfile'])
             props = os.path.join(props[0],props[1].replace('_names','_prop'))
@@ -173,10 +173,13 @@ def getVaps(runforever=False, args={}):
             for i,v in enumerate(homs):
                 prop_matrix[i+N,:] = fitSimple(temp,HomA[i], HomB[i] )
 
+
+        a,b=np.unique(names,return_counts=True)
+        if any(b>1): return ('The input produced duplicate compounds:\n'+'\n'.join(a[b>1]),)
+
         selected_vapours = prop_matrix[10**(prop_matrix[:,n_temp//2]) < float(args['psat_lim'])]
         selected_vapournames = names[10**(prop_matrix[:,n_temp//2]) < float(args['psat_lim'])]
         selected_vapourmass = mass[10**(prop_matrix[:,n_temp//2]) < float(args['psat_lim'])]
-
         if filter:
             filter_a = [False]*len(selected_vapours)
             for i in range(len(selected_vapours)):

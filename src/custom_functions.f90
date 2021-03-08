@@ -2,7 +2,7 @@ module custom_functions
 
 USE input                               ! input
 USE second_MAIN                         ! Main second file
-USE second_PARAMETERS                   ! CH_NSPEC (originally NSPEC) and chemical indices, ind_xxxx, come from here
+USE second_PARAMETERS                   ! CH_NSPEC and chemical indices, ind_xxxx, come from here
 USE second_Precision,  ONLY : dp        ! KPP Numerical type
 USE second_Monitor,    ONLY : SPC_NAMES ! Names of chemicals from KPP
 USE constants
