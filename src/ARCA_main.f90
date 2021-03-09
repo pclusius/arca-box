@@ -543,6 +543,10 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
             CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRCION%con),d_dpar,d_vap)
 
+! IF (If_Dt<=Minimum) THEN
+! d_vap = 0
+! d_dpar = 0
+! END IF
             ! ERROR HANDLING
             IF ((maxval(ABS(d_dpar)) > change_range(1,2) .or. maxval((d_vap)) > change_range(3,2)) .and. use_speed) THEN   ! if the changes in diameter are too big
                 ! IF (n_of_Rounds>=0) THEN

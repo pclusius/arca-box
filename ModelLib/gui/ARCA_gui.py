@@ -239,6 +239,12 @@ class CCWin(QtGui.QDialog):
         self.ccw.browseIncludes.clicked.connect(lambda: qt_box.browse_path(self.ccw.includedFiles, 'append'))
         self.ccw.mainFrame.setFont(qt_box.font)
         self.ccw.manualCC.clicked.connect(lambda: qt_box.helplink(helpd['ccmanual']))
+        self.ccw.pickDeffix.clicked.connect(self.ListFixed)
+
+    def ListFixed(self):
+        file = qt_box.browse_path(None, 'fixed_cc', ftype="MCM mass subset file (*.txt)")
+        list = qt_box.loadFixedFile(file, cc=True)
+        self.ccw.deffix.appendPlainText('\n'.join(list))
 
     def kpp(self):
         cmds = self.ccw.sourceFile.text()
@@ -249,18 +255,25 @@ class CCWin(QtGui.QDialog):
             qt_box.popup('No output directory', 'Please provide the output directory.',3)
             return
         includes = self.ccw.includedFiles.toPlainText().split()
+        fixed = self.ccw.deffix.toPlainText().split()
         if self.ccw.inclPram.isChecked():
             includes.append(osjoin(ccloc,'PRAM_v21.txt'))
         out = osjoin(self.ccw.outDir.text(),'second.def')
         log = osjoin(self.ccw.outDir.text(),'second.log')
+        commandstring = [currentPythonVer,ccloc+'/create_chemistry.py',cmds,'-o',out,'-l',log]
+        if len(fixed)>0:
+            commandstring.append('-d')
+            commandstring += fixed
         if len(includes)>0:
-            self.kppProcess = Popen(["python3", ccloc+'/create_chemistry.py',
-                                    cmds,'-o',out, '-f', *includes,
-                                    '-l', log]
-                                    , stdout=PIPE,stderr=STDOUT,stdin=None)
-        else:
-            self.kppProcess = Popen(["python3", ccloc+'/create_chemistry.py', cmds,'-o',out,
-                                '-l',log], stdout=PIPE,stderr=STDOUT,stdin=None)
+            commandstring.append('-f')
+            commandstring += includes
+        # if len(includes)>0:
+        #     self.kppProcess = Popen(["python3", ccloc+'/create_chemistry.py',
+        #                             cmds,'-o',out, '-f', *includes,
+        #                             '-l', log]
+        #                             , stdout=PIPE,stderr=STDOUT,stdin=None)
+        # else:
+        self.kppProcess = Popen([*commandstring], stdout=PIPE,stderr=STDOUT,stdin=None)
         lines = True
         error = False
         warnings = False
@@ -268,15 +281,15 @@ class CCWin(QtGui.QDialog):
         boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp"\n2) Recompile ARCA in tab "Chemistry".'
         while lines:
             self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
-            if 'WARNING' in self.ccout.upper():
+            if '[WARNING' in self.ccout.upper():
                 warnings = True
                 output.append('Duplicate equations were found.')
                 output.append(self.ccout)
-            if 'CRITICAL' in self.ccout.upper():
+            if '[CRITICAL' in self.ccout.upper():
                 warnings = True
                 output.append('Included file was not found:')
                 output.append(self.ccout)
-            if 'ERROR' in self.ccout.upper():
+            if '[ERROR' in self.ccout.upper():
                 qt_box.popup('Script returned error', 'The script was unable to create chemistry definition, please see the log below.',3)
                 error = True
             self.ccw.ccMonitor.insertPlainText(self.ccout)
@@ -545,7 +558,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionAbout_ARCA.triggered.connect(self.createAb)
         self.actionARCA_webpage.triggered.connect(lambda: self.helplink(helpd['arcaweb']))
         self.actionOnline_manual.triggered.connect(lambda: self.helplink(helpd['manual']))
-        self.actionOnline_manual.triggered.connect(lambda: self.helplink(helpd['manual']))
         self.actionFileHelp.triggered.connect(lambda: self.helplink(helpd['filehelp']))
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
         self.actionSave_as_defaults.triggered.connect(lambda: self.save_file(file=defaults_file_path))
@@ -647,7 +659,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.butRemoveSelVars.clicked.connect(self.remv_item)
         self.selected_vars.setColumnHidden(7, True)
         self.selected_vars.verticalHeader().setVisible(False);
-        self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed', ftype="KPP def (*.def)"))
+        self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed', ftype="MCM mass subset file (*.txt)"))
         self.loadFixedChemistry.clicked.connect(self.loadFixedFromChemistry)
         self.findInput.textChanged.connect(self.filterListOfInput)
 
@@ -1422,6 +1434,8 @@ the numerical model or chemistry scheme differs from the current, results may va
                 self.show_currentInit(path)
             elif mode == 'fixed':
                 self.loadFixedFile(path)
+            elif mode == 'fixed_cc':
+                return path
             elif mode == 'plot':
                 self.showOutput(path)
             elif mode == 'plot_mass':
@@ -1537,22 +1551,22 @@ a chemistry module in tab "Chemistry"''', icon=2)
         f.close()
 
 
-    def loadFixedFile(self, path):
+    def loadFixedFile(self, path, cc=False):
         indef = False
         count = 0
+        parsethis = False
         with open(path, 'r') as f:
             for line in f:
-                if '#DEFFIX' in line.upper():
-                    indef = True
-                    continue
-                if indef and '#' in line and not '#DEFFIX' in line.upper():
+                if parsethis:
+                    comps = line.upper().strip(' \n').replace('\t','').replace(' ','').split(',')
+                    if cc: return comps
+                    for comp in comps:
+                        if comp not in vars.mods:
+                            self.namesdat.item(namesPyInds[comp]).setSelected(True)
+                            count = count +1
                     break
-                if indef and '=' in line and '//' not in line:
-                    i = line.find('=')
-                    comp = line[:i].strip()
-                    if comp not in vars.mods:
-                        self.namesdat.item(namesPyInds[comp]).setSelected(True)
-                        count = count +1
+                if 'MOLECULAR WEIGHTS FOR SPECIES PRESENT IN THE SUBSET' in line.upper():
+                    parsethis = True
         self.popup('File parsed', 'Selected %d variables'%count, icon=1)
 
     def vapours(self):
@@ -1955,7 +1969,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.boxProcess = Popen(["./"+exe_name, "%s"%tempfile, '--gui'], stdout=PIPE,stderr=STDOUT,stdin=None)
             self.saveCurrentOutputDir = self.currentAddressTb.text()
             self.MonitorWindow.clear()
-            self.Timer.start(10)
+            self.Timer.start(5)
             # self.TimerPlot.start(1000)
             self.pollTimer.start(2000)
             self.liveUpdate.setEnabled(True)
@@ -2278,7 +2292,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                             valueW = 'customVal_%d'%i
                             exec("self.%s.setText(\'%s\')"%(keyW,nml.CUSTOM.CUSTOMS[i-1][0]))
                             exec("self.%s.setText(\'%s\')"%(valueW,nml.CUSTOM.CUSTOMS[i-1][1]))
-                        for j in range(i+1,33):
+                        for j in range(i+1,31):
                             keyW = 'customKey_%d'%j
                             valueW = 'customVal_%d'%j
                             exec("self.%s.clear()"%(keyW))
@@ -2498,14 +2512,15 @@ a chemistry module in tab "Chemistry"''', icon=2)
         MASS_OF_SINGLE_PAR      = self.ncs_mass.variables['MASS'][:]
         mass_in_bin             = MASS_OF_SINGLE_PAR*NUMBER_CONCENTRATION
         lognormconc             = NUMBER_CONCENTRATION/log10(DIAMETER[0,1]/DIAMETER[0,0])
-        try:
-            DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
-            massdmps = MASS_OF_SINGLE_PAR*DMPS_CONCENTRATION
-            lognormdmps = DMPS_CONCENTRATION/log10(DIAMETER[0,1]/DIAMETER[0,0])
-            self.measdmps = True
-        except:
-            print('File did not contain measured PSD')
-            self.measdmps = False
+        self.measdmps = False
+        if self.showAlsoMeasInMassConc.isChecked():
+            try:
+                DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
+                massdmps = MASS_OF_SINGLE_PAR*DMPS_CONCENTRATION
+                lognormdmps = DMPS_CONCENTRATION/log10(DIAMETER[0,1]/DIAMETER[0,0])
+                self.measdmps = True
+            except:
+                print('File did not contain measured PSD')
 
         time = self.ncs_mass.variables['time_in_hrs'][:]
         y  = npsum(mass_in_bin[:,inds],axis=1)*1e3

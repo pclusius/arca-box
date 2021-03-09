@@ -220,7 +220,7 @@ CONTAINS
 ! Timetype update function. When timestep is added, this will update all other time-related
 ! variables accordingly
 ! .................................................................................................
-type(timetype) function ADD(time, sec)
+PURE type(timetype) function ADD(time, sec)
     implicit none
     type(timetype), intent(in)            :: time
     real(dp),       intent(in), optional  :: sec

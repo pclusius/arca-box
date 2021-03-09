@@ -209,6 +209,10 @@ LOGICAL  :: TEMP_DEP_SURFACE_TENSION = .False.
 LOGICAL  :: use_diff_dia_from_diff_vol = .False.
 REAL(dp), ALLOCATABLE   :: GR_bins(:)  ! used for GR calculation [m]
 Logical                 :: CALC_GR = .True.
+real(dp)                :: speed_dt_limit(8) =  [1d-5,60d0,&
+                                                1d-5,60d0,&
+                                                1d-5,60d0,&
+                                                1d-5,60d0]
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .false.
 
@@ -216,7 +220,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, acdc_iterations,variable_density,dmps_tres_min
                       start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
-                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol
+                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, speed_dt_limit
 
 ! ==================================================================================================================
 ! Define change range in percentage
