@@ -250,13 +250,13 @@ PURE type(timetype) function ADD(time, sec)
     int(MODULO(nint(ADD%sec),3600)/60d0), MODULO(MODULO(nint(ADD%sec),3600), 60)
     IF ((ADD%printnow .eqv. .false.) .and. (ADD%sec >= (ADD%PRINT_INTERVAL*(1+ADD%prevPrint_i)))) THEN
         ADD%printnow = .true.
-        ADD%prevPrint_i = ADD%prevPrint_i + 1
+        ADD%prevPrint_i = INT(ADD%sec)/INT(ADD%PRINT_INTERVAL)
     ELSE
         ADD%printnow = .false.
     END IF
     IF ((ADD%savenow .eqv. .false.) .and. (ADD%sec >= (ADD%FSAVE_INTERVAL*(1+ADD%prevSave_i)))) THEN
         ADD%savenow = .true.
-        ADD%prevSave_i = ADD%prevSave_i + 1
+        ADD%prevSave_i =  INT(ADD%sec)/INT(ADD%FSAVE_INTERVAL)
     ELSE
         ADD%savenow = .false.
     END IF

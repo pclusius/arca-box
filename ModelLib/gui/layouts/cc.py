@@ -61,6 +61,7 @@ class Ui_Dialog(object):
         self.toolBox.setMaximumSize(QtCore.QSize(16777215, 200))
         self.toolBox.setObjectName("toolBox")
         self.page_3 = QtWidgets.QWidget()
+        self.page_3.setGeometry(QtCore.QRect(0, 0, 608, 122))
         self.page_3.setObjectName("page_3")
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.page_3)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
@@ -70,6 +71,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_6.addWidget(self.inclPram)
         self.toolBox.addItem(self.page_3, "")
         self.page_2 = QtWidgets.QWidget()
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 145, 79))
         self.page_2.setObjectName("page_2")
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.page_2)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
@@ -82,7 +84,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_5.addWidget(self.browseIncludes)
         self.toolBox.addItem(self.page_2, "")
         self.page = QtWidgets.QWidget()
-        self.page.setGeometry(QtCore.QRect(0, 0, 608, 210))
+        self.page.setGeometry(QtCore.QRect(0, 0, 236, 79))
         self.page.setObjectName("page")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.page)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -140,6 +142,7 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
         self.toolBox.setCurrentIndex(0)
+        self.toolBox.layout().setSpacing(3)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):

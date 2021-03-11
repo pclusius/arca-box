@@ -1,4 +1,4 @@
-[INFO     ] Created at 18:33:49, March 08, 2021
+[INFO     ] Created at 15:42:46, March 09, 2021
 [INFO     ] 
 [INFO     ] ============================================================
 [INFO     ] 
@@ -88,6 +88,14 @@
 [INFO     ] {113.} APINBOO + SO2 = PINAL + SO3 : 7.00D-13 ;
 
 [INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Removing APINENE = IGNORE ; from DEFVAR (already in DEFFIX)
+[INFO     ] Removing NO2 = IGNORE ; from DEFVAR (already in DEFFIX)
+[INFO     ] Removing NO = IGNORE ; from DEFVAR (already in DEFFIX)
+[INFO     ] Removing SO2 = IGNORE ; from DEFVAR (already in DEFFIX)
+[INFO     ] 
+[INFO     ] ============================================================
 [INFO     ] ============================================================
 [INFO     ] 
 [INFO     ] Removed all the carriage return character ^M.

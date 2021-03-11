@@ -13,7 +13,7 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : second_Initialize.f90
-! Time                 : Mon Mar  8 18:34:06 2021
+! Time                 : Tue Mar  9 15:43:21 2021
 ! Working directory    : /home/pecl/05-ARCA/ARCA-box/src/chemistry/SimpleChem
 ! Equation file        : second.kpp
 ! Output root filename : second

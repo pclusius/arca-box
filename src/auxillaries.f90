@@ -304,6 +304,13 @@ PURE FUNCTION i2chr(number) result(out)
     write(out, '(i0)') number
 END FUNCTION i2chr
 
+PURE FUNCTION di2chr(number) result(out)
+    IMPLICIT NONE
+    INTEGER(dint), INTENT(IN) :: number
+    CHARACTER(len=int(LOG10(MAX(number*1d0, 1d0))+2)-min(0,sign(1_dint,number))) :: out
+    write(out, '(i0)') number
+END FUNCTION di2chr
+
 PURE LOGICAL FUNCTION equal(a,b)
     IMPLICIT NONE
     REAL(dp), INTENT(IN) :: a,b

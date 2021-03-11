@@ -233,7 +233,7 @@ class CCWin(QtGui.QDialog):
         self.ccw.setupUi(self)
         self.ccw.ccClose.clicked.connect(self.reject)
         self.ccw.createKPPsettings.clicked.connect(self.kpp)
-        self.ccw.openOutput.clicked.connect(self.openOutputDir)
+        self.ccw.openOutput.clicked.connect(lambda: qt_box.openOutputDir(None, self.ccw.outDir.text()))
         self.ccw.browseOut.clicked.connect(lambda: qt_box.browse_path(self.ccw.outDir, 'dir'))
         self.ccw.browseSourceFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.sourceFile, 'file'))
         self.ccw.browseIncludes.clicked.connect(lambda: qt_box.browse_path(self.ccw.includedFiles, 'append'))
@@ -267,12 +267,8 @@ class CCWin(QtGui.QDialog):
         if len(includes)>0:
             commandstring.append('-f')
             commandstring += includes
-        # if len(includes)>0:
-        #     self.kppProcess = Popen(["python3", ccloc+'/create_chemistry.py',
-        #                             cmds,'-o',out, '-f', *includes,
-        #                             '-l', log]
-        #                             , stdout=PIPE,stderr=STDOUT,stdin=None)
-        # else:
+
+        print( 'Calling chemistry script with:\n'+' '.join(commandstring))
         self.kppProcess = Popen([*commandstring], stdout=PIPE,stderr=STDOUT,stdin=None)
         lines = True
         error = False
@@ -303,18 +299,6 @@ class CCWin(QtGui.QDialog):
         if warnings: output.append('Read the .log and resolve the problems, then:')
         qt_box.popup('Chemistry created', '\n'.join(output)+boilerplate,0)
 
-    def openOutputDir(self,dir):
-        import os
-        dir = self.ccw.outDir.text()
-        if dir == '': dir = './'
-        if operatingsystem == 'Windows':
-            os.startfile(dir)
-        if operatingsystem == 'Linux':
-            os.system('xdg-open "%s"' % dir)
-        if operatingsystem == 'Darwin':
-            os.system('open "%s"' % dir)
-        else:
-            return
 
 # The popup window for variations
 class Variation(QtGui.QDialog):
@@ -563,6 +547,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionSave_as_defaults.triggered.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
+        self.actionOpen_output_directory.triggered.connect(lambda: self.openOutputDir(None, self.currentAddressTb.text()))
+        self.actionStopCurrentRunClean.triggered.connect(self.softStop)
+        self.actionPrint_Custom_commands_cheat_sheet.triggered.connect(lambda: print(CustomCommandsCheatSheet))
 
     # -----------------------
     # tab General options
@@ -625,8 +612,11 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.dateEdit.dateChanged.connect(self.updatePath)
         self.indexEdit.valueChanged.connect(self.updatePath)
         self.case_name.textChanged.connect(self.updatePath)
+        self.case_name.textChanged.connect(lambda: self.allcaps(self.case_name))
         self.run_name.textChanged.connect(self.updatePath)
+        self.run_name.textChanged.connect(lambda: self.allcaps(self.run_name))
         self.inout_dir.textChanged.connect(self.updatePath)
+        self.inout_dir.textChanged.connect(lambda: self.allcaps(self.inout_dir))
         self.indexRadioDate.toggled.connect(self.updatePath)
         # self.useSpeed.stateChanged.connect(lambda: self.grayIfNotChecked(self.useSpeed,self.precLimits))
         self.dateEdit.dateChanged.connect(self.updateEnvPath)
@@ -775,6 +765,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.frameStop.setEnabled(False)
         self.startButton.clicked.connect(self.startBox)
         self.stopButton.clicked.connect(self.stopBox)
+        self.softStopButton.clicked.connect(self.softStop)
         self.boxProcess = 0 # arcabox run handle
         self.monStatus  = 0
         self.Timer = QtCore.QTimer(self);
@@ -822,6 +813,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             self.loadNetcdf_mass.clicked.connect(lambda: self.browse_path(None, 'plot_mass', ftype="ARCA particle file (Particles.nc)"))
             self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=0))
             self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=1))
+            self.CloseLinePlotsButton.clicked.connect(self.closenetcdf)
         else:
             self.sumSelection.setEnabled(False)
             self.show_netcdf.show()
@@ -873,6 +865,22 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Class methods
     # -----------------------
+    def openOutputDir(self, a, dir):
+        import os
+        if dir == '': dir = './'
+        if not exists(dir):
+            self.popup('Sorry','Directory does not exist.',2)
+            return
+        if operatingsystem == 'Windows':
+            os.startfile(dir)
+        if operatingsystem == 'Linux':
+            os.system('xdg-open "%s"' % dir)
+        if operatingsystem == 'Darwin':
+            os.system('open "%s"' % dir)
+        else:
+            return
+
+
     def helplink(self, linkStr):
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(linkStr))
 
@@ -942,6 +950,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         print(self.MonitorWindow.font().family())
         self.guiSetFont(self.centralwidget, 'global', reset=True)
 
+    def allcaps(self, tbox):
+        tbox.setText(tbox.text().upper())
 
     def exportCurrentCase(self, InitFileFull):
         path, Initfile = ossplit(InitFileFull)
@@ -1842,6 +1852,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
         else:
             return
 
+    def softStop(self,a):
+        if exists(self.saveCurrentOutputDir):
+            f = open(osjoin(self.saveCurrentOutputDir,'ENDNOW.INIT'), 'w')
+            f.write('STOP')
+            f.close()
+
 
     def showParOutput(self, file, windowInd):
         if windowInd == 0:
@@ -2286,17 +2302,18 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 if line.strip() == '/' and in_custom:
                     in_custom = False
                     n = len(nml.CUSTOM.CUSTOMS)
-                    if n>0:
-                        for i in range(1,n+1):
-                            keyW = 'customKey_%d'%i
-                            valueW = 'customVal_%d'%i
-                            exec("self.%s.setText(\'%s\')"%(keyW,nml.CUSTOM.CUSTOMS[i-1][0]))
-                            exec("self.%s.setText(\'%s\')"%(valueW,nml.CUSTOM.CUSTOMS[i-1][1]))
-                        for j in range(i+1,31):
-                            keyW = 'customKey_%d'%j
-                            valueW = 'customVal_%d'%j
-                            exec("self.%s.clear()"%(keyW))
-                            exec("self.%s.clear()"%(valueW))
+                    ii = 0
+                    for i in range(1,n+1):
+                        ii += 1
+                        keyW = 'customKey_%d'%ii
+                        valueW = 'customVal_%d'%ii
+                        exec("self.%s.setText(\'%s\')"%(keyW,nml.CUSTOM.CUSTOMS[ii-1][0]))
+                        exec("self.%s.setText(\'%s\')"%(valueW,nml.CUSTOM.CUSTOMS[ii-1][1]))
+                    for j in range(ii+1,31):
+                        keyW = 'customKey_%d'%j
+                        valueW = 'customVal_%d'%j
+                        exec("self.%s.clear()"%(keyW))
+                        exec("self.%s.clear()"%(valueW))
 
                 elif '&NML_CUSTOM' in line:
                     in_custom = True
@@ -2868,6 +2885,30 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 dummy = Comp()
 defCompound = Comp()
+
+CustomCommandsCheatSheet = """
+Options available in CUSTOM_NML (and defaults)
+LOG: USE_RAOULT=T
+LOG: VARIABLE_DENSITY=F
+REA: DMPS_TRES_MIN=  10.0
+REA: START_TIME_S=  0.0
+REA: DMPS_MULTI=  1000000.0
+CHR: INITIALIZE_WITH=""
+INT: INITIALIZE_FROM=0
+REA: VP_MULTI=  1.0000000000000000,
+LOG: DONT_SAVE_CONDENSIBLES=F
+INT: LIMIT_VAPOURS=999999
+REA: END_DMPS_SPECIAL=1.0000000000000000E+100
+LOG: NO2_IS_NOX=F
+LOG: NO_NEGATIVE_CONCENTRATIONS=F
+REA: FLOAT_CHEMISTRY_AFTER_HRS=1.0000000000000000E+100
+LOG: USE_RH_CORRECTION=T
+LOG: TEMP_DEP_SURFACE_TENSION=F
+LOG: USE_DIFF_DIA_FROM_DIFF_VOL=F
+REA: SPEED_DT_LIMIT=1.0E-009,60.0,1.0E-009,60.0,1.0E-009,60.0,1.0E-009,60.0
+LOG: ENABLE_END_FROM_OUTSIDE=T
+"""
+
 
 if __name__ == '__main__':
     print(CurrentVersion+' started at:', ( time.strftime("%B %d %Y, %H:%M:%S", time.localtime())))

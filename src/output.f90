@@ -116,16 +116,16 @@ CONTAINS
 
     DO I=1, N_FILES
 
-      ncfile_names(I) = trim(filename)//'/'//TRIM(ncfile_names(I))//'.nc'
+      ncfile_names(I) = trim(filename)//'/'//TRIM(ncfile_names(I))
 
       !Clearing file; Opening file. Overwrites
-      open(720+I, FILE=ncfile_names(I), iostat = ioi)
-      CALL handle_file_io(ioi, ncfile_names(I), 'Terminating when trying to open netCDF-file, does the CASE and RUN directory exist')
+      open(720+I, FILE=TRIM(ncfile_names(I))//'.tmp', iostat = ioi)
+      CALL handle_file_io(ioi, TRIM(ncfile_names(I))//'.tmp', 'Terminating when trying to open netCDF-file, does the CASE and RUN directory exist')
       close(720+I)
 
       ! Added compression for particles.nc, so we need to use netCDF4-file. Here used in classic mode
-      ! call handler(__LINE__, nf90_create(ncfile_names(I), NF90_NETCDF4, ncfile_ids(I)) )
-      call handler(__LINE__, nf90_create(ncfile_names(I), IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), ncfile_ids(I)) )
+      ! call handler(__LINE__, nf90_create(TRIM(ncfile_names(I))//'.tmp', NF90_NETCDF4, ncfile_ids(I)) )
+      call handler(__LINE__, nf90_create(TRIM(ncfile_names(I))//'.tmp', IOR(NF90_NETCDF4, NF90_CLASSIC_MODEL), ncfile_ids(I)) )
 
       ! Defining dimensions: time(unlimited), size sections, vapor_species
       ! call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "time",NINT(GTIME%SIM_TIME_S/GTIME%FSAVE_INTERVAL+1), dtime_id) )
@@ -373,11 +373,14 @@ END SUBROUTINE SAVE_GASES
 subroutine CLOSE_FILES(filename)
   IMPLICIT NONE
   CHARACTER(LEN=*), INTENT(IN) :: filename
-  INTEGER :: I
+  INTEGER :: I,ioi
   DO I=1,N_FILES
     call handler(__LINE__, nf90_close(ncfile_ids(I)))
   END DO
-
+  DO I=1,N_FILES
+    ioi = RENAME(TRIM(ncfile_names(I))//'.tmp', TRIM(ncfile_names(I))//'.nc')
+    if (ioi /= 0) print*, 'Error while copying final file.'
+  END DO
   Write(*,FMT_MSG) 'Outputfiles in '//TRIM(filename)//' closed.'
   Write(*,FMT_LEND)
 

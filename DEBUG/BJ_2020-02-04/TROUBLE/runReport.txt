@@ -1,0 +1,871 @@
+
+
+
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.Compiled with "Hyde" chemistry module............................................................+
+ 
++.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
+| Date: 2020-02-04 -> Julian Day: 35                                                               |
+| ENV values from DEBUG/exportedData/BJ_input_v2.txt:                                              |
+|   :........TEMPK will be read from column: 2                                                     |
+|   :........PRESSURE will be read from column: 4                                                  |
+|   :........REL_HUMIDITY will be read from column: 3                                              |
+|   :........CONDENS_SINK will be read from column: 31                                             |
+|   :........CON_SIN_NITR will be read from column: 33                                             |
+|   :........SW_RADIATION will be read from column: 5                                              |
+|   :........NH3 will be read from column: 12                                                      |
+|   :........SO2 will be read from column: 8                                                       |
+|   :........NO will be read from column: 10                                                       |
+|   :........NO2 will be read from column: 11                                                      |
+|   :........CO will be read from column: 9                                                        |
+|   :........O3 will be read from column: 7                                                        |
+| MCM values from DEBUG/exportedData/BJ_input_v2.txt:                                              |
+|   :........HCHO will be read from column: 23                                                     |
+|   :........BENZENE will be read from column: 17                                                  |
+|   :........TOLUENE will be read from column: 17                                                  |
+|   :........C5H8 will be read from column: 25                                                     |
+|   :........APINENE will be read from column: 26                                                  |
+|   :........BPINENE will be read from column: 26                                                  |
+|   :........LIMONENE will be read from column: 26                                                 |
+|   :........CARENE will be read from column: 26                                                   |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "DEBUG/exportedData/BJ_input_v2.txt".                     |
+|   :........Done filling input matrices...                                                        |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "DEBUG/exportedData/BJ_input_v2.txt".                     |
+|   :........Done filling input matrices...                                                        |
+| Reading DMPS files DEBUG/exportedData/BJ_dmps.dat                                                |
++..................................................................................................+
+| Reading Vapour name file DEBUG/exportedData/Vapours.dat                                          |
+|   :........Compounds picked from Vapours file: 575                                               |
+|   :........Total number of condensibes       : 576                                               |
+| Reading the list of elemental composition: DEBUG/exportedData/Elements1175.dat                   |
+| WARNING: Not all organics had atom content, using generic diameter~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
++.Checking input validity..........................................................................+
+| - Temperature input in Kelvins.                                                                  |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Converting CH4 from ppm                                                                        |
+| - Replacing input for DMA with parametrized function.                                            |
+| - Adding a constant to CH4, [in ppm]: 3.000E+00                                                  |
+| - Multiplying APINENE with: 5.100E-01                                                            |
+| - Multiplying BPINENE with: 1.200E-01                                                            |
+| - Multiplying LIMONENE with: 9.000E-02                                                           |
+| - Multiplying CARENE with: 2.800E-01                                                             |
++..................................................................................................+
++.Checking for linked variables....................................................................+
++..................................................................................................+
++.Checking against KPP for chemicals...............................................................+
+| WARNING: A compound which does not exist in chemistry but could be used elsewhere: NH3 ~~~~~~~~~~+
+|   :........In INITFILE; &NML_MODS (col) <- input from file.                                      |
+| WARNING: A compound which does not exist in chemistry but could be used elsewhere: DMA ~~~~~~~~~~+
+|   :........In INITFILE; &NML_MODS - a function for input in use.                                 |
+| Found SO2 from chemistry                                                                         |
+| Found NO from chemistry                                                                          |
+| Found NO2 from chemistry                                                                         |
+| Found CO from chemistry                                                                          |
+| Found O3 from chemistry                                                                          |
+| Found HCHO from chemistry                                                                        |
+| Found CH4 from chemistry                                                                         |
+| Found BENZENE from chemistry                                                                     |
+| Found TOLUENE from chemistry                                                                     |
+| Found C5H8 from chemistry                                                                        |
+| Found APINENE from chemistry                                                                     |
+| Found BPINENE from chemistry                                                                     |
+| Found LIMONENE from chemistry                                                                    |
+| Found CARENE from chemistry                                                                      |
++..................................................................................................+
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     BUCT run: A2: WRF-chem cut input                                                             |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: DEBUG/BJ_2020-02-04/TROUBLE                                          |
++..................................................................................................+
+| Initializing chemistry with DEBUG/BJ_2020-02-04/BEGINNING. This takes a while.                   |
+| Initializing aerosols with DEBUG/BJ_2020-02-04/BEGINNING. This takes a while.                    |
+ 
++.Simulation time step will be optimized for precision.............................................+
+| precision limits for particle diameter     :   5.00 %   20.00 %                                  |
+| precision limits for particle concentration:   5.00 %   10.00 %                                  |
+| precision limits for vapour concentration  :   5.00 %   20.00 %                                  |
++..................................................................................................+
+Starting simulation at: 
+
++.Time: 09:00:10 ..................................................................................+
+
++.Time: 09:00:20 ..................................................................................+
+| 09:00:20 3.242E+04    Max rel. change in vapours 1.574E-01    with C516OOH                       |
+| 09:00:20 3.242E+04    Max rel. change in concentratio 4.212E-02    with 1                        |
+| ACID C:    1.091E+07 [1/cm3]    sum(An)/A1 2.358E-01 []                                          |
+| Temp:      2.702E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.740E+19 [1/cm3]         |
+| NH3 C:     7.362E+10 [1/cm3]    J_NH3: 6.461E+02 [1/s/cm3]    sum(Nn)/N1 3.191E-05 []            |
+| DMA C:     7.819E+01 [1/cm3]    J_DMA: 3.563E-18 [1/s/cm3]    J-total 6.461E+02 [1/s/cm3]        |
+| Jion neutr 6.461E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.286E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:00 Est. time to finish (m:s) 0:00        Realtime/Modeltime:  104.90        |
+| Current integration time step: 1.000E+01     1  1  1  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 09:05:00 ..................................................................................+
+| 09:05:00 3.270E+04    Max rel. change in vapours 1.582E-01    with C516OOH                       |
+| 09:05:00 3.270E+04    Max rel. change in concentratio 4.283E-02    with 1                        |
+| ACID C:    1.111E+07 [1/cm3]    sum(An)/A1 2.336E-01 []                                          |
+| Temp:      2.702E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.739E+19 [1/cm3]         |
+| NH3 C:     7.232E+10 [1/cm3]    J_NH3: 6.660E+02 [1/s/cm3]    sum(Nn)/N1 3.274E-05 []            |
+| DMA C:     7.917E+01 [1/cm3]    J_DMA: 3.722E-18 [1/s/cm3]    J-total 6.660E+02 [1/s/cm3]        |
+| Jion neutr 6.660E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.297E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:01 Est. time to finish (m:s) 0:00        Realtime/Modeltime:  190.02        |
+| Current integration time step: 1.000E+01     1  1  1  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+| Engaging speed...                                                                                |
+| 09:08:40-> Speed multipliers now:1 1 2 1                                                         |
+
++.Time: 09:10:00 ..................................................................................+
+| 09:10:00 3.300E+04    Max rel. change in vapours 1.582E-01    with C516OOH                       |
+| 09:10:00 3.300E+04    Max rel. change in concentratio 8.576E-02    with 1                        |
+| ACID C:    1.221E+07 [1/cm3]    sum(An)/A1 2.356E-01 []                                          |
+| Temp:      2.703E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.739E+19 [1/cm3]         |
+| NH3 C:     7.093E+10 [1/cm3]    J_NH3: 8.067E+02 [1/s/cm3]    sum(Nn)/N1 3.690E-05 []            |
+| DMA C:     8.020E+01 [1/cm3]    J_DMA: 4.566E-18 [1/s/cm3]    J-total 8.067E+02 [1/s/cm3]        |
+| Jion neutr 8.067E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.297E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:03 Est. time to finish (m:s) 0:00        Realtime/Modeltime:  195.75        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 09:15:00 ..................................................................................+
+| 09:15:00 3.330E+04    Max rel. change in vapours 1.576E-01    with C516OOH                       |
+| 09:15:00 3.330E+04    Max rel. change in concentratio 8.449E-02    with 1                        |
+| ACID C:    1.120E+07 [1/cm3]    sum(An)/A1 2.461E-01 []                                          |
+| Temp:      2.704E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.738E+19 [1/cm3]         |
+| NH3 C:     6.954E+10 [1/cm3]    J_NH3: 7.653E+02 [1/s/cm3]    sum(Nn)/N1 3.621E-05 []            |
+| DMA C:     8.122E+01 [1/cm3]    J_DMA: 4.658E-18 [1/s/cm3]    J-total 7.653E+02 [1/s/cm3]        |
+| Jion neutr 7.653E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.289E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:04 Est. time to finish (m:s) 0:01        Realtime/Modeltime:  200.66        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 09:20:00 ..................................................................................+
+| 09:20:00 3.360E+04    Max rel. change in vapours 1.589E-01    with C516OOH                       |
+| 09:20:00 3.360E+04    Max rel. change in concentratio 8.554E-02    with 1                        |
+| ACID C:    9.076E+06 [1/cm3]    sum(An)/A1 2.081E-01 []                                          |
+| Temp:      2.704E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.737E+19 [1/cm3]         |
+| NH3 C:     6.816E+10 [1/cm3]    J_NH3: 4.302E+02 [1/s/cm3]    sum(Nn)/N1 2.531E-05 []            |
+| DMA C:     8.222E+01 [1/cm3]    J_DMA: 2.837E-18 [1/s/cm3]    J-total 4.302E+02 [1/s/cm3]        |
+| Jion neutr 4.302E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.301E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:05 Est. time to finish (m:s) 0:01        Realtime/Modeltime:  200.26        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 09:25:00 ..................................................................................+
+| 09:25:00 3.390E+04    Max rel. change in vapours 1.584E-01    with C516OOH                       |
+| 09:25:00 3.390E+04    Max rel. change in concentratio 8.464E-02    with 1                        |
+| ACID C:    1.001E+07 [1/cm3]    sum(An)/A1 1.575E-01 []                                          |
+| Temp:      2.705E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.737E+19 [1/cm3]         |
+| NH3 C:     6.677E+10 [1/cm3]    J_NH3: 3.177E+02 [1/s/cm3]    sum(Nn)/N1 2.119E-05 []            |
+| DMA C:     8.321E+01 [1/cm3]    J_DMA: 2.044E-18 [1/s/cm3]    J-total 3.177E+02 [1/s/cm3]        |
+| Jion neutr 3.177E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.295E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:07 Est. time to finish (m:s) 0:02        Realtime/Modeltime:  200.83        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 09:30:00 ..................................................................................+
+| 09:30:00 3.420E+04    Max rel. change in vapours 1.584E-01    with C516OOH                       |
+| 09:30:00 3.420E+04    Max rel. change in concentratio 8.462E-02    with 1                        |
+| ACID C:    1.344E+07 [1/cm3]    sum(An)/A1 1.758E-01 []                                          |
+| Temp:      2.706E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.736E+19 [1/cm3]         |
+| NH3 C:     6.538E+10 [1/cm3]    J_NH3: 5.606E+02 [1/s/cm3]    sum(Nn)/N1 3.218E-05 []            |
+| DMA C:     8.417E+01 [1/cm3]    J_DMA: 2.986E-18 [1/s/cm3]    J-total 5.606E+02 [1/s/cm3]        |
+| Jion neutr 5.606E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.296E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:08 Est. time to finish (m:s) 0:02        Realtime/Modeltime:  202.02        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 09:35:00 ..................................................................................+
+| 09:35:00 3.450E+04    Max rel. change in vapours 1.591E-01    with C516OOH                       |
+| 09:35:00 3.450E+04    Max rel. change in concentratio 8.518E-02    with 1                        |
+| ACID C:    1.386E+07 [1/cm3]    sum(An)/A1 2.298E-01 []                                          |
+| Temp:      2.706E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.736E+19 [1/cm3]         |
+| NH3 C:     6.400E+10 [1/cm3]    J_NH3: 1.012E+03 [1/s/cm3]    sum(Nn)/N1 4.496E-05 []            |
+| DMA C:     8.512E+01 [1/cm3]    J_DMA: 4.946E-18 [1/s/cm3]    J-total 1.012E+03 [1/s/cm3]        |
+| Jion neutr 1.012E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.303E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:10 Est. time to finish (m:s) 0:02        Realtime/Modeltime:  204.24        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 09:40:00 ..................................................................................+
+| 09:40:00 3.480E+04    Max rel. change in vapours 1.589E-01    with C516OOH                       |
+| 09:40:00 3.480E+04    Max rel. change in concentratio 8.505E-02    with 1                        |
+| ACID C:    1.143E+07 [1/cm3]    sum(An)/A1 2.171E-01 []                                          |
+| Temp:      2.707E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.735E+19 [1/cm3]         |
+| NH3 C:     6.261E+10 [1/cm3]    J_NH3: 7.318E+02 [1/s/cm3]    sum(Nn)/N1 3.599E-05 []            |
+| DMA C:     8.604E+01 [1/cm3]    J_DMA: 4.530E-18 [1/s/cm3]    J-total 7.318E+02 [1/s/cm3]        |
+| Jion neutr 7.318E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.301E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:11 Est. time to finish (m:s) 0:02        Realtime/Modeltime:  206.62        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 09:45:00 ..................................................................................+
+| 09:45:00 3.510E+04    Max rel. change in vapours 1.584E-01    with C516OOH                       |
+| 09:45:00 3.510E+04    Max rel. change in concentratio 8.461E-02    with 1                        |
+| ACID C:    1.234E+07 [1/cm3]    sum(An)/A1 1.718E-01 []                                          |
+| Temp:      2.708E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.734E+19 [1/cm3]         |
+| NH3 C:     6.123E+10 [1/cm3]    J_NH3: 5.798E+02 [1/s/cm3]    sum(Nn)/N1 3.103E-05 []            |
+| DMA C:     8.695E+01 [1/cm3]    J_DMA: 4.033E-18 [1/s/cm3]    J-total 5.798E+02 [1/s/cm3]        |
+| Jion neutr 5.798E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.295E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:12 Est. time to finish (m:s) 0:02        Realtime/Modeltime:  209.20        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 09:50:00 ..................................................................................+
+| 09:50:00 3.540E+04    Max rel. change in vapours 1.586E-01    with C516OOH                       |
+| 09:50:00 3.540E+04    Max rel. change in concentratio 8.480E-02    with 1                        |
+| ACID C:    1.607E+07 [1/cm3]    sum(An)/A1 1.879E-01 []                                          |
+| Temp:      2.708E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.734E+19 [1/cm3]         |
+| NH3 C:     5.985E+10 [1/cm3]    J_NH3: 9.907E+02 [1/s/cm3]    sum(Nn)/N1 4.495E-05 []            |
+| DMA C:     8.783E+01 [1/cm3]    J_DMA: 6.447E-18 [1/s/cm3]    J-total 9.907E+02 [1/s/cm3]        |
+| Jion neutr 9.907E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.298E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:14 Est. time to finish (m:s) 0:03        Realtime/Modeltime:  210.67        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 09:55:00 ..................................................................................+
+| 09:55:00 3.570E+04    Max rel. change in vapours 1.601E-01    with C516OOH                       |
+| 09:55:00 3.570E+04    Max rel. change in concentratio 8.614E-02    with 1                        |
+| ACID C:    1.930E+07 [1/cm3]    sum(An)/A1 2.378E-01 []                                          |
+| Temp:      2.709E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.733E+19 [1/cm3]         |
+| NH3 C:     5.846E+10 [1/cm3]    J_NH3: 2.188E+03 [1/s/cm3]    sum(Nn)/N1 7.071E-05 []            |
+| DMA C:     8.869E+01 [1/cm3]    J_DMA: 1.465E-17 [1/s/cm3]    J-total 2.188E+03 [1/s/cm3]        |
+| Jion neutr 2.188E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.314E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:15 Est. time to finish (m:s) 0:03        Realtime/Modeltime:  211.94        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:00:00 ..................................................................................+
+| 10:00:00 3.600E+04    Max rel. change in vapours 1.619E-01    with C516OOH                       |
+| 10:00:00 3.600E+04    Max rel. change in concentratio 8.789E-02    with 1                        |
+| ACID C:    2.116E+07 [1/cm3]    sum(An)/A1 2.632E-01 []                                          |
+| Temp:      2.709E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.733E+19 [1/cm3]         |
+| NH3 C:     5.708E+10 [1/cm3]    J_NH3: 3.292E+03 [1/s/cm3]    sum(Nn)/N1 8.838E-05 []            |
+| DMA C:     8.952E+01 [1/cm3]    J_DMA: 3.220E-17 [1/s/cm3]    J-total 3.292E+03 [1/s/cm3]        |
+| Jion neutr 3.292E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.334E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:16 Est. time to finish (m:s) 0:03        Realtime/Modeltime:  213.09        |
+| Current integration time step: 1.000E+01     1  1  2  1                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 3.468E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.318E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.000E+01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 3.468E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.318E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 3.468E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.318E+07
+| WARNING:   => reduce dt [s]:5.000E+00   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 5.000E+00     2  1  4  2                                  |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.852E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.315E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.852E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.315E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.852E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.315E+07
+| WARNING:   => reduce dt [s]:2.500E+00   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 2.500E+00     4  1  8  4                                  |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.545E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.313E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]2.500E+00                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.545E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.313E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.545E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.313E+07
+| WARNING:   => reduce dt [s]:1.250E+00   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 1.250E+00     8  1  16  8                                 |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.392E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.312E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.250E+00                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.392E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.312E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.392E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.312E+07
+| WARNING:   => reduce dt [s]:6.250E-01   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 6.250E-01     16  1  32  16                               |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.315E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.312E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]6.250E-01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.315E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.312E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.315E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.312E+07
+| WARNING:   => reduce dt [s]:3.125E-01   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 3.125E-01     32  1  64  32                               |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.277E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.312E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]3.125E-01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.277E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.312E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.277E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.312E+07
+| WARNING:   => reduce dt [s]:1.562E-01   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 1.562E-01     64  1  128  64                              |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.258E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.562E-01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.258E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.258E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:7.812E-02   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 7.812E-02     128  1  256  128                            |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.248E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]7.812E-02                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.248E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.248E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:3.906E-02   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 3.906E-02     256  1  512  256                            |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.244E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]3.906E-02                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.244E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.244E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:1.953E-02   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 1.953E-02     512  1  1024  512                           |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.241E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.953E-02                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.241E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.241E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:9.766E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 9.766E-03     1024  1  2048  1024                         |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.240E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]9.766E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.240E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.240E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:4.883E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 4.883E-03     2048  1  4096  2048                         |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]4.883E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:2.441E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 2.441E-03     4096  1  8192  4096                         |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]2.441E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:1.221E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 1.221E-03     8192  1  16384  8192                        |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.221E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:6.104E-04   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 6.104E-04     16384  1  32768  16384                      |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]6.104E-04                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:3.052E-04   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 3.052E-04     32768  1  65536  32768                      |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]3.052E-04                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:1.526E-04   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 1.526E-04     65536  1  131072  65536                     |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.526E-04                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:7.629E-05   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 7.629E-05     131072  1  262144  131072                   |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]7.629E-05                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:3.815E-05   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 3.815E-05     262144  1  524288  262144                   |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]3.815E-05                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:1.907E-05   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 1.907E-05     524288  1  1048576  524288                  |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.907E-05                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:9.537E-06   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 9.537E-06     1048576  1  2097152  1048576                |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]9.537E-06                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:4.768E-06   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 4.768E-06     2097152  1  4194304  2097152                |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]4.768E-06                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:2.384E-06   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 2.384E-06     4194304  1  8388608  4194304                |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]2.384E-06                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:1.192E-06   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 1.192E-06     8388608  1  16777216  8388608               |
+ Error handled: F           0
+ 
+ Precision error in condensation at 10:02:10, Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07                
+ Precision error is active T Condensation
+| WARNING: Precision error at time 10:02:10 (36130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.192E-06                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.239E-01   , Upper Limit of |ap: 2.000E-01   \nTroublevapourC734OOH                  1.311E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 2.239E-01   , Upper Limit of vap: 2|000E-01   \nTroublevapourC734OOH                  1.311E+07
+| WARNING:   => reduce dt [s]:5.960E-07   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+| After speed management: time steps are 5.960E-07     16777216  1  33554432  16777216             |
+ Error handled: F           0
+ 
+| 10:02:10-> Speed multipliers now:8388608 1 16777216 8388608                                      |
+| 10:02:10-> Speed multipliers now:4194304 1 8388608 4194304                                       |
+| 10:02:10-> Speed multipliers now:2097152 1 4194304 2097152                                       |
+| 10:02:10-> Speed multipliers now:1048576 1 2097152 1048576                                       |
+| 10:02:10-> Speed multipliers now:524288 1 1048576 524288                                         |
+| 10:02:10-> Speed multipliers now:262144 1 524288 262144                                          |
+| 10:02:10-> Speed multipliers now:131072 1 262144 131072                                          |
+| 10:02:10-> Speed multipliers now:65536 1 131072 65536                                            |
+| 10:02:10-> Speed multipliers now:32768 1 65536 32768                                             |
+| 10:02:10-> Speed multipliers now:16384 1 32768 16384                                             |
+| 10:02:10-> Speed multipliers now:8192 1 16384 8192                                               |
+| 10:02:10-> Speed multipliers now:4096 1 8192 4096                                                |
+| 10:02:10-> Speed multipliers now:2048 1 4096 2048                                                |
+| 10:02:10-> Speed multipliers now:1024 1 2048 1024                                                |
+| 10:02:10-> Speed multipliers now:512 1 1024 512                                                  |
+| 10:02:10-> Speed multipliers now:256 1 512 256                                                   |
+| 10:02:10-> Speed multipliers now:128 1 256 128                                                   |
+| 10:02:10-> Speed multipliers now:64 1 128 64                                                     |
+| 10:02:10-> Speed multipliers now:32 1 64 32                                                      |
+| 10:02:11-> Speed multipliers now:16 1 32 16                                                      |
+| 10:02:11-> Speed multipliers now:8 1 16 8                                                        |
+| 10:02:13-> Speed multipliers now:4 1 8 4                                                         |
+| 10:02:15-> Speed multipliers now:2 1 4 2                                                         |
+
++.Time: 10:05:00 ..................................................................................+
+| 10:05:00 3.630E+04    Max rel. change in vapours 7.987E-02    with C516OOH                       |
+| 10:05:00 3.630E+04    Max rel. change in concentratio 8.578E-02    with 1                        |
+| ACID C:    2.028E+07 [1/cm3]    sum(An)/A1 2.701E-01 []                                          |
+| Temp:      2.710E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.732E+19 [1/cm3]         |
+| NH3 C:     5.552E+10 [1/cm3]    J_NH3: 3.301E+03 [1/s/cm3]    sum(Nn)/N1 8.956E-05 []            |
+| DMA C:     9.033E+01 [1/cm3]    J_DMA: 5.190E-17 [1/s/cm3]    J-total 3.301E+03 [1/s/cm3]        |
+| Jion neutr 3.301E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.309E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:20 Est. time to finish (m:s) 0:03        Realtime/Modeltime:  188.00        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:10:00 ..................................................................................+
+| 10:10:00 3.660E+04    Max rel. change in vapours 7.944E-02    with C516OOH                       |
+| 10:10:00 3.660E+04    Max rel. change in concentratio 8.499E-02    with 1                        |
+| ACID C:    1.760E+07 [1/cm3]    sum(An)/A1 2.462E-01 []                                          |
+| Temp:      2.711E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.731E+19 [1/cm3]         |
+| NH3 C:     5.397E+10 [1/cm3]    J_NH3: 2.260E+03 [1/s/cm3]    sum(Nn)/N1 7.269E-05 []            |
+| DMA C:     9.111E+01 [1/cm3]    J_DMA: 4.922E-17 [1/s/cm3]    J-total 2.260E+03 [1/s/cm3]        |
+| Jion neutr 2.260E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.299E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:23 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  181.04        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:15:00 ..................................................................................+
+| 10:15:00 3.690E+04    Max rel. change in vapours 7.895E-02    with C516OOH                       |
+| 10:15:00 3.690E+04    Max rel. change in concentratio 8.407E-02    with 1                        |
+| ACID C:    1.527E+07 [1/cm3]    sum(An)/A1 2.065E-01 []                                          |
+| Temp:      2.712E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.730E+19 [1/cm3]         |
+| NH3 C:     5.241E+10 [1/cm3]    J_NH3: 1.342E+03 [1/s/cm3]    sum(Nn)/N1 5.413E-05 []            |
+| DMA C:     9.186E+01 [1/cm3]    J_DMA: 3.207E-17 [1/s/cm3]    J-total 1.342E+03 [1/s/cm3]        |
+| Jion neutr 1.342E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.288E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:25 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  175.34        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:20:00 ..................................................................................+
+| 10:20:00 3.720E+04    Max rel. change in vapours 7.861E-02    with C516OOH                       |
+| 10:20:00 3.720E+04    Max rel. change in concentratio 8.343E-02    with 1                        |
+| ACID C:    1.353E+07 [1/cm3]    sum(An)/A1 1.680E-01 []                                          |
+| Temp:      2.713E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.729E+19 [1/cm3]         |
+| NH3 C:     5.086E+10 [1/cm3]    J_NH3: 7.778E+02 [1/s/cm3]    sum(Nn)/N1 3.984E-05 []            |
+| DMA C:     9.259E+01 [1/cm3]    J_DMA: 1.680E-17 [1/s/cm3]    J-total 7.778E+02 [1/s/cm3]        |
+| Jion neutr 7.778E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.280E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:27 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  171.12        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:25:00 ..................................................................................+
+| 10:25:00 3.750E+04    Max rel. change in vapours 7.842E-02    with C516OOH                       |
+| 10:25:00 3.750E+04    Max rel. change in concentratio 8.310E-02    with 1                        |
+| ACID C:    1.428E+07 [1/cm3]    sum(An)/A1 1.408E-01 []                                          |
+| Temp:      2.714E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.728E+19 [1/cm3]         |
+| NH3 C:     4.931E+10 [1/cm3]    J_NH3: 6.230E+02 [1/s/cm3]    sum(Nn)/N1 3.583E-05 []            |
+| DMA C:     9.328E+01 [1/cm3]    J_DMA: 1.061E-17 [1/s/cm3]    J-total 6.230E+02 [1/s/cm3]        |
+| Jion neutr 6.230E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.275E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:30 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  167.91        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:30:00 ..................................................................................+
+| 10:30:00 3.780E+04    Max rel. change in vapours 7.850E-02    with C516OOH                       |
+| 10:30:00 3.780E+04    Max rel. change in concentratio 8.318E-02    with 1                        |
+| ACID C:    1.675E+07 [1/cm3]    sum(An)/A1 1.487E-01 []                                          |
+| Temp:      2.715E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.727E+19 [1/cm3]         |
+| NH3 C:     4.775E+10 [1/cm3]    J_NH3: 8.747E+02 [1/s/cm3]    sum(Nn)/N1 4.565E-05 []            |
+| DMA C:     9.395E+01 [1/cm3]    J_DMA: 1.088E-17 [1/s/cm3]    J-total 8.747E+02 [1/s/cm3]        |
+| Jion neutr 8.747E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.277E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:32 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  164.56        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:35:00 ..................................................................................+
+| 10:35:00 3.810E+04    Max rel. change in vapours 7.855E-02    with C516OOH                       |
+| 10:35:00 3.810E+04    Max rel. change in concentratio 8.326E-02    with 1                        |
+| ACID C:    1.667E+07 [1/cm3]    sum(An)/A1 1.675E-01 []                                          |
+| Temp:      2.716E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.726E+19 [1/cm3]         |
+| NH3 C:     4.620E+10 [1/cm3]    J_NH3: 1.113E+03 [1/s/cm3]    sum(Nn)/N1 5.329E-05 []            |
+| DMA C:     9.458E+01 [1/cm3]    J_DMA: 1.247E-17 [1/s/cm3]    J-total 1.113E+03 [1/s/cm3]        |
+| Jion neutr 1.113E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.278E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:35 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  162.24        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:40:00 ..................................................................................+
+| 10:40:00 3.840E+04    Max rel. change in vapours 7.837E-02    with C516OOH                       |
+| 10:40:00 3.840E+04    Max rel. change in concentratio 8.295E-02    with 1                        |
+| ACID C:    1.463E+07 [1/cm3]    sum(An)/A1 1.535E-01 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.725E+19 [1/cm3]         |
+| NH3 C:     4.465E+10 [1/cm3]    J_NH3: 8.185E+02 [1/s/cm3]    sum(Nn)/N1 4.433E-05 []            |
+| DMA C:     9.518E+01 [1/cm3]    J_DMA: 1.033E-17 [1/s/cm3]    J-total 8.185E+02 [1/s/cm3]        |
+| Jion neutr 8.185E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.274E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:37 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  159.98        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:45:00 ..................................................................................+
+| 10:45:00 3.870E+04    Max rel. change in vapours 7.822E-02    with C516OOH                       |
+| 10:45:00 3.870E+04    Max rel. change in concentratio 8.268E-02    with 1                        |
+| ACID C:    1.595E+07 [1/cm3]    sum(An)/A1 1.304E-01 []                                          |
+| Temp:      2.718E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.724E+19 [1/cm3]         |
+| NH3 C:     4.310E+10 [1/cm3]    J_NH3: 7.341E+02 [1/s/cm3]    sum(Nn)/N1 4.199E-05 []            |
+| DMA C:     9.575E+01 [1/cm3]    J_DMA: 9.594E-18 [1/s/cm3]    J-total 7.341E+02 [1/s/cm3]        |
+| Jion neutr 7.341E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.270E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:39 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  158.06        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:50:00 ..................................................................................+
+| 10:50:00 3.900E+04    Max rel. change in vapours 7.834E-02    with C516OOH                       |
+| 10:50:00 3.900E+04    Max rel. change in concentratio 8.287E-02    with 1                        |
+| ACID C:    2.047E+07 [1/cm3]    sum(An)/A1 1.459E-01 []                                          |
+| Temp:      2.719E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.724E+19 [1/cm3]         |
+| NH3 C:     4.155E+10 [1/cm3]    J_NH3: 1.344E+03 [1/s/cm3]    sum(Nn)/N1 6.238E-05 []            |
+| DMA C:     9.629E+01 [1/cm3]    J_DMA: 1.627E-17 [1/s/cm3]    J-total 1.344E+03 [1/s/cm3]        |
+| Jion neutr 1.344E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.273E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:42 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  156.20        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 10:55:00 ..................................................................................+
+| 10:55:00 3.930E+04    Max rel. change in vapours 7.881E-02    with C516OOH                       |
+| 10:55:00 3.930E+04    Max rel. change in concentratio 8.373E-02    with 1                        |
+| ACID C:    2.417E+07 [1/cm3]    sum(An)/A1 1.790E-01 []                                          |
+| Temp:      2.720E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.723E+19 [1/cm3]         |
+| NH3 C:     4.001E+10 [1/cm3]    J_NH3: 2.714E+03 [1/s/cm3]    sum(Nn)/N1 9.480E-05 []            |
+| DMA C:     9.679E+01 [1/cm3]    J_DMA: 3.884E-17 [1/s/cm3]    J-total 2.714E+03 [1/s/cm3]        |
+| Jion neutr 2.714E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.283E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:44 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  154.66        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:00:00 ..................................................................................+
+| 11:00:00 3.960E+04    Max rel. change in vapours 7.918E-02    with C516OOH                       |
+| 11:00:00 3.960E+04    Max rel. change in concentratio 8.442E-02    with 1                        |
+| ACID C:    2.580E+07 [1/cm3]    sum(An)/A1 1.910E-01 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.722E+19 [1/cm3]         |
+| NH3 C:     3.846E+10 [1/cm3]    J_NH3: 3.605E+03 [1/s/cm3]    sum(Nn)/N1 1.128E-04 []            |
+| DMA C:     9.726E+01 [1/cm3]    J_DMA: 8.415E-17 [1/s/cm3]    J-total 3.605E+03 [1/s/cm3]        |
+| Jion neutr 3.605E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.291E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:46 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  153.40        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:05:00 ..................................................................................+
+| 11:05:00 3.990E+04    Max rel. change in vapours 8.012E-02    with C516OOH                       |
+| 11:05:00 3.990E+04    Max rel. change in concentratio 8.552E-02    with 1                        |
+| ACID C:    2.512E+07 [1/cm3]    sum(An)/A1 1.971E-01 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.721E+19 [1/cm3]         |
+| NH3 C:     3.978E+10 [1/cm3]    J_NH3: 3.612E+03 [1/s/cm3]    sum(Nn)/N1 1.099E-04 []            |
+| DMA C:     9.769E+01 [1/cm3]    J_DMA: 1.352E-16 [1/s/cm3]    J-total 3.612E+03 [1/s/cm3]        |
+| Jion neutr 3.612E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.308E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:49 Est. time to finish (m:s) 0:04        Realtime/Modeltime:  152.46        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:10:00 ..................................................................................+
+| 11:10:00 4.020E+04    Max rel. change in vapours 7.993E-02    with C516OOH                       |
+| 11:10:00 4.020E+04    Max rel. change in concentratio 8.513E-02    with 1                        |
+| ACID C:    2.285E+07 [1/cm3]    sum(An)/A1 1.939E-01 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.721E+19 [1/cm3]         |
+| NH3 C:     4.110E+10 [1/cm3]    J_NH3: 2.940E+03 [1/s/cm3]    sum(Nn)/N1 9.537E-05 []            |
+| DMA C:     9.809E+01 [1/cm3]    J_DMA: 1.467E-16 [1/s/cm3]    J-total 2.940E+03 [1/s/cm3]        |
+| Jion neutr 2.940E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.303E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:51 Est. time to finish (m:s) 0:03        Realtime/Modeltime:  151.55        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:15:00 ..................................................................................+
+| 11:15:00 4.050E+04    Max rel. change in vapours 7.950E-02    with C516OOH                       |
+| 11:15:00 4.050E+04    Max rel. change in concentratio 8.439E-02    with 1                        |
+| ACID C:    2.076E+07 [1/cm3]    sum(An)/A1 1.829E-01 []                                          |
+| Temp:      2.722E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.720E+19 [1/cm3]         |
+| NH3 C:     4.241E+10 [1/cm3]    J_NH3: 2.217E+03 [1/s/cm3]    sum(Nn)/N1 7.906E-05 []            |
+| DMA C:     9.845E+01 [1/cm3]    J_DMA: 1.189E-16 [1/s/cm3]    J-total 2.217E+03 [1/s/cm3]        |
+| Jion neutr 2.217E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.294E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:53 Est. time to finish (m:s) 0:03        Realtime/Modeltime:  150.64        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:20:00 ..................................................................................+
+| 11:20:00 4.080E+04    Max rel. change in vapours 7.915E-02    with C516OOH                       |
+| 11:20:00 4.080E+04    Max rel. change in concentratio 8.378E-02    with 1                        |
+| ACID C:    1.912E+07 [1/cm3]    sum(An)/A1 1.708E-01 []                                          |
+| Temp:      2.722E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.720E+19 [1/cm3]         |
+| NH3 C:     4.373E+10 [1/cm3]    J_NH3: 1.681E+03 [1/s/cm3]    sum(Nn)/N1 6.585E-05 []            |
+| DMA C:     9.877E+01 [1/cm3]    J_DMA: 8.099E-17 [1/s/cm3]    J-total 1.681E+03 [1/s/cm3]        |
+| Jion neutr 1.681E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.286E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:55 Est. time to finish (m:s) 0:03        Realtime/Modeltime:  149.85        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:25:00 ..................................................................................+
+| 11:25:00 4.110E+04    Max rel. change in vapours 7.883E-02    with C516OOH                       |
+| 11:25:00 4.110E+04    Max rel. change in concentratio 8.324E-02    with 1                        |
+| ACID C:    1.691E+07 [1/cm3]    sum(An)/A1 1.583E-01 []                                          |
+| Temp:      2.723E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.719E+19 [1/cm3]         |
+| NH3 C:     4.505E+10 [1/cm3]    J_NH3: 1.172E+03 [1/s/cm3]    sum(Nn)/N1 5.232E-05 []            |
+| DMA C:     9.906E+01 [1/cm3]    J_DMA: 4.574E-17 [1/s/cm3]    J-total 1.172E+03 [1/s/cm3]        |
+| Jion neutr 1.172E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.279E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:58 Est. time to finish (m:s) 0:02        Realtime/Modeltime:  149.07        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:30:00 ..................................................................................+
+| 11:30:00 4.140E+04    Max rel. change in vapours 7.853E-02    with C516OOH                       |
+| 11:30:00 4.140E+04    Max rel. change in concentratio 8.273E-02    with 1                        |
+| ACID C:    1.469E+07 [1/cm3]    sum(An)/A1 1.370E-01 []                                          |
+| Temp:      2.723E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.719E+19 [1/cm3]         |
+| NH3 C:     4.636E+10 [1/cm3]    J_NH3: 7.130E+02 [1/s/cm3]    sum(Nn)/N1 3.806E-05 []            |
+| DMA C:     9.931E+01 [1/cm3]    J_DMA: 2.099E-17 [1/s/cm3]    J-total 7.130E+02 [1/s/cm3]        |
+| Jion neutr 7.130E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.273E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:00 Est. time to finish (m:s) 0:02        Realtime/Modeltime:  148.32        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:35:00 ..................................................................................+
+| 11:35:00 4.170E+04    Max rel. change in vapours 7.834E-02    with C516OOH                       |
+| 11:35:00 4.170E+04    Max rel. change in concentratio 8.243E-02    with 1                        |
+| ACID C:    1.544E+07 [1/cm3]    sum(An)/A1 1.207E-01 []                                          |
+| Temp:      2.723E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.718E+19 [1/cm3]         |
+| NH3 C:     4.768E+10 [1/cm3]    J_NH3: 5.945E+02 [1/s/cm3]    sum(Nn)/N1 3.391E-05 []            |
+| DMA C:     9.952E+01 [1/cm3]    J_DMA: 1.201E-17 [1/s/cm3]    J-total 5.945E+02 [1/s/cm3]        |
+| Jion neutr 5.945E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.269E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:02 Est. time to finish (m:s) 0:02        Realtime/Modeltime:  147.68        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:40:00 ..................................................................................+
+| 11:40:00 4.200E+04    Max rel. change in vapours 7.834E-02    with C516OOH                       |
+| 11:40:00 4.200E+04    Max rel. change in concentratio 8.248E-02    with 1                        |
+| ACID C:    1.820E+07 [1/cm3]    sum(An)/A1 1.375E-01 []                                          |
+| Temp:      2.724E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.718E+19 [1/cm3]         |
+| NH3 C:     4.899E+10 [1/cm3]    J_NH3: 9.276E+02 [1/s/cm3]    sum(Nn)/N1 4.437E-05 []            |
+| DMA C:     9.969E+01 [1/cm3]    J_DMA: 1.190E-17 [1/s/cm3]    J-total 9.276E+02 [1/s/cm3]        |
+| Jion neutr 9.276E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.269E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:05 Est. time to finish (m:s) 0:01        Realtime/Modeltime:  147.05        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:45:00 ..................................................................................+
+| 11:45:00 4.230E+04    Max rel. change in vapours 7.852E-02    with C516OOH                       |
+| 11:45:00 4.230E+04    Max rel. change in concentratio 8.285E-02    with 1                        |
+| ACID C:    2.027E+07 [1/cm3]    sum(An)/A1 1.687E-01 []                                          |
+| Temp:      2.724E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.717E+19 [1/cm3]         |
+| NH3 C:     5.031E+10 [1/cm3]    J_NH3: 1.624E+03 [1/s/cm3]    sum(Nn)/N1 5.975E-05 []            |
+| DMA C:     9.983E+01 [1/cm3]    J_DMA: 1.686E-17 [1/s/cm3]    J-total 1.624E+03 [1/s/cm3]        |
+| Jion neutr 1.624E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.273E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:07 Est. time to finish (m:s) 0:01        Realtime/Modeltime:  146.50        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:50:00 ..................................................................................+
+| 11:50:00 4.260E+04    Max rel. change in vapours 7.868E-02    with C516OOH                       |
+| 11:50:00 4.260E+04    Max rel. change in concentratio 8.321E-02    with 1                        |
+| ACID C:    2.143E+07 [1/cm3]    sum(An)/A1 1.886E-01 []                                          |
+| Temp:      2.725E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.716E+19 [1/cm3]         |
+| NH3 C:     5.162E+10 [1/cm3]    J_NH3: 2.219E+03 [1/s/cm3]    sum(Nn)/N1 6.933E-05 []            |
+| DMA C:     9.992E+01 [1/cm3]    J_DMA: 2.593E-17 [1/s/cm3]    J-total 2.219E+03 [1/s/cm3]        |
+| Jion neutr 2.219E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.277E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:09 Est. time to finish (m:s) 0:00        Realtime/Modeltime:  146.04        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+
++.Time: 11:55:00 ..................................................................................+
+| 11:55:00 4.290E+04    Max rel. change in vapours 7.852E-02    with C516OOH                       |
+| 11:55:00 4.290E+04    Max rel. change in concentratio 8.298E-02    with 1                        |
+| ACID C:    1.830E+07 [1/cm3]    sum(An)/A1 1.969E-01 []                                          |
+| Temp:      2.725E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.716E+19 [1/cm3]         |
+| NH3 C:     5.293E+10 [1/cm3]    J_NH3: 1.811E+03 [1/s/cm3]    sum(Nn)/N1 6.066E-05 []            |
+| DMA C:     9.998E+01 [1/cm3]    J_DMA: 2.666E-17 [1/s/cm3]    J-total 1.811E+03 [1/s/cm3]        |
+| Jion neutr 1.811E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.274E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:12 Est. time to finish (m:s) 0:00        Realtime/Modeltime:  145.52        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+ 
++.Main loop ended..................................................................................+
+| Values from the last timestep:                                                                   |
++.Time: 11:59:55 ..................................................................................+
+| ACID C:    1.396E+07 [1/cm3]    sum(An)/A1 1.969E-01 []                                          |
+| Temp:      2.725E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.715E+19 [1/cm3]         |
+| NH3 C:     5.422E+10 [1/cm3]    J_NH3: 8.299E+02 [1/s/cm3]    sum(Nn)/N1 6.066E-05 []            |
+| DMA C:     1.000E+02 [1/cm3]    J_DMA: 1.318E-17 [1/s/cm3]    J-total 8.299E+02 [1/s/cm3]        |
+| Jion neutr 8.299E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.264E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:12 Est. time to finish (m:s) 0:00        Realtime/Modeltime:  149.61        |
+| Current integration time step: 5.000E+00     2  1  4  2                                          |
++~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
+| Outputfiles in DEBUG/BJ_2020-02-04/TROUBLE closed.                                               |
++..................................................................................................+
+
+SIMULATION HAS ENDED.  SO LONG!

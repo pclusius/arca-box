@@ -1,0 +1,268 @@
+| WARNING: Precision error at time 00:08:30 (510  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.000E+01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.214E-01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_OH_O5CBN             3.279E+08
+|   :........ERROR TYPE: Too large vapour concentration change: 2.214E-01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_OH_O5CBN             3.279E+08
+| WARNING:   => reduce dt [s]:5.000E+00   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 00:08:30 (510  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.107E-01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_OH_O5CBN             3.241E+08
+|   :........ERROR TYPE: Too large vapour concentration change: 1.107E-01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_OH_O5CBN             3.241E+08
+| WARNING:   => reduce dt [s]:2.500E+00   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]2.500E+00                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.938E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.632E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.938E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.632E+07
+| WARNING:   => reduce dt [s]:1.250E+00   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.250E+00                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.893E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.683E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.893E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.683E+07
+| WARNING:   => reduce dt [s]:6.250E-01   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]6.250E-01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.870E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.708E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.870E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.708E+07
+| WARNING:   => reduce dt [s]:3.125E-01   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]3.125E-01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.859E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.721E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.859E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.721E+07
+| WARNING:   => reduce dt [s]:1.562E-01   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.562E-01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.854E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.728E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.854E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.728E+07
+| WARNING:   => reduce dt [s]:7.812E-02   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]7.812E-02                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.851E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.731E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.851E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.731E+07
+| WARNING:   => reduce dt [s]:3.906E-02   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]3.906E-02                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.849E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.732E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.849E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.732E+07
+| WARNING:   => reduce dt [s]:1.953E-02   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.953E-02                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.849E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.733E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.849E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.733E+07
+| WARNING:   => reduce dt [s]:9.766E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]9.766E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.848E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.734E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.848E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.734E+07
+| WARNING:   => reduce dt [s]:4.883E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]4.883E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.848E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.734E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.848E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.734E+07
+| WARNING:   => reduce dt [s]:2.441E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]2.441E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.848E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.734E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.848E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.734E+07
+| WARNING:   => reduce dt [s]:1.221E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:15:18 (26117  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.221E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.848E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM_O13CBN               4.734E+07
+|   :........ERROR TYPE: Too large vapour concentration change: 1.848E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM_O13CBN               4.734E+07
+| WARNING:   => reduce dt [s]:6.104E-04   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| 07:15:18-> Speed multipliers now:8192 1 8192 8192                                                |
+| 07:15:18-> Speed multipliers now:4096 1 4096 4096                                                |
+| 07:15:30-> Speed multipliers now:2048 1 2048 2048                                                |
+| 07:16:29-> Speed multipliers now:1024 1 1024 1024                                                |
+| 07:17:21-> Speed multipliers now:512 1 512 512                                                   |
+| 07:18:14-> Speed multipliers now:256 1 256 256                                                   |
+| 07:19:09-> Speed multipliers now:128 1 128 128                                                   |
+| 07:20:07-> Speed multipliers now:64 1 64 64                                                      |
+| 07:21:08-> Speed multipliers now:32 1 32 32                                                      |
+| 07:22:27-> Speed multipliers now:16 1 16 16                                                      |
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]6.250E-01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 4.244E+01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O16                4.829E+05
+|   :........ERROR TYPE: Too large vapour concentration change: 4.244E+01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O16                4.829E+05
+| WARNING:   => reduce dt [s]:3.125E-01   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]3.125E-01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 3.423E+01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O16                5.951E+05
+|   :........ERROR TYPE: Too large vapour concentration change: 3.423E+01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O16                5.951E+05
+| WARNING:   => reduce dt [s]:1.562E-01   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.562E-01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 3.115E+01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O16                6.518E+05
+|   :........ERROR TYPE: Too large vapour concentration change: 3.115E+01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O16                6.518E+05
+| WARNING:   => reduce dt [s]:7.812E-02   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]7.812E-02                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.980E+01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O16                6.802E+05
+|   :........ERROR TYPE: Too large vapour concentration change: 2.980E+01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O16                6.802E+05
+| WARNING:   => reduce dt [s]:3.906E-02   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]3.906E-02                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.917E+01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O16                6.945E+05
+|   :........ERROR TYPE: Too large vapour concentration change: 2.917E+01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O16                6.945E+05
+| WARNING:   => reduce dt [s]:1.953E-02   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.953E-02                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.886E+01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O16                7.016E+05
+|   :........ERROR TYPE: Too large vapour concentration change: 2.886E+01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O16                7.016E+05
+| WARNING:   => reduce dt [s]:9.766E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]9.766E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.871E+01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O16                7.052E+05
+|   :........ERROR TYPE: Too large vapour concentration change: 2.871E+01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O16                7.052E+05
+| WARNING:   => reduce dt [s]:4.883E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]4.883E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.863E+01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O16                7.070E+05
+|   :........ERROR TYPE: Too large vapour concentration change: 2.863E+01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O16                7.070E+05
+| WARNING:   => reduce dt [s]:2.441E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]2.441E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.859E+01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O16                7.079E+05
+|   :........ERROR TYPE: Too large vapour concentration change: 2.859E+01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O16                7.079E+05
+| WARNING:   => reduce dt [s]:1.221E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.221E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.857E+01   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O16                7.083E+05
+|   :........ERROR TYPE: Too large vapour concentration change: 2.857E+01   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O16                7.083E+05
+| WARNING:   => reduce dt [s]:6.104E-04   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| 07:22:42-> Speed multipliers now:8192 1 8192 8192                                                |
+| 07:22:42-> Speed multipliers now:4096 1 4096 4096                                                |
+| 07:22:42-> Speed multipliers now:2048 1 2048 2048                                                |
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]4.883E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.716E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O10                6.185E+12
+|   :........ERROR TYPE: Too large vapour concentration change: 1.716E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O10                6.185E+12
+| WARNING:   => reduce dt [s]:2.441E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]2.441E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.715E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O10                6.186E+12
+|   :........ERROR TYPE: Too large vapour concentration change: 1.715E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O10                6.186E+12
+| WARNING:   => reduce dt [s]:1.221E-03   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:42 (26562  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.221E-03                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 1.715E+00   , Upper Limit of |ap: 1.000E-01   \nTroublevapourHOM20_O10                6.186E+12
+|   :........ERROR TYPE: Too large vapour concentration change: 1.715E+00   , Upper Limit of vap: 1|000E-01   \nTroublevapourHOM20_O10                6.186E+12
+| WARNING:   => reduce dt [s]:6.104E-04   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| 07:22:59-> Speed multipliers now:8192 1 8192 8192                                                |
+| WARNING: Precision error at time 07:22:59 (26578  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.221E-03                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8192 ->4096                                                      |
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:59 (26578  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.221E-03                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:4096 ->2048                                                      |
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:59 (26578  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.221E-03                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:2048 ->1024                                                      |
+ 
+error state: F, error process: 0
+| WARNING: Precision error at time 07:22:59 (26578  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.221E-03                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+error state: F, error process: 0
+| 07:23:04-> Speed multipliers now:4096 1 256 4096                                                 |
+| 07:23:09-> Speed multipliers now:2048 1 128 2048                                                 |
+| 07:23:14-> Speed multipliers now:1024 1 64 1024                                                  |
+| 07:23:19-> Speed multipliers now:512 1 32 512                                                    |
+| 10:10:27-> Speed multipliers now:256 1 16 256                                                    |
+ ---------- SIMULATION REACHED END SUCCESFULLY ------------

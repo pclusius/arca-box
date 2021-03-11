@@ -458,7 +458,6 @@ SUBROUTINE PSD_Change_mixing
     IMPLICIT NONE
     INTEGER ::  ii  !some integer for incrementation
 
-
     !------------------------
     !FULLY STATIONARY METHOD!
     IF (current_PSD%PSD_style == 1) THEN
@@ -506,9 +505,13 @@ SUBROUTINE PSD_Change_mixing
                 mix_PSD%composition_ma(ii,:) = dmass(ii,:)  !composition of i
                 ! Set concentration in the mix_PSD
                 mix_PSD%conc_ma(ii) = dconc_dep_mix(ii) * ABS(mix_ratio)
+
+                ! print*, 'in PSD', mix_PSD%conc_ma(ii)
                 ! Determine new composition and particle concentrations
                 new_PSD%conc_ma(ii) = (current_PSD%conc_ma(ii) + mix_PSD%conc_ma(ii) * ABS(mix_ratio)) / &
                              (1.d0 + max(0d0,mix_ratio))
+
+                 ! print*, 'in PSD', new_PSD%conc_ma(ii), mix_PSD%conc_ma(ii) * ABS(mix_ratio),  1.d0 + max(0d0,mix_ratio)
                 ! New composition based on total mass composition of both aerosols of bin ii
                 new_PSD%composition_ma(ii,:) = (current_PSD%composition_ma(ii,:) * current_PSD%conc_ma(ii) + &
                                       mix_PSD%composition_ma(ii,:) * ABS(mix_ratio) * mix_PSD%conc_ma(ii)) / &
@@ -519,6 +522,7 @@ SUBROUTINE PSD_Change_mixing
                                   (current_PSD%conc_ma(ii) + ABS(mix_ratio) * mix_PSD%conc_ma(ii))) ** (1.d0/3.d0)
                 mix_PSD%conc_ma(ii) = 0.d0  ! Reset value to zero -> changes have been applied
             ELSE
+                if (ii== 1) print*, 'Nothing to mix with'
                 new_PSD%conc_ma(ii) = current_PSD%conc_ma(ii) ! Nothing to mix with => new concentration is current concentration; composition is already new (see subroutine Mass_Number_Change)
             END IF
         END DO

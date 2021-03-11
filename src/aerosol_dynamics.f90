@@ -40,8 +40,9 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     REAL(dp)                                    :: st           ! Surface tension for all compounds
     REAL(dp)                                    :: conc_guess
     REAL(dp)                                    :: sum_org      ! Sum of organic concentration in bin, transient variable
+    INTEGER :: ic ! index for condesables
+    INTEGER :: ip ! index for particles
 
-  INTEGER :: ii
   if (TEMP_DEP_SURFACE_TENSION) THEN
       st = (1D0/3D0) * ((76.1d0 - 0.155d0*(GTEMPK-273.15d0))*1d-3)
   ELSE
@@ -55,8 +56,8 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
   mass = sum(conc_pp, 2)
   conc_pp_eq = 0d0
   ! Fill the number concentration composition matrix
-  do ii=1, n_bins_par
-    conc_pp(ii,:) = conc_pp(ii,:) * Na / VAPOUR_PROP%molar_mass * n_conc(ii)
+  do ip=1, n_bins_par
+    conc_pp(ip,:) = conc_pp(ip,:) * Na / VAPOUR_PROP%molar_mass * n_conc(ip)
   end do
 
   ! original gas phase concentration
@@ -68,131 +69,143 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
 
   xorg = 1d0
   if (use_raoult) THEN
-    DO ii=1,n_bins_par
-      if (volume(ii) >0.0 .and. diameter(ii) > 1D-9) then
-        sum_org = sum(conc_pp(ii,:),DIM=1, Mask=(VAPOUR_PROP%cond_type==1))
+    DO ip=1,n_bins_par
+      if (volume(ip) >0.0 .and. diameter(ip) > 1D-9) then
+        sum_org = sum(conc_pp(ip,:),DIM=1, Mask=(VAPOUR_PROP%cond_type==1))
         if (sum_org>0) THEN
-          xorg(ii,:)= conc_pp(ii,:)/sum_org
+          xorg(ip,:)= conc_pp(ip,:)/sum_org
         END if
       END if
     END DO
   END if
 
   ! Kelvin and Kohler factors.
-  DO ii = 1, n_cond_tot
+  DO ic = 1, n_cond_tot
     ! Kelvin factor takes into account the curvature of particles. Unitless
-    Kelvin_Effect(:,ii) = 1d0
+    Kelvin_Effect(:,ic) = 1d0
 
-    Kelvin_Effect(:,ii) = 1D0 + 2D0*st*VAPOUR_PROP%molar_mass(ii) &
-                        / (Rg*GTEMPK*VAPOUR_PROP%density(ii)*diameter/2D0)
+    Kelvin_Effect(:,ic) = 1D0 + 2D0*st*VAPOUR_PROP%molar_mass(ic) &
+                        / (Rg*GTEMPK*VAPOUR_PROP%density(ic)*diameter/2D0)
 
     ! Kohler factor the solute partial pressure effect. Unitless
-    kohler_effect(:,ii) = Kelvin_Effect(:,ii)*xorg(:,ii)
+    kohler_effect(:,ic) = Kelvin_Effect(:,ic)*xorg(:,ic)
   END DO
   ! Treat H2SO4 specially
   kohler_effect(:,n_cond_tot) = Kelvin_Effect(:,n_cond_tot)
 
   ! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
-  DO ii=1,n_bins_par
-    conc_pp_eq(ii,1:n_cond_tot-1) = conc_vap_old(1:n_cond_tot-1)*SUM(conc_pp_old(ii,1:n_cond_tot-1)) &
-                                    / (Kelvin_Effect(ii,1:n_cond_tot-1)*VAPOUR_PROP%c_sat(1:n_cond_tot-1))
+  DO ic=1,n_bins_par
+    conc_pp_eq(ic,1:n_cond_tot-1) = conc_vap_old(1:n_cond_tot-1)*SUM(conc_pp_old(ic,1:n_cond_tot-1)) &
+                                    / (Kelvin_Effect(ic,1:n_cond_tot-1)*VAPOUR_PROP%c_sat(1:n_cond_tot-1))
   END DO
 
-  DO ii = 1, n_cond_tot
+  DO ic = 1, n_cond_tot
 
       ! Total number of collisions/s
-    CR(:,ii) = n_conc * collision_rate(ii,diameter,mass,VAPOUR_PROP)
+    CR(:,ic) = n_conc * collision_rate(ic,diameter,mass,VAPOUR_PROP)
 
     ! Update sulfuric acid condensation sink
-    if (ii == VAPOUR_PROP%ind_H2SO4) GCS = sum(CR(:,ii))
+    if (ic == VAPOUR_PROP%ind_H2SO4) GCS = sum(CR(:,ic))
 
     ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
-    conc_guess = (conc_vap(ii) + dt_cond*sum(CR(:,ii)*kohler_effect(:,ii)*VAPOUR_PROP%c_sat(ii))) &
-               / (1D0 + dt_cond*sum(CR(:,ii)))
+    conc_guess = (conc_vap(ic) + dt_cond*sum(CR(:,ic)*kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))) &
+               / (1D0 + dt_cond*sum(CR(:,ic)))
 
-    ! apc scheme here. NOTE that for sulfuric acid VAPOUR_PROP%c_sat(ii) = 0 so the last term will vanish
-    conc_pp(:,ii) = conc_pp_old(:,ii) + dt_cond*CR(:,ii)*(MIN(conc_guess,conc_tot(ii)) &
-                  - kohler_effect(:,ii)*VAPOUR_PROP%c_sat(ii))
+    ! apc scheme here. NOTE that for sulfuric acid VAPOUR_PROP%c_sat(ic) = 0 so the last term will vanish
+    conc_pp(:,ic) = conc_pp_old(:,ic) + dt_cond*CR(:,ic)*(MIN(conc_guess,conc_tot(ic)) &
+                  - kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))
 
     ! Prevent overestimation of evaporation by setting negative concentrations to zero
-    WHERE ( conc_pp(:,ii)<0D0 ) conc_pp(:,ii) = 0D0
+    WHERE ( conc_pp(:,ic)<0D0 ) conc_pp(:,ic) = 0D0
 
     ! Prevents particles to grow over the saturation limit. For organics, no acids or GENERIC included
-    IF (ii < VAPOUR_PROP%ind_GENERIC) then
-      WHERE (diameter>0d0 .and. conc_pp(:,ii)>conc_pp_eq(:,ii) &
-                .AND. conc_vap_old(ii)<(Kelvin_Effect(:,ii) * VAPOUR_PROP%c_sat(ii))) &
-                conc_pp(:,ii) = conc_pp_eq(:,ii)
+    IF (ic < VAPOUR_PROP%ind_GENERIC) then
+      WHERE (diameter>0d0 .and. conc_pp(:,ic)>conc_pp_eq(:,ic) &
+                .AND. conc_vap_old(ic)<(Kelvin_Effect(:,ic) * VAPOUR_PROP%c_sat(ic))) &
+                conc_pp(:,ic) = conc_pp_eq(:,ic)
     END IF
 
     ! XXX NOTE We change GENERIC back to what it was before
     conc_pp(:,VAPOUR_PROP%ind_GENERIC) = conc_pp_old(:,VAPOUR_PROP%ind_GENERIC)
 
-    ! if (GTIME%sec==0 .and. (MODULO(ii,10)==0 .or. ii == VAPOUR_PROP%ind_H2SO4)) THEN
-    !     IF (ii == VAPOUR_PROP%ind_H2SO4) THEN
-    !         OPEN(unit=499,file='CSCHECK/CS_'//TRIM(VAPOUR_PROP%vapour_names(ii)),status='replace',action='write')
-    !         write(499,*), VAPOUR_PROP%vapour_names(ii), 'Loss by CS     Actual loss   Csat   molar mass'
+    ! if (GTIME%sec==0 .and. (MODULO(ic,10)==0 .or. ic == VAPOUR_PROP%ind_H2SO4)) THEN
+    !     IF (ic == VAPOUR_PROP%ind_H2SO4) THEN
+    !         OPEN(unit=499,file='CSCHECK/CS_'//TRIM(VAPOUR_PROP%vapour_names(ic)),status='replace',action='write')
+    !         write(499,*), VAPOUR_PROP%vapour_names(ic), 'Loss by CS     Actual loss   Csat   molar mass'
     !     ELSE
-    !         OPEN(unit=ii/10+110,file='CSCHECK/CS_'//TRIM(VAPOUR_PROP%vapour_names(ii)),status='replace',action='write')
-    !         write(ii/10+110,*), VAPOUR_PROP%vapour_names(ii), 'Loss by CS     Actual loss   Csat   molar mass'
+    !         OPEN(unit=ic/10+110,file='CSCHECK/CS_'//TRIM(VAPOUR_PROP%vapour_names(ic)),status='replace',action='write')
+    !         write(ic/10+110,*), VAPOUR_PROP%vapour_names(ic), 'Loss by CS     Actual loss   Csat   molar mass'
     !     END IF
     ! END IF
-    ! if (GTIME%savenow .and. (MODULO(ii,10)==0 .or. ii == VAPOUR_PROP%ind_H2SO4)) THEN
-    !     IF (ii == VAPOUR_PROP%ind_H2SO4) THEN
-    !         write(499,*), conc_vap_old(ii)*sum(CR(:,ii))*GTIME%dt, conc_vap_old(ii) - (conc_tot(ii) - sum(conc_pp(:,ii))), VAPOUR_PROP%c_sat(ii), VAPOUR_PROP%molar_mass(ii)
+    ! if (GTIME%savenow .and. (MODULO(ic,10)==0 .or. ic == VAPOUR_PROP%ind_H2SO4)) THEN
+    !     IF (ic == VAPOUR_PROP%ind_H2SO4) THEN
+    !         write(499,*), conc_vap_old(ic)*sum(CR(:,ic))*GTIME%dt, conc_vap_old(ic) - (conc_tot(ic) - sum(conc_pp(:,ic))), VAPOUR_PROP%c_sat(ic), VAPOUR_PROP%molar_mass(ic)
     !         flush(499)
     !     ELSE
-    !         write(ii/10+110,*), conc_vap_old(ii)*sum(CR(:,ii))*GTIME%dt, conc_vap_old(ii) - (conc_tot(ii) - sum(conc_pp(:,ii))), VAPOUR_PROP%c_sat(ii), VAPOUR_PROP%molar_mass(ii)
-    !         flush(ii/10+110)
+    !         write(ic/10+110,*), conc_vap_old(ic)*sum(CR(:,ic))*GTIME%dt, conc_vap_old(ic) - (conc_tot(ic) - sum(conc_pp(:,ic))), VAPOUR_PROP%c_sat(ic), VAPOUR_PROP%molar_mass(ic)
+    !         flush(ic/10+110)
     !     END IF
     ! END IF
 
     ! Update conc_vap: total conc - particle phase concentration
-    if (ii == VAPOUR_PROP%ind_H2SO4) THEN
+    if (ic == VAPOUR_PROP%ind_H2SO4) THEN
         continue
     ELSE
-        conc_vap(ii) = conc_tot(ii) - sum(conc_pp(:,ii))
+        conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
+        if (conc_vap(ic)<0d0) THEN
+            print*, 'kurad burger ',  conc_vap(ic),sum(conc_pp(:,ic)),conc_tot(ic)
+            if (equal(sum(conc_pp(:,ic)),0d0)) THEN
+                conc_vap(ic) = 0d0
+                conc_tot(ic) = 0D0
+                print*, 'setting to zeros ',  conc_vap(ic), sum(conc_pp(:,ic))
+            else
+            conc_pp(:,ic) = conc_pp(:,ic) * ((sum(conc_pp(:,ic))  + conc_vap(ic)) / sum(conc_pp(:,ic)))
+            conc_vap(ic) = 0d0
+            endif
+            print*, 'Fine tuning  ',  conc_vap(ic), sum(conc_pp(:,ic))
+        END IF
     END IF
-    ! if (ii==VAPOUR_PROP%ind_GENERIC) print*, 'vapor conc after', conc_vap(ii)
+    ! if (ic==VAPOUR_PROP%ind_GENERIC) print*, 'vapor conc after', conc_vap(ic)
 
 
   END DO
 
   ! Calculate dmass for PSD
-  DO ii = 1, n_cond_tot
-    dmass(:,ii) = (conc_pp(:,ii) - conc_pp_old(:,ii))*VAPOUR_PROP%molar_mass(ii) / Na
+  DO ic = 1, n_cond_tot
+    dmass(:,ic) = (conc_pp(:,ic) - conc_pp_old(:,ic))*VAPOUR_PROP%molar_mass(ic) / Na
   END DO
   ! dmass(:,n_cond_tot-1) = max(dmass(:,n_cond_tot-1), 0)
   ! only apply condensation if there are particles
-  do ii = 1, n_bins_par
-    if (n_conc(ii)>1d-10) THEN
-      dmass(ii,:) = dmass(ii,:) / n_conc(ii)
+  do ic = 1, n_bins_par
+    if (n_conc(ic)>1d-10) THEN
+      dmass(ic,:) = dmass(ic,:) / n_conc(ic)
     else
-      dmass(ii,:) = 0d0
+      dmass(ic,:) = 0d0
     END if
   END DO
 
   ! derive diameter changes for integration time-step optimization
-  DO ii = 1, n_bins_par - 1
-    IF (SUM(conc_pp_old(ii,:)) > 0.d0 .and. n_conc(ii) > 1.d-10) THEN   !only if there are particles and if they had a composition in the last timestep
-      d_dpar(ii) = (SUM(conc_pp_old(ii,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ii) + SUM(dmass(ii,:))) &
-                    / (SUM(conc_pp_old(ii,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ii))
-      if (d_dpar(ii)<0) THEN
-          d_dpar(ii) = -1d0*((-1d0*d_dpar(ii)) ** (1.d0/3.d0)) - 1.d0
+  DO ip = 1, n_bins_par - 1
+    IF (SUM(conc_pp_old(ip,:)) > 0.d0 .and. n_conc(ip) > 1.d-10) THEN   !only if there are particles and if they had a composition in the last timestep
+      d_dpar(ip) = (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip) + SUM(dmass(ip,:))) &
+                    / (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip))
+      if (d_dpar(ip)<0) THEN
+          d_dpar(ip) = -1d0*((-1d0*d_dpar(ip)) ** (1.d0/3.d0)) - 1.d0
       ELSE
-          d_dpar(ii) = (d_dpar(ii) ** (1.d0/3.d0)) - 1.d0
+          d_dpar(ip) = (d_dpar(ip) ** (1.d0/3.d0)) - 1.d0
       END IF
 
-      !PRINT*, 'i,mass, mass change, d_dp', ii, SUM(conc_pp_old(ii,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ii), SUM(dmass(ii,:)), d_dpar(ii)
+      !PRINT*, 'i,mass, mass change, d_dp', ip, SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip), SUM(dmass(ip,:)), d_dpar(ip)
     ELSE
-      d_dpar(ii) = 0.d0
+      d_dpar(ip) = 0.d0
     END IF
   END DO
 
   ! derive the relative changes in the vapor phase
-  DO ii = 1, n_cond_tot
-    IF (conc_vap(ii) > 1.d5) THEN
-      d_vap(ii) = (conc_vap_old(ii) - conc_vap(ii)) / conc_vap(ii)
-      !PRINT*, 'ii, conc, dconc, d_vap', ii, conc_vap(ii), conc_vap_old(ii), conc_vap(ii) - conc_vap_old(ii), d_vap(ii)
+  DO ic = 1, n_cond_tot
+    IF (conc_vap(ic) > 1.d5) THEN
+      d_vap(ic) = (conc_vap_old(ic) - conc_vap(ic)) / conc_vap(ic)
+      !PRINT*, 'ic, conc, dconc, d_vap', ic, conc_vap(ic), conc_vap_old(ic), conc_vap(ic) - conc_vap_old(ic), d_vap(ic)
     END IF
   END DO
 

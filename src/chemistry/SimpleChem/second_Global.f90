@@ -13,7 +13,7 @@
 !        R. Sander, Max-Planck Institute for Chemistry, Mainz, Germany
 ! 
 ! File                 : second_Global.f90
-! Time                 : Mon Mar  8 18:34:06 2021
+! Time                 : Tue Mar  9 15:43:21 2021
 ! Working directory    : /home/pecl/05-ARCA/ARCA-box/src/chemistry/SimpleChem
 ! Equation file        : second.kpp
 ! Output root filename : second
@@ -39,6 +39,7 @@ MODULE second_Global
   REAL(kind=dp) :: FIX(NFIX)
 ! VAR, FIX are chunks of array C
       EQUIVALENCE( C(1),VAR(1) )
+      EQUIVALENCE( C(311),FIX(1) )
 ! RCONST - Rate constants (global)
   REAL(kind=dp) :: RCONST(NREACT)
 ! TIME - Current integration time
