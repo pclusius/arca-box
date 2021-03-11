@@ -147,7 +147,7 @@ contains
       JACDC = 0d0
       IF (UCASE(Fill_formation_with) /= 'DMA') THEN
         i = i+1
-        CALL get_acdc_J(SA,BASE,dummy1,CS,T,IPR,GTIME,.true.,testJ,dummy2,dummy3)
+        CALL get_acdc_J(SA,BASE,dummy1,CS,T,IPR,GTIME,.true.,testJ,dummy2,dummy3,GTIME%dt)
         JACDC = testJ
       END IF
       IF (UCASE(Fill_formation_with) /= 'NH3') THEN
@@ -158,7 +158,7 @@ contains
             BASE = test
             JACDC = 0d0
           END IF
-          CALL get_acdc_D(SA,BASE,dummy1,CS,T,GTIME,.true.,testJ,dummy2)
+          CALL get_acdc_D(SA,BASE,dummy1,CS,T,GTIME,.true.,testJ,dummy2,GTIME%dt)
           JACDC = JACDC + testJ
           if (JACDC>0d0) RESOLVED_J_FACTR = testJ/JACDC
         END IF

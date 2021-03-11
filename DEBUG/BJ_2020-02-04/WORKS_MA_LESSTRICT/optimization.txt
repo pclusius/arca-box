@@ -1,0 +1,1242 @@
+| WARNING: Precision error at time 00:08:30 (510  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]1.000E+01                                              |
+|   :........Process causing troubles: Condensation                                                |
+|   :........Cause of problem: Too large vapour concentration change: 2.214E-01   , Upper Limit of |ap: 1.500E-01   \nTroublevapourHOM_OH_O5CBN             3.280E+08
+|   :........ERROR TYPE: Too large vapour concentration change: 2.214E-01   , Upper Limit of vap: 1|500E-01   \nTroublevapourHOM_OH_O5CBN             3.280E+08
+| WARNING:   => reduce dt [s]:5.000E+00   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+ 
+error state: F, error process: 0
+| 00:08:30-> Speeding coagulation, multipliers now:Con:1 , Coa:4 , Dep:2                           |
+| 00:08:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:38:50 (2330  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:38:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:39:20 (2360  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:39:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:39:50 (2390  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:39:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:42:45 (2565  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:42:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:43:00 (2580  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:43:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:43:15 (2595  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:43:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:43:30 (2610  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:43:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:43:45 (2625  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:43:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:44:00 (2640  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:44:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:44:15 (2655  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:44:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:44:25 (2665  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:44:30-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:44:40 (2680  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:44:45-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:44:50 (2690  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:44:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:45:05 (2705  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:45:10-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:45:15 (2715  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:45:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:45:25 (2725  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:45:30-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:45:40 (2740  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:45:45-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:45:50 (2750  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:45:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:46:00 (2760  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:46:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:46:10 (2770  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:46:15-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:46:20 (2780  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:46:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:46:30 (2790  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:46:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:46:40 (2800  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:46:45-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:46:50 (2810  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:46:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:47:00 (2820  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:47:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:47:10 (2830  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:47:15-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:47:20 (2840  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:47:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:47:30 (2850  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:47:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:47:40 (2860  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:47:45-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:47:50 (2870  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:47:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:48:00 (2880  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:48:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:48:10 (2890  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:48:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:48:25 (2905  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:48:30-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:48:35 (2915  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:48:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:48:45 (2925  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:48:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:48:55 (2935  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:49:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:49:10 (2950  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:49:15-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:49:20 (2960  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:49:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:49:30 (2970  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:49:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:49:45 (2985  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:49:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:49:55 (2995  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:50:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:50:10 (3010  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:50:15-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:50:20 (3020  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:50:30-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:50:35 (3035  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:50:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:50:45 (3045  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:50:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:51:00 (3060  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:51:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:51:10 (3070  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:51:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:51:25 (3085  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:51:30-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:51:35 (3095  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:51:45-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:51:50 (3110  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:52:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:52:05 (3125  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:52:10-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:52:15 (3135  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:52:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:52:30 (3150  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:52:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:52:45 (3165  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:52:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:53:00 (3180  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:53:10-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:53:15 (3195  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:53:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:53:30 (3210  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:53:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:53:45 (3225  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:53:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:54:00 (3240  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:54:10-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:54:15 (3255  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:54:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:54:30 (3270  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:54:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:54:45 (3285  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:54:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:55:00 (3300  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:55:10-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:55:15 (3315  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:55:30-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:55:35 (3335  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:55:45-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:55:50 (3350  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:56:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:56:05 (3365  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:56:15-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:56:20 (3380  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:56:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:56:40 (3400  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:56:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:56:55 (3415  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:57:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:57:10 (3430  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:57:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:57:25 (3445  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:57:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:57:40 (3460  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:57:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:57:55 (3475  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:58:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:58:10 (3490  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:58:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:58:25 (3505  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:58:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:58:40 (3520  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:58:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:58:55 (3535  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:59:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:59:05 (3545  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:59:15-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:59:20 (3560  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:59:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:59:30 (3570  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:59:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:59:40 (3580  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 00:59:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 00:59:55 (3595  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:00:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:00:05 (3605  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:00:10-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:00:15 (3615  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:00:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:00:30 (3630  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:00:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:00:40 (3640  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:00:45-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:00:50 (3650  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:00:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:01:00 (3660  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:01:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:01:10 (3670  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:01:15-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:01:20 (3680  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:01:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:01:30 (3690  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:01:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:01:40 (3700  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:01:45-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:01:50 (3710  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:01:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:02:00 (3720  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:02:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:02:10 (3730  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:02:15-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:02:20 (3740  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:02:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:02:30 (3750  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:02:35-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:02:40 (3760  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:02:45-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:02:55 (3775  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:03:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:03:05 (3785  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:03:10-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:03:15 (3795  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:03:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:03:25 (3805  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:03:30-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:03:35 (3815  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:03:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:03:50 (3830  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:03:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:04:00 (3840  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:04:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:04:10 (3850  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:04:15-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:04:20 (3860  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:04:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:04:35 (3875  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:04:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:04:45 (3885  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:04:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:04:55 (3895  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:05:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:05:05 (3905  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:05:10-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:05:15 (3915  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:05:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:05:25 (3925  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:05:30-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:05:35 (3935  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:05:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:05:45 (3945  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:05:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:05:55 (3955  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:06:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:06:05 (3965  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:06:10-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:06:15 (3975  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:06:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:06:25 (3985  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:06:30-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:06:35 (3995  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:06:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:06:45 (4005  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:06:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:06:55 (4015  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:07:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:07:05 (4025  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:07:15-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:07:20 (4040  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:07:25-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:07:30 (4050  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:07:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:07:45 (4065  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:07:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:07:55 (4075  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:08:05-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:08:10 (4090  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:08:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:08:25 (4105  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:08:40-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:08:45 (4125  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:08:55-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:09:00 (4140  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:09:20-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:09:25 (4165  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:09:50-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:09:55 (4195  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:10:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:10:45 (4245  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:20:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:20:15 (4815  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0
+| 01:30:00-> Speeding coagulation, multipliers now:Con:1 , Coa:8 , Dep:2                           |
+| WARNING: Precision error at time 01:30:05 (5405  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........current simulation timestep [s]5.000E+00                                              |
+|   :........Process causing troubles: Coagulation                                                 |
+|   :........Cause of problem: Too large particle number change                                    |
+|   :........ERROR TYPE: Too large particle number change                                          |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+error state: F, error process: 0

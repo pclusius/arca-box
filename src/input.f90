@@ -190,7 +190,6 @@ NAMELIST /NML_VAP/ VAP_logical, Use_atoms, Vap_names, Vap_atoms !, Vap_props
 
 CHARACTER(1000) :: INITIALIZE_WITH = ''
 INTEGER  :: limit_vapours = 999999
-INTEGER  :: acdc_iterations = 1
 INTEGER  :: INITIALIZE_FROM = 0
 Logical  :: use_raoult = .True.
 Logical  :: variable_density = .False.
@@ -210,14 +209,13 @@ LOGICAL  :: use_diff_dia_from_diff_vol = .False.
 REAL(dp), ALLOCATABLE   :: GR_bins(:)  ! used for GR calculation [m]
 Logical                 :: CALC_GR = .True.
 Logical                 :: ENABLE_END_FROM_OUTSIDE = .True.
-real(dp)                :: speed_dt_limit(8) =  [1d-9,60d0,&
-                                                1d-9,60d0,&
-                                                1d-9,60d0,&
-                                                1d-9,60d0]
+
+! First one is the Global timestep lower limit, three four are upper limits for individual processes
+real(dp)                :: speed_dt_limit(5) =  [1d-2,300d0,300d0,100d0,300d0]
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .false.
 
-NAMELIST /NML_CUSTOM/ use_raoult, acdc_iterations,variable_density,dmps_tres_min, &
+NAMELIST /NML_CUSTOM/ use_raoult, variable_density,dmps_tres_min, &
                       start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
@@ -274,8 +272,6 @@ subroutine READ_INPUT_DATA()
     CALL PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
     CALL REPORT_INPUT_COLUMNS_TO_USER
 
-    ! set up number of ACDC iterations.
-    if (ACDC_solve_ss) acdc_iterations = 1
 
     ! ALLOCATE CONC_MAT Currently both files need to have same time resolution FIX THIS SOON!
     ! The idea here is to count the rows to get time and allocate CONCMAT and TIMEVEC

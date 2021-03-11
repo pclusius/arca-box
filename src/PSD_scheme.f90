@@ -522,7 +522,6 @@ SUBROUTINE PSD_Change_mixing
                                   (current_PSD%conc_ma(ii) + ABS(mix_ratio) * mix_PSD%conc_ma(ii))) ** (1.d0/3.d0)
                 mix_PSD%conc_ma(ii) = 0.d0  ! Reset value to zero -> changes have been applied
             ELSE
-                if (ii== 1) print*, 'Nothing to mix with'
                 new_PSD%conc_ma(ii) = current_PSD%conc_ma(ii) ! Nothing to mix with => new concentration is current concentration; composition is already new (see subroutine Mass_Number_Change)
             END IF
         END DO
