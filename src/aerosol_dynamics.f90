@@ -155,16 +155,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     ELSE
         conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
         if (conc_vap(ic)<0d0) THEN
-            print*, 'kurad burger ',  conc_vap(ic),sum(conc_pp(:,ic)),conc_tot(ic)
-            if (equal(sum(conc_pp(:,ic)),0d0)) THEN
-                conc_vap(ic) = 0d0
-                conc_tot(ic) = 0D0
-                print*, 'setting to zeros ',  conc_vap(ic), sum(conc_pp(:,ic))
-            else
-            conc_pp(:,ic) = conc_pp(:,ic) * ((sum(conc_pp(:,ic))  + conc_vap(ic)) / sum(conc_pp(:,ic)))
-            conc_vap(ic) = 0d0
-            endif
-            print*, 'Fine tuning  ',  conc_vap(ic), sum(conc_pp(:,ic)), conc_pp(MINLOC(conc_pp(:,ic)),ic), MINLOC(conc_pp(:,ic))
+            print*, ' Vapours go to negative, should not happen ',  conc_vap(ic),conc_tot(ic),sum(conc_pp(:,ic))
         END IF
     END IF
     ! if (ic==VAPOUR_PROP%ind_GENERIC) print*, 'vapor conc after', conc_vap(ic)
