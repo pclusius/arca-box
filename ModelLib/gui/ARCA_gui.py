@@ -2003,41 +2003,16 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if self.monStatus != None and self.fulltext == '':
             self.stopBox()
 
-    # def updateOutput(self):
-    #     self.fulltext = self.boxProcess.stdout.readline().decode("utf-8")
-    #     if self.fulltext != '.\r\n' and self.fulltext != '.\n':
-    #         self.MonitorWindow.insertPlainText(self.fulltext)
-    #         if '+~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=' in self.fulltext:
-    #             self.currentEndLine = self.MonitorWindow.verticalScrollBar().maximum()
-    #             self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
-    #         if self.pauseScroll.isChecked() == False:
-    #             self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
-    #         if 'SIMULATION HAS ENDED' in str(self.fulltext)[-50:]:
-    #             self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
-
 
     def updateOutput(self):
         self.fulltext = self.boxProcess.stdout.readline().decode("utf-8")
         if self.fulltext != '.\r\n' and self.fulltext != '.\n':
             self.MonitorWindow.insertPlainText(self.fulltext)
-            # if '+~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=' in self.fulltext:
-            #     self.currentEndLine = self.MonitorWindow.verticalScrollBar().maximum()
-            #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
         if self.pauseScroll.isChecked() == False:
             self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
         if 'SIMULATION HAS ENDED' in str(self.fulltext)[-50:]:
             self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
             self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
-
-    # def updateOutput(self):
-    #     fulltext = self.boxProcess.stdout.readline().decode("utf-8")
-    #     if fulltext != '.\n':
-    #         self.MonitorWindow.insertPlainText(fulltext)
-    #     if self.pauseScroll.isChecked() == False:
-    #         self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
-    #     if 'SIMULATION HAS ENDED' in str(fulltext)[-50:]:
-    #         self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
-    #         self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum());
 
 
     def checkboxToFOR(self, widget):
