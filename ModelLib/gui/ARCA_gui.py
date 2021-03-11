@@ -773,6 +773,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.Timer.timeout.connect(self.updateOutput)
         self.pollTimer.timeout.connect(self.pollMonitor)
         self.pollTimer.timeout.connect(self.updateOutput)
+        self.pauseScroll.clicked.connect(lambda: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()))
         try:
             sf = pickle.load(open(osjoin(gui_path,monitorfont_pickle), "rb"))
             self.mfont = self.MonitorWindow.font()
@@ -798,7 +799,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             self.font = self.centralwidget.font()
             savefont = [self.font.family(),self.font.pointSize(),self.font.bold(),self.font.italic()]
             pickle.dump(savefont, open(osjoin(gui_path,globalfont_pickle), 'wb'))
-
         self.viewPrintNML.clicked.connect(lambda: self.editTxtFile(SCREENPRINT_NML))
     # -----------------------
     # tab Output Graph
@@ -885,7 +885,11 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(linkStr))
 
     def activeTab(self,i):
-        if i == 6: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
+
+        if i == 6:
+            # self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
+            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()-40)
+            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
 
     def activeSubTab(self,i):
         if i == 0: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
@@ -1998,7 +2002,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
     def pollMonitor(self):
         self.fulltext = self.boxProcess.stdout.readline().decode("utf-8")
         if self.fulltext != '.\r\n' and self.fulltext != '.\n':
-            self.MonitorWindow.insertPlainText(self.fulltext)
+            self.MonitorWindow.appendPlainText(self.fulltext.strip('\n'))
         self.monStatus = self.boxProcess.poll()
         if self.monStatus != None and self.fulltext == '':
             self.stopBox()
@@ -2006,13 +2010,13 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
     def updateOutput(self):
         self.fulltext = self.boxProcess.stdout.readline().decode("utf-8")
-        if self.fulltext != '.\r\n' and self.fulltext != '.\n':
-            self.MonitorWindow.insertPlainText(self.fulltext)
-        if self.pauseScroll.isChecked() == False:
-            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
-        if 'SIMULATION HAS ENDED' in str(self.fulltext)[-50:]:
-            self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
-            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
+        if self.fulltext != '.\r\n' and self.fulltext != '.\n' and self.fulltext != '':
+            self.MonitorWindow.appendPlainText(self.fulltext.strip('\n'))
+        # if self.pauseScroll.isChecked() == False:
+        #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
+        # if 'SIMULATION HAS ENDED' in str(self.fulltext)[-50:]:
+        #     # self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
+        #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
 
 
     def checkboxToFOR(self, widget):
