@@ -103,14 +103,12 @@ end type timetype
 TYPE error_type
     LOGICAL         :: err  = .false.  ! There is no error at the start
     INTEGER         :: proc = 0        ! Process where the error occurs
-    INTEGER         :: che  = 1        ! Process where the error occurs
-    INTEGER         :: con  = 2        ! Process where the error occurs
-    INTEGER         :: coa  = 3        ! Process where the error occurs
-    INTEGER         :: dep  = 4        ! Process where the error occurs
-    CHARACTER(16)   :: pr_name(4) = ['Chemistry   ',&
-                                     'Condensation',&
-                                     'Coagulation ',&
-                                     'Deposition  ']
+    INTEGER         :: cch  = 1        ! Process where the error occurs
+    INTEGER         :: coa  = 2        ! Process where the error occurs
+    INTEGER         :: dep  = 3        ! Process where the error occurs
+    CHARACTER(15)   :: pr_name(3) = ['Cond & Chem',&
+                                     'Coagulation',&
+                                     'Deposition ']
     CHARACTER(150)  :: err_text         ! Specification on error type (e.g."particle conc" during coagulation)
 END TYPE error_type
 
@@ -212,6 +210,11 @@ REAL(dp)                        :: acdc_cluster_diam = 1.4d-9 ! diameter of the 
 REAL(dp)                        :: RESOLVED_BASE, RESOLVED_J  ! stores output of SOLVE_BASES
 REAL(dp)                        :: RESOLVED_J_FACTR           ! stores output of SOLVE_BASES
 Logical                         :: NO_NEGATIVE_CONCENTRATIONS = .false.
+
+! speed_up: factor for increasing integration time step for individual prosesses
+! (1): chemistry & Condensation & ACDC (2): Coagulation; (3): Deposition
+TYPE(error_type)                :: PRCION
+INTEGER(dint)                   :: speed_up(size(PRCION%pr_name,1)) = 1
 
 
 CONTAINS

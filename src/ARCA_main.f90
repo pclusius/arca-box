@@ -52,20 +52,13 @@ CHARACTER(:), allocatable:: RUN_OUTPUT_DIR ! Saves the output directory relative
 CHARACTER(1000) :: inibuf       ! Buffer to save backp from the INITfile that was called
 INTEGER         :: I,II,J,JJ    ! Loop indices
 INTEGER         :: ioi          ! iostat variable
-INTEGER         :: vii(2) = 1    ! index for maximum vapour, not to be used elsewhere
 REAL(dp)        :: cpu1, cpu2   ! CPU time in seconds
 
 ! Temporary variables -> will be replaced
 REAL(dp), ALLOCATABLE :: nominal_dp(:)    ! array with nominal diameters. Stays constant independent of PSD_style
 
-! speed_up: factor for increasing integration time step for individual prosesses
-! (1): chemistry; (2):Condensation; (3): Coagulation; (4): Deposition
-TYPE(error_type)        :: PRCION
 LOGICAL                 :: Handbrake_on = .false.
-LOGICAL                 :: xxx = .True.
-INTEGER(dint)           :: speed_up(size(PRCION%pr_name,1)) = 1
 INTEGER                 :: n_of_Rounds = 0
-INTEGER                 :: optis_in_use(2) = [2,3]
 REAL(dp), ALLOCATABLE   :: d_dpar(:)  ! array reporting relative changes to the diameter array within a single timestep
 REAL(dp), ALLOCATABLE   :: d_npar(:)  ! array reporting relative changes to the particle number array within a single timestep
 REAL(dp), ALLOCATABLE   :: d_vap(:)   ! array reporting relative changes to the vapour concentration array within a single timestep
@@ -301,25 +294,18 @@ call cpu_time(cpu1) ! For efficiency calculation
 !       *@@@@@@@@@@@@@@@@       @@@       #@@@@@@@@@        @@@@@@@@@@             @@@@@       @@@@@@@@@@@@@@@@@       @
 !=======================================================================================================================
 
-DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
-    ! if (Gtime%sec>25800) Gtime%dt = 1d0
-    ! if (Gtime%sec>65400) Gtime%dt = 1d-1
+DO ! The main loop, runs until time is out. For particular reasons the time is checked at the end of the loop
 
 ! =================================================================================================
     ! =================================================================================================
     ! Store the current state of the aerosol
     ! (i.e. everything that is potentially changed by aerosol dynamics)
     ! =================================================================================================
-    ! if (gtime%sec == 26290) GTIME%dt = 5d0
-    ! if (gtime%sec == 26290) print*, 'Time step is now 5 sec'
     old_PSD = current_PSD
     CH_GAS_old = CH_GAS
     CH_RO2_old = CH_RO2
     ! =================================================================================================
-    ! =================================================================================================
-    ! PREPARE AND PRINT OUT SOME FUNDAMENTAL STUFF
-    ! =================================================================================================
-    ! =================================================================================================
+
 
     ! Print time header in a nice way, start with empty row
     if (GTIME%printnow) THEN
@@ -398,7 +384,7 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             ! Solar angle above horizon. For this to properly work, lat, lon and Date need to be defined in INIT_FILE
             call BETA(CH_Beta)
         END IF
-        Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRCION%con)), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
+        Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRCION%cch)), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
                     CH_H2O, GC_AIR_NOW, GCS, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
         if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
@@ -441,6 +427,8 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
     if (GTIME%savenow .and. RESOLVE_BASE) CALL Get_BASE(TSTEP_CONC, RESOLVED_BASE, RESOLVED_J)
     ! =================================================================================================
+
+
 
 
     ! =================================================================================================
@@ -523,20 +511,13 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
         mix_ratio = -1d0
         dmass(1,VAPOUR_PROP%ind_GENERIC) = nominal_dp(1)**3*pi/6d0 * VAPOUR_PROP%density(VAPOUR_PROP%ind_GENERIC)
-        dconc_dep_mix(1) = J_TOTAL_M3*GTIME%dt*PRCION%con
+        dconc_dep_mix(1) = J_TOTAL_M3*GTIME%dt*PRCION%cch
 
         CALL Mass_Number_Change('mixing')
         ! Negative mixing ratio makes this nucleation
 
         ! Update current_psd
-        ! if  (any(new_PSD%composition_ma<0) .and. debuk) THEN
-        !     ! vii = minloc(current_PSD%composition_ma)
-        !     vii = minloc(new_PSD%composition_ma)
-        !     print*, 'before nuc',GTIME%sec, minloc(current_PSD%composition_ma), current_PSD%composition_ma(vii(1),vii(2))
-        !     print*, 'after nuc', minloc(new_PSD%composition_ma), new_PSD%composition_ma(vii(1),vii(2))
-        ! END IF
         current_PSD = new_PSD
-        ! where (current_PSD%composition_ma<0) current_PSD%composition_ma = 0d0
 
 
         ! ..........................................................................................................
@@ -565,20 +546,20 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             d_vap = 0
             d_dpar = 0
 
-            CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRCION%con),d_dpar,d_vap)
+            CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRCION%cch),d_dpar,d_vap)
 
             ! ERROR HANDLING
 
             IF ((maxval(ABS(d_dpar)) > change_range(1,2) .or. maxval((d_vap)) > change_range(3,2)) .and. use_speed .and. GTIME%dt>speed_dt_limit(1)) THEN   ! if the changes in diameter are too big
                 ! IF (n_of_Rounds>=0) THEN
                 PRCION%err = .true.
-                PRCION%proc = PRCION%con
+                PRCION%proc = PRCION%cch
                 i = MAXLOC(d_vap, 1)
                 ! end if
                 IF (maxval(ABS(d_dpar)) > change_range(1,2)) THEN
                     PRCION%err_text = 'Too large diameter change: '//f2chr(maxval(abs(d_dpar)))   !d_dpar(maxloc(abs(d_dpar)))
                 ELSE IF (MAXVAL(d_vap) > change_range(3,2)) THEN
-                    PRCION%err_text = 'Too large vapour concentration change: '//f2chr(MAXVAL(d_vap))//', Upper Limit of vap: '//f2chr(change_range(3,2))//'\nTroublevapour'&
+                    PRCION%err_text = 'Too large vapour concentration change: '//f2chr(MAXVAL(d_vap))//ACHAR(10)//'Up. lim. of vap: '//f2chr(change_range(3,2))//'Troublevapour'&
                     //VAPOUR_PROP%vapour_names(i)//f2chr(conc_vapour(i))   !d_vap(maxloc(abs(d_vap)))
                 ELSE
                     PRCION%err_text = 'Too large diameter and vapour concentration change: '//f2chr(maxval(abs(d_dpar)))//', '//f2chr(MAXVAL(d_vap))   !d_vap(maxloc(abs(d_vap)))
@@ -598,16 +579,7 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
                 CALL Mass_Number_Change('condensation')
 
-                ! debuk = .false.
-                ! ! Update current_psd
-                ! if  (any(new_PSD%composition_ma<0) .and. debuk) THEN
-                !     vii = minloc(current_PSD%composition_ma)
-                !     print*, 'before cond', minloc(current_PSD%composition_ma), current_PSD%composition_ma(vii(1),vii(2)), MINVAL(current_PSD%conc_ma)
-                !     vii = minloc(new_PSD%composition_ma)
-                !     print*, 'after cond', minloc(new_PSD%composition_ma), new_PSD%composition_ma(vii(1),vii(2)), MINVAL(new_PSD%conc_ma)
-                ! END IF
                 current_PSD = new_PSD
-
 
                 ! Update vapour concentrations to chemistry
                 CH_GAS(index_cond) = conc_vapour(1:VAPOUR_PROP%n_condorg) *1D-6
@@ -616,18 +588,9 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
                 ! Check whether timestep can be increased:
                 IF (maxval(ABS(d_dpar)) < change_range(1,1) .and. MAXVAL(d_vap) < change_range(3,1) .and. use_speed) THEN
-                    if (speed_up(PRCION%con) * 2 * Gtime%dt < speed_dt_limit(PRCION%con)) THEN
-                        speed_up(PRCION%con) = speed_up(PRCION%con) * 2
-                        CALL OUTPUTBOTH(608,FMT_MSG,GTIME%hms//'-> Speeding chemistry and condensation, multipliers now:' &
-                        //PRCION%pr_name(2)(1:3)//':'//di2chr(speed_up(2))//', ' &
-                        //PRCION%pr_name(3)(1:3)//':'//di2chr(speed_up(3))//', ' &
-                        //PRCION%pr_name(4)(1:3)//':'//di2chr(speed_up(4)) )
+                    if (speed_up(PRCION%cch) * 2 * Gtime%dt < speed_dt_limit(PRCION%cch)) THEN
+                        call increase_speed(PRCION%cch)
                     END IF
-                    if (all(speed_up>1)) THEN
-                        GTIME%dt = GTIME%dt * 2
-                        speed_up = speed_up/2
-                    END IF
-
                 END IF
             END IF
 
@@ -658,30 +621,15 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
                 ! Distribute mass
                 Call Mass_Number_Change('coagulation')
+
                 ! Update PSD with new concentrations
-                ! if  (any(new_PSD%composition_ma<0) .and. debuk) THEN
-                !     vii = minloc(current_PSD%composition_ma)
-                !     print*, 'before coag', minloc(current_PSD%composition_ma), current_PSD%composition_ma(vii(1),vii(2))
-                !     vii = minloc(new_PSD%composition_ma)
-                !     print*, 'after coag', minloc(new_PSD%composition_ma), new_PSD%composition_ma(vii(1),vii(2))
-                ! END IF
                 current_PSD = new_PSD
+
                 !Check whether timestep can be increased:
                 IF (maxval(ABS(d_npar)) < change_range(2,1) .and. use_speed) THEN
                     if (speed_up(PRCION%coa) * 2 * Gtime%dt < speed_dt_limit(PRCION%coa)) THEN
-                        speed_up(PRCION%coa) = speed_up(PRCION%coa) * 2
-                        CALL OUTPUTBOTH(608,FMT_MSG,GTIME%hms//'-> Speeding coagulation, multipliers now:' &
-                        //PRCION%pr_name(2)(1:3)//':'//di2chr(speed_up(2))//', ' &
-                        //PRCION%pr_name(3)(1:3)//':'//di2chr(speed_up(3))//', ' &
-                        //PRCION%pr_name(4)(1:3)//':'//di2chr(speed_up(4)) )
+                        call increase_speed(PRCION%coa)
                     END IF
-
-                  if (all(speed_up>1)) THEN
-                      GTIME%dt = GTIME%dt * 2
-                      speed_up = speed_up/2
-                  END IF
-
-
                 END IF
             END IF
         end if ! end of coagulation
@@ -732,21 +680,10 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
                 !Check whether timestep can be increased:
                 IF (maxval(ABS(d_npar)) < change_range(2,1) .and. use_speed) THEN
                     if (speed_up(PRCION%dep) * 2 * Gtime%dt < speed_dt_limit(PRCION%dep)) THEN
-                        speed_up(PRCION%dep) = speed_up(PRCION%dep) * 2
-                        CALL OUTPUTBOTH(608,FMT_MSG,GTIME%hms//'-> Speeding deposition, multipliers now:' &
-                        //PRCION%pr_name(2)(1:3)//':'//di2chr(speed_up(2))//', ' &
-                        //PRCION%pr_name(3)(1:3)//':'//di2chr(speed_up(3))//', ' &
-                        //PRCION%pr_name(4)(1:3)//':'//di2chr(speed_up(4)) )
+                        call increase_speed(PRCION%dep)
                     END IF
-                    if (all(speed_up>1)) THEN
-                        GTIME%dt = GTIME%dt * 2
-                        speed_up = speed_up/2
-                    END IF
-
-
-                  ! Print*,GTIME%hms//'-> Depos. speed multiplier now:', speed_up(PRCION%dep)
-                  ! WRITE(608,*) GTIME%hms//'-> Depos. speed multiplier now:', speed_up(PRCION%dep)
                 END IF
+
             END IF
 
 
@@ -806,12 +743,19 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
             END IF
 
             CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&
-                            1d9*3600/(GTIME%dt*speed_up(PRCION%con))*get_dp()*d_dpar)
+                            1d9*3600/(GTIME%dt*speed_up(PRCION%cch))*get_dp()*d_dpar)
 
         END IF
 
         ! Add main timestep to GTIME
         if (GTIME%sec + GTIME%dt <= GTIME%SIM_TIME_S) THEN
+
+            if (use_speed.and.all(ABS(speed_up)>1)) THEN
+            ! we are ok to increase the main time step but drop the multipliers
+                GTIME%dt = GTIME%dt * 2
+                speed_up = speed_up/2
+            END IF
+
             GTIME = ADD(GTIME)
         ELSE ! Exit the main loop when time is up
             EXIT
@@ -821,11 +765,11 @@ DO !WHILE (GTIME%SIM_TIME_S - GTIME%sec > -1d-12) ! MAIN LOOP STARTS HERE
 
     if (Handbrake_on) THEN
         n_of_Rounds = n_of_Rounds +1
-        IF (n_of_Rounds > 50) THEN
+        IF (n_of_Rounds > 1) THEN
             Handbrake_on = .false.
             Use_speed = .true.
             n_of_Rounds = 0
-            print FMT_MSG, 'Engaging speed...'
+            print FMT_MSG, 'Engaging speed.'
         END IF
 
     END IF
@@ -951,14 +895,14 @@ SUBROUTINE ACDC_J(C)
     ! Speed up program by ignoring nucleation when there is none
     if ((NH3 > 1d12 .and. H2SO4>1d9) .or. (.not. skip_acdc)) THEN
         CALL get_acdc_J(H2SO4,NH3,c_org,GCS,C(inm_TEMPK),IPR,GTIME,&
-            ss_handle,J_ACDC_NH3_M3,acdc_cluster_diam, J_NH3_BY_IONS, GTIME%dt*speed_up(PRCION%con))
+            ss_handle,J_ACDC_NH3_M3,acdc_cluster_diam, J_NH3_BY_IONS, GTIME%dt*speed_up(PRCION%cch))
     ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
         if (GTIME%printnow) print FMT_SUB, 'NH3 IGNORED'
     END IF
     ! Speed up program by ignoring nucleation when there is none
     if ((DMA > 1d6 .and. H2SO4>1d9) .or. (.not. skip_acdc)) THEN
-        CALL get_acdc_D(H2SO4,DMA,c_org,GCS,C(inm_TEMPK),GTIME,ss_handle,J_ACDC_DMA_M3,acdc_cluster_diam, GTIME%dt*speed_up(PRCION%con))
+        CALL get_acdc_D(H2SO4,DMA,c_org,GCS,C(inm_TEMPK),GTIME,ss_handle,J_ACDC_DMA_M3,acdc_cluster_diam, GTIME%dt*speed_up(PRCION%cch))
     ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
         if (GTIME%printnow) print FMT_SUB, 'DMA IGNORED'
@@ -1100,7 +1044,7 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
         END IF
 
         CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&
-                        1d9*3600/(GTIME%dt*speed_up(PRCION%con))*get_dp()*d_dpar)
+                        1d9*3600/(GTIME%dt*speed_up(PRCION%cch))*get_dp()*d_dpar)
 
 
     END IF
@@ -1247,11 +1191,11 @@ SUBROUTINE PRINT_GROWTH_RATE
     nb = size(GGR)
 
     ii = MINLOC(ABS(nominal_dp-GR_bins(1)),1)
-    GGR(1) = 1d9 * 3600/(GTIME%dt*speed_up(PRCION%con)) * (sum((nominal_dp(1:ii) * d_dpar(1:ii)))/ii)
+    GGR(1) = 1d9 * 3600/(GTIME%dt*speed_up(PRCION%cch)) * (sum((nominal_dp(1:ii) * d_dpar(1:ii)))/ii)
     if (nb>1) THEN
         DO i=2,size(GGR)
             jj = MINLOC(ABS(nominal_dp-GR_bins(i)),1)
-            GGR(i) = 1d9 * 3600/(GTIME%dt*speed_up(PRCION%con)) * (sum((nominal_dp(ii:jj) * d_dpar(ii:jj)))/(jj-ii))
+            GGR(i) = 1d9 * 3600/(GTIME%dt*speed_up(PRCION%cch)) * (sum((nominal_dp(ii:jj) * d_dpar(ii:jj)))/(jj-ii))
             ii = jj
         END DO
     END IF
@@ -1303,6 +1247,22 @@ SUBROUTINE OUTPUTBOTH(unit, format, text)
     END IF
 
 END SUBROUTINE OUTPUTBOTH
+
+! Routine to increase speed so that unused speed factors stay as the highest number and are not hindering main timestep changes
+Subroutine increase_speed(ii)
+    IMPLICIT NONE
+    INTEGER :: ii
+
+    speed_up(ii) = speed_up(ii) * 2
+    if ((.not. Deposition).and.(LOSSES_FILE == '')) speed_up(PRCION%dep) = -999_dint
+    if (.not. Coagulation) speed_up(PRCION%coa) = -999_dint
+
+    CALL OUTPUTBOTH(608,FMT_MSG,GTIME%hms//'-> Speeding '//PRCION%pr_name(ii)//', multipliers now:' &
+    //PRCION%pr_name(PRCION%cch)(1:3)//':'//di2chr(speed_up(PRCION%cch))//', ' &
+    //PRCION%pr_name(PRCION%coa)(1:3)//':'//di2chr(speed_up(PRCION%coa))//', ' &
+    //PRCION%pr_name(PRCION%dep)(1:3)//':'//di2chr(speed_up(PRCION%dep)) )
+
+END Subroutine increase_speed
 
 ! This subroutine makes it possible to end a simulation from outside using a file called ENDNOW.INIT
 SUBROUTINE CHECK_IF_END_CMD_GIVEN

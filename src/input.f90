@@ -211,7 +211,7 @@ Logical                 :: CALC_GR = .True.
 Logical                 :: ENABLE_END_FROM_OUTSIDE = .True.
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
-real(dp)                :: speed_dt_limit(5) =  [1d-2,300d0,300d0,100d0,300d0]
+real(dp)                :: speed_dt_limit(4) =  [1d-2,300d0,300d0,100d0]
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .false.
 
