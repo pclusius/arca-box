@@ -110,6 +110,7 @@ TYPE error_type
                                      'Coagulation',&
                                      'Deposition ']
     CHARACTER(150)  :: err_text         ! Specification on error type (e.g."particle conc" during coagulation)
+    LOGICAL         :: increase(3)  = .false.  ! .true. if speed can be increased for cch,coa or dep
 END TYPE error_type
 
 

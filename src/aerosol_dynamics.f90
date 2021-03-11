@@ -55,6 +55,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
   volume = get_volume()
   mass = sum(conc_pp, 2)
   conc_pp_eq = 0d0
+
   ! Fill the number concentration composition matrix
   do ip=1, n_bins_par
     conc_pp(ip,:) = conc_pp(ip,:) * Na / VAPOUR_PROP%molar_mass * n_conc(ip)
@@ -66,6 +67,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
   conc_pp_old = conc_pp
   ! vapour phase + particle phase
   conc_tot = conc_vap + sum(conc_pp,1)
+
 
   xorg = 1d0
   if (use_raoult) THEN
@@ -80,16 +82,16 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
   END if
 
   ! Kelvin and Kohler factors.
-  DO ic = 1, n_cond_tot
-    ! Kelvin factor takes into account the curvature of particles. Unitless
-    Kelvin_Effect(:,ic) = 1d0
+    KELVIN: DO ic = 1, n_cond_tot
+        ! Kelvin factor takes into account the curvature of particles. Unitless
+        Kelvin_Effect(:,ic) = 1d0
 
-    Kelvin_Effect(:,ic) = 1D0 + 2D0*st*VAPOUR_PROP%molar_mass(ic) &
-                        / (Rg*GTEMPK*VAPOUR_PROP%density(ic)*diameter/2D0)
+        Kelvin_Effect(:,ic) = 1D0 + 2D0*st*VAPOUR_PROP%molar_mass(ic) &
+                            / (Rg*GTEMPK*VAPOUR_PROP%density(ic)*diameter/2D0)
 
-    ! Kohler factor the solute partial pressure effect. Unitless
-    kohler_effect(:,ic) = Kelvin_Effect(:,ic)*xorg(:,ic)
-  END DO
+        ! Kohler factor the solute partial pressure effect. Unitless
+        kohler_effect(:,ic) = Kelvin_Effect(:,ic)*xorg(:,ic)
+    END DO KELVIN
   ! Treat H2SO4 specially
   kohler_effect(:,n_cond_tot) = Kelvin_Effect(:,n_cond_tot)
 
@@ -162,7 +164,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
             conc_pp(:,ic) = conc_pp(:,ic) * ((sum(conc_pp(:,ic))  + conc_vap(ic)) / sum(conc_pp(:,ic)))
             conc_vap(ic) = 0d0
             endif
-            print*, 'Fine tuning  ',  conc_vap(ic), sum(conc_pp(:,ic))
+            print*, 'Fine tuning  ',  conc_vap(ic), sum(conc_pp(:,ic)), conc_pp(MINLOC(conc_pp(:,ic)),ic), MINLOC(conc_pp(:,ic))
         END IF
     END IF
     ! if (ic==VAPOUR_PROP%ind_GENERIC) print*, 'vapor conc after', conc_vap(ic)

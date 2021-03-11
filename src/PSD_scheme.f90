@@ -781,8 +781,10 @@ PURE FUNCTION get_composition(parts)
 
     IF (d_PSD%PSD_style == 1) THEN
       get_composition = d_PSD%composition_fs
+      where (get_composition<0) get_composition = 0d0
   ELSE IF (d_PSD%PSD_style == 2) THEN
       get_composition = d_PSD%composition_ma
+      where (get_composition<0) get_composition = 0d0
     END IF
 END FUNCTION get_composition
 
@@ -831,9 +833,9 @@ END FUNCTION get_volume
 
 ! =====================================================================================================================
 ! Returns a mass array of size(nr_bins) that is independant of PSD_style
-PURE FUNCTION get_mass(parts)
+PURE FUNCTION get_mass(parts) result(out)
     IMPLICIT none
-    REAL(dp) :: get_mass(current_PSD%nr_bins)
+    REAL(dp) :: out(current_PSD%nr_bins)
     type(PSD),INTENT(IN), optional :: parts
     type(PSD) :: d_PSD
     if (PRESENT(parts)) THEN
@@ -843,18 +845,18 @@ PURE FUNCTION get_mass(parts)
     END IF
 
     IF (d_PSD%PSD_style == 1) THEN
-        get_mass = d_PSD%volume_fs * d_PSD%particle_density_fs
+        out = d_PSD%volume_fs * d_PSD%particle_density_fs
     ELSE IF (d_PSD%PSD_style == 2) THEN
-        get_mass = d_PSD%volume_ma * d_PSD%particle_density_ma
+        out = d_PSD%volume_ma * d_PSD%particle_density_ma
     END IF
 END FUNCTION get_mass
 
 
 ! =====================================================================================================================
 ! Returns a concentration array of size(nr_bins) that is independant of PSD_style
-PURE FUNCTION get_conc(parts)
+PURE FUNCTION get_conc(parts) result(out)
     IMPLICIT none
-    REAL(dp) :: get_conc(current_PSD%nr_bins)
+    REAL(dp) :: out(current_PSD%nr_bins)
     type(PSD),INTENT(IN), optional :: parts
     type(PSD) :: d_PSD
     if (PRESENT(parts)) THEN
@@ -862,11 +864,12 @@ PURE FUNCTION get_conc(parts)
     ELSE
         d_PSD = current_PSD
     END IF
-
     IF (d_PSD%PSD_style == 1) THEN
-        get_conc = d_PSD%conc_fs
+        out = d_PSD%conc_fs
+        ! where (out<0d0) out = 0d0
     ELSE IF (d_PSD%PSD_style == 2) THEN
-          get_conc = d_PSD%conc_ma
+          out = d_PSD%conc_ma
+          ! where (out<0d0) out = 0d0
     END IF
 END FUNCTION get_conc
 

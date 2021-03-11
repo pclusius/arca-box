@@ -190,10 +190,10 @@ CONTAINS
   call handler(__LINE__, nf90_def_var(ncfile_ids(I), 'J_ACDC_SUM_CM3', NF90_DOUBLE, dtime_id, gJ_out_SUM_id))
   call handler(__LINE__, nf90_def_var(ncfile_ids(I), 'J_TOTAL_CM3', NF90_DOUBLE, dtime_id, gJ_out_TOT_id))
 
-  call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_NH3_id,         shuff, compress, compression) )
-  call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_DMA_id,         shuff, compress, compression) )
-  call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_SUM_id,         shuff, compress, compression) )
-  call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_TOT_id,         shuff, compress, compression) )
+  call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_NH3_id,shuff, compress, compression) )
+  call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_DMA_id,shuff, compress, compression) )
+  call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_SUM_id,shuff, compress, compression) )
+  call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_TOT_id,shuff, compress, compression) )
 
   call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_NH3_id, 'unit' , '[1/s/cm^3]'))
   call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_DMA_id, 'unit' , '[1/s/cm^3]'))
