@@ -866,10 +866,8 @@ PURE FUNCTION get_conc(parts) result(out)
     END IF
     IF (d_PSD%PSD_style == 1) THEN
         out = d_PSD%conc_fs
-        ! where (out<0d0) out = 0d0
     ELSE IF (d_PSD%PSD_style == 2) THEN
           out = d_PSD%conc_ma
-          ! where (out<0d0) out = 0d0
     END IF
 END FUNCTION get_conc
 
