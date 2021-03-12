@@ -17,7 +17,7 @@ from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,wher
 import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname
-from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin
+from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin, relpath as osrelpath
 from shutil import copyfile as cpf
 from re import sub,IGNORECASE, findall
 import time
@@ -1085,6 +1085,7 @@ the numerical model or chemistry scheme differs from the current, results may va
         kwargs = self.get_case_kwargs(r)
         casedir = batch.batch(**kwargs)
         if len(casedir) == 8:
+            # print(osjoin(casedir[-2]), osjoin(casedir[-1])) # xxx
             self.currentAddressTb.setText(casedir[-2]+'/')
             self.indir = casedir[-1]+'/'
         else:
@@ -1166,11 +1167,8 @@ the numerical model or chemistry scheme differs from the current, results may va
         if self.createBashFile.isChecked():
             bf = open(bashfile, 'w')
             bf.write('#!/bin/bash\n')
-            bf.write('# This file should reside in %s\n'%kwargs['common_root'])
-            bf.write('cd ')
-            for j in kwargs['common_root'].split('/'):
-                if len(j)>0:
-                    bf.write('../')
+            bf.write('# This file should be in %s\n'%kwargs['common_root'])
+            bf.write('cd '+osrelpath(getcwd(), kwargs['common_root'] ) )
             bf.write('\n')
 
         for date,file in zip(dates,files_to_create):
@@ -1405,7 +1403,7 @@ the numerical model or chemistry scheme differs from the current, results may va
                 self.popup('Error', 'Common root does not exist. Change "Common out" or create the necessary path: "'+self.inout_dir.text()+'"', icon=2)
                 return
             if i>0:
-                cd = '/'.join(relpath[:i])
+                cd = osjoin(*relpath[:i])
                 if cd != '' and not exists(cd):
                     mkdir(cd)
                     created = created  + cd +'\n'

@@ -14,7 +14,7 @@ def batch(begin = '2020-01-01', end='2020-01-05', case='Melpitz', run='X1', comm
     if common_root != '':
         if common_root[-1] != '/':
             common_root = common_root+'/'
-        if paths(common_root[:-1]) == -1:
+        if abs(paths(common_root[:-1])) == 1:
             return 'Common root does not exist. For safety this directory must exist beforehand.'
 
     if 'int' in str(type(begin)):
