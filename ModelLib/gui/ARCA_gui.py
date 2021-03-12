@@ -786,7 +786,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 pass
         else:
             self.mfont = self.MonitorWindow.font()
-            savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
+            savefont = [self.mfont.family(),self.mfont.pointSize(),self.mfont.bold(),self.mfont.italic()]
             pickle.dump(savefont, open(osjoin(gui_path,monitorfont_pickle), 'wb'))
 
         if exists(osjoin(gui_path,globalfont_pickle)):
@@ -2475,11 +2475,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if first:
             if file==None: return
             self.closenetcdf_mass()
-            try:
-                self.ncs_mass = netCDF4.Dataset(file, 'r')
-            except:
-                self.popup('Bummer...', 'Not a valid output file',icon=3)
-                return
+            if exists(file):
+                try:
+                    self.ncs_mass = netCDF4.Dataset(file, 'r')
+                except:
+                    self.popup('Bummer...', 'Not a valid output file',icon=3)
+                    return
             DIAMETER = self.ncs_mass.variables['DIAMETER'][:]
             self.diams.addItems(['%7.2f'%(1e9*i) for i in DIAMETER[0,:]])
             self.diams.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
@@ -2575,11 +2576,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
         # Close all previus netcdf-files and clear plot
         self.closenetcdf()
         # Try to open netCDF-file
-        try:
-            self.ncs = netCDF4.Dataset(file, 'r')
-        except:
-            self.popup('Bummer...', 'Not a valid output file',icon=3)
-            return
+        if exists(file):
+            try:
+                self.ncs = netCDF4.Dataset(file, 'r')
+            except:
+                self.popup('Bummer...', 'Not a valid output file',icon=3)
+                return
 
         # find out the time dimension, using unlimited dimension here
         for timedim in self.ncs.dimensions:
