@@ -1,4 +1,3 @@
-
                                  --~:| ARCA BOX MODEL 0.9 |:~--
 
 +.Compiled with "Hyde" chemistry module............................................................+
@@ -84,119 +83,1823 @@
 +..................................................................................................+
  
 +.Simulation time step will be optimized for precision.............................................+
-| precision limits for particle diameter     :   5.00 %   20.00 %                                  |
-| precision limits for particle concentration:   5.00 %   10.00 %                                  |
-| precision limits for vapour concentration  :   5.00 %  105.00 %                                  |
+| precision limits for particle diameter     :   5.00 %   15.00 %                                  |
+| precision limits for particle concentration:   5.00 %   15.00 %                                  |
+| precision limits for vapour concentration  :   5.00 %   15.00 %                                  |
+|   :........Simulation can be stopped using file called ENDNOW.INIT with text 'STOP' in it, saved |
+|   :........in output directory. The program stops in orderly fashion upon next PRINTNOW time and |
+|   :........closes the output files.                                                              |
 +..................................................................................................+
 
-+.Time: 00:00:00 ..................................................................................+
++.Time: 00:00:00 (0 sec)...........................................................................+
 |   :........NH3 IGNORED                                                                           |
 |   :........DMA IGNORED                                                                           |
 |   :........Replacing PSD with background particles from 1. measurement (row 2 in file)           |
-   0.0000000000000000     
- 00:00:00   0.0000000000000000      max rel. change in vapours  0.26325928235019974      DHPMEK                   
+| Max rel. change in vapours 2.633E-01 for DHPMEK                                                  |
+| Max rel. change in concentr. 2.088E-02 in bin # 9                                                |
 | ACID C:    3.938E+02 [1/cm3]    sum(An)/A1 0.000E+00 []                                          |
 | Temp:      2.721E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.705E+19 [1/cm3]         |
 | NH3 C:     1.018E+11 [1/cm3]    J_NH3: 0.000E+00 [1/s/cm3]    sum(Nn)/N1 0.000E+00 []            |
 | DMA C:     1.105E+01 [1/cm3]    J_DMA: 0.000E+00 [1/s/cm3]    J-total 0.000E+00 [1/s/cm3]        |
 | Jion neutr 0.000E+00 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
 | C-sink:    2.163E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
-| Current integration time step: 1.000E+01     1  1  1  1                                          |
-+~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
-   5.1063599365247236E-018
-   4.8741051813727423E-017
-   2.1729461024783065E-016
-   6.8461945976711916E-016
-   1.7541104691867867E-015
-   3.9080258247194003E-015
-   7.8638555407505262E-015
-   1.4637421028917544E-014
-   2.5612637323863635E-014
-   4.2617785645036997E-014
-   6.8008166457797624E-014
-   1.0475504505983510E-013
-   1.5654092287960006E-013
-   2.2786104014291132E-013
-   3.2413112318620900E-013
-   4.5180138962405855E-013
-   6.1847694718081950E-013
-   8.3304424973595468E-013
-   1.1058041949995512E-012
-   1.4486116152794058E-012
-   1.8750213272748579E-012
-   2.4004408060671960E-012
-   3.0422896260007360E-012
-   3.8201657365494082E-012
-   4.7560187435498692E-012
-   5.8743302682604598E-012
-   7.2023015733788785E-012
-   8.7700485620880343E-012
-   1.0610804297829439E-011
+| Current integration time step (and multipliers): 1.000E+01 s  ( 1 1 1)                           |
++--------------------------------------------------------------------------------------------------+
+| Engaging speed.                                                                                  |
+| NOTE: Precision tolerance exceeded at time 00:00:20 (20  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: 2.238E-01   
+Up. lim. of |ap: 1.500E-01   TroublevapourHOM_OH_O5CBN             9.263E+06
+|   :........  => reduce dt to:5.000E+00    [s]                                                    |
+| After speed management: time steps are 5.000E+00     1  2  2  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:00:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:4 , Dep:-999                                             |
++..................................................................................................+
+ 
+| 00:00:25-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
 
-+.Time: 00:05:00 ..................................................................................+
-   1.2761129243463414E-011
- 00:05:00   300.00000000000000      max rel. change in vapours  0.22240649703035273      HOM_OH_O5CBN             
-| ACID C:    2.098E+04 [1/cm3]    sum(An)/A1 1.807E-02 []                                          |
++.Time: 00:05:00 (300 sec).........................................................................+
+| Max rel. change in vapours 1.100E-01 for HOM_OH_O5CBN                                            |
+| Max rel. change in concentr. 8.199E-02 in bin # 9                                                |
+| ACID C:    2.080E+04 [1/cm3]    sum(An)/A1 1.806E-02 []                                          |
 | Temp:      2.721E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.705E+19 [1/cm3]         |
-| NH3 C:     9.720E+10 [1/cm3]    J_NH3: 1.944E-16 [1/s/cm3]    sum(Nn)/N1 3.896E-09 []            |
-| DMA C:     1.111E+01 [1/cm3]    J_DMA: 3.735E-39 [1/s/cm3]    J-total 1.944E-16 [1/s/cm3]        |
-| Jion neutr 1.944E-16 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
-| C-sink:    2.158E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
-| Elapsed time (m:s) 0:01 Est. time to finish (m:s) 3:59        Realtime/Modeltime:  178.91        |
-| Current integration time step: 1.000E+01     1  1  1  1                                          |
-+~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
-   1.5261129316174648E-011
-   1.8154681960706651E-011
-   2.1489670457857350E-011
-   2.5318227003930830E-011
-   2.9696983097647090E-011
-   3.4687329675692618E-011
-   4.0355686196589096E-011
-   4.6773778330983391E-011
-   5.4018925768366124E-011
-   6.2174338317707084E-011
-   7.1329423636791356E-011
-   8.1580102452159953E-011
-   9.3029137081871210E-011
-   1.0578646672267483E-010
-   1.1996955779088904E-010
-   1.3570376001464865E-010
-   1.5312267990207162E-010
-   1.7236855826272895E-010
-   1.9359266825864068E-010
-   2.1695571497066115E-010
-| Engaging speed...                                                                                |
-   2.4262825958534622E-010
-| 00:08:30-> Coag. speed multiplier now:2                                                          |
-   2.7079114167132428E-010
-| 00:08:40-> Coag. speed multiplier now:4                                                          |
-   3.0153686905854319E-010
-   3.3492476991108508E-010
-   3.7133719605991429E-010
-   4.1099207305260501E-010
-   4.5411915751176085E-010
-   5.0096048989253115E-010
-   5.5177090259576403E-010
+| NH3 C:     9.720E+10 [1/cm3]    J_NH3: 1.801E-16 [1/s/cm3]    sum(Nn)/N1 3.862E-09 []            |
+| DMA C:     1.111E+01 [1/cm3]    J_DMA: 3.497E-39 [1/s/cm3]    J-total 1.801E-16 [1/s/cm3]        |
+| Jion neutr 1.801E-16 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    2.127E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:02 Est. time to finish (m:s) 8:02        Realtime/Modeltime:  111.31        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
 
-+.Time: 00:10:00 ..................................................................................+
++.Time: 00:10:00 (600 sec).........................................................................+
 |   :........Replacing PSD with background particles from 2. measurement (row 3 in file)           |
-   0.0000000000000000     
- 00:10:00   600.00000000000000      max rel. change in vapours  0.26340718974498611      DHPMEK                   
-| ACID C:    4.312E+04 [1/cm3]    sum(An)/A1 1.730E-02 []                                          |
+| Max rel. change in vapours 1.373E-01 for DHPMEK                                                  |
+| Max rel. change in concentr. 8.352E-02 in bin # 9                                                |
+| ACID C:    4.294E+04 [1/cm3]    sum(An)/A1 1.730E-02 []                                          |
 | Temp:      2.721E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.705E+19 [1/cm3]         |
-| NH3 C:     9.258E+10 [1/cm3]    J_NH3: 5.934E-14 [1/s/cm3]    sum(Nn)/N1 8.044E-09 []            |
-| DMA C:     1.118E+01 [1/cm3]    J_DMA: 6.200E-37 [1/s/cm3]    J-total 5.934E-14 [1/s/cm3]        |
-| Jion neutr 5.934E-14 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| NH3 C:     9.258E+10 [1/cm3]    J_NH3: 5.754E-14 [1/s/cm3]    sum(Nn)/N1 8.009E-09 []            |
+| DMA C:     1.118E+01 [1/cm3]    J_DMA: 6.028E-37 [1/s/cm3]    J-total 5.754E-14 [1/s/cm3]        |
+| Jion neutr 5.754E-14 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
 | C-sink:    2.163E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
-| Elapsed time (m:s) 0:03 Est. time to finish (m:s) 3:49        Realtime/Modeltime:  185.64        |
-| Current integration time step: 1.000E+01     1  1  4  1                                          |
-+~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=+
-   6.2371908029122900E-011
-   1.2814626668970986E-010
-   1.9751092421086410E-010
-   2.7070205290998954E-010
-   3.4810380000693078E-010
-   4.3014190645016733E-010
-   5.1727342833724143E-010
-   6.0997611696161825E-010
-   7.0874052668306629E-010
+| Elapsed time (m:s) 0:05 Est. time to finish (m:s) 7:50        Realtime/Modeltime:  113.46        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 00:15:00 (900 sec).........................................................................+
+| Max rel. change in vapours 1.095E-01 for HOM_OH_O5CBN                                            |
+| Max rel. change in concentr. 8.186E-02 in bin # 9                                                |
+| ACID C:    6.575E+04 [1/cm3]    sum(An)/A1 1.654E-02 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.705E+19 [1/cm3]         |
+| NH3 C:     8.797E+10 [1/cm3]    J_NH3: 1.270E-12 [1/s/cm3]    sum(Nn)/N1 1.232E-08 []            |
+| DMA C:     1.126E+01 [1/cm3]    J_DMA: 9.467E-36 [1/s/cm3]    J-total 1.270E-12 [1/s/cm3]        |
+| Jion neutr 1.270E-12 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    2.124E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:07 Est. time to finish (m:s) 7:40        Realtime/Modeltime:  115.25        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 00:20:00 (1200 sec)........................................................................+
+|   :........Replacing PSD with background particles from 3. measurement (row 4 in file)           |
+| Max rel. change in vapours 1.382E-01 for C524OOH                                                 |
+| Max rel. change in concentr. 8.183E-02 in bin # 9                                                |
+| ACID C:    8.875E+04 [1/cm3]    sum(An)/A1 1.576E-02 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.705E+19 [1/cm3]         |
+| NH3 C:     8.335E+10 [1/cm3]    J_NH3: 1.028E-11 [1/s/cm3]    sum(Nn)/N1 1.671E-08 []            |
+| DMA C:     1.133E+01 [1/cm3]    J_DMA: 6.196E-35 [1/s/cm3]    J-total 1.028E-11 [1/s/cm3]        |
+| Jion neutr 1.028E-11 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    2.121E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:10 Est. time to finish (m:s) 7:34        Realtime/Modeltime:  116.24        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 00:25:00 (1500 sec)........................................................................+
+| Max rel. change in vapours 1.240E-01 for C516OOH                                                 |
+| Max rel. change in concentr. 8.022E-02 in bin # 9                                                |
+| ACID C:    1.150E+05 [1/cm3]    sum(An)/A1 1.499E-02 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.705E+19 [1/cm3]         |
+| NH3 C:     7.873E+10 [1/cm3]    J_NH3: 5.570E-11 [1/s/cm3]    sum(Nn)/N1 2.176E-08 []            |
+| DMA C:     1.142E+01 [1/cm3]    J_DMA: 2.906E-34 [1/s/cm3]    J-total 5.570E-11 [1/s/cm3]        |
+| Jion neutr 5.570E-11 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    2.083E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:12 Est. time to finish (m:s) 7:27        Realtime/Modeltime:  117.31        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 00:30:00 (1800 sec)........................................................................+
+|   :........Replacing PSD with background particles from 4. measurement (row 5 in file)           |
+| Max rel. change in vapours 1.257E-01 for C524OOH                                                 |
+| Max rel. change in concentr. 7.455E-02 in bin # 9                                                |
+| ACID C:    1.428E+05 [1/cm3]    sum(An)/A1 1.423E-02 []                                          |
+| Temp:      2.720E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.705E+19 [1/cm3]         |
+| NH3 C:     7.411E+10 [1/cm3]    J_NH3: 2.492E-10 [1/s/cm3]    sum(Nn)/N1 2.720E-08 []            |
+| DMA C:     1.150E+01 [1/cm3]    J_DMA: 1.177E-33 [1/s/cm3]    J-total 2.492E-10 [1/s/cm3]        |
+| Jion neutr 2.492E-10 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.928E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:15 Est. time to finish (m:s) 7:22        Realtime/Modeltime:  118.05        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 00:35:00 (2100 sec)........................................................................+
+| Max rel. change in vapours 1.130E-01 for C516OOH                                                 |
+| Max rel. change in concentr. 7.316E-02 in bin # 9                                                |
+| ACID C:    1.701E+05 [1/cm3]    sum(An)/A1 1.345E-02 []                                          |
+| Temp:      2.720E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.706E+19 [1/cm3]         |
+| NH3 C:     6.949E+10 [1/cm3]    J_NH3: 8.585E-10 [1/s/cm3]    sum(Nn)/N1 3.259E-08 []            |
+| DMA C:     1.160E+01 [1/cm3]    J_DMA: 3.827E-33 [1/s/cm3]    J-total 8.585E-10 [1/s/cm3]        |
+| Jion neutr 8.585E-10 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.896E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:17 Est. time to finish (m:s) 7:17        Realtime/Modeltime:  118.70        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 00:40:00 (2400 sec)........................................................................+
+|   :........Replacing PSD with background particles from 5. measurement (row 6 in file)           |
+| Max rel. change in vapours 1.186E-01 for C524OOH                                                 |
+| Max rel. change in concentr. 7.051E-02 in bin # 9                                                |
+| ACID C:    1.962E+05 [1/cm3]    sum(An)/A1 1.266E-02 []                                          |
+| Temp:      2.720E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.706E+19 [1/cm3]         |
+| NH3 C:     6.487E+10 [1/cm3]    J_NH3: 2.317E-09 [1/s/cm3]    sum(Nn)/N1 3.782E-08 []            |
+| DMA C:     1.169E+01 [1/cm3]    J_DMA: 1.012E-32 [1/s/cm3]    J-total 2.317E-09 [1/s/cm3]        |
+| Jion neutr 2.317E-09 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.823E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:20 Est. time to finish (m:s) 7:13        Realtime/Modeltime:  119.01        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| NOTE: Precision tolerance exceeded at time 00:44:50 (2690  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:44:55-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+
++.Time: 00:45:00 (2700 sec)........................................................................+
+| Max rel. change in vapours 1.067E-01 for C516OOH                                                 |
+| Max rel. change in concentr. 6.927E-02 in bin # 9                                                |
+| ACID C:    2.141E+05 [1/cm3]    sum(An)/A1 1.184E-02 []                                          |
+| Temp:      2.720E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.706E+19 [1/cm3]         |
+| NH3 C:     6.025E+10 [1/cm3]    J_NH3: 4.729E-09 [1/s/cm3]    sum(Nn)/N1 4.147E-08 []            |
+| DMA C:     1.179E+01 [1/cm3]    J_DMA: 2.111E-32 [1/s/cm3]    J-total 4.729E-09 [1/s/cm3]        |
+| Jion neutr 4.729E-09 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.795E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:22 Est. time to finish (m:s) 7:09        Realtime/Modeltime:  119.36        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| NOTE: Precision tolerance exceeded at time 00:45:15 (2715  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:45:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:45:40 (2740  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:45:45-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:46:05 (2765  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:46:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:46:25 (2785  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:46:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:46:45 (2805  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:46:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:47:05 (2825  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:47:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:47:25 (2845  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:47:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:47:45 (2865  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:47:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:48:05 (2885  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:48:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:48:25 (2905  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:48:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:48:40 (2920  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:48:45-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:49:00 (2940  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:49:05-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:49:15 (2955  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:49:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:49:35 (2975  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:49:40-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:49:50 (2990  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:49:55-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+
++.Time: 00:50:00 (3000 sec)........................................................................+
+|   :........Replacing PSD with background particles from 6. measurement (row 7 in file)           |
+| Max rel. change in vapours 1.175E-01 for C524OOH                                                 |
+| Max rel. change in concentr. 7.006E-02 in bin # 9                                                |
+| ACID C:    2.224E+05 [1/cm3]    sum(An)/A1 1.099E-02 []                                          |
+| Temp:      2.720E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.706E+19 [1/cm3]         |
+| NH3 C:     5.563E+10 [1/cm3]    J_NH3: 7.067E-09 [1/s/cm3]    sum(Nn)/N1 4.323E-08 []            |
+| DMA C:     1.190E+01 [1/cm3]    J_DMA: 3.456E-32 [1/s/cm3]    J-total 7.067E-09 [1/s/cm3]        |
+| Jion neutr 7.067E-09 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.813E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:25 Est. time to finish (m:s) 7:16        Realtime/Modeltime:  116.97        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| NOTE: Precision tolerance exceeded at time 00:52:15 (3135  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:52:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:52:30 (3150  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:52:35-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:52:45 (3165  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:52:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:53:00 (3180  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:53:05-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:53:15 (3195  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:53:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:53:30 (3210  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:53:35-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:53:45 (3225  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:53:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:54:00 (3240  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:54:05-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:54:15 (3255  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:54:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:54:30 (3270  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:54:35-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:54:45 (3285  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:54:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+
++.Time: 00:55:00 (3300 sec)........................................................................+
+| Max rel. change in vapours 1.059E-01 for C516OOH                                                 |
+| Max rel. change in concentr. 2.369E-01 in bin # 1                                                |
+| NOTE: Precision tolerance exceeded at time 00:55:00 (3300  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+
++.Time: 00:55:00 (3300 sec)........................................................................+
+| Max rel. change in vapours 1.059E-01 for C516OOH                                                 |
+| Max rel. change in concentr. 1.185E-01 in bin # 1                                                |
+| ACID C:    2.240E+05 [1/cm3]    sum(An)/A1 1.013E-02 []                                          |
+| Temp:      2.720E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.706E+19 [1/cm3]         |
+| NH3 C:     5.101E+10 [1/cm3]    J_NH3: 8.491E-09 [1/s/cm3]    sum(Nn)/N1 4.370E-08 []            |
+| DMA C:     1.201E+01 [1/cm3]    J_DMA: 4.783E-32 [1/s/cm3]    J-total 8.491E-09 [1/s/cm3]        |
+| Jion neutr 8.491E-09 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.790E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:28 Est. time to finish (m:s) 7:18        Realtime/Modeltime:  115.58        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| 00:55:05-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:55:15 (3315  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:55:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:55:25 (3325  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:55:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:55:40 (3340  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:55:45-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:55:55 (3355  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:56:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:56:10 (3370  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:56:15-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:56:25 (3385  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:56:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:56:35 (3395  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:56:40-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:56:50 (3410  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:56:55-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:57:05 (3425  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:57:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:57:20 (3440  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:57:25-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:57:35 (3455  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:57:40-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:57:50 (3470  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:57:55-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:58:05 (3485  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:58:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:58:20 (3500  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:58:25-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:58:35 (3515  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:58:40-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:58:50 (3530  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:58:55-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:59:05 (3545  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:59:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:59:20 (3560  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:59:25-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:59:40 (3580  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 00:59:45-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 00:59:55 (3595  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+
++.Time: 01:00:00 (3600 sec)........................................................................+
+|   :........Replacing PSD with background particles from 7. measurement (row 8 in file)           |
+| Max rel. change in vapours 1.050E-01 for BZFUOOH                                                 |
+| Max rel. change in concentr. 3.082E-02 in bin # 9                                                |
+| ACID C:    1.873E+05 [1/cm3]    sum(An)/A1 9.223E-03 []                                          |
+| Temp:      2.720E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.706E+19 [1/cm3]         |
+| NH3 C:     4.638E+10 [1/cm3]    J_NH3: 6.564E-09 [1/s/cm3]    sum(Nn)/N1 3.657E-08 []            |
+| DMA C:     1.213E+01 [1/cm3]    J_DMA: 4.708E-32 [1/s/cm3]    J-total 6.564E-09 [1/s/cm3]        |
+| Jion neutr 6.564E-09 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.595E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:31 Est. time to finish (m:s) 7:26        Realtime/Modeltime:  112.96        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| 01:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:02:45 (3765  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:02:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:03:05 (3785  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:03:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:03:25 (3805  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:03:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:03:45 (3825  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:03:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:04:05 (3845  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:04:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:04:25 (3865  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:04:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:04:45 (3885  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:04:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+
++.Time: 01:05:00 (3900 sec)........................................................................+
+| Max rel. change in vapours 9.469E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 6.080E-02 in bin # 9                                                |
+| ACID C:    2.021E+05 [1/cm3]    sum(An)/A1 8.819E-03 []                                          |
+| Temp:      2.719E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.707E+19 [1/cm3]         |
+| NH3 C:     4.436E+10 [1/cm3]    J_NH3: 5.339E-09 [1/s/cm3]    sum(Nn)/N1 3.947E-08 []            |
+| DMA C:     1.225E+01 [1/cm3]    J_DMA: 4.802E-32 [1/s/cm3]    J-total 5.339E-09 [1/s/cm3]        |
+| Jion neutr 5.339E-09 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.576E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:34 Est. time to finish (m:s) 7:24        Realtime/Modeltime:  112.63        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| NOTE: Precision tolerance exceeded at time 01:05:05 (3905  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:05:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:05:25 (3925  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:05:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:05:45 (3945  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:05:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:06:05 (3965  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:06:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:06:25 (3985  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:06:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:06:40 (4000  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:06:45-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:07:00 (4020  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:07:05-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:07:15 (4035  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:07:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:07:30 (4050  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:07:35-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:07:50 (4070  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:07:55-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:08:05 (4085  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:08:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:08:20 (4100  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:08:25-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:08:35 (4115  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:08:40-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:08:45 (4125  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:08:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:09:00 (4140  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:09:05-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:09:15 (4155  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:09:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:09:25 (4165  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:09:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:09:35 (4175  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:09:40-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:09:50 (4190  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:09:55-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+
++.Time: 01:10:00 (4200 sec)........................................................................+
+|   :........Replacing PSD with background particles from 8. measurement (row 9 in file)           |
+| Max rel. change in vapours 9.247E-02 for C524OOH                                                 |
+| Max rel. change in concentr. 5.493E-02 in bin # 9                                                |
+| ACID C:    2.328E+05 [1/cm3]    sum(An)/A1 8.522E-03 []                                          |
+| Temp:      2.719E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.707E+19 [1/cm3]         |
+| NH3 C:     4.234E+10 [1/cm3]    J_NH3: 9.674E-09 [1/s/cm3]    sum(Nn)/N1 4.585E-08 []            |
+| DMA C:     1.238E+01 [1/cm3]    J_DMA: 9.288E-32 [1/s/cm3]    J-total 9.674E-09 [1/s/cm3]        |
+| Jion neutr 9.674E-09 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.418E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:37 Est. time to finish (m:s) 7:27        Realtime/Modeltime:  111.32        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 8 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| NOTE: Precision tolerance exceeded at time 01:11:30 (4290  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:11:35-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:11:40 (4300  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:11:50-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:11:55 (4315  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:12:05-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:12:10 (4330  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:12:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:12:25 (4345  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:12:40-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:12:45 (4365  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:13:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:13:05 (4385  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:13:25-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:13:30 (4410  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+| 01:14:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:14:05 (4445  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+
++.Time: 01:15:00 (4500 sec)........................................................................+
+| Max rel. change in vapours 8.364E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 9.313E-02 in bin # 1                                                |
+| ACID C:    2.537E+05 [1/cm3]    sum(An)/A1 8.192E-03 []                                          |
+| Temp:      2.719E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.707E+19 [1/cm3]         |
+| NH3 C:     4.032E+10 [1/cm3]    J_NH3: 1.907E-08 [1/s/cm3]    sum(Nn)/N1 5.029E-08 []            |
+| DMA C:     1.252E+01 [1/cm3]    J_DMA: 1.833E-31 [1/s/cm3]    J-total 1.907E-08 [1/s/cm3]        |
+| Jion neutr 1.907E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.406E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:40 Est. time to finish (m:s) 7:25        Realtime/Modeltime:  111.10        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 01:20:00 (4800 sec)........................................................................+
+|   :........Replacing PSD with background particles from 9. measurement (row 10 in file)          |
+| Max rel. change in vapours 9.689E-02 for HMACROH                                                 |
+| Max rel. change in concentr. 2.704E-02 in bin # 9                                                |
+| ACID C:    2.714E+05 [1/cm3]    sum(An)/A1 7.836E-03 []                                          |
+| Temp:      2.719E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.708E+19 [1/cm3]         |
+| NH3 C:     3.830E+10 [1/cm3]    J_NH3: 2.959E-08 [1/s/cm3]    sum(Nn)/N1 5.407E-08 []            |
+| DMA C:     1.266E+01 [1/cm3]    J_DMA: 2.944E-31 [1/s/cm3]    J-total 2.959E-08 [1/s/cm3]        |
+| Jion neutr 2.959E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.398E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:42 Est. time to finish (m:s) 7:20        Realtime/Modeltime:  111.67        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| 01:20:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:20:30 (4830  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+
++.Time: 01:25:00 (5100 sec)........................................................................+
+| Max rel. change in vapours 8.340E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 9.210E-02 in bin # 1                                                |
+| ACID C:    2.915E+05 [1/cm3]    sum(An)/A1 7.482E-03 []                                          |
+| Temp:      2.719E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.708E+19 [1/cm3]         |
+| NH3 C:     3.628E+10 [1/cm3]    J_NH3: 4.411E-08 [1/s/cm3]    sum(Nn)/N1 5.839E-08 []            |
+| DMA C:     1.281E+01 [1/cm3]    J_DMA: 4.634E-31 [1/s/cm3]    J-total 4.411E-08 [1/s/cm3]        |
+| Jion neutr 4.411E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.388E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:45 Est. time to finish (m:s) 7:16        Realtime/Modeltime:  112.13        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 01:30:00 (5400 sec)........................................................................+
+|   :........Replacing PSD with background particles from 10. measurement (row 11 in file)         |
+| Max rel. change in vapours 9.285E-02 for HMACROH                                                 |
+| Max rel. change in concentr. 2.601E-02 in bin # 9                                                |
+| ACID C:    3.120E+05 [1/cm3]    sum(An)/A1 7.129E-03 []                                          |
+| Temp:      2.719E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.708E+19 [1/cm3]         |
+| NH3 C:     3.426E+10 [1/cm3]    J_NH3: 6.591E-08 [1/s/cm3]    sum(Nn)/N1 6.287E-08 []            |
+| DMA C:     1.297E+01 [1/cm3]    J_DMA: 7.369E-31 [1/s/cm3]    J-total 6.591E-08 [1/s/cm3]        |
+| Jion neutr 6.591E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.342E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:47 Est. time to finish (m:s) 7:11        Realtime/Modeltime:  112.73        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| 01:30:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:30:15 (5415  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+
++.Time: 01:35:00 (5700 sec)........................................................................+
+| Max rel. change in vapours 7.996E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.844E-02 in bin # 1                                                |
+| ACID C:    3.284E+05 [1/cm3]    sum(An)/A1 6.758E-03 []                                          |
+| Temp:      2.718E+02 [K]        Pressure:  1.016E+05 [Pa]     Air_conc 2.708E+19 [1/cm3]         |
+| NH3 C:     3.224E+10 [1/cm3]    J_NH3: 9.303E-08 [1/s/cm3]    sum(Nn)/N1 6.650E-08 []            |
+| DMA C:     1.313E+01 [1/cm3]    J_DMA: 1.117E-30 [1/s/cm3]    J-total 9.303E-08 [1/s/cm3]        |
+| Jion neutr 9.303E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.333E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:50 Est. time to finish (m:s) 7:06        Realtime/Modeltime:  113.17        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 01:40:00 (6000 sec)........................................................................+
+|   :........Replacing PSD with background particles from 11. measurement (row 12 in file)         |
+| Max rel. change in vapours 9.403E-02 for HMACROH                                                 |
+| Max rel. change in concentr. 2.615E-02 in bin # 9                                                |
+| ACID C:    3.428E+05 [1/cm3]    sum(An)/A1 6.371E-03 []                                          |
+| Temp:      2.718E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.709E+19 [1/cm3]         |
+| NH3 C:     3.021E+10 [1/cm3]    J_NH3: 1.178E-07 [1/s/cm3]    sum(Nn)/N1 6.969E-08 []            |
+| DMA C:     1.331E+01 [1/cm3]    J_DMA: 1.545E-30 [1/s/cm3]    J-total 1.178E-07 [1/s/cm3]        |
+| Jion neutr 1.178E-07 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.354E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:52 Est. time to finish (m:s) 7:02        Realtime/Modeltime:  113.62        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| 01:40:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:40:05 (6005  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+
++.Time: 01:45:00 (6300 sec)........................................................................+
+| Max rel. change in vapours 8.101E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.932E-02 in bin # 1                                                |
+| ACID C:    3.624E+05 [1/cm3]    sum(An)/A1 5.989E-03 []                                          |
+| Temp:      2.718E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.709E+19 [1/cm3]         |
+| NH3 C:     2.819E+10 [1/cm3]    J_NH3: 1.471E-07 [1/s/cm3]    sum(Nn)/N1 7.404E-08 []            |
+| DMA C:     1.349E+01 [1/cm3]    J_DMA: 2.142E-30 [1/s/cm3]    J-total 1.471E-07 [1/s/cm3]        |
+| Jion neutr 1.471E-07 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.346E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:55 Est. time to finish (m:s) 6:58        Realtime/Modeltime:  113.92        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 01:50:00 (6600 sec)........................................................................+
+|   :........Replacing PSD with background particles from 12. measurement (row 13 in file)         |
+| Max rel. change in vapours 9.102E-02 for HMACROH                                                 |
+| Max rel. change in concentr. 2.520E-02 in bin # 9                                                |
+| ACID C:    3.828E+05 [1/cm3]    sum(An)/A1 5.612E-03 []                                          |
+| Temp:      2.718E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.709E+19 [1/cm3]         |
+| NH3 C:     2.617E+10 [1/cm3]    J_NH3: 1.915E-07 [1/s/cm3]    sum(Nn)/N1 7.867E-08 []            |
+| DMA C:     1.368E+01 [1/cm3]    J_DMA: 3.102E-30 [1/s/cm3]    J-total 1.915E-07 [1/s/cm3]        |
+| Jion neutr 1.915E-07 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.303E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:57 Est. time to finish (m:s) 6:54        Realtime/Modeltime:  114.32        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+| 01:50:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| NOTE: Precision tolerance exceeded at time 01:50:05 (6605  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| After speed management: time steps are 5.000E+00     1  4  -999  
+| Error handled.                                                                                   |
++..................................................................................................+
+ 
+
++.Time: 01:55:00 (6900 sec)........................................................................+
+| Max rel. change in vapours 7.846E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.607E-02 in bin # 1                                                |
+| ACID C:    3.940E+05 [1/cm3]    sum(An)/A1 5.214E-03 []                                          |
+| Temp:      2.718E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.710E+19 [1/cm3]         |
+| NH3 C:     2.414E+10 [1/cm3]    J_NH3: 2.357E-07 [1/s/cm3]    sum(Nn)/N1 8.133E-08 []            |
+| DMA C:     1.387E+01 [1/cm3]    J_DMA: 4.301E-30 [1/s/cm3]    J-total 2.357E-07 [1/s/cm3]        |
+| Jion neutr 2.357E-07 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.295E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:00 Est. time to finish (m:s) 6:50        Realtime/Modeltime:  114.62        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:00:00 (7200 sec)........................................................................+
+| Max rel. change in vapours 7.809E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.559E-02 in bin # 1                                                |
+| ACID C:    4.014E+05 [1/cm3]    sum(An)/A1 4.796E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.710E+19 [1/cm3]         |
+| NH3 C:     2.212E+10 [1/cm3]    J_NH3: 2.552E-07 [1/s/cm3]    sum(Nn)/N1 8.307E-08 []            |
+| DMA C:     1.408E+01 [1/cm3]    J_DMA: 5.365E-30 [1/s/cm3]    J-total 2.552E-07 [1/s/cm3]        |
+| Jion neutr 2.552E-07 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.288E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:02 Est. time to finish (m:s) 6:47        Realtime/Modeltime:  114.89        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:05:00 (7500 sec)........................................................................+
+| Max rel. change in vapours 7.738E-02 for C525OOH                                                 |
+| Max rel. change in concentr. 8.514E-02 in bin # 1                                                |
+| ACID C:    3.950E+05 [1/cm3]    sum(An)/A1 4.710E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.710E+19 [1/cm3]         |
+| NH3 C:     2.174E+10 [1/cm3]    J_NH3: 2.426E-07 [1/s/cm3]    sum(Nn)/N1 8.171E-08 []            |
+| DMA C:     1.429E+01 [1/cm3]    J_DMA: 5.996E-30 [1/s/cm3]    J-total 2.426E-07 [1/s/cm3]        |
+| Jion neutr 2.426E-07 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.280E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:05 Est. time to finish (m:s) 6:43        Realtime/Modeltime:  115.18        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:10:00 (7800 sec)........................................................................+
+| Max rel. change in vapours 7.708E-02 for C525OOH                                                 |
+| Max rel. change in concentr. 8.472E-02 in bin # 1                                                |
+| ACID C:    3.852E+05 [1/cm3]    sum(An)/A1 4.621E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.710E+19 [1/cm3]         |
+| NH3 C:     2.137E+10 [1/cm3]    J_NH3: 2.133E-07 [1/s/cm3]    sum(Nn)/N1 7.962E-08 []            |
+| DMA C:     1.452E+01 [1/cm3]    J_DMA: 6.100E-30 [1/s/cm3]    J-total 2.133E-07 [1/s/cm3]        |
+| Jion neutr 2.133E-07 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.274E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:07 Est. time to finish (m:s) 6:39        Realtime/Modeltime:  115.60        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:15:00 (8100 sec)........................................................................+
+| Max rel. change in vapours 7.681E-02 for C525OOH                                                 |
+| Max rel. change in concentr. 8.432E-02 in bin # 1                                                |
+| ACID C:    3.587E+05 [1/cm3]    sum(An)/A1 4.506E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.710E+19 [1/cm3]         |
+| NH3 C:     2.100E+10 [1/cm3]    J_NH3: 1.580E-07 [1/s/cm3]    sum(Nn)/N1 7.381E-08 []            |
+| DMA C:     1.475E+01 [1/cm3]    J_DMA: 5.146E-30 [1/s/cm3]    J-total 1.580E-07 [1/s/cm3]        |
+| Jion neutr 1.580E-07 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.267E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:09 Est. time to finish (m:s) 6:35        Realtime/Modeltime:  115.99        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:20:00 (8400 sec)........................................................................+
+| Max rel. change in vapours 7.689E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.394E-02 in bin # 1                                                |
+| ACID C:    3.309E+05 [1/cm3]    sum(An)/A1 4.375E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.710E+19 [1/cm3]         |
+| NH3 C:     2.062E+10 [1/cm3]    J_NH3: 9.322E-08 [1/s/cm3]    sum(Nn)/N1 6.764E-08 []            |
+| DMA C:     1.500E+01 [1/cm3]    J_DMA: 3.507E-30 [1/s/cm3]    J-total 9.322E-08 [1/s/cm3]        |
+| Jion neutr 9.322E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.261E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:12 Est. time to finish (m:s) 6:31        Realtime/Modeltime:  116.38        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:25:00 (8700 sec)........................................................................+
+| Max rel. change in vapours 7.664E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.358E-02 in bin # 1                                                |
+| ACID C:    3.298E+05 [1/cm3]    sum(An)/A1 4.285E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.711E+19 [1/cm3]         |
+| NH3 C:     2.025E+10 [1/cm3]    J_NH3: 6.057E-08 [1/s/cm3]    sum(Nn)/N1 6.732E-08 []            |
+| DMA C:     1.525E+01 [1/cm3]    J_DMA: 2.670E-30 [1/s/cm3]    J-total 6.057E-08 [1/s/cm3]        |
+| Jion neutr 6.057E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.256E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:14 Est. time to finish (m:s) 6:27        Realtime/Modeltime:  116.86        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:30:00 (9000 sec)........................................................................+
+| Max rel. change in vapours 7.640E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.323E-02 in bin # 1                                                |
+| ACID C:    3.337E+05 [1/cm3]    sum(An)/A1 4.227E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.711E+19 [1/cm3]         |
+| NH3 C:     1.987E+10 [1/cm3]    J_NH3: 5.505E-08 [1/s/cm3]    sum(Nn)/N1 6.833E-08 []            |
+| DMA C:     1.551E+01 [1/cm3]    J_DMA: 2.734E-30 [1/s/cm3]    J-total 5.505E-08 [1/s/cm3]        |
+| Jion neutr 5.505E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.250E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:16 Est. time to finish (m:s) 6:23        Realtime/Modeltime:  117.20        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:35:00 (9300 sec)........................................................................+
+| Max rel. change in vapours 7.616E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.289E-02 in bin # 1                                                |
+| ACID C:    3.238E+05 [1/cm3]    sum(An)/A1 4.148E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.711E+19 [1/cm3]         |
+| NH3 C:     1.950E+10 [1/cm3]    J_NH3: 5.335E-08 [1/s/cm3]    sum(Nn)/N1 6.632E-08 []            |
+| DMA C:     1.579E+01 [1/cm3]    J_DMA: 2.913E-30 [1/s/cm3]    J-total 5.335E-08 [1/s/cm3]        |
+| Jion neutr 5.335E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.244E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:19 Est. time to finish (m:s) 6:20        Realtime/Modeltime:  117.59        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:40:00 (9600 sec)........................................................................+
+| Max rel. change in vapours 7.593E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.256E-02 in bin # 1                                                |
+| ACID C:    3.112E+05 [1/cm3]    sum(An)/A1 4.051E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.711E+19 [1/cm3]         |
+| NH3 C:     1.913E+10 [1/cm3]    J_NH3: 4.377E-08 [1/s/cm3]    sum(Nn)/N1 6.359E-08 []            |
+| DMA C:     1.608E+01 [1/cm3]    J_DMA: 2.688E-30 [1/s/cm3]    J-total 4.377E-08 [1/s/cm3]        |
+| Jion neutr 4.377E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.239E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:21 Est. time to finish (m:s) 6:16        Realtime/Modeltime:  117.95        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:45:00 (9900 sec)........................................................................+
+| Max rel. change in vapours 7.571E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.224E-02 in bin # 1                                                |
+| ACID C:    3.206E+05 [1/cm3]    sum(An)/A1 3.982E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.711E+19 [1/cm3]         |
+| NH3 C:     1.875E+10 [1/cm3]    J_NH3: 3.991E-08 [1/s/cm3]    sum(Nn)/N1 6.565E-08 []            |
+| DMA C:     1.637E+01 [1/cm3]    J_DMA: 2.799E-30 [1/s/cm3]    J-total 3.991E-08 [1/s/cm3]        |
+| Jion neutr 3.991E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.234E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:23 Est. time to finish (m:s) 6:12        Realtime/Modeltime:  118.38        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:50:00 (10200 sec).......................................................................+
+| Max rel. change in vapours 7.550E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.194E-02 in bin # 1                                                |
+| ACID C:    3.359E+05 [1/cm3]    sum(An)/A1 3.941E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.711E+19 [1/cm3]         |
+| NH3 C:     1.838E+10 [1/cm3]    J_NH3: 4.994E-08 [1/s/cm3]    sum(Nn)/N1 6.919E-08 []            |
+| DMA C:     1.669E+01 [1/cm3]    J_DMA: 3.868E-30 [1/s/cm3]    J-total 4.994E-08 [1/s/cm3]        |
+| Jion neutr 4.994E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.229E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:25 Est. time to finish (m:s) 6:08        Realtime/Modeltime:  118.74        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 02:55:00 (10500 sec).......................................................................+
+| Max rel. change in vapours 7.529E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.165E-02 in bin # 1                                                |
+| ACID C:    3.244E+05 [1/cm3]    sum(An)/A1 3.870E-03 []                                          |
+| Temp:      2.717E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.711E+19 [1/cm3]         |
+| NH3 C:     1.800E+10 [1/cm3]    J_NH3: 5.849E-08 [1/s/cm3]    sum(Nn)/N1 6.694E-08 []            |
+| DMA C:     1.701E+01 [1/cm3]    J_DMA: 4.932E-30 [1/s/cm3]    J-total 5.849E-08 [1/s/cm3]        |
+| Jion neutr 5.849E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.224E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:28 Est. time to finish (m:s) 6:05        Realtime/Modeltime:  119.10        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:00:00 (10800 sec).......................................................................+
+| Max rel. change in vapours 7.509E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.136E-02 in bin # 1                                                |
+| ACID C:    3.070E+05 [1/cm3]    sum(An)/A1 3.765E-03 []                                          |
+| Temp:      2.716E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.712E+19 [1/cm3]         |
+| NH3 C:     1.763E+10 [1/cm3]    J_NH3: 4.926E-08 [1/s/cm3]    sum(Nn)/N1 6.312E-08 []            |
+| DMA C:     1.734E+01 [1/cm3]    J_DMA: 4.693E-30 [1/s/cm3]    J-total 4.926E-08 [1/s/cm3]        |
+| Jion neutr 4.926E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.220E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:30 Est. time to finish (m:s) 6:01        Realtime/Modeltime:  119.39        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:05:00 (11100 sec).......................................................................+
+| Max rel. change in vapours 7.490E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.108E-02 in bin # 1                                                |
+| ACID C:    3.127E+05 [1/cm3]    sum(An)/A1 3.706E-03 []                                          |
+| Temp:      2.716E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.712E+19 [1/cm3]         |
+| NH3 C:     1.729E+10 [1/cm3]    J_NH3: 4.116E-08 [1/s/cm3]    sum(Nn)/N1 6.454E-08 []            |
+| DMA C:     1.769E+01 [1/cm3]    J_DMA: 4.566E-30 [1/s/cm3]    J-total 4.116E-08 [1/s/cm3]        |
+| Jion neutr 4.116E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.215E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:32 Est. time to finish (m:s) 5:58        Realtime/Modeltime:  119.70        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:10:00 (11400 sec).......................................................................+
+| Max rel. change in vapours 7.471E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.081E-02 in bin # 1                                                |
+| ACID C:    3.239E+05 [1/cm3]    sum(An)/A1 3.672E-03 []                                          |
+| Temp:      2.716E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.713E+19 [1/cm3]         |
+| NH3 C:     1.696E+10 [1/cm3]    J_NH3: 4.384E-08 [1/s/cm3]    sum(Nn)/N1 6.741E-08 []            |
+| DMA C:     1.805E+01 [1/cm3]    J_DMA: 5.503E-30 [1/s/cm3]    J-total 4.384E-08 [1/s/cm3]        |
+| Jion neutr 4.384E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.211E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:34 Est. time to finish (m:s) 5:54        Realtime/Modeltime:  120.04        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:15:00 (11700 sec).......................................................................+
+| Max rel. change in vapours 7.454E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.056E-02 in bin # 1                                                |
+| ACID C:    3.183E+05 [1/cm3]    sum(An)/A1 3.620E-03 []                                          |
+| Temp:      2.715E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.713E+19 [1/cm3]         |
+| NH3 C:     1.662E+10 [1/cm3]    J_NH3: 4.753E-08 [1/s/cm3]    sum(Nn)/N1 6.660E-08 []            |
+| DMA C:     1.842E+01 [1/cm3]    J_DMA: 6.590E-30 [1/s/cm3]    J-total 4.753E-08 [1/s/cm3]        |
+| Jion neutr 4.753E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.207E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:37 Est. time to finish (m:s) 5:51        Realtime/Modeltime:  120.34        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:20:00 (12000 sec).......................................................................+
+| Max rel. change in vapours 7.436E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.030E-02 in bin # 1                                                |
+| ACID C:    3.089E+05 [1/cm3]    sum(An)/A1 3.548E-03 []                                          |
+| Temp:      2.715E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.714E+19 [1/cm3]         |
+| NH3 C:     1.628E+10 [1/cm3]    J_NH3: 4.261E-08 [1/s/cm3]    sum(Nn)/N1 6.475E-08 []            |
+| DMA C:     1.881E+01 [1/cm3]    J_DMA: 6.673E-30 [1/s/cm3]    J-total 4.261E-08 [1/s/cm3]        |
+| Jion neutr 4.261E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.203E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:39 Est. time to finish (m:s) 5:48        Realtime/Modeltime:  120.65        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:25:00 (12300 sec).......................................................................+
+| Max rel. change in vapours 7.422E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 8.009E-02 in bin # 1                                                |
+| ACID C:    3.009E+05 [1/cm3]    sum(An)/A1 3.476E-03 []                                          |
+| Temp:      2.714E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.714E+19 [1/cm3]         |
+| NH3 C:     1.595E+10 [1/cm3]    J_NH3: 3.393E-08 [1/s/cm3]    sum(Nn)/N1 6.322E-08 []            |
+| DMA C:     1.921E+01 [1/cm3]    J_DMA: 6.137E-30 [1/s/cm3]    J-total 3.393E-08 [1/s/cm3]        |
+| Jion neutr 3.393E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.200E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:41 Est. time to finish (m:s) 5:44        Realtime/Modeltime:  120.97        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:30:00 (12600 sec).......................................................................+
+| Max rel. change in vapours 7.405E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 7.984E-02 in bin # 1                                                |
+| ACID C:    2.934E+05 [1/cm3]    sum(An)/A1 3.406E-03 []                                          |
+| Temp:      2.714E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.715E+19 [1/cm3]         |
+| NH3 C:     1.561E+10 [1/cm3]    J_NH3: 2.612E-08 [1/s/cm3]    sum(Nn)/N1 6.180E-08 []            |
+| DMA C:     1.962E+01 [1/cm3]    J_DMA: 5.475E-30 [1/s/cm3]    J-total 2.612E-08 [1/s/cm3]        |
+| Jion neutr 2.612E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.196E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:43 Est. time to finish (m:s) 5:41        Realtime/Modeltime:  121.28        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:35:00 (12900 sec).......................................................................+
+| Max rel. change in vapours 7.389E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 7.961E-02 in bin # 1                                                |
+| ACID C:    2.916E+05 [1/cm3]    sum(An)/A1 3.346E-03 []                                          |
+| Temp:      2.713E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.715E+19 [1/cm3]         |
+| NH3 C:     1.527E+10 [1/cm3]    J_NH3: 2.156E-08 [1/s/cm3]    sum(Nn)/N1 6.167E-08 []            |
+| DMA C:     2.005E+01 [1/cm3]    J_DMA: 5.246E-30 [1/s/cm3]    J-total 2.156E-08 [1/s/cm3]        |
+| Jion neutr 2.156E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.192E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:46 Est. time to finish (m:s) 5:37        Realtime/Modeltime:  121.62        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:40:00 (13200 sec).......................................................................+
+| Max rel. change in vapours 7.380E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 7.946E-02 in bin # 1                                                |
+| ACID C:    2.908E+05 [1/cm3]    sum(An)/A1 3.292E-03 []                                          |
+| Temp:      2.713E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.716E+19 [1/cm3]         |
+| NH3 C:     1.494E+10 [1/cm3]    J_NH3: 2.010E-08 [1/s/cm3]    sum(Nn)/N1 6.183E-08 []            |
+| DMA C:     2.050E+01 [1/cm3]    J_DMA: 5.635E-30 [1/s/cm3]    J-total 2.010E-08 [1/s/cm3]        |
+| Jion neutr 2.010E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.189E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:48 Est. time to finish (m:s) 5:34        Realtime/Modeltime:  122.02        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:45:00 (13500 sec).......................................................................+
+| Max rel. change in vapours 7.366E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 7.925E-02 in bin # 1                                                |
+| ACID C:    2.942E+05 [1/cm3]    sum(An)/A1 3.241E-03 []                                          |
+| Temp:      2.712E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.716E+19 [1/cm3]         |
+| NH3 C:     1.460E+10 [1/cm3]    J_NH3: 2.095E-08 [1/s/cm3]    sum(Nn)/N1 6.296E-08 []            |
+| DMA C:     2.096E+01 [1/cm3]    J_DMA: 6.735E-30 [1/s/cm3]    J-total 2.095E-08 [1/s/cm3]        |
+| Jion neutr 2.095E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.186E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:50 Est. time to finish (m:s) 5:31        Realtime/Modeltime:  122.34        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:50:00 (13800 sec).......................................................................+
+| Max rel. change in vapours 7.362E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 7.916E-02 in bin # 1                                                |
+| ACID C:    2.988E+05 [1/cm3]    sum(An)/A1 3.195E-03 []                                          |
+| Temp:      2.712E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.717E+19 [1/cm3]         |
+| NH3 C:     1.426E+10 [1/cm3]    J_NH3: 2.398E-08 [1/s/cm3]    sum(Nn)/N1 6.440E-08 []            |
+| DMA C:     2.143E+01 [1/cm3]    J_DMA: 8.801E-30 [1/s/cm3]    J-total 2.398E-08 [1/s/cm3]        |
+| Jion neutr 2.398E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.185E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:52 Est. time to finish (m:s) 5:27        Realtime/Modeltime:  122.67        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 03:55:00 (14100 sec).......................................................................+
+| Max rel. change in vapours 7.348E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 7.895E-02 in bin # 1                                                |
+| ACID C:    3.063E+05 [1/cm3]    sum(An)/A1 3.153E-03 []                                          |
+| Temp:      2.711E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.717E+19 [1/cm3]         |
+| NH3 C:     1.393E+10 [1/cm3]    J_NH3: 2.955E-08 [1/s/cm3]    sum(Nn)/N1 6.656E-08 []            |
+| DMA C:     2.192E+01 [1/cm3]    J_DMA: 1.235E-29 [1/s/cm3]    J-total 2.955E-08 [1/s/cm3]        |
+| Jion neutr 2.955E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.181E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:54 Est. time to finish (m:s) 5:24        Realtime/Modeltime:  122.96        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 04:00:00 (14400 sec).......................................................................+
+| Max rel. change in vapours 7.334E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 7.875E-02 in bin # 1                                                |
+| ACID C:    3.152E+05 [1/cm3]    sum(An)/A1 3.114E-03 []                                          |
+| Temp:      2.711E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.718E+19 [1/cm3]         |
+| NH3 C:     1.359E+10 [1/cm3]    J_NH3: 3.881E-08 [1/s/cm3]    sum(Nn)/N1 6.912E-08 []            |
+| DMA C:     2.242E+01 [1/cm3]    J_DMA: 1.844E-29 [1/s/cm3]    J-total 3.881E-08 [1/s/cm3]        |
+| Jion neutr 3.881E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.178E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:56 Est. time to finish (m:s) 5:21        Realtime/Modeltime:  123.26        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 04:05:00 (14700 sec).......................................................................+
+| Max rel. change in vapours 7.341E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 7.880E-02 in bin # 1                                                |
+| ACID C:    3.161E+05 [1/cm3]    sum(An)/A1 3.101E-03 []                                          |
+| Temp:      2.711E+02 [K]        Pressure:  1.017E+05 [Pa]     Air_conc 2.718E+19 [1/cm3]         |
+| NH3 C:     1.344E+10 [1/cm3]    J_NH3: 4.816E-08 [1/s/cm3]    sum(Nn)/N1 6.970E-08 []            |
+| DMA C:     2.294E+01 [1/cm3]    J_DMA: 2.579E-29 [1/s/cm3]    J-total 4.816E-08 [1/s/cm3]        |
+| Jion neutr 4.816E-08 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.179E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:59 Est. time to finish (m:s) 5:18        Realtime/Modeltime:  123.52        |
+| Current integration time step (and multipliers): 5.000E+00 s  ( 1 4 -999)                        |
++--------------------------------------------------------------------------------------------------+

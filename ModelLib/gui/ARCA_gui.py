@@ -773,28 +773,34 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.pollTimer.timeout.connect(self.pollMonitor)
         self.pollTimer.timeout.connect(self.updateOutput)
         self.pauseScroll.clicked.connect(lambda: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()))
-        try:
-            sf = pickle.load(open(osjoin(gui_path,monitorfont_pickle), "rb"))
-            self.mfont = self.MonitorWindow.font()
-            self.mfont.setFamily(sf[0])
-            self.mfont.setPointSize(sf[1])
-            self.mfont.setBold(sf[2])
-            self.mfont.setItalic(sf[3])
-            self.MonitorWindow.setFont(self.mfont)
-        except:
+        if exists(osjoin(gui_path,monitorfont_pickle)):
+            try:
+                sf = pickle.load(open(osjoin(gui_path,monitorfont_pickle), "rb"))
+                self.mfont = self.MonitorWindow.font()
+                self.mfont.setFamily(sf[0])
+                self.mfont.setPointSize(sf[1])
+                self.mfont.setBold(sf[2])
+                self.mfont.setItalic(sf[3])
+                self.MonitorWindow.setFont(self.mfont)
+            except:
+                pass
+        else:
             self.mfont = self.MonitorWindow.font()
             savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
             pickle.dump(savefont, open(osjoin(gui_path,monitorfont_pickle), 'wb'))
 
-        try:
-            sf = pickle.load(open(osjoin(gui_path,globalfont_pickle), "rb"))
-            self.font = self.centralwidget.font()
-            self.font.setFamily(sf[0])
-            self.font.setPointSize(sf[1])
-            self.font.setBold(sf[2])
-            self.font.setItalic(sf[3])
-            self.centralwidget.setFont(self.font)
-        except:
+        if exists(osjoin(gui_path,globalfont_pickle)):
+            try:
+                sf = pickle.load(open(osjoin(gui_path,globalfont_pickle), "rb"))
+                self.font = self.centralwidget.font()
+                self.font.setFamily(sf[0])
+                self.font.setPointSize(sf[1])
+                self.font.setBold(sf[2])
+                self.font.setItalic(sf[3])
+                self.centralwidget.setFont(self.font)
+            except:
+                pass
+        else:
             self.font = self.centralwidget.font()
             savefont = [self.font.family(),self.font.pointSize(),self.font.bold(),self.font.italic()]
             pickle.dump(savefont, open(osjoin(gui_path,globalfont_pickle), 'wb'))
@@ -2876,12 +2882,12 @@ LOG: DONT_SAVE_CONDENSIBLES=F
 INT: LIMIT_VAPOURS=999999
 REA: END_DMPS_SPECIAL=1.0000000000000000E+100
 LOG: NO2_IS_NOX=F
-LOG: NO_NEGATIVE_CONCENTRATIONS=F
+LOG: NO_NEGATIVE_CONCENTRATIONS=T
 REA: FLOAT_CHEMISTRY_AFTER_HRS=1.0000000000000000E+100
 LOG: USE_RH_CORRECTION=T
 LOG: TEMP_DEP_SURFACE_TENSION=F
 LOG: USE_DIFF_DIA_FROM_DIFF_VOL=F
-REA: SPEED_DT_LIMIT=1.0E-009,60.0,1.0E-009,60.0,1.0E-009,60.0,1.0E-009,60.0
+REA: SPEED_DT_LIMIT=1.0E-02, 300d0, 300d0, 300d0
 LOG: ENABLE_END_FROM_OUTSIDE=T
 """
 

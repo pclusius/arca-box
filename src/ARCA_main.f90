@@ -389,8 +389,10 @@ MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the
             call BETA(CH_Beta)
         END IF
 
-        Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRCION%cch)), GTEMPK, TSTEP_CONC(inm_swr), CH_Beta,  &
-                    CH_H2O, GC_AIR_NOW, GCS, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
+        Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRCION%cch)), GTEMPK, max(0d0,TSTEP_CONC(inm_swr)),&
+                    CH_Beta,CH_H2O, GC_AIR_NOW, GCS, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
+
+        if (any(CH_GAS<-1d0).and.GTIME%sec>100d0) print*,'Negative values from chemistry, setting to zero: ', MINVAL(CH_GAS)
         WHERE (CH_GAS<0d0) CH_GAS = 0d0
 
         if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)

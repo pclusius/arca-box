@@ -210,7 +210,7 @@ REAL(dp)                        :: J_NH3_BY_IONS(3) = 0d0     ! Stores charge de
 REAL(dp)                        :: acdc_cluster_diam = 1.4d-9 ! diameter of the largest clusters, updated in ACDC
 REAL(dp)                        :: RESOLVED_BASE, RESOLVED_J  ! stores output of SOLVE_BASES
 REAL(dp)                        :: RESOLVED_J_FACTR           ! stores output of SOLVE_BASES
-Logical                         :: NO_NEGATIVE_CONCENTRATIONS = .false.
+Logical                         :: NO_NEGATIVE_CONCENTRATIONS = .true.
 
 ! speed_up: factor for increasing integration time step for individual prosesses
 ! (1): chemistry & Condensation & ACDC (2): Coagulation; (3): Deposition
