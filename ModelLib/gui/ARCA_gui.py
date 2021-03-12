@@ -616,7 +616,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.run_name.textChanged.connect(self.updatePath)
         self.run_name.textChanged.connect(lambda: self.allcaps(self.run_name))
         self.inout_dir.textChanged.connect(self.updatePath)
-        self.inout_dir.textChanged.connect(lambda: self.allcaps(self.inout_dir))
         self.indexRadioDate.toggled.connect(self.updatePath)
         # self.useSpeed.stateChanged.connect(lambda: self.grayIfNotChecked(self.useSpeed,self.precLimits))
         self.dateEdit.dateChanged.connect(self.updateEnvPath)
