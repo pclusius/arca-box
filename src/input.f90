@@ -176,7 +176,7 @@ CHARACTER(3) :: Fill_formation_with = ''
 INTEGER   :: JD = -1
 Logical   :: skip_acdc = .True.
 INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value for fixed amount of seconds
-CHARACTER(1000)  :: Description='*'
+CHARACTER(1000)  :: Description = '*'
 CHARACTER(len=256)      :: GR_sizes = '6d-9 20d-9 30d-9'
 NAMELIST /NML_MISC/ lat, lon, wait_for, Description, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with, skip_acdc, &
                     GR_sizes

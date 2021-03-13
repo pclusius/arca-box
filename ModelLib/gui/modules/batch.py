@@ -59,10 +59,9 @@ def batch(begin = '2020-01-01', end='2020-01-05', case='Melpitz', run='X1', comm
 
     for i in index_strings:
 
-        # indir = '%s%s_%s/input_%s_%s' %(common_root,case,i,case,i)
-        indir = '%s%s_%s/input' %(common_root,case,i)
+        indir = path.join('%s%s_%s'%(common_root,case,i), 'INPUT')
         outdir = '%s%s_%s' %(common_root,case,i)
-        inifile = indir+'/%s_%s_%s.conf' %(case,i,run)
+        inifile = path.join(indir,'%s_%s_%s.conf' %(case,i,run))
         files_to_create.append(inifile)
         if paths(inifile) == 1:
             files_to_overwrite.append(inifile)

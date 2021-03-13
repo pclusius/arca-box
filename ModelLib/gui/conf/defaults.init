@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      ARCA box setting file: ModelLib/gui/conf/defaults.init
-#         Created at: maalis 10 2021, 11:27:45
+#         Created at: maalis 13 2021, 00:12:58
 #--------------------------------------------------
 
 &NML_PATH
@@ -33,8 +33,8 @@
  FSAVE_INTERVAL = 300
  PRINT_INTERVAL = 300
  FSAVE_DIVISION = 0
- DATE = '2000-01-01'
- INDEX = ''
+ DATE = ''
+ INDEX = '0000'
 / 
 
 &NML_PARTICLE
@@ -70,8 +70,8 @@
 / 
 
 &NML_MODS
- MODS(1)   = -1  -1  1.00000d+00  0.00000d+00  1.00000d+01  2.00000d+01 1.200000d0 3.285780d0 0.000000d0 0.000000d0 1.000000d0 'C' '' ! TEMPK
- MODS(2)   =  0  -1  1.00000d+00  1.00000d+05  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'hPa' '' ! PRESSURE
+ MODS(1)   =  1  -1  1.00000d+00  0.00000d+00  1.00000d+01  2.00000d+01 1.200000d0 3.285780d0 0.000000d0 0.000000d0 1.000000d0 'C' '' ! TEMPK
+ MODS(2)   =  0  -1  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 1.000000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'hPa' '' ! PRESSURE
 / 
 
 &NML_MISC
@@ -102,12 +102,24 @@
 &NML_CUSTOM
 / 
 
-
+# Options available in CUSTOM_NML (and defaults)
+# I: acdc_iterations = 4
+# I: INITIALIZE_FROM = 0
+# C: INITIALIZE_WITH = ''
+# L: use_raoult = .True.
+# L: variable_density = .False.
+# L: DONT_SAVE_CONDENSIBLES = .False.
+# L: skip_acdc = .True.
+# R: dmps_tres_min = 10.
+# R: VP_MULTI = 1d0
+# R: start_time_s = 0d0
+# R: dmps_multi = 1d6
+# R: END_DMPS_SPECIAL = 1d50
 
 
 # Following settings are for the GUI and not directly used by the model ----- 
-# RAW_INPUT = 
+# RAW_INPUT = # Options available in CUSTOM_NML (and defaults)<br># I: acdc_iterations = 4<br># I: INITIALIZE_FROM = 0<br># C: INITIALIZE_WITH = ''<br># L: use_raoult = .True.<br># L: variable_density = .False.<br># L: DONT_SAVE_CONDENSIBLES = .False.<br># L: skip_acdc = .True.<br># R: dmps_tres_min = 10.<br># R: VP_MULTI = 1d0<br># R: start_time_s = 0d0<br># R: dmps_multi = 1d6<br># R: END_DMPS_SPECIAL = 1d50
 # INPUT_SETTINGS = 'env_file: mcm_file: dmps_file: extra_particles: stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
-# BATCH_SETTINGS = 'batchRangeDayBegin:2020-01-01 batchRangeDayEnd:2020-01-05 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.FALSE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
+# BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.TRUE. indexRadioDate:.FALSE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #---------------------------------------------------------------------------- 
 
