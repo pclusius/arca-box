@@ -1,0 +1,5 @@
+| 10:50:12-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:2 , Dep:-999                                             |
+| 10:50:13-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:4 , Dep:-999                                             |
+ ---------- SIMULATION REACHED END SUCCESFULLY ------------

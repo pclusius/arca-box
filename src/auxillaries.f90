@@ -358,7 +358,7 @@ subroutine Multimodal(modevector, diameters, psd, N)
     END DO
 
     psd = N * sumv / (sum( sumv ))
-    uprInd = nb - min(nb-1, 8)
+    uprInd = nb+1 - min(nb-1, 8)
     WHERE (psd(uprInd:) > 1d-12) psd(uprInd:) = 0d0
 
 end subroutine Multimodal

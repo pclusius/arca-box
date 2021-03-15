@@ -1,0 +1,1184 @@
+   00:00:00 --> Speeding Cond & Chem to 2
+   00:00:00 --> Speeding Coagulation to 2
+   00:00:00 --> Speeding Cond & Chem to 4
+   00:00:00 --> Speeding Coagulation to 4
+   00:00:00 --> Speeding Cond & Chem to 8
+   00:00:00 --> Speeding Coagulation to 8
+   00:00:00 --> Speeding Cond & Chem to 16
+   00:00:00 --> Speeding Coagulation to 16
+   00:00:00 --> Speeding Cond & Chem to 32
+   00:00:00 --> Speeding Coagulation to 32
+   00:00:00 --> Speeding Cond & Chem to 64
+   00:00:00 --> Speeding Coagulation to 64
+   00:00:01 --> Speeding Coagulation to 128
+   00:00:01 --> Speeding Coagulation to 256
+   00:00:03 --> Speeding Coagulation to 512
+   00:30:02 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 00:45:34 (2734  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   00:45:49 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 00:45:55 (2754  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   00:46:05 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 00:46:15 (2775  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   00:46:46 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 00:46:56 (2816  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   00:47:32 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 00:47:37 (2856  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   00:48:03 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 00:48:08 (2887  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   00:48:44 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 00:48:49 (2928  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   00:49:40 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 00:49:50 (2990  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   00:50:00 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 00:52:44 (3164  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   01:00:04 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 01:03:19 (3799  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   01:04:05 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 01:04:10 (3850  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   01:04:46 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 01:04:51 (3891  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   01:05:32 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 01:05:42 (3942  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+   01:10:04 --> Speeding Coagulation to 1024
+   02:04:36 --> Speeding Cond & Chem to 128
+| NOTE: Precision tolerance exceeded at time 07:40:58 (27658  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:24 (27683  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:512 ->256                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:46:31 (27991  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:46:41 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 07:46:49 (28008  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:46:59 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 07:47:07 (28026  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:47:17 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 07:47:25 (28044  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:47:35 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 07:47:43 (28062  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:47:53 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 07:48:03 (28083  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:48:13 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 07:48:21 (28101  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:48:31 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 07:48:42 (28121  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:48:52 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 07:49:05 (28144  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:49:15 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 07:49:25 (28165  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:49:35 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 07:52:17 (28336  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   07:52:27 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:49:45 (31784  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:49:55 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:50:00 (31800  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:50:11 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:50:13 (31813  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:50:23 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:50:28 (31828  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:50:39 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:50:41 (31841  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:50:52 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:57:56 (32276  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:58:07 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:58:09 (32289  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:58:20 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:58:25 (32304  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:58:35 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:58:37 (32317  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:58:48 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:58:50 (32330  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:59:00 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 08:59:03 (32343  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   08:59:13 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:05:39 (36339  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:05:49 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:05:52 (36352  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:06:02 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:06:20 (36380  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:06:30 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:06:33 (36392  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:06:43 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:06:46 (36405  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:06:56 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:06:59 (36418  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:07:09 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:07:11 (36431  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:07:22 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:07:24 (36444  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:07:34 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:07:37 (36456  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:07:47 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:09:22 (36561  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:09:32 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:09:35 (36574  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:09:45 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:09:48 (36587  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:09:58 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:13:51 (36830  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:14:01 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:14:27 (36866  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:14:37 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:16:37 (36997  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:16:47 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:16:50 (37009  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:17:00 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:17:05 (37025  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:17:16 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:17:21 (37040  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:17:31 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:17:33 (37053  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:17:44 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:17:49 (37068  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:17:59 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:19:49 (37189  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:19:59 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:20:04 (37204  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:20:15 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:20:25 (37224  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:20:35 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:20:51 (37250  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:21:01 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:23:45 (37424  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:23:55 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:24:00 (37440  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:24:10 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:24:15 (37455  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:24:26 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:24:33 (37473  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:24:44 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:24:49 (37488  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:24:59 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:25:04 (37504  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:25:14 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:25:22 (37521  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:25:32 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:25:40 (37539  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:25:50 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:25:58 (37557  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:26:08 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 10:26:18 (37578  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   10:26:28 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:00:57 (39656  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:01:07 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:01:28 (39687  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:01:38 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:01:40 (39700  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:01:51 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:01:53 (39713  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:02:04 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:02:06 (39726  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:02:16 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:02:21 (39741  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:02:32 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:02:34 (39754  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:02:44 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:02:47 (39767  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:02:57 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:03:02 (39782  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:03:13 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:03:23 (39802  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:03:33 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:04:22 (39861  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:04:32 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:04:35 (39874  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:04:45 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:04:47 (39887  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:04:58 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:05:00 (39900  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:05:10 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:05:13 (39912  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:05:23 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:05:26 (39925  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:05:36 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:06:48 (40007  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:06:58 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:07:00 (40020  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:07:00 (40020  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:07:11 --> Speeding Coagulation to 128
+   11:07:12 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:07:13 (40033  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:07:15 (40034  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:07:25 --> Speeding Coagulation to 128
+   11:07:26 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:07:29 (40048  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:07:29 (40048  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:07:39 --> Speeding Coagulation to 128
+   11:07:40 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:07:41 (40061  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:07:41 (40061  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:07:52 --> Speeding Coagulation to 128
+   11:07:53 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:07:54 (40074  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:07:54 (40074  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:08:04 --> Speeding Coagulation to 128
+   11:08:06 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:08:12 (40092  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:08:22 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:08:28 (40107  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:08:38 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:08:43 (40122  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:08:53 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:09:39 (40179  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:09:49 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:09:52 (40192  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:10:02 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:10:05 (40204  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:10:15 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:10:20 (40220  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:10:30 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:10:36 (40235  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:10:46 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:10:48 (40248  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:10:59 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:12:15 (40335  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:12:19 (40339  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:12:29 --> Speeding Coagulation to 128
+| NOTE: Precision tolerance exceeded at time 11:12:31 (40350  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:12:41 --> Speeding Coagulation to 128
+   11:12:42 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:12:44 (40363  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:12:44 (40363  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:12:54 --> Speeding Coagulation to 128
+| NOTE: Precision tolerance exceeded at time 11:12:55 (40375  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:13:05 --> Speeding Coagulation to 128
+| NOTE: Precision tolerance exceeded at time 11:13:07 (40386  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:13:17 --> Speeding Coagulation to 128
+   11:13:18 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:13:19 (40399  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:13:19 (40399  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:13:30 --> Speeding Coagulation to 128
+| NOTE: Precision tolerance exceeded at time 11:13:31 (40410  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:13:41 --> Speeding Coagulation to 128
+   11:13:42 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:13:45 (40424  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:13:45 (40424  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:13:55 --> Speeding Coagulation to 128
+| NOTE: Precision tolerance exceeded at time 11:13:56 (40436  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:14:07 --> Speeding Coagulation to 128
+   11:14:08 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:14:11 (40450  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:14:11 (40450  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:14:21 --> Speeding Coagulation to 128
+   11:14:22 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:15:02 (40501  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:15:12 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:15:15 (40514  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:15:25 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:15:27 (40527  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:15:38 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:15:40 (40540  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:15:50 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:15:53 (40552  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:15:54 (40554  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:16:04 --> Speeding Coagulation to 128
+   11:16:06 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:16:08 (40568  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 11:16:13 (40573  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+   11:16:24 --> Speeding Coagulation to 128
+   11:16:25 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:16:26 (40586  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:16:36 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:17:05 (40624  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:17:15 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:17:33 (40652  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:17:43 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:17:46 (40665  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:17:56 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:17:58 (40678  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:18:09 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:18:11 (40691  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:18:21 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:18:24 (40704  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:18:34 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:18:37 (40716  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:18:47 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:18:50 (40729  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:19:00 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:19:02 (40742  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:19:13 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:19:15 (40755  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:19:25 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:19:54 (40793  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:20:04 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:21:18 (40878  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:21:28 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:21:33 (40893  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:21:44 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:21:49 (40908  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:21:59 --> Speeding Coagulation to 256
+| NOTE: Precision tolerance exceeded at time 11:22:04 (40924  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Getting negative composition in Mass_Number_Change              |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+   11:22:14 --> Speeding Coagulation to 256
+ ---------- SIMULATION REACHED END SUCCESFULLY ------------

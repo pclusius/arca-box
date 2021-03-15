@@ -1,0 +1,92 @@
+| 00:00:20-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:2 , Dep:-999                                             |
+| 00:00:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:4 , Dep:-999                                             |
+| NOTE: Precision tolerance exceeded at time 00:44:50 (2690  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:4 ->2                                                            |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 00:44:50 (2690  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:2 ->1                                                            |
+ 
+| Error handled.                                                                                   |
+| 00:45:30-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:2 , Dep:-999                                             |
+| NOTE: Precision tolerance exceeded at time 00:45:40 (2740  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:2 ->1                                                            |
+ 
+| Error handled.                                                                                   |
+| 00:50:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:2 , Dep:-999                                             |
+| 00:50:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:4 , Dep:-999                                             |
+| NOTE: Precision tolerance exceeded at time 00:52:10 (3130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:4 ->2                                                            |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 00:52:10 (3130  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:2 ->1                                                            |
+ 
+| Error handled.                                                                                   |
+| 01:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:2 , Dep:-999                                             |
+| 01:00:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:4 , Dep:-999                                             |
+| NOTE: Precision tolerance exceeded at time 01:02:40 (3760  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:4 ->2                                                            |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 01:02:40 (3760  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:2 ->1                                                            |
+ 
+| Error handled.                                                                                   |
+| 01:10:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:2 , Dep:-999                                             |
+| 01:10:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:4 , Dep:-999                                             |
+| NOTE: Precision tolerance exceeded at time 01:11:40 (4300  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:4 ->2                                                            |
+ 
+| Error handled.                                                                                   |
+| 01:20:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:4 , Dep:-999                                             |
+| NOTE: Precision tolerance exceeded at time 01:20:30 (4830  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:4 ->2                                                            |
+ 
+| Error handled.                                                                                   |
+| 01:30:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:1 , Coa:4 , Dep:-999                                             |
+| NOTE: Precision tolerance exceeded at time 01:30:10 (5410  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:4 ->2                                                            |
+ 
+| Error handled.                                                                                   |

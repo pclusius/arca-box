@@ -1,0 +1,265 @@
+                                 --~:| ARCA BOX MODEL 0.9 |:~--
+
++.Compiled with "Hyde" chemistry module............................................................+
+ 
++.READING USER DEFINED INTIAL VALUES FROM: ModelLib/gui/tmp/GUI_INIT.tmp...........................+
+| Date: 2020-02-04 -> Julian Day: 35                                                               |
+| ENV values from DEBUG/exportedData/BJ_input_v2.txt:                                              |
+|   :........TEMPK will be read from column: 2                                                     |
+|   :........PRESSURE will be read from column: 4                                                  |
+|   :........REL_HUMIDITY will be read from column: 3                                              |
+|   :........CONDENS_SINK will be read from column: 31                                             |
+|   :........CON_SIN_NITR will be read from column: 33                                             |
+|   :........SW_RADIATION will be read from column: 5                                              |
+|   :........NH3 will be read from column: 12                                                      |
+|   :........SO2 will be read from column: 8                                                       |
+|   :........NO will be read from column: 10                                                       |
+|   :........NO2 will be read from column: 11                                                      |
+|   :........CO will be read from column: 9                                                        |
+|   :........O3 will be read from column: 7                                                        |
+| MCM values from DEBUG/exportedData/BJ_input_v2.txt:                                              |
+|   :........HCHO will be read from column: 23                                                     |
+|   :........BENZENE will be read from column: 17                                                  |
+|   :........TOLUENE will be read from column: 17                                                  |
+|   :........C5H8 will be read from column: 25                                                     |
+|   :........APINENE will be read from column: 26                                                  |
+|   :........BPINENE will be read from column: 26                                                  |
+|   :........LIMONENE will be read from column: 26                                                 |
+|   :........CARENE will be read from column: 26                                                   |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "DEBUG/exportedData/BJ_input_v2.txt".                     |
+|   :........Done filling input matrices...                                                        |
+| Filling input matrices...                                                                        |
+|   :........First row omitted from file "DEBUG/exportedData/BJ_input_v2.txt".                     |
+|   :........Done filling input matrices...                                                        |
+| Reading DMPS files DEBUG/exportedData/BJ_dmps.dat                                                |
++..................................................................................................+
+| Reading Vapour name file DEBUG/exportedData/Vapours.dat                                          |
+|   :........Compounds picked from Vapours file: 575                                               |
+|   :........Total number of condensibes       : 576                                               |
+| Reading the list of elemental composition: DEBUG/exportedData/Elements1175.dat                   |
+| WARNING: Not all organics had atom content, using generic diameter~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
++.Checking input validity..........................................................................+
+| - Temperature input in Kelvins.                                                                  |
+| - Converting pressure from hPa (mbar) to Pascals.                                                |
+| - Converting CH4 from ppm                                                                        |
+| - Replacing input for DMA with parametrized function.                                            |
+| - Adding a constant to CH4, [in ppm]: 3.000E+00                                                  |
+| - Multiplying APINENE with: 5.100E-01                                                            |
+| - Multiplying BPINENE with: 1.200E-01                                                            |
+| - Multiplying LIMONENE with: 9.000E-02                                                           |
+| - Multiplying CARENE with: 2.800E-01                                                             |
++..................................................................................................+
++.Checking for linked variables....................................................................+
++..................................................................................................+
++.Checking against KPP for chemicals...............................................................+
+| WARNING: A compound which does not exist in chemistry but could be used elsewhere: NH3 ~~~~~~~~~~+
+|   :........In INITFILE; &NML_MODS (col) <- input from file.                                      |
+| WARNING: A compound which does not exist in chemistry but could be used elsewhere: DMA ~~~~~~~~~~+
+|   :........In INITFILE; &NML_MODS - a function for input in use.                                 |
+| Found SO2 from chemistry                                                                         |
+| Found NO from chemistry                                                                          |
+| Found NO2 from chemistry                                                                         |
+| Found CO from chemistry                                                                          |
+| Found O3 from chemistry                                                                          |
+| Found HCHO from chemistry                                                                        |
+| Found CH4 from chemistry                                                                         |
+| Found BENZENE from chemistry                                                                     |
+| Found TOLUENE from chemistry                                                                     |
+| Found C5H8 from chemistry                                                                        |
+| Found APINENE from chemistry                                                                     |
+| Found BPINENE from chemistry                                                                     |
+| Found LIMONENE from chemistry                                                                    |
+| Found CARENE from chemistry                                                                      |
++..................................................................................................+
+| Distributing nucleated particles over 4 bins.                                                    |
++..................................................................................................+
+
++.INITIALIZING OUTPUT .............................................................................+
+|   :........Description for run:                                                                  |
+|     Testing lower prec upper limits to see if it stabilizes. Problem is too large d_conc_coag    |
++.PREPARING OUTPUT FILES...........................................................................+
+|   :........NetCDF version: 4.6.0 of Feb  9 2018 19:21:24 $                                       |
+|   :........Create files to: DEBUG/BJ_2020-02-04/A4_CONT2                                         |
++..................................................................................................+
+| Initializing chemistry with DEBUG/BJ_2020-02-04/A4_B. This takes a while.                        |
+| Initializing aerosols with DEBUG/BJ_2020-02-04/A4_B. This takes a while.                         |
+ 
++.Simulation time step will be optimized for precision.............................................+
+| precision limits for particle diameter     :   1.00 %    5.00 %                                  |
+| precision limits for particle concentration:   1.00 %   10.00 %                                  |
+| precision limits for vapour concentration  :   1.00 %    5.00 %                                  |
+|   :........Simulation can be stopped using file called ENDNOW.INIT with text 'STOP' in it, saved |
+|   :........in output directory. The program stops in orderly fashion upon next PRINTNOW time and |
+|   :........closes the output files.                                                              |
++..................................................................................................+
+Starting simulation at: 
+
++.Time: 10:50:10 ..................................................................................+
+| Engaging speed.                                                                                  |
+
++.Time: 10:50:10 (39010 sec).......................................................................+
+| Max rel. change in vapours 1.357E-03 for C516OOH                                                 |
+| Max rel. change in concentr. 4.866E-04 in bin # 1                                                |
+| ACID C:    1.594E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.719E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.723E+19 [1/cm3]         |
+| NH3 C:     4.150E+10 [1/cm3]    J_NH3: 1.149E+03 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.630E+01 [1/cm3]    J_DMA: 4.529E-17 [1/s/cm3]    J-total 1.149E+03 [1/s/cm3]        |
+| Jion neutr 1.149E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.012E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:00 Est. time to finish (m:s) 0:00        Realtime/Modeltime:    0.79        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 1 1 1)                           |
++--------------------------------------------------------------------------------------------------+
+| 10:50:10-> Speeding Cond & Chem                                                                  |
+| 10:50:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:2 , Coa:2 , Dep:-999                                             |
++..................................................................................................+
+ 
+| 10:50:10-> Speeding Cond & Chem                                                                  |
+| 10:50:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:4 , Coa:4 , Dep:-999                                             |
++..................................................................................................+
+ 
+| 10:50:10-> Speeding Cond & Chem                                                                  |
+| 10:50:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:8 , Coa:8 , Dep:-999                                             |
++..................................................................................................+
+ 
+| 10:50:11-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:8 , Coa:16 , Dep:-999                                            |
++..................................................................................................+
+ 
+| 10:50:12-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:8 , Coa:32 , Dep:-999                                            |
++..................................................................................................+
+ 
+
++.Time: 10:55:00 (39300 sec).......................................................................+
+| Max rel. change in vapours 1.084E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 1.553E-02 in bin # 1                                                |
+| ACID C:    2.257E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.720E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.723E+19 [1/cm3]         |
+| NH3 C:     4.001E+10 [1/cm3]    J_NH3: 1.974E+03 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.679E+01 [1/cm3]    J_DMA: 6.008E-17 [1/s/cm3]    J-total 1.974E+03 [1/s/cm3]        |
+| Jion neutr 1.974E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.011E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 0:37 Est. time to finish (m:s) 0:45        Realtime/Modeltime:    7.65        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 8 32 -999)                       |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 11:00:00 (39600 sec).......................................................................+
+| Max rel. change in vapours 1.086E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 1.558E-02 in bin # 1                                                |
+| ACID C:    2.523E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.720E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.722E+19 [1/cm3]         |
+| NH3 C:     3.846E+10 [1/cm3]    J_NH3: 3.177E+03 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.726E+01 [1/cm3]    J_DMA: 9.218E-17 [1/s/cm3]    J-total 3.177E+03 [1/s/cm3]        |
+| Jion neutr 3.177E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.013E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:17 Est. time to finish (m:s) 1:32        Realtime/Modeltime:    7.58        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 8 32 -999)                       |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 11:05:00 (39900 sec).......................................................................+
+| Max rel. change in vapours 1.086E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 1.557E-02 in bin # 1                                                |
+| ACID C:    2.492E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.721E+19 [1/cm3]         |
+| NH3 C:     3.978E+10 [1/cm3]    J_NH3: 3.470E+03 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.769E+01 [1/cm3]    J_DMA: 1.310E-16 [1/s/cm3]    J-total 3.470E+03 [1/s/cm3]        |
+| Jion neutr 3.470E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.013E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 1:58 Est. time to finish (m:s) 2:17        Realtime/Modeltime:    7.54        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 8 32 -999)                       |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 11:10:00 (40200 sec).......................................................................+
+| Max rel. change in vapours 1.085E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 1.555E-02 in bin # 1                                                |
+| ACID C:    2.278E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.721E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.721E+19 [1/cm3]         |
+| NH3 C:     4.110E+10 [1/cm3]    J_NH3: 2.896E+03 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.809E+01 [1/cm3]    J_DMA: 1.391E-16 [1/s/cm3]    J-total 2.896E+03 [1/s/cm3]        |
+| Jion neutr 2.896E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.012E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 2:42 Est. time to finish (m:s) 3:06        Realtime/Modeltime:    7.34        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 8 32 -999)                       |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 11:15:00 (40500 sec).......................................................................+
+| Max rel. change in vapours 1.088E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 1.558E-02 in bin # 1                                                |
+| ACID C:    2.072E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.722E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.720E+19 [1/cm3]         |
+| NH3 C:     4.241E+10 [1/cm3]    J_NH3: 2.201E+03 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.845E+01 [1/cm3]    J_DMA: 1.134E-16 [1/s/cm3]    J-total 2.201E+03 [1/s/cm3]        |
+| Jion neutr 2.201E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.014E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 3:28 Est. time to finish (m:s) 3:56        Realtime/Modeltime:    7.15        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 8 32 -999)                       |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 11:20:00 (40800 sec).......................................................................+
+| Max rel. change in vapours 1.089E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 1.559E-02 in bin # 1                                                |
+| ACID C:    1.909E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.722E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.720E+19 [1/cm3]         |
+| NH3 C:     4.373E+10 [1/cm3]    J_NH3: 1.672E+03 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.877E+01 [1/cm3]    J_DMA: 7.804E-17 [1/s/cm3]    J-total 1.672E+03 [1/s/cm3]        |
+| Jion neutr 1.672E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.015E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 4:13 Est. time to finish (m:s) 4:43        Realtime/Modeltime:    7.06        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 8 32 -999)                       |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 11:25:00 (41100 sec).......................................................................+
+| Max rel. change in vapours 1.089E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 1.557E-02 in bin # 1                                                |
+| ACID C:    1.689E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.723E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.719E+19 [1/cm3]         |
+| NH3 C:     4.505E+10 [1/cm3]    J_NH3: 1.168E+03 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.906E+01 [1/cm3]    J_DMA: 4.451E-17 [1/s/cm3]    J-total 1.168E+03 [1/s/cm3]        |
+| Jion neutr 1.168E+03 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.014E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 4:58 Est. time to finish (m:s) 5:29        Realtime/Modeltime:    7.00        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 8 32 -999)                       |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 11:30:00 (41400 sec).......................................................................+
+| Max rel. change in vapours 1.091E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 1.560E-02 in bin # 1                                                |
+| ACID C:    1.467E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.723E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.719E+19 [1/cm3]         |
+| NH3 C:     4.636E+10 [1/cm3]    J_NH3: 7.112E+02 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.931E+01 [1/cm3]    J_DMA: 2.057E-17 [1/s/cm3]    J-total 7.112E+02 [1/s/cm3]        |
+| Jion neutr 7.112E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.016E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 5:43 Est. time to finish (m:s) 6:12        Realtime/Modeltime:    6.97        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 8 32 -999)                       |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 11:35:00 (41700 sec).......................................................................+
+| Max rel. change in vapours 1.090E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 1.559E-02 in bin # 1                                                |
+| ACID C:    1.540E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.723E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.718E+19 [1/cm3]         |
+| NH3 C:     4.768E+10 [1/cm3]    J_NH3: 5.906E+02 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.952E+01 [1/cm3]    J_DMA: 1.181E-17 [1/s/cm3]    J-total 5.906E+02 [1/s/cm3]        |
+| Jion neutr 5.906E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.016E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 6:27 Est. time to finish (m:s) 6:55        Realtime/Modeltime:    6.94        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 8 32 -999)                       |
++--------------------------------------------------------------------------------------------------+
+
++.Time: 11:40:00 (42000 sec).......................................................................+
+| Max rel. change in vapours 1.089E-02 for C516OOH                                                 |
+| Max rel. change in concentr. 1.558E-02 in bin # 1                                                |
+| ACID C:    1.814E+07 [1/cm3]    sum(An)/A1 1.715E-01 []                                          |
+| Temp:      2.724E+02 [K]        Pressure:  1.022E+05 [Pa]     Air_conc 2.718E+19 [1/cm3]         |
+| NH3 C:     4.899E+10 [1/cm3]    J_NH3: 9.181E+02 [1/s/cm3]    sum(Nn)/N1 5.799E-05 []            |
+| DMA C:     9.969E+01 [1/cm3]    J_DMA: 1.172E-17 [1/s/cm3]    J-total 9.181E+02 [1/s/cm3]        |
+| Jion neutr 9.181E+02 [1/s/cm3]  Jion neg: 0.000E+00 [1/s/cm3] Jion pos: 0.000E+00 [1/s/cm3]      |
+| C-sink:    1.015E-02 [1/s]      IPR: 0.000E+00 [1/s/cm3]                                         |
+| Elapsed time (m:s) 7:11 Est. time to finish (m:s) 7:36        Realtime/Modeltime:    6.92        |
+| Current integration time step (and multipliers): 1.000E-01 s  ( 8 32 -999)                       |
++--------------------------------------------------------------------------------------------------+

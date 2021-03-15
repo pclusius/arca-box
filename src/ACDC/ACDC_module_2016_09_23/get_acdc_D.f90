@@ -4,7 +4,7 @@ private
 public :: get_acdc_D
 CONTAINS
 
-subroutine get_acdc_D(c_acid,c_base,c_org,cs_ref,temp,time,solve_ss,j_acdc,diameter_acdc, dt)
+subroutine get_acdc_D(c_acid,c_base,c_org,cs_ref,temp,time,solve_ss,j_acdc,diameter_acdc, dt, stepback)
 use acdc_systemD, only : nclust, neq					! number of clusters and equations
 use acdc_systemD, only : cluster_names				! names of the clusters and fluxes
 use acdc_systemD, only : n1A							! cluster numbers of acid and base monomers
@@ -31,7 +31,7 @@ use constants
 	!real(real_x), intent(out) :: nacid_acdc		! number of acid molecules at the "formation size"
 														! NB: nacid_acdc is type real (dp), as it is like this in UHMA
 
-	real(real_x), save :: c(neq)					! cluster concentrations
+	real(real_x), save :: c(neq), prev_c(neq)					! cluster concentrations
 	character(len=11), dimension(neq),save :: c_names		! cluster and flux names
 	integer, save :: n1base = 0, n1org = 0				! cluster numbers of base and organic molecules
 	integer, save :: nacid_out							! smallest number of acid molecules in the outgrown clusters
@@ -42,6 +42,7 @@ use constants
 	real(real_x), save :: t_iter = 1.d-10			! iteration time step (s) for the Euler method
 	integer, save :: ipar(4)							! parameters for re-calling the monomer settings and rate constants
 	logical, save :: firstcall = .true.
+    logical,INTENT(IN) :: stepback
 	integer :: n
     CHARACTER(100):: buf
     CHARACTER(18):: output_buf(nclust)
@@ -49,6 +50,7 @@ use constants
 	! Initialize the rate constants etc. at every call
 	! because of the varying ambient conditions
 	ipar(1:3) = 0
+
 
 	if (firstcall) then
 		firstcall = .false.
@@ -71,6 +73,12 @@ use constants
 		! (use the smallest number of acids)
 		!nacid_out = minval(nmols_out_neutral(1:size(nmols_out_neutral,1),nmolA))
 	end if
+
+    if (stepback) then
+        c = prev_c
+    else
+        prev_c = c
+    end if
 
     if (solve_ss) then
 		! Override the input time with a maximum time that

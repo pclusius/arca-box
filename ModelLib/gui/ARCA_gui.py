@@ -612,9 +612,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.dateEdit.dateChanged.connect(self.updatePath)
         self.indexEdit.valueChanged.connect(self.updatePath)
         self.case_name.textChanged.connect(self.updatePath)
-        self.case_name.textChanged.connect(lambda: self.allcaps(self.case_name))
+        self.case_name.editingFinished.connect(lambda: self.allcaps(self.case_name))
         self.run_name.textChanged.connect(self.updatePath)
-        self.run_name.textChanged.connect(lambda: self.allcaps(self.run_name))
+        self.run_name.editingFinished.connect(lambda: self.allcaps(self.run_name))
         self.inout_dir.textChanged.connect(self.updatePath)
         self.indexRadioDate.toggled.connect(self.updatePath)
         # self.useSpeed.stateChanged.connect(lambda: self.grayIfNotChecked(self.useSpeed,self.precLimits))
@@ -890,14 +890,15 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(linkStr))
 
     def activeTab(self,i):
-
-        if i == 6:
-            # self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
-            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()-40)
-            self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
+        pass
+        # if i == 6:
+        #     # self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
+        #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()-40)
+        #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
 
     def activeSubTab(self,i):
-        if i == 0: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
+        pass
+        # if i == 0: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
 
     def guiSetFont(self, wdgt, name, reset=False):
         if not reset:
@@ -935,6 +936,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             nb=int(nb)
             x0=float(x0)
             x1=float(x1)
+            if x0 == 0 or x1 == 0:
+                return
             if len(luvut) < 3:
                 return
         except:
@@ -1034,9 +1037,9 @@ the numerical model or chemistry scheme differs from the current, results may va
         try:
             x0 = float(self.min_particle_diam.text().replace('d','e'))
             x1 = float(self.max_particle_diam.text().replace('d','e'))
+            self.splot(self.mmodal_input.text(),self.n_modal.text(),nb,x0,x1)
         except:
             pass
-        self.splot(self.mmodal_input.text(),self.n_modal.text(),nb,x0,x1)
 
 
     def moveOneDay(self, days):
@@ -2149,9 +2152,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.VAP.VAP_ATOMS=self.vap_atoms.text()
 
         # class _PRECISION:
-        nml.PRECISION.DIAMETER_PREC_DEF="%f,%f"%(self.prec_low_1.value(), self.prec_high_1.value())
-        nml.PRECISION.PNUMBER_PREC_DEF="%f,%f"%(self.prec_low_2.value(), self.prec_high_2.value())
-        nml.PRECISION.VAPOUR_PREC_DEF="%f,%f"%(self.prec_low_3.value(), self.prec_high_3.value())
+        nml.PRECISION.DDIAM_RANGE="%f,%f"%(self.prec_low_1.value(), self.prec_high_1.value())
+        nml.PRECISION.DPNUM_RANGE="%f,%f"%(self.prec_low_2.value(), self.prec_high_2.value())
+        nml.PRECISION.DVAPO_RANGE="%f,%f"%(self.prec_low_3.value(), self.prec_high_3.value())
 
         for i in range(self.selected_vars.rowCount()):
             name = self.selected_vars.item(i,0).text()
@@ -2365,13 +2368,13 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
             elif 'GR_SIZES' == key: self.GR_sizes.setText(strng)
 
-            elif 'DIAMETER_PREC_DEF' == key:
+            elif 'DDIAM_RANGE' == key:
                 self.prec_low_1.setValue(float(strng.split(',')[0]))
                 self.prec_high_1.setValue(float(strng.split(',')[1]))
-            elif 'PNUMBER_PREC_DEF' == key:
+            elif 'DPNUM_RANGE' == key:
                 self.prec_low_2.setValue(float(strng.split(',')[0]))
                 self.prec_high_2.setValue(float(strng.split(',')[1]))
-            elif 'VAPOUR_PREC_DEF' == key:
+            elif 'DVAPO_RANGE' == key:
                 self.prec_low_3.setValue(float(strng.split(',')[0]))
                 self.prec_high_3.setValue(float(strng.split(',')[1]))
 
@@ -2496,7 +2499,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.plotResultWindow_2.setLabel('bottom', 'Time', units='h')
             self.plotResultWindow_2.setLabel('left', 'Mass', units='g')
 
-            self.plotResultWindow_3.setLabel('bottom', 'Diameter', units='h')
+            self.plotResultWindow_3.setLabel('bottom', 'Diameter', units='m')
             self.plotResultWindow_3.setLabel('left', '# normalized', units=None)
 
         else:

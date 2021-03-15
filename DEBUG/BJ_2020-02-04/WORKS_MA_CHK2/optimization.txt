@@ -1,0 +1,67 @@
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:2 , Coa:2 , Dep:-999                                             |
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:4 , Coa:4 , Dep:-999                                             |
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:8 , Coa:8 , Dep:-999                                             |
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:16 , Coa:16 , Dep:-999                                           |
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:32 , Coa:32 , Dep:-999                                           |
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:64 , Dep:-999                                           |
+| 00:00:01-> Speeding Cond & Chem                                                                  |
+| 00:00:01-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:128 , Coa:128 , Dep:-999                                         |
+| 00:00:01-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:128 , Coa:256 , Dep:-999                                         |
+| 00:00:03-> Speeding Cond & Chem                                                                  |
+| 00:00:03-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:256 , Coa:512 , Dep:-999                                         |
+| 00:00:05-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:256 , Coa:1024 , Dep:-999                                        |
+| 00:00:10-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:256 , Coa:2048 , Dep:-999                                        |
+| 01:10:19-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:256 , Coa:4096 , Dep:-999                                        |
+| 03:06:22-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:256 , Coa:8192 , Dep:-999                                        |
+| NOTE: Precision tolerance exceeded at time 05:08:34 (18513  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8192 ->4096                                                      |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 05:08:34 (18513  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:4096 ->2048                                                      |
+ 
+| Error handled.                                                                                   |
+| 05:09:35-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:256 , Coa:4096 , Dep:-999                                        |
+| 05:09:56-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:256 , Coa:8192 , Dep:-999                                        |
+| NOTE: Precision tolerance exceeded at time 05:11:18 (18677  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:8192 ->4096                                                      |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 05:11:18 (18677  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:4096 ->2048                                                      |
+ 
+| Error handled.                                                                                   |
+ ---------- SIMULATION REACHED END SUCCESFULLY ------------

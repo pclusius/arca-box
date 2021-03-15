@@ -1,0 +1,17 @@
+| NOTE: Precision tolerance exceeded at time 00:00:20 (20  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E+01                                              |
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: 2.238E-01   
+Up. lim. of |ap: 1.000E-01   TroublevapourHOM_OH_O5CBN             9.263E+06
+|   :........  => reduce dt to:5.000E+00    [s]                                                    |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 00:00:20 (20  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E+00                                              |
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: 1.119E-01   
+Up. lim. of |ap: 1.000E-01   TroublevapourHOM_OH_O5CBN             7.465E+06
+|   :........  => reduce dt to:2.500E+00    [s]                                                    |
+ 
+| Error handled.                                                                                   |
+ ---------- SIMULATION REACHED END SUCCESFULLY ------------

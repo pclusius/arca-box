@@ -3,9 +3,10 @@
 # compiler
 F90 = gfortran
 
-OPTI = O2
-#PROF = -pg
-PROF = 
+COPTI = O2
+BOPTI = O3
+PROF = -pg
+PROF =
 # Put .o and .mod files here:
  OBJDIR  = build
  SRCDIR  = src
@@ -18,9 +19,9 @@ VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_
 # -w suppresses warning messages
 
 BOX_OPTS = -g -Wno-unused -ffree-line-length-none -cpp -DLINUX -DCHEM=\"$(CHMDIR)\" -DISACDC -J$(OBJDIR) -I$(OBJDIR)/$(CHMDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
--Wno-unused-dummy-argument -Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow $(PROF) -g -fcheck=all -$(OPTI)
+-Wno-unused-dummy-argument -Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow $(PROF) -g -fcheck=all -$(BOPTI)
 
-CHEM_OPTS = -w -cpp $(PROF) -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR)/$(CHMDIR) -I$(OBJDIR)/$(CHMDIR) -$(OPTI)
+CHEM_OPTS = -w -cpp $(PROF) -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR)/$(CHMDIR) -I$(OBJDIR)/$(CHMDIR) -$(COPTI)
 
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 

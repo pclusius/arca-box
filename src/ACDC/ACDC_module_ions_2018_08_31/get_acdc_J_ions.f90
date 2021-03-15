@@ -4,7 +4,7 @@ private
 public :: get_acdc_J
 CONTAINS
 
-subroutine get_acdc_J(c_acid,c_base,c_org,cs_ref,temp,ipr,time,solve_ss,j_acdc,diameter_acdc, Nuc_by_charge, dt)
+subroutine get_acdc_J(c_acid,c_base,c_org,cs_ref,temp,ipr,time,solve_ss,j_acdc,diameter_acdc, Nuc_by_charge, dt, stepback)
 use acdc_system, only : nclust, neq					! number of clusters and equations
 use acdc_system, only : cluster_names				! names of the clusters and fluxes
 use acdc_system, only : n1A,n1N 				    ! cluster numbers of acid and base monomers
@@ -34,7 +34,7 @@ use constants
 														! NB: nacid_acdc is type real (dp), as it is like this in UHMA
 
   integer, save  :: cluster_acid_content(nclust),cluster_base_content(nclust) ! cluster number of acids in cluster
-  real(kind(1.d0)), save :: c(neq)					! cluster concentrations
+  real(kind(1.d0)), save :: c(neq), prev_c(neq)					! cluster concentrations
 	character(len=11), save :: c_names(neq)		! cluster and flux names
 	integer, save :: n1base = 0, n1org = 0				! cluster numbers of base and organic molecules
 	integer, save :: nacid_out							! smallest number of acid molecules in the outgrown clusters
@@ -45,6 +45,7 @@ use constants
 	real(kind(1.d0)), save :: t_iter = 1.d-10			! iteration time step (s) for the Euler method
 	integer, save :: ipar(4)							! parameters for re-calling the monomer settings and rate constants
 	logical, save :: firstcall = .true.
+    logical,INTENT(IN) :: stepback
 	integer :: n,cb(3)
     CHARACTER(100):: buf
     CHARACTER(18):: output_buf(nclust)
@@ -56,10 +57,11 @@ use constants
 		firstcall = .false.
 		! Initialize the concentrations
 		c = 0.d0
+		prev_c = 0.d0
 		! See which compounds there are
 		call cluster_names(c_names)
-    call n_A_in_clusters(cluster_acid_content)
-    call n_B_in_clusters(cluster_base_content)
+        call n_A_in_clusters(cluster_acid_content)
+        call n_B_in_clusters(cluster_base_content)
 
 		do n = 1, nclust
 			if ((trim(c_names(n)(:)).eq.'1N') .or. (trim(c_names(n)(:)).eq.'1D')) then
@@ -76,6 +78,13 @@ use constants
 		! (use the smallest number of acids)
 		!nacid_out = minval(nmols_out_neutral(1:size(nmols_out_neutral,1),nmolA))
 	end if
+
+    if (stepback) then
+        c = prev_c
+    else
+        prev_c = c
+    end if
+
 
 	if (solve_ss) then
 		! Override the input time with a maximum time that

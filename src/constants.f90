@@ -110,7 +110,8 @@ TYPE error_type
                                      'Coagulation',&
                                      'Deposition ']
     CHARACTER(150)  :: err_text         ! Specification on error type (e.g."particle conc" during coagulation)
-    LOGICAL         :: increase(3)  = .false.  ! .true. if speed can be increased for cch,coa or dep
+    LOGICAL         :: increase(3) = .false.  ! .true. if speed can be increased for cch,coa or dep
+    LOGICAL         :: in_turn(4)  = .true.  ! .true. if process is in turn, 4th is for any process == .true.
 END TYPE error_type
 
 
@@ -214,8 +215,8 @@ Logical                         :: NO_NEGATIVE_CONCENTRATIONS = .true.
 
 ! speed_up: factor for increasing integration time step for individual prosesses
 ! (1): chemistry & Condensation & ACDC (2): Coagulation; (3): Deposition
-TYPE(error_type)                :: PRCION
-INTEGER(dint)                   :: speed_up(size(PRCION%pr_name,1)) = 1
+TYPE(error_type)                :: PRC
+INTEGER(dint)                   :: speed_up(size(PRC%pr_name,1)) = 1
 
 
 CONTAINS
@@ -386,5 +387,16 @@ PURE FUNCTION UCASE(word)
     FORALL (i=1:len(word), ((ichar(word(i:i))>96) .and. (ichar(word(i:i))<123))) UCASE(i:i) = char(ichar(word(i:i))-32)
 END FUNCTION UCASE
 
+
+SUBROUTINE SET_ERROR(proc, msg)
+    implicit none
+    integer, intent(in) :: proc
+    character(len=*), INTENT(IN) :: msg
+
+    PRC%err = .true.
+    PRC%proc = proc
+    PRC%err_text = msg
+
+END SUBROUTINE SET_ERROR
 
 end MODULE constants

@@ -255,15 +255,15 @@ class INITFILE:
 
     class _PRECISION:
         def __init__(self):
-            self.DIAMETER_PREC_DEF=''
-            self.PNUMBER_PREC_DEF=''
-            self.VAPOUR_PREC_DEF=''
+            self.DDIAM_RANGE=''
+            self.DPNUM_RANGE=''
+            self.DVAPO_RANGE=''
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_PRECISION%s')"%(cmd, eol))
-            exec("%s(' DIAMETER_PREC_DEF = %s%s')"%(cmd,self.DIAMETER_PREC_DEF,eol))
-            exec("%s(' PNUMBER_PREC_DEF = %s%s')"%(cmd,self.PNUMBER_PREC_DEF,eol))
-            exec("%s(' VAPOUR_PREC_DEF = %s%s')"%(cmd,self.VAPOUR_PREC_DEF,eol))
+            exec("%s(' DDIAM_RANGE = %s%s')"%(cmd,self.DDIAM_RANGE,eol))
+            exec("%s(' DPNUM_RANGE = %s%s')"%(cmd,self.DPNUM_RANGE,eol))
+            exec("%s(' DVAPO_RANGE = %s%s')"%(cmd,self.DVAPO_RANGE,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _CUSTOM:

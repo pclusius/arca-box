@@ -327,7 +327,6 @@ END SUBROUTINE Mass_Number_Change
 SUBROUTINE PSD_Change_condensation()
     IMPLICIT NONE
     INTEGER ::   ii     !some integer for looping
-
     !------------------------
     !FULLY STATIONARY METHOD!
     IF (current_PSD%PSD_style == 1) THEN
@@ -339,7 +338,13 @@ SUBROUTINE PSD_Change_condensation()
         DO ii = 1, current_PSD%nr_bins
             mix_PSD%volume_fs(ii) = current_PSD%volume_fs(ii) + &
                                        SUM(dmass(ii,:) / current_PSD%density_fs(:))
-            mix_PSD%composition_fs(ii,:) = dmass(ii,:) + current_PSD%composition_fs(ii,:)
+
+           where(dmass(ii,:) + current_PSD%composition_fs(ii,:)<0d0)
+               mix_PSD%composition_fs(ii,:) = 0d0
+           ELSEWHERE
+               mix_PSD%composition_fs(ii,:) = dmass(ii,:) + current_PSD%composition_fs(ii,:)
+           end where
+
             mix_PSD%conc_fs(ii) = current_PSD%conc_fs(ii)
             IF ( mix_PSD%conc_fs(ii) > 1.d-100 ) CALL bin_redistribute_fs(ii)
             mix_PSD%conc_fs(ii) = 0.d0
@@ -356,12 +361,13 @@ SUBROUTINE PSD_Change_condensation()
         ! Find new volume in case of condensation
         DO ii = 1, current_PSD%nr_bins
 
-            mix_PSD%volume_ma(ii) = SUM(current_PSD%composition_ma(ii,:) / current_PSD%density_ma(:)) &
-                                    + SUM(dmass(ii,:) / current_PSD%density_ma(:))
+            mix_PSD%volume_ma(ii) = SUM((current_PSD%composition_ma(ii,:) + dmass(ii,:)) / current_PSD%density_ma(:))! + SUM(dmass(ii,:) / current_PSD%density_ma(:))
 
             mix_PSD%composition_ma(ii,:) = dmass(ii,:) + current_PSD%composition_ma(ii,:)
+
             mix_PSD%conc_ma(ii) = current_PSD%conc_ma(ii)
-            IF ( mix_PSD%conc_ma(ii) > 1.d-100 ) CALL bin_redistribute_ma(ii)
+            where(mix_PSD%composition_ma(ii,:)<0d0) mix_PSD%composition_ma(ii,:) = 0d0
+            IF ( mix_PSD%conc_ma(ii) > 0d0 ) CALL bin_redistribute_ma(ii)
             mix_PSD%conc_ma(ii) = 0.d0
         END DO
     ELSE
@@ -392,9 +398,14 @@ SUBROUTINE PSD_Change_coagulation
         DO ii = 1, current_PSD%nr_bins
             DO jj = ii, current_PSD%nr_bins
                 IF (dconc_coag(ii,jj) > 1.d-100) THEN
+                    IF (.not. use_speed) THEN
+                        IF (dconc_coag(ii,jj) > new_PSD%conc_fs(ii)) dconc_coag(ii,jj) = new_PSD%conc_fs(ii) * 0.9
+                        IF (dconc_coag(ii,jj) > new_PSD%conc_fs(jj)) dconc_coag(ii,jj) = new_PSD%conc_fs(jj) * 0.9
+                    END IF
                     ! Reduce the new particle concentration by the number of particles that are lost by coagulation in i and j -> they will be added later to the new bin
                     new_PSD%conc_fs(ii) = new_PSD%conc_fs(ii) - dconc_coag(ii,jj)  !reduce number in ii
                     new_PSD%conc_fs(jj) = new_PSD%conc_fs(jj) - dconc_coag(ii,jj)  !reduce number in jj (if ii=ij we have to reduce twice (which is done here) as 1 collision removes 2 particles)
+
                     ! Determine new mass compositions: (total mass of collision products (i+j)
                     mix_PSD%composition_fs(ii,:) = (current_PSD%composition_fs(ii,:) + current_PSD%composition_fs(jj,:))  !composition of of collision result bins: i + j
                     ! Update concentration in the mix_PSD
@@ -403,10 +414,14 @@ SUBROUTINE PSD_Change_coagulation
                     mix_PSD%volume_fs(ii) = SUM(mix_PSD%composition_fs(ii,:) / current_PSD%density_fs(:))   !Determine the volume of particles in the mix distribution
 
                     CALL bin_redistribute_fs(ii)
+                    ! if (PRC%err) return
                     mix_PSD%conc_fs(ii) = 0.d0  !reset value to zero -> changes have been applied
               END IF
             END DO
         END DO
+        if (minval(new_PSD%composition_fs)<0d0) THEN
+            CALL SET_ERROR(PRC%coa, 'Getting negative composition in Mass_Number_Change')
+        END IF
 
     !-----------------------
     ! Moving average, fixed grid  !!
@@ -419,9 +434,12 @@ SUBROUTINE PSD_Change_coagulation
         ! Apply changes for all combinations of i and j
         DO ii = 1, current_PSD%nr_bins
             DO jj = ii, current_PSD%nr_bins
-                IF (dconc_coag(ii,jj) > 1.d-100) THEN
-                    ! IF (dconc_coag(ii,jj) > new_PSD%conc_ma(ii)) PRINT*, 'ii',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(ii),new_PSD%conc_ma(jj)
-                    ! IF (dconc_coag(ii,jj) > new_PSD%conc_ma(jj)) PRINT*, 'jj',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(jj),new_PSD%conc_ma(ii)
+                IF (dconc_coag(ii,jj) > 0d0) THEN
+                    IF (.not. use_speed) THEN
+                        IF (dconc_coag(ii,jj) > new_PSD%conc_ma(ii)) dconc_coag(ii,jj) = new_PSD%conc_ma(ii) * 0.9   !PRINT*, 'coag,ii',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(ii),new_PSD%conc_ma(jj)
+                        IF (dconc_coag(ii,jj) > new_PSD%conc_ma(jj)) dconc_coag(ii,jj) = new_PSD%conc_ma(jj) * 0.9   !PRINT*, 'coag,jj',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(jj),new_PSD%conc_ma(ii)
+                    END IF
+
                     ! Reduce the new particle concentration by the number of particles that are lost by coagulation in i and j -> they will be added later to the new bin
                     new_PSD%conc_ma(ii) = new_PSD%conc_ma(ii) - dconc_coag(ii,jj)  !reduce number in i
                     new_PSD%conc_ma(jj) = new_PSD%conc_ma(jj) - dconc_coag(ii,jj)  !reduce number in j (if i=j we have to reduce twice (which is done here) as 1 collision removes 2 particles)
@@ -436,6 +454,7 @@ SUBROUTINE PSD_Change_coagulation
                     mix_PSD%volume_ma(ii) = SUM(mix_PSD%composition_ma(ii,:) / current_PSD%density_ma(:))   !Determine the volume of particles in the mix distribution
 
                     CALL bin_redistribute_ma(ii)
+                    if (PRC%err) return
                     mix_PSD%conc_ma(ii) = 0.d0  !reset value to zero -> changes have been applied
                 END IF
             END DO
@@ -705,20 +724,27 @@ SUBROUTINE bin_redistribute_ma(ind)
     ELSE IF (aa >=  1 .and. aa <= current_PSD%nr_bins) THEN
 
         ! Diameter before changes:
-        old_new_dp = (6.d0 * SUM(new_PSD%composition_ma(aa,:) / current_PSD%density_ma(:)) / pi) ** (1.d0/3.d0)
+        old_new_dp = (6.d0 * SUM(new_PSD%composition_ma(aa,:) / current_PSD%density_ma(:)) / pi)
+
         ! New composition in aa
         new_PSD%composition_ma(aa,:) = (new_PSD%composition_ma(aa,:) * new_PSD%conc_ma(aa) &
                                     + mix_PSD%composition_ma(ind,:) * mix_PSD%conc_ma(ind)) &
                                     / (new_PSD%conc_ma(aa) + mix_PSD%conc_ma(ind))
 
-        ! Determine new diameter in bin aa
-        ! new diameter based on total volume of both aerosols of bin ii
-        new_PSD%diameter_ma(aa) = ((  old_new_dp ** 3.d0 * new_PSD%conc_ma(aa) + &
-                                dp_ind ** 3.d0 * mix_PSD%conc_ma(ind)) / &
-                                (new_PSD%conc_ma(aa) + mix_PSD%conc_ma(ind))) ** (1.d0/3.d0)
-
-        ! Determine new particle concentration in bin aa
-        new_PSD%conc_ma(aa) = new_PSD%conc_ma(aa) + mix_PSD%conc_ma(ind)
+        ! CHECK FOR NEGATIVES
+        if (minval(new_PSD%composition_ma(aa,:))<0d0) THEN
+            call SET_ERROR (PRC%coa,'Getting negative composition in MA Mass_Number_Change')   !d_dpar(maxloc(abs(d_dpar))
+            return
+        ELSE
+            old_new_dp = old_new_dp ** (1.d0/3.d0)
+        END IF
+            ! Determine new diameter in bin aa
+            ! new diameter based on total volume of both aerosols of bin ii
+            new_PSD%diameter_ma(aa) = ((  old_new_dp ** 3.d0 * new_PSD%conc_ma(aa) + &
+                                    dp_ind ** 3.d0 * mix_PSD%conc_ma(ind)) / &
+                                    (new_PSD%conc_ma(aa) + mix_PSD%conc_ma(ind))) ** (1.d0/3.d0)
+            ! Determine new particle concentration in bin aa
+            new_PSD%conc_ma(aa) = new_PSD%conc_ma(aa) + mix_PSD%conc_ma(ind)
 
     ! The particles shrink below the lower size limit -> change concentration but not composition or diameter (should not happen)
     ELSE

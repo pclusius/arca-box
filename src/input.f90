@@ -223,15 +223,11 @@ NAMELIST /NML_CUSTOM/ use_raoult, variable_density,dmps_tres_min, &
 
 ! ==================================================================================================================
 ! Define change range in percentage
-REAL(dp), DIMENSION(2) :: diameter_prec_def = [1.d-1, 2d0] ! -> minimum and maximum relative change in particle diameter
-REAL(dp), DIMENSION(2) :: pnumber_prec_def  = [1.d-1, 2d0] ! -> minimum and maximum relative change in particle number
-REAL(dp), DIMENSION(2) :: vapour_prec_def   = [1.d-1, 2d0] ! -> minimum and maximum relative change in particle concentration
-CHARACTER(22)          :: range_names(3)    = ['particle diameter     ',&
-                                               'particle concentration',&
-                                               'vapour concentration  ']
+REAL(dp), DIMENSION(2) :: Ddiam_range = [1.d0, 1d1] ! -> minimum and maximum relative change in particle diameter
+REAL(dp), DIMENSION(2) :: Dpnum_range = [1.d0, 1d1] ! -> minimum and maximum relative change in particle number
+REAL(dp), DIMENSION(2) :: Dvapo_range = [1.d0, 1d1] ! -> minimum and maximum relative change in particle concentration
 ! Defines the minimum/maximum relative change caused by a process within a timestep
-REAL(dp), DIMENSION(3,2) :: change_range = 0
-NAMELIST /NML_PRECISION/ change_range, diameter_prec_def,pnumber_prec_def,vapour_prec_def
+NAMELIST /NML_PRECISION/ Ddiam_range,Dpnum_range,Dvapo_range
 
 ! Options for screen output
 LOGICAL :: clusterfractions,jions,timestep_multipliers,time_efficiency,Jorganic,GR

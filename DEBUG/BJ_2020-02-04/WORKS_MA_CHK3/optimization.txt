@@ -1,0 +1,271 @@
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:2 , Coa:2 , Dep:-999                                             |
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:4 , Coa:4 , Dep:-999                                             |
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:8 , Coa:8 , Dep:-999                                             |
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:16 , Coa:16 , Dep:-999                                           |
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:32 , Coa:32 , Dep:-999                                           |
+| 00:00:00-> Speeding Cond & Chem                                                                  |
+| 00:00:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:64 , Dep:-999                                           |
+| 00:00:01-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:128 , Dep:-999                                          |
+| 00:00:01-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:256 , Dep:-999                                          |
+| 00:00:03-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:512 , Dep:-999                                          |
+| 00:30:02-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 00:45:34 (2734  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 00:45:49-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 00:45:55 (2754  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 00:46:05-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 00:46:15 (2775  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 00:46:46-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 00:46:56 (2816  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 00:47:32-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 00:47:37 (2856  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 00:48:03-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 00:48:08 (2887  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 00:48:44-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 00:48:49 (2928  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 00:49:40-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 00:49:50 (2990  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 00:50:00-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 00:52:44 (3164  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 01:00:04-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 01:03:19 (3799  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 01:04:05-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 01:04:10 (3850  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 01:04:46-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 01:04:51 (3891  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 01:05:32-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| NOTE: Precision tolerance exceeded at time 01:05:42 (3942  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| 01:10:04-> Speeding Coagulation                                                                  |
+|   :........Multipliers now: Con:64 , Coa:1024 , Dep:-999                                         |
+| 02:04:36-> Speeding Cond & Chem                                                                  |
+|   :........Multipliers now: Con:128 , Coa:1024 , Dep:-999                                        |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce speed_up:512 ->256                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce speed_up:256 ->128                                                        |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce speed_up:128 ->64                                                         |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce speed_up:64 ->32                                                          |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce speed_up:32 ->16                                                          |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce speed_up:16 ->8                                                           |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce speed_up:8 ->4                                                            |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce speed_up:4 ->2                                                            |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce speed_up:2 ->1                                                            |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.000E-02                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce dt to:5.000E-03    [s]                                                    |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]5.000E-03                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce dt to:2.500E-03    [s]                                                    |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]2.500E-03                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce dt to:1.250E-03    [s]                                                    |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.250E-03                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce dt to:6.250E-04    [s]                                                    |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]6.250E-04                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce dt to:3.125E-04    [s]                                                    |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]3.125E-04                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce dt to:1.563E-04    [s]                                                    |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]1.563E-04                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce dt to:7.813E-05    [s]                                                    |
+ 
+| Error handled.                                                                                   |
+| NOTE: Precision tolerance exceeded at time 07:41:00 (27659  sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Current simulation timestep [s]7.813E-05                                              |
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: 1 Getting negative diameters, timestep should reduce            |
+|   :........  => reduce dt to:3.906E-05    [s]                                                    |
+ 
+| Error handled.                                                                                   |

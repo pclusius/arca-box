@@ -84,8 +84,6 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
   ! Kelvin and Kohler factors.
     KELVIN: DO ic = 1, n_cond_tot
         ! Kelvin factor takes into account the curvature of particles. Unitless
-        Kelvin_Effect(:,ic) = 1d0
-
         Kelvin_Effect(:,ic) = 1D0 + 2D0*st*VAPOUR_PROP%molar_mass(ic) &
                             / (Rg*GTEMPK*VAPOUR_PROP%density(ic)*diameter/2D0)
 
@@ -130,77 +128,47 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     ! XXX NOTE We change GENERIC back to what it was before
     conc_pp(:,VAPOUR_PROP%ind_GENERIC) = conc_pp_old(:,VAPOUR_PROP%ind_GENERIC)
 
-    ! if (GTIME%sec==0 .and. (MODULO(ic,10)==0 .or. ic == VAPOUR_PROP%ind_H2SO4)) THEN
-    !     IF (ic == VAPOUR_PROP%ind_H2SO4) THEN
-    !         OPEN(unit=499,file='CSCHECK/CS_'//TRIM(VAPOUR_PROP%vapour_names(ic)),status='replace',action='write')
-    !         write(499,*), VAPOUR_PROP%vapour_names(ic), 'Loss by CS     Actual loss   Csat   molar mass'
-    !     ELSE
-    !         OPEN(unit=ic/10+110,file='CSCHECK/CS_'//TRIM(VAPOUR_PROP%vapour_names(ic)),status='replace',action='write')
-    !         write(ic/10+110,*), VAPOUR_PROP%vapour_names(ic), 'Loss by CS     Actual loss   Csat   molar mass'
-    !     END IF
-    ! END IF
-    ! if (GTIME%savenow .and. (MODULO(ic,10)==0 .or. ic == VAPOUR_PROP%ind_H2SO4)) THEN
-    !     IF (ic == VAPOUR_PROP%ind_H2SO4) THEN
-    !         write(499,*), conc_vap_old(ic)*sum(CR(:,ic))*GTIME%dt, conc_vap_old(ic) - (conc_tot(ic) - sum(conc_pp(:,ic))), VAPOUR_PROP%c_sat(ic), VAPOUR_PROP%molar_mass(ic)
-    !         flush(499)
-    !     ELSE
-    !         write(ic/10+110,*), conc_vap_old(ic)*sum(CR(:,ic))*GTIME%dt, conc_vap_old(ic) - (conc_tot(ic) - sum(conc_pp(:,ic))), VAPOUR_PROP%c_sat(ic), VAPOUR_PROP%molar_mass(ic)
-    !         flush(ic/10+110)
-    !     END IF
-    ! END IF
-
     ! Update conc_vap: total conc - particle phase concentration
-    if (ic == VAPOUR_PROP%ind_H2SO4) THEN
-        continue
-    ELSE
-        conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
-        if (conc_vap(ic)<0d0) THEN
-            print*, ' Vapours go to negative, should not happen ',  conc_vap(ic),conc_tot(ic),sum(conc_pp(:,ic))
-        END IF
-    END IF
-    ! if (ic==VAPOUR_PROP%ind_GENERIC) print*, 'vapor conc after', conc_vap(ic)
+    if (ic /= VAPOUR_PROP%ind_H2SO4) conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
 
+  ! derive the relative changes in the vapor phase
+
+    IF (conc_vap(ic) > 1.d5) d_vap(ic) = (conc_vap_old(ic) - conc_vap(ic)) / conc_vap(ic)
 
   END DO
 
   ! Calculate dmass for PSD
   DO ic = 1, n_cond_tot
     dmass(:,ic) = (conc_pp(:,ic) - conc_pp_old(:,ic))*VAPOUR_PROP%molar_mass(ic) / Na
+
   END DO
   ! dmass(:,n_cond_tot-1) = max(dmass(:,n_cond_tot-1), 0)
   ! only apply condensation if there are particles
-  do ic = 1, n_bins_par
-    if (n_conc(ic)>1d-10) THEN
-      dmass(ic,:) = dmass(ic,:) / n_conc(ic)
+  do ip = 1, n_bins_par
+    if (n_conc(ip)>1d-10) THEN
+      dmass(ip,:) = dmass(ip,:) / n_conc(ip)
     else
-      dmass(ic,:) = 0d0
+      dmass(ip,:) = 0d0
     END if
   END DO
 
   ! derive diameter changes for integration time-step optimization
   DO ip = 1, n_bins_par - 1
-    IF (SUM(conc_pp_old(ip,:)) > 0.d0 .and. n_conc(ip) > 1.d-10) THEN   !only if there are particles and if they had a composition in the last timestep
-      d_dpar(ip) = (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip) + SUM(dmass(ip,:))) &
+    IF (SUM(conc_pp_old(ip,:)) > 0.d0 .and. n_conc(ip) > 1.d-10) THEN   ! only if there are particles and if they had a composition in the last timestep
+       d_dpar(ip) = (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip) + SUM(dmass(ip,:))) &
                     / (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip))
-      if (d_dpar(ip)<0) THEN
-          d_dpar(ip) = -1d0*((-1d0*d_dpar(ip)) ** (1.d0/3.d0)) - 1.d0
-      ELSE
-          d_dpar(ip) = (d_dpar(ip) ** (1.d0/3.d0)) - 1.d0
-      END IF
+        if (d_dpar(ip)<0d0) THEN
+            call SET_ERROR(PRC%cch, 'Particles shrink beyond their size')
+            return
+        ELSE
+            d_dpar(ip) = ( d_dpar(ip)**(1.d0/3.d0) ) - 1.d0
+        END IF
 
-      !PRINT*, 'i,mass, mass change, d_dp', ip, SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip), SUM(dmass(ip,:)), d_dpar(ip)
     ELSE
       d_dpar(ip) = 0.d0
     END IF
   END DO
 
-  ! derive the relative changes in the vapor phase
-  DO ic = 1, n_cond_tot
-    IF (conc_vap(ic) > 1.d5) THEN
-      d_vap(ic) = (conc_vap_old(ic) - conc_vap(ic)) / conc_vap(ic)
-      !PRINT*, 'ic, conc, dconc, d_vap', ic, conc_vap(ic), conc_vap_old(ic), conc_vap(ic) - conc_vap_old(ic), d_vap(ic)
-    END IF
-  END DO
 
 END SUBROUTINE Condensation_apc
 
@@ -214,7 +182,7 @@ SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar) ! Add more variables
     REAL(dp), INTENT(INOUT)                     :: d_npar(:) ! relative change in particle number concentrations [1]
     REAL(dp), DIMENSION(n_bins_par)             :: n_conc,diameter, mass
     REAL(dp), DIMENSION(n_bins_par)             :: volume
-    integer                                     :: i,j,m,ii
+    integer                                     :: i,j,m
     REAL(dp), DIMENSION(n_bins_par,n_bins_par)  :: coagulation_coef        ! coagulation coefficients [m^3/s]
     REAL(dp), DIMENSION(n_bins_par,n_bins_par)  :: sticking_prob           ! alpha in Fuchs' beta, S&P (2016) p. 550, eq. 13.56
     REAL(dp), DIMENSION(n_bins_par)             :: slip_correction
@@ -224,7 +192,7 @@ SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar) ! Add more variables
     REAL(dp), DIMENSION(n_bins_par, n_bins_par) :: Beta_Fuchs
     REAL(dp)                                    :: dyn_visc  ! dynamic viscosity, kg/(m*s)
     REAL(dp)                                    :: l_gas     ! Gas mean free path in air
-    REAL(dp)                                    :: a, comp
+    REAL(dp)                                    :: a
 
     sticking_prob = 1
     n_conc        = get_conc()
@@ -276,10 +244,6 @@ do j=1, n_bins_par
             a= 1.0_dp
         END if
         IF (n_conc(j) > 1.d0 .and. n_conc(m) > 1.d0) dconc_coag(j,m) = a * coagulation_coef(j,m) * n_conc(j) * n_conc(m) * dt_coag ! 1/m^3 '/ dt
-        if ((dconc_coag(j,m)>n_conc(j)) .or. (dconc_coag(j,m)>n_conc(m))) THEN
-            ! print FMT_WARN0, 'It seems that the upper size range is too small and should be increased (a good start is by 200%)'
-            ! print FMT_WARN0, i2chr(j)//', '//i2chr(m)//', '//f2chr(coagulation_coef(j,m))//', '//f2chr(n_conc(j))//', '//f2chr(n_conc(m))
-        END IF
     END DO
 
     ! Check whether changes are worth to be applied:
@@ -287,6 +251,7 @@ do j=1, n_bins_par
         d_npar(j) = sum(dconc_coag(j, j:)) / n_conc(j)
     ELSE
         d_npar(j) = 0.d0
+        dconc_coag(j,j:) = 0.d0
     END IF
 END DO
 
