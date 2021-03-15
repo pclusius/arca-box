@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      ARCA box setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: maalis 15 2021, 13:49:55
+#         Created at: maalis 15 2021, 14:30:18
 #--------------------------------------------------
 
 &NML_PATH
@@ -13,7 +13,7 @@
  CHEMISTRY_FLAG = .TRUE.
  AEROSOL_FLAG = .TRUE.
  ACDC_SOLVE_SS = .FALSE.
- ACDC = .FALSE.
+ ACDC = .TRUE.
  CONDENSATION = .TRUE.
  COAGULATION = .TRUE.
  DEPOSITION = .FALSE.
@@ -28,7 +28,7 @@
 /
 
 &NML_TIME
- RUNTIME = 1.417
+ RUNTIME = 24.0
  DT = 0.01
  FSAVE_INTERVAL = 300
  PRINT_INTERVAL = 300

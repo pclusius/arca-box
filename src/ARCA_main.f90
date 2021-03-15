@@ -320,6 +320,8 @@ MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the
         old_PSD = current_PSD
         CH_GAS_old = CH_GAS
         CH_RO2_old = CH_RO2
+        J_ACDC_DMA_M3_old = J_ACDC_DMA_M3
+        J_ACDC_NH3_M3_old = J_ACDC_NH3_M3
         ! =================================================================================================
     END IF
 
@@ -425,6 +427,7 @@ in_turn_cch_1: if (PRC%in_turn(PRC%cch)) THEN
     END IF CHEMISTRY_ROUTINES
     ! IF (Chemistry_flag)
     ! =================================================================================================
+END if in_turn_cch_1
 
     ! =================================================================================================
     ! =================================================================================================
@@ -437,7 +440,7 @@ in_turn_cch_1: if (PRC%in_turn(PRC%cch)) THEN
     ! other rate is coming from ACDC. Using the Ratio in Solve Bases (GUI-> ADVANCED) the ration between
     !
     ! =================================================================================================
-
+in_turn_acdc: if (PRC%in_turn(PRC%coa)) THEN
     ! NUCLEATION_ROUTINES: IF (.not. PRC%err) THEN
         if (ACDC) THEN
             CALL ACDC_J(TSTEP_CONC)
@@ -459,9 +462,9 @@ in_turn_cch_1: if (PRC%in_turn(PRC%cch)) THEN
     ! END if NUCLEATION_ROUTINES
 
     ! =================================================================================================
+END if in_turn_acdc
 
 
-END if in_turn_cch_1
 
 
 in_turn_any: if (PRC%in_turn(4)) THEN
@@ -740,6 +743,8 @@ END IF in_turn_any
         current_PSD = old_PSD
         CH_GAS = CH_GAS_old
         CH_RO2 = CH_RO2_old
+        J_ACDC_NH3_M3 = J_ACDC_NH3_M3_old
+        J_ACDC_DMA_M3 = J_ACDC_DMA_M3_old
         acdc_goback = .true.
         ! Reset relative change vectors documenting the precision:
         d_dpar = 0.d0
