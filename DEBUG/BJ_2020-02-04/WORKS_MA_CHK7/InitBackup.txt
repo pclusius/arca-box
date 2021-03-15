@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      ARCA box setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: maalis 15 2021, 14:30:18
+#         Created at: maalis 16 2021, 00:19:34
 #--------------------------------------------------
 
 &NML_PATH
@@ -114,9 +114,9 @@
 /
 
 &NML_PRECISION
- DDIAM_RANGE = 2.000000,10.000000
- DPNUM_RANGE = 2.000000,10.000000
- DVAPO_RANGE = 2.000000,10.000000
+ DDIAM_RANGE = 0.500000,3.000000
+ DPNUM_RANGE = 0.500000,3.000000
+ DVAPO_RANGE = 0.500000,3.000000
 /
 
 &NML_CUSTOM

@@ -34,7 +34,7 @@ REAL(dp), ALLOCATABLE :: conc_fit(:)      ! An array giving particle conc indepe
 REAL(dp), ALLOCATABLE :: losses_fit(:),losses_fit0(:),losses_fit1(:), intrp_losses(:) ! An array giving particle conc independant of PSD_style [m-3]
 REAL(dp), ALLOCATABLE :: save_measured(:)      ! An aray for saving measurements
 
-INTEGER               :: dmps_ln = 0      ! line number from where background particles are read from
+INTEGER               :: dmps_ln = 0, dmps_ln_old      ! line number from where background particles are read from
 INTEGER               :: dmps_sp_min = 0, dmps_sp_max = 0 ! Indices for dmps_special
 
 ! Variables related to chemistry module
@@ -52,6 +52,7 @@ CHARACTER(:), allocatable:: RUN_OUTPUT_DIR ! Saves the output directory relative
 CHARACTER(1000) :: inibuf       ! Buffer to save backp from the INITfile that was called
 INTEGER         :: I,II,J,JJ    ! Loop indices
 INTEGER         :: ioi          ! iostat variable
+INTEGER(dint)   :: add_rounds=1          ! iostat variable
 REAL(dp)        :: cpu1, cpu2,cpu3,cpu4 ! CPU time in seconds
 REAL(dp)        :: errortime(3) = -9999d0 ! CPU time in seconds
 ! LOGICAL         :: in_turn(4) = .true.
@@ -259,12 +260,12 @@ if (Use_speed) THEN
     print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for vapour concentration',   DVAPO_RANGE
 
     ! Input was in percetages, here we change them to fractional
-    DDIAM_RANGE =  DDIAM_RANGE*1d-2
-    DPNUM_RANGE =  DPNUM_RANGE*1d-2
-    DVAPO_RANGE =  DVAPO_RANGE*1d-2
+    DDIAM_RANGE = DDIAM_RANGE * 1d-2
+    DPNUM_RANGE = DPNUM_RANGE * 1d-2
+    DVAPO_RANGE = DVAPO_RANGE * 1d-2
     ! This is used to control the start (or halt) of optimization
-    Handbrake_on = .true.
-    Use_speed = .false.
+    ! Handbrake_on = .true.
+    Use_speed = .true.
 else
     print FMT_HDR, 'Beginning simulation with constant timestep'
     write(608, *) 'Time step not optimized, dt: ',GTIME%dt
@@ -303,13 +304,24 @@ call cpu_time(cpu1) ! For efficiency calculation
 !=======================================================================================================================
 
 MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the time is checked at the end of the loop
-
+    ! print*, 'kierros nro alussa ',n_of_Rounds, 'viimeksi lisätty',add_rounds
     if (Use_speed) THEN
         PRC%in_turn(PRC%cch) = MODULO(n_of_Rounds,speed_up(PRC%cch))==0_dint
         PRC%in_turn(PRC%coa) = MODULO(n_of_Rounds,speed_up(PRC%coa))==0_dint
         PRC%in_turn(PRC%dep) = MODULO(n_of_Rounds,speed_up(PRC%dep))==0_dint
         PRC%in_turn(4) = (PRC%in_turn(PRC%cch).or.(PRC%in_turn(PRC%coa).or.PRC%in_turn(PRC%dep)))
+        if (PRC%in_turn(PRC%coa).and..not.PRC%in_turn(PRC%cch).and.speed_up(PRC%cch)<=speed_up(PRC%coa)) print*, 'wtf1',speed_up(PRC%cch),speed_up(PRC%coa)
+        if (PRC%in_turn(PRC%cch).and..not.PRC%in_turn(PRC%coa).and.speed_up(PRC%coa)<=speed_up(PRC%cch)) print*, 'wtf2',speed_up(PRC%cch),speed_up(PRC%coa)
     END IF
+
+    if (PRC%increase(1).or.PRC%increase(2).or.PRC%increase(3)) THEN
+        if (PRC%increase(1).and.PRC%in_turn(1).and.MODULO(n_of_Rounds,speed_up(1)*2)==0_dint) CALL increase_speed(1)
+        if (PRC%increase(2).and.PRC%in_turn(2).and.MODULO(n_of_Rounds,speed_up(2)*2)==0_dint) CALL increase_speed(2)
+        if (PRC%increase(3).and.PRC%in_turn(3).and.MODULO(n_of_Rounds,speed_up(3)*2)==0_dint) CALL increase_speed(3)
+    end if
+
+
+    ! print*, n_of_Rounds, PRC%in_turn
 
     if (PRC%in_turn(4)) THEN
         ! =================================================================================================
@@ -320,8 +332,7 @@ MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the
         old_PSD = current_PSD
         CH_GAS_old = CH_GAS
         CH_RO2_old = CH_RO2
-        J_ACDC_DMA_M3_old = J_ACDC_DMA_M3
-        J_ACDC_NH3_M3_old = J_ACDC_NH3_M3
+        dmps_ln_old = dmps_ln
         ! =================================================================================================
     END IF
 
@@ -329,7 +340,7 @@ MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the
     ! Print time header in a nice way, start with empty row
     if (GTIME%printnow) THEN
         WRITE(*,*) ! Print time
-        print FMT_TIME, GTIME%hms//' ('//TRIM(i2chr(int(GTIME%sec)))//' sec)'
+        print FMT_TIME, GTIME%hms//' ('//TRIM(i2chr(int(GTIME%sec*1000d0)))//' msec)'
         ! To compare real time vs simulation time, timer is stopped in the beginning
         call cpu_time(cpu2)
         cpu4=cpu2
@@ -487,7 +498,6 @@ in_turn_any: if (PRC%in_turn(4)) THEN
             if (GTIME%hrs >= DMPS_read_in_time) N_MODAL = -1d0
         END IF
 
-
         PARTICLE_INIT: if (use_dmps .and. GTIME%min >= (dmps_ln*dmps_tres_min)) THEN
             ! Particles are read in from measuremensts throughout the simulation and saved to Particles.nc for comparison
             CALL GeneratePSDfromInput( BG_PAR%sections,  BG_PAR%conc_matrix(min(dmps_ln+1, size(BG_PAR%time, 1)),:), conc_fit )
@@ -601,7 +611,7 @@ in_turn_any: if (PRC%in_turn(4)) THEN
 
                     ELSE IF (MAXVAL(d_vap) > DVAPO_RANGE(2)) THEN
                         call SET_ERROR(PRC%cch,'Too large vapour concentration change: '//f2chr(MAXVAL(d_vap))//ACHAR(10)&
-                        //'Up. lim. of vap: '//f2chr(DVAPO_RANGE(2))//' Troublevapour'//VAPOUR_PROP%vapour_names(i)//f2chr(conc_vapour(i)) )
+                        //'Up. lim. of vap: '//f2chr(DVAPO_RANGE(2))//' Troublevapour '//VAPOUR_PROP%vapour_names(i)//f2chr(conc_vapour(i)) )
 
                     ELSE
                         call SET_ERROR(PRC%cch,'Too large diameter and vapour concentration change: '//f2chr(maxval(abs(d_dpar)))//', '//f2chr(MAXVAL(d_vap)))
@@ -627,7 +637,7 @@ in_turn_any: if (PRC%in_turn(4)) THEN
                 CH_GAS(ind_H2SO4) = conc_vapour(n_cond_tot)*1d-6
 
                 ! Check whether timestep can be increased:
-                IF (maxval(ABS(d_dpar)) < DDIAM_RANGE(1) .and. MAXVAL(d_vap) < DVAPO_RANGE(1) .and. use_speed) THEN
+                IF (maxval(ABS(d_dpar)) < product(DDIAM_RANGE)**(0.5d0) .and. MAXVAL(d_vap) < product(DVAPO_RANGE)**(0.5d0) .and. use_speed) THEN
                     if (speed_up(PRC%cch) * 2 * Gtime%dt < speed_dt_limit(PRC%cch+1)) THEN
                         PRC%increase(PRC%cch) = .true.
                     END IF
@@ -661,7 +671,7 @@ in_turn_any: if (PRC%in_turn(4)) THEN
             if (.not. PRC%err) THEN                ! Update PSD with new concentrations
                 current_PSD = new_PSD
                 ! Check whether timestep can be increased:
-                IF (maxval(ABS(d_npar)) < DPNUM_RANGE(1) .and. use_speed) THEN
+                IF (maxval(ABS(d_npar)) < product(DPNUM_RANGE)**(0.5d0) .and. use_speed) THEN
                     if (speed_up(PRC%coa) * 2 * Gtime%dt < speed_dt_limit(PRC%coa+1)) THEN
                         PRC%increase(PRC%coa) = .true.
                         ! call increase_speed(PRC%coa)
@@ -711,7 +721,7 @@ in_turn_any: if (PRC%in_turn(4)) THEN
                 ! Update PSD with new concentrations
                 current_PSD = new_PSD
                 !Check whether timestep can be increased:
-                IF (maxval(ABS(d_npar)) < DPNUM_RANGE(1) .and. use_speed) THEN
+                IF (maxval(ABS(d_npar)) < product(DPNUM_RANGE)**(0.5d0) .and. use_speed) THEN
                     if (speed_up(PRC%dep) * 2 * Gtime%dt < speed_dt_limit(PRC%dep+1)) THEN
                         PRC%increase(PRC%dep) = .true.
                     END IF
@@ -738,14 +748,14 @@ END IF in_turn_any
         PRC%increase = .false.
 
         CALL error_handling!(PRCION, speed_up)
-
+        ! print*, 'hyppy tuntemattomaan', add_rounds
         ! Reset the system to the state at previous timestep
         current_PSD = old_PSD
         CH_GAS = CH_GAS_old
         CH_RO2 = CH_RO2_old
-        J_ACDC_NH3_M3 = J_ACDC_NH3_M3_old
-        J_ACDC_DMA_M3 = J_ACDC_DMA_M3_old
         acdc_goback = .true.
+        dmps_ln = dmps_ln_old
+
         ! Reset relative change vectors documenting the precision:
         d_dpar = 0.d0
         d_npar = 0.d0
@@ -777,11 +787,11 @@ END IF in_turn_any
         ! Add main timestep to GTIME
         if (GTIME%sec + GTIME%dt <= GTIME%SIM_TIME_S) THEN
 
-            ! Check if we can speed up any process
-            if (PRC%increase(1).or.PRC%increase(2).or.PRC%increase(3)) CALL increase_speed()
+            add_rounds = minval(pack(speed_up, speed_up > 0))! - modulo(n_of_Rounds,add_rounds)
 
-            GTIME = ADD(GTIME)
-            n_of_Rounds = n_of_Rounds + 1
+            GTIME = ADD(GTIME, GTIME%dt*add_rounds)
+
+            n_of_Rounds = n_of_Rounds + add_rounds
 
         ELSE ! Exit the main loop when time is up
             EXIT
@@ -791,16 +801,6 @@ END IF in_turn_any
     END IF CHECK_PRECISION
     ! SPEED handling
 
-    if (Handbrake_on) THEN
-        n_of_Rounds = n_of_Rounds +1
-        IF (n_of_Rounds > 1) THEN
-            Handbrake_on = .false.
-            Use_speed = .true.
-            n_of_Rounds = 0
-            print FMT_MSG, 'Engaging speed.'
-        END IF
-
-    END IF
 
 END DO MAINLOOP
 !=======================================================================================================================
@@ -819,7 +819,6 @@ END DO MAINLOOP
 !@@@@@@@@@@@          @@@@@@@@@@@@@                     @@@@@@@@@@.                    @@@@@@@@@@@/         *@@@@@@@@@@@
 !@@@@@@@@@@@@        @@@@@@@@@@@@@@                ,@@@@@@@@@@@@@@@@@@,            @@@@@@@@@@@@@@@@.       ,@@@@@@@@@@@@
 !=======================================================================================================================
-
 
 CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
@@ -872,7 +871,7 @@ SUBROUTINE error_handling
     PRC%err = .false.
     PRC%proc = 0
     PRC%err_text = ''
-
+    ! add_rounds = minval(pack(speed_up, speed_up > 0))
     write(608,*) ''
 
 
@@ -881,18 +880,18 @@ END SUBROUTINE error_handling
 
 ! Routine to increase speed so that unused speed factors stay as
 ! the highest number and are not hindering main timestep changes
-Subroutine INCREASE_SPEED
+Subroutine INCREASE_SPEED(ii)
     IMPLICIT NONE
     INTEGER :: ii
 
-    do ii=1,SIZE(PRC%pr_name)
+    ! do ii=1,SIZE(PRC%pr_name)
         if (PRC%increase(ii) .and. GTIME%sec-errortime(ii)>60d0) THEN
             speed_up(ii) = speed_up(ii) * 2
             CALL OUTPUTBOTH(608,'*','  '//GTIME%hms//' --> Speeding '//TRIM(PRC%pr_name(ii))//' to '//TRIM(di2chr(speed_up(ii))) )
             print*, ''
         END IF
-    end do
-    PRC%increase = .false.
+    ! end do
+    PRC%increase(ii) = .false.
 
     if ((.not. Deposition).and.(LOSSES_FILE == '')) speed_up(PRC%dep) = -999_dint
     if (.not. Coagulation) speed_up(PRC%coa) = -999_dint
@@ -1073,7 +1072,7 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
     if ((GTIME%sec)>0 .and. (cpu2 - cpu1 > 0d0)) print '("| ",a,i0,a,i0.2,a,i0,a,i0.2,t65,a,f7.2,t100,"|")', 'Elapsed time (m:s) ',int(cpu2 - cpu1)/60,':',modulo(int(cpu2 - cpu1),60) ,' Est. time to finish (m:s) ',&
                             int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec))/60,':', MODULO(int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec)),60),&
                             'Realtime/Modeltime: ', (GTIME%sec-start_time_s)/(cpu2 - cpu1)
-    print '("| ",a,3(", ",f5.2)," (",3(" ",i0),")"t100,"|")', 'Time steps (s) and multipliers: '//TRIM(f2chr(GTIME%dt))//' (main)', GTIME%dt*speed_up, speed_up
+    print '("| ",a,3(", ",f6.2)," (",3(" ",i0),")"t100,"|")', 'Time steps (s) and multipliers: '//TRIM(f2chr(GTIME%dt))//' (main)', GTIME%dt*speed_up, speed_up
     print FMT_LOOPEND,
 
 END SUBROUTINE PRINT_KEY_INFORMATION

@@ -204,8 +204,6 @@ type(vapour_ambient)            :: VAPOUR_PROP                ! Stores all vapou
 REAL(dp) :: GC_AIR_NOW, GTEMPK, GPRES, GRH, GCS               ! Global Air concentration, Temperature, Pressure, Relative humidity and H2SO4 condensation sink
 REAL(dp)                        :: J_ACDC_NH3_M3 = 0d0        ! Formation rate of NH3 calculated in ACDC [1/s/m³]
 REAL(dp)                        :: J_ACDC_DMA_M3 = 0d0        ! Formation rate of DMA calculated in ACDC [1/s/m³]
-REAL(dp)                        :: J_ACDC_NH3_M3_old = 0d0        ! Formation rate of NH3 calculated in ACDC [1/s/m³]
-REAL(dp)                        :: J_ACDC_DMA_M3_old = 0d0        ! Formation rate of DMA calculated in ACDC [1/s/m³]
 REAL(dp)                        :: J_TOTAL_M3    = 0d0        ! Formation rates from all methods summed [1/s/m³]
 REAL(dp)                        :: clusteracid, clusterbase   ! stores informatin of cluster population
 REAL(dp)                        :: dclusteracid, dclusterbase ! stores information of cluster population
