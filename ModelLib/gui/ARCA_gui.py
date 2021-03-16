@@ -550,6 +550,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionOpen_output_directory.triggered.connect(lambda: self.openOutputDir(None, self.currentAddressTb.text()))
         self.actionStopCurrentRunClean.triggered.connect(self.softStop)
         self.actionPrint_Custom_commands_cheat_sheet.triggered.connect(lambda: print(CustomCommandsCheatSheet))
+        self.actionPlt_changes_from_current_dir.triggered.connect(self.plotChanges)
 
     # -----------------------
     # tab General options
@@ -637,7 +638,9 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.min_particle_diam.textChanged.connect(self.seeInAction)
         self.max_particle_diam.textChanged.connect(self.seeInAction)
         self.n_bins_particle.valueChanged.connect(self.seeInAction)
+
         self.batchHelp.clicked.connect(lambda: self.helplink(helpd['batch']))
+        self.PrecHelp.clicked.connect(lambda: self.helplink(helpd['precision']))
 
     # -----------------------
     # tab Input variables
@@ -1976,6 +1979,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
         else:
             window.setLogMode(False, False)
 
+    def plotChanges(self):
+        self.boxProcess = Popen([ currentPythonVer, 'ModelLib/Scripts/optich.py', self.currentAddressTb.text()])
 
     def startBox(self):
         self.closenetcdf()

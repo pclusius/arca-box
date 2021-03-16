@@ -212,6 +212,7 @@ Logical                 :: ENABLE_END_FROM_OUTSIDE = .True.
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
 real(dp)                :: speed_dt_limit(4) =  [1d-2,300d0,300d0,300d0]
+real(dp)                :: Limit_for_Evaporation = 0 ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .true.
 
@@ -219,7 +220,8 @@ NAMELIST /NML_CUSTOM/ use_raoult, variable_density,dmps_tres_min, &
                       start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
-                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, speed_dt_limit, ENABLE_END_FROM_OUTSIDE
+                      TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, speed_dt_limit, ENABLE_END_FROM_OUTSIDE, &
+                      Limit_for_Evaporation
 
 ! ==================================================================================================================
 ! Define change range in percentage

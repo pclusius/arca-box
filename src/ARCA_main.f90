@@ -252,7 +252,7 @@ write(*,*) ''
 
 open(unit=608, file=RUN_OUTPUT_DIR//'/optimization.txt',status='replace',action='write')
 open(unit=610, file=RUN_OUTPUT_DIR//'/optimChanges.txt',status='replace',action='write')
-write(610,*) '# time_sec           max_d_vap           max_d_npar           max_d_dpar'
+write(610,*) ' # time_sec                  max_d_vap                 max_d_npar                max_d_dpar'
 
 if (Use_speed) THEN
 
@@ -260,11 +260,14 @@ if (Use_speed) THEN
     print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for particle diameter',      DDIAM_RANGE
     print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for particle concentration', DPNUM_RANGE
     print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for vapour concentration',   DVAPO_RANGE
-
+    if (Limit_for_Evaporation>0d0) THEN
+        print'("| ",a,": ",t47,f7.2, " % ",t100,"|")', 'Special limit for vapour evaporation', Limit_for_Evaporation
+    end if
     ! Input was in percetages, here we change them to fractional
     DDIAM_RANGE = DDIAM_RANGE * 1d-2
     DPNUM_RANGE = DPNUM_RANGE * 1d-2
     DVAPO_RANGE = DVAPO_RANGE * 1d-2
+    Limit_for_Evaporation = Limit_for_Evaporation * (-1d0)*1d-2
     ! This is used to control the start (or halt) of optimization
     ! Handbrake_on = .true.
     Use_speed = .true.
@@ -607,15 +610,15 @@ in_turn_any: if (PRC%in_turn(4)) THEN
             CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRC%cch),d_dpar,d_vap)
 
             ! ERROR HANDLING
-            IF (     (maxval(ABS(d_dpar)) > DDIAM_RANGE(2) .or. maxval(abs(d_vap)) > DVAPO_RANGE(2))  &
+            IF (     (maxval(ABS(d_dpar)) > DDIAM_RANGE(2) .or. CHK_DVAP(d_vap) )  &
             .and. use_speed .and. speed_up(PRC%cch)>1) THEN   ! if the changes in diameter are too big
                 IF (.not.PRC%err) THEN
                     IF (maxval(ABS(d_dpar)) > DDIAM_RANGE(2)) THEN
                         call SET_ERROR(PRC%cch, 'Too large diameter change: '//f2chr(maxval(abs(d_dpar))))
 
-                    ELSE IF (MAXVAL(abs(d_vap)) > DVAPO_RANGE(2)) THEN
-                        call SET_ERROR(PRC%cch,'Too large vapour concentration change: '//f2chr(MAXVAL(abs(d_vap)))//ACHAR(10)&
-                        //'Up. lim. of vap: '//f2chr(DVAPO_RANGE(2))//' Troublevapour '//VAPOUR_PROP%vapour_names(i)//f2chr(conc_vapour(i)) )
+                    ELSE IF (CHK_DVAP(d_vap) ) THEN
+                        call SET_ERROR(PRC%cch,'Too large vapour concentration change: '//f2chr(SIGNED_ABSMAX_DVAP(d_vap))//ACHAR(10)&
+                        //'Up. lim. of vap: '//f2chr(DVAPO_RANGE(2))//' Troublevapour '//VAPOUR_PROP%vapour_names(SIGNED_IMAX__DVAP(d_vap))//f2chr(conc_vapour(SIGNED_IMAX__DVAP(d_vap))) )
 
                     ELSE
                         call SET_ERROR(PRC%cch,'Too large diameter and vapour concentration change: '//f2chr(maxval(abs(d_dpar)))//', '//f2chr(MAXVAL(abs(d_vap))))
@@ -624,7 +627,7 @@ in_turn_any: if (PRC%in_turn(4)) THEN
                 dmass = 0.d0
 
             ELSE IF (.not.PRC%err) THEN ! everything fine -> apply changes
-                ! PRC%err = .false.
+
                 ! Calculate growth rates
                 IF (GTIME%printnow .and. CALC_GR) THEN
                     CALL PRINT_GROWTH_RATE
@@ -780,7 +783,7 @@ END IF in_turn_any
             if (Aerosol_flag) THEN
                 WRITE(601,*) GTIME%sec, sum(get_conc()*1d-6), get_conc()*1d-6 / LOG10(bin_ratio)
                 WRITE(604,*) GTIME%sec, get_conc()*1d-6
-                WRITE(610,*) GTIME%sec, maxval(abs(d_vap)), maxval(abs(d_npar)), maxval(abs(d_dpar))
+                WRITE(610,*) GTIME%sec, SIGNED_MAX__DVAP(dvap), d_npar(maxloc(abs(d_npar),1)), d_dpar(maxloc(abs(d_dpar),1))
                 FLUSH(610)
                 save_measured = conc_fit/dmps_multi
             END IF
@@ -1066,7 +1069,7 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
     REAL(dp), intent(in) :: C(:)
 
     if (Aerosol_flag) print FMT_MSG, 'Max change in vapours '&
-            //TRIM(f2chr(1d2*d_vap(maxloc(d_vap,1))))//'% for '//VAPOUR_PROP%vapour_names(maxloc((d_vap)))
+            //TRIM(f2chr(1d2* SIGNED_ABSMAX_DVAP(d_vap)  ))//'% for '//VAPOUR_PROP%vapour_names(SIGNED_IMAX__DVAP(d_vap))
     if (Aerosol_flag) print FMT_MSG, 'Max change in par conc. '&
             //TRIM(f2chr(1d2*d_npar(maxloc(d_npar,1))))//'% in bin # '//i2chr((maxloc(d_npar,1)))
     if (Aerosol_flag) print FMT_MSG, 'Max change in par diam. '&
@@ -1339,5 +1342,44 @@ SUBROUTINE CHECK_IF_END_CMD_GIVEN
     END IF
 
 END SUBROUTINE CHECK_IF_END_CMD_GIVEN
+
+PURE REAL(dp) FUNCTION SIGNED_ABSMAX_DVAP(d_vap)
+    real(dp), INTENT(IN) :: d_vap(:)
+    if (Limit_for_Evaporation<0d0) THEN
+        if (maxval(d_vap)>DVAPO_RANGE(2)) THEN
+            SIGNED_ABSMAX_DVAP = maxval(d_vap)
+        ELSE IF (minval(d_vap)<Limit_for_Evaporation) THEN
+            SIGNED_ABSMAX_DVAP = minval(d_vap)
+        else
+            SIGNED_ABSMAX_DVAP = d_vap(SIGNED_IMAX__DVAP(d_vap))
+        END IF
+    else
+        SIGNED_ABSMAX_DVAP = maxval(abs(d_vap))
+    end if
+end FUNCTION SIGNED_ABSMAX_DVAP
+
+PURE INTEGER FUNCTION SIGNED_IMAX__DVAP(d_vap)
+    real(dp), INTENT(IN) :: d_vap(:)
+    if (Limit_for_Evaporation<0d0) THEN
+        if (maxval(d_vap)>DVAPO_RANGE(2)) THEN
+            SIGNED_IMAX__DVAP = maxloc(d_vap,1)
+        ELSE IF (minval(d_vap)<Limit_for_Evaporation) THEN
+            SIGNED_IMAX__DVAP = minloc(d_vap,1)
+        else
+            SIGNED_IMAX__DVAP = maxloc(abs(d_vap),1)
+        END IF
+    else
+        SIGNED_IMAX__DVAP = maxloc(abs(d_vap),1)
+    end if
+end FUNCTION SIGNED_IMAX__DVAP
+
+PURE LOGICAL FUNCTION CHK_DVAP(d_vap)
+    real(dp), INTENT(IN) :: d_vap(:)
+    if (Limit_for_Evaporation<0d0) THEN
+        CHK_DVAP = maxval(d_vap)>DVAPO_RANGE(2).or.minval(d_vap)<Limit_for_Evaporation
+    else
+        CHK_DVAP = maxval(abs(d_vap))>DVAPO_RANGE(2)
+    end if
+end FUNCTION CHK_DVAP
 
 END PROGRAM ARCA_main

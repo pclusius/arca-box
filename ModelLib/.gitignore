@@ -1,4 +1,5 @@
 Scripts/*
+!Scripts/optich.py
 chemistry_schemes/*
 losses.sum
 MCM_densities.csv

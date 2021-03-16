@@ -6,3 +6,4 @@ umanweb,http://umansysprop.seaes.manchester.ac.uk/tool/vapour_pressure
 CreateVapourFile,https://wiki.helsinki.fi/display/arca/Define+which+gases+contribute+to+SOA+formation
 ccmanual,https://wiki.helsinki.fi/display/arca/Create+chemistry+scheme
 batch,https://wiki.helsinki.fi/display/arca/Create+batch+of+simulations
+precision,https://wiki.helsinki.fi/display/arca/Tab%3A%3AGeneral+options#Tab%3A%3AGeneraloptions-Precisionbasedtimestep

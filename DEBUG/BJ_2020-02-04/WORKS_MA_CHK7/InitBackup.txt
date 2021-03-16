@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      ARCA box setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: maalis 16 2021, 08:27:14
+#         Created at: maalis 16 2021, 09:50:07
 #--------------------------------------------------
 
 &NML_PATH
@@ -120,6 +120,7 @@
 /
 
 &NML_CUSTOM
+ Limit_for_Evaporation = 100
 /
 
 # Options available in CUSTOM_NML (and defaults)
