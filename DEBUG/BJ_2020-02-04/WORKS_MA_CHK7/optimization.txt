@@ -1,0 +1,47 @@
+   00:00:00 --> Speeding Cond & Chem to 2
+   00:00:00 --> Speeding Coagulation to 2
+   00:00:00 --> Speeding Cond & Chem to 4
+   00:00:00 --> Speeding Coagulation to 4
+   00:00:00 --> Speeding Cond & Chem to 8
+   00:00:00 --> Speeding Coagulation to 8
+   00:00:00 --> Speeding Cond & Chem to 16
+   00:00:00 --> Speeding Coagulation to 16
+   00:00:00 --> Speeding Cond & Chem to 32
+   00:00:00 --> Speeding Coagulation to 32
+   00:00:01 --> Speeding Cond & Chem to 64
+   00:00:01 --> Speeding Coagulation to 64
+   00:00:01 --> Speeding Coagulation to 128
+   00:00:03 --> Speeding Coagulation to 256
+   00:00:05 --> Speeding Coagulation to 512
+   00:00:10 --> Speeding Coagulation to 1024
+   01:01:08 --> Speeding Cond & Chem to 128
+| NOTE: Precision tolerance exceeded at time 01:24:49 (5.089E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.024E+01                    |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+| Timesteps adjusted.                                                                              |
+ 
+   01:30:07 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 01:31:39 (5.499E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.024E+01                    |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+| Timesteps adjusted.                                                                              |
+ 
+   01:40:11 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 01:40:31 (6.031E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.024E+01                    |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+| Timesteps adjusted.                                                                              |
+ 
+   01:50:15 --> Speeding Coagulation to 1024
+| NOTE: Precision tolerance exceeded at time 01:50:15 (6.615E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.024E+01                    |
+|   :........  => reduce speed_up:1024 ->512                                                       |
+| Timesteps adjusted.                                                                              |
