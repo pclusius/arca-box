@@ -607,18 +607,18 @@ in_turn_any: if (PRC%in_turn(4)) THEN
             CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRC%cch),d_dpar,d_vap)
 
             ! ERROR HANDLING
-            IF (     (maxval(ABS(d_dpar)) > DDIAM_RANGE(2) .or. maxval((d_vap)) > DVAPO_RANGE(2))  &
+            IF (     (maxval(ABS(d_dpar)) > DDIAM_RANGE(2) .or. maxval(abs(d_vap)) > DVAPO_RANGE(2))  &
             .and. use_speed .and. speed_up(PRC%cch)>1) THEN   ! if the changes in diameter are too big
                 IF (.not.PRC%err) THEN
                     IF (maxval(ABS(d_dpar)) > DDIAM_RANGE(2)) THEN
                         call SET_ERROR(PRC%cch, 'Too large diameter change: '//f2chr(maxval(abs(d_dpar))))
 
-                    ELSE IF (MAXVAL(d_vap) > DVAPO_RANGE(2)) THEN
-                        call SET_ERROR(PRC%cch,'Too large vapour concentration change: '//f2chr(MAXVAL(d_vap))//ACHAR(10)&
+                    ELSE IF (MAXVAL(abs(d_vap)) > DVAPO_RANGE(2)) THEN
+                        call SET_ERROR(PRC%cch,'Too large vapour concentration change: '//f2chr(MAXVAL(abs(d_vap)))//ACHAR(10)&
                         //'Up. lim. of vap: '//f2chr(DVAPO_RANGE(2))//' Troublevapour '//VAPOUR_PROP%vapour_names(i)//f2chr(conc_vapour(i)) )
 
                     ELSE
-                        call SET_ERROR(PRC%cch,'Too large diameter and vapour concentration change: '//f2chr(maxval(abs(d_dpar)))//', '//f2chr(MAXVAL(d_vap)))
+                        call SET_ERROR(PRC%cch,'Too large diameter and vapour concentration change: '//f2chr(maxval(abs(d_dpar)))//', '//f2chr(MAXVAL(abs(d_vap))))
                     END IF
                 END IF
                 dmass = 0.d0
@@ -641,7 +641,7 @@ in_turn_any: if (PRC%in_turn(4)) THEN
                 CH_GAS(ind_H2SO4) = conc_vapour(n_cond_tot)*1d-6
 
                 ! Check whether timestep can be increased:
-                IF (maxval(ABS(d_dpar)) < product(DDIAM_RANGE)**(0.5d0) .and. MAXVAL(d_vap) < product(DVAPO_RANGE)**(0.5d0) .and. use_speed) THEN
+                IF (maxval(ABS(d_dpar)) < product(DDIAM_RANGE)**(0.5d0) .and. MAXVAL(abs(d_vap)) < product(DVAPO_RANGE)**(0.5d0) .and. use_speed) THEN
                     if (speed_up(PRC%cch) * 2 * Gtime%dt < speed_dt_limit(PRC%cch+1)) THEN
                         PRC%increase(PRC%cch) = .true.
                     END IF
@@ -781,6 +781,7 @@ END IF in_turn_any
                 WRITE(601,*) GTIME%sec, sum(get_conc()*1d-6), get_conc()*1d-6 / LOG10(bin_ratio)
                 WRITE(604,*) GTIME%sec, get_conc()*1d-6
                 WRITE(610,*) GTIME%sec, maxval(abs(d_vap)), maxval(abs(d_npar)), maxval(abs(d_dpar))
+                FLUSH(610)
                 save_measured = conc_fit/dmps_multi
             END IF
 

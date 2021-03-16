@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      ARCA box setting file: ModelLib/gui/tmp/GUI_INIT.tmp
-#         Created at: maalis 16 2021, 08:07:01
+#         Created at: maalis 16 2021, 08:27:14
 #--------------------------------------------------
 
 &NML_PATH
