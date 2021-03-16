@@ -252,7 +252,8 @@ write(*,*) ''
 
 open(unit=608, file=RUN_OUTPUT_DIR//'/optimization.txt',status='replace',action='write')
 open(unit=610, file=RUN_OUTPUT_DIR//'/optimChanges.txt',status='replace',action='write')
-write(610,*) ' # time_sec                  max_d_vap                 max_d_npar                max_d_dpar'
+write(610,'("# dpnum, dvap, vap_special: ", 3(es10.3," ",es10.3)," ",es10.3)') DDIAM_RANGE,DPNUM_RANGE,DVAPO_RANGE,Limit_for_Evaporation
+write(610,'(a)') '#  time_sec                  max_d_vap                 max_d_npar                max_d_dpar'
 
 if (Use_speed) THEN
 
@@ -783,7 +784,7 @@ END IF in_turn_any
             if (Aerosol_flag) THEN
                 WRITE(601,*) GTIME%sec, sum(get_conc()*1d-6), get_conc()*1d-6 / LOG10(bin_ratio)
                 WRITE(604,*) GTIME%sec, get_conc()*1d-6
-                WRITE(610,*) GTIME%sec, SIGNED_MAX__DVAP(dvap), d_npar(maxloc(abs(d_npar),1)), d_dpar(maxloc(abs(d_dpar),1))
+                WRITE(610,*) GTIME%sec, SIGNED_ABSMAX_DVAP(d_vap), d_npar(maxloc(abs(d_npar),1)), d_dpar(maxloc(abs(d_dpar),1))
                 FLUSH(610)
                 save_measured = conc_fit/dmps_multi
             END IF

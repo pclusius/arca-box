@@ -1980,7 +1980,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
             window.setLogMode(False, False)
 
     def plotChanges(self):
-        self.boxProcess = Popen([ currentPythonVer, 'ModelLib/Scripts/optich.py', self.currentAddressTb.text()])
+        # print(self.monStatus)
+        # if sel.boxProcess
+        # self.boxProcess = Popen([ currentPythonVer, 'ModelLib/Scripts/optich.py', self.currentAddressTb.text()])
+        import modules.optich as optich
+        optich.plot(self.currentAddressTb.text())
+
 
     def startBox(self):
         self.closenetcdf()

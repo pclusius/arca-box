@@ -1,0 +1,569 @@
+   00:00:00 --> Speeding Cond & Chem to 2
+   00:00:00 --> Speeding Coagulation to 2
+   00:00:00 --> Speeding Cond & Chem to 4
+   00:00:00 --> Speeding Coagulation to 4
+   00:00:00 --> Speeding Cond & Chem to 8
+   00:00:00 --> Speeding Coagulation to 8
+   00:00:00 --> Speeding Cond & Chem to 16
+   00:00:00 --> Speeding Coagulation to 16
+   00:00:00 --> Speeding Cond & Chem to 32
+   00:00:00 --> Speeding Coagulation to 32
+   00:00:01 --> Speeding Cond & Chem to 64
+   00:00:01 --> Speeding Coagulation to 64
+   00:00:01 --> Speeding Cond & Chem to 128
+   00:00:01 --> Speeding Coagulation to 128
+   00:00:03 --> Speeding Coagulation to 256
+   00:00:05 --> Speeding Coagulation to 512
+   00:00:10 --> Speeding Coagulation to 1024
+   01:00:25 --> Speeding Coagulation to 2048
+| NOTE: Precision tolerance exceeded at time 01:17:29 (4.649E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.048E+01                    |
+|   :........  => reduce speed_up:2048 ->1024                                                      |
+| Timesteps adjusted.                                                                              |
+ 
+   01:18:51 --> Speeding Coagulation to 2048
+| NOTE: Precision tolerance exceeded at time 01:18:51 (4.731E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.048E+01                    |
+|   :........  => reduce speed_up:2048 ->1024                                                      |
+| Timesteps adjusted.                                                                              |
+ 
+   01:19:52 --> Speeding Coagulation to 2048
+| NOTE: Precision tolerance exceeded at time 01:19:52 (4.792E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.048E+01                    |
+|   :........  => reduce speed_up:2048 ->1024                                                      |
+| Timesteps adjusted.                                                                              |
+ 
+   01:20:54 --> Speeding Coagulation to 2048
+| NOTE: Precision tolerance exceeded at time 01:24:19 (5.059E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.048E+01                    |
+|   :........  => reduce speed_up:2048 ->1024                                                      |
+| Timesteps adjusted.                                                                              |
+ 
+   01:30:27 --> Speeding Coagulation to 2048
+| NOTE: Precision tolerance exceeded at time 01:32:10 (5.530E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.048E+01                    |
+|   :........  => reduce speed_up:2048 ->1024                                                      |
+| Timesteps adjusted.                                                                              |
+ 
+   01:40:21 --> Speeding Coagulation to 2048
+| NOTE: Precision tolerance exceeded at time 01:41:02 (6.062E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.048E+01                    |
+|   :........  => reduce speed_up:2048 ->1024                                                      |
+| Timesteps adjusted.                                                                              |
+ 
+   01:50:15 --> Speeding Coagulation to 2048
+| NOTE: Precision tolerance exceeded at time 01:50:36 (6.636E+03 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Coagulation                                              |
+|   :........Message from process: Too large particle number change                                |
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.048E+01                    |
+|   :........  => reduce speed_up:2048 ->1024                                                      |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:27:30 (2.325E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.245E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.398E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.280E+00                    |
+|   :........  => reduce speed_up:128 ->64                                                         |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:27:30 (2.325E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.515E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.550E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 6.400E-01                    |
+|   :........  => reduce speed_up:64 ->32                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:27:30 (2.325E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.644E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.627E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 3.200E-01                    |
+|   :........  => reduce speed_up:32 ->16                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:27:30 (2.325E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.707E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.665E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.600E-01                    |
+|   :........  => reduce speed_up:16 ->8                                                           |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:27:30 (2.325E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.739E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.684E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 8.000E-02                    |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:27:30 (2.325E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.754E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.694E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 4.000E-02                    |
+|   :........  => reduce speed_up:4 ->2                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:27:30 (2.325E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.762E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.699E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.000E-02                    |
+|   :........  => reduce speed_up:2 ->1                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+   06:28:30 --> Speeding Cond & Chem to 2
+   06:28:30 --> Speeding Cond & Chem to 4
+   06:28:30 --> Speeding Cond & Chem to 8
+   06:28:30 --> Speeding Cond & Chem to 16
+   06:28:30 --> Speeding Cond & Chem to 32
+   06:28:31 --> Speeding Cond & Chem to 64
+   06:28:31 --> Speeding Cond & Chem to 128
+| NOTE: Precision tolerance exceeded at time 06:29:23 (2.336E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.034E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 6.614E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.280E+00                    |
+|   :........  => reduce speed_up:128 ->64                                                         |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:29:23 (2.336E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.225E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 6.772E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 6.400E-01                    |
+|   :........  => reduce speed_up:64 ->32                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:29:23 (2.336E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.317E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 6.851E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 3.200E-01                    |
+|   :........  => reduce speed_up:32 ->16                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:29:23 (2.336E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.363E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 6.890E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.600E-01                    |
+|   :........  => reduce speed_up:16 ->8                                                           |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:29:23 (2.336E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.385E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 6.910E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 8.000E-02                    |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:29:23 (2.336E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.396E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 6.920E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 4.000E-02                    |
+|   :........  => reduce speed_up:4 ->2                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:29:23 (2.336E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.402E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 6.925E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.000E-02                    |
+|   :........  => reduce speed_up:2 ->1                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+   06:30:23 --> Speeding Cond & Chem to 2
+   06:30:23 --> Speeding Cond & Chem to 4
+   06:30:23 --> Speeding Cond & Chem to 8
+   06:30:23 --> Speeding Cond & Chem to 16
+   06:30:23 --> Speeding Cond & Chem to 32
+   06:30:23 --> Speeding Cond & Chem to 64
+   06:30:24 --> Speeding Cond & Chem to 128
+| NOTE: Precision tolerance exceeded at time 06:31:00 (2.346E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.458E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.172E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.280E+00                    |
+|   :........  => reduce speed_up:128 ->64                                                         |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:31:00 (2.346E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.649E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.276E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 6.400E-01                    |
+|   :........  => reduce speed_up:64 ->32                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:31:00 (2.346E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.742E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.329E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 3.200E-01                    |
+|   :........  => reduce speed_up:32 ->16                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:31:00 (2.346E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.788E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.356E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.600E-01                    |
+|   :........  => reduce speed_up:16 ->8                                                           |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:31:00 (2.346E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.811E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.369E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 8.000E-02                    |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:31:00 (2.346E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.822E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.375E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 4.000E-02                    |
+|   :........  => reduce speed_up:4 ->2                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:31:00 (2.346E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.828E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.379E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.000E-02                    |
+|   :........  => reduce speed_up:2 ->1                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+   06:32:00 --> Speeding Cond & Chem to 2
+   06:32:00 --> Speeding Cond & Chem to 4
+   06:32:00 --> Speeding Cond & Chem to 8
+   06:32:00 --> Speeding Cond & Chem to 16
+   06:32:00 --> Speeding Cond & Chem to 32
+   06:32:01 --> Speeding Cond & Chem to 64
+   06:32:03 --> Speeding Cond & Chem to 128
+| NOTE: Precision tolerance exceeded at time 06:32:05 (2.353E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.470E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.070E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.280E+00                    |
+|   :........  => reduce speed_up:128 ->64                                                         |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:32:05 (2.353E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.644E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.162E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 6.400E-01                    |
+|   :........  => reduce speed_up:64 ->32                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:32:05 (2.353E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.728E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.209E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 3.200E-01                    |
+|   :........  => reduce speed_up:32 ->16                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:32:05 (2.353E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.770E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.232E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.600E-01                    |
+|   :........  => reduce speed_up:16 ->8                                                           |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:32:05 (2.353E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.791E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.244E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 8.000E-02                    |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:32:05 (2.353E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.801E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.250E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 4.000E-02                    |
+|   :........  => reduce speed_up:4 ->2                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:32:05 (2.353E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.806E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.253E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.000E-02                    |
+|   :........  => reduce speed_up:2 ->1                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+   06:33:05 --> Speeding Cond & Chem to 2
+   06:33:05 --> Speeding Cond & Chem to 4
+   06:33:05 --> Speeding Cond & Chem to 8
+   06:33:05 --> Speeding Cond & Chem to 16
+   06:33:06 --> Speeding Cond & Chem to 32
+   06:33:06 --> Speeding Cond & Chem to 64
+   06:33:08 --> Speeding Cond & Chem to 128
+| NOTE: Precision tolerance exceeded at time 06:33:55 (2.364E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.368E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.843E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.280E+00                    |
+|   :........  => reduce speed_up:128 ->64                                                         |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:33:55 (2.364E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.521E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.919E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 6.400E-01                    |
+|   :........  => reduce speed_up:64 ->32                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:33:55 (2.364E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.596E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.957E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 3.200E-01                    |
+|   :........  => reduce speed_up:32 ->16                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:33:55 (2.364E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.633E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.976E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.600E-01                    |
+|   :........  => reduce speed_up:16 ->8                                                           |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:33:55 (2.364E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.651E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.986E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 8.000E-02                    |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:33:55 (2.364E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.660E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.991E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 4.000E-02                    |
+|   :........  => reduce speed_up:4 ->2                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:33:55 (2.364E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.665E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.993E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.000E-02                    |
+|   :........  => reduce speed_up:2 ->1                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+   06:34:55 --> Speeding Cond & Chem to 2
+   06:34:55 --> Speeding Cond & Chem to 4
+   06:34:55 --> Speeding Cond & Chem to 8
+   06:34:55 --> Speeding Cond & Chem to 16
+   06:34:56 --> Speeding Cond & Chem to 32
+   06:34:57 --> Speeding Cond & Chem to 64
+   06:34:58 --> Speeding Cond & Chem to 128
+| NOTE: Precision tolerance exceeded at time 06:35:11 (2.371E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.339E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.717E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.280E+00                    |
+|   :........  => reduce speed_up:128 ->64                                                         |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:35:11 (2.371E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.481E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.784E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 6.400E-01                    |
+|   :........  => reduce speed_up:64 ->32                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:35:11 (2.371E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.550E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.819E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 3.200E-01                    |
+|   :........  => reduce speed_up:32 ->16                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:35:11 (2.371E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.584E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.836E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.600E-01                    |
+|   :........  => reduce speed_up:16 ->8                                                           |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:35:11 (2.371E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.602E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.844E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 8.000E-02                    |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:35:11 (2.371E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.610E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.848E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 4.000E-02                    |
+|   :........  => reduce speed_up:4 ->2                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:35:11 (2.371E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -2.614E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   3.851E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.000E-02                    |
+|   :........  => reduce speed_up:2 ->1                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+   06:36:11 --> Speeding Cond & Chem to 2
+   06:36:11 --> Speeding Cond & Chem to 4
+   06:36:11 --> Speeding Cond & Chem to 8
+   06:36:11 --> Speeding Cond & Chem to 16
+   06:36:11 --> Speeding Cond & Chem to 32
+   06:36:12 --> Speeding Cond & Chem to 64
+   06:36:16 --> Speeding Cond & Chem to 128
+| NOTE: Precision tolerance exceeded at time 06:36:43 (2.380E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.589E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.279E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.280E+00                    |
+|   :........  => reduce speed_up:128 ->64                                                         |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:36:43 (2.380E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.751E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.388E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 6.400E-01                    |
+|   :........  => reduce speed_up:64 ->32                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:36:43 (2.380E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.830E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.443E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 3.200E-01                    |
+|   :........  => reduce speed_up:32 ->16                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:36:43 (2.380E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.869E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.471E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.600E-01                    |
+|   :........  => reduce speed_up:16 ->8                                                           |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:36:43 (2.380E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.888E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.484E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 8.000E-02                    |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:36:43 (2.380E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.897E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.491E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 4.000E-02                    |
+|   :........  => reduce speed_up:4 ->2                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:36:43 (2.380E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.902E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour C813OH                   4.495E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.000E-02                    |
+|   :........  => reduce speed_up:2 ->1                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+   06:37:43 --> Speeding Cond & Chem to 2
+   06:37:43 --> Speeding Cond & Chem to 4
+   06:37:43 --> Speeding Cond & Chem to 8
+   06:37:43 --> Speeding Cond & Chem to 16
+   06:37:43 --> Speeding Cond & Chem to 32
+   06:37:44 --> Speeding Cond & Chem to 64
+   06:37:44 --> Speeding Cond & Chem to 128
+| NOTE: Precision tolerance exceeded at time 06:37:46 (2.387E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.018E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 6.904E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.280E+00                    |
+|   :........  => reduce speed_up:128 ->64                                                         |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:37:46 (2.387E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.224E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 7.111E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 6.400E-01                    |
+|   :........  => reduce speed_up:64 ->32                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:37:46 (2.387E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.323E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 7.214E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 3.200E-01                    |
+|   :........  => reduce speed_up:32 ->16                                                          |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:37:46 (2.387E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.371E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 7.266E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 1.600E-01                    |
+|   :........  => reduce speed_up:16 ->8                                                           |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:37:46 (2.387E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.395E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 7.291E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 8.000E-02                    |
+|   :........  => reduce speed_up:8 ->4                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:37:46 (2.387E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.407E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 7.304E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 4.000E-02                    |
+|   :........  => reduce speed_up:4 ->2                                                            |
+| Timesteps adjusted.                                                                              |
+ 
+| NOTE: Precision tolerance exceeded at time 06:37:46 (2.387E+04 sec)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+|   :........Process exceeding tolerance: Cond & Chem                                              |
+|   :........Message from process: Too large vapour concentration change: -3.413E-01  
+Up. lim. of |ap: 5.000E-02    Troublevapour KLIMONIC                 7.311E+06
+|   :........Current simulation and process timestep [s]1.000E-02   , 2.000E-02                    |
+|   :........  => reduce speed_up:2 ->1                                                            |
+| Timesteps adjusted.                                                                              |
