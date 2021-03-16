@@ -251,6 +251,8 @@ END IF
 write(*,*) ''
 
 open(unit=608, file=RUN_OUTPUT_DIR//'/optimization.txt',status='replace',action='write')
+open(unit=610, file=RUN_OUTPUT_DIR//'/optimChanges.txt',status='replace',action='write')
+write(610,*) '# time_sec               d_vap               d_npar               d_dpar'
 
 if (Use_speed) THEN
 
@@ -304,24 +306,24 @@ call cpu_time(cpu1) ! For efficiency calculation
 !=======================================================================================================================
 
 MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the time is checked at the end of the loop
-    ! print*, 'kierros nro alussa ',n_of_Rounds, 'viimeksi lisätty',add_rounds
+    ! Here we check which parts of the loop are entered, based on the timestep optimization
     if (Use_speed) THEN
         PRC%in_turn(PRC%cch) = MODULO(n_of_Rounds,speed_up(PRC%cch))==0_dint
         PRC%in_turn(PRC%coa) = MODULO(n_of_Rounds,speed_up(PRC%coa))==0_dint
         PRC%in_turn(PRC%dep) = MODULO(n_of_Rounds,speed_up(PRC%dep))==0_dint
         PRC%in_turn(4) = (PRC%in_turn(PRC%cch).or.(PRC%in_turn(PRC%coa).or.PRC%in_turn(PRC%dep)))
-        if (PRC%in_turn(PRC%coa).and..not.PRC%in_turn(PRC%cch).and.speed_up(PRC%cch)<=speed_up(PRC%coa)) print*, 'wtf1',speed_up(PRC%cch),speed_up(PRC%coa)
-        if (PRC%in_turn(PRC%cch).and..not.PRC%in_turn(PRC%coa).and.speed_up(PRC%coa)<=speed_up(PRC%cch)) print*, 'wtf2',speed_up(PRC%cch),speed_up(PRC%coa)
+
+        if (PRC%increase(1).and.PRC%in_turn(1)) THEN
+            if (MODULO(n_of_Rounds,speed_up(1)*2)==0_dint) CALL increase_speed(1)
+        end if
+        if (PRC%increase(2).and.PRC%in_turn(2)) THEN
+            if (MODULO(n_of_Rounds,speed_up(2)*2)==0_dint) CALL increase_speed(2)
+        end if
+        if (PRC%increase(3).and.PRC%in_turn(3)) THEN
+            if (MODULO(n_of_Rounds,speed_up(3)*2)==0_dint) CALL increase_speed(3)
+        end if
+
     END IF
-
-    if (PRC%increase(1).or.PRC%increase(2).or.PRC%increase(3)) THEN
-        if (PRC%increase(1).and.PRC%in_turn(1).and.MODULO(n_of_Rounds,speed_up(1)*2)==0_dint) CALL increase_speed(1)
-        if (PRC%increase(2).and.PRC%in_turn(2).and.MODULO(n_of_Rounds,speed_up(2)*2)==0_dint) CALL increase_speed(2)
-        if (PRC%increase(3).and.PRC%in_turn(3).and.MODULO(n_of_Rounds,speed_up(3)*2)==0_dint) CALL increase_speed(3)
-    end if
-
-
-    ! print*, n_of_Rounds, PRC%in_turn
 
     if (PRC%in_turn(4)) THEN
         ! =================================================================================================
@@ -334,6 +336,8 @@ MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the
         CH_RO2_old = CH_RO2
         dmps_ln_old = dmps_ln
         ! =================================================================================================
+    ELSE
+        print*, 'Entered an unnecessary loop, should not have happened.'
     END IF
 
 
@@ -776,6 +780,7 @@ END IF in_turn_any
             if (Aerosol_flag) THEN
                 WRITE(601,*) GTIME%sec, sum(get_conc()*1d-6), get_conc()*1d-6 / LOG10(bin_ratio)
                 WRITE(604,*) GTIME%sec, get_conc()*1d-6
+                WRITE(610,*) GTIME%sec, d_vap, d_npar, d_dpar
                 save_measured = conc_fit/dmps_multi
             END IF
 
@@ -825,6 +830,7 @@ CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 if (Aerosol_flag) THEN
     CLOSE(601)
     CLOSE(604)
+    CLOSE(610)
 END IF
 
 
@@ -1062,6 +1068,8 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
             //TRIM(f2chr(1d2*d_vap(maxloc(d_vap,1))))//'% for '//VAPOUR_PROP%vapour_names(maxloc((d_vap)))
     if (Aerosol_flag) print FMT_MSG, 'Max change in par conc. '&
             //TRIM(f2chr(1d2*d_npar(maxloc(d_npar,1))))//'% in bin # '//i2chr((maxloc(d_npar,1)))
+    if (Aerosol_flag) print FMT_MSG, 'Max change in par diam. '&
+            //TRIM(f2chr(1d2*d_dpar(maxloc(d_dpar,1))))//'% in bin # '//i2chr((maxloc(d_dpar,1)))
 
     print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]','sum(An)/A1',clusteracid,' []'
     print FMT10_3CVU,'Temp:', C(inm_TempK), ' [K]','Pressure: ', C(inm_pres), ' [Pa]', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
@@ -1236,6 +1244,8 @@ SUBROUTINE FINISH
     write(*,*)
     write(608,*) '---------- SIMULATION REACHED END SUCCESFULLY ------------'
     close(608)
+
+    close(610)
 
 END SUBROUTINE FINISH
 
