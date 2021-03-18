@@ -930,6 +930,7 @@ Subroutine INCREASE_SPEED(ii)
 
     if ((.not. Deposition).and.(LOSSES_FILE == '')) speed_up(PRC%dep) = -9999_dint
     if (.not. Coagulation) speed_up(PRC%coa) = -9999_dint
+    if (.not. Condensation .and..not. Chemistry_flag) speed_up(PRC%cch) = -9999_dint
 
 END Subroutine INCREASE_SPEED
 

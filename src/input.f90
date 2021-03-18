@@ -375,9 +375,9 @@ IF (Aerosol_flag) then
     CALL PARSE_MULTIMODAL
     CALL PARSE_GR_SIZES
 
-    if (PSD_MODE == 0) write(*,FMT_MSG) 'Using fully stationary PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
-    if (PSD_MODE == 1) write(*,FMT_MSG) 'Using fixed grid/moving average PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
-    print*, ''
+    if (PSD_MODE == 1) write(*,FMT_MSG) 'Using fully stationary PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
+    if (PSD_MODE == 2) write(*,FMT_MSG) 'Using fixed grid/moving average PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
+    print FMT_LEND,
     write(*,FMT_MSG) 'Reading Vapour name file '// TRIM(Vap_names)
     OPEN(unit=802, File= TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
     call handle_file_io(ioi, Vap_names, &
@@ -428,7 +428,7 @@ IF (Aerosol_flag) then
 
 
     print FMT_SUB, 'Compounds picked from Vapours file: '//TRIM(i2chr(VAPOUR_PROP%n_condorg))
-    print FMT_SUB, 'Total number of condensibes       : '//TRIM(i2chr(VAPOUR_PROP%n_condtot))
+    print FMT_SUB, 'Total number of condensables      : '//TRIM(i2chr(VAPOUR_PROP%n_condtot))
 
     !!! reading the vap names and vap vapour_properties
     VAPOUR_PROP%ind_GENERIC = VAPOUR_PROP%n_condorg
