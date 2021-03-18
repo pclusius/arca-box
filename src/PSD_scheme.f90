@@ -15,7 +15,7 @@ MODULE PSD_scheme
   REAL(dp)              :: mix_ratio        ! gives the rate ratio: added volume over present volume per timestep
   REAL(dp)              :: bin_ratio        ! gives relative bin width dp(2)/dp(1)
   CHARACTER(len=15)     :: process          ! defines the process that passes information to subroutine Mass_Number_Change (coagulation, condensation, mixing)
-  type(PSD) :: current_PSD                  ! Main PSD container. This variable stores the current timestep concentrations
+  type(PSD)             :: current_PSD                  ! Main PSD container. This variable stores the current timestep concentrations
   type(PSD) :: new_PSD, mix_PSD, interm_PSD ! Variables that store PSD values during the calculations
   type(PSD) :: old_PSD                      ! This is used to save the current state and to restore it in case of an error related to timestep handling
 
@@ -419,7 +419,7 @@ SUBROUTINE PSD_Change_coagulation
               END IF
             END DO
         END DO
-        if (minval(new_PSD%composition_fs)<0d0) THEN
+        if (minval(new_PSD%composition_fs)<0d0.and.Use_speed) THEN
             CALL SET_ERROR(PRC%coa, 'Getting negative composition in Mass_Number_Change')
         END IF
 
@@ -436,8 +436,8 @@ SUBROUTINE PSD_Change_coagulation
             DO jj = ii, current_PSD%nr_bins
                 IF (dconc_coag(ii,jj) > 0d0) THEN
                     IF (.not. use_speed) THEN
-                        IF (dconc_coag(ii,jj) > new_PSD%conc_ma(ii)) dconc_coag(ii,jj) = new_PSD%conc_ma(ii) * 0.9   !PRINT*, 'coag,ii',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(ii),new_PSD%conc_ma(jj)
-                        IF (dconc_coag(ii,jj) > new_PSD%conc_ma(jj)) dconc_coag(ii,jj) = new_PSD%conc_ma(jj) * 0.9   !PRINT*, 'coag,jj',ii,jj,dconc_coag(ii,jj), new_PSD%conc_ma(jj),new_PSD%conc_ma(ii)
+                        IF (dconc_coag(ii,jj) > new_PSD%conc_ma(ii)) dconc_coag(ii,jj) = new_PSD%conc_ma(ii) * 0.9
+                        IF (dconc_coag(ii,jj) > new_PSD%conc_ma(jj)) dconc_coag(ii,jj) = new_PSD%conc_ma(jj) * 0.9
                     END IF
 
                     ! Reduce the new particle concentration by the number of particles that are lost by coagulation in i and j -> they will be added later to the new bin
@@ -732,7 +732,7 @@ SUBROUTINE bin_redistribute_ma(ind)
                                     / (new_PSD%conc_ma(aa) + mix_PSD%conc_ma(ind))
 
         ! CHECK FOR NEGATIVES
-        if (minval(new_PSD%composition_ma(aa,:))<0d0) THEN
+        if (minval(new_PSD%composition_ma(aa,:))<0d0.and.Use_speed) THEN
             call SET_ERROR (PRC%coa,'Getting negative composition in MA Mass_Number_Change')   !d_dpar(maxloc(abs(d_dpar))
             return
         ELSE
@@ -807,10 +807,10 @@ PURE FUNCTION get_composition(parts)
 
     IF (d_PSD%PSD_style == 1) THEN
       get_composition = d_PSD%composition_fs
-      where (get_composition<0) get_composition = 0d0
+      ! where (get_composition<0) get_composition = 0d0
   ELSE IF (d_PSD%PSD_style == 2) THEN
       get_composition = d_PSD%composition_ma
-      where (get_composition<0) get_composition = 0d0
+      ! where (get_composition<0) get_composition = 0d0
     END IF
 END FUNCTION get_composition
 

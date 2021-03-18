@@ -211,8 +211,9 @@ Logical                 :: CALC_GR = .True.
 Logical                 :: ENABLE_END_FROM_OUTSIDE = .True.
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
-real(dp)                :: speed_dt_limit(4) =  [1d-2,300d0,300d0,300d0]
-real(dp)                :: Limit_for_Evaporation = 0 ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
+real(dp)                :: speed_dt_limit(3) =  [300d0,300d0,300d0]
+real(dp)                :: Limit_for_Evaporation = 0_dp ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
+real(dp)                :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .true.
 
@@ -221,7 +222,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, variable_density,dmps_tres_min, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, speed_dt_limit, ENABLE_END_FROM_OUTSIDE, &
-                      Limit_for_Evaporation
+                      Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -374,6 +375,9 @@ IF (Aerosol_flag) then
     CALL PARSE_MULTIMODAL
     CALL PARSE_GR_SIZES
 
+    if (PSD_MODE == 0) write(*,FMT_MSG) 'Using fully stationary PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
+    if (PSD_MODE == 1) write(*,FMT_MSG) 'Using fixed grid/moving average PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
+    print*, ''
     write(*,FMT_MSG) 'Reading Vapour name file '// TRIM(Vap_names)
     OPEN(unit=802, File= TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
     call handle_file_io(ioi, Vap_names, &

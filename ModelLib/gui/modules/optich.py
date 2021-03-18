@@ -11,23 +11,41 @@ import sys
 import os
 
 def plot(addr):
+    c=['orangered','seagreen','deepskyblue']
+    if os.path.exists(os.path.join(addr,'Changes.txt')):
+        time, max_d_dpar,max_d_npar,max_d_vap,max_d_npd = np.genfromtxt(os.path.join(addr,'Changes.txt'), unpack=True)
 
-    if os.path.exists(os.path.join(addr,'optimChanges.txt')):
-        time, max_d_vap, max_d_npar, max_d_dpar = np.genfromtxt(os.path.join(addr,'optimChanges.txt'), unpack=True)
-        plt.plot(time, max_d_vap*100, label='max_d_vap')
-        plt.plot(time, max_d_npar*100, label='max_d_npar')
-        plt.plot(time, max_d_dpar*100, label='max_d_dpar')
-        plt.axhline(0.5, c='k')
-        plt.axhline(3, c='k')
-        plt.axhline(-3,linestyle=':', c='k')
-        plt.gca().set_yscale('symlog')
-        # plt.ylim(-100,10)
+        if len(time)<2:
+            return 'The file was a stub.'
+        f = open(os.path.join(addr,'Changes.txt'))
+        x = f.readline()
+        f.close()
+        x = x.split()
+        fig, axes = plt.subplots(2,1, figsize=(8,6))
+        for j,ax in enumerate(axes):
+            if sum(abs(max_d_dpar))>0:ax.plot(time, max_d_dpar*100,c=c[0],lw=2,label='max_d_dpar')
+            if sum(abs(max_d_npar))>0:ax.plot(time, max_d_npar*100,c=c[1],lw=2,label='max_d_npar')
+            if sum(abs(max_d_vap) )>0:ax.plot(time, max_d_vap *100, c=c[2],lw=2,label='max_d_vap')
+            if sum(abs(max_d_npd) )>0:ax.plot(time, max_d_npd *100, c=c[2],lw=2,label='max_d_ndep')
+            if len(x)>9:
+                for i in range(3):
+                    if i==2:
+                        ax.axhline((-1)*float(x[5+2*i])*1e2, c=c[i],linestyle='--', label=x[i+1]+' min')
+                        ax.axhline(float(x[5+2*i])*1e2, c=c[i],linestyle=':',label=x[i+1]+' max')
+                    else:
+                        # ax.axhline(float(x[4+2*i])*1e2, c=c[i],linestyle='--', label=x[i+1]+' min')
+                        ax.axhline(float(x[5+2*i])*1e2, c=c[i],linestyle=':',label=x[i+1]+' max')
 
-        plt.legend()
-        plt.grid()
-        plt.savefig(os.path.join(addr,'optimChanges.png'))
-        print('Saved figure in the run directory')
+            if j==0: ax.set_yscale('symlog')
+            ax.set_xlabel('time (s)')
+            ax.set_ylabel('Largest relative change (%)')
+            ax.legend()
+            ax.grid()
+
+        plt.tight_layout()
+        fig.savefig(os.path.join(addr,'Changes.png'), dpi=150)
+
         plt.close()
-        # plt.show()
+        return 'Saved figure in the run directory'
     else:
-        print('Directory "'+os.path.join(addr,'optimChanges.txt')+'" did not contain the correct file')
+        return 'Directory "'+addr+'" did not contain the necessary file "Changes.txt".'

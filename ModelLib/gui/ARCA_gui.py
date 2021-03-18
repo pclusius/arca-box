@@ -1716,7 +1716,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             else:
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*org_no))
         if name == 'PRESSURE' :
-            self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem('1e5'))
+            self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem('1e3'))
         self.selected_vars.setCellWidget(row, i+1, pmInUse )
         pmInUse.currentIndexChanged.connect(lambda: self.toggleColorPre(name))
         self.selected_vars.itemChanged.connect(self.highlightModifications)
@@ -1809,9 +1809,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
             if not mode=='silent':
                 if mode == 'noteOnTer':
                     print('Settings were saved to file "'+file+'"')
+                    self.popup('Saved','Settings were saved to file "'+file+'"',0)
                     return
                 if file == defaults_file_path:
-                    self.popup('', 'Defaults saved', icon=0)
+                    self.popup('Saved', 'Defaults saved', icon=0)
                 elif file != tempfile:
                     self.popup('Saved settings', 'Settings were saved to '+file, icon=0)
 
@@ -1870,6 +1871,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
             f = open(osjoin(self.saveCurrentOutputDir,'ENDNOW.INIT'), 'w')
             f.write('STOP')
             f.close()
+            self.popup('Asked the model to finish', "Depending on the state of the model this could take a while. "
+            +"If you don't need the NetCDF output you can also Force Stop.",1)
 
 
     def showParOutput(self, file, windowInd):
@@ -1896,7 +1899,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if file == 'load current':
             file = self.pars(self.dmps_file.text(), file=self.indir, stripRoot=self.stripRoot_par.isChecked())
             if not exists(file):
-                self.popup('','File not found', icon=2)
+                self.popup('Not found','File %s not found'%file, icon=2)
                 return
         titleLoc.setText(file)
 
@@ -1980,12 +1983,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
             window.setLogMode(False, False)
 
     def plotChanges(self):
-        # print(self.monStatus)
-        # if sel.boxProcess
-        # self.boxProcess = Popen([ currentPythonVer, 'ModelLib/Scripts/optich.py', self.currentAddressTb.text()])
         import modules.optich as optich
-        optich.plot(self.currentAddressTb.text())
-
+        ret = optich.plot(self.currentAddressTb.text())
+        if ret!='': self.popup('Plot changes:',ret,0)
 
     def startBox(self):
         self.closenetcdf()
@@ -2774,9 +2774,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.compileProgressBar.setInvertedAppearance(False)
             self.compileProgressBar.setValue(0)
             if self.running == 0:
-                self.popup('', 'Compiled succesfully', icon=0)
+                self.popup('Compiled', 'Compiled ARCA succesfully', icon=0)
             else:
-                self.popup('', 'Error in compiling, see output from terminal', icon=2)
+                self.popup('Compile error', 'Error in compiling, see output from terminal', icon=2)
             if self.ReplChem.isChecked(): self.ReplChem.setChecked(False)
             if self.makeClean.isChecked(): self.makeClean.setChecked(False)
 
@@ -2902,8 +2902,10 @@ REA: FLOAT_CHEMISTRY_AFTER_HRS=1.0000000000000000E+100
 LOG: USE_RH_CORRECTION=T
 LOG: TEMP_DEP_SURFACE_TENSION=F
 LOG: USE_DIFF_DIA_FROM_DIFF_VOL=F
-REA: SPEED_DT_LIMIT=1.0E-02, 300d0, 300d0, 300d0
+REA: SPEED_DT_LIMIT=300d0, 300d0, 300d0
 LOG: ENABLE_END_FROM_OUTSIDE=T
+REA: LIMIT_FOR_EVAPORATION=0.0
+REA: MIN_CONCTOT_CC_FOR_DVAP=1d3
 """
 
 

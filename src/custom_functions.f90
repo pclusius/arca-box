@@ -67,9 +67,7 @@ subroutine AFTER_NUCL(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
     real(dp), INTENT(INOUT) :: J_TOTAL_M3
 
     ! -------------------------------
-    J_TOTAL_M3 = J_TOTAL_M3 + 1d-8 * CH_GAS(ind_H2SO4)**2/GCS
 
 end subroutine AFTER_NUCL
 
 end module custom_functions
-

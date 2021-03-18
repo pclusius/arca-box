@@ -24,6 +24,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     REAL(dp), INTENT(IN)                        :: dt_cond      ! integration timestep for condensation [s]
     REAL(dp), INTENT(INOUT)                     :: d_dpar(:)    ! relative change in particle diameter [1]
     REAL(dp), INTENT(INOUT)                     :: d_vap(:)     ! relative change in vapor concentrations [1]
+    ! REAL(dp), INTENT(INOUT)                     :: d_vap_alt(:) ! relative change in vapor concentrations [1]
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: CR           ! [/s] collisions per second, collision rate * concentration
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: Kelvin_Effect
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: kohler_effect
@@ -132,8 +133,15 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     if (ic /= VAPOUR_PROP%ind_H2SO4) conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
 
   ! derive the relative changes in the vapor phase
+    ! IF (conc_vap(ic) > 1.d5.and.conc_tot(ic)>0d0) d_vap(ic) = ( conc_vap(ic) - conc_vap_old(ic) ) / conc_tot(ic)
+    ! IF (conc_tot(ic)>MIN_CONCTOT_CC_FOR_DVAP*1d6) d_vap(ic) = ( conc_vap(ic) - conc_vap_old(ic) ) / conc_tot(ic)
+    IF (conc_tot(ic)>MIN_CONCTOT_CC_FOR_DVAP*1d6) d_vap(ic) = ( conc_vap(ic) - conc_vap_old(ic) ) / conc_tot(ic)
+    ! IF (conc_vap(ic) > 1.d5) d_vap_alt(ic) = (conc_vap_old(ic) - conc_vap(ic)) / conc_vap(ic)
+    ! IF (conc_vap(ic) > 1.d5.and.conc_vap_old(ic)>1d5) d_vap(ic) = LOG(conc_vap_old(ic)/conc_vap(ic))
+    ! IF (conc_vap(ic) > 1.d5.and.conc_vap_old(ic)>1d5) d_vap(ic) = (conc_vap_old(ic)-conc_vap(ic))/min(conc_tot(ic)-conc_vap_old(ic),conc_vap_old(ic))
+    ! print*, 'DVAPO:', d_vap(ic),'tot',conc_tot(ic), 'in pp ',conc_tot(ic)-conc_vap_old(ic),' in gp', conc_vap_old(ic)
 
-    IF (conc_vap(ic) > 1.d5) d_vap(ic) = (conc_vap_old(ic) - conc_vap(ic)) / conc_vap(ic)
+
 
   END DO
 
@@ -157,7 +165,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     IF (SUM(conc_pp_old(ip,:)) > 0.d0 .and. n_conc(ip) > 1.d-10) THEN   ! only if there are particles and if they had a composition in the last timestep
        d_dpar(ip) = (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip) + SUM(dmass(ip,:))) &
                     / (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip))
-        if (d_dpar(ip)<0d0) THEN
+        if (d_dpar(ip)<0d0.and.Use_speed) THEN
             call SET_ERROR(PRC%cch, 'Particles shrink beyond their size')
             return
         ELSE
@@ -169,7 +177,15 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     END IF
   END DO
 
+ ! print '(a,f6.2,a,es9.2,a,es9.2,a,es9.2,a,a,a,f6.2,a,a,a,es10.2)', 'NEW DVAPO:', d_vap(maxloc(abs(d_vap),1))*1d2,'%   TOT C: ',conc_tot(maxloc(abs(d_vap),1)), &
+ ! '  IN PP: ',conc_tot(maxloc(abs(d_vap),1))-conc_vap_old(maxloc(abs(d_vap),1)),'  IN GP: ', conc_vap_old(maxloc(abs(d_vap),1)), &
+ ! ' VAP: ',trim(VAPOUR_PROP%vapour_names(maxloc(abs(d_vap),1))), ' testmetric', avg3(d_vap)*1d2
+!
+ ! print '(a,f6.2,a,es9.2,a,es9.2,a,es9.2,a,a,a,es9.2)', 'OLD DVAPO:', d_vap_alt(maxloc(abs(d_vap_alt),1))*1d2,'%   TOT C: ',conc_tot(maxloc(abs(d_vap_alt),1)), &
+ ! '  IN PP: ',conc_tot(maxloc(abs(d_vap_alt),1))-conc_vap_old(maxloc(abs(d_vap_alt),1)),'  IN GP: ', conc_vap_old(maxloc(abs(d_vap_alt),1)), &
+ ! ' VAP: ',trim(VAPOUR_PROP%vapour_names(maxloc(abs(d_vap_alt),1))), ' DeltaVap ',(conc_vap_old(maxloc(abs(d_vap_alt),1))) - conc_vap(maxloc(abs(d_vap_alt),1))
 
+! print*, ''
 END SUBROUTINE Condensation_apc
 
 
@@ -408,6 +424,66 @@ function collision_rate(jj,diameter, mass,VAPOUR_PROP)
 END function collision_rate
 !
 
+subroutine avg3(arr, refdvap, irefdvap)
+    implicit none
+    REAL(dp) :: refdvap
+    integer  :: irefdvap
+    real(dp),intent(in)::arr(:)
+    REAL(dp) :: ret(2)
+    integer :: i
+    ret(1) = avg3neg(pack( arr,arr<0d0 ))
+    ret(2) = avg3pos(arr)
+    refdvap = ret(maxloc(abs(ret),1))
+    if (maxloc(abs(ret),1)==1) THEN
+        irefdvap = minloc(arr,1)
+    ELSE
+        irefdvap = maxloc(arr,1)
+    END IF
+end subroutine avg3
+
+real(dp) function avg3pos(arr)
+    ! returns average of three largest (absolute magnitude) values of arr
+    implicit none
+    real(dp),intent(in)::arr(:)
+    real(dp) :: Z(size(arr,1)-1)
+    integer :: ii(2), l,i
+    l = size(arr,1)
+    avg3pos = 0d0
+    if (l==0) return
+    if (l<4) THEN
+        avg3pos = sum(arr)/l
+    ELSE
+        avg3pos =  (maxval(arr,1))
+        ii(1) = (maxloc(arr,1))
+        Z = ( arr( pack([(i,i=1,l)], [(i/=ii(1),i=1,l)]) )     )
+        avg3pos = avg3pos + maxval( Z )
+        ii(2) =  maxloc( Z ,1)
+        avg3pos =  avg3pos + maxval(  Z( pack([(i,i=1,l-1)], [(i/=ii(2),i=1,l-1)]) )     )
+        avg3pos = avg3pos/3_dp
+    END IF
+end function avg3pos
+
+real(dp) function avg3neg(arr)
+    ! returns average of three largest (absolute magnitude) values of arr
+    implicit none
+    real(dp),intent(in)::arr(:)
+    real(dp) :: Z(size(arr,1)-1)
+    integer :: ii(2), l,i
+    l = size(arr,1)
+    avg3neg = 0d0
+    if (l==0) return
+    if (l<4) THEN
+        avg3neg = sum(arr)/l
+    ELSE
+        avg3neg =  (minval(arr,1))
+        ii(1) = (minloc(arr,1))
+        Z = ( arr( pack([(i,i=1,l)], [(i/=ii(1),i=1,l)]) )     )
+        avg3neg = avg3neg + minval( Z )
+        ii(2) =  minloc( Z ,1)
+        avg3neg =  avg3neg + minval(  Z( pack([(i,i=1,l-1)], [(i/=ii(2),i=1,l-1)]) )     )
+        avg3neg = avg3neg/3_dp
+    END IF
+end function avg3neg
 
 
 END MODULE aerosol_dynamics
