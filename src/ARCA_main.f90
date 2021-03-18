@@ -253,8 +253,8 @@ open(unit=608, file=RUN_OUTPUT_DIR//'/optimization.txt',status='replace',action=
 open(unit=610, file=RUN_OUTPUT_DIR//'/Changes.txt',status='replace',action='write')
 
 if (Use_speed) THEN
-    write(610,'("# ddiam, dpnum, dvap: ", 3(es10.3," ",es10.3))') DDIAM_RANGE*1d-2,DPNUM_RANGE*1d-2,DVAPO_RANGE*1d-2
 
+    write(610,'("# ddiam, dpnum, dvap: ", 3(es10.3," ",es10.3))') DDIAM_RANGE*1d-2,DPNUM_RANGE*1d-2,DVAPO_RANGE*1d-2
     print FMT_HDR, 'Simulation time step will be optimized for precision'
     print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for particle diameter',      DDIAM_RANGE
     print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for particle concentration', DPNUM_RANGE
@@ -308,9 +308,10 @@ call cpu_time(cpu1) ! For efficiency calculation
 MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the time is checked at the end of the loop
     ! Here we check which parts of the loop are entered, based on the timestep optimization
     if (Use_speed) THEN
-        PRC%in_turn(PRC%cch) = MODULO(n_of_Rounds,speed_up(PRC%cch))==0_dint
-        PRC%in_turn(PRC%coa) = MODULO(n_of_Rounds,speed_up(PRC%coa))==0_dint
-        PRC%in_turn(PRC%dep) = MODULO(n_of_Rounds,speed_up(PRC%dep))==0_dint .and. (Deposition.or.LOSSES_FILE /= '')
+
+        PRC%in_turn(PRC%cch) = MODULO(n_of_Rounds,speed_up(PRC%cch))==0_dint.and.Condensation.or.Chemistry_flag
+        PRC%in_turn(PRC%coa) = MODULO(n_of_Rounds,speed_up(PRC%coa))==0_dint.and.Coagulation
+        PRC%in_turn(PRC%dep) = MODULO(n_of_Rounds,speed_up(PRC%dep))==0_dint.and.(Deposition.or.LOSSES_FILE /= '')
         PRC%in_turn(4) = (PRC%in_turn(PRC%cch).or.(PRC%in_turn(PRC%coa).or.PRC%in_turn(PRC%dep)))
 
         if (PRC%increase(1).and.PRC%in_turn(1)) THEN
