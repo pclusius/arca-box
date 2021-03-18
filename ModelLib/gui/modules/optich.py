@@ -11,6 +11,7 @@ import sys
 import os
 
 def plot(addr):
+    fixed = False
     c=['orangered','seagreen','deepskyblue']
     if os.path.exists(os.path.join(addr,'Changes.txt')):
         time, max_d_dpar,max_d_npar,max_d_vap,max_d_npd = np.genfromtxt(os.path.join(addr,'Changes.txt'), unpack=True)
@@ -22,6 +23,7 @@ def plot(addr):
         f.close()
         x = x.split()
         fig, axes = plt.subplots(2,1, figsize=(8,6))
+        if np.sum([float(i) for i in x[5:]]) == 0: fixed = True
         for j,ax in enumerate(axes):
             if sum(abs(max_d_dpar))>0:ax.plot(time, max_d_dpar*100,c=c[0],lw=2,label='max_d_dpar')
             if sum(abs(max_d_npar))>0:ax.plot(time, max_d_npar*100,c=c[1],lw=2,label='max_d_npar')
@@ -29,14 +31,22 @@ def plot(addr):
             if sum(abs(max_d_npd) )>0:ax.plot(time, max_d_npd *100, c=c[2],lw=2,label='max_d_ndep')
             if len(x)>9:
                 for i in range(3):
-                    if i==2:
-                        ax.axhline((-1)*float(x[5+2*i])*1e2, c=c[i],linestyle='--', label=x[i+1]+' min')
-                        ax.axhline(float(x[5+2*i])*1e2, c=c[i],linestyle=':',label=x[i+1]+' max')
-                    else:
-                        # ax.axhline(float(x[4+2*i])*1e2, c=c[i],linestyle='--', label=x[i+1]+' min')
-                        ax.axhline(float(x[5+2*i])*1e2, c=c[i],linestyle=':',label=x[i+1]+' max')
+                    if not fixed:
+                        if i==2:
+                            ax.axhline((-1)*float(x[5+2*i])*1e2, c=c[i],linestyle='--', label=x[i+1]+' min')
+                            ax.axhline(float(x[5+2*i])*1e2, c=c[i],linestyle=':',label=x[i+1]+' max')
+                        else:
+                            # ax.axhline(float(x[4+2*i])*1e2, c=c[i],linestyle='--', label=x[i+1]+' min')
+                            ax.axhline(float(x[5+2*i])*1e2, c=c[i],linestyle=':',label=x[i+1]+' max')
 
-            if j==0: ax.set_yscale('symlog')
+            if j==1:
+                ax.set_yscale('symlog')
+            else:
+                if fixed:
+                    ax.set_title('Relative changes in ONE TIMESTEP (used fixed timestep)')
+                else:
+                    ax.set_title('Relative changes in ONE TIMESTEP (used varying timestep)')
+            ax.set_xlabel('time (s)')
             ax.set_xlabel('time (s)')
             ax.set_ylabel('Largest relative change (%)')
             ax.legend()

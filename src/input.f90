@@ -570,7 +570,8 @@ subroutine READ_INIT_FILE
   END IF
 
   ! if INITFILE was found, we read it. In case there is a problem in namelist filling, give en error.
-  write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM: '//TRIM(ADJUSTL(Fname_init))
+  write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM:'
+  write(*,FMT_HDR) TRIM(ADJUSTL(Fname_init))
 
   do k=1, ROWCOUNT(888); READ(888,NML = NML_TIME, IOSTAT=IOS(i)) ! #1
   IF (IOS(i) == 0) EXIT;end do; REWIND(888); i=i+1

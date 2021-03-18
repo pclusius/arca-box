@@ -272,7 +272,7 @@ else
     flush(608)
 end if
 
-write(610,'(a)') '#  time_sec                  max_d_diam                max_d_npar                max_d_vap                 max_d_npdep'
+write(610,'(4(a,"                "),a)') '#  time_sec  ','max_d_diam','max_d_npar','max_d_vap ','max_d_npdep'
 
 if (ENABLE_END_FROM_OUTSIDE) THEN
     print FMT_SUB, "Simulation can be stopped using file called ENDNOW.INIT with text 'STOP' in it, saved"
@@ -844,7 +844,11 @@ SUBROUTINE PRINT_HEADER
     ! Print time header in a nice way, start with empty row
     if (GTIME%printnow) THEN
         WRITE(*,*) ! Print time
-        print FMT_TIME, GTIME%hms//' ('//TRIM(i2chr(int(GTIME%sec*1000d0)))//' msec)'
+        if (GTIME%dt*minval(pack(speed_up, speed_up>0))>1d0) THEN
+            print FMT_TIME, GTIME%hms//' ('//TRIM(i2chr(int(GTIME%sec)))//' s)'
+        ELSE
+            print FMT_TIME, GTIME%hms//' ('//TRIM(i2chr(int(GTIME%sec*1000d0)))//' ms)'
+        END IF
         ! To compare real time vs simulation time, timer is stopped in the beginning
         call cpu_time(cpu2)
         cpu4=cpu2
