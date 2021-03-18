@@ -595,8 +595,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.indexRadioIndex.toggled.connect(lambda: self.label_25.setEnabled(False))
 
         self.indexEdit.valueChanged.connect(lambda: self.indexRadioIndex.setChecked(True))
-        self.browseCase.clicked.connect(lambda: self.browse_path(self.case_name, 'dironly'))
-        self.browseRun.clicked.connect(lambda: self.browse_path(self.run_name, 'dironly'))
+        self.helpGroupName.clicked.connect(lambda: self.helplink(helpd['groupName']))
+        self.helpRunName.clicked.connect(lambda: self.helplink(helpd['runName']))
         self.browseCommonIn.clicked.connect(lambda: self.browse_path(self.inout_dir, 'dir'))
         self.browseEnv.clicked.connect(lambda: self.browse_path(self.env_file, 'file'))
         self.browseMcm.clicked.connect(lambda: self.browse_path(self.mcm_file, 'file'))
