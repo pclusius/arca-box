@@ -7,7 +7,7 @@
  INOUT_DIR = 'INOUT/'
  CASE_NAME = 'MINI'
  RUN_NAME = 'TEST'
-/ 
+/
 
 &NML_FLAG
  CHEMISTRY_FLAG = .TRUE.
@@ -25,7 +25,7 @@
  USE_SPEED = .FALSE.
  AFTER_CHEM_ON = .FALSE.
  AFTER_NUCL_ON = .FALSE.
-/ 
+/
 
 &NML_TIME
  RUNTIME = 16.0
@@ -35,7 +35,7 @@
  FSAVE_DIVISION = 0
  DATE = '2000-04-11'
  INDEX = ''
-/ 
+/
 
 &NML_PARTICLE
  PSD_MODE = 1
@@ -49,10 +49,10 @@
  MMODAL_INPUT = '10e-9 0.1 1 250e-9 0.2 1'
  DMPS_READ_IN_TIME = 1.0
  DMPS_HIGHBAND_LOWER_LIMIT = 20e-9
- DMPS_LOWBAND_UPPER_LIMIT = 
+ DMPS_LOWBAND_UPPER_LIMIT =
  USE_DMPS = .TRUE.
  USE_DMPS_PARTIAL = .FALSE.
-/ 
+/
 
 &NML_ENV
  ENV_FILE = 'ModelLib/Examples/env180411.dat'
@@ -63,11 +63,11 @@
  EDDYK = 0.5
  USTAR = 0.05
  ALPHAWALL = 5e-05
-/ 
+/
 
 &NML_MCM
  MCM_FILE = 'ModelLib/Examples/voc180411.dat'
-/ 
+/
 
 &NML_MODS
  MODS(1)   =  1   2  1.00000d+00  0.00000d+00  1.00000d+01  2.00000d+01 1.200000d0 3.285780d0 0.000000d0 0.000000d0 1.000000d0 'C' '' ! TEMPK
@@ -79,7 +79,7 @@
  MODS(11)  =  0  14  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' '' ! SO2
  MODS(16)  =  0  -1  1.00000d+00  2.00000d+01  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' '' ! O3
  MODS(151) =  0  15  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' '' ! APINENE
-/ 
+/
 
 &NML_MISC
  LAT = 65.0
@@ -92,22 +92,22 @@
  FILL_FORMATION_WITH = ''
  SKIP_ACDC = .TRUE.
  GR_SIZES = ''
-/ 
+/
 
 &NML_VAP
  USE_ATOMS = .TRUE.
  VAP_NAMES = 'ModelLib/Vapours.dat'
  VAP_ATOMS = 'ModelLib/elements_Vapours.dat'
-/ 
+/
 
 &NML_PRECISION
  DDIAM_RANGE = 1.000000,10.000000
  DPNUM_RANGE = 1.000000,10.000000
  DVAPO_RANGE = 0.100000,105.000000
-/ 
+/
 
 &NML_CUSTOM
-/ 
+/
 
 # Options available in CUSTOM_NML (and defaults)
 # I: acdc_iterations = 4
@@ -124,9 +124,8 @@
 # R: END_DMPS_SPECIAL = 1d50
 
 
-# Following settings are for the GUI and not directly used by the model ----- 
-# RAW_INPUT = # Options available in CUSTOM_NML (and defaults)<br># I: acdc_iterations = 4<br># I: INITIALIZE_FROM = 0<br># C: INITIALIZE_WITH = ''<br># L: use_raoult = .True.<br># L: variable_density = .False.<br># L: DONT_SAVE_CONDENSIBLES = .False.<br># L: skip_acdc = .True.<br># R: dmps_tres_min = 10.<br># R: VP_MULTI = 1d0<br># R: start_time_s = 0d0<br># R: dmps_multi = 1d6<br># R: END_DMPS_SPECIAL = 1d50
+# Following settings are for the GUI and not directly used by the model -----
+# RAW_INPUT =
 # INPUT_SETTINGS = 'env_file:ModelLib/Examples/env180411.dat mcm_file:ModelLib/Examples/voc180411.dat dmps_file:ModelLib/Examples/dm180411.sum extra_particles: stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2018-04-01 batchRangeDayEnd:2018-04-30 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.TRUE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
-#---------------------------------------------------------------------------- 
-
+#----------------------------------------------------------------------------
