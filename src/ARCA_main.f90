@@ -480,7 +480,11 @@ in_turn_any: if (PRC%in_turn(4)) THEN
             conc_fit = conc_fit*1d6
             CAll send_conc(current_PSD%dp_range(1),current_PSD%dp_range(2),conc_fit)
             do i = 1, n_bins_par
-                CALL set_composition(i,nominal_dp(i))
+                if (GTIME%sec<1d0) THEN
+                    CALL set_composition(i,nominal_dp(i), .false.)
+                else
+                    CALL set_composition(i,nominal_dp(i), Use_old_composition)
+                end if
             end do
             if (GTIME%hrs >= DMPS_read_in_time) N_MODAL = -1d0
         END IF
@@ -497,7 +501,11 @@ in_turn_any: if (PRC%in_turn(4)) THEN
                                                     //'. measurement (row '//TRIM(i2chr(dmps_ln+2))//' in file)'
                 CAll send_conc(current_PSD%dp_range(1),current_PSD%dp_range(2),conc_fit)
                 do i = 1, n_bins_par
-                    CALL set_composition(i,nominal_dp(i))
+                    if (GTIME%sec<1d0) THEN
+                        CALL set_composition(i,nominal_dp(i), .false.)
+                    else
+                        CALL set_composition(i,nominal_dp(i), Use_old_composition)
+                    end if
                 end do
             END IF
 
@@ -516,7 +524,11 @@ in_turn_any: if (PRC%in_turn(4)) THEN
                     ! Sets the concentration and composition to the partially added particles PSD based on the mfractions.
                     CALL send_conc(current_PSD%dp_range(1),nominal_dp(dmps_sp_min),conc_fit)
                     do i = 1, dmps_sp_min
-                        CALL set_composition(i,nominal_dp(i))
+                        if (GTIME%sec<1d0) THEN
+                            CALL set_composition(i,nominal_dp(i), .false.)
+                        else
+                            CALL set_composition(i,nominal_dp(i), Use_old_composition)
+                        end if
                     end do
                 END IF
 
@@ -527,7 +539,11 @@ in_turn_any: if (PRC%in_turn(4)) THEN
                     ! Sets the concentration and composition to the partially added particles PSD based on the mfractions.
                     CALL send_conc(nominal_dp(dmps_sp_max),current_PSD%dp_range(2),conc_fit)
                     do i = dmps_sp_max, n_bins_par
-                        CALL set_composition(i,nominal_dp(i))
+                        if (GTIME%sec<1d0) THEN
+                            CALL set_composition(i,nominal_dp(i), .false.)
+                        else
+                            CALL set_composition(i,nominal_dp(i), Use_old_composition)
+                        end if
                     end do
 
                 END IF

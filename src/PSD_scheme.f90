@@ -15,7 +15,7 @@ MODULE PSD_scheme
   REAL(dp)              :: mix_ratio        ! gives the rate ratio: added volume over present volume per timestep
   REAL(dp)              :: bin_ratio        ! gives relative bin width dp(2)/dp(1)
   CHARACTER(len=15)     :: process          ! defines the process that passes information to subroutine Mass_Number_Change (coagulation, condensation, mixing)
-  type(PSD)             :: current_PSD                  ! Main PSD container. This variable stores the current timestep concentrations
+  type(PSD)             :: current_PSD      ! Main PSD container. This variable stores the current timestep concentrations
   type(PSD) :: new_PSD, mix_PSD, interm_PSD ! Variables that store PSD values during the calculations
   type(PSD) :: old_PSD                      ! This is used to save the current state and to restore it in case of an error related to timestep handling
 
@@ -780,14 +780,40 @@ END SUBROUTINE send_conc
 
 ! =====================================================================================================================
 ! Updates the particle composition with all PSD_styles
-SUBROUTINE set_composition(ii, gdp)
+SUBROUTINE set_composition(ip, gdp, useold)
     IMPLICIT NONE
-    INTEGER :: ii
-    real(dp):: gdp
+    INTEGER :: ip
+    real(dp):: gdp, sum_org
+    real(dp):: comp_pp(VAPOUR_PROP%n_condtot)
+    logical :: useold
+
     IF (current_PSD%PSD_style == 1) THEN
-        current_PSD%composition_fs(ii,:) = VAPOUR_PROP%mfractions * current_PSD%volume_fs(ii) * VAPOUR_PROP%density
+        if (useold) THEN
+            comp_pp = old_PSD%composition_fs(ip,:) * Na / VAPOUR_PROP%molar_mass * old_PSD%conc_fs(ip)
+
+              if (current_PSD%volume_fs(ip) >0.0 .and. current_PSD%diameter_fs(ip) > 1D-9) then
+                sum_org = sum(comp_pp,DIM=1)
+                if (sum_org>0) THEN
+                  VAPOUR_PROP%mfractions= comp_pp/sum_org
+                END if
+              END if
+        end if
+
+        current_PSD%composition_fs(ip,:) = VAPOUR_PROP%mfractions * current_PSD%volume_fs(ip) * VAPOUR_PROP%density
+
     ELSE IF (current_PSD%PSD_style == 2) THEN
-        current_PSD%composition_ma(ii,:) = VAPOUR_PROP%mfractions * (pi*gdp**3d0)/6d0 * VAPOUR_PROP%density
+        if (useold) THEN
+            comp_pp = old_PSD%composition_ma(ip,:) * Na / VAPOUR_PROP%molar_mass * old_PSD%conc_fs(ip)
+
+              if (current_PSD%volume_ma(ip) >0.0 .and. current_PSD%diameter_ma(ip) > 1D-9) then
+                sum_org = sum(comp_pp,DIM=1)
+                if (sum_org>0) THEN
+                  VAPOUR_PROP%mfractions= comp_pp/sum_org
+                END if
+              END if
+        end if
+
+        current_PSD%composition_ma(ip,:) = VAPOUR_PROP%mfractions * (pi*gdp**3d0)/6d0 * VAPOUR_PROP%density
     END IF
 END SUBROUTINE set_composition
 

@@ -209,6 +209,7 @@ LOGICAL  :: use_diff_dia_from_diff_vol = .False.
 REAL(dp), ALLOCATABLE   :: GR_bins(:)  ! used for GR calculation [m]
 Logical                 :: CALC_GR = .True.
 Logical                 :: ENABLE_END_FROM_OUTSIDE = .True.
+Logical                 :: Use_old_composition = .false.
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
 real(dp)                :: speed_dt_limit(3) =  [300d0,300d0,300d0]
@@ -222,7 +223,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, variable_density,dmps_tres_min, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, speed_dt_limit, ENABLE_END_FROM_OUTSIDE, &
-                      Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP
+                      Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -434,7 +435,7 @@ IF (Aerosol_flag) then
     VAPOUR_PROP%ind_GENERIC = VAPOUR_PROP%n_condorg
     VAPOUR_PROP%ind_H2SO4   = VAPOUR_PROP%n_condtot
     VAPOUR_PROP%Mfractions  = 0.0
-    VAPOUR_PROP%Mfractions(VAPOUR_PROP%n_condorg) = 1d0 !
+    VAPOUR_PROP%Mfractions(VAPOUR_PROP%ind_GENERIC) = 1d0 !
 
     ! ---------------------------------------------------------------------
     ! ORGANIC VAPOUR PROPERTIES

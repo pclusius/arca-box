@@ -274,7 +274,7 @@ class CCWin(QtGui.QDialog):
         error = False
         warnings = False
         output = ['Chemistry definitions were created.\n']
-        boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp"\n2) Recompile ARCA in tab "Chemistry".'
+        boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp"\n2) Recompile thme model code in tab "Chemistry".'
         while lines:
             self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
             if '[WARNING' in self.ccout.upper():
@@ -2778,7 +2778,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.compileProgressBar.setInvertedAppearance(False)
             self.compileProgressBar.setValue(0)
             if self.running == 0:
-                self.popup('Compiled', 'Compiled ARCA succesfully', icon=0)
+                self.popup('Compiled', 'Compiling done', icon=0)
             else:
                 self.popup('Compile error', 'Error in compiling, see output from terminal', icon=2)
             if self.ReplChem.isChecked(): self.ReplChem.setChecked(False)
