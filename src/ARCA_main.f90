@@ -477,7 +477,8 @@ in_turn_any: if (PRC%in_turn(4)) THEN
         ! Read in background particles
         IF (N_MODAL>0) THEN
             call Multimodal(MMODES, get_dp(), conc_fit, N_MODAL)
-            CAll send_conc(current_PSD%dp_range(1),current_PSD%dp_range(2),conc_fit*dmps_multi)
+            conc_fit = conc_fit*1d6
+            CAll send_conc(current_PSD%dp_range(1),current_PSD%dp_range(2),conc_fit)
             do i = 1, n_bins_par
                 CALL set_composition(i,nominal_dp(i))
             end do
@@ -765,7 +766,7 @@ END IF in_turn_any
             if (Aerosol_flag) THEN
                 WRITE(601,*) GTIME%sec, sum(get_conc()*1d-6), get_conc()*1d-6 / LOG10(bin_ratio)
                 WRITE(604,*) GTIME%sec, get_conc()*1d-6
-                save_measured = conc_fit/dmps_multi
+                save_measured = conc_fit/1d6
             END IF
 
             WRITE(610,*) GTIME%sec, d_dpar(maxloc(abs(d_dpar),1)), d_npar(maxloc(abs(d_npar),1)), refdvap, d_npdep(maxloc(abs(d_npdep),1))
@@ -1137,7 +1138,7 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
             ! PSD is also saved to txt
             WRITE(601,*) GTIME%sec, sum(get_conc()*1d-6), get_conc()*1d-6 / LOG10(bin_ratio)
             WRITE(604,*) GTIME%sec, get_conc()*1d-6
-            save_measured = conc_fit/dmps_multi
+            save_measured = conc_fit/1d6
         END IF
 
         CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&

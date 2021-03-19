@@ -2494,24 +2494,35 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 except:
                     self.popup('Bummer...', 'Not a valid output file',icon=3)
                     return
-            DIAMETER = self.ncs_mass.variables['DIAMETER'][:]
-            self.diams.addItems(['%7.2f'%(1e9*i) for i in DIAMETER[0,:]])
+            self.DIAMETER = self.ncs_mass.variables['DIAMETER'][:]
+            self.diams.addItems(['%7.2f'%(1e9*i) for i in self.DIAMETER[0,:]])
             self.diams.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-            self.diams.itemSelectionChanged.connect(self.updateMass)
-            self.diams.selectAll()
-            time = self.ncs_mass.variables['time_in_hrs'][:]
-            self.times.itemSelectionChanged.connect(self.updateNumbers)
-            self.times.addItems(['%7.2f'%(i) for i in time])
-            self.times.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-            self.times.item(0).setSelected(True)
+            self.mp_time = self.ncs_mass.variables['time_in_hrs'][:]
             indstime = [0]
             self.plotResultWindow_3.setLogMode(x=True)
             self.plotResultWindow_2.setLabel('bottom', 'Time', units='h')
             self.plotResultWindow_2.setLabel('left', 'Mass', units='g')
-
             self.plotResultWindow_3.setLabel('bottom', 'Diameter', units='m')
             self.plotResultWindow_3.setLabel('left', '# normalized', units=None)
+            NUMBER_CONCENTRATION = self.ncs_mass.variables['NUMBER_CONCENTRATION'][:]
+            self.mass_in_bin     = self.ncs_mass.variables['MASS'][:]*NUMBER_CONCENTRATION*1e3 # from kg to g
+            self.lognormconc     = NUMBER_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
+            self.times.itemSelectionChanged.connect(self.updateNumbers)
+            self.times.addItems(['%7.2f'%(i) for i in self.mp_time])
+            self.times.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+            self.diams.itemSelectionChanged.connect(self.updateMass)
 
+            try:
+                DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
+                self.massdmps = self.ncs_mass.variables['MASS'][:]*DMPS_CONCENTRATION
+                self.lognormdmps = DMPS_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
+                self.measdmps = True
+            except:
+                print('File does not contain measured PSD')
+
+            self.ncs_mass.close()
+            self.times.item(0).setSelected(True)
+            self.diams.selectAll()
         else:
             if target=='mass':
                 self.plotResultWindow_2.clear()
@@ -2519,40 +2530,33 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.plotResultWindow_3.clear()
             indstime = [i.row() for i in self.times.selectedIndexes()]
         inds = [i.row() for i in self.diams.selectedIndexes()]
+        # if self.showAlsoMeasInMassConc.isChecked():
+        #     if self.measdmps == False:
+        #         try:
+        #             DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
+        #             self.massdmps = self.ncs_mass.variables['MASS'][:]*DMPS_CONCENTRATION
+        #             self.lognormdmps = DMPS_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
+        #             self.measdmps = True
+        #         except:
+        #             print('File did not contain measured PSD')
 
-        DIAMETER                = self.ncs_mass.variables['DIAMETER'][:]
-        NUMBER_CONCENTRATION    = self.ncs_mass.variables['NUMBER_CONCENTRATION'][:]
-        MASS_OF_SINGLE_PAR      = self.ncs_mass.variables['MASS'][:]
-        mass_in_bin             = MASS_OF_SINGLE_PAR*NUMBER_CONCENTRATION
-        lognormconc             = NUMBER_CONCENTRATION/log10(DIAMETER[0,1]/DIAMETER[0,0])
-        self.measdmps = False
-        if self.showAlsoMeasInMassConc.isChecked():
-            try:
-                DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
-                massdmps = MASS_OF_SINGLE_PAR*DMPS_CONCENTRATION
-                lognormdmps = DMPS_CONCENTRATION/log10(DIAMETER[0,1]/DIAMETER[0,0])
-                self.measdmps = True
-            except:
-                print('File did not contain measured PSD')
-
-        time = self.ncs_mass.variables['time_in_hrs'][:]
-        y  = npsum(mass_in_bin[:,inds],axis=1)*1e3
+        y  = npsum(self.mass_in_bin[:,inds],axis=1)
         miny, maxy = y.min(),y.max()
         if self.measdmps:
-            y2 = npsum(massdmps[:,inds],axis=1)*1e3
+            y2 = npsum(self.massdmps[:,inds],axis=1)*1e3
             miny, maxy = min(miny,y2.min()),max(maxy,y2.max())
         if maxy>0:
             if abs(1-miny/maxy) <1e-12:
                 maxy = miny*100000
         if self.measdmps and self.showAlsoMeasInMassConc.isChecked():
-            self.outplot_mass = self.plotResultWindow_2.plot(time,
+            self.outplot_mass = self.plotResultWindow_2.plot(self.mp_time,
                                                             y2,
                                                             pen={'color':'r','width': 2.0,'style': QtCore.Qt.DotLine},
                                                             symbol='x',
                                                             symbolPen='r',
                                                             symbolSize=6
                                                             )
-        self.outplot_mass = self.plotResultWindow_2.plot(time,
+        self.outplot_mass = self.plotResultWindow_2.plot(self.mp_time,
                                                         y,
                                                         pen={'color':'b','width': 2.0},
                                                         symbol='o',
@@ -2564,15 +2568,15 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
         for i,ii in enumerate(indstime):
             if self.measdmps and self.showAlsoMeasInMassConc.isChecked():
-                self.outplot_numb2 = self.plotResultWindow_3.plot(DIAMETER[0,:],
-                                                                lognormdmps[ii,:],
+                self.outplot_numb2 = self.plotResultWindow_3.plot(self.DIAMETER[0,:],
+                                                                self.lognormdmps[ii,:],
                                                                 pen={'color':colors[i%10],'width': 2.0,'style': QtCore.Qt.DotLine},
                                                                 symbol='x',
                                                                 symbolPen=colors[i%10],
                                                                 symbolSize=6
                                                                 )
-            self.outplot_numb = self.plotResultWindow_3.plot(DIAMETER[0,:],
-                                                            lognormconc[ii,:],
+            self.outplot_numb = self.plotResultWindow_3.plot(self.DIAMETER[0,:],
+                                                            self.lognormconc[ii,:],
                                                             pen={'color':colors[i%10],'width': 2.0},
                                                             symbol='o',
                                                             symbolPen='k',
