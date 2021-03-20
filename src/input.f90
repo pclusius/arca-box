@@ -47,6 +47,7 @@ REAL(dp), allocatable :: timevec(:)     ! Whatever the times were for (currently
 REAL(dp), allocatable :: CONC_MAT(:,:)  ! will be of shape ( len(timevec) : N_VARS )
 real(dp), allocatable :: par_data(:,:)
 real(dp), allocatable :: GGR(:)
+INTEGER               :: H2SO4_ind_in_chemistry = 0 ! Will be checked later and set to correct if H2SO4 is found
 
 ! variable for storing init file name
 CHARACTER(len=256) :: Fname_init ! init file names
@@ -384,6 +385,8 @@ IF (Aerosol_flag) then
     call handle_file_io(ioi, Vap_names, &
         'If Condensation is used, "Vapour file" must be defined (in tab "Advanced").')
 
+    H2SO4_ind_in_chemistry = IndexFromName( 'H2SO4', SPC_NAMES )
+
     rows = ROWCOUNT(802)
     cols = COLCOUNT(802)
 
@@ -391,6 +394,11 @@ IF (Aerosol_flag) then
     do j = 1,rows
         read(802,*,iostat=ioi) species_name
         if (j<=limit_vapours .or. j==rows) THEN
+            if ((TRIM(species_name) == 'HOA')         & ! HOA is sometimes used in PRAM
+                .or.(TRIM(species_name) == 'GENERIC') & ! GENERIC is not active in chemistry
+                ! We want to add H2SO4 to the end of vapours, and it should not be in vapour file anyway
+                .or.(TRIM(species_name) == 'H2SO4') ) &
+                cycle
             k = IndexFromName( TRIM(species_name), SPC_NAMES )
             if (k>0) THEN
                 VAPOUR_PROP%n_condorg = VAPOUR_PROP%n_condorg + 1
@@ -399,7 +407,11 @@ IF (Aerosol_flag) then
     end do
     REWIND(802)
 
+    ! Here we account for the non-volatile pseudocompound GENERIC
+    VAPOUR_PROP%n_condorg = VAPOUR_PROP%n_condorg + 1
+    ! Here we add place for sulfuric acid, non-organic
     VAPOUR_PROP%n_condtot = VAPOUR_PROP%n_condorg + 1
+
     allocate(VAPOUR_PROP%Vapour_names (VAPOUR_PROP%n_condtot) )
     allocate(VAPOUR_PROP%molar_mass   (VAPOUR_PROP%n_condtot) )
     allocate(VAPOUR_PROP%psat_a       (VAPOUR_PROP%n_condtot) )
@@ -417,7 +429,11 @@ IF (Aerosol_flag) then
     allocate(VAPOUR_PROP%alpha        (VAPOUR_PROP%n_condtot) )
     allocate(VAPOUR_PROP%diff_vol     (VAPOUR_PROP%n_condtot) )
     allocate(VAPOUR_PROP%diff_dia     (VAPOUR_PROP%n_condtot) )
-    ALLOCATE(index_cond(VAPOUR_PROP%n_condorg))
+
+    ! This is the vector that combines chemistry and condensable vapours.
+    ! -1 because GENERIC is not in gas phase. Ever. H2SO4 is picked from chemistry manually
+    ALLOCATE(index_cond(VAPOUR_PROP%n_condorg-1))
+
     index_cond = 0
 
     if (USE_RH_CORRECTION) THEN
@@ -431,7 +447,7 @@ IF (Aerosol_flag) then
     print FMT_SUB, 'Compounds picked from Vapours file: '//TRIM(i2chr(VAPOUR_PROP%n_condorg))
     print FMT_SUB, 'Total number of condensables      : '//TRIM(i2chr(VAPOUR_PROP%n_condtot))
 
-    !!! reading the vap names and vap vapour_properties
+    ! Reading the vap names and vap vapour_properties
     VAPOUR_PROP%ind_GENERIC = VAPOUR_PROP%n_condorg
     VAPOUR_PROP%ind_H2SO4   = VAPOUR_PROP%n_condtot
     VAPOUR_PROP%Mfractions  = 0.0
@@ -448,9 +464,10 @@ IF (Aerosol_flag) then
             ! Check if the compounds exists in Chemistry and only then add to vapours
             k = IndexFromName( species_name, SPC_NAMES )
 
-            if (k>0) THEN
+            if (k>0.and..not.(TRIM(species_name)=='GENERIC')) index_cond(ii) = k
+
+            if ((k>0).or.(TRIM(species_name)=='GENERIC')) THEN
                 ! fill the hash table for vapour index -> chemistry index
-                index_cond(ii) = k
 
                 VAPOUR_PROP%molar_mass(ii)   = molar_mass *1D-3 ! kg/mol
                 VAPOUR_PROP%psat_a(ii)       = parameter_A
@@ -469,14 +486,34 @@ IF (Aerosol_flag) then
                 VAPOUR_PROP%surf_tension(ii) = 0.05
                 VAPOUR_PROP%cond_type(ii)    = 1  ! not an acid (H2SO4 or HCL)
                 VAPOUR_PROP%alpha(ii)        = 1.0
+                ! this is just initial value, always gets updated with T
                 VAPOUR_PROP%c_sat(ii)        = saturation_conc_m3(VAPOUR_PROP%psat_a(ii),VAPOUR_PROP%psat_b(ii), 293.15d0)
 
                 ii = ii + 1
             END IF
         END IF
     end do
-
     close(802)
+
+    ! In case GENERIC was not in Vapour file (should not happen if the file was from the GUI), add GENERIC with default values
+    if (VAPOUR_PROP%vapour_names(VAPOUR_PROP%n_condorg) /= 'GENERIC') THEN
+        print FMT_WARN0, 'The vapour file did not contain GENERIC, adding it now. You should update your file.'
+        ii = VAPOUR_PROP%n_condorg
+        VAPOUR_PROP%vapour_names(ii)  = 'GENERIC'
+        VAPOUR_PROP%cond_type(ii)     = 1  ! Acid
+        VAPOUR_PROP%molar_mass(ii)    = 437.0 * 1d-3
+        VAPOUR_PROP%psat_a(ii)        = 10
+        VAPOUR_PROP%psat_b(ii)        = 1d4
+        VAPOUR_PROP%density(ii)       = 1819.3946 ! kg/m3
+        VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
+        VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
+        VAPOUR_PROP%diff_vol(ii)      = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
+        VAPOUR_PROP%surf_tension(ii)  = 0.05
+        VAPOUR_PROP%alpha(ii)         = 1.0
+        ! this is just initial value, always gets updated with T
+        VAPOUR_PROP%c_sat(ii)         = saturation_conc_m3(VAPOUR_PROP%psat_a(ii),VAPOUR_PROP%psat_b(ii), 293.15d0)
+    END IF
+
 
     if (Use_atoms) THEN
         OPEN(unit=804, File=TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi)
@@ -526,7 +563,11 @@ IF (Aerosol_flag) then
     VAPOUR_PROP%molar_mass(ii)    = 98.0785 * 1d-3
     VAPOUR_PROP%psat_a(ii)        = 0
     VAPOUR_PROP%psat_b(ii)        = 20000d0
-    VAPOUR_PROP%density(ii)       = 1819.3946 ! kg/m3
+    IF (variable_density) THEN
+        VAPOUR_PROP%density(ii)  = -30d0 * (VAPOUR_PROP%psat_a(ii) - VAPOUR_PROP%psat_b(ii)/293.15d0) + 1029d0  ! kg/m3
+    ELSE
+        VAPOUR_PROP%density(ii)  = 1400.0  ! kg/m3
+    END IF
     VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
     VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
     VAPOUR_PROP%diff_vol(ii)      = 4*6.11D0 + 2*2.31D0 + 22.9D0 ! O=4, H=2, S=1
@@ -537,6 +578,17 @@ IF (Aerosol_flag) then
     VAPOUR_PROP%c_sat(ii)         = 0.0 ! Sulfuric acid stays put
 
   end if
+
+  ! print*, H2SO4_ind_in_chemistry
+  ! do ii=1,VAPOUR_PROP%n_condtot
+  !     print*, ii, VAPOUR_PROP%vapour_names(ii), VAPOUR_PROP%cond_type(ii), VAPOUR_PROP%c_sat(ii)
+  ! END DO
+  ! print*,'Next print'
+  ! do ii=1,size(index_cond,1)
+  !     print*, ii,VAPOUR_PROP%vapour_names(ii), index_cond(ii), SPC_NAMES(index_cond(ii))
+  ! END DO
+  ! print*, VAPOUR_PROP%ind_GENERIC,VAPOUR_PROP%ind_H2SO4
+  ! stop
 
   CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
 end subroutine READ_INPUT_DATA

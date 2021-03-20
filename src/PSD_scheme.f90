@@ -20,7 +20,6 @@ MODULE PSD_scheme
   type(PSD) :: new_PSD, mix_PSD, interm_PSD ! Variables that store PSD values during the calculations
   type(PSD) :: old_PSD                      ! This is used to save the current state and to restore it in case of an error related to timestep handling
 
-
 CONTAINS
 
 ! ==================================================================================
@@ -834,10 +833,8 @@ PURE FUNCTION get_composition(parts)
 
     IF (d_PSD%PSD_style == 1) THEN
       get_composition = d_PSD%composition_fs
-      ! where (get_composition<0) get_composition = 0d0
   ELSE IF (d_PSD%PSD_style == 2) THEN
       get_composition = d_PSD%composition_ma
-      ! where (get_composition<0) get_composition = 0d0
     END IF
 END FUNCTION get_composition
 

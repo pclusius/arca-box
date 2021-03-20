@@ -89,7 +89,7 @@ CONTAINS
     parbuf(i)%name = 'MASS'                  ; parbuf(i)%u = '[kg]'       ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     ! parbuf(i)%name = 'SURFACE_TENSION'       ; parbuf(i)%u = '[N/m]'      ; parbuf(i)%d = 4 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     ! parbuf(i)%name = 'VAPOR_CONCENTRATION'   ; parbuf(i)%u = '[#/m^3]'    ; parbuf(i)%d = 5 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
-    parbuf(i)%name = 'PARTICLE_COMPOSITION'  ; parbuf(i)%u = '[kg/m^3]'   ; parbuf(i)%d = 7 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
+    parbuf(i)%name = 'PARTICLE_COMPOSITION'  ; parbuf(i)%u = '[kg/particle]'   ; parbuf(i)%d = 7 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
 !    parbuf(i)%name = 'VOLUME_CONCENTRATION'  ; parbuf(i)%u = '[um^3/m^3]' ; parbuf(i)%d = 7 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
 
     allocate(savepar(i-1))
@@ -333,10 +333,12 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOU
   I=3 ! Particle file
   if (Aerosol_flag) THEN
     if (DONT_SAVE_CONDENSIBLES .eqv. .false.) THEN
-        do j = 1,vapours%n_condorg
+        do j = 1,vapours%n_condorg-1
             call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(index_cond(j)), (/GTIME%ind_netcdf/)) )
         end do
-        call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%n_condtot), &
+        call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_GENERIC), &
+                    CH_GAS(IndexFromName(vapours%vapour_names(vapours%ind_GENERIC),SPC_NAMES)), (/GTIME%ind_netcdf/)) )
+        call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_H2SO4), &
                     CH_GAS(IndexFromName(vapours%vapour_names(vapours%ind_H2SO4),SPC_NAMES)), (/GTIME%ind_netcdf/)) )
     end if
 

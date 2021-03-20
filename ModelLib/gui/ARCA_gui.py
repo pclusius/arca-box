@@ -13,7 +13,7 @@ import pyqtgraph as pg
 from layouts import varWin,gui8,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor
 from modules import variations,vars,batch,GetVapourPressures as gvp
 from subprocess import Popen, PIPE, STDOUT
-from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros, sum as npsum
+from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros, sum as npsum, ravel, mean
 import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname
@@ -2592,7 +2592,15 @@ a chemistry module in tab "Chemistry"''', icon=2)
             except:
                 self.popup('Bummer...', 'Not a valid output file',icon=3)
                 return
-        if ossplit(file)[1] == 'Particles.nc': self.ShowPPC.setEnabled(True)
+        if ossplit(file)[1] == 'Particles.nc':
+            self.ShowPPC.setEnabled(True)
+            b = ravel(self.ncs.variables['CONDENSABLES'][:,:].astype(str),'C')
+            names=b.reshape(self.ncs.variables['CONDENSABLES'].shape)
+            self.compomatrix = self.ncs.variables['PARTICLE_COMPOSITION'][:,:,:]
+            self.compoNC = self.ncs.variables['NUMBER_CONCENTRATION'][:]
+            self.namesForComposition = {}
+            for i,word in enumerate(names):
+                self.namesForComposition[(''.join(list(word))).strip()] = i
 
         # find out the time dimension, using unlimited dimension here
         for timedim in self.ncs.dimensions:
@@ -2625,8 +2633,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.availableVars.clear()
             self.availableVars.addItems(self.hnames)
             self.availableVars.item(2).setSelected(True)
+            self.availableVars.setCurrentItem(self.availableVars.item(2))
             self.availableVars.itemSelectionChanged.connect(self.showOutputUpdate)
             self.ShowPPC.toggled.connect(self.showOutputUpdate)
+            self.ShowPPC.toggled.connect(self.toggleTimeInavailableVars)
 
         # If fails, give information and return
         except:
@@ -2647,6 +2657,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
             if self.availableVars.currentItem() != None:
                 self.availableVars.currentItem().setSelected(True)
 
+    def toggleTimeInavailableVars(self):
+        item = self.availableVars.item(0)
+        item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEnabled ^ QtCore.Qt.ItemIsSelectable)
+        item = self.availableVars.item(1)
+        item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEnabled ^ QtCore.Qt.ItemIsSelectable)
 
     def showOutputUpdate(self):
         """This function is inwoked when lin/log radio button or any variable in the list is changed"""
@@ -2663,19 +2678,44 @@ a chemistry module in tab "Chemistry"''', icon=2)
             comp = self.availableVars.currentItem().text()
         except:
             return
+        def getcompo():
+            if comp in self.namesForComposition:
+                kk=self.namesForComposition[comp]
+            else:return
+            self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' [ng/m3]'
+            # NOTE: unit conversion kg->g->ng and cm3 (from particle conc) -> m3
+            return 1e3*1e9*1e6*npsum(self.compoNC*self.compomatrix[:,:,kk], axis=1)
+
         # Exctract that variable from netCDF-dataset and save to Y
-        self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' ['+units.get(comp,units['REST'])[0]+']'
         if not self.sumSelection.isChecked():
             if PPconc:
-                Y = self.ncs.variables[comp][:]
+                Y = getcompo()
             else:
                 Y = self.ncs.variables[comp][:]
         else:
             if self.availableVars.selectedItems() != []:
-                Y = sum(self.ncs.variables[c.text()][:] for c in self.availableVars.selectedItems())
-                self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + self.availableVars.selectedItems()[0].text()+' etc.'
+                if PPconc:
+                    inds = []
+                    for c in self.availableVars.selectedItems():
+                        if c.text() in self.namesForComposition:
+                            inds.append(self.namesForComposition[c.text()])
+                    if inds ==[]:return
+                    # NOTE: unit conversion kg->g->ng and cm3 (from particle conc) -> m3
+                    Y = 1e3*1e9*1e6*npsum(self.compoNC*npsum(self.compomatrix[:,:,inds],2), axis=1)
+                    self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + self.availableVars.selectedItems()[0].text()+' etc. [ng/m3]'
+                else:
+                    Y = sum(self.ncs.variables[c.text()][:] for c in self.availableVars.selectedItems())
+                    self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + self.availableVars.selectedItems()[0].text()+' etc. [#/cm3]'
             else:
-                Y = self.ncs.variables[comp][:]
+                if PPconc:
+                    Y= getcompo()
+                else:
+                    Y = self.ncs.variables[comp][:]
+                    self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' [#/cm3]'
+
+        if max(Y)!=0:
+            # if the variable is PRACTICALLY nonvariant, set the value to constant
+            if (max(Y)-min(Y))/max(Y)<1e-5:Y[:]=mean(Y)
 
         # Are the values non-negative?
         positive = all(Y>=0)
@@ -2741,6 +2781,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 except TypeError: break
             self.availableVars.clear()
             self.plotResultWindow.clear()
+            self.ShowPPC.toggled.disconnect(self.showOutputUpdate)
+            self.ShowPPC.toggled.disconnect(self.toggleTimeInavailableVars)
+
             self.ShowPPC.setChecked(False)
             self.ShowPPC.setEnabled(False)
         except:

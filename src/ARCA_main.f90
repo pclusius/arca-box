@@ -585,10 +585,14 @@ in_turn_any: if (PRC%in_turn(4)) THEN
 
             ! Pick the condensables from chemistry and change units from #/cm^3 to #/m^3
             conc_vapour = 0d0
-            conc_vapour(1:VAPOUR_PROP%n_condorg) =  CH_GAS(index_cond)*1D6 ! mol/m3
+            conc_vapour(1:VAPOUR_PROP%n_condorg-1) =  CH_GAS(index_cond)*1D6 ! mol/m3
 
             ! Poor sulfuric acid always wants special treatment
-            conc_vapour(n_cond_tot) = CH_GAS(ind_H2SO4)*1d6
+            if (H2SO4_ind_in_chemistry>0) THEN
+                conc_vapour(VAPOUR_PROP%ind_H2SO4) = CH_GAS(ind_H2SO4)*1d6
+            ELSE
+                conc_vapour(VAPOUR_PROP%ind_H2SO4) = TSTEP_CONC(inm_H2SO4)
+            END IF
 
             ! Update vapour pressures for organics
             VAPOUR_PROP%c_sat(1:VAPOUR_PROP%n_condorg) =  saturation_conc_m3( &
@@ -635,9 +639,15 @@ in_turn_any: if (PRC%in_turn(4)) THEN
                 current_PSD = new_PSD
 
                 ! Update vapour concentrations to chemistry
-                CH_GAS(index_cond) = conc_vapour(1:VAPOUR_PROP%n_condorg) *1D-6
+                CH_GAS(index_cond) = conc_vapour(1:VAPOUR_PROP%n_condorg-1) *1D-6
+
                 ! Again sulfuric acid always needs special treatment
-                CH_GAS(ind_H2SO4) = conc_vapour(n_cond_tot)*1d-6
+                if (H2SO4_ind_in_chemistry>0) THEN
+                    CH_GAS(ind_H2SO4) = conc_vapour(VAPOUR_PROP%ind_H2SO4)*1d-6
+                ELSE
+                    TSTEP_CONC(inm_H2SO4) = conc_vapour(VAPOUR_PROP%ind_H2SO4)*1d-6
+                END IF
+
 
                 ! Check whether timestep can be increased:
                 IF (use_speed &
