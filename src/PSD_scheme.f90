@@ -7,6 +7,7 @@ MODULE PSD_scheme
 
   ! START: variables that will be defined outside
   INTEGER :: n_cond_tot  ! number of species that can go to the particle phase
+  INTEGER :: n_cond_org  ! number of organic species that can go to the particle phase
   ! END variables that will be defined outside
 
   REAL(dp), ALLOCATABLE :: dconc_coag(:,:)  ! coagulation: collision number matrix: nr_bins * nr_bins
@@ -65,7 +66,8 @@ SUBROUTINE PSD_get_input()
     !non condensables initially on the particle phase
     !vapour_number is the stuff that has a quantifiable vapour pressure > 0
     if (ALLOCATED(XTRAS)) nr_noncond = size(XTRAS)
-    n_cond_tot = VAPOUR_PROP%n_condtot !+ nr_noncond
+    n_cond_tot = VAPOUR_PROP%n_condtot
+    n_cond_org = VAPOUR_PROP%n_condorg
 
 
   END SUBROUTINE PSD_get_input
@@ -790,7 +792,6 @@ SUBROUTINE set_composition(ip, gdp, useold)
     IF (current_PSD%PSD_style == 1) THEN
         if (useold) THEN
             comp_pp = old_PSD%composition_fs(ip,:) * Na / VAPOUR_PROP%molar_mass * old_PSD%conc_fs(ip)
-
               if (current_PSD%volume_fs(ip) >0.0 .and. current_PSD%diameter_fs(ip) > 1D-9) then
                 sum_org = sum(comp_pp,DIM=1)
                 if (sum_org>0) THEN

@@ -109,19 +109,6 @@
 &NML_CUSTOM
 /
 
-# Options available in CUSTOM_NML (and defaults)
-# I: acdc_iterations = 4
-# I: INITIALIZE_FROM = 0
-# C: INITIALIZE_WITH = ''
-# L: use_raoult = .True.
-# L: variable_density = .False.
-# L: DONT_SAVE_CONDENSIBLES = .False.
-# L: skip_acdc = .True.
-# R: dmps_tres_min = 10.
-# R: VP_MULTI = 1d0
-# R: start_time_s = 0d0
-# R: dmps_multi = 1d6
-# R: END_DMPS_SPECIAL = 1d50
 
 
 # Following settings are for the GUI and not directly used by the model -----

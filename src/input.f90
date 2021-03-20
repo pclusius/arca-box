@@ -384,7 +384,7 @@ IF (Aerosol_flag) then
     call handle_file_io(ioi, Vap_names, &
         'If Condensation is used, "Vapour file" must be defined (in tab "Advanced").')
 
-    rows = ROWCOUNT(802, '#')
+    rows = ROWCOUNT(802)
     cols = COLCOUNT(802)
 
     VAPOUR_PROP%n_condorg = 0

@@ -822,6 +822,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=0))
             self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=1))
             self.CloseLinePlotsButton.clicked.connect(self.closenetcdf)
+
         else:
             self.sumSelection.setEnabled(False)
             self.show_netcdf.show()
@@ -840,6 +841,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             wnd.getAxis('left').setPen(pen)
             wnd.getAxis('bottom').setPen(pen)
 
+        self.ShowPPC.setEnabled(False)
         self.sumSelection.stateChanged.connect(self.selectionMode)
         self.loadCurrentBg.clicked.connect(lambda: self.showParOutput('load current',1))
         self.oneDayFwd.clicked.connect(lambda: self.moveOneDay(1))
@@ -2511,7 +2513,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.times.addItems(['%7.2f'%(i) for i in self.mp_time])
             self.times.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
             self.diams.itemSelectionChanged.connect(self.updateMass)
-
+            self.massPlotTitle.setText(file)
             try:
                 DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
                 self.massdmps = self.ncs_mass.variables['MASS'][:]*DMPS_CONCENTRATION
@@ -2530,16 +2532,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.plotResultWindow_3.clear()
             indstime = [i.row() for i in self.times.selectedIndexes()]
         inds = [i.row() for i in self.diams.selectedIndexes()]
-        # if self.showAlsoMeasInMassConc.isChecked():
-        #     if self.measdmps == False:
-        #         try:
-        #             DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
-        #             self.massdmps = self.ncs_mass.variables['MASS'][:]*DMPS_CONCENTRATION
-        #             self.lognormdmps = DMPS_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
-        #             self.measdmps = True
-        #         except:
-        #             print('File did not contain measured PSD')
-
+        # y is the array that gets plotted
         y  = npsum(self.mass_in_bin[:,inds],axis=1)
         miny, maxy = y.min(),y.max()
         if self.measdmps:
@@ -2599,6 +2592,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             except:
                 self.popup('Bummer...', 'Not a valid output file',icon=3)
                 return
+        if ossplit(file)[1] == 'Particles.nc': self.ShowPPC.setEnabled(True)
 
         # find out the time dimension, using unlimited dimension here
         for timedim in self.ncs.dimensions:
@@ -2632,6 +2626,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.availableVars.addItems(self.hnames)
             self.availableVars.item(2).setSelected(True)
             self.availableVars.itemSelectionChanged.connect(self.showOutputUpdate)
+            self.ShowPPC.toggled.connect(self.showOutputUpdate)
 
         # If fails, give information and return
         except:
@@ -2656,6 +2651,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
     def showOutputUpdate(self):
         """This function is inwoked when lin/log radio button or any variable in the list is changed"""
         # find out which y-scale should be used
+        if self.ShowPPC.isChecked():
+            PPconc = True
+        else:
+            PPconc = False
         scale = self.radio(self.fLin_2, self.fLog_2)
         if scale == 'log':loga = True
         else: loga = False
@@ -2667,7 +2666,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
         # Exctract that variable from netCDF-dataset and save to Y
         self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' ['+units.get(comp,units['REST'])[0]+']'
         if not self.sumSelection.isChecked():
-            Y = self.ncs.variables[comp][:]
+            if PPconc:
+                Y = self.ncs.variables[comp][:]
+            else:
+                Y = self.ncs.variables[comp][:]
         else:
             if self.availableVars.selectedItems() != []:
                 Y = sum(self.ncs.variables[c.text()][:] for c in self.availableVars.selectedItems())
@@ -2739,6 +2741,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 except TypeError: break
             self.availableVars.clear()
             self.plotResultWindow.clear()
+            self.ShowPPC.setChecked(False)
+            self.ShowPPC.setEnabled(False)
         except:
             pass
 

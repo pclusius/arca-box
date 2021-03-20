@@ -11,6 +11,154 @@ IMPLICIT NONE
 CONTAINS
 
 
+! ! ======================================================================================================================
+! ! Main condensation subroutine. We use the Analytical predictor of condensation scheme Jacobson 1997c, 2002 and
+! ! fundamentals of atmospheric modelling. Dmass, which is the flux onto or removed from the particles is the outcome
+! ! of this subroutine which is fed to PSD
+! ! ======================================================================================================================
+! SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
+!     IMPLICIT NONE
+!     type(vapour_ambient), INTENT(IN)            :: VAPOUR_PROP  ! Properties of condensing vapours
+!     REAL(dp), INTENT(INOUT)                     :: conc_vap(:)  ! [#/m^3], condensing vapour concentrations, DIM(n_cond_tot)
+!     REAL(dp), INTENT(INOUT)                     :: dmass(:,:)   ! [kg/m^3] change of mass per particle in particle phase, DIM(n_bins_par, n_cond_tot)
+!     REAL(dp), INTENT(IN)                        :: dt_cond      ! integration timestep for condensation [s]
+!     REAL(dp), INTENT(INOUT)                     :: d_dpar(:)    ! relative change in particle diameter [1]
+!     REAL(dp), INTENT(INOUT)                     :: d_vap(:)     ! relative change in vapor concentrations [1]
+!     REAL(dp), DIMENSION(n_bins_par)             :: CR           ! [/s] collisions per second, collision rate * concentration
+!     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: Kelvin_Effect
+!     REAL(dp), DIMENSION(n_bins_par)             :: Kelvin_1D
+!     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: kohler_effect
+!     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp_old
+!     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: xorg         ! mole fraction of each organic compound in each bin
+!     REAL(dp), DIMENSION(n_bins_par)             :: xorg_1d         ! mole fraction of each organic compound in each bin
+!     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp_eq
+!     REAL(dp), DIMENSION(n_cond_tot)             :: conc_tot
+!     REAL(dp), DIMENSION(n_cond_tot)             :: conc_vap_old
+!     REAL(dp)                                    :: n_conc(n_bins_par)
+!     REAL(dp)                                    :: diameter(n_bins_par)
+!     REAL(dp)                                    :: volume(n_bins_par)
+!     REAL(dp)                                    :: mass(n_bins_par) ! [kg/m^3]
+!     REAL(dp)                                    :: conc_pp(n_bins_par,n_cond_tot) ! [#/m^3] Particle phase concentrations, DIM(n_bins_par,n_cond_tot)
+!     REAL(dp)                                    :: st           ! Surface tension for all compounds
+!     REAL(dp)                                    :: conc_guess
+!     REAL(dp)                                    :: vconc_old
+!     REAL(dp)                                    :: sum_org      ! Sum of organic concentration in bin, transient variable
+!     INTEGER :: ic ! index for condesables
+!     INTEGER :: ip ! index for particles
+!
+!   if (TEMP_DEP_SURFACE_TENSION) THEN
+!       st = (1D0/3D0) * ((76.1d0 - 0.155d0*(GTEMPK-273.15d0))*1d-3)
+!   ELSE
+!     st = VAPOUR_PROP%surf_tension(1)
+!   END IF
+!   conc_pp = 0d0
+!   conc_pp = get_composition()
+!   n_conc = get_conc()
+!   diameter = get_dp()
+!   volume = get_volume()
+!   mass = sum(conc_pp, 2)
+!   conc_pp_eq = 0d0
+!
+! xorg = 1d0
+!
+! DO ip=1,n_bins_par
+!
+!     conc_pp(ip,:) = conc_pp(ip,:) * Na / VAPOUR_PROP%molar_mass * n_conc(ip)
+!
+!     Kelvin_Effect(ip,:) = 1D0 + 2D0*st*VAPOUR_PROP%molar_mass &
+!                         / (Rg*GTEMPK*VAPOUR_PROP%density*diameter(ip)/2D0)
+!
+!     if (use_raoult.and.(volume(ip) > 0.0).and.(diameter(ip) > 1D-9)) then
+!         sum_org = sum(conc_pp(ip,:),DIM=1, Mask=(VAPOUR_PROP%cond_type==1))
+!         if (sum_org>0) xorg(ip,:VAPOUR_PROP%n_condorg) = conc_pp(ip,VAPOUR_PROP%n_condorg)/sum_org
+!     END if
+!
+!     kohler_effect(ip,:)  = Kelvin_Effect(ip,:) * xorg(ip,:)
+!
+!     conc_pp_eq(ip,:VAPOUR_PROP%n_condorg) = conc_vap(:VAPOUR_PROP%n_condorg) &
+!                                             * SUM(conc_pp_old(ip,:VAPOUR_PROP%n_condorg)) &
+!                                             / ( Kelvin_Effect(ip,:VAPOUR_PROP%n_condorg) &
+!                                             * VAPOUR_PROP%c_sat(:VAPOUR_PROP%n_condorg) )
+!
+! END DO
+!
+!
+! ! original particle phase concentration
+! conc_pp_old = conc_pp
+! ! vapour phase + particle phase
+! conc_tot = conc_vap + sum(conc_pp,1)
+!
+! DO ic = 1, n_cond_tot
+!       vconc_old = conc_vap(ic)
+!       ! Total number of collisions/s
+!       CR(:) = n_conc * collision_rate(ic,diameter,mass,VAPOUR_PROP)
+!
+!     ! Update sulfuric acid condensation sink
+!     if (ic == VAPOUR_PROP%ind_H2SO4) GCS = sum(CR(:))
+!
+!     ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
+!     conc_guess = (conc_vap(ic) + dt_cond*sum(CR(:)*kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))) &
+!                / (1D0 + dt_cond*sum(CR(:)))
+!
+!     ! apc scheme here. NOTE that for sulfuric acid VAPOUR_PROP%c_sat(ic) = 0 so the last term will vanish
+!     conc_pp(:,ic) = conc_pp_old(:,ic) + dt_cond*CR(:)*(MIN(conc_guess,conc_tot(ic)) &
+!                   - kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))
+!
+!     ! Prevent overestimation of evaporation by setting negative concentrations to zero
+!     WHERE ( conc_pp(:,ic)<0D0 ) conc_pp(:,ic) = 0D0
+!
+!     ! Prevents particles to grow over the saturation limit. For organics, no acids or GENERIC included
+!     IF (ic < VAPOUR_PROP%ind_GENERIC) then
+!       WHERE (diameter>0d0 .and. conc_pp(:,ic)>conc_pp_eq(:,ic) &
+!                 .AND. conc_vap(ic)<(Kelvin_Effect(:,ic) * VAPOUR_PROP%c_sat(ic))) &
+!                 conc_pp(:,ic) = conc_pp_eq(:,ic)
+!     END IF
+!
+!     ! XXX NOTE We change GENERIC back to what it was before
+!     conc_pp(:,VAPOUR_PROP%ind_GENERIC) = conc_pp_old(:,VAPOUR_PROP%ind_GENERIC)
+!
+!     ! Update conc_vap: total conc - particle phase concentration
+!     if (ic /= VAPOUR_PROP%ind_H2SO4) conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
+!
+!   ! derive the relative changes in the vapor phase
+!     IF (conc_tot(ic)>MIN_CONCTOT_CC_FOR_DVAP*1d6) d_vap(ic) = ( conc_vap(ic) - vconc_old ) / conc_tot(ic)
+!
+!     dmass(:,ic) = (conc_pp(:,ic) - conc_pp_old(:,ic))*VAPOUR_PROP%molar_mass(ic) / Na
+!
+!   END DO
+!
+!   ! only apply condensation if there are particles
+!   do ip = 1, n_bins_par
+!     if (n_conc(ip)>1d-10) THEN
+!       dmass(ip,:) = dmass(ip,:) / n_conc(ip)
+!     else
+!       dmass(ip,:) = 0d0
+!     END if
+!   END DO
+!
+!   ! derive diameter changes for integration time-step optimization
+!   DO ip = 1, n_bins_par - 1
+!     IF (SUM(conc_pp_old(ip,:)) > 0.d0 .and. n_conc(ip) > 1.d-10) THEN   ! only if there are particles and if they had a composition in the last timestep
+!        d_dpar(ip) = (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip) + SUM(dmass(ip,:))) &
+!                     / (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip))
+!         if (d_dpar(ip)<0d0.and.Use_speed) THEN
+!             call SET_ERROR(PRC%cch, 'Particles shrink beyond their size')
+!             return
+!         ELSE
+!             d_dpar(ip) = ( d_dpar(ip)**(1.d0/3.d0) ) - 1.d0
+!         END IF
+!
+!     ELSE
+!       d_dpar(ip) = 0.d0
+!     END IF
+!   END DO
+!
+!
+! END SUBROUTINE Condensation_apc
+
+
+
+
 ! ======================================================================================================================
 ! Main condensation subroutine. We use the Analytical predictor of condensation scheme Jacobson 1997c, 2002 and
 ! fundamentals of atmospheric modelling. Dmass, which is the flux onto or removed from the particles is the outcome
@@ -24,154 +172,151 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     REAL(dp), INTENT(IN)                        :: dt_cond      ! integration timestep for condensation [s]
     REAL(dp), INTENT(INOUT)                     :: d_dpar(:)    ! relative change in particle diameter [1]
     REAL(dp), INTENT(INOUT)                     :: d_vap(:)     ! relative change in vapor concentrations [1]
-    ! REAL(dp), INTENT(INOUT)                     :: d_vap_alt(:) ! relative change in vapor concentrations [1]
-    REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: CR           ! [/s] collisions per second, collision rate * concentration
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: Kelvin_Effect
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: kohler_effect
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp_old
-    REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: xorg         ! mole fraction of each organic compound in each bin
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp_eq
+    REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp      ! [#/m^3] Particle phase concentrations, DIM(n_bins_par,n_cond_tot)
+    REAL(dp), DIMENSION(n_bins_par)             :: CR           ! [/s] collisions per second, collision rate * concentration
     REAL(dp), DIMENSION(n_cond_tot)             :: conc_tot
     REAL(dp), DIMENSION(n_cond_tot)             :: conc_vap_old
-    REAL(dp)                                    :: n_conc(n_bins_par)
-    REAL(dp)                                    :: diameter(n_bins_par)
-    REAL(dp)                                    :: volume(n_bins_par)
-    REAL(dp)                                    :: mass(n_bins_par) ! [kg/m^3]
-    REAL(dp)                                    :: conc_pp(n_bins_par,n_cond_tot) ! [#/m^3] Particle phase concentrations, DIM(n_bins_par,n_cond_tot)
+    REAL(dp), DIMENSION(n_bins_par)             :: n_conc
+    REAL(dp), DIMENSION(n_bins_par)             :: diameter
+    REAL(dp), DIMENSION(n_bins_par)             :: volume
+    REAL(dp), DIMENSION(n_bins_par)             :: mass         ! [kg/m^3]
     REAL(dp)                                    :: st           ! Surface tension for all compounds
     REAL(dp)                                    :: conc_guess
     REAL(dp)                                    :: sum_org      ! Sum of organic concentration in bin, transient variable
-    INTEGER :: ic ! index for condesables
-    INTEGER :: ip ! index for particles
+    INTEGER                                     :: ic           ! index for condesables
+    INTEGER                                     :: ip           ! index for particles
 
-  if (TEMP_DEP_SURFACE_TENSION) THEN
-      st = (1D0/3D0) * ((76.1d0 - 0.155d0*(GTEMPK-273.15d0))*1d-3)
-  ELSE
+
     st = VAPOUR_PROP%surf_tension(1)
-  END IF
-  conc_pp = 0d0
-  conc_pp = get_composition()
-  n_conc = get_conc()
-  diameter = get_dp()
-  volume = get_volume()
-  mass = sum(conc_pp, 2)
-  conc_pp_eq = 0d0
 
-  ! Fill the number concentration composition matrix
-  do ip=1, n_bins_par
-    conc_pp(ip,:) = conc_pp(ip,:) * Na / VAPOUR_PROP%molar_mass * n_conc(ip)
-  end do
+    conc_pp = 0d0
+    conc_pp = get_composition()
+    n_conc = get_conc()
+    diameter = get_dp()
+    volume = get_volume()
+    mass = sum(conc_pp, 2)
+    conc_pp_eq = 0d0
 
-  ! original gas phase concentration
-  conc_vap_old = conc_vap
-  ! original particle phase concentration
-  conc_pp_old = conc_pp
-  ! vapour phase + particle phase
-  conc_tot = conc_vap + sum(conc_pp,1)
-
-
-  xorg = 1d0
-  if (use_raoult) THEN
+    ! Fill the number concentration composition matrix
+    kohler_effect = 1d0
     DO ip=1,n_bins_par
-      if (volume(ip) >0.0 .and. diameter(ip) > 1D-9) then
-        sum_org = sum(conc_pp(ip,:),DIM=1, Mask=(VAPOUR_PROP%cond_type==1))
-        if (sum_org>0) THEN
-          xorg(ip,:)= conc_pp(ip,:)/sum_org
+        conc_pp(ip,:) = conc_pp(ip,:) * Na / VAPOUR_PROP%molar_mass * n_conc(ip)
+        if (use_raoult) THEN
+            if (volume(ip) >0.0 .and. diameter(ip) > 1D-9) then
+                sum_org = sum(conc_pp(ip,:),DIM=1, Mask=(VAPOUR_PROP%cond_type==1))
+                if (sum_org>0) THEN
+                    ! mole fraction of each organic compound in each bin
+                    kohler_effect(ip,:)= conc_pp(ip,:)/sum_org
+                END if
+            END if
         END if
-      END if
     END DO
-  END if
 
-  ! Kelvin and Kohler factors.
-    KELVIN: DO ic = 1, n_cond_tot
+    ! original gas phase concentration
+    conc_vap_old = conc_vap
+    ! original particle phase concentration
+    conc_pp_old = conc_pp
+    ! vapour phase + particle phase
+    conc_tot = conc_vap + sum(conc_pp,1)
+
+
+    ! Kelvin and Kohler factors.
+    DO ic = 1, n_cond_tot
         ! Kelvin factor takes into account the curvature of particles. Unitless
         Kelvin_Effect(:,ic) = 1D0 + 2D0*st*VAPOUR_PROP%molar_mass(ic) &
                             / (Rg*GTEMPK*VAPOUR_PROP%density(ic)*diameter/2D0)
 
         ! Kohler factor the solute partial pressure effect. Unitless
-        kohler_effect(:,ic) = Kelvin_Effect(:,ic)*xorg(:,ic)
-    END DO KELVIN
-  ! Treat H2SO4 specially
-  kohler_effect(:,n_cond_tot) = Kelvin_Effect(:,n_cond_tot)
+        kohler_effect(:,ic) = kohler_effect(:,ic) * Kelvin_Effect(:,ic)
+    END DO
 
-  ! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
-  DO ic=1,n_bins_par
-    conc_pp_eq(ic,1:n_cond_tot-1) = conc_vap_old(1:n_cond_tot-1)*SUM(conc_pp_old(ic,1:n_cond_tot-1)) &
-                                    / (Kelvin_Effect(ic,1:n_cond_tot-1)*VAPOUR_PROP%c_sat(1:n_cond_tot-1))
-  END DO
+    ! Treat H2SO4 specially
+    kohler_effect(:,VAPOUR_PROP%ind_H2SO4) = Kelvin_Effect(:,VAPOUR_PROP%ind_H2SO4)
 
-  DO ic = 1, n_cond_tot
+    ! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
+    DO ic=1,n_bins_par
+        conc_pp_eq(ic,1:n_cond_tot-1) = conc_vap_old(1:n_cond_tot-1)*SUM(conc_pp_old(ic,1:n_cond_tot-1)) &
+                                        / (Kelvin_Effect(ic,1:n_cond_tot-1)*VAPOUR_PROP%c_sat(1:n_cond_tot-1))
+    END DO
 
-      ! Total number of collisions/s
-    CR(:,ic) = n_conc * collision_rate(ic,diameter,mass,VAPOUR_PROP)
+    DO ic = 1, n_cond_tot
 
-    ! Update sulfuric acid condensation sink
-    if (ic == VAPOUR_PROP%ind_H2SO4) GCS = sum(CR(:,ic))
+        ! NOTE GENERIC does not exist in gas phase
+        if (ic == VAPOUR_PROP%ind_GENERIC) cycle
 
-    ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
-    conc_guess = (conc_vap(ic) + dt_cond*sum(CR(:,ic)*kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))) &
-               / (1D0 + dt_cond*sum(CR(:,ic)))
+        ! Collision rate of particles and gas molecules * concentration -> total number of collisions/s
+        CR = n_conc * collision_rate(ic,diameter,mass,VAPOUR_PROP)
 
-    ! apc scheme here. NOTE that for sulfuric acid VAPOUR_PROP%c_sat(ic) = 0 so the last term will vanish
-    conc_pp(:,ic) = conc_pp_old(:,ic) + dt_cond*CR(:,ic)*(MIN(conc_guess,conc_tot(ic)) &
-                  - kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))
+        ! Update sulfuric acid condensation sink
+        if (ic == VAPOUR_PROP%ind_H2SO4) GCS = sum(CR)
 
-    ! Prevent overestimation of evaporation by setting negative concentrations to zero
-    WHERE ( conc_pp(:,ic)<0D0 ) conc_pp(:,ic) = 0D0
+        ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
+        conc_guess = (conc_vap(ic) + dt_cond*sum(CR*kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))) / (1D0 + dt_cond*sum(CR))
 
-    ! Prevents particles to grow over the saturation limit. For organics, no acids or GENERIC included
-    IF (ic < VAPOUR_PROP%ind_GENERIC) then
-      WHERE (diameter>0d0 .and. conc_pp(:,ic)>conc_pp_eq(:,ic) &
-                .AND. conc_vap_old(ic)<(Kelvin_Effect(:,ic) * VAPOUR_PROP%c_sat(ic))) &
-                conc_pp(:,ic) = conc_pp_eq(:,ic)
-    END IF
+        ! apc scheme cont. NOTE that for sulfuric acid VAPOUR_PROP%c_sat(ic) ~ 0 so the last term will vanish
+        conc_pp(:,ic) = conc_pp_old(:,ic) + dt_cond*CR*(MIN(conc_guess,conc_tot(ic)) &
+                        - kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))
 
-    ! XXX NOTE We change GENERIC back to what it was before
-    conc_pp(:,VAPOUR_PROP%ind_GENERIC) = conc_pp_old(:,VAPOUR_PROP%ind_GENERIC)
+        ! Prevent overestimation of evaporation by setting negative concentrations to zero
+        WHERE ( conc_pp(:,ic)<0D0 ) conc_pp(:,ic) = 0D0
 
-    ! Update conc_vap: total conc - particle phase concentration
-    if (ic /= VAPOUR_PROP%ind_H2SO4) conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
-
-  ! derive the relative changes in the vapor phase
-    IF (conc_tot(ic)>MIN_CONCTOT_CC_FOR_DVAP*1d6) d_vap(ic) = ( conc_vap(ic) - conc_vap_old(ic) ) / conc_tot(ic)
-
-
-  END DO
-
-  ! Calculate dmass for PSD
-  DO ic = 1, n_cond_tot
-    dmass(:,ic) = (conc_pp(:,ic) - conc_pp_old(:,ic))*VAPOUR_PROP%molar_mass(ic) / Na
-  END DO
-
-
-  ! only apply condensation if there are particles
-  do ip = 1, n_bins_par
-    if (n_conc(ip)>1d-10) THEN
-      dmass(ip,:) = dmass(ip,:) / n_conc(ip)
-    else
-      dmass(ip,:) = 0d0
-    END if
-  END DO
-
-  ! derive diameter changes for integration time-step optimization
-  DO ip = 1, n_bins_par - 1
-    IF (SUM(conc_pp_old(ip,:)) > 0.d0 .and. n_conc(ip) > 1.d-10) THEN   ! only if there are particles and if they had a composition in the last timestep
-       d_dpar(ip) = (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip) + SUM(dmass(ip,:))) &
-                    / (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip))
-        if (d_dpar(ip)<0d0.and.Use_speed) THEN
-            call SET_ERROR(PRC%cch, 'Particles shrink beyond their size')
-            return
-        ELSE
-            d_dpar(ip) = ( d_dpar(ip)**(1.d0/3.d0) ) - 1.d0
+        ! Prevents particles to grow over the saturation limit. For organics, no acids or GENERIC included
+        IF (ic < VAPOUR_PROP%ind_GENERIC) then
+            WHERE (   ( diameter>0d0 )  .and.  ( conc_pp(:,ic)>conc_pp_eq(:,ic) )                 &
+                    .AND. ( conc_vap_old(ic)  <  (Kelvin_Effect(:,ic) * VAPOUR_PROP%c_sat(ic)) )  &
+                    )
+                    conc_pp(:,ic) = conc_pp_eq(:,ic)
+            END WHERE
         END IF
 
-    ELSE
-      d_dpar(ip) = 0.d0
-    END IF
-  END DO
+        ! Update conc_vap: total conc - particle phase concentration. Sulfuric acid is handled in chemistry
+        if (ic /= VAPOUR_PROP%ind_H2SO4)  conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
 
+        ! derive the relative changes in the vapor phase. MIN_CONCTOT_CC_FOR_DVAP is in NML_CUSTOM
+        IF ( conc_tot(ic) > MIN_CONCTOT_CC_FOR_DVAP * 1d6 ) d_vap(ic) = ( conc_vap(ic) - conc_vap_old(ic) ) / conc_tot(ic)
+
+        ! Calculate dmass for PSD
+        dmass(:,ic) = (conc_pp(:,ic) - conc_pp_old(:,ic))*VAPOUR_PROP%molar_mass(ic) / Na
+
+    END DO
+
+
+    ! Only apply condensation if there are particles
+    do ip = 1, n_bins_par
+        if (n_conc(ip)>1d-10) THEN
+            dmass(ip,:) = dmass(ip,:) / n_conc(ip)
+        else
+            dmass(ip,:) = 0d0
+        END if
+
+        ! Derive diameter changes for integration time-step optimization
+        if ( ip < n_bins_par ) THEN
+            ! only if there are particles and if they had a composition in the last timestep
+            IF (SUM(conc_pp_old(ip,:)) > 0.d0 .and. n_conc(ip) > 1.d-10) THEN
+
+                ! d_dpar(ip) = (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip) + SUM(dmass(ip,:))) &
+                !             / (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip))
+                d_dpar(ip) = 1d0 + SUM(dmass(ip,:)) / (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip))
+
+                if (d_dpar(ip)<0d0.and.Use_speed) THEN
+                    call SET_ERROR(PRC%cch, 'Particles shrink beyond their size')
+                    return
+                ELSE
+                    d_dpar(ip) = ( d_dpar(ip)**(1.d0/3.d0) ) - 1.d0
+                END IF
+
+            ELSE
+                d_dpar(ip) = 0.d0
+            END IF
+        END IF
+    END DO
 
 END SUBROUTINE Condensation_apc
+
 
 
 
@@ -201,38 +346,38 @@ SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar) ! Add more variables
     volume        = get_volume()
     mass          = get_mass()
 
-  ! The Coagulation coefficient is calculated according to formula 13.56 in Seinfield and Pandis (2006), Page 603
+    ! The Coagulation coefficient is calculated according to formula 13.56 in Seinfield and Pandis (2006), Page 603
 
-  ! Dynamic viscosity of air
-  dyn_visc = 1.8D-5*(GTEMPK/298.0d0)**0.85
-  ! Gas mean free path in air (m)
-  l_gas=2D0*dyn_visc/(GPRES*SQRT(8D0*Mair/(pi*Rg*GTEMPK)))
-  ! Cunninghams slip correction factor (Seinfeld and Pandis eq 9.34)
-  slip_correction = 1D0+(2D0*l_gas/diameter) * (1.257D0 + 0.4D0 * exp(-1.1D0*diameter/(2D0*l_gas)))
-  ! Diffusivity for the different particle sizes m^2/s
-  diffusivity = slip_correction*kb*GTEMPK/(3D0*pi*dyn_visc*diameter)
+    ! Dynamic viscosity of air
+    dyn_visc = 1.8D-5*(GTEMPK/298.0d0)**0.85
+    ! Gas mean free path in air (m)
+    l_gas=2D0*dyn_visc/(GPRES*SQRT(8D0*Mair/(pi*Rg*GTEMPK)))
+    ! Cunninghams slip correction factor (Seinfeld and Pandis eq 9.34)
+    slip_correction = 1D0+(2D0*l_gas/diameter) * (1.257D0 + 0.4D0 * exp(-1.1D0*diameter/(2D0*l_gas)))
+    ! Diffusivity for the different particle sizes m^2/s
+    diffusivity = slip_correction*kb*GTEMPK/(3D0*pi*dyn_visc*diameter)
 
-  ! Speed of particles (m/s)
-  speed_p = SQRT(8D0*kb*GTEMPK/(pi*mass))
-! print*, 'speed 55', SQRT(8D0*kb*GTEMPK/(pi*mass(55)))
-  ! Particle mean free path (m)
-  free_path_p = 8D0*diffusivity/(pi*speed_p)
-! print*, 'fp 55', 8D0*diffusivity(55)/(pi*speed_p(55))
-  ! mean distance from the center of a sphere reached by particles leaving the sphere's surface (m)
-  dist = (SQRT(2D0)/(3D0*diameter*free_path_p))*((diameter + free_path_p)**3D0 &
-  - (diameter**2D0 + free_path_p**2D0)**(3D0/2D0)) - diameter
+    ! Speed of particles (m/s)
+    speed_p = SQRT(8D0*kb*GTEMPK/(pi*mass))
+    ! print*, 'speed 55', SQRT(8D0*kb*GTEMPK/(pi*mass(55)))
+    ! Particle mean free path (m)
+    free_path_p = 8D0*diffusivity/(pi*speed_p)
+    ! print*, 'fp 55', 8D0*diffusivity(55)/(pi*speed_p(55))
+    ! mean distance from the center of a sphere reached by particles leaving the sphere's surface (m)
+    dist = (SQRT(2D0)/(3D0*diameter*free_path_p))*((diameter + free_path_p)**3D0 &
+    - (diameter**2D0 + free_path_p**2D0)**(3D0/2D0)) - diameter
 
-  DO i = 1,n_bins_par
-    ! Fuchs correction factor from Seinfeld and Pandis, 2006, p. 600
-     Beta_Fuchs(i,:) = 1D0/((diameter + diameter(i))/(diameter + diameter(i) &
-     + 2D0*(dist**2D0 + dist(i)**2D0)**0.5D0) + (8D0/sticking_prob(i,:))*(diffusivity + diffusivity(i)) &
-     /(((speed_p**2D0+speed_p(i)**2D0)**0.5D0)*(diameter + diameter(i))))
+    DO i = 1,n_bins_par
+        ! Fuchs correction factor from Seinfeld and Pandis, 2006, p. 600
+        Beta_Fuchs(i,:) = 1D0/((diameter + diameter(i))/(diameter + diameter(i) &
+                        + 2D0*(dist**2D0 + dist(i)**2D0)**0.5D0) + (8D0/sticking_prob(i,:))*(diffusivity + diffusivity(i)) &
+                        /(((speed_p**2D0+speed_p(i)**2D0)**0.5D0)*(diameter + diameter(i))))
 
-    ! coagulation rates between two particles of all size combinations  (m^3/s)
-    coagulation_coef(i,:) = 2D0*pi*Beta_Fuchs(i,:)*(diameter*diffusivity(i) &
-                          + diameter*diffusivity + diameter(i)*diffusivity &
-                          + diameter(i)*diffusivity(i))
-  END DO
+        ! coagulation rates between two particles of all size combinations  (m^3/s)
+        coagulation_coef(i,:) = 2D0*pi*Beta_Fuchs(i,:)*(diameter*diffusivity(i) &
+                        + diameter*diffusivity + diameter(i)*diffusivity &
+                        + diameter(i)*diffusivity(i))
+    END DO
 
 dconc_coag = 0d0
 

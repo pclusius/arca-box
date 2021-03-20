@@ -18,6 +18,8 @@ USE custom_functions
 
 IMPLICIT NONE
 
+REAL(dp), ALLOCATABLE  :: conc_pp(:,:)      ! [#/m^3] Particle phase concentrations, DIM(n_bins_par,n_cond_tot)
+
 ! ==================================================================================================================
 ! Note about file unit handles: Numbers between 100-499 are not used anywhere in the model, so use these in you need
 ! to open additional files. Generally 1-99 can be used temporarily in KPP, 600-series is used in ARCA_main.f90,
@@ -460,8 +462,6 @@ in_turn_acdc: if (PRC%in_turn(4)) THEN
 
     ! =================================================================================================
 END if in_turn_acdc
-
-
 
 
 in_turn_any: if (PRC%in_turn(4)) THEN
