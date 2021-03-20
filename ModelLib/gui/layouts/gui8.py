@@ -4224,7 +4224,7 @@ class Ui_MainWindow(object):
         self.softStopButton.setToolTip(_translate("MainWindow", "<html><head/><body><p>Sends a stop command to the program (via file) so it finalizes all output files. The command is only checked upon screen print times, so if the program is very busy, it might take some time to take effect. </p></body></html>"))
         self.softStopButton.setText(_translate("MainWindow", "Soft Stop"))
         self.pauseScroll.setToolTip(_translate("MainWindow", "Pause monitor scroll."))
-        self.pauseScroll.setText(_translate("MainWindow", "to end ^"))
+        self.pauseScroll.setText(_translate("MainWindow", "Focus to end ^"))
         self.tabWidget_4.setTabText(self.tabWidget_4.indexOf(self.tab_17), _translate("MainWindow", "Monitor"))
         self.groupBox.setTitle(_translate("MainWindow", "NML_CUSTOM"))
         self.label_16.setText(_translate("MainWindow", "Variable"))

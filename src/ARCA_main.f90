@@ -31,7 +31,7 @@ REAL(dp), ALLOCATABLE  :: conc_pp(:,:)      ! [#/m^3] Particle phase concentrati
 ! ==================================================================================================================
 
 REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)    ! Array to hold input variables for the current timestep
-REAL(DP), ALLOCATABLE :: CH_GAS(:), CH_GAS_old(:)        ! Array to hold all chemistry compounds; old: to restore in case of an error related to timestep handling
+REAL(DP), ALLOCATABLE :: CH_GAS(:), CH_GAS_old(:),d_chem(:) ! Array to hold all chemistry compounds; old: to restore in case of an error related to timestep handling
 REAL(dp), ALLOCATABLE :: conc_fit(:)      ! An array giving particle conc independant of PSD_style [m⁻³]
 REAL(dp), ALLOCATABLE :: losses_fit(:),losses_fit0(:),losses_fit1(:), intrp_losses(:) ! An array giving particle conc independant of PSD_style [m-3]
 REAL(dp), ALLOCATABLE :: save_measured(:)      ! An aray for saving measurements
@@ -54,8 +54,9 @@ CHARACTER(:), allocatable:: RUN_OUTPUT_DIR ! Saves the output directory relative
 CHARACTER(1000) :: inibuf                       ! Buffer to save backp from the INITfile that was called
 INTEGER         :: I,II,J,JJ                    ! Loop indices
 INTEGER         :: ioi                          ! iostat variable
+INTEGER(dint)   :: will_stall=0                 ! transient variable
 INTEGER(dint)   :: add_rounds=1                 ! transient variable
-INTEGER(dint)   :: bookkeeping(3,2) = 0_dint    ! save total rounds and latest point fo error
+INTEGER(dint)   :: bookkeeping(3,2) = 0_dint    ! save total rounds and latest point of error
 REAL(dp)        :: cpu1,cpu2,cpu3,cpu4          ! CPU times in seconds
 REAL(dp)        :: errortime(3) = -9999d0       ! CPU time in seconds
 
@@ -172,6 +173,9 @@ IF (Aerosol_flag) THEN
 
     ! Allocate the change vectors for integration timestep control
     ALLOCATE(d_vap(max(VAPOUR_PROP%n_condtot,1)))
+
+    if (Use_speed.and.Chemistry_flag.and..not.Condensation) ALLOCATE(d_chem(NSPEC))
+
     d_vap = 0d0
 
     print FMT_LEND,
@@ -340,7 +344,7 @@ MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the
         dmps_ln_old = dmps_ln
         ! =================================================================================================
     ELSE
-        print*, 'Entered an unnecessary loop, should not have happened.'
+        print FMT_INTRMT, 'Entered an unnecessary loop, should not have happened.'
     END IF
 
 
@@ -419,8 +423,22 @@ in_turn_cch_1: if (PRC%in_turn(PRC%cch)) THEN
         Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRC%cch)), GTEMPK, max(0d0,TSTEP_CONC(inm_swr)),&
                     CH_Beta,CH_H2O, GC_AIR_NOW, GCS, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
 
-        if ( ( minval(CH_GAS)<-1d0 ).and.GTIME%sec>100d0) print*,'Negative values from chemistry, setting to zero: ', MINVAL(CH_GAS)
+        if ( ( minval(CH_GAS)<-1d0 ).and.GTIME%sec>100d0) print FMT_WARN0,'Negative values from chemistry, setting to zero: ', MINVAL(CH_GAS)
         WHERE (CH_GAS<0d0) CH_GAS = 0d0
+
+        if (Use_speed.and..not. Condensation) THEN
+            d_chem = 0d0
+            where (CH_GAS_OLD>MIN_CONCTOT_CC_FOR_DVAP) d_chem = ((CH_GAS-CH_GAS_OLD)/CH_GAS_OLD)
+
+            if (maxval(abs(d_chem)) > DVAPO_RANGE(2)) THEN
+                CALL SET_ERROR(PRC%cch, 'Too large change in chemistry: '//f2chr(1d2* d_chem(maxloc(abs(d_chem),1)))//'%' )
+            else if (maxval(abs(d_chem)) < DVAPO_RANGE(1)) THEN
+                if (speed_up(PRC%cch) * 2 * Gtime%dt < speed_dt_limit(PRC%cch)) THEN
+                    PRC%increase(PRC%cch) = .true.
+                END IF
+            END IF
+        END IF
+
 
         if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
 
@@ -441,7 +459,7 @@ END if in_turn_cch_1
     ! other rate is coming from ACDC. Using the Ratio in Solve Bases (GUI-> ADVANCED) the ration between
     !
     ! =================================================================================================
-in_turn_acdc: if (PRC%in_turn(4)) THEN
+in_turn_acdc: if (PRC%in_turn(4).and..not.PRC%err) THEN
         if (ACDC) THEN
             CALL ACDC_J(TSTEP_CONC, GTIME%dt*minval(pack(speed_up, speed_up > 0)))
             J_TOTAL_M3 = J_ACDC_DMA_M3 + J_ACDC_NH3_M3 ! [particles/s/m^3]
@@ -464,7 +482,7 @@ in_turn_acdc: if (PRC%in_turn(4)) THEN
 END if in_turn_acdc
 
 
-in_turn_any: if (PRC%in_turn(4)) THEN
+in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
 
     ! =================================================================================================
     ! =================================================================================================
@@ -497,7 +515,8 @@ in_turn_any: if (PRC%in_turn(4)) THEN
             ! If the mdodel is still in initialization mode, replace the model particles with measured
             if (GTIME%hrs < DMPS_read_in_time) THEN
                 ! Print user info
-                if (gtime%printnow) print FMT_SUB, 'Replacing PSD with background particles from '//TRIM(i2chr(dmps_ln+1))&
+                if (gtime%printnow) print*, ''
+                if (gtime%printnow) print FMT_INTRMT, 'Replacing PSD with background particles from '//TRIM(i2chr(dmps_ln+1))&
                                                     //'. measurement (row '//TRIM(i2chr(dmps_ln+2))//' in file)'
                 CAll send_conc(current_PSD%dp_range(1),current_PSD%dp_range(2),conc_fit)
                 do i = 1, n_bins_par
@@ -515,12 +534,13 @@ in_turn_any: if (PRC%in_turn(4)) THEN
             .and. (GTIME%hrs .lt. END_DMPS_SPECIAL)&
             ) THEN
                 ! Print user info
-                if (gtime%printnow) print FMT_MSG, 'Replacing PSD partially with background particles from '//TRIM(i2chr(dmps_ln+1))&
+                if (gtime%printnow) print*, ''
+                if (gtime%printnow) print FMT_INTRMT, 'Replacing PSD partially with background particles from '//TRIM(i2chr(dmps_ln+1))&
                                                     //'. measurement (row '//TRIM(i2chr(dmps_ln+2))//' in file)'
                 ! if small particles are replaced with input
                 if (dmps_sp_min>0) THEN
                     ! Print user info
-                    if (gtime%printnow) print FMT_SUB, 'Lowband upper limit: '//i2chr(dmps_sp_min)
+                    ! if (gtime%printnow) print FMT_SUB, 'Lowband upper limit: '//i2chr(dmps_sp_min)
                     ! Sets the concentration and composition to the partially added particles PSD based on the mfractions.
                     CALL send_conc(current_PSD%dp_range(1),nominal_dp(dmps_sp_min),conc_fit)
                     do i = 1, dmps_sp_min
@@ -535,7 +555,7 @@ in_turn_any: if (PRC%in_turn(4)) THEN
                 ! If large particles are replaced with input
                 if (dmps_sp_max>0) THEN
                     ! Print user info
-                    if (gtime%printnow) print FMT_SUB, 'Highband lower limit: '//i2chr(dmps_sp_max)
+                    ! if (gtime%printnow) print FMT_SUB, 'Highband lower limit: '//i2chr(dmps_sp_max)
                     ! Sets the concentration and composition to the partially added particles PSD based on the mfractions.
                     CALL send_conc(nominal_dp(dmps_sp_max),current_PSD%dp_range(2),conc_fit)
                     do i = dmps_sp_max, n_bins_par
@@ -781,8 +801,20 @@ END IF in_turn_any
     ELSE
 
         ! Write printouts to screen
-        if (GTIME%printnow) CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
-        if (GTIME%printnow .and. ENABLE_END_FROM_OUTSIDE) CALL CHECK_IF_END_CMD_GIVEN
+        if (GTIME%printnow) THEN
+            CALL PRINT_HEADER
+            CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
+            if (ENABLE_END_FROM_OUTSIDE) CALL CHECK_IF_END_CMD_GIVEN
+        ELSE
+            ! if --gui flag was used, print a dot and EOL so the STDOUT-reading in Python GUI will be smoother.
+            if (ingui) print'(a)', '.'
+            call cpu_time(cpu3)
+            if (cpu3-cpu4>PRINT_INTERVAL/15d0) THEN
+                print*, '... ',GTIME%hms, '......... '
+                cpu4=cpu3
+            END IF
+
+        END IF
         ! if (GTIME%printnow) print*, GTIME%dt, speed_up
 
         ! Save to netcdf
@@ -815,13 +847,11 @@ END IF in_turn_any
             if (PRC%in_turn(1)) bookkeeping(1,1) = bookkeeping(1,1) + 1_dint
             if (PRC%in_turn(2)) bookkeeping(2,1) = bookkeeping(2,1) + 1_dint
             if (PRC%in_turn(3)) bookkeeping(3,1) = bookkeeping(3,1) + 1_dint
-
-            CALL PRINT_HEADER
+            will_stall = 0
 
         ELSE ! Exit the main loop when time is up
             EXIT
         END IF
-
 
     END IF CHECK_PRECISION
     ! SPEED handling
@@ -870,31 +900,17 @@ CONTAINS
 SUBROUTINE PRINT_HEADER
     IMPLICIT NONE
     ! Print time header in a nice way, start with empty row
-    if (GTIME%printnow) THEN
-        WRITE(*,*) ! Print time
-        if (GTIME%dt*minval(pack(speed_up, speed_up>0))>1d0) THEN
-            print FMT_TIME, GTIME%hms//' ('//TRIM(i2chr(int(GTIME%sec)))//' s)'
-        ELSE
-            print FMT_TIME, GTIME%hms//' ('//TRIM(i2chr(int(GTIME%sec*1000d0)))//' ms)'
-        END IF
-        ! To compare real time vs simulation time, timer is stopped in the beginning
-        call cpu_time(cpu2)
-        cpu4=cpu2
-    ! if --gui flag was used, print a dot and EOL so the STDOUT-reading in Python GUI will be smoother.
-    ELSE if (PRC%in_turn(4)) THEN
-        if (ingui) print'(a)', '.'
-        call cpu_time(cpu3)
-        if (cpu3-cpu4>PRINT_INTERVAL/15d0) THEN
-            print*, '... ',GTIME%hms, '......... '
-            ! if (Aerosol_flag) print FMT_MSG, 'Max change in vapours '&
-            !         //TRIM(f2chr(1d2* refdvap  ))//'% for '//VAPOUR_PROP%vapour_names(irefdvap)
-            ! if (Aerosol_flag) print FMT_MSG, 'Max change in par conc. '&
-            !         //TRIM(f2chr(1d2*d_npar(maxloc(d_npar,1))))//'% in bin # '//i2chr((maxloc(d_npar,1)))
-            ! if (Aerosol_flag) print FMT_MSG, 'Max change in par diam. '&
-            !         //TRIM(f2chr(1d2*d_dpar(maxloc(d_dpar,1))))//'% in bin # '//i2chr((maxloc(d_dpar,1)))
-            cpu4=cpu3
-        END IF
+
+    WRITE(*,*) ! Print time
+    if (GTIME%dt*minval(pack(speed_up, speed_up>0))>1d0) THEN
+        print FMT_TIME, GTIME%hms//' ('//TRIM(i2chr(int(GTIME%sec)))//' s)'
+    ELSE
+        print FMT_TIME, GTIME%hms//' ('//TRIM(i2chr(int(GTIME%sec*1000d0)))//' ms)'
     END IF
+    ! To compare real time vs simulation time, timer is stopped in the beginning
+    call cpu_time(cpu2)
+    cpu4=cpu2
+
 
 END SUBROUTINE PRINT_HEADER
 ! =================================================================================================
@@ -907,10 +923,10 @@ END SUBROUTINE PRINT_HEADER
 ! =================================================================================================
 SUBROUTINE error_handling
     IMPLICIT none
-    ! Write some error information to file
+    ! This header is not printed/saved if it was already showed in this times step
     if (bookkeeping(PRC%proc,2) < n_of_Rounds) THEN
-        CALL OUTPUTBOTH(608,FMT_NOTE0,'Precision tolerance exceeded in '//TRIM(UCASE(PRC%pr_name(PRC%proc)))//' at time '//GTIME%hms//&
-        ' ('//TRIM(f2chr((GTIME%sec)))//' sec)',-1)
+        CALL OUTPUTBOTH(608,FMT_NOTE0,'Precision tolerance exceeded in '//TRIM(UCASE(PRC%pr_name(PRC%proc)))//&
+                                      ' at time '//GTIME%hms//' ('//TRIM(f2chr((GTIME%sec)))//' sec)',-1)
     END IF
         CALL OUTPUTBOTH(608,FMT_SUB,  ' What happened: '//trim(PRC%err_text),-1)
     ! reduce the speed_up factor or, if necessary, the integration time step:
@@ -920,11 +936,27 @@ SUBROUTINE error_handling
 
         CALL OUTPUTBOTH(608,'(" - ",a)', GTIME%hms//' --> Reducing '//TRIM(PRC%pr_name(PRC%proc))//' to '&
                                         //di2chr(speed_up(PRC%proc))//' (new process dt: '//TRIM(f2chr(GTIME%dt*speed_up(PRC%proc)))//' s)')
-
         errortime(PRC%proc) = GTIME%sec
 
     ELSE
-        CALL OUTPUTBOTH(608,FMT_NOTE0, '  => YOU SHOULD REDUCE MAIN TIMESTEP')
+        will_stall = will_stall+1
+        if (PRC%proc==PRC%cch.and.Chemistry_flag.and..not.Condensation) THEN
+            CALL OUTPUTBOTH(608,FMT_WARN0, ' => Reduce time step or increase dC tolerance, chemistry can usually handle it ')
+        else
+            CALL OUTPUTBOTH(608,FMT_WARN0, ' => YOU SHOULD REDUCE MAIN TIMESTEP ')
+        END IF
+        if (will_stall>1000) THEN
+            print *,''
+            print *, 'Unfortunately it seems the simulation is getting nowhere, so stopping now. Your options are:'
+            print *, '  1) Increase tolerances'
+            print *, '  2) Reduce minimum time step'
+            print *, '  3) Use constant timestep and accept the outcome'
+            print *, '  4) If nothing helps and you think you have reasonable input, contact support'
+            print *, ''
+            CALL CLOSE_FILES(RUN_OUTPUT_DIR)
+            CALL FINISH
+            STOP 'Saved files, bye.'
+        END IF
     END IF
 
     ! CALL OUTPUTBOTH(608, FMT_MSG,'Timesteps adjusted.')
@@ -949,13 +981,13 @@ Subroutine INCREASE_SPEED(ii)
     IMPLICIT NONE
     INTEGER :: ii
 
-    if (PRC%increase(ii) .and. GTIME%sec-errortime(ii)>(8d0*GTIME%dt)/speed_up(ii)) THEN
+    if (PRC%increase(ii) .and. GTIME%sec-errortime(ii)>(2.1d0*GTIME%dt * speed_up(ii))) THEN
         speed_up(ii) = speed_up(ii) * 2
         CALL OUTPUTBOTH(608,'*','+ '//GTIME%hms//' --> Speeding '//TRIM(PRC%pr_name(ii))//' to '&
                         //TRIM(di2chr(speed_up(ii)))//' (new process dt: '//TRIM(f2chr(GTIME%dt*speed_up(ii)))//' s)' )
     END IF
     PRC%increase(ii) = .false.
-
+    errortime(ii) = -999d0
     if ((.not. Deposition).and.(LOSSES_FILE == '')) speed_up(PRC%dep) = -9999_dint
     if (.not. Coagulation) speed_up(PRC%coa) = -9999_dint
     if (.not. Condensation .and..not. Chemistry_flag) speed_up(PRC%cch) = -9999_dint
@@ -1125,6 +1157,8 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
 
     if (Condensation) print FMT_MSG, 'Max change in vapours '&
             //TRIM(f2chr(1d2* d_vap(irefdvap) ))//'% for '//VAPOUR_PROP%vapour_names(irefdvap)
+    if (.not.Condensation.and.Chemistry_flag) print FMT_MSG, 'Max change in chemistry '&
+            //TRIM(f2chr(1d2* d_chem(maxloc(abs(d_chem),1)) ))//'% for '//SPC_NAMES(maxloc(abs(d_chem),1))
     if (Aerosol_flag) print FMT_MSG, 'Max change in par conc. '&
             //TRIM(f2chr(1d2*d_npar(maxloc(d_npar,1))))//'% in bin # '//i2chr((maxloc(d_npar,1)))
     if (Aerosol_flag) print FMT_MSG, 'Max change in par diam. '&

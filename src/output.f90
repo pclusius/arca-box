@@ -139,13 +139,13 @@ CONTAINS
       CALL get_command_argument(0, PROGRAM_NAME)
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Information', '(c) Multiscale Modelling Group and (c) Computational Aerosol Physics Group (ACDC)'))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Contact', 'arca@helsinki.fi (ARCA box), tinja.olenius@alumni.helsinki.fi (ACDC)'))
-      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Software', 'ARCA box 0.9'))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Software', 'ARCA box 1.0'))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Package_Name', TRIM(PROGRAM_NAME(3:))))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Chemistry_module', TRIM(CurrentChemistry)))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Notes', TRIM(Description)))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'experiment', Fname_init))
-      call handler(__LINE__, nf90_def_var(ncfile_ids(I), "Time_in_sec", NF90_DOUBLE, dtime_id, timearr_id))
-      call handler(__LINE__, nf90_def_var(ncfile_ids(I), "time_in_hrs", NF90_DOUBLE, dtime_id, hrsarr_id))
+      call handler(__LINE__, nf90_def_var(ncfile_ids(I), "TIME_IN_SEC", NF90_DOUBLE, dtime_id, timearr_id))
+      call handler(__LINE__, nf90_def_var(ncfile_ids(I), "TIME_IN_HRS", NF90_DOUBLE, dtime_id, hrsarr_id))
       ! COMPRESSION
       call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), timearr_id, shuff, compress, compression) )
       call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), hrsarr_id, shuff, compress, compression) )
@@ -383,8 +383,8 @@ subroutine CLOSE_FILES(filename)
     ioi = RENAME(TRIM(ncfile_names(I))//'.tmp', TRIM(ncfile_names(I))//'.nc')
     if (ioi /= 0) print*, 'Error while copying final file.'
   END DO
-  Write(*,FMT_MSG) 'Outputfiles in '//TRIM(filename)//' closed.'
-  Write(*,FMT_LEND)
+  Write(*,FMT_INTRMT) 'Outputfiles in '//TRIM(filename)//' closed. '
+  ! Write(*,FMT_LEND)
 
 end subroutine CLOSE_FILES
 

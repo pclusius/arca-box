@@ -2499,7 +2499,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.DIAMETER = self.ncs_mass.variables['DIAMETER'][:]
             self.diams.addItems(['%7.2f'%(1e9*i) for i in self.DIAMETER[0,:]])
             self.diams.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-            self.mp_time = self.ncs_mass.variables['time_in_hrs'][:]
+            try:
+                self.mp_time = self.ncs_mass.variables['time_in_hrs'][:]
+            except:
+                self.mp_time = self.ncs_mass.variables['TIME_IN_HRS'][:]
             indstime = [0]
             self.plotResultWindow_3.setLogMode(x=True)
             self.plotResultWindow_2.setLabel('bottom', 'Time', units='h')
@@ -2659,9 +2662,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
     def toggleTimeInavailableVars(self):
         item = self.availableVars.item(0)
-        item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEnabled ^ QtCore.Qt.ItemIsSelectable)
+        if item.text().upper()=='TIME_IN_SEC':
+            item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEnabled ^ QtCore.Qt.ItemIsSelectable)
         item = self.availableVars.item(1)
-        item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEnabled ^ QtCore.Qt.ItemIsSelectable)
+        if item.text().upper()=='TIME_IN_HRS':
+            item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEnabled ^ QtCore.Qt.ItemIsSelectable)
 
     def showOutputUpdate(self):
         """This function is inwoked when lin/log radio button or any variable in the list is changed"""
