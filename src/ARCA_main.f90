@@ -1075,12 +1075,12 @@ END SUBROUTINE ACDC_J  ! END ACDC Nucleation
 SUBROUTINE ORGANIC_NUCL(J_TOTAL_M3)
     real(dp) :: J_TOTAL_M3
     real(dp) :: ORGS,kJ,dH,J15
-    real(dp), parameter :: dG = -15.1d3, dS = -61.1 ! [kcal/mol] and [cal/mol/K]
+    real(dp), parameter :: dG = -15.1d3, dS = 61.1 ! [kcal/mol] and [cal/mol/K]
+    real(dp), PARAMETER :: Rcal = 1.98720 ! gas constant in  calories/mol/K
     integer :: i,jj,n
     integer, save, allocatable  :: inds(:)
     logical, save  :: first_run = .True.
     character(25)  :: name
-    real(dp), PARAMETER :: Rcal = 1.98720 ! gas constant in  calories/mol/K
     if (first_run) THEN
         OPEN(UNIT=609, FILE='ModelLib/required/nucl_homs.txt', STATUS='OLD', ACTION='READ', iostat=jj)
         n = rowcount(609)
