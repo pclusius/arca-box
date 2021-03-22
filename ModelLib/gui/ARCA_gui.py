@@ -976,6 +976,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             wnd.getAxis('left').setPen(pen)
             wnd.getAxis('bottom').setPen(pen)
 
+        self.addSimilar.setEnabled(False)
+        self.CloseLinePlotsButton.setEnabled(False)
         self.ppm.toggled.connect(self.showOutputUpdate)
         self.ppb.toggled.connect(self.showOutputUpdate)
         self.ppt.toggled.connect(self.showOutputUpdate)
@@ -2792,6 +2794,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.findComp.clear()
             # Close all previus netcdf-files and clear plot
             self.closenetcdf()
+            self.addSimilar.setEnabled(True)
+            self.CloseLinePlotsButton.setEnabled(True)
+
         else:
             comp = self.availableVars.currentItem().text()
         # Try to open netCDF-file
@@ -3021,6 +3026,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
             z.closenc()
         self.LPD = []
         self.NC_lines = []
+        self.addSimilar.setEnabled(False)
+        self.CloseLinePlotsButton.setEnabled(False)
 
         if self.ncleg in self.ncleg_skene.items():
             self.ncleg_skene.removeItem(self.ncleg)
@@ -3119,6 +3126,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.availableVars.clear()
         if text == '':
             self.availableVars.addItems(self.LPD[-1].names)
+            self.availableVars.item(0).setSelected(True)
+            self.availableVars.setCurrentItem(self.availableVars.item(0))
+
         else:
             for c in self.LPD[-1].names:
                 if strict:
