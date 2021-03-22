@@ -2833,7 +2833,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.availableVars.item(0).setSelected(True)
             self.availableVars.setCurrentItem(self.availableVars.item(0))
             self.availableVars.itemSelectionChanged.connect(self.showOutputUpdate)
-
+            self.ShowPPC.toggled.connect(self.showOutputUpdate)
         # If fails, give information and return
         # except:
         #     self.popup('Bummer...', "Output file does not contain any plottable data",icon=3)
@@ -2873,8 +2873,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
         else: loga = False
 
         # find out which variable should be plotted
-        comp = self.availableVars.currentItem().text()
-
+        if self.availableVars.currentItem() is None:
+            return
+        else:
+            comp = self.availableVars.currentItem().text()
         if not PPconc:
             if self.sumSelection.isChecked():
                 if any(c.text() in units for c in self.availableVars.selectedItems()):
@@ -2897,14 +2899,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 for z in self.LPD:
                     YY.append(z.getcom(comp))
                     TT.append(z.time)
-
-                # Y = getcompo()
             else:
                 for z in self.LPD:
                     YY.append(z.getconc(comp))
                     TT.append(z.time)
 
-                # Y = self.ncs.variables[comp][:]
             self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
         else:
             if self.availableVars.selectedItems() != []:
@@ -3041,7 +3040,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 except TypeError: break
             self.availableVars.clear()
             self.plotResultWindow.clear()
-            # self.ShowPPC.toggled.disconnect(self.showOutputUpdate)
+            self.ShowPPC.toggled.disconnect(self.showOutputUpdate)
             # self.ShowPPC.toggled.disconnect(self.toggleTimeInavailableVars)
 
         except:
