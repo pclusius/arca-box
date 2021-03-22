@@ -749,6 +749,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.inout_dir.textChanged.connect(self.updatePath)
         self.indexRadioDate.toggled.connect(self.updatePath)
         self.useSpeed.toggled.connect(lambda: self.grayIfChecked(self.useSpeed,self.resolve_base))
+        self.useSpeed.toggled.connect(self.adjust_dt)
         self.dateEdit.dateChanged.connect(self.updateEnvPath)
         self.dateEdit.dateChanged.connect(lambda: self.curDate.setText(self.dateEdit.text()))
         self.indexEdit.valueChanged.connect(self.updateEnvPath)
@@ -887,7 +888,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.currentEndLine = 0
         self.fulltext = ''
         # self.tabWidget.currentChanged.connect(self.activeTab)
-        self.tabWidget_4.currentChanged.connect(self.activeSubTab)
+        # self.tabWidget_4.currentChanged.connect(self.activeSubTab)
         fixedFont = QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
         fixedFont.setPointSize(10)
         self.MonitorWindow.setFont(fixedFont)
@@ -1067,15 +1068,14 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 self.popup('This is embarassing', 'Help link is missing. Try Toolbar->Help->Online manual.')
 
 
-    # def activeTab(self,i):
-    #     pass
-        # if i == 6:
-        #     # self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
-        #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()-40)
-        #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
+    def adjust_dt(self):
+        if self.useSpeed.isChecked():
+            self.dt.setValue(0.001)
+        else:
+            self.dt.setValue(10.0)
 
-    def activeSubTab(self,i):
-        pass
+    # def activeSubTab(self,i):
+    #     pass
         # if i == 0: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
 
     def guiSetFont(self, wdgt, name, reset=False):
@@ -2962,16 +2962,18 @@ a chemistry module in tab "Chemistry"''', icon=2)
         positive = all([all(Y>=0) for Y in YY])
         # Are all the values zeros?
         zeros = all([all(Y==0) for Y in YY])
+        thickness = 2.0
+        if PPconc: thickness = 1.0
         # if non-negative and not all zeros, and log-scale is possible without any fixes
         if not zeros and not positive and scale=='log':
             for j,Y in enumerate(YY):
                 YY[j] = where(Y<=0, 1e-20, Y)
             # Mark plot with red to warn that negative values have been deleted
-                self.NC_lines[j].setPen({'style':QtCore.Qt.DashLine,'color':colors[2*(j)],'width': 2.0})
+                self.NC_lines[j].setPen({'style':QtCore.Qt.DashLine,'color':colors[2*(j)],'width': thickness})
             positive = True
         else:
             for j,p in enumerate(self.NC_lines):
-                p.setPen({'style':QtCore.Qt.SolidLine,'color':colors[2*(j)],'width': 2.0})
+                p.setPen({'style':QtCore.Qt.SolidLine,'color':colors[2*(j)],'width': thickness})
 
         if scale=='log' and positive and not zeros:
             # To avoid very small exponentials, zeros are changed to nearest small number
