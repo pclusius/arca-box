@@ -1075,7 +1075,7 @@ END SUBROUTINE ACDC_J  ! END ACDC Nucleation
 SUBROUTINE ORGANIC_NUCL(J_TOTAL_M3)
     real(dp) :: J_TOTAL_M3
     real(dp) :: ORGS,kJ,dH,J15
-    real(dp), parameter :: dG = -15.1, dS = -61.1
+    real(dp), parameter :: dG = -15.1d3, dS = -61.1 ! [kcal/mol] and [cal/mol/K]
     integer :: i,jj,n
     integer, save, allocatable  :: inds(:)
     logical, save  :: first_run = .True.
@@ -1437,44 +1437,5 @@ SUBROUTINE CHECK_IF_END_CMD_GIVEN
     END IF
 
 END SUBROUTINE CHECK_IF_END_CMD_GIVEN
-
-! PURE REAL(dp) FUNCTION SIGNED_ABSMAX_DVAP(d_vap)
-!     real(dp), INTENT(IN) :: d_vap(:)
-!     if (Limit_for_Evaporation<0d0) THEN
-!         if (maxval(d_vap)>DVAPO_RANGE(2)) THEN
-!             SIGNED_ABSMAX_DVAP = maxval(d_vap)
-!         ELSE IF (minval(d_vap)<Limit_for_Evaporation) THEN
-!             SIGNED_ABSMAX_DVAP = minval(d_vap)
-!         else
-!             SIGNED_ABSMAX_DVAP = d_vap(SIGNED_IMAX__DVAP(d_vap))
-!         END IF
-!     else
-!         SIGNED_ABSMAX_DVAP = d_vap(SIGNED_IMAX__DVAP(d_vap))
-!     end if
-! end FUNCTION SIGNED_ABSMAX_DVAP
-!
-! PURE INTEGER FUNCTION SIGNED_IMAX__DVAP(d_vap)
-!     real(dp), INTENT(IN) :: d_vap(:)
-!     if (Limit_for_Evaporation<0d0) THEN
-!         if (maxval(d_vap)>DVAPO_RANGE(2)) THEN
-!             SIGNED_IMAX__DVAP = maxloc(d_vap,1)
-!         ELSE IF (minval(d_vap)<Limit_for_Evaporation) THEN
-!             SIGNED_IMAX__DVAP = minloc(d_vap,1)
-!         else
-!             SIGNED_IMAX__DVAP = maxloc(abs(d_vap),1)
-!         END IF
-!     else
-!         SIGNED_IMAX__DVAP = maxloc(abs(d_vap),1)
-!     end if
-! end FUNCTION SIGNED_IMAX__DVAP
-
-! PURE LOGICAL FUNCTION CHK_DVAP(d_vap)
-!     real(dp), INTENT(IN) :: d_vap(:)
-!     if (Limit_for_Evaporation<0d0) THEN
-!         CHK_DVAP = maxval(d_vap)>DVAPO_RANGE(2).or.minval(d_vap)<Limit_for_Evaporation
-!     else
-!         CHK_DVAP = maxval(abs(d_vap))>DVAPO_RANGE(2)
-!     end if
-! end FUNCTION CHK_DVAP
 
 END PROGRAM ARCA_main

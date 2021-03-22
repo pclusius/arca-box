@@ -123,7 +123,7 @@ org_yes = (172,147,147)
 # icon
 modellogo = gui_path+"/icons/ArcaLogo.png"
 boxicon = gui_path+"/icons/thebox_ico.png"
-CurrentVersion = "ARCA Box Model 0.9"
+CurrentVersion = "ARCA Box Model 1.0.0"
 # Some messages
 netcdfMissinnMes = ('Please note:',
 'To open NetCDF-files you need netCDF4 for Python.\nYou can istall it with pip, package manager (or perhaps: python3 -m pip install --user netCDF4.')
@@ -748,7 +748,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.run_name.editingFinished.connect(lambda: self.allcaps(self.run_name))
         self.inout_dir.textChanged.connect(self.updatePath)
         self.indexRadioDate.toggled.connect(self.updatePath)
-        # self.useSpeed.stateChanged.connect(lambda: self.grayIfNotChecked(self.useSpeed,self.precLimits))
+        self.useSpeed.toggled.connect(lambda: self.grayIfChecked(self.useSpeed,self.resolve_base))
         self.dateEdit.dateChanged.connect(self.updateEnvPath)
         self.dateEdit.dateChanged.connect(lambda: self.curDate.setText(self.dateEdit.text()))
         self.indexEdit.valueChanged.connect(self.updateEnvPath)

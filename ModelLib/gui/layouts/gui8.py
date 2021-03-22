@@ -4243,7 +4243,7 @@ class Ui_MainWindow(object):
         self.skip_acdc.setToolTip(_translate("MainWindow", "This option will skip ACDC step when concentrations of H2SO4, NH3 or DMA are too low to produce significant amount of stable clusters."))
         self.skip_acdc.setText(_translate("MainWindow", "Skip ACDC in low concentrations"))
         self.helpACDC.setText(_translate("MainWindow", "?"))
-        self.print_acdc.setText(_translate("MainWindow", "print clusters"))
+        self.print_acdc.setText(_translate("MainWindow", "Print clusters"))
         self.acdc_solve_ss.setToolTip(_translate("MainWindow", "This option must be OFF when using ARCA with ACDC. When using a standalone ACDC\n"
 "for time-independent ambient conditions, the steady-state option must be turned ON.\n"
 "\n"
@@ -4253,7 +4253,7 @@ class Ui_MainWindow(object):
 "\n"
 "Steady state ON:    Chamber experiments of steady-state particle formation, studies of formation rate as a function of e.g. vapor conditions or temperature in a time-independent situation"))
         self.acdc_solve_ss.setText(_translate("MainWindow", "Run ACDC to Steady State (Usually, should be OFF)"))
-        self.resolve_base.setTitle(_translate("MainWindow", "Solve bases (available only if Organic nucl. is off)"))
+        self.resolve_base.setTitle(_translate("MainWindow", "Solve bases (available only if using fixed timestep)"))
         self.fill_formation_with.setItemText(0, _translate("MainWindow", "Fixed ratio"))
         self.fill_formation_with.setItemText(1, _translate("MainWindow", "Fill with DMA"))
         self.fill_formation_with.setItemText(2, _translate("MainWindow", "Fill with NH3"))
@@ -4294,7 +4294,7 @@ class Ui_MainWindow(object):
         self.butVapourAtoms.setText(_translate("MainWindow", "..."))
         self.helpVapour.setText(_translate("MainWindow", "?"))
         self.groupBox_41.setTitle(_translate("MainWindow", "PSD initialization"))
-        self.label_43.setText(_translate("MainWindow", "Init model PSD for*"))
+        self.label_43.setText(_translate("MainWindow", "Init model PSD for"))
         self.dmps_read_in_time.setSuffix(_translate("MainWindow", " h"))
         self.helpPsdInit.setText(_translate("MainWindow", "?"))
         self.use_dmps.setText(_translate("MainWindow", "Use measured background particles for initialization"))
