@@ -1080,7 +1080,7 @@ SUBROUTINE ORGANIC_NUCL(J_TOTAL_M3)
     integer, save, allocatable  :: inds(:)
     logical, save  :: first_run = .True.
     character(25)  :: name
-
+    real(dp), PARAMETER :: Rcal = 1.98720 ! gas constant in  calories/mol/K
     if (first_run) THEN
         OPEN(UNIT=609, FILE='ModelLib/required/nucl_homs.txt', STATUS='OLD', ACTION='READ', iostat=jj)
         n = rowcount(609)
@@ -1104,7 +1104,7 @@ SUBROUTINE ORGANIC_NUCL(J_TOTAL_M3)
     ORGS = sum(CH_GAS(inds))
 
     dH = dG - dS*GTEMPK
-    kJ = 5d-13*EXP(-dH/Rg * (1/GTEMPK - 1/298d0))
+    kJ = 5d-13*EXP(-dH/(Rcal) * (1/GTEMPK - 1/298d0))
 
     J15 = kJ * ORGS*TSTEP_CONC(inm_H2SO4)
     if (GTIME%printnow) print FMT_MSG, 'Organic formation rate: '//TRIM(ADJUSTL(f2chr(J15)))//' [/s/cm3]'
