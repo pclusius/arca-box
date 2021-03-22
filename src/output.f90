@@ -143,7 +143,8 @@ CONTAINS
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Package_Name', TRIM(PROGRAM_NAME(3:))))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Chemistry_module', TRIM(CurrentChemistry)))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Notes', TRIM(Description)))
-      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'experiment', Fname_init))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'experiment', filename))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'INITFILE', Fname_init))
       call handler(__LINE__, nf90_def_var(ncfile_ids(I), "TIME_IN_SEC", NF90_DOUBLE, dtime_id, timearr_id))
       call handler(__LINE__, nf90_def_var(ncfile_ids(I), "TIME_IN_HRS", NF90_DOUBLE, dtime_id, hrsarr_id))
       ! COMPRESSION

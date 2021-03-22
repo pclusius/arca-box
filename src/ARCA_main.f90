@@ -174,7 +174,7 @@ IF (Aerosol_flag) THEN
     ! Allocate the change vectors for integration timestep control
     ALLOCATE(d_vap(max(VAPOUR_PROP%n_condtot,1)))
 
-    if (Use_speed.and.Chemistry_flag.and..not.Condensation) ALLOCATE(d_chem(NSPEC))
+    if (Chemistry_flag.and..not.Condensation) ALLOCATE(d_chem(NSPEC))
 
     d_vap = 0d0
 
@@ -426,15 +426,17 @@ in_turn_cch_1: if (PRC%in_turn(PRC%cch)) THEN
         if ( ( minval(CH_GAS)<-1d0 ).and.GTIME%sec>100d0) print FMT_WARN0,'Negative values from chemistry, setting to zero: ', MINVAL(CH_GAS)
         WHERE (CH_GAS<0d0) CH_GAS = 0d0
 
-        if (Use_speed.and..not. Condensation) THEN
+        if (.not. Condensation) THEN
             d_chem = 0d0
             where (CH_GAS_OLD>MIN_CONCTOT_CC_FOR_DVAP) d_chem = ((CH_GAS-CH_GAS_OLD)/CH_GAS_OLD)
 
-            if (maxval(abs(d_chem)) > DVAPO_RANGE(2)) THEN
-                CALL SET_ERROR(PRC%cch, 'Too large change in chemistry: '//f2chr(1d2* d_chem(maxloc(abs(d_chem),1)))//'%' )
-            else if (maxval(abs(d_chem)) < DVAPO_RANGE(1)) THEN
-                if (speed_up(PRC%cch) * 2 * Gtime%dt < speed_dt_limit(PRC%cch)) THEN
-                    PRC%increase(PRC%cch) = .true.
+            if (Use_speed) THEN
+                if (maxval(abs(d_chem)) > DVAPO_RANGE(2)) THEN
+                    CALL SET_ERROR(PRC%cch, 'Too large change in chemistry: '//f2chr(1d2* d_chem(maxloc(abs(d_chem),1)))//'%' )
+                else if (maxval(abs(d_chem)) < DVAPO_RANGE(1)) THEN
+                    if (speed_up(PRC%cch) * 2 * Gtime%dt < speed_dt_limit(PRC%cch)) THEN
+                        PRC%increase(PRC%cch) = .true.
+                    END IF
                 END IF
             END IF
         END IF

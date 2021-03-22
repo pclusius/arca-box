@@ -13,7 +13,7 @@ import pyqtgraph as pg
 from layouts import varWin,gui8,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor
 from modules import variations,vars,batch,GetVapourPressures as gvp
 from subprocess import Popen, PIPE, STDOUT
-from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,flip,zeros, sum as npsum, ravel, mean
+from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, ravel, mean
 import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname
@@ -77,6 +77,8 @@ column_widths = [120,90,70,70,70,90,50,3]
 # available units for variables, used to fill the tables and graphs with appropriate units
 units = {
 'TEMPK': ['K','C'],
+'TIME_IN_HRS': ['hrs'],
+'TIME_IN_SEC': ['s'],
 'PRESSURE': ['Pa','hPa','mbar','kPa','bar','atm'],
 'REL_HUMIDITY': ['%'],
 'CONDENS_SINK':['1/s'],
@@ -205,7 +207,7 @@ class batchW(QtGui.QDialog):
         self.ui.setupUi(self)
         self.ui.bDialogbuttonBox.accepted.connect(self.accept)
         self.ui.bDialogbuttonBox.rejected.connect(self.reject)
-        self.ui.bDialogbuttonBox.helpRequested.connect(lambda: qt_box.helplink(helpd['batch']))
+        self.ui.bDialogbuttonBox.helpRequested.connect(lambda: qt_box.helplink('batch'))
 
     def settext(self,a):
         """Setter for window text"""
@@ -238,7 +240,7 @@ class CCWin(QtGui.QDialog):
         self.ccw.browseSourceFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.sourceFile, 'file'))
         self.ccw.browseIncludes.clicked.connect(lambda: qt_box.browse_path(self.ccw.includedFiles, 'append'))
         self.ccw.mainFrame.setFont(qt_box.font)
-        self.ccw.manualCC.clicked.connect(lambda: qt_box.helplink(helpd['ccmanual']))
+        self.ccw.manualCC.clicked.connect(lambda: qt_box.helplink('ccmanual'))
         self.ccw.pickDeffix.clicked.connect(self.ListFixed)
 
     def ListFixed(self):
@@ -317,8 +319,10 @@ class Variation(QtGui.QDialog):
             self.vary.table.setColumnWidth(i, 70)
         # self.vary.table.horizontalHeader().setStretchLastSection(True)
         self.vary.table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        self.vary.manualVar.clicked.connect(lambda: qt_box.helplink(helpd['variations']))
+        self.vary.manualVar.clicked.connect(lambda: qt_box.helplink('variations'))
         self.vary.mainFrame.setFont(qt_box.font)
+
+
 
     def vars(self):
         p=self.vary.lineEdit.text()
@@ -403,8 +407,8 @@ class VpressWin(QtGui.QDialog):
         self.vp.PramButton.clicked.connect(lambda: qt_box.browse_path(self.vp.pramFile, 'file'))
         self.vp.browseVapourPath.clicked.connect(self.filename)
         self.vp.createVapourFileButton.clicked.connect(self.saveVapours)
-        self.vp.UmanWWW.clicked.connect(lambda: qt_box.helplink(helpd['umanweb']))
-        self.vp.manualVap.clicked.connect(lambda: qt_box.helplink(helpd['CreateVapourFile']))
+        self.vp.UmanWWW.clicked.connect(lambda: qt_box.helplink('umanweb'))
+        self.vp.manualVap.clicked.connect(lambda: qt_box.helplink('CreateVapourFile'))
         self.vp.mainFrame.setFont(qt_box.font)
 
     def filename(self):
@@ -499,6 +503,137 @@ class Comp:
         self.sliderVls = [39,84,0,0,20]
         self.sl_x = [1,1,1,1,1]
 
+class NcPlot:
+    """Class for plot file contents"""
+    def __init__(self, file):
+        self.path = file
+        self.masterfile = ossplit(file)[1]
+        ncs = netCDF4.Dataset(file, 'r')
+        self.legend = getattr(ncs, 'experiment')+': '+self.masterfile
+        self.getaircc(file, ncs)
+        self.parvars = {}
+        self.convars = {}
+        self.invvars = {}
+        self.par = False
+        if self.masterfile == 'Particles.nc':
+            self.par = True
+            b = ravel(ncs.variables['CONDENSABLES'][:,:].astype(str),'C')
+            names=b.reshape(ncs.variables['CONDENSABLES'].shape)
+            m3 = ncs.variables['NUMBER_CONCENTRATION'][:]*1e18 # to convert to m3 and nanograms/m3
+            self.composition_ng = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*m3[:,:,newaxis], 1)
+            for i,word in enumerate(names):
+                self.parvars[(''.join(list(word))).strip()] = i
+
+        for timedim in ncs.dimensions:
+            if ncs.dimensions[timedim].isunlimited():
+                break
+
+        checker = lambda v,n: v.lower() in timedim and 'Shifter' not in n and 'Multipl' not in n and 'TIME_IN' not in n.upper()
+        cache = array([i.name for i in ncs.get_variables_by_attributes(ndim=1)])
+        timevars = [checker(i.dimensions[0], i.name) for i in ncs.get_variables_by_attributes(ndim=1)]
+        self.varnames = cache[timevars]
+
+        # Unfortunately these early version files are still somewhere out there
+        try:
+            self.time = ncs.variables['TIME_IN_SEC'][:]/3600
+        except:
+            try:
+                self.time = ncs.variables['time_in_sec'][:]/3600
+            except:
+                self.time = ncs.variables['Time_in_sec'][:]/3600
+
+        if ma.is_masked(self.time):
+            self.is_masked = True
+            self.mask = ~self.time.mask
+        else:
+            self.is_masked = False
+            self.mask = self.time == self.time
+
+        self.time = self.time[self.mask]
+        # self.conc_matrix = zeros((len(self.time),len(self.varnames[self.mask])))
+        for i,n in enumerate(cache[timevars]):
+            self.convars[n] = i
+            self.invvars[i] = n
+            # self.conc_matrix[:,i] = ncs.variables[n][self.mask]
+        self.nc = ncs
+        self.names = list(self.convars.keys())
+
+    def closenc(self):
+        self.nc.close()
+
+    def getconc(self,n, return_unit=False):
+        if n in self.convars:
+            if return_unit:
+                return self.nc.variables[n][self.mask], '['+units.get(n,units['REST'])[0]+']'
+            else:
+                return self.nc.variables[n][self.mask]
+        else: return
+
+    def getloc(self,i, return_unit=False):
+        if i in self.invvars:
+            if return_unit:
+                return self.nc.variables[self.invvars[i]][self.mask], '['+units.get(self.invvars[i],units['REST'])[0]+']'
+            else:
+                return self.nc.variables[self.invvars[i]][self.mask]
+        else: return
+
+    def getcom(self,n, return_unit=False):
+        if self.par and n in self.parvars:
+            if return_unit:
+                return self.composition_ng[:,self.parvars[n]][self.mask], '['+units.get(n,units['REST'])[0]+']'
+            else:
+                return self.composition_ng[:,self.parvars[n]][self.mask]
+        else: return
+
+    def getcomsum(self,names, return_unit=False):
+        retarr = zeros(len(self.mask))
+        for i,n in enumerate(names):
+            if i==0: u = units.get(n,units['REST'])[0]
+            if self.par and n in self.parvars:
+                if u == units.get(n,units['REST'])[0]:
+                    unit = True
+                else:
+                    unit = False
+                retarr += self.composition_ng[:,self.parvars[n]][self.mask]
+        if not unit: u='[-]'
+        if return_unit:
+            return retarr, u
+        else:
+            return retarr
+
+    def getconcsum(self,names, return_unit=False):
+        retarr = zeros(len(self.mask))
+        for i,n in enumerate(names):
+            if i==0: u = units.get(n,units['REST'])[0]
+            if n in self.convars:
+                if u == units.get(n,units['REST'])[0]:
+                    unit = True
+                else:
+                    unit = False
+                retarr += self.getconc(n)
+        if not unit: u='[-]'
+        if return_unit:
+            return retarr, u
+        else:
+            return retarr
+
+    def getaircc(self, file, ncs):
+        try:
+            if self.masterfile != 'General.nc':
+                air_nc = netCDF4.Dataset(osjoin(ossplit(file)[0],'General.nc'), 'r')
+                temp = air_nc.variables['TEMPK'][:]
+                pres = air_nc.variables['PRESSURE'][:]
+                air_nc.close()
+            else:
+                temp = ncs.variables['TEMPK'][:]
+                pres = ncs.variables['PRESSURE'][:]
+            self.aircc = 1e-6 * pres / temp /1.38064852e-23
+            self.have_aircc = True
+        except:
+            qt_box.popup('Missing air concentration', 'File "General.nc" was not found from this directory. Cannot calculate mixing ratios but will show values.')
+            self.have_aircc = False
+
+
 class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     """Main program window."""
     def __init__(self):
@@ -540,9 +675,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionRecompile_model.triggered.connect(self.remake)
         self.actionSetDelay.triggered.connect(lambda: self.inputPopup("self.wait_for"))
         self.actionAbout_ARCA.triggered.connect(self.createAb)
-        self.actionARCA_webpage.triggered.connect(lambda: self.helplink(helpd['arcaweb']))
-        self.actionOnline_manual.triggered.connect(lambda: self.helplink(helpd['manual']))
-        self.actionFileHelp.triggered.connect(lambda: self.helplink(helpd['filehelp']))
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
         self.actionSave_as_defaults.triggered.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
@@ -595,8 +727,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.indexRadioIndex.toggled.connect(lambda: self.label_25.setEnabled(False))
 
         self.indexEdit.valueChanged.connect(lambda: self.indexRadioIndex.setChecked(True))
-        self.helpGroupName.clicked.connect(lambda: self.helplink(helpd['groupName']))
-        self.helpRunName.clicked.connect(lambda: self.helplink(helpd['runName']))
         self.browseCommonIn.clicked.connect(lambda: self.browse_path(self.inout_dir, 'dir'))
         self.browseEnv.clicked.connect(lambda: self.browse_path(self.env_file, 'file'))
         self.browseMcm.clicked.connect(lambda: self.browse_path(self.mcm_file, 'file'))
@@ -638,9 +768,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.min_particle_diam.textChanged.connect(self.seeInAction)
         self.max_particle_diam.textChanged.connect(self.seeInAction)
         self.n_bins_particle.valueChanged.connect(self.seeInAction)
-
-        self.batchHelp.clicked.connect(lambda: self.helplink(helpd['batch']))
-        self.PrecHelp.clicked.connect(lambda: self.helplink(helpd['precision']))
 
     # -----------------------
     # tab Input variables
@@ -759,7 +886,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
         self.currentEndLine = 0
         self.fulltext = ''
-        self.tabWidget.currentChanged.connect(self.activeTab)
+        # self.tabWidget.currentChanged.connect(self.activeTab)
         self.tabWidget_4.currentChanged.connect(self.activeSubTab)
         fixedFont = QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
         fixedFont.setPointSize(10)
@@ -817,11 +944,19 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             self.fLog_2.clicked.connect(self.showOutputUpdate)
             self.fLin_2.clicked.connect(self.showOutputUpdate)
             self.findComp.textChanged.connect(self.filterListOfComp)
-            self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'plot', ftype="NetCDF (*.nc)"))
+            self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'addplot', ftype="NetCDF (*.nc)"))
+            self.addSimilar.clicked.connect(self.addAnotherNC)
             self.loadNetcdf_mass.clicked.connect(lambda: self.browse_path(None, 'plot_mass', ftype="ARCA particle file (Particles.nc)"))
             self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=0))
             self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=1))
+            # --------------------------------------------------------
             self.CloseLinePlotsButton.clicked.connect(self.closenetcdf)
+            # self.CloseLinePlotsButton.clicked.connect(lambda: self.browse_path(None, 'addplot', ftype="NetCDF (*.nc)"))
+            self.listOfplottedFiles = []
+            self.LPD = []
+            self.NC_lines = []
+            self.ncleg = self.plotResultWindow.addLegend()
+            self.ncleg_skene = self.ncleg.scene()
 
         else:
             self.sumSelection.setEnabled(False)
@@ -841,6 +976,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             wnd.getAxis('left').setPen(pen)
             wnd.getAxis('bottom').setPen(pen)
 
+        self.ppm.toggled.connect(self.showOutputUpdate)
+        self.ppb.toggled.connect(self.showOutputUpdate)
+        self.ppt.toggled.connect(self.showOutputUpdate)
+        self.toggleppm('off')
         self.ShowPPC.setEnabled(False)
         self.sumSelection.stateChanged.connect(self.selectionMode)
         self.loadCurrentBg.clicked.connect(lambda: self.showParOutput('load current',1))
@@ -853,8 +992,36 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.liveUpdate.setEnabled(False)
         self.lastModTime = 0
         self.firstParPlot = [0,0]
-
         self.resize(980, 840)
+
+    # -----------------------
+    # Help links
+    # -----------------------
+        self.helpGroupName.clicked.connect(lambda: self.helplink('groupName'))
+        self.helpRunName.clicked.connect(lambda: self.helplink(  'runName'))
+        self.helpBatch.clicked.connect(lambda: self.helplink(    'batch'))
+        self.helpPrec.clicked.connect(lambda: self.helplink(     'precision'))
+        self.helpInput.clicked.connect(lambda: self.helplink(    'input'))
+        self.helpVariables.clicked.connect(lambda: self.helplink(     'variables'))
+        self.helpParametric.clicked.connect(lambda: self.helplink(    'parametric'))
+        self.helpSwitchChem.clicked.connect(lambda: self.helplink(    'switchChem'))
+        self.helpCc.clicked.connect(lambda: self.helplink(            'ccmanual'))
+        self.helpCustomf.clicked.connect(lambda: self.helplink(       'customFunc'))
+        self.helpACDC.clicked.connect(lambda: self.helplink(          'acdc1'))
+        self.helpACDCAdv.clicked.connect(lambda: self.helplink(       'acdc2'))
+        self.helpOrgNucl.clicked.connect(lambda: self.helplink(       'orgnucl'))
+        self.helpCustomf2.clicked.connect(lambda: self.helplink(      'customFunc'))
+        self.helpVapour.clicked.connect(lambda: self.helplink(        'CreateVapourFile'))
+        self.helpPsdInit.clicked.connect(lambda: self.helplink(       'psdinit'))
+        self.helpMultiModal.clicked.connect(lambda: self.helplink(    'mmodal'))
+        self.helpDmpsSpecial.clicked.connect(lambda: self.helplink(   'dmpsSpec'))
+        self.helpPsd.clicked.connect(lambda: self.helplink(           'psdScheme'))
+        self.helpLosses.clicked.connect(lambda: self.helplink(        'losses'))
+        self.helpCustom.clicked.connect(lambda: self.helplink(        'custominput'))
+        self.actionARCA_webpage.triggered.connect(lambda: self.helplink('arcaweb'))
+        self.actionOnline_manual.triggered.connect(lambda: self.helplink('manual'))
+        self.actionFileHelp.triggered.connect(lambda: self.helplink('filehelp'))
+
     # -----------------------
     # Load preferences, or create preferences if not found
     # -----------------------
@@ -892,10 +1059,14 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
 
     def helplink(self, linkStr):
-            QtGui.QDesktopServices.openUrl(QtCore.QUrl(linkStr))
+            if linkStr in helpd:
+                QtGui.QDesktopServices.openUrl(QtCore.QUrl(helpd[linkStr]))
+            else:
+                self.popup('This is embarassing', 'Help link is missing. Try Toolbar->Help->Online manual.')
 
-    def activeTab(self,i):
-        pass
+
+    # def activeTab(self,i):
+    #     pass
         # if i == 6:
         #     # self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
         #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()-40)
@@ -1463,6 +1634,10 @@ the numerical model or chemistry scheme differs from the current, results may va
                 return path
             elif mode == 'plot':
                 self.showOutput(path)
+            elif mode == 'addplot':
+                self.linePlotMulti(path)
+            elif mode == 'addplot_more':
+                self.linePlotMulti(path, new=False)
             elif mode == 'plot_mass':
                 self.showMass(path)
             elif mode == 'plotPar':
@@ -1858,8 +2033,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.toggle_frame(self.frameStop)
         self.toggle_frame(self.frameStart)
         self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
-        try: self.tabWidget.currentChanged.disconnect(self.activeTab)
-        except: pass
+        # try: self.tabWidget.currentChanged.disconnect(self.activeTab)
+        # except: pass
 
         if exists(self.saveCurrentOutputDir):
             f = open(osjoin(self.saveCurrentOutputDir,'runReport.txt'), 'w')
@@ -2225,6 +2400,16 @@ a chemistry module in tab "Chemistry"''', icon=2)
             else:
                 return QtCore.QDate(2000, 1, 1)
 
+
+        try:
+            f = open(file, 'r')
+            for line in f:
+                break
+            f.close()
+        except:
+            self.popup('Not a valid file', 'You are trying to open a file which does not appear to be a valid ARCA configuration file')
+            return
+
         f = open(file, 'r')
         in_custom = False
 
@@ -2579,77 +2764,80 @@ a chemistry module in tab "Chemistry"''', icon=2)
                                                             symbolSize=3
                                                             )
 #
+    def toggleppm(self,what):
+        if what == 'off':
+            self.ppm.setEnabled(False)
+            self.ppb.setEnabled(False)
+            self.ppt.setEnabled(False)
 
-    def showOutput(self, file, add=False):
-        # First set plot mode to linear in order to avoid errors with zero values
-        self.fLin_2.setChecked(True)
-        self.fLog_2.setChecked(False)
-        self.plotResultWindow.setLogMode(y=False)
-        self.findComp.clear()
-        # Close all previus netcdf-files and clear plot
-        self.closenetcdf()
+        if what == 'on':
+            self.ppm.setEnabled(True)
+            self.ppb.setEnabled(True)
+            self.ppt.setEnabled(True)
+
+    def addAnotherNC(self):
+        if self.LPD == []:
+            return
+        else:
+            ftype = self.LPD[-1].masterfile
+        self.browse_path(None, 'addplot_more', ftype=ftype)
+
+
+
+    def linePlotMulti(self, file, new=True):
+        if new:
+            self.fLin_2.setChecked(True)
+            self.fLog_2.setChecked(False)
+            self.plotResultWindow.setLogMode(y=False)
+            self.findComp.clear()
+            # Close all previus netcdf-files and clear plot
+            self.closenetcdf()
+        else:
+            comp = self.availableVars.currentItem().text()
         # Try to open netCDF-file
         if exists(file):
             try:
                 self.ncs = netCDF4.Dataset(file, 'r')
+                self.ncs.close()
             except:
                 self.popup('Bummer...', 'Not a valid output file',icon=3)
                 return
-        if ossplit(file)[1] == 'Particles.nc':
-            self.ShowPPC.setEnabled(True)
-            b = ravel(self.ncs.variables['CONDENSABLES'][:,:].astype(str),'C')
-            names=b.reshape(self.ncs.variables['CONDENSABLES'].shape)
-            self.compomatrix = self.ncs.variables['PARTICLE_COMPOSITION'][:,:,:]
-            self.compoNC = self.ncs.variables['NUMBER_CONCENTRATION'][:]
-            self.namesForComposition = {}
-            for i,word in enumerate(names):
-                self.namesForComposition[(''.join(list(word))).strip()] = i
+        else: return
+        # the file checks, move on
+        if new:
+            self.LPD = [NcPlot(file)]
+            if self.LPD[-1].masterfile == 'Particles.nc': self.ShowPPC.setEnabled(True)
+        else:
+            self.LPD.append(NcPlot(file))
 
-        # find out the time dimension, using unlimited dimension here
-        for timedim in self.ncs.dimensions:
-            if self.ncs.dimensions[timedim].isunlimited():
-                break
-
-        checker = lambda v,n: v.lower() in timedim and 'Shifter' not in n and 'Multipl' not in n
-
-        # collect all variables and dimensions from netCDF-dataset to hnames
-        cache = array([i.name for i in self.ncs.get_variables_by_attributes(ndim=1)])
-        timevars = [checker(i.dimensions[0], i.name) for i in self.ncs.get_variables_by_attributes(ndim=1)]
-        self.hnames = cache[timevars]
-
-        # Now try to plot first the third line, which is the first non-time variable
-        try:
-            time = self.ncs.variables[self.hnames[0]][:]/3600
-            vari = self.ncs.variables[self.hnames[2]][:]
-            if ma.is_masked(time):
-                self.outplot = self.plotResultWindow.plot(
-                time[~time.mask],
-                vari[~time.mask],
-                pen={'color':'b','width': 2.0}
-                )
-            else:
-                self.outplot = self.plotResultWindow.plot(
-                time,
-                vari,
-                pen={'color':'b','width': 2.0}
-                )
+        if new:
+            Y,unit = self.LPD[-1].getloc(0, return_unit=True)
+            if unit == '[#/cm3]': self.toggleppm('on')
+        else:
+            Y = self.LPD[-1].getconc(comp)
+            # self.outplot = NC_lines.append( self.plotResultWindow.plot(
+        self.NC_lines.append( self.plotResultWindow.plot(
+        self.LPD[-1].time,
+        Y,
+        pen={'color':colors[2*(len(self.LPD)-1)],'width': 2.0},
+        name=self.LPD[-1].legend
+        ) )
+        if new:
             self.availableVars.clear()
-            self.availableVars.addItems(self.hnames)
-            self.availableVars.item(2).setSelected(True)
-            self.availableVars.setCurrentItem(self.availableVars.item(2))
+            self.availableVars.addItems(self.LPD[-1].names)
+            self.availableVars.item(0).setSelected(True)
+            self.availableVars.setCurrentItem(self.availableVars.item(0))
             self.availableVars.itemSelectionChanged.connect(self.showOutputUpdate)
-            self.ShowPPC.toggled.connect(self.showOutputUpdate)
-            self.ShowPPC.toggled.connect(self.toggleTimeInavailableVars)
 
         # If fails, give information and return
-        except:
-            self.popup('Bummer...', "Output file does not contain any plottable data",icon=3)
-            return
-
-        # All's well, finish plot
-        self.plotResultWindow.setLabel('bottom', 'Time', units='h')
-        self.plotTitle = file + ': ' + self.hnames[2]+' ['+units.get(self.hnames[2],units['REST'])[0]+']'
-        self.plotResultTitle.setText(self.plotTitle)
+        # except:
+        #     self.popup('Bummer...', "Output file does not contain any plottable data",icon=3)
+        #     return
+        if new:
+            # All's well, finish plot
+            self.plotResultWindow.setLabel('bottom', 'Time', units='h')
+            self.plotTitle = file + ': ' + list(self.LPD[-1].convars.keys())[0]
+            self.plotResultTitle.setText(self.plotTitle+' '+unit)
 
 
     def selectionMode(self):
@@ -2660,90 +2848,137 @@ a chemistry module in tab "Chemistry"''', icon=2)
             if self.availableVars.currentItem() != None:
                 self.availableVars.currentItem().setSelected(True)
 
-    def toggleTimeInavailableVars(self):
-        item = self.availableVars.item(0)
-        if item.text().upper()=='TIME_IN_SEC':
-            item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEnabled ^ QtCore.Qt.ItemIsSelectable)
-        item = self.availableVars.item(1)
-        if item.text().upper()=='TIME_IN_HRS':
-            item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEnabled ^ QtCore.Qt.ItemIsSelectable)
+
+    def loadsecondFile(self):
+        newfile = self.browse_path(target=None,mode='fixed_cc', ftype=self.plotMasterFile)
+        self.listOfplottedFiles.append(newfile)
+        print(self.listOfplottedFiles)
+
 
     def showOutputUpdate(self):
-        """This function is inwoked when lin/log radio button or any variable in the list is changed"""
+        """This function is called when lin/log radio button or any variable in the list is changed"""
         # find out which y-scale should be used
         if self.ShowPPC.isChecked():
+            self.toggleppm('off')
             PPconc = True
         else:
             PPconc = False
         scale = self.radio(self.fLin_2, self.fLog_2)
         if scale == 'log':loga = True
         else: loga = False
+
         # find out which variable should be plotted
-        try:
-            comp = self.availableVars.currentItem().text()
-        except:
-            return
-        def getcompo():
-            if comp in self.namesForComposition:
-                kk=self.namesForComposition[comp]
-            else:return
-            self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' [ng/m3]'
-            # NOTE: unit conversion kg->g->ng and cm3 (from particle conc) -> m3
-            return 1e3*1e9*1e6*npsum(self.compoNC*self.compomatrix[:,:,kk], axis=1)
+        comp = self.availableVars.currentItem().text()
+
+        if not PPconc:
+            if self.sumSelection.isChecked():
+                if any(c.text() in units for c in self.availableVars.selectedItems()):
+                    self.n_conc.setChecked(True)
+                    self.toggleppm('off')
+                else:
+                    self.toggleppm('on')
+            else:
+                if comp not in units:
+                    self.toggleppm('on')
+                else:
+                    self.n_conc.setChecked(True)
+                    self.toggleppm('off')
 
         # Exctract that variable from netCDF-dataset and save to Y
+        YY = []
+        TT = []
         if not self.sumSelection.isChecked():
             if PPconc:
-                Y = getcompo()
+                for z in self.LPD:
+                    YY.append(z.getcom(comp))
+                    TT.append(z.time)
+
+                # Y = getcompo()
             else:
-                Y = self.ncs.variables[comp][:]
+                for z in self.LPD:
+                    YY.append(z.getconc(comp))
+                    TT.append(z.time)
+
+                # Y = self.ncs.variables[comp][:]
+            self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
         else:
             if self.availableVars.selectedItems() != []:
                 if PPconc:
-                    inds = []
-                    for c in self.availableVars.selectedItems():
-                        if c.text() in self.namesForComposition:
-                            inds.append(self.namesForComposition[c.text()])
-                    if inds ==[]:return
-                    # NOTE: unit conversion kg->g->ng and cm3 (from particle conc) -> m3
-                    Y = 1e3*1e9*1e6*npsum(self.compoNC*npsum(self.compomatrix[:,:,inds],2), axis=1)
-                    self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + self.availableVars.selectedItems()[0].text()+' etc. [ng/m3]'
+                    for z in self.LPD:
+                        YY.append(z.getcomsum([c.text() for c in self.availableVars.selectedItems()]))
+                        TT.append(z.time)
                 else:
-                    Y = sum(self.ncs.variables[c.text()][:] for c in self.availableVars.selectedItems())
-                    self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + self.availableVars.selectedItems()[0].text()+' etc. [#/cm3]'
+                    for z in self.LPD:
+                        YY.append(z.getconcsum([c.text() for c in self.availableVars.selectedItems()]))
+                        TT.append(z.time)
+                self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + self.availableVars.selectedItems()[0].text()+' etc. '
             else:
                 if PPconc:
-                    Y= getcompo()
+                    for z in self.LPD:
+                        YY.append(z.getcom(comp))
+                        TT.append(z.time)
                 else:
-                    Y = self.ncs.variables[comp][:]
-                    self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' [#/cm3]'
+                    for z in self.LPD:
+                        YY.append(z.getconc(comp))
+                        TT.append(z.time)
+                self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
 
-        if max(Y)!=0:
-            # if the variable is PRACTICALLY nonvariant, set the value to constant
-            if (max(Y)-min(Y))/max(Y)<1e-5:Y[:]=mean(Y)
+        for j,Y in enumerate(YY):
+            if max(Y)!=0:
+                # if the variable is PRACTICALLY nonvariant, set the value to constant
+                if (max(Y)-min(Y))/max(Y)<1e-5: YY[j][:]=mean(Y)
+
+        if all([z.have_aircc for z in self.LPD]): have_aircc = True
+
+        if have_aircc:
+            for j,Y in enumerate(YY):
+                if self.ppm.isChecked():
+                    YY[j] = Y/self.LPD[j].aircc * 1e6
+                    un = '[ppm]'
+                elif self.ppb.isChecked():
+                    YY[j] = Y/self.LPD[j].aircc * 1e9
+                    un = '[ppb]'
+                elif self.ppt.isChecked():
+                    YY[j] = Y/self.LPD[j].aircc * 1e12
+                    un = '[ppt]'
+                elif PPconc:
+                    un = '[ng/m3]'
+                elif self.sumSelection.isChecked():
+                    if any(c.text() in units for c in self.availableVars.selectedItems()):
+                        if len(self.availableVars.selectedItems())==1:
+                            un = '['+units.get(self.availableVars.selectedItems()[0].text(),units['REST'])[0]+']'
+                        else:
+                            un = '[-]'
+                    else:
+                        un = '[#/cm3]'
+                else : un = '['+units.get(comp,units['REST'])[0]+']'
+
 
         # Are the values non-negative?
-        positive = all(Y>=0)
+        positive = all([all(Y>=0) for Y in YY])
         # Are all the values zeros?
-        zeros = all(Y==0)
+        zeros = all([all(Y==0) for Y in YY])
         # if non-negative and not all zeros, and log-scale is possible without any fixes
         if not zeros and not positive and scale=='log':
-            Y[Y<=0] = 1e-20
+            for j,Y in enumerate(YY):
+                YY[j] = where(Y<=0, 1e-20, Y)
             # Mark plot with red to warn that negative values have been deleted
-            self.outplot.setPen({'color':'r','width': 2.0})
+                self.NC_lines[j].setPen({'style':QtCore.Qt.DashLine,'color':colors[2*(j)],'width': 2.0})
             positive = True
         else:
-            self.outplot.setPen({'color':'b','width': 2.0})
+            for j,p in enumerate(self.NC_lines):
+                p.setPen({'style':QtCore.Qt.SolidLine,'color':colors[2*(j)],'width': 2.0})
 
         if scale=='log' and positive and not zeros:
             # To avoid very small exponentials, zeros are changed to nearest small number
-            if not all(Y>0):
-                uniqs = unique(Y)
-                if len(uniqs)>1:
-                    Y[Y==0] = uniqs[1]
-                # if the above fails, use linear scale
-                else:
-                    loga = False
+            if not all([all(Y>0) for Y in YY]):
+                for j,Y in enumerate(YY):
+                    uniqs = unique(Y)
+                    if len(uniqs)>1:
+                        YY[j] = where(Y==0,uniqs[1],Y)
+                    # if the above fails, use linear scale
+                    else:
+                        loga = False
             # if everything ok, use log scale
             loga = True
 
@@ -2752,14 +2987,16 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.plotResultWindow.setLogMode(y=False)
             loga = False
         # update data
-        time = self.ncs.variables[self.hnames[0]][:]/3600
-        if ma.is_masked(time):
-            self.outplot.setData(time[~time.mask],Y[~time.mask])
-        else:
-            self.outplot.setData(time,Y)
+        for j,Y in enumerate(YY):
+        # time = self.ncs.variables[self.hnames[0]][:]/3600
+        # if ma.is_masked(time):
+            self.NC_lines[j].setData(TT[j],Y)
+        # else:
+        #     self.outplot.setData(time,Y)
         self.plotResultWindow.setLogMode(y=loga)
         # update title
-        self.plotResultTitle.setText(self.plotTitle)
+        self.plotResultTitle.setText(self.plotTitle+un)
+
 
 
     ## Popup message function -icon sets the icon:----------------------------------------------------------------------
@@ -2778,22 +3015,34 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def closenetcdf(self):
-        try: self.ncs.close()
-        except: pass
+        # try: self.ncs.close()
+        # except: pass
+        for z in self.LPD:
+            z.closenc()
+        self.LPD = []
+        self.NC_lines = []
+
+        if self.ncleg in self.ncleg_skene.items():
+            self.ncleg_skene.removeItem(self.ncleg)
+            self.ncleg = self.plotResultWindow.addLegend()
+            if self.ncleg not in self.ncleg_skene.items():
+                self.ncleg_skene.addItem(self.ncleg)
+
         try:
             while True:
                 try: self.availableVars.itemSelectionChanged.disconnect(self.showOutputUpdate)
                 except TypeError: break
             self.availableVars.clear()
             self.plotResultWindow.clear()
-            self.ShowPPC.toggled.disconnect(self.showOutputUpdate)
-            self.ShowPPC.toggled.disconnect(self.toggleTimeInavailableVars)
+            # self.ShowPPC.toggled.disconnect(self.showOutputUpdate)
+            # self.ShowPPC.toggled.disconnect(self.toggleTimeInavailableVars)
 
-            self.ShowPPC.setChecked(False)
-            self.ShowPPC.setEnabled(False)
         except:
             pass
-
+        self.ShowPPC.setChecked(False)
+        self.ShowPPC.setEnabled(False)
+        self.toggleppm('off')
+        self.listOfplottedFiles = []
 
     def closenetcdf_mass(self):
         try: self.ncs_mass.close()
@@ -2823,6 +3072,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.inv = -1
         self.compileProgressBar.setValue(i-self.inv)
         self.running = self.compile.poll()
+
         if self.running != None:
             self.TimerCompile.stop()
             self.recompile.setEnabled(True)
@@ -2868,9 +3118,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 strict = True
         self.availableVars.clear()
         if text == '':
-            self.availableVars.addItems(self.hnames)
+            self.availableVars.addItems(self.LPD[-1].names)
         else:
-            for c in self.hnames:
+            for c in self.LPD[-1].names:
                 if strict:
                     if text == c.upper():
                         self.availableVars.addItem(c)
