@@ -86,6 +86,10 @@ units = {
 'SW_RADIATION':['W/m2'],
 'ION_PROD_RATE':['ip/cm3 s'],
 'NUC_RATE_IN':['1/cm3 s'],
+'J_ACDC_NH3_CM3':['1/cm3 s'],
+'J_ACDC_DMA_CM3':['1/cm3 s'],
+'J_ACDC_SUM_CM3':['1/cm3 s'],
+'J_TOTAL_CM3':['1/cm3 s'],
 'REST':['#/cm3','ppm','ppb','ppt','ppq']
 }
 # Name of the executable -------------------------------------------
