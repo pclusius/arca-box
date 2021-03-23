@@ -2791,9 +2791,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def linePlotMulti(self, file, new=True):
+        if new or self.fLin_2.isChecked():
+            putBackLog = False
+        if not new and self.fLog_2.isChecked():
+            putBackLog = True
+            self.plotResultWindow.setLogMode(y=False)
+        self.fLin_2.setChecked(True)
+        self.fLog_2.setChecked(False)
         if new:
-            self.fLin_2.setChecked(True)
-            self.fLog_2.setChecked(False)
             self.plotResultWindow.setLogMode(y=False)
             self.findComp.clear()
             # Close all previus netcdf-files and clear plot
@@ -2847,6 +2852,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.plotResultWindow.setLabel('bottom', 'Time', units='h')
             self.plotTitle = file + ': ' + list(self.LPD[-1].convars.keys())[0]
             self.plotResultTitle.setText(self.plotTitle+' '+unit)
+        else:
+            self.fLin_2.setChecked(~putBackLog)
+            self.fLog_2.setChecked(putBackLog)
+            self.showOutputUpdate()
 
 
     def selectionMode(self):
