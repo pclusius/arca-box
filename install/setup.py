@@ -2,7 +2,9 @@
 
 import sys
 import os
-
+if sys.version_info.major != 3:
+    print('Using ARCA Gui requires Python 3 (preferrably 3.6 or later)')
+    quit()
 if os.name == 'nt':
     le = '\r\n'
     posix = False
