@@ -9,4 +9,3 @@ __pycache__
 arca.desktop
 *.nc
 run_arca.sh
-makefile

@@ -41,8 +41,12 @@ ACDC_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AN_ions.o acdc
 ACDC_D_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AD_new.o monomer_settings_acdc_DMA.o solution_settings.o driver_acdc_D.o \
                   acdc_equations_AD_new.o get_acdc_D.o)
 
+
 # If you get errors related to LIBNET, this is the place to start troubleshooting
 NETLIBS =  -I/usr/include -L/usr/lib/x86_64-linux-gnu/ -lnetcdf  -lnetcdff -lcurl
+
+# For Mac, you might need this
+#NETLIBS = -I/opt/local/include -L/opt/local/lib -L/usr/lib -lnetcdff -lnetcdf -lcurl -lhdf5 -lhdf5_hl
 #NETLIBS = -I$(NETCDF_INCLUDE) -L$(NETCDF_LIB) -L$(H5_LIB) -lnetcdf -lnetcdff -lcurl -lhdf5 -lhdf5_hl
 
 all: arcabox.exe
