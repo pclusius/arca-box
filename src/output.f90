@@ -199,7 +199,7 @@ CONTAINS
   call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_NH3_id, 'unit' , '[1/s/cm^3]'))
   call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_DMA_id, 'unit' , '[1/s/cm^3]'))
   call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_SUM_id, 'unit' , '[1/s/cm^3]'))
-  call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_SUM_id, 'unit' , '[1/s/cm^3]'))
+  call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_TOT_id, 'unit' , '[1/s/cm^3]'))
 
   IF (RESOLVE_BASE) THEN
     call handler(__LINE__, nf90_def_var(ncfile_ids(I), 'RESOLVED_BASE', NF90_DOUBLE, dtime_id, gRES_BASE))
@@ -242,7 +242,7 @@ CONTAINS
         call handler(__LINE__, nf90_put_att(ncfile_ids(I), savepar(J)%i, 'unit' , savepar(J)%u))
       end do
 
-      if (DONT_SAVE_CONDENSIBLES .eqv. .false.) THEN
+      ! if (DONT_SAVE_CONDENSIBLES .eqv. .false.) THEN
         do j = 1,size(vapours%vapour_names)
           k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
           if (k>0) THEN
@@ -251,7 +251,7 @@ CONTAINS
             call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
           end if
         end do
-      end if
+      ! end if
   end if
 
 

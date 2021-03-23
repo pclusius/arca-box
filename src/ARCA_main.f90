@@ -442,7 +442,7 @@ in_turn_cch_1: if (PRC%in_turn(PRC%cch)) THEN
         END IF
 
 
-        if (model_H2SO4) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
+        if (model_H2SO4.or..not.MODS(inm_H2SO4)%ISPROVIDED) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
 
         IF (AFTER_CHEM_ON) CALL AFTER_CHEM(TSTEP_CONC,CH_GAS,CH_GAS_old,CH_RO2,CH_RO2_old,J_TOTAL_M3)
     END IF CHEMISTRY_ROUTINES
