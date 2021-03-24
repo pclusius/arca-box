@@ -21,6 +21,7 @@ from os.path import exists, dirname, getmtime, abspath, split as ossplit, join a
 from shutil import copyfile as cpf
 from re import sub,IGNORECASE, findall
 import time
+import sys
 import pickle
 from urllib.parse import urljoin
 
@@ -54,7 +55,11 @@ environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) # enable highdpi scaling
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)    # use highdpi icons
 # See if scaling is necessary, currently only on Windows
-if osname.upper() == 'NT' or operatingsystem == 'Windows': # this or is only till I sort out if platform usually works for people
+args = []
+if len(sys.argv)>1:
+    for a in sys.argv:
+        args.append(a.upper())
+if osname.upper() == 'NT' or operatingsystem == 'Windows' and not '-NS' in args: # this or is only till I sort out if platform usually works for people
     try:
         import ctypes
         sf = (ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100)
@@ -69,6 +74,8 @@ if osname.upper() == 'NT' or operatingsystem == 'Windows': # this or is only til
         sf=1
         print("Could not get the scaling factor of the screen, using %3.2f. Let's hope the GUI looks ok"%sf)
     environ["QT_SCALE_FACTOR"] = "%3.2f"%sf
+
+if '-NS' in args: print('Overriding scaling from cmdline')
 
 ## Some constants --------------------------------------------
 # widths of the columns in "Input variables" tab
@@ -1032,10 +1039,11 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Load preferences, or create preferences if not found
     # -----------------------
-        try:
-            # if defaults exist, use them
+        # try:
+        #     # if defaults exist, use them
+        if exists(defaults_file_path):
             self.load_initfile(defaults_file_path)
-        except:
+        else:
             try:
                 # If defaults did not exist, load minimal working settings
                 self.load_initfile(minimal_settings_path)
@@ -2879,8 +2887,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if self.ShowPPC.isChecked():
             self.toggleppm('off')
             PPconc = True
+            self.plotResultWindow.setBackground(org_no)
+
         else:
             PPconc = False
+            self.plotResultWindow.setBackground('w')
         scale = self.radio(self.fLin_2, self.fLog_2)
         if scale == 'log':loga = True
         else: loga = False
