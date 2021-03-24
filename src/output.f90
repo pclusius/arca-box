@@ -243,7 +243,7 @@ CONTAINS
       end do
 
       ! if (DONT_SAVE_CONDENSIBLES .eqv. .false.) THEN
-        do j = 1,size(vapours%vapour_names)
+        do j = 1,vapours%n_condorg-1
           k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
           if (k>0) THEN
             call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(j)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
@@ -251,6 +251,14 @@ CONTAINS
             call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
           end if
         end do
+        ! Generic vapour - these values are only for consistency, they will be zero for gas concetrations
+        call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(vapours%ind_GENERIC)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
+        call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
+        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
+        ! Sulfuric acid
+        call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(vapours%ind_H2SO4)  ), NF90_DOUBLE, dtime_id, par_ind(j+1)) )
+        call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), par_ind(j+1), shuff, compress, compression) )
+        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j+1), 'unit' , '1/cm^3'))
       ! end if
   end if
 
@@ -332,16 +340,22 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOU
 
 
   I=3 ! Particle file
+
   if (Aerosol_flag) THEN
-    if (DONT_SAVE_CONDENSIBLES .eqv. .false.) THEN
+    ! if (DONT_SAVE_CONDENSIBLES .eqv. .false.) THEN
         do j = 1,vapours%n_condorg-1
             call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(index_cond(j)), (/GTIME%ind_netcdf/)) )
         end do
         call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_GENERIC), &
-                    CH_GAS(IndexFromName(vapours%vapour_names(vapours%ind_GENERIC),SPC_NAMES)), (/GTIME%ind_netcdf/)) )
-        call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_H2SO4), &
-                    CH_GAS(IndexFromName(vapours%vapour_names(vapours%ind_H2SO4),SPC_NAMES)), (/GTIME%ind_netcdf/)) )
-    end if
+                    0d0, (/GTIME%ind_netcdf/)) )
+        if (H2SO4_ind_in_chemistry>0) THEN
+            call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_H2SO4), &
+                        CH_GAS(IndexFromName(vapours%vapour_names(vapours%ind_H2SO4),SPC_NAMES)), (/GTIME%ind_netcdf/)) )
+        ELSE
+            call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_H2SO4), &
+                        TSTEP_CONC(inm_H2SO4), (/GTIME%ind_netcdf/)) )
+        END IF
+    ! end if
 
     do j = 1,size(savepar)
       if (savepar(j)%name == 'NUMBER_CONCENTRATION'  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, 1d-6*(get_conc()), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
