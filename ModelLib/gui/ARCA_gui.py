@@ -2739,7 +2739,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         miny, maxy = y.min(),y.max()
         if self.measdmps:
             y2 = npsum(self.massdmps[:,inds],axis=1)*1e3
-            miny, maxy = min(miny,y2.min()),max(maxy,y2.max())
+            miny, maxy = min(miny,y2.min()),max(maxy,self.showAlsoMeasInMassConc.isChecked()*y2.max())
         if maxy>0:
             if abs(1-miny/maxy) <1e-12:
                 maxy = miny*100000
@@ -3243,7 +3243,7 @@ REA: FLOAT_CHEMISTRY_AFTER_HRS=1.0000000000000000E+100
 LOG: USE_RH_CORRECTION=T
 LOG: TEMP_DEP_SURFACE_TENSION=F
 LOG: USE_DIFF_DIA_FROM_DIFF_VOL=F
-REA: SPEED_DT_LIMIT=300d0, 300d0, 300d0
+REA: SPEED_DT_LIMIT=150d0, 150d0, 150d0
 LOG: ENABLE_END_FROM_OUTSIDE=T
 REA: LIMIT_FOR_EVAPORATION=0.0
 REA: MIN_CONCTOT_CC_FOR_DVAP=1d3

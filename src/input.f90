@@ -213,7 +213,7 @@ Logical                 :: ENABLE_END_FROM_OUTSIDE = .True.
 Logical                 :: Use_old_composition = .false.
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
-real(dp)                :: speed_dt_limit(3) =  [300d0,300d0,300d0]
+real(dp)                :: speed_dt_limit(3) =  [150d0,150d0,150d0]
 real(dp)                :: Limit_for_Evaporation = 0_dp ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
 real(dp)                :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
 
@@ -272,6 +272,15 @@ subroutine READ_INPUT_DATA()
     CALL READ_INIT_FILE
     CALL PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
     CALL REPORT_INPUT_COLUMNS_TO_USER
+
+    ! Here we turn submodules on or off based on other options
+    if (LOSSES_FILE /= '') Deposition = .true.
+    If (.not.Aerosol_flag) Condensation = .false.
+    If (.not.Aerosol_flag) Coagulation = .false.
+    If (.not.Aerosol_flag) Deposition = .false.
+
+    if (.not.Condensation) CALC_GR = .false.
+    H2SO4_ind_in_chemistry = IndexFromName( 'H2SO4', SPC_NAMES )
 
 
     ! ALLOCATE CONC_MAT Currently both files need to have same time resolution FIX THIS SOON!
@@ -375,7 +384,7 @@ print FMT_LEND,
 IF (Aerosol_flag) then
 
     CALL PARSE_MULTIMODAL
-    CALL PARSE_GR_SIZES
+    if (CALC_GR) CALL PARSE_GR_SIZES
 
     if (PSD_MODE == 1) write(*,FMT_MSG) 'Using fully stationary PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
     if (PSD_MODE == 2) write(*,FMT_MSG) 'Using fixed grid/moving average PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
@@ -384,8 +393,6 @@ IF (Aerosol_flag) then
     OPEN(unit=802, File= TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
     call handle_file_io(ioi, Vap_names, &
         'If Condensation is used, "Vapour file" must be defined (in tab "Advanced").')
-
-    H2SO4_ind_in_chemistry = IndexFromName( 'H2SO4', SPC_NAMES )
 
     rows = ROWCOUNT(802)
     cols = COLCOUNT(802)
@@ -579,17 +586,6 @@ IF (Aerosol_flag) then
 
   end if
 
-  ! print*, H2SO4_ind_in_chemistry
-  ! do ii=1,VAPOUR_PROP%n_condtot
-  !     print*, ii, VAPOUR_PROP%vapour_names(ii), VAPOUR_PROP%cond_type(ii), VAPOUR_PROP%c_sat(ii)
-  ! END DO
-  ! print*,'Next print'
-  ! do ii=1,size(index_cond,1)
-  !     print*, ii,VAPOUR_PROP%vapour_names(ii), index_cond(ii), SPC_NAMES(index_cond(ii))
-  ! END DO
-  ! print*, VAPOUR_PROP%ind_GENERIC,VAPOUR_PROP%ind_H2SO4
-  ! stop
-
   CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
 end subroutine READ_INPUT_DATA
 
@@ -695,6 +691,7 @@ subroutine READ_INIT_FILE
 
 end subroutine READ_INIT_FILE
 
+
 subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
     implicit none
     INTEGER :: days(12), non_leap_year(12) = ([31,28,31,30,31,30,31,31,30,31,30,31])
@@ -776,6 +773,7 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
     close(800)
 
 end subroutine NAME_MODS_SORT_NAMED_INDICES
+
 
 subroutine REPORT_INPUT_COLUMNS_TO_USER
     implicit none

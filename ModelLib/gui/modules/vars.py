@@ -281,7 +281,11 @@ class INITFILE:
                         if value.upper() == '.TRUE.' or value.upper() == '.FALSE.':
                             exec("%s(' %s = %s%s')"%(cmd,key,value,eol))
                         else:
-                            exec("%s(' %s = \\'%s\\'%s')"%(cmd,key,value.replace("'",'').replace('"',''),eol))
+                            try:
+                                _ = [float(iii) for iii in value.split(',')]
+                                exec("%s(' %s = %s%s')"%(cmd,key,value,eol))
+                            except:
+                                exec("%s(' %s = \\'%s\\'%s')"%(cmd,key,value.replace("'",'').replace('"',''),eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _RAW:

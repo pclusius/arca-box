@@ -164,7 +164,7 @@ CONTAINS
 
   I=1 ! GENERAL FILE
   do j = 1,size(MODS)
-    IF ((TRIM(MODS(j)%name) /= '#')) THEN
+    IF (TRIM(MODS(j)%name) /= '#') THEN
       IF (j<LENV .or. INDRELAY_CH(j)>0) THEN
         call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(MODS(j)%name), NF90_DOUBLE, dtime_id, mods_ind(j)) )
         call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), mods_ind(j), shuff, compress, compression) )
@@ -291,11 +291,12 @@ END SUBROUTINE OPEN_FILES
 ! ====================================================================================================================
 ! Here the input is written to netcdf-files. Again, particles still rudimentary
 ! --------------------------------------------------------------------------------------------------------------------
-SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOURS, save_measured, GR)
+SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,conc_vapours,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOURS, save_measured, GR)
   IMPLICIT NONE
   type(input_mod), INTENT(in)     :: MODS(:)
   real(dp), INTENT(in)            :: TSTEP_CONC(:)
   real(dp), INTENT(in)            :: CH_GAS(:)
+  real(dp), INTENT(in)            :: conc_vapours(:)
   real(dp), INTENT(in)            :: J_ACDC_NH3_M3
   real(dp), INTENT(in)            :: J_ACDC_DMA_M3
   TYPE(vapour_ambient),INTENT(IN) :: vapours
@@ -343,18 +344,11 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOU
 
   if (Aerosol_flag) THEN
     ! if (DONT_SAVE_CONDENSIBLES .eqv. .false.) THEN
-        do j = 1,vapours%n_condorg-1
-            call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(j), CH_GAS(index_cond(j)), (/GTIME%ind_netcdf/)) )
+        do j = 1,vapours%n_condtot
+            call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(j), conc_vapours(j), (/GTIME%ind_netcdf/)) )
         end do
-        call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_GENERIC), &
-                    0d0, (/GTIME%ind_netcdf/)) )
-        if (H2SO4_ind_in_chemistry>0) THEN
-            call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_H2SO4), &
-                        CH_GAS(IndexFromName(vapours%vapour_names(vapours%ind_H2SO4),SPC_NAMES)), (/GTIME%ind_netcdf/)) )
-        ELSE
-            call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_H2SO4), &
-                        TSTEP_CONC(inm_H2SO4), (/GTIME%ind_netcdf/)) )
-        END IF
+        ! call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_GENERIC), 0d0, (/GTIME%ind_netcdf/)) )
+        ! call handler(__LINE__, nf90_put_var(ncfile_ids(I), par_ind(vapours%ind_H2SO4), conc_vapours(vapours%ind_H2SO4), (/GTIME%ind_netcdf/)) )
     ! end if
 
     do j = 1,size(savepar)

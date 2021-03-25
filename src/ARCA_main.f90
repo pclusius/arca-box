@@ -45,6 +45,7 @@ REAL(dp) :: CH_H2O      ! H20 concentration in [molecules / cm^3]
 REAL(dp) :: CH_Beta     ! solar zenit angle
 REAL(dp) :: EW          ! Water content in Pa
 REAL(dp) :: ES          ! Saturation vapour pressure
+REAL(dp) :: H2SO4       ! transient keeper for H2SO4 variable
 LOGICAL  :: acdc_goback = .false.
 ! Variables related to aerosol module
 REAL(dp), dimension(:), allocatable:: conc_vapour
@@ -68,9 +69,9 @@ REAL(dp), ALLOCATABLE   :: d_dpar(:)            ! array reporting relative chang
 REAL(dp), ALLOCATABLE   :: d_npar(:)            ! array reporting relative changes to the particle number array within a single timestep
 REAL(dp), ALLOCATABLE   :: d_npdep(:)           ! array reporting relative changes to the particle number array within a single timestep
 REAL(dp), ALLOCATABLE   :: d_vap(:)             ! array reporting relative changes to the vapour concentration array within a single timestep
-REAL(dp)                :: refdvap              ! holds the reference maximum of d_vap, which is the average of three largest or three
-integer                 :: irefdvap             ! smallest (if negative) in d_vap, whichever is larger in magnitude. irefvap is the index of
-logical                 :: logdvap              ! the chosen maximum or minimum value. logdvap is true if abs(refdvap) is over the precision limits
+REAL(dp)                :: refdvap  = 0d0       ! holds the reference maximum of d_vap, which is the average of three largest or three
+integer                 :: irefdvap = 1         ! smallest (if negative) in d_vap, whichever is larger in magnitude. irefvap is the index of
+logical                 :: logdvap  = .false.   ! the chosen maximum or minimum value. logdvap is true if abs(refdvap) is over the precision limits
 REAL(dp) :: Av                                  ! chamber parametrization parameters
 REAL(dp) :: Au                                  ! chamber parametrization parameters
 REAL(dp) :: Ad                                  ! chamber parametrization parameters
@@ -110,7 +111,7 @@ ENDIF
 
 ! ==================================================================================================================
 ! If particles are considered -> initialize a particle representation, set initial PSD and determine composition
-IF (Aerosol_flag) THEN
+INIT_AEROSOL: IF (Aerosol_flag) THEN
 
     ! Initialize the Particle representation
     CALL INITIALIZE_PSD
@@ -168,19 +169,32 @@ IF (Aerosol_flag) THEN
 
 
     ALLOCATE(conc_vapour(n_cond_tot))
+
+
     ALLOCATE(corgwallTeflon(VAPOUR_PROP%n_condorg))
     corgwallTeflon = 0d0
 
     ! Allocate the change vectors for integration timestep control
     ALLOCATE(d_vap(max(VAPOUR_PROP%n_condtot,1)))
-
-    if (Chemistry_flag.and..not.Condensation) ALLOCATE(d_chem(NSPEC))
-
     d_vap = 0d0
+
 
     print FMT_LEND,
 
-    END IF ! IF (Aerosol_flag)
+else ! This is run if aerosol module is off
+
+    ALLOCATE(conc_vapour(1))
+    ALLOCATE(d_dpar(1))
+    ALLOCATE(d_npar(1))
+    ALLOCATE(d_npdep(1))
+    d_dpar = 0d0
+    d_npar = 0d0
+    d_npdep = 0d0
+
+END IF INIT_AEROSOL
+
+! If Condensation is off, the changes is gases is monitored from chemistry
+if (Chemistry_flag.and..not.Condensation) ALLOCATE(d_chem(NSPEC))
 
 ! Allocate and initiate the timestep vector for interpolated input
 ALLOCATE(TSTEP_CONC(N_VARS))
@@ -317,7 +331,7 @@ MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the
 
         PRC%in_turn(PRC%cch) = MODULO(n_of_Rounds,speed_up(PRC%cch))==0_dint.and.Condensation.or.Chemistry_flag
         PRC%in_turn(PRC%coa) = MODULO(n_of_Rounds,speed_up(PRC%coa))==0_dint.and.Coagulation
-        PRC%in_turn(PRC%dep) = MODULO(n_of_Rounds,speed_up(PRC%dep))==0_dint.and.(Deposition.or.LOSSES_FILE /= '')
+        PRC%in_turn(PRC%dep) = MODULO(n_of_Rounds,speed_up(PRC%dep))==0_dint.and.Deposition
         PRC%in_turn(4) = (PRC%in_turn(PRC%cch).or.(PRC%in_turn(PRC%coa).or.PRC%in_turn(PRC%dep)))
 
         if (PRC%increase(1).and.PRC%in_turn(1)) THEN
@@ -363,6 +377,7 @@ if (PRC%in_turn(4)) THEN
             GC_AIR_NOW = C_AIR_cc(GTEMPK, GPRES)
         END IF
     END DO
+    ! Here the tied variables are handled.
     DO I = 1, N_VARS
         IF ((MODS(i)%ISPROVIDED).and.(MODS(i)%TIED /= '')) THEN
             TSTEP_CONC(I) = TSTEP_CONC(INDRELAY_TIED(I)) * MODS(I)%MULTI + UCONV(MODS(I)%SHIFT, MODS(I))
@@ -370,6 +385,7 @@ if (PRC%in_turn(4)) THEN
     END DO
 
     GRH = TSTEP_CONC(inm_RH)
+    H2SO4 = TSTEP_CONC(inm_H2SO4)
 
     IF (MODS(inm_CS)%ISPROVIDED) THEN
         GCS = TSTEP_CONC(inm_CS)
@@ -403,11 +419,7 @@ in_turn_cch_1: if (PRC%in_turn(PRC%cch)) THEN
         if (GTIME%hrs<FLOAT_CHEMISTRY_AFTER_HRS) THEN
             DO I = 1, N_VARS ! <-- N_VARS will cycle through all input variables
                 IF (INDRELAY_CH(I)>0) THEN ! <-- this will pick those that were paired in CHECK_INPUT_AGAINST_KPP
-                    IF (I == inm_H2SO4 .and. .not. model_H2SO4) THEN
-                        CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
-                    ELSE IF (I /= inm_H2SO4) THEN
-                        CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
-                    END IF
+                    CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
                 END IF
             END DO
         END IF
@@ -442,7 +454,7 @@ in_turn_cch_1: if (PRC%in_turn(PRC%cch)) THEN
         END IF
 
 
-        if (model_H2SO4.or..not.MODS(inm_H2SO4)%ISPROVIDED) TSTEP_CONC(inm_H2SO4) = CH_GAS(ind_H2SO4)
+        if (H2SO4_ind_in_chemistry>0) H2SO4 = CH_GAS(H2SO4_ind_in_chemistry)
 
         IF (AFTER_CHEM_ON) CALL AFTER_CHEM(TSTEP_CONC,CH_GAS,CH_GAS_old,CH_RO2,CH_RO2_old,J_TOTAL_M3)
     END IF CHEMISTRY_ROUTINES
@@ -463,7 +475,7 @@ END if in_turn_cch_1
     ! =================================================================================================
 in_turn_acdc: if (PRC%in_turn(4).and..not.PRC%err) THEN
         if (ACDC) THEN
-            CALL ACDC_J(TSTEP_CONC, GTIME%dt*minval(pack(speed_up, speed_up > 0)))
+            CALL ACDC_J(H2SO4,TSTEP_CONC, GTIME%dt*minval(pack(speed_up, speed_up > 0)))
             J_TOTAL_M3 = J_ACDC_DMA_M3 + J_ACDC_NH3_M3 ! [particles/s/m^3]
             IF (RESOLVE_BASE) THEN
                 J_TOTAL_M3 = TSTEP_CONC(inm_JIN) * 1d6 ! [particles/s/m^3]
@@ -609,12 +621,8 @@ in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
             conc_vapour = 0d0
             conc_vapour(1:VAPOUR_PROP%n_condorg-1) =  CH_GAS(index_cond)*1D6 ! mol/m3
 
-            ! Poor sulfuric acid always wants special treatment
-            if (H2SO4_ind_in_chemistry>0) THEN
-                conc_vapour(VAPOUR_PROP%ind_H2SO4) = CH_GAS(ind_H2SO4)*1d6
-            ELSE
-                conc_vapour(VAPOUR_PROP%ind_H2SO4) = TSTEP_CONC(inm_H2SO4)
-            END IF
+            ! Poor sulfuric acid always needs special treatment
+            conc_vapour(VAPOUR_PROP%ind_H2SO4) = H2SO4*1d6
 
             ! Update vapour pressures for organics
             VAPOUR_PROP%c_sat(1:VAPOUR_PROP%n_condorg) =  saturation_conc_m3( &
@@ -652,23 +660,22 @@ in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
 
             ELSE IF (.not.PRC%err) THEN ! everything fine -> apply changes
 
-                ! Calculate growth rates
-                IF (GTIME%printnow .and. CALC_GR) CALL PRINT_GROWTH_RATE
-
                 ! Distribute mass
                 CALL Mass_Number_Change('condensation')
 
                 current_PSD = new_PSD
 
+                ! XXX move after file write --------------
                 ! Update vapour concentrations to chemistry
-                CH_GAS(index_cond) = conc_vapour(1:VAPOUR_PROP%n_condorg-1) *1D-6
+                ! CH_GAS(index_cond) = conc_vapour(1:VAPOUR_PROP%n_condorg-1) *1D-6
+                ! ----------------------------------------
 
-                ! Again sulfuric acid always needs special treatment
-                if (H2SO4_ind_in_chemistry>0) THEN
-                    CH_GAS(ind_H2SO4) = conc_vapour(VAPOUR_PROP%ind_H2SO4)*1d-6
-                ELSE
-                    TSTEP_CONC(inm_H2SO4) = conc_vapour(VAPOUR_PROP%ind_H2SO4)*1d-6
-                END IF
+                ! ! Again sulfuric acid always needs special treatment
+                ! if (H2SO4_ind_in_chemistry>0) THEN
+                !     CH_GAS(H2SO4_ind_in_chemistry) = conc_vapour(VAPOUR_PROP%ind_H2SO4)*1d-6
+                ! ELSE
+                !     TSTEP_CONC(inm_H2SO4) = conc_vapour(VAPOUR_PROP%ind_H2SO4)*1d-6
+                ! END IF
 
 
                 ! Check whether timestep can be increased:
@@ -724,7 +731,7 @@ in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
     in_turn_dep: if (PRC%in_turn(PRC%dep)) THEN
         ! ..........................................................................................................
         ! Deposition
-        OnlyIfDepoIsUsed: if ((Deposition .or. LOSSES_FILE /= '') .and.(.not. PRC%err)) then
+        OnlyIfDepoIsUsed: if ((Deposition) .and.(.not. PRC%err)) then
             ! Solve particle coagulation
             dconc_dep_mix = 0.d0
 
@@ -805,6 +812,8 @@ END IF in_turn_any
         ! Write printouts to screen
         if (GTIME%printnow) THEN
             CALL PRINT_HEADER
+            ! Calculate growth rates
+            IF (CALC_GR) CALL PRINT_GROWTH_RATE
             CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
             if (ENABLE_END_FROM_OUTSIDE) CALL CHECK_IF_END_CMD_GIVEN
         ELSE
@@ -817,7 +826,7 @@ END IF in_turn_any
             END IF
 
         END IF
-        ! if (GTIME%printnow) print*, GTIME%dt, speed_up
+
 
         ! Save to netcdf
         if (GTIME%savenow) THEN
@@ -828,11 +837,10 @@ END IF in_turn_any
                 WRITE(604,*) GTIME%sec, get_conc()*1d-6
                 save_measured = conc_fit/1d6
             END IF
-
             WRITE(610,*) GTIME%sec, d_dpar(maxloc(abs(d_dpar),1)), d_npar(maxloc(abs(d_npar),1)), refdvap, d_npdep(maxloc(abs(d_npdep),1))
             FLUSH(610)
 
-            CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&
+            CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,conc_vapour*1d-6,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&
                             1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar)
 
         END IF
@@ -850,6 +858,11 @@ END IF in_turn_any
             if (PRC%in_turn(2)) bookkeeping(2,1) = bookkeeping(2,1) + 1_dint
             if (PRC%in_turn(3)) bookkeeping(3,1) = bookkeeping(3,1) + 1_dint
             will_stall = 0
+
+            ! XXX move after file write --------------
+            ! Update vapour concentrations to chemistry
+            CH_GAS(index_cond) = conc_vapour(1:VAPOUR_PROP%n_condorg-1) *1D-6
+            ! ----------------------------------------
 
         ELSE ! Exit the main loop when time is up
             EXIT
@@ -990,7 +1003,7 @@ Subroutine INCREASE_SPEED(ii)
     END IF
     PRC%increase(ii) = .false.
     errortime(ii) = -999d0
-    if ((.not. Deposition).and.(LOSSES_FILE == '')) speed_up(PRC%dep) = -9999_dint
+    if (.not. Deposition ) speed_up(PRC%dep) = -9999_dint
     if (.not. Coagulation) speed_up(PRC%coa) = -9999_dint
     if (.not. Condensation .and..not. Chemistry_flag) speed_up(PRC%cch) = -9999_dint
 
@@ -1029,31 +1042,31 @@ END Subroutine INCREASE_SPEED
 !
 ! =================================================================================================
 
-SUBROUTINE ACDC_J(C, dt)
+SUBROUTINE ACDC_J(SA,C, dt)
     implicit none
     REAL(dp) :: c_org = 0d0
     REAL(dp), intent(in) :: C(:)
-    REAL(dp), intent(in) :: dt
+    REAL(dp), intent(in) :: dt, SA
     LOGICAL, save        :: first_time = .true., ss_handle = .true.
     REAL(dp)             :: H2SO4=0,NH3=0,DMA=0,IPR=0 ! these are created to make the unit conversion
 
     ! NUCLEATION BY S-ACID AND NH3 - NOTE: in ACDC, ingoing concentrations are assumed to be in 1/m3!!
-    IF (inm_H2SO4 /= 0) H2SO4 = C(inm_H2SO4)*1d6
+    IF (inm_H2SO4 /= 0) H2SO4 = SA*1d6
     IF (inm_NH3   /= 0) NH3   = C(inm_NH3)*1d6
     IF (inm_DMA   /= 0) DMA   = C(inm_DMA)*1d6
     IF (inm_IPR   /= 0) IPR   = C(inm_IPR)*1d6
     ! Speed up program by ignoring nucleation when there is none
     if ((NH3 > 1d12 .and. H2SO4>1d9) .or. (.not. skip_acdc)) THEN
-        CALL get_acdc_J(H2SO4,NH3,c_org,GCS,C(inm_TEMPK),IPR,GTIME,&
+        CALL get_acdc_J(H2SO4,NH3,c_org,GCS,GTEMPK,IPR,GTIME,&
             ss_handle,J_ACDC_NH3_M3,acdc_cluster_diam, J_NH3_BY_IONS, dt, acdc_goback)
-    ELSE
+    ! ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
         ! if (GTIME%printnow) print FMT_SUB, 'NH3 IGNORED'
     END IF
     ! Speed up program by ignoring nucleation when there is none
     if ((DMA > 1d6 .and. H2SO4>1d9) .or. (.not. skip_acdc)) THEN
-        CALL get_acdc_D(H2SO4,DMA,c_org,GCS,C(inm_TEMPK),GTIME,ss_handle,J_ACDC_DMA_M3,acdc_cluster_diam, dt, acdc_goback)
-    ELSE
+        CALL get_acdc_D(H2SO4,DMA,c_org,GCS,GTEMPK,GTIME,ss_handle,J_ACDC_DMA_M3,acdc_cluster_diam, dt, acdc_goback)
+    ! ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
         ! if (GTIME%printnow) print FMT_SUB, 'DMA IGNORED'
     END IF
@@ -1167,7 +1180,7 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
     if (Aerosol_flag) print FMT_MSG, 'Max change in par diam. '&
             //TRIM(f2chr(1d2*d_dpar(maxloc(d_dpar,1))))//'% in bin # '//i2chr((maxloc(d_dpar,1)))
 
-    print FMT10_2CVU,'ACID C: ', C(inm_H2SO4), ' [1/cm3]','sum(An)/A1',clusteracid,' []'
+    print FMT10_2CVU,'ACID C: ', H2SO4, ' [1/cm3]','sum(An)/A1',clusteracid,' []'
     print FMT10_3CVU,'Temp:', C(inm_TempK), ' [K]','Pressure: ', C(inm_pres), ' [Pa]', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
     IF (inm_NH3   /= 0) print FMT10_3CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', J_ACDC_NH3_M3*1d-6, ' [1/s/cm3]','sum(Nn)/N1',clusterbase,' []'
     IF (inm_DMA   /= 0) print FMT10_3CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', J_ACDC_DMA_M3*1d-6, ' [1/s/cm3]', 'J-total', J_TOTAL_M3*1e-6,' [1/s/cm3]'
@@ -1204,7 +1217,7 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
             save_measured = conc_fit/1d6
         END IF
 
-        CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&
+        CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,conc_vapour*1d-6,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&
                         1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar)
 
 
@@ -1220,6 +1233,19 @@ END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 SUBROUTINE CHECK_INPUT_AGAINST_KPP
     implicit none
     integer :: i,j, check
+
+    if (model_H2SO4) THEN
+        if (H2SO4_ind_in_chemistry<1) THEN
+            print FMT_FAT0, 'H2SO4 should explicitly come from chemistry but it does not exist there. Either '
+            print FMT_SUB, '  uncheck "Replace any input H2SO4 with modelled..." and include H2SO4 to input, or '
+            print FMT_SUB, '  use chemistry that has H2SO4 included.'
+            stop ' '
+        ELSE
+            MODS(inm_H2SO4)%ISPROVIDED = .false.
+            print FMT_SUB, 'Replacing HSO4 input with modelled chemistry'
+        END IF
+    END IF
+
     print FMT_HDR, 'Checking against KPP for chemicals'
     do i=1,N_VARS
         check = 0
@@ -1230,7 +1256,6 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
                     print FMT_MSG, 'Found '//TRIM(SPC_NAMES(j))//' from chemistry'
                     ! store the 'key->value map' for input and chemistry
                     INDRELAY_CH(I) = J
-                    IF ((I==inm_H2SO4) .and. model_H2SO4 .and. Chemistry_flag) print FMT_SUB, 'Replacing HSO4 input with modelled chemistry'
                     exit
                 end if
             END DO
