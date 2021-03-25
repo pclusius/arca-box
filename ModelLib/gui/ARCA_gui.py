@@ -134,7 +134,7 @@ org_yes = (172,147,147)
 # icon
 modellogo = gui_path+"/icons/ArcaLogo.png"
 boxicon = gui_path+"/icons/thebox_ico.png"
-CurrentVersion = "ARCA Box Model 1.0.0"
+CurrentVersion = "ARCA Box Model 1.0.1"
 # Some messages
 netcdfMissinnMes = ('Please note:',
 'To open NetCDF-files you need netCDF4 for Python.\nYou can istall it with pip, package manager (or perhaps: python3 -m pip install --user netCDF4.')
