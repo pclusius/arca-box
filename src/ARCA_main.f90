@@ -88,7 +88,7 @@ CurrentChemistry = CHEM
 #endif
 
 ! Welcoming message
-print'(a,t35,a)', achar(10),  '--~:| ARCA BOX MODEL 1.0.1 |:~--'//achar(10)
+print'(a,t35,a)', achar(10),  '--~:| ARCA BOX MODEL 1.0.2 |:~--'//achar(10)
 print FMT_HDR, 'Compiled with "'//TRIM(currentChemistry)//'" chemistry module'
 print*, ''
 ! ==================================================================================================================

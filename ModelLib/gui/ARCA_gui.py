@@ -134,7 +134,7 @@ org_yes = (172,147,147)
 # icon
 modellogo = gui_path+"/icons/ArcaLogo.png"
 boxicon = gui_path+"/icons/thebox_ico.png"
-CurrentVersion = "ARCA Box Model 1.0.1"
+CurrentVersion = "ARCA Box Model 1.0.2"
 # Some messages
 netcdfMissinnMes = ('Please note:',
 'To open NetCDF-files you need netCDF4 for Python.\nYou can istall it with pip, package manager (or perhaps: python3 -m pip install --user netCDF4.')
@@ -526,16 +526,25 @@ class NcPlot:
         self.convars = {}
         self.invvars = {}
         self.par = False
+        self.measdmps = False
         if self.masterfile == 'Particles.nc':
             self.par = True
             b = ravel(ncs.variables['CONDENSABLES'][:,:].astype(str),'C')
             names=b.reshape(ncs.variables['CONDENSABLES'].shape)
-            self.nc_m3 = ncs.variables['NUMBER_CONCENTRATION'][:] # to convert to m3 and nanograms/m3
-            self.composition_ng = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_m3[:,:,newaxis], 1)*1e18
-            self.diameter = ncs.variables['DIAMETER'][0,:]
-            self.totalmass_ng_m = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_m3[:,:,newaxis], 2)*1e18
+            self.nc_cm3 = ncs.variables['NUMBER_CONCENTRATION'][:] #
+            self.composition_ng = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_cm3[:,:,newaxis], 1)*1e18 # kg->grams,g->ng cm3->m3=1e18
+            self.totalmass_ng_m = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_cm3[:,:,newaxis], 2)*1e18
+            self.diameter       = ncs.variables['DIAMETER'][0,:]
+            self.lognorm_nc_cm3 = self.nc_cm3/log10(self.diameter[1]/self.diameter[0]) #
             for i,word in enumerate(names):
                 self.parvars[(''.join(list(word))).strip()] = i
+            try:
+                DMPS_CONCENTRATION = ncs.variables['INPUT_CONCENTRATION'][:]
+                self.massdmps = ncs.variables['MASS'][:]*DMPS_CONCENTRATION * 1e3 * 1e6 * 1e9 # kg->grams>ng, cm3->m3
+                self.lognormdmps = DMPS_CONCENTRATION/log10(self.diameter[1]/self.diameter[0])
+                self.measdmps = True
+            except:
+                print('File does not contain measured PSD')
 
         for timedim in ncs.dimensions:
             if ncs.dimensions[timedim].isunlimited():
@@ -568,9 +577,7 @@ class NcPlot:
             self.convars[n] = i
             self.invvars[i] = n
             # self.conc_matrix[:,i] = ncs.variables[n][self.mask]
-        # if self.masterfile == 'Particles.nc':
-        #     ncs.close()
-        # else:
+
         self.nc = ncs
         self.names = list(self.convars.keys())
 
@@ -967,6 +974,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'addplot', ftype="NetCDF (*.nc)"))
             self.addSimilar.clicked.connect(self.addAnotherNC)
             self.loadNetcdf_mass.clicked.connect(lambda: self.browse_path(None, 'plot_mass', ftype="ARCA particle file (Particles.nc)"))
+            self.loadNetcdf_massAdd.clicked.connect(lambda: self.browse_path(None, 'plot_mass_add', ftype="ARCA particle file (Particles.nc)"))
+            self.loadNetcdf_massAdd.setEnabled(False)
             self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=0))
             self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=1))
             # --------------------------------------------------------
@@ -977,6 +986,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             self.NC_lines = []
             self.ncleg = self.plotResultWindow.addLegend()
             self.ncleg_skene = self.ncleg.scene()
+            self.massleg = self.plotResultWindow_2.addLegend()
+            self.massleg_skene = self.massleg.scene()
 
         else:
             self.sumSelection.setEnabled(False)
@@ -1662,6 +1673,8 @@ the numerical model or chemistry scheme differs from the current, results may va
                 self.linePlotMulti(path, new=False)
             elif mode == 'plot_mass':
                 self.showMass(path)
+            elif mode == 'plot_mass_add':
+                self.showMass(path, add=True)
             elif mode == 'plotPar':
                 self.showParOutput(path,plWind)
             elif mode == 'batchList':
@@ -2684,108 +2697,148 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def updateMass(self):
-        if (self.ncs_mass != 0):
+        if self.MPD != []:
             self.showMass(first=False, target='mass')
 
 
     def updateNumbers(self):
-        if (self.ncs_mass != 0):
+        if self.MPD != []:
             self.showMass(first=False, target='numb')
 
+    def testNC(self,file):
+        try:
+            self.ncs = netCDF4.Dataset(file, 'r')
+            self.ncs.close()
+            return 0
+        except:
+            return 1
 
-    def showMass(self, file=None, first=True, target=None):
+    def showMass(self, file=None, first=True, target=None, add=False):
+        symbols = ['x','d','t1','t','star']
+        # if add or target self.showAlsoMeasInMassConc.isChecked():
+        #     self.popup('About measurements', 'For clarity, measured PSD is only shown for the first file')
+        #
+        self.unnecessaryLegendTrick()
+
         if first:
             if file==None: return
-            self.closenetcdf_mass()
+            if add:
+                self.plotResultWindow_2.clear()
+                self.plotResultWindow_3.clear()
+                self.msspltsLines = []
+            else:
+                self.closenetcdf_mass()
+            self.loadNetcdf_massAdd.setEnabled(True)
             if exists(file):
-                try:
-                    self.ncs_mass = netCDF4.Dataset(file, 'r')
-                except:
+                if self.testNC(file)>0:
                     self.popup('Bummer...', 'Not a valid output file',icon=3)
                     return
-            self.DIAMETER = self.ncs_mass.variables['DIAMETER'][:]
-            self.diams.addItems(['%7.2f'%(1e9*i) for i in self.DIAMETER[0,:]])
-            self.diams.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-            try:
-                self.mp_time = self.ncs_mass.variables['time_in_hrs'][:]
-            except:
-                self.mp_time = self.ncs_mass.variables['TIME_IN_HRS'][:]
-            indstime = [0]
-            self.plotResultWindow_3.setLogMode(x=True)
-            self.plotResultWindow_2.setLabel('bottom', 'Time', units='h')
-            self.plotResultWindow_2.setLabel('left', 'Mass', units='g')
-            self.plotResultWindow_3.setLabel('bottom', 'Diameter', units='m')
-            self.plotResultWindow_3.setLabel('left', '# normalized', units=None)
-            NUMBER_CONCENTRATION = self.ncs_mass.variables['NUMBER_CONCENTRATION'][:]
-            self.mass_in_bin     = self.ncs_mass.variables['MASS'][:]*NUMBER_CONCENTRATION*1e3 # from kg to g
-            self.lognormconc     = NUMBER_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
-            self.times.itemSelectionChanged.connect(self.updateNumbers)
-            self.times.addItems(['%7.2f'%(i) for i in self.mp_time])
-            self.times.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-            self.diams.itemSelectionChanged.connect(self.updateMass)
-            self.massPlotTitle.setText(file)
-            try:
-                DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
-                self.massdmps = self.ncs_mass.variables['MASS'][:]*DMPS_CONCENTRATION
-                self.lognormdmps = DMPS_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
-                self.measdmps = True
-            except:
-                print('File does not contain measured PSD')
+            if add:
+                if len(self.MPD)==4:
+                    self.popup('No more files', 'You can have maximum 4 files open in this tool')
+                    return
+                self.MPD.append(NcPlot(file))
+                if npsum(self.MPD[0].diameter - self.MPD[-1].diameter)>0:
+                    self.MPD.pop(len(self.MPD)-1)
+                    print('PSD needs to match with the first file.')
+                    return
+            else:
+                self.MPD = [NcPlot(file)]
+            if not add:
+                self.diams.addItems(['%7.2f'%(1e9*i) for i in self.MPD[0].diameter])
+                self.diams.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+                self.mp_time = self.MPD[0].time
+                indstime = [0]
+                self.plotResultWindow_3.setLogMode(x=True)
+                self.plotResultWindow_2.setLabel('bottom', 'Time', units='h')
+                self.plotResultWindow_2.setLabel('left', 'Mass', units='g')
+                self.plotResultWindow_3.setLabel('bottom', 'Diameter', units='m')
+                self.plotResultWindow_3.setLabel('left', '# normalized', units=None)
+            # NUMBER_CONCENTRATION = self.ncs_mass.variables['NUMBER_CONCENTRATION'][:]
+            # self.mass_in_bin     = self.ncs_mass.variables['MASS'][:]*NUMBER_CONCENTRATION*1e3 # from kg to g
+            # self.lognormconc     = NUMBER_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
+                self.times.addItems(['%7.2f'%(i) for i in self.mp_time])
+                self.times.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+                self.massPlotTitle.setText(self.MPD[0].legend.replace(': Particles.nc',''))
+                self.times.item(0).setSelected(True)
+                self.diams.selectAll()
+                self.diams.itemSelectionChanged.connect(self.updateMass)
+                self.times.itemSelectionChanged.connect(self.updateNumbers)
+            # try:
+            #     DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
+            #     self.massdmps = self.ncs_mass.variables['MASS'][:]*DMPS_CONCENTRATION
+            #     self.lognormdmps = DMPS_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
+            #     self.measdmps = True
+            # except:
+            #     print('File does not contain measured PSD')
 
-            self.ncs_mass.close()
-            self.times.item(0).setSelected(True)
-            self.diams.selectAll()
+            # self.ncs_mass.close()
+
+        # self.NC_lines[j].setData(TT[j],Y)
+        # Update figures, start with cleaning
         else:
             if target=='mass':
                 self.plotResultWindow_2.clear()
             if target=='numb':
                 self.plotResultWindow_3.clear()
-            indstime = [i.row() for i in self.times.selectedIndexes()]
+        indstime = [i.row() for i in self.times.selectedIndexes()]
         inds = [i.row() for i in self.diams.selectedIndexes()]
         # y is the array that gets plotted
-        y  = npsum(self.mass_in_bin[:,inds],axis=1)
-        y[y<1e-18] = 0e0
-        miny, maxy = y.min(),y.max()
-        if self.measdmps:
-            y2 = npsum(self.massdmps[:,inds],axis=1)*1e3
+        miny, maxy = 0,0
+        for j,m in enumerate(self.MPD):
+            y  = npsum(self.MPD[j].totalmass_ng_m[:,inds],axis=1)*1e-9
+            y[y<1e-22] = 0e0
+            miny, maxy = min(miny,y.min()),max(maxy,y.max())
+
+        if self.MPD[0].measdmps:
+            y2 = npsum(self.MPD[0].massdmps[:,inds],axis=1)*1e-9
             miny, maxy = min(miny,y2.min()),max(maxy,self.showAlsoMeasInMassConc.isChecked()*y2.max())
         if maxy>0:
             if abs(1-miny/maxy) <1e-12:
                 maxy = miny*100000
-        if self.measdmps and self.showAlsoMeasInMassConc.isChecked():
+        if self.MPD[0].measdmps and self.showAlsoMeasInMassConc.isChecked():
             self.outplot_mass = self.plotResultWindow_2.plot(self.mp_time,
                                                             y2,
                                                             pen={'color':'r','width': 2.0,'style': QtCore.Qt.DotLine},
                                                             symbol='x',
                                                             symbolPen='r',
+                                                            symbolBrush='r',
                                                             symbolSize=6
                                                             )
-        self.outplot_mass = self.plotResultWindow_2.plot(self.mp_time,
-                                                        y,
-                                                        pen={'color':'b','width': 2.0},
-                                                        symbol='o',
-                                                        symbolPen='b',
-                                                        symbolSize=3
+
+        for j,mpd_file in enumerate(self.MPD):
+            self.outplot_mass = self.plotResultWindow_2.plot(mpd_file.time,
+                                                        npsum(mpd_file.totalmass_ng_m[:,inds],axis=1)*1e-9,
+                                                        pen={'color':colors[j*2],'width': 2.0},
+                                                        symbol=symbols[j+1],
+                                                        symbolPen=colors[j*2],
+                                                        symbolBrush=colors[j*2],
+                                                        symbolSize=8,
+                                                        name=self.MPD[j].legend
                                                         )
 
         if target == 'mass' or first: self.plotResultWindow_2.setRange(yRange=[miny*0.95,maxy*1.05])
 
         for i,ii in enumerate(indstime):
-            if self.measdmps and self.showAlsoMeasInMassConc.isChecked():
-                self.outplot_numb2 = self.plotResultWindow_3.plot(self.DIAMETER[0,:],
-                                                                self.lognormdmps[ii,:],
+            if self.MPD[0].measdmps and self.showAlsoMeasInMassConc.isChecked():
+                self.outplot_numb2 = self.plotResultWindow_3.plot(self.MPD[0].diameter,
+                                                                self.MPD[0].lognormdmps[ii,:],
                                                                 pen={'color':colors[i%10],'width': 2.0,'style': QtCore.Qt.DotLine},
                                                                 symbol='x',
                                                                 symbolPen=colors[i%10],
+                                                                symbolBrush=colors[i%10],
                                                                 symbolSize=6
                                                                 )
-            self.outplot_numb = self.plotResultWindow_3.plot(self.DIAMETER[0,:],
-                                                            self.lognormconc[ii,:],
+            for j,mpd_file in enumerate(self.MPD):
+                self.outplot_numb = self.plotResultWindow_3.plot(self.MPD[0].diameter,
+                                                            mpd_file.lognorm_nc_cm3[ii,:],
                                                             pen={'color':colors[i%10],'width': 2.0},
-                                                            symbol='o',
-                                                            symbolPen='k',
-                                                            symbolSize=3
+                                                            symbol=symbols[j+1],
+                                                            symbolPen=colors[i%10],
+                                                            symbolBrush=colors[i%10],
+                                                            symbolSize=8,
                                                             )
+
 #
     def toggleppm(self,what):
         if what == 'off':
@@ -2829,10 +2882,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             comp = self.availableVars.currentItem().text()
         # Try to open netCDF-file
         if exists(file):
-            try:
-                self.ncs = netCDF4.Dataset(file, 'r')
-                self.ncs.close()
-            except:
+            if self.testNC(file)>0:
                 self.popup('Bummer...', 'Not a valid output file',icon=3)
                 return
         else: return
@@ -3076,6 +3126,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             if self.ncleg not in self.ncleg_skene.items():
                 self.ncleg_skene.addItem(self.ncleg)
 
+
         try:
             while True:
                 try: self.availableVars.itemSelectionChanged.disconnect(self.showOutputUpdate)
@@ -3092,7 +3143,16 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.toggleppm('off')
         self.listOfplottedFiles = []
 
+    def unnecessaryLegendTrick(self):
+        if self.massleg in self.massleg_skene.items():
+            self.massleg_skene.removeItem(self.massleg)
+            self.massleg = self.plotResultWindow_2.addLegend()
+            if self.massleg not in self.massleg_skene.items():
+                self.massleg_skene.addItem(self.massleg)
+
     def closenetcdf_mass(self):
+        self.MPD = []
+        self.loadNetcdf_massAdd.setEnabled(False)
         try: self.ncs_mass.close()
         except: pass
         try:

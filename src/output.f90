@@ -140,7 +140,7 @@ CONTAINS
       CALL get_command_argument(0, PROGRAM_NAME)
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Information', '(c) Multiscale Modelling Group and (c) Computational Aerosol Physics Group (ACDC)'))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Contact', 'arca@helsinki.fi (ARCA box), tinja.olenius@alumni.helsinki.fi (ACDC)'))
-      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Software', 'ARCA box 1.0.1'))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Software', 'ARCA box 1.0.2'))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Package_Name', TRIM(PROGRAM_NAME(3:))))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Chemistry_module', TRIM(CurrentChemistry)))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Notes', TRIM(Description)))
