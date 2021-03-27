@@ -115,7 +115,8 @@ CONTAINS
     print FMT_SUB, 'Create files to: '//TRIM(filename)
 
     DO I=1, N_FILES
-
+      if (I == 3.and..not.Aerosol_flag) cycle
+      ! if (ncfile_names(I) == 'Chemistry' .and..not.Chemistry_flag) cycle
       ncfile_names(I) = trim(filename)//'/'//TRIM(ncfile_names(I))
 
       !Clearing file; Opening file. Overwrites
@@ -265,6 +266,7 @@ CONTAINS
 
   ! Ending definition mode
   DO I=1,N_FILES
+    if (I == 3.and..not.Aerosol_flag) cycle
     call handler(__LINE__, nf90_enddef(ncfile_ids(I)))
   END DO
 
@@ -305,6 +307,7 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,conc_vapours,J_ACDC_NH3_M3, J_ACDC_
   INTEGER                         :: i,j
 
   DO I = 1,N_FILES
+    if (I == 3.and..not.Aerosol_flag) cycle
     call handler(__LINE__, nf90_put_var(ncfile_ids(I), timearr_id, GTIME%sec, (/GTIME%ind_netcdf/) ))
     call handler(__LINE__, nf90_put_var(ncfile_ids(I), hrsarr_id, GTIME%hrs, (/GTIME%ind_netcdf/) ))
   END DO
@@ -386,9 +389,11 @@ subroutine CLOSE_FILES(filename)
   CHARACTER(LEN=*), INTENT(IN) :: filename
   INTEGER :: I,ioi
   DO I=1,N_FILES
+    if (I == 3.and..not.Aerosol_flag) cycle
     call handler(__LINE__, nf90_close(ncfile_ids(I)))
   END DO
   DO I=1,N_FILES
+    if (I == 3.and..not.Aerosol_flag) cycle
     ioi = RENAME(TRIM(ncfile_names(I))//'.tmp', TRIM(ncfile_names(I))//'.nc')
     if (ioi /= 0) print*, 'Error while copying final file.'
   END DO

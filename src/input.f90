@@ -204,6 +204,8 @@ real(dp) :: END_DMPS_SPECIAL = 1d100 ! Any number larger than runtime will do as
 real(dp) :: FLOAT_CHEMISTRY_AFTER_HRS = 1d100 ! Any number larger than runtime will do as defaults
 real(dp) :: dmps_multi       = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
 Logical  :: NO2_IS_NOX        = .false.
+Logical  :: Kelvin_taylor     = .true.
+Logical  :: Kelvin_exp        = .false.
 Logical  :: USE_RH_CORRECTION = .true.
 LOGICAL  :: TEMP_DEP_SURFACE_TENSION = .False.
 LOGICAL  :: use_diff_dia_from_diff_vol = .False.
@@ -216,6 +218,7 @@ Logical                 :: Use_old_composition = .false.
 real(dp)                :: speed_dt_limit(3) =  [150d0,150d0,150d0]
 real(dp)                :: Limit_for_Evaporation = 0_dp ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
 real(dp)                :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
+real(dp)                :: alpha_coa = 1d0 ! Accomodation coefficient for coagulation
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .true.
 
@@ -224,7 +227,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, variable_density,dmps_tres_min, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, speed_dt_limit, ENABLE_END_FROM_OUTSIDE, &
-                      Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition
+                      Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -234,9 +237,9 @@ REAL(dp), DIMENSION(2) :: Dvapo_range = [1.d0, 1d1] ! -> minimum and maximum rel
 ! Defines the minimum/maximum relative change caused by a process within a timestep
 NAMELIST /NML_PRECISION/ Ddiam_range,Dpnum_range,Dvapo_range
 
-! Options for screen output
-LOGICAL :: clusterfractions,jions,timestep_multipliers,time_efficiency,Jorganic,GR
-NAMELIST /NML_SCREENPRINTS/ clusterfractions,jions,timestep_multipliers,time_efficiency,Jorganic,GR
+! ! Options for screen output
+! LOGICAL :: clusterfractions,jions,timestep_multipliers,time_efficiency,Jorganic,GR
+! NAMELIST /NML_SCREENPRINTS/ clusterfractions,jions,timestep_multipliers,time_efficiency,Jorganic,GR
 
 contains
 
@@ -274,6 +277,8 @@ subroutine READ_INPUT_DATA()
     CALL REPORT_INPUT_COLUMNS_TO_USER
 
     ! Here we turn submodules on or off based on other options
+    if (Kelvin_taylor)     Kelvin_exp = .false.
+    if (.not.Kelvin_taylor)Kelvin_exp = .true.
     if (LOSSES_FILE /= '') Deposition = .true.
     If (.not.Aerosol_flag) Condensation = .false.
     If (.not.Aerosol_flag) Coagulation = .false.

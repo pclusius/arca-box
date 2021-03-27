@@ -157,7 +157,6 @@ type PSD
     REAL(dp), ALLOCATABLE :: composition_ma(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,n_cond_tot)
     REAL(dp), ALLOCATABLE :: conc_ma(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
     REAL(dp), ALLOCATABLE :: grid_ma(:)              ! grid that contains the bin borders [m⁻³] (nr_bins+1)
-
 END TYPE PSD
 
 

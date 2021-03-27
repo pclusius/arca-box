@@ -11,6 +11,8 @@ MODULE PSD_scheme
   ! END variables that will be defined outside
 
   REAL(dp), ALLOCATABLE :: dconc_coag(:,:)  ! coagulation: collision number matrix: nr_bins * nr_bins
+  REAL(dp), ALLOCATABLE :: pre_Kelvin(:,:)      ! Precalculated Kelvin terms
+  REAL(dp), ALLOCATABLE :: Kelvin_eff(:,:)      ! Precalculated Kelvin terms
   REAL(dp), ALLOCATABLE :: dmass(:,:)       ! change in particle mass (due to condensation or mixing) (nr_bins,n_cond_tot)
   REAL(dp), ALLOCATABLE :: dconc_dep_mix(:) ! change in particle concentration (e.g. reduced coagulatio or mixing) (nr_bins)
   REAL(dp)              :: mix_ratio        ! gives the rate ratio: added volume over present volume per timestep
@@ -80,6 +82,9 @@ SUBROUTINE PSD_get_input()
 ! ===========================================================================
 SUBROUTINE PSD_Allocate()
     IMPLICIT NONE
+
+    ALLOCATE(pre_Kelvin(n_bins_par,n_cond_tot))
+    ALLOCATE(Kelvin_eff(n_bins_par,n_cond_tot))
 
     ! ALLOCATE Change vectors for FS and MA
     IF (current_PSD%PSD_style == 1 .or. current_PSD%PSD_style == 2 ) THEN
@@ -920,5 +925,6 @@ PURE FUNCTION get_conc(parts) result(out)
           out = d_PSD%conc_ma
     END IF
 END FUNCTION get_conc
+
 
 END MODULE PSD_scheme

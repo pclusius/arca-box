@@ -530,8 +530,10 @@ class NcPlot:
             self.par = True
             b = ravel(ncs.variables['CONDENSABLES'][:,:].astype(str),'C')
             names=b.reshape(ncs.variables['CONDENSABLES'].shape)
-            m3 = ncs.variables['NUMBER_CONCENTRATION'][:]*1e18 # to convert to m3 and nanograms/m3
-            self.composition_ng = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*m3[:,:,newaxis], 1)
+            self.nc_m3 = ncs.variables['NUMBER_CONCENTRATION'][:] # to convert to m3 and nanograms/m3
+            self.composition_ng = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_m3[:,:,newaxis], 1)*1e18
+            self.diameter = ncs.variables['DIAMETER'][0,:]
+            self.totalmass_ng_m = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_m3[:,:,newaxis], 2)*1e18
             for i,word in enumerate(names):
                 self.parvars[(''.join(list(word))).strip()] = i
 
@@ -566,11 +568,17 @@ class NcPlot:
             self.convars[n] = i
             self.invvars[i] = n
             # self.conc_matrix[:,i] = ncs.variables[n][self.mask]
+        # if self.masterfile == 'Particles.nc':
+        #     ncs.close()
+        # else:
         self.nc = ncs
         self.names = list(self.convars.keys())
 
     def closenc(self):
-        self.nc.close()
+        try:
+            self.nc.close()
+        except:
+            print('... Netcdf file was already closed')
 
     def getconc(self,n, return_unit=False):
         if n in self.convars:
@@ -975,7 +983,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             self.show_netcdf.show()
             self.fLin_2.setEnabled(False)
             self.fLog_2.setEnabled(False)
-            self.findComp.setEnabled(False)
             self.loadNetcdf.clicked.connect(lambda: self.popup(*netcdfMissinnMes))
             self.loadNetcdf_mass.clicked.connect(lambda: self.popup(*netcdfMissinnMes))
             self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="sum (*.sum *.dat)",plWind=0))
@@ -990,6 +997,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
 
         self.addSimilar.setEnabled(False)
         self.CloseLinePlotsButton.setEnabled(False)
+        self.findComp.setEnabled(False)
         self.ppm.toggled.connect(self.showOutputUpdate)
         self.ppb.toggled.connect(self.showOutputUpdate)
         self.ppt.toggled.connect(self.showOutputUpdate)
@@ -2736,6 +2744,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         inds = [i.row() for i in self.diams.selectedIndexes()]
         # y is the array that gets plotted
         y  = npsum(self.mass_in_bin[:,inds],axis=1)
+        y[y<1e-18] = 0e0
         miny, maxy = y.min(),y.max()
         if self.measdmps:
             y2 = npsum(self.massdmps[:,inds],axis=1)*1e3
@@ -2799,6 +2808,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def linePlotMulti(self, file, new=True):
+        self.findComp.clear()
         if new or self.fLin_2.isChecked():
             putBackLog = False
         if not new and self.fLog_2.isChecked():
@@ -2813,6 +2823,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.closenetcdf()
             self.addSimilar.setEnabled(True)
             self.CloseLinePlotsButton.setEnabled(True)
+            self.findComp.setEnabled(True)
 
         else:
             comp = self.availableVars.currentItem().text()
@@ -2831,13 +2842,16 @@ a chemistry module in tab "Chemistry"''', icon=2)
             if self.LPD[-1].masterfile == 'Particles.nc': self.ShowPPC.setEnabled(True)
         else:
             self.LPD.append(NcPlot(file))
-
+            if not self.LPD[0].convars.keys() <= self.LPD[-1].convars.keys():
+                self.LPD.pop(len(self.LPD)-1)
+                self.popup('No can do', 'The file you are trying to add has less compounds than the original, cannot add the new file. Loading the file which has less compounds first might work.')
+                return
         if new:
             Y,unit = self.LPD[-1].getloc(0, return_unit=True)
             if unit == '[#/cm3]': self.toggleppm('on')
         else:
             Y = self.LPD[-1].getconc(comp)
-            # self.outplot = NC_lines.append( self.plotResultWindow.plot(
+
         self.NC_lines.append( self.plotResultWindow.plot(
         self.LPD[-1].time,
         Y,
@@ -3047,12 +3061,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
     def closenetcdf(self):
         # try: self.ncs.close()
         # except: pass
+        self.findComp.clear()
         for z in self.LPD:
             z.closenc()
         self.LPD = []
         self.NC_lines = []
         self.addSimilar.setEnabled(False)
         self.CloseLinePlotsButton.setEnabled(False)
+        self.findComp.setEnabled(False)
 
         if self.ncleg in self.ncleg_skene.items():
             self.ncleg_skene.removeItem(self.ncleg)
@@ -3150,12 +3166,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 strict = True
         self.availableVars.clear()
         if text == '':
-            self.availableVars.addItems(self.LPD[-1].names)
+            self.availableVars.addItems(self.LPD[0].names)
             self.availableVars.item(0).setSelected(True)
             self.availableVars.setCurrentItem(self.availableVars.item(0))
 
         else:
-            for c in self.LPD[-1].names:
+            for c in self.LPD[0].names:
                 if strict:
                     if text == c.upper():
                         self.availableVars.addItem(c)
@@ -3247,6 +3263,7 @@ REA: SPEED_DT_LIMIT=150d0, 150d0, 150d0
 LOG: ENABLE_END_FROM_OUTSIDE=T
 REA: LIMIT_FOR_EVAPORATION=0.0
 REA: MIN_CONCTOT_CC_FOR_DVAP=1d3
+LOG: Kelvin_taylor=T
 """
 
 

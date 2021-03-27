@@ -40,6 +40,7 @@ def plot(addr):
                             ax.axhline(float(x[5+2*i])*1e2, c=c[i],linestyle=':',label=x[i+1]+' max')
 
             if j==1:
+                ax.axhline(0, c='k', alpha=0.7)
                 ax.set_yscale('symlog')
             else:
                 if fixed:

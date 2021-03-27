@@ -18,7 +18,7 @@ CONTAINS
 ! fundamentals of atmospheric modelling. Dmass, which is the flux onto or removed from the particles is the outcome
 ! of this subroutine which is fed to PSD
 ! ======================================================================================================================
-SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
+SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap, kelvin_effect)
     IMPLICIT NONE
     type(vapour_ambient), INTENT(IN)            :: VAPOUR_PROP  ! Properties of condensing vapours
     REAL(dp), INTENT(INOUT)                     :: conc_vap(:)  ! [#/m^3], condensing vapour concentrations, DIM(n_cond_tot)
@@ -26,7 +26,8 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     REAL(dp), INTENT(IN)                        :: dt_cond      ! integration timestep for condensation [s]
     REAL(dp), INTENT(INOUT)                     :: d_dpar(:)    ! relative change in particle diameter [1]
     REAL(dp), INTENT(INOUT)                     :: d_vap(:)     ! relative change in vapor concentrations [1]
-    REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: Kelvin_Effect
+    REAL(dp), DIMENSION(:,:), INTENT(IN)        :: Kelvin_effect
+    ! REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: Kelvin_Effect
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: kohler_effect
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp_old
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp_eq
@@ -43,12 +44,14 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     REAL(dp)                                    :: sum_org      ! Sum of organic concentration in bin, transient variable
     INTEGER                                     :: ic           ! index for condesables
     INTEGER                                     :: ip           ! index for particles
+    INTEGER                                     :: ix(2)           ! index for particles
 
 
     st = VAPOUR_PROP%surf_tension(1)
 
     conc_pp = 0d0
     conc_pp = get_composition()
+
     n_conc = get_conc()
     diameter = get_dp()
     volume = get_volume()
@@ -78,23 +81,17 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap)
     conc_tot = conc_vap + sum(conc_pp,1)
 
 
+
     ! Kelvin and Kohler factors.
-    DO ic = 1, n_cond_tot
-        ! Kelvin factor takes into account the curvature of particles. Unitless
-        Kelvin_Effect(:,ic) = 1D0 + 2D0*st*VAPOUR_PROP%molar_mass(ic) &
-                            / (Rg*GTEMPK*VAPOUR_PROP%density(ic)*diameter/2D0)
+    kohler_effect = kohler_effect * Kelvin_Effect
 
-        ! Kohler factor the solute partial pressure effect. Unitless
-        kohler_effect(:,ic) = kohler_effect(:,ic) * Kelvin_Effect(:,ic)
-    END DO
-
-    ! Treat H2SO4 specially
+    ! Make sure kohler effect for H2SO4 is 1
     kohler_effect(:,VAPOUR_PROP%ind_H2SO4) = Kelvin_Effect(:,VAPOUR_PROP%ind_H2SO4)
 
     ! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
-    DO ic=1,n_bins_par
-        conc_pp_eq(ic,1:n_cond_tot-1) = conc_vap_old(1:n_cond_tot-1)*SUM(conc_pp_old(ic,1:n_cond_tot-1)) &
-                                        / (Kelvin_Effect(ic,1:n_cond_tot-1)*VAPOUR_PROP%c_sat(1:n_cond_tot-1))
+    DO ip=1,n_bins_par
+        conc_pp_eq(ip,1:n_cond_tot-1) = conc_vap_old(1:n_cond_tot-1)*SUM(conc_pp_old(ip,1:n_cond_tot-1)) &
+                                        / (Kelvin_Effect(ip,1:n_cond_tot-1)*VAPOUR_PROP%c_sat(1:n_cond_tot-1))
     END DO
 
     DO ic = 1, n_cond_tot
@@ -194,7 +191,7 @@ SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar) ! Add more variables
     REAL(dp)                                    :: l_gas     ! Gas mean free path in air
     REAL(dp)                                    :: a
 
-    sticking_prob = 1
+    sticking_prob = alpha_coa
     n_conc        = get_conc()
     diameter      = get_dp()
     volume        = get_volume()

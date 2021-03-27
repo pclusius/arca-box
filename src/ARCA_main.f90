@@ -19,6 +19,9 @@ USE custom_functions
 IMPLICIT NONE
 
 REAL(dp), ALLOCATABLE  :: conc_pp(:,:)      ! [#/m^3] Particle phase concentrations, DIM(n_bins_par,n_cond_tot)
+real(dp) :: T_prev = 0d0
+integer :: i_kel = 0
+
 
 ! ==================================================================================================================
 ! Note about file unit handles: Numbers between 100-499 are not used anywhere in the model, so use these in you need
@@ -167,9 +170,7 @@ INIT_AEROSOL: IF (Aerosol_flag) THEN
     END IF
 
 
-
     ALLOCATE(conc_vapour(n_cond_tot))
-
 
     ALLOCATE(corgwallTeflon(VAPOUR_PROP%n_condorg))
     corgwallTeflon = 0d0
@@ -178,6 +179,14 @@ INIT_AEROSOL: IF (Aerosol_flag) THEN
     ALLOCATE(d_vap(max(VAPOUR_PROP%n_condtot,1)))
     d_vap = 0d0
 
+    do ii=1,n_bins_par
+        if (Kelvin_taylor) THEN
+            pre_Kelvin(ii,:) = 2D0*VAPOUR_PROP%surf_tension * VAPOUR_PROP%molar_mass / ( Rg * 300d0 * VAPOUR_PROP%density * nominal_dp(ii)/2d0)
+        else
+            pre_Kelvin(ii,:) = EXP(4D0*VAPOUR_PROP%surf_tension * VAPOUR_PROP%molar_mass / ( Rg * 300d0 * VAPOUR_PROP%density * nominal_dp(ii)) )
+        end if
+
+    end do
 
     print FMT_LEND,
 
@@ -223,6 +232,7 @@ if (Aerosol_flag) THEN
     end do
     CLOSE(600)
 
+    ! OPEN(611,file=RUN_OUTPUT_DIR//"/kelvinerrors.txt",status='replace',action='write')
 
     ! Open text files to save particle size ditribution in easily accessible format
     ! Sumfile that uses same format as SMEAR sumfiles, (with exception of time resolution; here model save interval is used)
@@ -347,6 +357,7 @@ MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the
     END IF
 
     if (PRC%in_turn(4)) THEN
+
         ! =================================================================================================
         ! =================================================================================================
         ! Store the current state of the aerosol
@@ -588,11 +599,12 @@ in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
             dmps_ln = dmps_ln + 1
         END IF PARTICLE_INIT
 
-    add_particles: if (PRC%in_turn(4)) THEN
+    add_particles: if (PRC%in_turn(4).and.J_TOTAL_M3>0d0) THEN
         ! ..........................................................................................................
         ! ADD NUCLEATED PARTICLES TO PSD, IN THE first couple of bins. This using the mixing method, where two particle
         ! distros are mixed together. NOTE that this step is always done if Aerosol_flag is on, even if ACDC_flag is off.
         ! In case no NPF is wanted, turn off ACDC and put NUC_RATE_IN to 0
+
         dmass = 0d0
         dconc_dep_mix = 0d0
 
@@ -638,7 +650,17 @@ in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
             d_vap = 0
             d_dpar = 0
 
-            CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRC%cch),d_dpar,d_vap)
+            if (Kelvin_exp .and. abs(GTEMPK-T_prev)>5d-2) THEN
+                Kelvin_Eff = pre_Kelvin ** (300d0/GTEMPK)
+                T_prev = GTEMPK
+                ! i_kel = i_kel+1
+            END IF
+
+            ! write(611,*) GTIME%hrs, GTEMPK, maxval(100d0 * abs((Kelvin_eff / pre_Kelvin ** (300d0/GTEMPK)) -1d0))
+
+            if (Kelvin_taylor) Kelvin_Eff = 1d0 + pre_Kelvin * 300d0 / GTEMPK + (pre_Kelvin * 300d0 / GTEMPK) **2 / 2d0 + (pre_Kelvin * 300d0 / GTEMPK) **3 / 6d0
+
+            CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRC%cch),d_dpar,d_vap, kelvin_eff)
 
             ! calculate reference d_vap value, largest in magnitude but with sign
             call avg3(d_vap,refdvap, irefdvap)
@@ -663,7 +685,9 @@ in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
                 ! Distribute mass
                 CALL Mass_Number_Change('condensation')
 
+                ! Update current_psd
                 current_PSD = new_PSD
+
 
                 ! XXX move after file write --------------
                 ! Update vapour concentrations to chemistry
@@ -717,7 +741,7 @@ in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
                 ! Update PSD with new concentrations
                 current_PSD = new_PSD
                 ! Check whether timestep can be increased:
-                IF (maxval(ABS(d_npar)) < product(DPNUM_RANGE)**(0.5d0) .and. use_speed) THEN
+                IF (maxval(ABS(d_npar)) < DPNUM_RANGE(1) .and. use_speed) THEN
                     if (speed_up(PRC%coa) * 2 * Gtime%dt < speed_dt_limit(PRC%coa)) THEN
                         PRC%increase(PRC%coa) = .true.
                     END IF
@@ -892,6 +916,9 @@ END DO MAINLOOP
 
 CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
+! print*, 'total rounds: ',n_of_Rounds
+! print*, 'kelvin calculated: ', i_kel
+
 if (Aerosol_flag) THEN
     CLOSE(601)
     CLOSE(604)
@@ -1048,24 +1075,24 @@ SUBROUTINE ACDC_J(SA,C, dt)
     REAL(dp), intent(in) :: C(:)
     REAL(dp), intent(in) :: dt, SA
     LOGICAL, save        :: first_time = .true., ss_handle = .true.
-    REAL(dp)             :: H2SO4=0,NH3=0,DMA=0,IPR=0 ! these are created to make the unit conversion
+    REAL(dp)             :: H2SO4_l=0,NH3=0,DMA=0,IPR=0 ! these are created to make the unit conversion
 
-    ! NUCLEATION BY S-ACID AND NH3 - NOTE: in ACDC, ingoing concentrations are assumed to be in 1/m3!!
-    IF (inm_H2SO4 /= 0) H2SO4 = SA*1d6
+    ! NUCLEATION BY S-ACID AND NH3 - NOTE: in ACDC, ingoing concentrations have to be in 1/m3!!
+    IF (inm_H2SO4 /= 0) H2SO4_l = SA*1d6
     IF (inm_NH3   /= 0) NH3   = C(inm_NH3)*1d6
     IF (inm_DMA   /= 0) DMA   = C(inm_DMA)*1d6
     IF (inm_IPR   /= 0) IPR   = C(inm_IPR)*1d6
     ! Speed up program by ignoring nucleation when there is none
-    if ((NH3 > 1d12 .and. H2SO4>1d9) .or. (.not. skip_acdc)) THEN
-        CALL get_acdc_J(H2SO4,NH3,c_org,GCS,GTEMPK,IPR,GTIME,&
+    if ((NH3 > 1d12 .and. H2SO4_l>1d9) .or. (.not. skip_acdc)) THEN
+        CALL get_acdc_J(H2SO4_l,NH3,c_org,GCS,GTEMPK,IPR,GTIME,&
             ss_handle,J_ACDC_NH3_M3,acdc_cluster_diam, J_NH3_BY_IONS, dt, acdc_goback)
     ! ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
         ! if (GTIME%printnow) print FMT_SUB, 'NH3 IGNORED'
     END IF
     ! Speed up program by ignoring nucleation when there is none
-    if ((DMA > 1d6 .and. H2SO4>1d9) .or. (.not. skip_acdc)) THEN
-        CALL get_acdc_D(H2SO4,DMA,c_org,GCS,GTEMPK,GTIME,ss_handle,J_ACDC_DMA_M3,acdc_cluster_diam, dt, acdc_goback)
+    if ((DMA > 1d6 .and. H2SO4_l>1d9) .or. (.not. skip_acdc)) THEN
+        CALL get_acdc_D(H2SO4_l,DMA,c_org,GCS,GTEMPK,GTIME,ss_handle,J_ACDC_DMA_M3,acdc_cluster_diam, dt, acdc_goback)
     ! ELSE
         ! This will leave the last value for J stand - small enough to not count but not zero
         ! if (GTIME%printnow) print FMT_SUB, 'DMA IGNORED'
@@ -1120,7 +1147,7 @@ SUBROUTINE ORGANIC_NUCL(J_TOTAL_M3)
     dH = dG - dS*GTEMPK
     kJ = 5d-13*EXP(-dH/(Rcal) * (1/GTEMPK - 1/298d0))
 
-    J15 = kJ * ORGS*TSTEP_CONC(inm_H2SO4)
+    J15 = kJ * ORGS*H2SO4
     if (GTIME%printnow) print FMT_MSG, 'Organic formation rate: '//TRIM(ADJUSTL(f2chr(J15)))//' [/s/cm3]'
     J_TOTAL_M3 = J_TOTAL_M3 + J15*1d6
 
