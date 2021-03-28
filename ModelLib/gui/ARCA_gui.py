@@ -572,6 +572,10 @@ class NcPlot:
             self.mask = self.time == self.time
 
         self.time = self.time[self.mask]
+        try:
+            self.timeint = float(getattr(ncs, 'Nominal_save_interval_s'))
+        except:
+            self.timeint = int(3600*(self.time[-2]-self.time[0])/len(self.time[:-2]))
         # self.conc_matrix = zeros((len(self.time),len(self.varnames[self.mask])))
         for i,n in enumerate(cache[timevars]):
             self.convars[n] = i
@@ -2748,7 +2752,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 elif npsum(npround(log(self.MPD[0].diameter),2) - npround(log(self.MPD[-1].diameter), 2))>0:
                     self.MPD.pop(len(self.MPD)-1)
                     self.popup('Cannot load new file','PSD must match with the first file.')
-                elif round(self.MPD[0].time[1]-self.MPD[0].time[0],3) != round(self.MPD[-1].time[1]-self.MPD[-1].time[0], 3):
+                elif int(self.MPD[0].timeint*10) != int(self.MPD[-1].timeint*10):
                     self.MPD.pop(len(self.MPD)-1)
                     self.popup('Cannot load new file','Time interval must match with the first file.')
                 elif self.MPD[0].time[0] != self.MPD[-1].time[0]:

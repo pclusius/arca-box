@@ -152,6 +152,7 @@ CONTAINS
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'INITFILE', Fname_init))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Real_start_date', TRIM(realdate(1:4))//'/'//TRIM(realdate(5:6))//'/'//TRIM(realdate(7:8)) ))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Real_start_time', TRIM(realtime(1:2))//':'//TRIM(realtime(3:4))//':'//TRIM(realtime(5:6)) ))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Nominal_save_interval_s', GTIME%FSAVE_INTERVAL ))
       call handler(__LINE__, nf90_def_var(ncfile_ids(I), "TIME_IN_SEC", NF90_DOUBLE, dtime_id, timearr_id))
       call handler(__LINE__, nf90_def_var(ncfile_ids(I), "TIME_IN_HRS", NF90_DOUBLE, dtime_id, hrsarr_id))
       ! COMPRESSION
