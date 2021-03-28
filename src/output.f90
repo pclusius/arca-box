@@ -70,6 +70,10 @@ CONTAINS
     INTEGER                         :: i,j,k,ioi,lenD
     INTEGER, PARAMETER              :: textdim = len(SPC_NAMES(1))
     CHARACTER(textdim), ALLOCATABLE :: COND_NAMES(:)
+    CHARACTER(len=256) :: command, realdate, realtime
+
+    call date_and_time(realdate,realtime)
+
 
     ! ---------------------------
     ! ------dimension bits-------
@@ -146,6 +150,8 @@ CONTAINS
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Notes', TRIM(Description)))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'experiment', filename))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'INITFILE', Fname_init))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Real_start_date', TRIM(realdate(1:4))//'/'//TRIM(realdate(5:6))//'/'//TRIM(realdate(7:8)) ))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Real_start_time', TRIM(realtime(1:2))//':'//TRIM(realtime(3:4))//':'//TRIM(realtime(5:6)) ))
       call handler(__LINE__, nf90_def_var(ncfile_ids(I), "TIME_IN_SEC", NF90_DOUBLE, dtime_id, timearr_id))
       call handler(__LINE__, nf90_def_var(ncfile_ids(I), "TIME_IN_HRS", NF90_DOUBLE, dtime_id, hrsarr_id))
       ! COMPRESSION

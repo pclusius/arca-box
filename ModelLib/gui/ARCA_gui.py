@@ -13,7 +13,7 @@ import pyqtgraph as pg
 from layouts import varWin,gui8,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor
 from modules import variations,vars,batch,GetVapourPressures as gvp
 from subprocess import Popen, PIPE, STDOUT
-from numpy import linspace,log10,sqrt,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, ravel, mean
+from numpy import linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, ravel, mean, round as npround
 import numpy.ma as ma
 from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname
@@ -2744,10 +2744,16 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.MPD.append(NcPlot(file))
                 if len(self.MPD[0].diameter) != len(self.MPD[-1].diameter):
                     self.MPD.pop(len(self.MPD)-1)
-                    self.popup('Cannot load new file','PSD needs to match with the first file.')
-                elif npsum(self.MPD[0].diameter - self.MPD[-1].diameter)>0:
+                    self.popup('Cannot load new file','PSD must match with the first file.')
+                elif npsum(npround(log(self.MPD[0].diameter),2) - npround(log(self.MPD[-1].diameter), 2))>0:
                     self.MPD.pop(len(self.MPD)-1)
-                    self.popup('Cannot load new file','PSD needs to match with the first file.')
+                    self.popup('Cannot load new file','PSD must match with the first file.')
+                elif round(self.MPD[0].time[1]-self.MPD[0].time[0],3) != round(self.MPD[-1].time[1]-self.MPD[-1].time[0], 3):
+                    self.MPD.pop(len(self.MPD)-1)
+                    self.popup('Cannot load new file','Time interval must match with the first file.')
+                elif self.MPD[0].time[0] != self.MPD[-1].time[0]:
+                    self.MPD.pop(len(self.MPD)-1)
+                    self.popup('Cannot load new file','Start time must match with the first file.')
 
             else:
                 self.MPD = [NcPlot(file)]
@@ -2840,6 +2846,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                                                                 name='Model init'
                                                                 )
             for j,mpd_file in enumerate(self.MPD):
+                if ii >= len(mpd_file.time): continue
                 nmax = max(nmax,max(mpd_file.lognorm_nc_cm3[ii,:]))
                 self.outplot_numb = self.plotResultWindow_3.plot(self.MPD[0].diameter,
                                                             mpd_file.lognorm_nc_cm3[ii,:],
@@ -3168,6 +3175,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
     def closenetcdf_mass(self):
         self.MPD = []
         self.loadNetcdf_massAdd.setEnabled(False)
+        self.unnecessaryLegendTrick()
         try: self.ncs_mass.close()
         except: pass
         try:
