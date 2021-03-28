@@ -2714,7 +2714,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             return 1
 
     def showMass(self, file=None, first=True, target=None, add=False):
-        symbols = ['x','d','t1','t','star']
+        symbols = ['x','+','t1','t','star']
         # if add or target self.showAlsoMeasInMassConc.isChecked():
         #     self.popup('About measurements', 'For clarity, measured PSD is only shown for the first file')
         #
@@ -2732,16 +2732,23 @@ a chemistry module in tab "Chemistry"''', icon=2)
             if exists(file):
                 if self.testNC(file)>0:
                     self.popup('Bummer...', 'Not a valid output file',icon=3)
-                    return
+                    if len(self.MPD)==0:
+                        return
+                    else:
+                        self.showMass(first=False)
+                        return
             if add:
                 if len(self.MPD)==4:
                     self.popup('No more files', 'You can have maximum 4 files open in this tool')
                     return
                 self.MPD.append(NcPlot(file))
-                if npsum(self.MPD[0].diameter - self.MPD[-1].diameter)>0:
+                if len(self.MPD[0].diameter) != len(self.MPD[-1].diameter):
                     self.MPD.pop(len(self.MPD)-1)
-                    print('PSD needs to match with the first file.')
-                    return
+                    self.popup('Cannot load new file','PSD needs to match with the first file.')
+                elif npsum(self.MPD[0].diameter - self.MPD[-1].diameter)>0:
+                    self.MPD.pop(len(self.MPD)-1)
+                    self.popup('Cannot load new file','PSD needs to match with the first file.')
+
             else:
                 self.MPD = [NcPlot(file)]
             if not add:
@@ -2753,13 +2760,13 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.plotResultWindow_2.setLabel('bottom', 'Time', units='h')
                 self.plotResultWindow_2.setLabel('left', 'Mass', units='g')
                 self.plotResultWindow_3.setLabel('bottom', 'Diameter', units='m')
-                self.plotResultWindow_3.setLabel('left', '# normalized', units=None)
+                self.plotResultWindow_3.setLabel('left', '# normalized')
             # NUMBER_CONCENTRATION = self.ncs_mass.variables['NUMBER_CONCENTRATION'][:]
             # self.mass_in_bin     = self.ncs_mass.variables['MASS'][:]*NUMBER_CONCENTRATION*1e3 # from kg to g
             # self.lognormconc     = NUMBER_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
                 self.times.addItems(['%7.2f'%(i) for i in self.mp_time])
                 self.times.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-                self.massPlotTitle.setText(self.MPD[0].legend.replace(': Particles.nc',''))
+                # self.massPlotTitle.setText(self.MPD[0].legend.replace(': Particles.nc',''))
                 self.times.item(0).setSelected(True)
                 self.diams.selectAll()
                 self.diams.itemSelectionChanged.connect(self.updateMass)
@@ -2801,9 +2808,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
                                                             y2,
                                                             pen={'color':'r','width': 2.0,'style': QtCore.Qt.DotLine},
                                                             symbol='x',
-                                                            symbolPen='r',
-                                                            symbolBrush='r',
-                                                            symbolSize=6
+                                                            symbolPen='b',
+                                                            symbolBrush='b',
+                                                            symbolSize=6,
+                                                            name='Model init'
                                                             )
 
         for j,mpd_file in enumerate(self.MPD):
@@ -2814,22 +2822,25 @@ a chemistry module in tab "Chemistry"''', icon=2)
                                                         symbolPen=colors[j*2],
                                                         symbolBrush=colors[j*2],
                                                         symbolSize=8,
-                                                        name=self.MPD[j].legend
+                                                        name=self.MPD[j].legend.replace(': Particles.nc','')
                                                         )
 
         if target == 'mass' or first: self.plotResultWindow_2.setRange(yRange=[miny*0.95,maxy*1.05])
-
+        nmax = 0.01
         for i,ii in enumerate(indstime):
             if self.MPD[0].measdmps and self.showAlsoMeasInMassConc.isChecked():
+                nmax = max(nmax,max(self.MPD[0].lognormdmps[ii,:]))
                 self.outplot_numb2 = self.plotResultWindow_3.plot(self.MPD[0].diameter,
                                                                 self.MPD[0].lognormdmps[ii,:],
                                                                 pen={'color':colors[i%10],'width': 2.0,'style': QtCore.Qt.DotLine},
                                                                 symbol='x',
                                                                 symbolPen=colors[i%10],
                                                                 symbolBrush=colors[i%10],
-                                                                symbolSize=6
+                                                                symbolSize=6,
+                                                                name='Model init'
                                                                 )
             for j,mpd_file in enumerate(self.MPD):
+                nmax = max(nmax,max(mpd_file.lognorm_nc_cm3[ii,:]))
                 self.outplot_numb = self.plotResultWindow_3.plot(self.MPD[0].diameter,
                                                             mpd_file.lognorm_nc_cm3[ii,:],
                                                             pen={'color':colors[i%10],'width': 2.0},
@@ -2838,6 +2849,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
                                                             symbolBrush=colors[i%10],
                                                             symbolSize=8,
                                                             )
+        # if target == 'numb' or first: self.plotResultWindow_3.setRange(yRange=[nminy*0.95,nmaxy*1.05])
+        yr=self.plotResultWindow_3.getViewBox().state['viewRange'][1]
+        self.plotResultWindow_3.setRange(yRange=[-0.02*nmax,nmax*1.05])
+
 
 #
     def toggleppm(self,what):
