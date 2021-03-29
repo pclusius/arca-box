@@ -134,7 +134,7 @@ org_yes = (172,147,147)
 # icon
 modellogo = gui_path+"/icons/ArcaLogo.png"
 boxicon = gui_path+"/icons/thebox_ico.png"
-CurrentVersion = "ARCA Box Model 1.0.2"
+CurrentVersion = "ARCA Box Model "
 # Some messages
 netcdfMissinnMes = ('Please note:',
 'To open NetCDF-files you need netCDF4 for Python.\nYou can istall it with pip, package manager (or perhaps: python3 -m pip install --user netCDF4.')
@@ -144,6 +144,10 @@ currentdir   = getcwd()
 currentdir   = currentdir.replace('/ModelLib/gui', '')
 currentdir_l = len(currentdir)
 chdir(currentdir)
+
+with open("ModelLib/required/version.txt") as f:
+    for line in f: break
+CurrentVersion += line.strip('\n\r').strip('\n')
 
 helpd = {}
 with open(osjoin(gui_path,'conf','helplinks.txt'), 'r') as b:
@@ -2758,7 +2762,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 elif self.MPD[0].time[0] != self.MPD[-1].time[0]:
                     self.MPD.pop(len(self.MPD)-1)
                     self.popup('Cannot load new file','Start time must match with the first file.')
-
+                if round(self.MPD[-1].time[-1],3)>round(self.mp_time[-1],3):
+                    self.mp_time = self.MPD[-1].time
+                    self.times.itemSelectionChanged.disconnect(self.updateNumbers)
+                    self.times.clear()
+                    self.times.itemSelectionChanged.connect(self.updateNumbers)
+                    self.times.addItems(['%7.2f'%(i) for i in self.mp_time])
             else:
                 self.MPD = [NcPlot(file)]
             if not add:

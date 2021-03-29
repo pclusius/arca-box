@@ -56,11 +56,12 @@ CONTAINS
   ! CREATE (OR OVERWRITE OLD) THREE NETCDF-FILES TO STORE OUTPUT. PARTICLES IS STILL VERY ROUGH SINCE WE DON'T HAVE THEM
   ! YET, BUT GENERAL AND CHEMISTRY ARE THERE ALREADY.
   ! --------------------------------------------------------------------------------------------------------------------
-  SUBROUTINE OPEN_FILES(filename, Description, currentChemistry, MODS, CH_GAS, vapours)
+  SUBROUTINE OPEN_FILES(filename, Description, currentChemistry,CurrentVersion, MODS, CH_GAS, vapours)
     IMPLICIT NONE
 
     CHARACTER(LEN=*), INTENT(IN)    :: filename
     CHARACTER(LEN=*), INTENT(IN)    :: currentChemistry
+    CHARACTER(LEN=*), INTENT(IN)    :: CurrentVersion
     CHARACTER(*), INTENT(IN)        :: Description
     TYPE(input_mod),INTENT(INOUT)   :: MODS(:)
     TYPE(vapour_ambient),INTENT(IN) :: vapours
@@ -144,7 +145,7 @@ CONTAINS
       CALL get_command_argument(0, PROGRAM_NAME)
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Information', '(c) Multiscale Modelling Group and (c) Computational Aerosol Physics Group (ACDC)'))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Contact', 'arca@helsinki.fi (ARCA box), tinja.olenius@alumni.helsinki.fi (ACDC)'))
-      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Software', 'ARCA box 1.0.2'))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Software', 'ARCA box '//TRIM(CurrentVersion)))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Package_Name', TRIM(PROGRAM_NAME(3:))))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Chemistry_module', TRIM(CurrentChemistry)))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Notes', TRIM(Description)))

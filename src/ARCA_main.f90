@@ -81,14 +81,18 @@ REAL(dp) :: Ad                                  ! chamber parametrization parame
 REAL(dp) :: V_chamber                           ! chamber parametrization parameters
 REAL(dp) :: E_field = 0d0                       ! chamber parametrization parameters
 REAL(dp), ALLOCATABLE :: corgwallTeflon(:)      ! chamber parametrization parameters
-CHARACTER(len=64) :: CurrentChemistry           ! Transient variable
+CHARACTER(len=64) :: CurrentChemistry, CurrentVersion          ! Transient variable
 
 #ifdef CHEM
 CurrentChemistry = CHEM
 #endif
 
+open(621,file="ModelLib/required/version.txt", STATUS='OLD', ACTION='READ', iostat=ioi)
+read(621,'(a)', iostat = ioi) CurrentVersion
+close(621)
+
 ! Welcoming message
-print'(a,t35,a)', achar(10),  '--~:| ARCA BOX MODEL 1.0.2 |:~--'//achar(10)
+print'(a,t35,a)', achar(10),  '--~:| ARCA BOX MODEL '//TRIM(CurrentVersion)//' |:~--'//achar(10)
 print FMT_HDR, 'Compiled with "'//TRIM(currentChemistry)//'" chemistry module'
 print*, ''
 ! ==================================================================================================================
@@ -263,7 +267,7 @@ close(606)
 close(607)
 
 ! Open netCDF files
-CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChemistry, MODS, CH_GAS, VAPOUR_PROP)
+CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChemistry,CurrentVersion, MODS, CH_GAS, VAPOUR_PROP)
 
 ! If wait_for was defined in user options, wait for a sec
 CALL PAUSE_FOR_WHILE(wait_for)
