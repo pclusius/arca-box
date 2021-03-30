@@ -253,10 +253,18 @@ class CCWin(QtGui.QDialog):
         self.ccw.openOutput.clicked.connect(lambda: qt_box.openOutputDir(None, self.ccw.outDir.text()))
         self.ccw.browseOut.clicked.connect(lambda: qt_box.browse_path(self.ccw.outDir, 'dir'))
         self.ccw.browseSourceFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.sourceFile, 'file'))
+        self.ccw.browseReactFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.react_file, 'file'))
         self.ccw.browseIncludes.clicked.connect(lambda: qt_box.browse_path(self.ccw.includedFiles, 'append'))
         self.ccw.mainFrame.setFont(qt_box.font)
         self.ccw.manualCC.clicked.connect(lambda: qt_box.helplink('ccmanual'))
         self.ccw.pickDeffix.clicked.connect(self.ListFixed)
+        self.ccw.justReact.toggled.connect(self.ch_txt)
+
+    def ch_txt(self):
+        if self.ccw.justReact.isChecked():
+            self.ccw.createKPPsettings.setText("Write reactivity file")
+        else:
+            self.ccw.createKPPsettings.setText("Create KPP settings")
 
     def ListFixed(self):
         file = qt_box.browse_path(None, 'fixed_cc', ftype="MCM mass subset file (*.txt)")
@@ -285,36 +293,73 @@ class CCWin(QtGui.QDialog):
             commandstring.append('-f')
             commandstring += includes
 
-        print( 'Calling chemistry script with:\n'+' '.join(commandstring))
+        error = False
+        warnings = False
+        lines = True
+        if self.ccw.justReact.isChecked():
+            out = self.ccw.sourceFile.text()
+        else:
+            print( 'Calling chemistry script with:\n'+' '.join(commandstring))
+            self.kppProcess = Popen([*commandstring], stdout=PIPE,stderr=STDOUT,stdin=None)
+            output = ['Chemistry definitions were created.\n']
+            boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp"\n2) Recompile thme model code in tab "Chemistry".'
+            while lines:
+                self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
+                if '[WARNING' in self.ccout.upper():
+                    warnings = True
+                    output.append('Duplicate equations were found.')
+                    output.append(self.ccout)
+                if '[CRITICAL' in self.ccout.upper():
+                    warnings = True
+                    output.append('Included file was not found:')
+                    output.append(self.ccout)
+                if '[ERROR' in self.ccout.upper():
+                    qt_box.popup('Script returned error', 'The script was unable to create chemistry definition, please see the log below.',3)
+                    error = True
+                self.ccw.ccMonitor.insertPlainText(self.ccout)
+                if self.kppProcess.poll() != None and self.ccout == '':
+                    lines= False
+                    self.kppProcess.kill()
+            #
+        if error: return
+        xml = osjoin(ccloc,'reactivity','reactivity_empty.xml')
+        if self.ccw.react_file.text() != '':
+            if not exists(self.ccw.react_file.text()):
+                qt_box.popup('Reactivity file not found', 'Omitting reactivities.',2)
+            else:
+                xml = self.ccw.react_file.text()
+
+        commandstring = [currentPythonVer,osjoin(ccloc,'reactivity','add_reactivity.py'),'-k',out,xml,
+                        '-o',osjoin(self.ccw.outDir.text(),'second_reactivity.f90'),'--log', osjoin(self.ccw.outDir.text(),'reactivity.log')]
         self.kppProcess = Popen([*commandstring], stdout=PIPE,stderr=STDOUT,stdin=None)
         lines = True
         error = False
-        warnings = False
-        output = ['Chemistry definitions were created.\n']
-        boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp"\n2) Recompile thme model code in tab "Chemistry".'
         while lines:
             self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
-            if '[WARNING' in self.ccout.upper():
-                warnings = True
-                output.append('Duplicate equations were found.')
-                output.append(self.ccout)
-            if '[CRITICAL' in self.ccout.upper():
-                warnings = True
-                output.append('Included file was not found:')
-                output.append(self.ccout)
-            if '[ERROR' in self.ccout.upper():
-                qt_box.popup('Script returned error', 'The script was unable to create chemistry definition, please see the log below.',3)
-                error = True
             self.ccw.ccMonitor.insertPlainText(self.ccout)
+            # if '[WARNING' in self.ccout.upper():
+            #     warnings = True
+            #     output.append('Duplicate equations were found.')
+            #     output.append(self.ccout)
+            # if '[CRITICAL' in self.ccout.upper():
+            #     warnings = True
+            #     output.append('Included file was not found:')
+            #     output.append(self.ccout)
+            if 'ERROR' in self.ccout.upper():
+                qt_box.popup('Script returned error', 'The script was unable to create reactivity file, please see the log.',3)
+                error = True
             if self.kppProcess.poll() != None and self.ccout == '':
                 lines= False
                 self.kppProcess.kill()
 
         if error: return
-        cpf(osjoin(ccloc,'mcm_module.f90'),osjoin(self.ccw.outDir.text(),'mcm_module.f90'))
-        cpf(osjoin(ccloc,'second.kpp'),osjoin(self.ccw.outDir.text(),'second.kpp'))
-        if warnings: output.append('Read the .log and resolve the problems, then:')
-        qt_box.popup('Chemistry created', '\n'.join(output)+boilerplate,0)
+        if self.ccw.justReact.isChecked():
+            qt_box.popup('Reactivity file created', 'Success, see the log for details.',0)
+        else:
+            cpf(osjoin(ccloc,'mcm_module.f90'),osjoin(self.ccw.outDir.text(),'mcm_module.f90'))
+            cpf(osjoin(ccloc,'second.kpp'),osjoin(self.ccw.outDir.text(),'second.kpp'))
+            if warnings: output.append('Read the .log and resolve the problems, then:')
+            qt_box.popup('Chemistry created', '\n'.join(output)+boilerplate,0)
 
 
 # The popup window for variations
@@ -1648,13 +1693,22 @@ the numerical model or chemistry scheme differs from the current, results may va
         if ftype != None:
             dialog.setNameFilter(ftype)
 
-        if 'dir' in mode:
-            dialog.setFileMode(QtWidgets.QFileDialog.Directory)
-            dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly)
+        # if 'dir' in mode:
+            # dialog.setFileMode(QtWidgets.QFileDialog.Directory)
+            # dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly)
         options = dialog.Options()
         options |= dialog.DontUseNativeDialog
         if mode == 'dir':
-            path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
+            dialog.setFileMode(QtWidgets.QFileDialog.Directory)
+            dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly)
+
+            # path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
+            dialog.setOption(QtWidgets.QFileDialog.DontUseNativeDialog)
+            dialog.setWindowTitle('Choose File')
+            if dialog.exec() == 1:
+                path = dialog.selectedFiles()[0]
+            else: path=''
+
         elif mode == 'export':
             path = dialog.getSaveFileName(self, 'Save INITFILE', options=options)[0]
         else:

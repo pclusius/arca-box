@@ -4,6 +4,7 @@ USE second_MAIN                         ! Main second file
 USE second_PARAMETERS                   ! CH_NSPEC (originally NSPEC) and chemical indices, ind_xxxx, come from here
 USE second_Precision,  ONLY : dp        ! KPP Numerical type
 USE second_Monitor,    ONLY : SPC_NAMES ! Names of chemicals from KPP
+USE SECOND_REACTIVITY, ONLY : NREACTIVITY
 USE Chemistry
 USE constants
 USE AUXILLARIES
@@ -34,7 +35,7 @@ integer :: i_kel = 0
 ! ==================================================================================================================
 
 REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)    ! Array to hold input variables for the current timestep
-REAL(DP), ALLOCATABLE :: CH_GAS(:), CH_GAS_old(:),d_chem(:) ! Array to hold all chemistry compounds; old: to restore in case of an error related to timestep handling
+REAL(DP), ALLOCATABLE :: CH_GAS(:), CH_GAS_old(:),d_chem(:), reactivities(:) ! Array to hold all chemistry compounds; old: to restore in case of an error related to timestep handling
 REAL(dp), ALLOCATABLE :: conc_fit(:)      ! An array giving particle conc independant of PSD_style [m⁻³]
 REAL(dp), ALLOCATABLE :: losses_fit(:),losses_fit0(:),losses_fit1(:), intrp_losses(:) ! An array giving particle conc independant of PSD_style [m-3]
 REAL(dp), ALLOCATABLE :: save_measured(:)      ! An aray for saving measurements
@@ -214,7 +215,8 @@ ALLOCATE(TSTEP_CONC(N_VARS))
 TSTEP_CONC = 0
 
 ! Allocate and initiate the timestep vector for chemical compounds
-ALLOCATE(CH_GAS(size(SPC_NAMES)))
+ALLOCATE(CH_GAS(NSPEC))
+ALLOCATE(reactivities(NREACTIVITY))
 CH_GAS = 0
 
 ! ==================================================================================================================
@@ -267,7 +269,7 @@ close(606)
 close(607)
 
 ! Open netCDF files
-CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChemistry,CurrentVersion, MODS, CH_GAS, VAPOUR_PROP)
+CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChemistry,CurrentVersion, MODS, CH_GAS, reactivities, VAPOUR_PROP)
 
 ! If wait_for was defined in user options, wait for a sec
 CALL PAUSE_FOR_WHILE(wait_for)
@@ -447,8 +449,9 @@ in_turn_cch_1: if (PRC%in_turn(PRC%cch)) THEN
             call BETA(CH_Beta)
         END IF
 
+
         Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRC%cch)), GTEMPK, max(0d0,TSTEP_CONC(inm_swr)),&
-                    CH_Beta,CH_H2O, GC_AIR_NOW, GCS, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2)
+                    CH_Beta,CH_H2O, GC_AIR_NOW, GCS, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2, reactivities)
 
         if ( ( minval(CH_GAS)<-1d0 ).and.GTIME%sec>100d0) print FMT_WARN0,'Negative values from chemistry, setting to zero: ', MINVAL(CH_GAS)
         WHERE (CH_GAS<0d0) CH_GAS = 0d0
@@ -868,7 +871,7 @@ END IF in_turn_any
             WRITE(610,*) GTIME%sec, d_dpar(maxloc(abs(d_dpar),1)), d_npar(maxloc(abs(d_npar),1)), refdvap, d_npdep(maxloc(abs(d_npdep),1))
             FLUSH(610)
 
-            CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,conc_vapour*1d-6,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&
+            CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapour*1d-6,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&
                             1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar)
 
         END IF
@@ -1248,7 +1251,7 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
             save_measured = conc_fit/1d6
         END IF
 
-        CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,conc_vapour*1d-6,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&
+        CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapour*1d-6,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOUR_PROP, save_measured,&
                         1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar)
 
 

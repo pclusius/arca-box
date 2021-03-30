@@ -3,6 +3,7 @@ use netcdf
 use CONSTANTS
 use INPUT
 use second_Monitor
+USE SECOND_REACTIVITY, ONLY : reactivity_name
 use AUXILLARIES
 USE PSD_scheme, ONLY: get_composition, get_dp, get_volume, get_mass, get_conc
 
@@ -56,7 +57,7 @@ CONTAINS
   ! CREATE (OR OVERWRITE OLD) THREE NETCDF-FILES TO STORE OUTPUT. PARTICLES IS STILL VERY ROUGH SINCE WE DON'T HAVE THEM
   ! YET, BUT GENERAL AND CHEMISTRY ARE THERE ALREADY.
   ! --------------------------------------------------------------------------------------------------------------------
-  SUBROUTINE OPEN_FILES(filename, Description, currentChemistry,CurrentVersion, MODS, CH_GAS, vapours)
+  SUBROUTINE OPEN_FILES(filename, Description, currentChemistry,CurrentVersion, MODS, CH_GAS,reactivities, vapours)
     IMPLICIT NONE
 
     CHARACTER(LEN=*), INTENT(IN)    :: filename
@@ -67,6 +68,7 @@ CONTAINS
     TYPE(vapour_ambient),INTENT(IN) :: vapours
     ! TYPE(psd),INTENT(IN)            :: current_PSD
     REAL(dp), INTENT(IN)            :: CH_GAS(:)
+    REAL(dp), INTENT(IN)            :: reactivities(:)
     CHARACTER(255)                  :: PROGRAM_NAME
     INTEGER                         :: i,j,k,ioi,lenD
     INTEGER, PARAMETER              :: textdim = len(SPC_NAMES(1))
@@ -167,7 +169,7 @@ CONTAINS
   ALLOCATE(multipl_ind(size(MODS)))
   ALLOCATE(shifter_ind(size(MODS)))
   ALLOCATE(mods_ind(size(MODS)))
-  ALLOCATE(chem_ind(size(CH_GAS)))
+  ALLOCATE(chem_ind(size(CH_GAS)+size(reactivity_name)))
   ALLOCATE(par_ind(size(vapours%vapour_names)))
 
 
@@ -231,9 +233,17 @@ CONTAINS
       call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(SPC_NAMES(j)), NF90_DOUBLE, dtime_id, chem_ind(j)) )
       call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), chem_ind(j), shuff, compress, compression) )
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'unit' , '1/cm^3'))
-      call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'condensing' , 1))
+      ! call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'condensing' , 1))
   end do
 
+  if (size(reactivity_name)>0) THEN
+      do j = 1,size(reactivity_name)
+          call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(reactivity_name(j)), NF90_DOUBLE, dtime_id, chem_ind(size(CH_GAS)+j)) )
+          call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), chem_ind(size(CH_GAS)+j), shuff, compress, compression) )
+          call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(size(CH_GAS)+j), 'unit' , '1/s'))
+          ! call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'condensing' , 1))
+      end do
+  end if
 
 
   I=3 ! Particle file.
@@ -301,11 +311,12 @@ END SUBROUTINE OPEN_FILES
 ! ====================================================================================================================
 ! Here the input is written to netcdf-files. Again, particles still rudimentary
 ! --------------------------------------------------------------------------------------------------------------------
-SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,conc_vapours,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOURS, save_measured, GR)
+SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours,J_ACDC_NH3_M3, J_ACDC_DMA_M3, VAPOURS, save_measured, GR)
   IMPLICIT NONE
   type(input_mod), INTENT(in)     :: MODS(:)
   real(dp), INTENT(in)            :: TSTEP_CONC(:)
   real(dp), INTENT(in)            :: CH_GAS(:)
+  real(dp), INTENT(in)            :: reactivities(:)
   real(dp), INTENT(in)            :: conc_vapours(:)
   real(dp), INTENT(in)            :: J_ACDC_NH3_M3
   real(dp), INTENT(in)            :: J_ACDC_DMA_M3
@@ -348,6 +359,12 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,conc_vapours,J_ACDC_NH3_M3, J_ACDC_
   do j = 1,size(CH_GAS)
     call handler(__LINE__, nf90_put_var(ncfile_ids(I), chem_ind(j), CH_GAS(j), (/GTIME%ind_netcdf/)) )
   end do
+
+  if (size(reactivity_name)>0) THEN
+      do j = 1,size(reactivity_name)
+          call handler(__LINE__, nf90_put_var(ncfile_ids(I), chem_ind(size(CH_GAS)+j), reactivities(j), (/GTIME%ind_netcdf/)) )
+      end do
+  end if
 
 
 

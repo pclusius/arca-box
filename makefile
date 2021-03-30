@@ -3,8 +3,8 @@
 # compiler
 F90 = gfortran
 
-COPTI = O2
-BOPTI = O3
+COPTI = -O2
+BOPTI = -O3
 PROF = -pg
 PROF =
 # Put .o and .mod files here:
@@ -18,16 +18,16 @@ VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_
 # Options reminders:
 # -w suppresses warning messages
 
-BOX_OPTS = -g -Wno-unused -ffree-line-length-none -cpp -DLINUX -DCHEM=\"$(CHMDIR)\" -DISACDC -J$(OBJDIR) -I$(OBJDIR)/$(CHMDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
--Wno-unused-dummy-argument -Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow $(PROF) -g -fcheck=all -$(BOPTI)
+BOX_OPTS = -g -Wno-unused $(BOPTI) -ffree-line-length-none -cpp -DLINUX -DCHEM=\"$(CHMDIR)\" -DISACDC -J$(OBJDIR) -I$(OBJDIR)/$(CHMDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
+-Wno-unused-dummy-argument -Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow $(PROF) -g -fcheck=all
 
-CHEM_OPTS = -w -cpp $(PROF) -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR)/$(CHMDIR) -I$(OBJDIR)/$(CHMDIR) -$(COPTI)
+CHEM_OPTS = -w -cpp $(PROF) $(COPTI) -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR)/$(CHMDIR) -I$(OBJDIR)/$(CHMDIR)
 
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OBJDIR) -I$(OBJDIR) -fcheck=all -ffpe-trap=invalid,zero,overflow -O3
 
 CHEM_OBJECTS = $(addprefix $(OBJDIR)/$(CHMDIR)/, second_Precision.o second_Parameters.o second_Initialize.o second_Util.o second_Monitor.o second_JacobianSP.o \
                second_LinearAlgebra.o second_Jacobian.o second_Global.o second_Rates.o second_Integrator.o second_Function.o \
-               second_Model.o second_Main.o)
+               second_Model.o second_Main.o second_reactivity.o)
 
 BOX_OBJECTS = $(addprefix $(OBJDIR)/, constants.o auxillaries.o input.o solve_bases.o chemistry.o psd_scheme.o aerosol_dynamics.o output.o custom_functions.o)
 
@@ -81,6 +81,8 @@ $(OBJDIR)/$(CHMDIR)/second_Parameters.o: chemistry/$(CHMDIR)/second_Parameters.f
 $(OBJDIR)/$(CHMDIR)/second_Global.o: chemistry/$(CHMDIR)/second_Global.f90 second_Parameters.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 $(OBJDIR)/$(CHMDIR)/second_Initialize.o: chemistry/$(CHMDIR)/second_Initialize.f90 second_Parameters.o second_Global.o
+	 $(F90) $(CHEM_OPTS) -c $< -o $@
+$(OBJDIR)/$(CHMDIR)/second_reactivity.o: chemistry/$(CHMDIR)/second_reactivity.f90 second_Precision.o second_Parameters.o second_Global.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 $(OBJDIR)/$(CHMDIR)/second_Util.o: chemistry/$(CHMDIR)/second_Util.f90 second_Parameters.o second_Monitor.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@

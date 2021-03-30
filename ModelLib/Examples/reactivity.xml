@@ -14,16 +14,11 @@
     <reactants>H2, H2O2, HONO, HO2NO2, HNO3, NO3</reactants>
   </reactivity>
 
-  <reactivity>
-    <name>rOH_isop</name>
-    <species>OH</species>
-    <reactants>C5H8</reactants>
-  </reactivity>
 
   <reactivity>
     <name>rOH_monoter</name>
     <species>OH</species>
-    <reactants>APINENE, BPINENE, CARENE, LIMONENE, MYRCENE</reactants>
+    <reactants>APINENE, BPINENE, LIMONENE</reactants>
   </reactivity>
 
   <reactivity>
@@ -35,6 +30,6 @@
   <reactivity>
     <name>rNO3_monoter</name>
     <species>NO3</species>
-    <reactants>APINENE, BPINENE, LIMONENE, OMT</reactants>
+    <reactants>APINENE, BPINENE, LIMONENE</reactants>
   </reactivity>
 </Reactivities>

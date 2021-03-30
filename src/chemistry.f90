@@ -22,6 +22,7 @@ MODULE CHEMISTRY
     USE SECOND_PARAMETERS, ONLY : NSPEC        ! Number of chemical species
     USE SECOND_GLOBAL,     ONLY : NPHOT, RO2   ! NPHOT = Number of photochemical reactions used in KPP
                                                ! RO2 = organic peroxy radicals
+    USE SECOND_REACTIVITY
 
     IMPLICIT NONE
 
@@ -61,7 +62,7 @@ CONTAINS
 
 
 
-    SUBROUTINE CHEMCALC(CONS, TIME_kpp, END_kpp, Tp, SWDWN, Beta, H2O, AIR, RES1, RES2, Albedo, RO2_out)
+    SUBROUTINE CHEMCALC(CONS, TIME_kpp, END_kpp, Tp, SWDWN, Beta, H2O, AIR, RES1, RES2, Albedo, RO2_out,reactivities)
 
         IMPLICIT NONE
 
@@ -91,7 +92,7 @@ CONTAINS
                                           N2,                      & ! N2-concentration in molecule / cm3
                                           MO2N2,                   & ! MO2N2: Sum of O2 and N2 concentration
                                           ZSD                        ! Solar elevation angle
-
+        REAL(DP)                       :: reactivities(:)
 
 !        write(*,*) 'Gases: ',    CONS
 !        write(*,*) 'Time_kpp: ', TIME_kpp
@@ -163,6 +164,8 @@ CONTAINS
 
         ! RO2 redicals are summed and provided for output - not used anywhere else
         RO2_out = RO2
+
+        if (NREACTIVITY>0) CALL calculate_reactivities(CONS, reactivities)
 
     END SUBROUTINE
 

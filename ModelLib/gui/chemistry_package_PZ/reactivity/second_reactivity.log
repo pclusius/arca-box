@@ -1,0 +1,3 @@
+03-30 01:42-12s INFO       reactivity config file       : reactivity.xml
+03-30 01:42-12s INFO       input kpp def file           : ../../../../src/chemistry/test/second.def
+03-30 01:42-12s INFO       output second_reactivity file: ../../../../src/chemistry/test/second_re.f90

@@ -5,16 +5,17 @@
 #  Generate a second_reactivity.f90 file as a default name from the KPP
 #  chemistry file.
 #
-#  Contact: Zhou Putian, putian.zhou@helsinki.fi, 2020.11.19
+#  Contact: Zhou Putian, putian.zhou@helsinki.fi, 19.11.2020
 #
-#  In the reactivity configuration file, every reactivity name is specified a
-#  species (e.g., OH, NO3, O3, etc.) and related reactants. There are also 2
+#  In the reactivity configuration file, every reactivity name is specified with
+#  a species (e.g., OH, NO3, O3, etc.) and related reactants. There are also 2
 #  special names for chemicals: +other and +all. +all will contain all chemicals
 #  that react with the species in the chemistry file. +other will contain the
 #  chemicals from +all that are not mentioned under any other reactivities for
 #  this species. +all and +other must be the only chamical name in their class.
 #
 #==============================================================================#
+
 
 #==============================================================================#
 #
@@ -26,6 +27,7 @@ import re  # regural expressions
 
 import logging
 import argparse
+from argparse import RawTextHelpFormatter  # can insert new line in the text
 
 import xml.etree.ElementTree as ET
 
@@ -116,10 +118,6 @@ def create_second_reactivity(file_name, tags, reactants):
   with open(file_name, 'w') as f:
     f.write('module second_reactivity\n')
     f.write('\n')
-    f.write('  use second_Precision\n')
-    f.write('  use second_Parameters\n')
-    f.write('  use second_Global\n')
-    f.write('\n')
     f.write('  implicit none\n')
     f.write('\n')
     f.write('  private\n')
@@ -130,22 +128,34 @@ def create_second_reactivity(file_name, tags, reactants):
     # Save all the reactivity names
     f.write('  character(len=20), parameter :: reactivity_name(NREACTIVITY) = (/ &\n')
     for i, t in enumerate(tags):
-      f.write("    '{0:20s}'".format(t))
-      
-      # One name per line
-      if i == len(tags)-1:
-        f.write(' /)\n')
+      if i==len(tags)-1:
+        f.write("    '{0:20s}' &\n".format(t))
       else:
-        f.write(', &\n')
+        f.write("    '{0:20s}', &\n".format(t))
+
+      # # One name per line
+      # if i == len(tags)-1:
+      #   f.write(' /)\n')
+      # else:
+      #   f.write(', &\n')
+    if len(tags) == 0: f.write('REAL:: &\n')
+    f.write(' /)\n')
+
     # Public ones
     f.write('\n')
-    f.write('  public: calculate_reactivities, NREACTIVITY, reactivity_name\n')
+    f.write('  public :: calculate_reactivities, NREACTIVITY, reactivity_name\n')
     f.write('\n')
     f.write('contains\n')
     f.write('\n')
 
     # Begin the subroutine to calculate the reactivities
     f.write('  subroutine calculate_reactivities(CONC, reactivity)\n')
+
+    # Use variables declared in other modules
+    f.write('\n')
+    f.write('    use second_Precision   ! dp\n')
+    f.write('    use second_Parameters  ! NSPEC, ind_*\n')
+    f.write('    use second_Global      ! TEMP, M, O2, N2, H2O, RO2, K values\n')
 
     # Declaration
     f.write('\n')
@@ -201,10 +211,30 @@ def create_second_reactivity(file_name, tags, reactants):
 ######## MAIN PROGRAM ########
 if __name__ == '__main__':
 
-  
+
   #===== Define the argument parser =====#
-  parser = argparse.ArgumentParser(description='Creating a second_reactivity file to calculate the reactivities. Call calculate_reactivities after KPP_Proceed.', add_help=True)
-  
+  help_string = \
+    'Creating a second reactivity file to calculate the reactivities.\n' + \
+    '\n' + \
+    '1. Define the reactivity name, species and specify the related reactants.\n' + \
+    'in the <config_file> xml file.\n' + \
+    '\n' + \
+    '2. Run this script with <config_file> to produce a Fortran code\n' + \
+    '<second_file> which includes the declaration of number of reactivities\n' + \
+    '(NREACTIVITY), reactivity name array (reactivity_name), and a subroutine\n' + \
+    'calculate_reactivities(CONC, reactivity).\n' + \
+    '\n' + \
+    '3. Put the <second_file> to the chemistry scheme folder together with\n' + \
+    'other second files, modify your Makefile when necessary.\n' + \
+    '\n' + \
+    '4. You can call the subroutine calculate_reactivities anywhere you want,\n' + \
+    'but the suggested calling place is after the subroutine CHEMISTRY or\n' + \
+    'after KPP_Proceed inside CHEMISTRY. Because in this case the variables\n' + \
+    'TEMP, CONC, reaction rates and so on are updated.'
+
+  parser = argparse.ArgumentParser(description=help_string, \
+      add_help=True, formatter_class=RawTextHelpFormatter)
+
   default_values = {}
   default_values['config_file'] = 'reactivity.xml'
   default_values['kppdef_file'] = 'second.def'
@@ -218,20 +248,20 @@ if __name__ == '__main__':
       dest='kppdef_file', \
       default=default_values['kppdef_file'], \
       action='store', \
-      help='The kpp def file which contains all the equations.' + \
-        ' The default is {0}.'.format(default_values['kppdef_file']))
+      help='The kpp def file which contains all the equations.\n' + \
+        'The default is "{0}".'.format(default_values['kppdef_file']))
   parser.add_argument('-o', \
       dest='second_file', \
       default=default_values['second_file'], \
       action='store', \
-      help='Output second_reactivity file.' + \
-        ' The default is {0}.'.format(default_values['second_file']))
+      help='Output second_reactivity file. The default is\n' + \
+        '"{0}".'.format(default_values['second_file']))
   parser.add_argument('--log', '-l', \
       dest='log_file', \
       default=default_values['log_file'], \
       action='store', \
       help='Log file.' + \
-        ' The default is {0}.'.format(default_values['log_file']))
+        ' The default is "{0}".'.format(default_values['log_file']))
 
   args = parser.parse_args()
 
@@ -254,12 +284,12 @@ if __name__ == '__main__':
 
   # add the handler to the root logger
   logging.getLogger().addHandler(console)
-  
+
   # Output the input to the screen
   logging.info('  reactivity config file       : {0}'.format(args.config_file))
   logging.info('  input kpp def file           : {0}'.format(args.kppdef_file))
   logging.info('  output second_reactivity file: {0}'.format(args.second_file))
-  
+
   #===== Read the config file =====#
 
   # Save reactivity names to tags, and other information
@@ -303,6 +333,6 @@ if __name__ == '__main__':
 
   for i in range(len(tags)):
     logging.info('  class: {0} found {1} chemicals'.format(tags[i], len(reactants[i])))
-  
+
   #===== Write out the second_file =====#
   create_second_reactivity(args.second_file, tags, reactants)
