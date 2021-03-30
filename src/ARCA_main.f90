@@ -21,8 +21,7 @@ IMPLICIT NONE
 
 REAL(dp), ALLOCATABLE  :: conc_pp(:,:)      ! [#/m^3] Particle phase concentrations, DIM(n_bins_par,n_cond_tot)
 real(dp) :: T_prev = 0d0
-integer :: i_kel = 0
-
+! integer :: i_kel = 0
 
 ! ==================================================================================================================
 ! Note about file unit handles: Numbers between 100-499 are not used anywhere in the model, so use these in you need
@@ -82,15 +81,15 @@ REAL(dp) :: Ad                                  ! chamber parametrization parame
 REAL(dp) :: V_chamber                           ! chamber parametrization parameters
 REAL(dp) :: E_field = 0d0                       ! chamber parametrization parameters
 REAL(dp), ALLOCATABLE :: corgwallTeflon(:)      ! chamber parametrization parameters
-CHARACTER(len=64) :: CurrentChemistry, CurrentVersion          ! Transient variable
+CHARACTER(len=64) :: CurrentChemistry, CurrentVersion ! Name of the chemistry module and current compiled version
 
 #ifdef CHEM
 CurrentChemistry = CHEM
 #endif
 
-open(621,file="ModelLib/required/version.txt", STATUS='OLD', ACTION='READ', iostat=ioi)
-read(621,'(a)', iostat = ioi) CurrentVersion
-close(621)
+#ifdef VERSION
+CurrentVersion = VERSION
+#endif
 
 ! Welcoming message
 print'(a,t35,a)', achar(10),  '--~:| ARCA BOX MODEL '//TRIM(CurrentVersion)//' |:~--'//achar(10)

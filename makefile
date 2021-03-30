@@ -14,11 +14,13 @@ PROF =
 
 # When compiling, search for files in these directories:
 VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31:Aerosol:$(OBJDIR)/$(CHMDIR)
+FILE=ModelLib/required/version.txt
+VERSION=`cat $(FILE)`
 
 # Options reminders:
 # -w suppresses warning messages
 
-BOX_OPTS = -g -Wno-unused $(BOPTI) -ffree-line-length-none -cpp -DLINUX -DCHEM=\"$(CHMDIR)\" -DISACDC -J$(OBJDIR) -I$(OBJDIR)/$(CHMDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
+BOX_OPTS = -g -Wno-unused $(BOPTI) -ffree-line-length-none -cpp -DLINUX -DCHEM=\"$(CHMDIR)\" -DVERSION=\"$(VERSION)\" -DISACDC -J$(OBJDIR) -I$(OBJDIR)/$(CHMDIR) -I$(OBJDIR) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
 -Wno-unused-dummy-argument -Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace -ffpe-trap=invalid,zero,overflow $(PROF) -g -fcheck=all
 
 CHEM_OPTS = -w -cpp $(PROF) $(COPTI) -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OBJDIR)/$(CHMDIR) -I$(OBJDIR)/$(CHMDIR)
