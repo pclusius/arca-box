@@ -1,9 +1,0 @@
-03-30 10:29-12s INFO       reactivity config file       : ModelLib/Examples/reactivity.xml
-03-30 10:29-12s INFO       input kpp def file           : src/chemistry/SimpleChem/second.def
-03-30 10:29-12s INFO       output second_reactivity file: xxxyyy/second_reactivity.f90
-03-30 10:29-12s INFO       class: rOH_inorg found 5 chemicals
-03-30 10:29-12s INFO       class: rOH_inorg2 found 6 chemicals
-03-30 10:29-12s INFO       class: rOH_monoter found 3 chemicals
-03-30 10:29-12s INFO       class: rOH_other found 170 chemicals
-03-30 10:29-12s INFO       class: rNO3_monoter found 3 chemicals
-03-30 10:29-12s ERROR    Chemical BPINENE (class: rOH_monoter) not found in any reaction equation
