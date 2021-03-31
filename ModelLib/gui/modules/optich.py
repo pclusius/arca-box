@@ -12,7 +12,7 @@ import os
 
 def plot(addr):
     fixed = False
-    c=['orangered','seagreen','deepskyblue']
+    c=['orangered','seagreen','deepskyblue','darkorchid']
     if os.path.exists(os.path.join(addr,'Changes.txt')):
         time, max_d_dpar,max_d_npar,max_d_vap,max_d_npd = np.genfromtxt(os.path.join(addr,'Changes.txt'), unpack=True)
 
@@ -28,7 +28,7 @@ def plot(addr):
             if sum(abs(max_d_dpar))>0:ax.plot(time, max_d_dpar*100,c=c[0],lw=2,label='max_d_dpar')
             if sum(abs(max_d_npar))>0:ax.plot(time, max_d_npar*100,c=c[1],lw=2,label='max_d_npar')
             if sum(abs(max_d_vap) )>0:ax.plot(time, max_d_vap *100, c=c[2],lw=2,label='max_d_vap')
-            if sum(abs(max_d_npd) )>0:ax.plot(time, max_d_npd *100, c=c[2],lw=2,label='max_d_ndep')
+            if sum(abs(max_d_npd) )>0:ax.plot(time, max_d_npd *100, c=c[3],lw=2,label='max_d_ndep')
             if len(x)>9:
                 for i in range(3):
                     if not fixed:
