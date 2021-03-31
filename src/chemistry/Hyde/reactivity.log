@@ -1,0 +1,8 @@
+03-30 23:57-12s INFO       reactivity config file       : ModelLib/Examples/reactivity.xml
+03-30 23:57-12s INFO       input kpp def file           : /home/pecl/05-ARCA/ChemistryPackage/second.def
+03-30 23:57-12s INFO       output second_reactivity file: src/chemistry/Hyde/second_reactivity.f90
+03-30 23:57-12s INFO       class: rOH_inorg found 5 chemicals
+03-30 23:57-12s INFO       class: rOH_inorg2 found 6 chemicals
+03-30 23:57-12s INFO       class: rOH_monoter found 3 chemicals
+03-30 23:57-12s INFO       class: rOH_other found 996 chemicals
+03-30 23:57-12s INFO       class: rNO3_monoter found 3 chemicals

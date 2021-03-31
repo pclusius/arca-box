@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+Here you can define which compounds are monitored for reactivity. 
+======================================================================
+<name>     : Maximum 20 characters long name for the reactivity 
+             rate variable, used for saving data 
+<species>  : The reacting species, e.g. OH in the case of OH_reactivity
+<reactants>: List of compounds that are considered in this variable. 
+             They must exist in the chemistry, or the resulting module 
+             will be incomplete!
+             NOTE: to include all reacting compounds, use "+all" as 
+             reactant (<reactants>+all</reactants>), or to include "all
+             the rest that were not previously mentioned", use +other
+             (<reactants>+other</reactants).
+======================================================================
+-->
 
 <Reactivities xmlns:xi="http://www.w3.org/2001/XInclude">
 
