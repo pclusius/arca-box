@@ -768,10 +768,10 @@ in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
             IF (LOSSES_FILE /= '') THEN
 
                 ! The losses file is interpolated spatially and temporally to fit the current bin structure and time
-                losses_fit = [((INTERP( PAR_LOSSES%sections,                                                            &
-                             [((INTERP(PAR_LOSSES%time, PAR_LOSSES%conc_matrix(:,i) )), i=1,size(PAR_LOSSES%time, 1))], &
-                             timein=nominal_dp(j))                                                                      &
-                             ), j=1,n_bins_par)]
+
+                losses_fit = [ ((INTERP( PAR_LOSSES%sections,                                                             &
+                             [((INTERP(PAR_LOSSES%time, PAR_LOSSES%conc_matrix(:,i) )), i=1,size(PAR_LOSSES%sections, 1))], &
+                              timein=nominal_dp(j)) ), j=1,n_bins_par)]
 
                 ! Deposited concentratios calculated here
                 dconc_dep_mix = get_conc() * (1 - EXP(-losses_fit*GTIME%dt*speed_up(PRC%dep)))
