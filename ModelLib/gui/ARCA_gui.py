@@ -2802,26 +2802,26 @@ a chemistry module in tab "Chemistry"''', icon=2)
             if add:
                 if len(self.MPD)==4:
                     self.popup('No more files', 'You can have maximum 4 files open in this tool')
-                    return
-                self.MPD.append(NcPlot(file))
-                if len(self.MPD[0].diameter) != len(self.MPD[-1].diameter):
-                    self.MPD.pop(len(self.MPD)-1)
-                    self.popup('Cannot load new file','PSD must match with the first file.')
-                elif npsum(npround(log(self.MPD[0].diameter),2) - npround(log(self.MPD[-1].diameter), 2))>0:
-                    self.MPD.pop(len(self.MPD)-1)
-                    self.popup('Cannot load new file','PSD must match with the first file.')
-                elif int(self.MPD[0].timeint*10) != int(self.MPD[-1].timeint*10):
-                    self.MPD.pop(len(self.MPD)-1)
-                    self.popup('Cannot load new file','Time interval must match with the first file.')
-                elif self.MPD[0].time[0] != self.MPD[-1].time[0]:
-                    self.MPD.pop(len(self.MPD)-1)
-                    self.popup('Cannot load new file','Start time must match with the first file.')
-                if round(self.MPD[-1].time[-1],3)>round(self.mp_time[-1],3):
-                    self.mp_time = self.MPD[-1].time
-                    self.times.itemSelectionChanged.disconnect(self.updateNumbers)
-                    self.times.clear()
-                    self.times.itemSelectionChanged.connect(self.updateNumbers)
-                    self.times.addItems(['%7.2f'%(i) for i in self.mp_time])
+                else:
+                    self.MPD.append(NcPlot(file))
+                    if len(self.MPD[0].diameter) != len(self.MPD[-1].diameter):
+                        self.MPD.pop(len(self.MPD)-1)
+                        self.popup('Cannot load new file','PSD must match with the first file.')
+                    elif npsum(npround(log(self.MPD[0].diameter),2) - npround(log(self.MPD[-1].diameter), 2))>0:
+                        self.MPD.pop(len(self.MPD)-1)
+                        self.popup('Cannot load new file','PSD must match with the first file.')
+                    elif int(self.MPD[0].timeint*10) != int(self.MPD[-1].timeint*10):
+                        self.MPD.pop(len(self.MPD)-1)
+                        self.popup('Cannot load new file','Time interval must match with the first file.')
+                    elif self.MPD[0].time[0] != self.MPD[-1].time[0]:
+                        self.MPD.pop(len(self.MPD)-1)
+                        self.popup('Cannot load new file','Start time must match with the first file.')
+                    if round(self.MPD[-1].time[-1],3)>round(self.mp_time[-1],3):
+                        self.mp_time = self.MPD[-1].time
+                        self.times.itemSelectionChanged.disconnect(self.updateNumbers)
+                        self.times.clear()
+                        self.times.itemSelectionChanged.connect(self.updateNumbers)
+                        self.times.addItems(['%7.2f'%(i) for i in self.mp_time])
             else:
                 self.MPD = [NcPlot(file)]
             if not add:

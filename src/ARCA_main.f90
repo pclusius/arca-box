@@ -36,7 +36,7 @@ real(dp) :: T_prev = 0d0
 REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)    ! Array to hold input variables for the current timestep
 REAL(DP), ALLOCATABLE :: CH_GAS(:), CH_GAS_old(:),d_chem(:), reactivities(:) ! Array to hold all chemistry compounds; old: to restore in case of an error related to timestep handling
 REAL(dp), ALLOCATABLE :: conc_fit(:)      ! An array giving particle conc independant of PSD_style [m⁻³]
-REAL(dp), ALLOCATABLE :: losses_fit(:),losses_fit0(:),losses_fit1(:), intrp_losses(:) ! An array giving particle conc independant of PSD_style [m-3]
+REAL(dp), ALLOCATABLE :: losses_fit(:),losses_fit0(:),losses_fit1(:), intrp_losses(:), inv_loss(:) ! An array giving particle conc independant of PSD_style [m-3]
 REAL(dp), ALLOCATABLE :: save_measured(:)      ! An aray for saving measurements
 
 INTEGER               :: dmps_ln = 0, dmps_ln_old      ! line number from where background particles are read from
@@ -140,7 +140,8 @@ INIT_AEROSOL: IF (Aerosol_flag) THEN
     losses_fit     = conc_fit
     losses_fit0    = conc_fit
     losses_fit1    = conc_fit
-    ALLOCATE(intrp_losses(size(PAR_LOSSES%sections)))
+    inv_loss       = conc_fit
+    ! ALLOCATE(intrp_losses(size(PAR_LOSSES%sections)))
 
     ! Allocate the change vectors for integration timestep control
     ALLOCATE(d_dpar(n_bins_par))
@@ -254,6 +255,14 @@ if (Aerosol_flag) THEN
     ! Time 1 (s)---------dN--------------dN----------------dN . . . . . . . dN
     OPEN(604,file=RUN_OUTPUT_DIR//"/particle_conc.dat",status='replace',action='write')
     WRITE(604,*) 0d0,get_dp()
+
+    OPEN(605,file=RUN_OUTPUT_DIR//"/coag_sink.dat",status='replace',action='write')
+    WRITE(605,*) 0d0,get_dp()
+
+    if (reverse_losses) THEN
+        OPEN(620,file=RUN_OUTPUT_DIR//"/particle_losses.dat",status='replace',action='write')
+        WRITE(620,*) 0d0,get_dp()
+    END IF
 
 END IF
 
@@ -538,7 +547,29 @@ in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
             if (GTIME%hrs >= DMPS_read_in_time) N_MODAL = -1d0
         END IF
 
-        PARTICLE_INIT: if (use_dmps .and. GTIME%min >= (dmps_ln*dmps_tres_min)) THEN
+        PARTICLE_INIT: if (reverse_losses) THEN
+            do i=1,n_bins_par
+                losses_fit0(i) = INTERP(BG_PAR%time,  BG_PAR%conc_matrix(:,i))
+            end do
+            CALL GeneratePSDfromInput( BG_PAR%sections,  losses_fit0, losses_fit1 )
+            WHERE  (losses_fit1>0 .and.get_conc()>losses_fit1*1d6)
+                losses_fit0 = get_conc() / (losses_fit1*1d6)
+            elsewhere
+                losses_fit0 = 1d0
+            end where
+
+            inv_loss = (1d0)/GTIME%dt * LOG(losses_fit0)
+
+            CAll send_conc(current_PSD%dp_range(1),current_PSD%dp_range(2),(losses_fit1*1d6))
+            do i = 1, n_bins_par
+                if (GTIME%sec<1d0) THEN
+                    CALL set_composition(i,nominal_dp(i), .false.)
+                else
+                    CALL set_composition(i,nominal_dp(i), Use_old_composition)
+                end if
+            end do
+
+        ELSE if (use_dmps .and. GTIME%min >= (dmps_ln*dmps_tres_min)) THEN
             ! Particles are read in from measuremensts throughout the simulation and saved to Particles.nc for comparison
             CALL GeneratePSDfromInput( BG_PAR%sections,  BG_PAR%conc_matrix(min(dmps_ln+1, size(BG_PAR%time, 1)),:), conc_fit )
             conc_fit = conc_fit*dmps_multi
@@ -772,7 +803,9 @@ in_turn_any: if (PRC%in_turn(4).and..not.PRC%err) THEN
                 losses_fit = [ ((INTERP( PAR_LOSSES%sections,                                                             &
                              [((INTERP(PAR_LOSSES%time, PAR_LOSSES%conc_matrix(:,i) )), i=1,size(PAR_LOSSES%sections, 1))], &
                               timein=nominal_dp(j)) ), j=1,n_bins_par)]
+                if (reverse_losses) THEN
 
+                end if
                 ! Deposited concentratios calculated here
                 dconc_dep_mix = get_conc() * (1 - EXP(-losses_fit*GTIME%dt*speed_up(PRC%dep)))
 
@@ -865,8 +898,10 @@ END IF in_turn_any
             if (Aerosol_flag) THEN
                 WRITE(601,*) GTIME%sec, sum(get_conc()*1d-6), get_conc()*1d-6 / LOG10(bin_ratio)
                 WRITE(604,*) GTIME%sec, get_conc()*1d-6
+                WRITE(605,*) GTIME%sec, G_COAG_SINK
                 save_measured = conc_fit/1d6
             END IF
+            if (reverse_losses) WRITE(620,*) GTIME%day, inv_loss
             WRITE(610,*) GTIME%sec, d_dpar(maxloc(abs(d_dpar),1)), d_npar(maxloc(abs(d_npar),1)), refdvap, d_npdep(maxloc(abs(d_npdep),1))
             FLUSH(610)
 
@@ -929,6 +964,7 @@ if (Aerosol_flag) THEN
     CLOSE(601)
     CLOSE(604)
     CLOSE(610)
+    if (reverse_losses) CLOSE(620)
 END IF
 
 
@@ -1478,17 +1514,17 @@ SUBROUTINE CHECK_IF_END_CMD_GIVEN
     implicit none
     integer :: ioi
     CHARACTER(len=256) :: command, date, time
-    OPEN(620, file=RUN_OUTPUT_DIR//"/ENDNOW.INIT", iostat=ioi, STATUS='OLD',action='read')
+    OPEN(666, file=RUN_OUTPUT_DIR//"/ENDNOW.INIT", iostat=ioi, STATUS='OLD',action='read')
     if (ioi == 0) THEN
-        read(620,*,iostat=ioi) command
-        close(620)
+        read(666,*,iostat=ioi) command
+        close(666)
         if ((ioi == 0).and.(TRIM(command)=='STOP')) THEN
             print FMT_MSG, 'ENDNOW.INIT WAS USED, STOPPING THE SIMULATION FROM OUTSIDE. GOOD BYE.'
             GTIME%SIM_TIME_S = GTIME%sec
             call date_and_time(date,time)
-            OPEN(620, file=RUN_OUTPUT_DIR//"/ENDNOW.INIT", iostat=ioi, STATUS='REPLACE',action='WRITE')
-            write(620,*) 'Run was terminated by the user at simulation time '//GTIME%hms//'. Real date is: '//TRIM(date)//', time is '//TRIM(time(1:6))
-            close(620)
+            OPEN(666, file=RUN_OUTPUT_DIR//"/ENDNOW.INIT", iostat=ioi, STATUS='REPLACE',action='WRITE')
+            write(666,*) 'Run was terminated by the user at simulation time '//GTIME%hms//'. Real date is: '//TRIM(date)//', time is '//TRIM(time(1:6))
+            close(666)
             ioi = RENAME(RUN_OUTPUT_DIR//"/ENDNOW.INIT", RUN_OUTPUT_DIR//"/ENDNOW._OLD")
             if (ioi /= 0) print*, 'Error while renaming the end cmd file.'
             !

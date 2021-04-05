@@ -204,6 +204,7 @@ real(dp) :: END_DMPS_SPECIAL = 1d100 ! Any number larger than runtime will do as
 real(dp) :: FLOAT_CHEMISTRY_AFTER_HRS = 1d100 ! Any number larger than runtime will do as defaults
 real(dp) :: dmps_multi       = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
 Logical  :: NO2_IS_NOX        = .false.
+Logical  :: reverse_losses    = .false.
 Logical  :: Kelvin_taylor     = .true.
 Logical  :: Kelvin_exp        = .false.
 Logical  :: USE_RH_CORRECTION = .true.
@@ -227,7 +228,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, variable_density,dmps_tres_min, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_SPECIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, speed_dt_limit, ENABLE_END_FROM_OUTSIDE, &
-                      Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor
+                      Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor,reverse_losses
 
 ! ==================================================================================================================
 ! Define change range in percentage

@@ -201,8 +201,8 @@ class Ui_Dialog(object):
 "saturation vapour pressures calculated using Nannolaal \n"
 "et. al (2004) and (2008). "))
         self.useAMG.setText(_translate("Dialog", "use AMG server (faster)"))
-        self.useUMan.setText(_translate("Dialog", "Fetch from UManProp (slower)"))
-        self.UmanWWW.setToolTip(_translate("Dialog", "Open UManProp web page for more information and references of different methods."))
+        self.useUMan.setText(_translate("Dialog", "Fetch from UManSysProp (slower)"))
+        self.UmanWWW.setToolTip(_translate("Dialog", "Open UManSysProp web page for more information and references of different methods."))
         self.UmanWWW.setText(_translate("Dialog", "<- ?"))
         self.label_3.setToolTip(_translate("Dialog", "The method of calulation. If unsure, leave to Nannolaal"))
         self.label_3.setText(_translate("Dialog", "Vapour pressure method"))

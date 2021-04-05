@@ -5,7 +5,7 @@ use INPUT
 use second_Monitor
 USE SECOND_REACTIVITY, ONLY : reactivity_name
 use AUXILLARIES
-USE PSD_scheme, ONLY: get_composition, get_dp, get_volume, get_mass, get_conc
+USE PSD_scheme, ONLY: get_composition, get_dp, get_volume, get_mass, get_conc,G_COAG_SINK
 
 IMPLICIT NONE
 private
@@ -42,6 +42,7 @@ INTEGER :: gJ_out_NH3_id
 INTEGER :: gJ_out_DMA_id
 INTEGER :: gJ_out_SUM_id
 INTEGER :: gJ_out_TOT_id
+INTEGER :: gCS_calc_id
 INTEGER :: gRES_BASE
 INTEGER :: gRES_J
 INTEGER :: gRES_F
@@ -92,6 +93,7 @@ CONTAINS
     parbuf(i)%name = 'DIAMETER'              ; parbuf(i)%u = '[m]'        ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     ! parbuf(i)%name = 'DRY_DIAMETER'          ; parbuf(i)%u = '[m]'        ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'GROWTH_RATE'           ; parbuf(i)%u = '[nm/h]'     ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
+    parbuf(i)%name = 'COAG_SINK'             ; parbuf(i)%u = '[1/s]'      ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     ! parbuf(i)%name = 'CORE_VOLUME'           ; parbuf(i)%u = '[m^3]'      ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     parbuf(i)%name = 'MASS'                  ; parbuf(i)%u = '[kg]'       ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     ! parbuf(i)%name = 'SURFACE_TENSION'       ; parbuf(i)%u = '[N/m]'      ; parbuf(i)%d = 4 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
@@ -201,16 +203,19 @@ CONTAINS
   call handler(__LINE__, nf90_def_var(ncfile_ids(I), 'J_ACDC_DMA_CM3', NF90_DOUBLE, dtime_id, gJ_out_DMA_id))
   call handler(__LINE__, nf90_def_var(ncfile_ids(I), 'J_ACDC_SUM_CM3', NF90_DOUBLE, dtime_id, gJ_out_SUM_id))
   call handler(__LINE__, nf90_def_var(ncfile_ids(I), 'J_TOTAL_CM3', NF90_DOUBLE, dtime_id, gJ_out_TOT_id))
+  call handler(__LINE__, nf90_def_var(ncfile_ids(I), 'CS_CALC', NF90_DOUBLE, dtime_id, gCS_calc_id))
 
   call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_NH3_id,shuff, compress, compression) )
   call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_DMA_id,shuff, compress, compression) )
   call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_SUM_id,shuff, compress, compression) )
   call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gJ_out_TOT_id,shuff, compress, compression) )
+  call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), gCS_calc_id,shuff, compress, compression) )
 
   call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_NH3_id, 'unit' , '[1/s/cm^3]'))
   call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_DMA_id, 'unit' , '[1/s/cm^3]'))
   call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_SUM_id, 'unit' , '[1/s/cm^3]'))
   call handler(__LINE__, nf90_put_att(ncfile_ids(I), gJ_out_TOT_id, 'unit' , '[1/s/cm^3]'))
+  call handler(__LINE__, nf90_put_att(ncfile_ids(I), gCS_calc_id, 'unit' , '[1/s]'))
 
   IF (RESOLVE_BASE) THEN
     call handler(__LINE__, nf90_def_var(ncfile_ids(I), 'RESOLVED_BASE', NF90_DOUBLE, dtime_id, gRES_BASE))
@@ -349,6 +354,7 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours,J_ACDC_NH
   call handler(__LINE__, nf90_put_var(ncfile_ids(I), gJ_out_DMA_id, 1d-6*(J_ACDC_DMA_M3), (/GTIME%ind_netcdf/)) )
   call handler(__LINE__, nf90_put_var(ncfile_ids(I), gJ_out_SUM_id, 1d-6*(J_ACDC_DMA_M3+J_ACDC_NH3_M3), (/GTIME%ind_netcdf/)) )
   call handler(__LINE__, nf90_put_var(ncfile_ids(I), gJ_out_TOT_id, 1d-6*(J_TOTAL_M3), (/GTIME%ind_netcdf/)) )
+  call handler(__LINE__, nf90_put_var(ncfile_ids(I), gCS_calc_id, GCS, (/GTIME%ind_netcdf/)) )
   IF (RESOLVE_BASE) THEN
     call handler(__LINE__, nf90_put_var(ncfile_ids(I), gRES_BASE,RESOLVED_BASE,   (/GTIME%ind_netcdf/)) )
     call handler(__LINE__, nf90_put_var(ncfile_ids(I), gRES_J,   RESOLVED_J,      (/GTIME%ind_netcdf/)) )
@@ -386,6 +392,7 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours,J_ACDC_NH
       ! if (savepar(j)%name == 'DRY_DIAMETER'          ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%dp_dry_fs, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
       ! if (savepar(j)%name == 'ORIGINAL_DRY_DIAMETER' ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, current_PSD%original_dry_radius, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
       if (savepar(j)%name == 'GROWTH_RATE'           ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, GR, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
+      if (savepar(j)%name == 'COAG_SINK'             ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, G_COAG_SINK, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
       if (savepar(j)%name == 'CORE_VOLUME'           ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, get_volume(), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
       if (savepar(j)%name == 'MASS'                  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, get_mass(), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
       if (savepar(j)%name == 'PARTICLE_COMPOSITION'  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, TRANSPOSE(get_composition()), (/1,1,GTIME%ind_netcdf/), (/vapours%n_condtot,n_bins_par,1/)))

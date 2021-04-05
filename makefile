@@ -3,14 +3,14 @@
 # compiler
 F90 = gfortran
 
-COPTI = -O2
+COPTI = -O1
 BOPTI = -O3
 PROF = -pg
 PROF =
 # Put .o and .mod files here:
  OBJDIR = build
  SRCDIR = src
- CHMDIR = SimpleChem
+ CHMDIR = Hyde2
 
 # When compiling, search for files in these directories:
 VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31:Aerosol:$(OBJDIR)/$(CHMDIR)
@@ -104,7 +104,7 @@ second_LinearAlgebra.o second_Function.o
 $(OBJDIR)/$(CHMDIR)/second_Function.o: chemistry/$(CHMDIR)/second_Function.f90 second_Parameters.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 $(OBJDIR)/$(CHMDIR)/second_Model.o: chemistry/$(CHMDIR)/second_Model.f90 second_Precision.o second_Parameters.o second_Global.o second_Function.o \
-second_Integrator.o second_Rates.o second_Jacobian.o second_LinearAlgebra.o second_Monitor.o second_Util.o
+second_Integrator.o second_Rates.o second_Jacobian.o second_LinearAlgebra.o second_Monitor.o second_Util.o second_Rates.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 $(OBJDIR)/$(CHMDIR)/second_Main.o: chemistry/$(CHMDIR)/second_Main.f90 second_Model.o second_Initialize.o
 	 $(F90) $(CHEM_OPTS) -c $< -o $@

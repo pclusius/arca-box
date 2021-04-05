@@ -232,6 +232,7 @@ SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar) ! Add more variables
 
 dconc_coag = 0d0
 
+if (GTIME%savenow) G_COAG_SINK = 0d0
 
 do j=1, n_bins_par
     do m = j, n_bins_par
@@ -240,6 +241,7 @@ do j=1, n_bins_par
         else
             a= 1.0_dp
         END if
+        if (GTIME%savenow) G_COAG_SINK(j) = G_COAG_SINK(j) + a * coagulation_coef(j,m) * n_conc(m)
         IF (n_conc(j) > 1.d0 .and. n_conc(m) > 1.d0) dconc_coag(j,m) = a * coagulation_coef(j,m) * n_conc(j) * n_conc(m) * dt_coag ! 1/m^3 '/ dt
     END DO
 

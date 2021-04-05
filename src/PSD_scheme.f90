@@ -15,6 +15,7 @@ MODULE PSD_scheme
   REAL(dp), ALLOCATABLE :: Kelvin_eff(:,:)      ! Precalculated Kelvin terms
   REAL(dp), ALLOCATABLE :: dmass(:,:)       ! change in particle mass (due to condensation or mixing) (nr_bins,n_cond_tot)
   REAL(dp), ALLOCATABLE :: dconc_dep_mix(:) ! change in particle concentration (e.g. reduced coagulatio or mixing) (nr_bins)
+  REAL(dp), ALLOCATABLE :: G_COAG_SINK(:) ! change in particle concentration (e.g. reduced coagulatio or mixing) (nr_bins)
   REAL(dp)              :: mix_ratio        ! gives the rate ratio: added volume over present volume per timestep
   REAL(dp)              :: bin_ratio        ! gives relative bin width dp(2)/dp(1)
   CHARACTER(len=15)     :: process          ! defines the process that passes information to subroutine Mass_Number_Change (coagulation, condensation, mixing)
@@ -90,6 +91,7 @@ SUBROUTINE PSD_Allocate()
     IF (current_PSD%PSD_style == 1 .or. current_PSD%PSD_style == 2 ) THEN
         ALLOCATE(dmass(current_PSD%nr_bins,n_cond_tot))
         ALLOCATE(dconc_dep_mix(current_PSD%nr_bins))
+        ALLOCATE(G_COAG_SINK(current_PSD%nr_bins))
         ALLOCATE(dconc_coag(current_PSD%nr_bins,current_PSD%nr_bins))
 
     END IF
