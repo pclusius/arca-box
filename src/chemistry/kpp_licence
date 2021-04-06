@@ -1,0 +1,29 @@
+Aggreement: By downloading KPP the user aggrees to explicitly acknowledge
+KPP in any subsequent work that involves the use of KPP (journal papers,
+conference proceedings, reports, code documentation, etc). Acknowledgement
+of KPP should be done by including citations to:
+
+ V. Damian, A. Sandu, M. Damian, F. Potra, and G.R. Carmichael:
+   ``The Kinetic PreProcessor KPP -- A Software Environment for Solving
+     Chemical Kinetics'', Computers and Chemical Engineering, Vol. 26, 
+     No. 11, p. 1567-1579, 2002.
+ A. Sandu, D. Daescu, and G.R. Carmichael: ``Direct and Adjoint Sensitivity
+     Analysis of Chemical Kinetic Systems with KPP: I -- Theory and Software
+     Tools'', Atmospheric Environment, Vol. 37, p. 5083-5096, 2003.
+ D. Daescu, A. Sandu, and G.R. Carmichael: ``Direct and Adjoint Sensitivity 
+    Analysis of Chemical Kinetic Systems with KPP: II -- Validation and 
+    Numerical Experiments'', Atmospheric Environment, Vol. 37, p. 5097-5114, 2003. 
+
+© Valeriu Damian, Adrian Sandu, Mirela Damian, Florian A. Potra, Gregory R. Carmichael,
+  1996, The University of Iowa
+© Adrian Sandu, 1997-2003, Michigan Technological University
+© Adrian Sandu, 2003-2012, Virginia Polytechnic Institute and State University
+
+KPP is free software; you can redistribute it and/or modify it under the terms of
+the General Public Licence as published by the Free Software Foundation; either
+version 2 of the License, or (at your option) any later version. KPP is distributed
+in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public Licence for more details. You should have received a copy of
+the GNU General Public Licence along with this program; if not, write to the Free
+Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. 
