@@ -21,7 +21,6 @@ IMPLICIT NONE
 
 REAL(dp), ALLOCATABLE  :: conc_pp(:,:)      ! [#/m^3] Particle phase concentrations, DIM(n_bins_par,n_cond_tot)
 real(dp) :: T_prev = 0d0
-! integer :: i_kel = 0
 
 ! ==================================================================================================================
 ! Note about file unit handles: Numbers between 100-499 are not used anywhere in the model, so use these in you need

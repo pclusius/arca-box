@@ -1,1 +1,19 @@
 1.0.4
+
+What's new:
+- added GPL licence to KPP and ACDC directories.
+- added coag_sink to Particles.nc
+- added CS_calc to General.nc
+
+Fixes:
+- Added new Hyde chemistry to accomodate reactivity calculations
+- fixed color issues in mass plotting
+- fix for how losses file was interpolated
+
+
+1.0.3
+
+What's new:
+- Create second_reactivity.f90
+Fixes:
+- minor fixes in the mass plotting
