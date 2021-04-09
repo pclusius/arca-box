@@ -11,10 +11,12 @@ Fixes:
 - fix for how losses file was interpolated
 
 (Current WIP version: 1.0.4b)
+What's new:
+- makefile supplemented with Puhti configurations
+
 Fixes:
 - makefile improved; compiling chemistry module for the first time should not lead to error
 - On mac, the setup.py creates run_arca.command instead of run_arca.sh; should be double-clickable
-
 
 1.0.3
 
