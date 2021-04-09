@@ -673,8 +673,20 @@ subroutine READ_INIT_FILE
     STOP
   end if
   IF (INOUT_DIR(len(TRIM(INOUT_DIR)):len(TRIM(INOUT_DIR))) == '/') INOUT_DIR(len(TRIM(INOUT_DIR)):len(TRIM(INOUT_DIR))) = ' '
+
   ! Also save all settings to initfile. Use this file to rerun if necessary
-  open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE')
+  open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE',iostat=i)
+  if (i/=0) THEN
+    ! Create output directory
+    print FMT_MSG, 'Output directory did not exist -> creating...'
+    call system('mkdir -p '//TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME), I)
+    call handle_file_io(I, TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME),&
+                     'Could not create output directories')
+    open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE',iostat=i)
+    call handle_file_io(I, TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)//'/NMLS.conf',&
+    'Could not write files, do you have permissions?')
+  END if
+
   write(889,NML = NML_TIME       ) ! directories and test cases
   write(889,NML = NML_Flag       ) ! flags
   write(889,NML = NML_Path       ) ! time related stuff
