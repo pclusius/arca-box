@@ -44,13 +44,28 @@ ACDC_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AN_ions.o acdc
 ACDC_D_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AD_new.o monomer_settings_acdc_DMA.o solution_settings.o driver_acdc_D.o \
                   acdc_equations_AD_new.o get_acdc_D.o)
 
-
+# ---------------------------------- NETCDF configuring ---------------------------------------
+# To get Netcdf working you need to use system dependent settings
 # If you get errors related to LIBNET, this is the place to start troubleshooting
+
+# This seems to be default on Linux Mint/Ubuntu laptop and Windows with Cygwin
 NETLIBS =  -I/usr/include -L/usr/lib/x86_64-linux-gnu/ -lnetcdf  -lnetcdff -lcurl
 
-# For Mac, you might need this
+# On Mac, this might work ---------------------------------------
 #NETLIBS = -I/opt/local/include -L/opt/local/lib -L/usr/lib -lnetcdff -lnetcdf -lcurl -lhdf5 -lhdf5_hl
+
+# Or this
 #NETLIBS = -I$(NETCDF_INCLUDE) -L$(NETCDF_LIB) -L$(H5_LIB) -lnetcdf -lnetcdff -lcurl -lhdf5 -lhdf5_hl
+
+# On Puhti ------------------------------------------------------
+# Remember to load the correct modules before compiling and running:
+# module load gcc/9.1.0
+# module load netcdf/4.7.0
+# module load netcdf-fortran/4.4.4
+
+#NETLIBS =  -I/appl/spack/install-tree/gcc-9.1.0/netcdf-fortran-4.4.4-4tj6tj/include -L/appl/spack/install-tree/gcc-9.1.0/netcdf-fortran-4.4.4-4tj6tj/lib -lnetcdff -lnetcdf -lnetcdf
+
+# ------------------------------- end NETCDF configuring ---------------------------------------
 
 all: arcabox.exe
 
