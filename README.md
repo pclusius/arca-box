@@ -28,16 +28,16 @@ To use the graphical user interface, you need Python 3. We strongly encourage to
 instead of Linux Subsystem (although this may work also).
 
 
-For all systems, when Fortran and Python 3 is available:
---------------------------------------------------------
+For all systems (except Puhti/CSC), when Fortran and Python 3 is available:
+---------------------------------------------------------------------------
 
 After Python 3 is available, there is a script to set up the model. Go to directory install/, start the terminal and run
 setup.py (for example, if you call Python 3 with python3, the command is "python3 setup.py"). The setup will ask you to
 install the necessary Python Modules, if they are not available. If you want to use some other installation procedure for
-them, or you know yo already have the necessary modules, just answer "n" for the prompt.
+them, or you know you already have the necessary modules, just answer "n" for the prompt.
 
-Next you will be asked if the Fortran model should be compiled. If this is succesful*, a script file is written in the
-root folder, and the GUI can be started from there by calling "sh run_arca.sh"
+Next you will be asked if the Fortran model should be compiled. If this is succesful*, a starter script file is written
+in the root folder, and the GUI can be started from there by calling "sh run_arca.sh"
 
 
 \* If the compiling failed, it might because the netCDF4 libs were not properly configured in the makefile. These would
