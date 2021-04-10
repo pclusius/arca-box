@@ -2188,15 +2188,24 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if windowInd==0:
             self.z0 = n
             if self.X_axis_in_time.isChecked():
-                self.scaling0 = (time[-1]/n.shape[0],log10(diam[-1]/diam[0])/(len(diam)-1), log10(diam[0]*1e9))
+                self.time0 = (time[0],time[-1])
             else:
-                self.scaling0 = (1,log10(diam[-1]/diam[0])/(len(diam)-1), log10(diam[0]*1e9))
+                self.time0 = (0,n.shape[0])
+            if self.Y_axis_in_nm.isChecked():
+                self.diam0 = (diam[0],diam[-1])
+            else:
+                self.diam0 = (0,n.shape[1])
+
         if windowInd==1:
             self.z1 = n
             if self.X_axis_in_time.isChecked():
-                self.scaling1 = (time[-1]/n.shape[0],log10(diam[-1]/diam[0])/(len(diam)-1), log10(diam[0]*1e9))
+                self.time1 = (time[0],time[-1])
             else:
-                self.scaling1 = (1,log10(diam[-1]/diam[0])/(len(diam)-1), log10(diam[0]*1e9))
+                self.time1 = (0,n.shape[0])
+            if self.Y_axis_in_nm.isChecked():
+                self.diam1 = (diam[0],diam[-1])
+            else:
+                self.diam1 = (0,n.shape[1])
         self.drawSurf(window, new=1)
 
 
@@ -2204,28 +2213,32 @@ a chemistry module in tab "Chemistry"''', icon=2)
         use_filter = False
         if window==self.surfacePlotWindow_0:
             n_levelled = self.z0
-            scale = self.scaling0
+            time = self.time0
+            diam = self.diam0
             if self.Filter_0.isChecked():
                 use_filter = True
         else:
             n_levelled = self.z1
-            scale = self.scaling1
+            time = self.time1
+            diam = self.diam1
             if self.Filter_1.isChecked():
                 use_filter = True
 
         levels=(self.lowlev.value(),self.highlev.value())
         if scipyIs and use_filter: n_levelled = gaussian_filter(n_levelled,(self.gauss_x.value(),self.gauss_y.value()),mode='constant')
         n_levelled = where(n_levelled>=levels[1],levels[1]*0.98,n_levelled)
-
         hm = pg.ImageItem(n_levelled)
+        if self.Y_axis_in_nm.isChecked():
+            bx = QtCore.QRectF(time[0], log10(diam[0]*1e9), time[1], log10(diam[1]*1e9))
+        else:
+            bx = QtCore.QRectF(time[0], diam[0], time[1], diam[1])
+        hm.setRect(bx)
+
         cb = ndarray((20,1))
         cb[:,0] = linspace(self.lowlev.value(), self.highlev.value(), 20)
+
         ss = pg.ImageItem(cb.T)
-        ss.translate(0,self.lowlev.value())
-        ss.scale(1,(self.highlev.value()-self.lowlev.value())/19)
-        if self.Y_axis_in_nm.isChecked():
-            hm.translate(0,scale[2])
-            hm.scale(scale[0],scale[1])
+        ss.setRect(QtCore.QRectF(0,self.lowlev.value(),1,(cb[-1,0]-cb[0,0] + cb[-1,0]-cb[-2,0])))
 
         try:
             # If matplotlib is installed, we get colours
@@ -2777,9 +2790,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
     def showMass(self, file=None, first=True, target=None, add=False):
         symbols = ['x','+','t1','t','star']
-        # if add or target self.showAlsoMeasInMassConc.isChecked():
-        #     self.popup('About measurements', 'For clarity, measured PSD is only shown for the first file')
-        #
+
         self.unnecessaryLegendTrick()
 
         if first:
@@ -2856,11 +2867,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
         # self.NC_lines[j].setData(TT[j],Y)
         # Update figures, start with cleaning
-        else:
-            if target=='mass':
-                self.plotResultWindow_2.clear()
-            if target=='numb':
-                self.plotResultWindow_3.clear()
+        # else:
+        #     if target=='mass':
+        self.plotResultWindow_2.clear()
+            # if target=='numb':
+        self.plotResultWindow_3.clear()
+
         indstime = [i.row() for i in self.times.selectedIndexes()]
         inds = [i.row() for i in self.diams.selectedIndexes()]
         # y is the array that gets plotted
