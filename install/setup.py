@@ -17,7 +17,10 @@ else:
 import platform
 operatingsystem = platform.system()
 # "Windows"/"Linux"/"Darwin"
-
+if '--csc' in sys.argv:
+    csc = True
+else:
+    csc = False
 out = 0
 curr_path = os.path.split(os.getcwd())[0]
 os.chdir(curr_path)
@@ -68,8 +71,27 @@ if out == 0:
 
     f.write('#!/bin/bash%s'%le)
     if posix: f.write('cd %s %s'%(curr_path, le))
+    f.write()
+    if csc:
+        f.write('module load python-data/3.7.6-1')
+        f.write('module load gcc/9.1.0')
+        f.write('module load netcdf/4.7.0')
+        f.write('module load netcdf-fortran/4.4.4')
+    else:
+        print('ARCA user interface can be used on CSC with NoMachine. To get correct settings,')
+        print('run this script with --csc flag or edit run_arca.sh and uncomment the csc options.')
+        f.write('# If you are using the user interface on CSC, uncomment next 4 lines')
+        f.write('# module load python-data/3.7.6-1')
+        f.write('# module load gcc/9.1.0')
+        f.write('# module load netcdf/4.7.0')
+        f.write('# module load netcdf-fortran/4.4.4')
+    f.write()
     f.write('%s ModelLib/gui/ARCA_gui.py %s'%(python, le))
     f.close()
+
+
+
+
 
     if posix:
             if operatingsystem == 'Darwin':
