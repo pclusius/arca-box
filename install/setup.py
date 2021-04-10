@@ -21,7 +21,7 @@ if '--csc' in sys.argv:
     csc = True
     outpyt = os.system("module load gcc/9.1.0")
     outpyt = outpyt + os.system("module load netcdf/4.7.0")
-    outpyt = outpyt + os.system("module load netcdf-fortran/4.4.4%s")
+    outpyt = outpyt + os.system("module load netcdf-fortran/4.4.4")
     if outpyt != 0: print("Unable to load necessary modules, if you are not on CSC, this might not be a problem.")
 else:
     csc = False
@@ -116,7 +116,7 @@ ACDC_D_OBJECTS = $(addprefix $(OBJDIR)/, vodea.o vode.o acdc_system_AD_new.o mon
 # module load python-data/3.7.6-1
 # module load gcc/9.1.0
 # module load netcdf/4.7.0
-# module load netcdf-fortran/4.4.4%s
+# module load netcdf-fortran/4.4.4
 # ------------------------------- end NETCDF configuring ---------------------------------------
 
 all: arcabox.exe
@@ -230,7 +230,7 @@ clean_current_chemistry:
 	-@cd $(OBJDIR) ; rm arcabox.o    					 2>/dev/null || true
 	-@rm arcabox.exe                					 2>/dev/null || true
 
-    
+
 """)
 
 pyt = input('Install necessary Python packages? (y/n)?: ')
