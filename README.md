@@ -14,8 +14,8 @@ How to install on Puhti/CSC:
 1) Go to directory install/
 2) run install_on_csc.sh (e.g. "sh install_on_csc.sh")
 3) follow the instructions. If the compiling step does not work for some reason, you can try running the install script
-   again but omit the compiling. Them navigate to ARCA root dir and try compiling there again (with command "make").
-   In the "makefile", you might want to change the code optimization to O2 or even O3 (default is O1).  
+   again but omit the compiling. Then navigate to ARCA root dir and try compiling there again (with command "make").
+   In the "makefile", you might want to change the code optimization to O2 or even O3 (default is O1).
 
 
 How to install on Windows 10:
