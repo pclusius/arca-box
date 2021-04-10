@@ -2192,9 +2192,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
             else:
                 self.time0 = (0,n.shape[0])
             if self.Y_axis_in_nm.isChecked():
-                self.diam0 = (diam[0],diam[-1])
+                self.diam0 = (log10(diam[0]*1e9), log10(diam[-1]*1e9))
+                self.log0 = True
             else:
                 self.diam0 = (0,n.shape[1])
+                self.log0 = False
 
         if windowInd==1:
             self.z1 = n
@@ -2203,9 +2205,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
             else:
                 self.time1 = (0,n.shape[0])
             if self.Y_axis_in_nm.isChecked():
-                self.diam1 = (diam[0],diam[-1])
+                self.diam1 = (log10(diam[0]*1e9), log10(diam[-1]*1e9))
+                self.log1 = True
             else:
                 self.diam1 = (0,n.shape[1])
+                self.log1 = False
         self.drawSurf(window, new=1)
 
 
@@ -2215,12 +2219,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
             n_levelled = self.z0
             time = self.time0
             diam = self.diam0
+            l_scale = self.log0
             if self.Filter_0.isChecked():
                 use_filter = True
         else:
             n_levelled = self.z1
             time = self.time1
             diam = self.diam1
+            l_scale = self.log1
             if self.Filter_1.isChecked():
                 use_filter = True
 
@@ -2228,10 +2234,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if scipyIs and use_filter: n_levelled = gaussian_filter(n_levelled,(self.gauss_x.value(),self.gauss_y.value()),mode='constant')
         n_levelled = where(n_levelled>=levels[1],levels[1]*0.98,n_levelled)
         hm = pg.ImageItem(n_levelled)
-        if self.Y_axis_in_nm.isChecked():
-            bx = QtCore.QRectF(time[0], log10(diam[0]*1e9), time[1], log10(diam[1]*1e9))
-        else:
-            bx = QtCore.QRectF(time[0], diam[0], time[1], diam[1])
+        # if self.Y_axis_in_nm.isChecked():
+        #     bx = QtCore.QRectF(time[0], log10(diam[0]*1e9), time[1], log10(diam[1]*1e9))
+        # else:
+        bx = QtCore.QRectF(time[0], diam[0], time[1], diam[1])
         hm.setRect(bx)
 
         cb = ndarray((20,1))
@@ -2264,7 +2270,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.cbWindow.addItem(ss)
         self.cbWindow.hideAxis('bottom')
         self.cbWindow.setLogMode(False, True)
-        if self.Y_axis_in_nm.isChecked():
+        if l_scale:
             window.setLogMode(False, True)
         else:
             window.setLogMode(False, False)
