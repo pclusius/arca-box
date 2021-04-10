@@ -1,6 +1,6 @@
 build/*.o
 build/*.mod
-build/*
+build/*/*
 *.exe
 *.out
 *.dump
@@ -10,3 +10,5 @@ arca.desktop
 *.nc
 run_arca.sh
 makefile
+INOUT/**
+!INOUT/.gitkeep
