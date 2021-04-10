@@ -232,6 +232,7 @@ clean_current_chemistry:
 
 
 """)
+f.close()
 
 pyt = input('Install necessary Python packages? (y/n)?: ')
 
