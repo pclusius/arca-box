@@ -1,3 +1,15 @@
+1.0.6
+
+Fixes:
+- Kelvin term was approximated using Taylor series. This was a bad approximation with very small particles.
+  Now Kelvin term is calculated using exponential for. To use old Kelvin term, set custom option (in NML_CUSTOM or
+  in the GUI Run ARCA -> Custom model options) Kelvin_taylor = .true.
+
+(Further additions in current version, will be put to next release)
+  What's new:
+  Fixes:
+
+
 1.0.5
 
 What's new:
@@ -10,10 +22,6 @@ Fixes:
 - gui: replaced some deprecated Pyqtgraph methods giving errors on pyqtgraph 0.12
 - gui: fixed duplicating legend in mass plot
 
-
-(Current WIP version: 1.0.5b)
-What's new:
-Fixes:
 
 1.0.4
 
