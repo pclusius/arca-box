@@ -57,7 +57,7 @@ if not os.path.exists('makefile'):
         filename = 'makefile_for_csc_puhti'
     elif (operatingsystem == 'Linux' or operatingsystem == 'Windows'):
         filename = 'makefile_for_linux_and_win'
-    elif operatingsystem == 'Darvin':
+    elif operatingsystem == 'Darwin':
         filename = 'makefile_for_mac'
     cpf('install/makefiles_for_manual_installation/'+filename, 'makefile')
 
