@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(507, 532)
+        Dialog.resize(683, 578)
         self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.credits = QtWidgets.QTextBrowser(Dialog)
@@ -99,5 +99,8 @@ class Ui_Dialog(object):
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600; text-decoration: underline;\">ARCA contains the Atmospheric Cluster Dynamics Code (ACDC</span><span style=\" font-weight:600;\">)</span></p>\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">ACDC is developed by Computational Aerosol Physics Group at INAR, lead by Prof. Hanna Vehkamäki. The ACDC &quot;plugin&quot; and its current development is lead by Dr. Tinja Olenius (tinja.olenius@alumni.helsinki.fi), Swedish Meteorological and Hydrological Institute (SMHI). Full ACDC lets you study the cluster systems more comprehensively than is possible in ARCA. </p>\n"
 "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#720000;\">ACDC manual and full source code: github.com/tolenius/ACDC</span></p></body></html>"))
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#720000;\">ACDC manual and full source code: github.com/tolenius/ACDC<br /></span></p>\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#720000;\"><br /></span><span style=\" font-weight:600; text-decoration: underline; color:#000000;\">LICENCE</span></p>\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#000000;\">This program comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions; see LICENCE in the ARCA root directory.</span></p>\n"
+"<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#000000;\"><br /></p></body></html>"))
         self.okgreat.setText(_translate("Dialog", "OK"))

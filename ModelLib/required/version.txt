@@ -1,9 +1,13 @@
+1.1.0
+ARCA is now licenced under GNU GPL
+
+
 1.0.6
 
 Fixes:
-- Kelvin term was approximated using Taylor series. This was a bad approximation with very small particles.
-  Now Kelvin term is calculated using exponential for. To use old Kelvin term, set custom option (in NML_CUSTOM or
-  in the GUI Run ARCA -> Custom model options) Kelvin_taylor = .true.
+- Kelvin term was approximated using Taylor series. This is a bad approximation with very small particles.
+  Now Kelvin term is calculated using exponential form. To use the old Kelvin term (used by many other models and the
+  ACP scheme), set custom option (in NML_CUSTOM or in the GUI Run ARCA -> Custom model options) Kelvin_taylor = .true.
 
 (Further additions in current version, will be put to next release)
   What's new:
