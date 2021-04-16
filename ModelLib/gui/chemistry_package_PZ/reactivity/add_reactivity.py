@@ -159,7 +159,7 @@ def create_second_reactivity(file_name, tags, reactants):
       #   f.write(' /)\n')
       # else:
       #   f.write(', &\n')
-    if len(tags) == 0: f.write('REAL:: &\n')
+    if len(tags) == 0: f.write('character(len=20):: &\n')
     f.write(' /)\n')
 
     # Public ones

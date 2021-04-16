@@ -15,7 +15,7 @@ $(shell mkdir -p $(OBJDIR)/$(CHMDIR))
 # When compiling, search for files in these directories:
 VPATH = $(OBJDIR):src:src/ACDC/ACDC_module_2016_09_23:src/ACDC/ACDC_module_ions_2018_08_31:Aerosol:$(OBJDIR)/$(CHMDIR)
 FILE=ModelLib/required/version.txt
-VERSION=`head -1 $(FILE)`
+VERSION := $(shell head -1 ${FILE})
 
 # Options reminders:
 # -w suppresses warning messages
@@ -176,5 +176,3 @@ clean_current_chemistry:
 	-@cd $(OBJDIR)/$(CHMDIR) ; rm *.mod *.o    2>/dev/null || true
 	-@cd $(OBJDIR) ; rm arcabox.o    					 2>/dev/null || true
 	-@rm arcabox.exe                					 2>/dev/null || true
-
-    

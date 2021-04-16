@@ -7,7 +7,7 @@ module second_reactivity
   integer, parameter :: NREACTIVITY=0
 
   character(len=20), parameter :: reactivity_name(NREACTIVITY) = (/ &
-REAL:: &
+character(len=20):: &
  /)
 
   public :: calculate_reactivities, NREACTIVITY, reactivity_name

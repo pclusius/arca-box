@@ -24,7 +24,7 @@ use netcdf
 use CONSTANTS
 use INPUT
 use second_Monitor
-USE SECOND_REACTIVITY, ONLY : reactivity_name
+USE SECOND_REACTIVITY, ONLY : reactivity_name, NREACTIVITY
 use AUXILLARIES
 USE PSD_scheme, ONLY: get_composition, get_dp, get_volume, get_mass, get_conc,G_COAG_SINK
 
@@ -192,7 +192,7 @@ CONTAINS
   ALLOCATE(multipl_ind(size(MODS)))
   ALLOCATE(shifter_ind(size(MODS)))
   ALLOCATE(mods_ind(size(MODS)))
-  ALLOCATE(chem_ind(size(CH_GAS)+size(reactivity_name)))
+  ALLOCATE(chem_ind(size(CH_GAS)+NREACTIVITY))
   ALLOCATE(par_ind(size(vapours%vapour_names)))
 
 
@@ -262,8 +262,8 @@ CONTAINS
       ! call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'condensing' , 1))
   end do
 
-  if (size(reactivity_name)>0) THEN
-      do j = 1,size(reactivity_name)
+  if (NREACTIVITY>0) THEN
+      do j = 1,NREACTIVITY
           call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(reactivity_name(j)), NF90_DOUBLE, dtime_id, chem_ind(size(CH_GAS)+j)) )
           call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), chem_ind(size(CH_GAS)+j), shuff, compress, compression) )
           call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(size(CH_GAS)+j), 'unit' , '1/s'))
@@ -387,8 +387,8 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours,J_ACDC_NH
     call handler(__LINE__, nf90_put_var(ncfile_ids(I), chem_ind(j), CH_GAS(j), (/GTIME%ind_netcdf/)) )
   end do
 
-  if (size(reactivity_name)>0) THEN
-      do j = 1,size(reactivity_name)
+  if (NREACTIVITY>0) THEN
+      do j = 1,NREACTIVITY
           call handler(__LINE__, nf90_put_var(ncfile_ids(I), chem_ind(size(CH_GAS)+j), reactivities(j), (/GTIME%ind_netcdf/)) )
       end do
   end if

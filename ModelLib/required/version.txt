@@ -1,4 +1,11 @@
+1.1.1
+Fixes:
+- Fixed empty array problem in second_reactivity.90 and add_reactivity.py (producing error with some fortran compilers).
+- Fixed makefile (version control gave problems on some Win systems)
+
+
 1.1.0
+
 ARCA is now licenced under GNU GPL
 
 
