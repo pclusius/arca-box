@@ -32,8 +32,9 @@ MODULE PSD_scheme
   ! END variables that will be defined outside
 
   REAL(dp), ALLOCATABLE :: dconc_coag(:,:)  ! coagulation: collision number matrix: nr_bins * nr_bins
-  REAL(dp), ALLOCATABLE :: pre_Kelvin(:,:)      ! Precalculated Kelvin terms
-  REAL(dp), ALLOCATABLE :: Kelvin_eff(:,:)      ! Precalculated Kelvin terms
+  REAL(dp), ALLOCATABLE :: Gcoag_coef(:,:)  ! coagulationcoefficient: nr_bins * nr_bins
+  REAL(dp), ALLOCATABLE :: pre_Kelvin(:,:)  ! Precalculated Kelvin terms
+  REAL(dp), ALLOCATABLE :: Kelvin_eff(:,:)  ! Precalculated Kelvin terms
   REAL(dp), ALLOCATABLE :: dmass(:,:)       ! change in particle mass (due to condensation or mixing) (nr_bins,n_cond_tot)
   REAL(dp), ALLOCATABLE :: dconc_dep_mix(:) ! change in particle concentration (e.g. reduced coagulatio or mixing) (nr_bins)
   REAL(dp), ALLOCATABLE :: G_COAG_SINK(:) ! change in particle concentration (e.g. reduced coagulatio or mixing) (nr_bins)
@@ -114,6 +115,7 @@ SUBROUTINE PSD_Allocate()
         ALLOCATE(dconc_dep_mix(current_PSD%nr_bins))
         ALLOCATE(G_COAG_SINK(current_PSD%nr_bins))
         ALLOCATE(dconc_coag(current_PSD%nr_bins,current_PSD%nr_bins))
+        ALLOCATE(Gcoag_coef(current_PSD%nr_bins,current_PSD%nr_bins))
 
     END IF
 

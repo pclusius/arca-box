@@ -32,8 +32,9 @@ from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname
 from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin, relpath as osrelpath
 from shutil import copyfile as cpf
-from re import sub,IGNORECASE, findall
+from re import sub,IGNORECASE, findall, match
 import time
+import re
 import sys
 import pickle
 from urllib.parse import urljoin
@@ -137,6 +138,8 @@ slMxs = (200,190,220,100,200)
 # 10 colors for plots
 colors = [(120,0,0),(180,0,0),(220,0,0),(255,10,0),(255,85,0),
 (255,85,140),(255,85,255),(180,0,255),(110,0,255),(0,0,255)]
+# linetypes
+linetypes = [QtCore.Qt.SolidLine, QtCore.Qt.DashLine]
 # BG colour for ENV vars
 env_no = (215,238,244)
 env_yes = (128,179,255)
@@ -176,11 +179,12 @@ with open(osjoin(gui_path,'conf','helplinks.txt'), 'r') as b:
 # files that can be modified with the Editor
 nucl_homs = "ModelLib/required/nucl_homs.txt"
 custom_functions = "src/custom_functions.f90"
-AmmSystemFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/input_ANnarrow_neutral_neg_pos.inp"
-Amm_EnergyFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/HS298.15K_426clusters2016Apr25.txt"
-Amm_DipoleFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/dip_pol_298.15K_426clusters2016Apr25.txt"
-DMASystemFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/input_AD.inp"
-DMA_EnergyFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/dH_dS.txt"
+# AmmSystemFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/input_ANnarrow_neutral_neg_pos.inp"
+# Amm_EnergyFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/HS298.15K_426clusters2016Apr25.txt"
+# Amm_DipoleFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/dip_pol_298.15K_426clusters2016Apr25.txt"
+# DMASystemFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/input_AD.inp"
+# DMA_EnergyFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/dH_dS.txt"
+ACDC_dir = "src/ACDC/ACDC_module_2016_09_23/Perl_input/dH_dS.txt"
 SCREENPRINT_NML = "ModelLib/required/NML_SCREENPRINTS.def"
 # Create chemistry script location
 ccloc = 'ModelLib/gui/chemistry_package_PZ'
@@ -223,7 +227,7 @@ with open(path_to_names) as f:
 nml = vars.INITFILE(NAMES)
 mmc = {'True': 'k', 'False': 0.95}
 # The popup window for batch file preview
-class batchW(QtGui.QDialog):
+class batchW(QtWidgets.QDialog):
     def __init__(self, parent = None, n=0):
         super(batchW, self).__init__(parent)
         if n==3:
@@ -247,16 +251,16 @@ class batchW(QtGui.QDialog):
                 c +=1
 
 # The popup window for About ARCA
-class About(QtGui.QDialog):
+class About(QtWidgets.QDialog):
     def __init__(self, parent = None):
         super(About, self).__init__(parent)
         self.ab = about.Ui_Dialog()
         self.ab.setupUi(self)
         self.ab.okgreat.clicked.connect(self.reject)
-        self.ab.logo.setPixmap(QtGui.QPixmap(modellogo.replace('.png', 'HR.png')))
+        self.ab.logo.setPixmap(QtWidgets.QPixmap(modellogo.replace('.png', 'HR.png')))
 
 # The popup window for Create KPP files
-class CCWin(QtGui.QDialog):
+class CCWin(QtWidgets.QDialog):
     def __init__(self, parent = None):
         super(CCWin, self).__init__(parent)
         self.ccw = cc.Ui_Dialog()
@@ -272,6 +276,7 @@ class CCWin(QtGui.QDialog):
         self.ccw.manualCC.clicked.connect(lambda: qt_box.helplink('ccmanual'))
         self.ccw.pickDeffix.clicked.connect(self.ListFixed)
         self.ccw.justReact.toggled.connect(self.ch_txt)
+        self.ccw.deffix.setPlainText("SO2\nNO\nNO2\nCO\nH2\nO3")
 
     def ch_txt(self):
         if self.ccw.justReact.isChecked():
@@ -376,7 +381,7 @@ class CCWin(QtGui.QDialog):
 
 
 # The popup window for variations
-class Variation(QtGui.QDialog):
+class Variation(QtWidgets.QDialog):
     def __init__(self, parent = None):
         super(Variation, self).__init__(parent)
         self.vary = varWin.Ui_Dialog()
@@ -468,7 +473,7 @@ class Variation(QtGui.QDialog):
             self.vary.table.removeRow(i.row())
 
 # The popup window for Vapour pressure file
-class VpressWin(QtGui.QDialog):
+class VpressWin(QtWidgets.QDialog):
     def __init__(self, parent = None):
         super(VpressWin, self).__init__(parent)
         self.vp = vdialog.Ui_Dialog()
@@ -533,7 +538,7 @@ class VpressWin(QtGui.QDialog):
         if len(message)==2: qt_box.popup(message[0],message[1],0)
 
 # The popup window for simple input
-class Input(QtGui.QDialog):
+class Input(QtWidgets.QDialog):
     def __init__(self, parent = None, default = 0):
         super(Input, self).__init__(parent)
         self.inp = input.Ui_Dialog()
@@ -541,7 +546,7 @@ class Input(QtGui.QDialog):
         self.inp.input.setValue(default)
 
 # The popup window for editing simple text files
-class Editor(QtGui.QDialog):
+class Editor(QtWidgets.QDialog):
     def __init__(self, parent = None, file = None):
         super(Editor, self).__init__(parent)
         self.editor = t_editor.Ui_Dialog()
@@ -968,11 +973,22 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.use_dmps.toggled.connect(lambda: self.grayIfChecked(self.use_dmps,self.multiModalBox))
         self.multiModalBox.toggled.connect(lambda: self.grayIfChecked(self.multiModalBox,self.use_dmps))
 
-        self.EditAmmSystem.clicked.connect(lambda: self.editTxtFile(AmmSystemFile))
-        self.EditAmm_E.clicked.connect(lambda: self.editTxtFile(Amm_EnergyFile))
-        self.EditAmmDipoles.clicked.connect(lambda: self.editTxtFile(Amm_DipoleFile))
-        self.EditDMASystem.clicked.connect(lambda: self.editTxtFile(DMASystemFile))
-        self.EditDMA_E.clicked.connect(lambda: self.editTxtFile(DMA_EnergyFile))
+        # self.EditAmmSystem.clicked.connect(lambda: self.editTxtFile(AmmSystemFile))
+        # self.EditAmm_E.clicked.connect(lambda: self.editTxtFile(Amm_EnergyFile))
+        # self.EditAmmDipoles.clicked.connect(lambda: self.editTxtFile(Amm_DipoleFile))
+        # self.EditDMASystem.clicked.connect(lambda: self.editTxtFile(DMASystemFile))
+        # self.EditDMA_E.clicked.connect(lambda: self.editTxtFile(DMA_EnergyFile))
+        self.EditAcdcGen.clicked.connect(lambda: self.editTxtFile('src/ACDC/'+self.CurrentAcdcSystem+"/settings.conf"))
+        self.openPerlDir.clicked.connect(lambda: self.openOutputDir(None, 'src/ACDC/'+self.CurrentAcdcSystem+'/Perl_input'))
+        self.runPerlScript.clicked.connect(self.rerunACDC)
+        self.ACDC_available_compounds = []
+        self.acdc_systems_flags = [1,1,0,0,0]
+        self.ACDC_current_links = []
+        self.ACDC_n_systems = 5
+        self.parse_ACDC_systems()
+        self.editACDC.setEnabled(False)
+        self.CurrentAcdcSystem = ''
+        self.ACDC_linker.itemSelectionChanged.connect(self.setCurrentAcdcSystem)
 
     # -----------------------
     # tab Process Monitor
@@ -1142,6 +1158,22 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Class methods
     # -----------------------
+    def rerunACDC(self):
+        bashscript = "src/ACDC/run_perl.sh"
+        cdto = "src/ACDC/"+self.CurrentAcdcSystem
+        self.rra = Popen(["bash", bashscript, "settings.conf",cdto])
+
+    def setCurrentAcdcSystem(self):
+        title = 'Actions for the highlighted system'
+        if self.ACDC_linker.currentItem().parent() == None:
+            self.CurrentAcdcSystem = self.ACDC_linker.currentIndex().data()
+            self.editACDC.setEnabled(True)
+            self.editACDC.setTitle(title+' ('+self.CurrentAcdcSystem+')')
+        else:
+            self.CurrentAcdcSystem = ''
+            self.editACDC.setEnabled(False)
+            self.editACDC.setTitle(title)
+
     def openOutputDir(self, a, dir):
         import os
         if dir == '': dir = './'
@@ -2205,10 +2237,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
             else:
                 self.time0 = (0,n.shape[0])
             if self.Y_axis_in_nm.isChecked():
-                self.diam0 = (log10(diam[0]*1e9), log10(diam[-1]*1e9))
+                self.diam0 = (log10(diam[0]*1e9), log10(diam[-1]*1e9), log10(diam[-2]*1e9))
                 self.log0 = True
             else:
-                self.diam0 = (0,n.shape[1])
+                self.diam0 = (0,n.shape[1], n.shape[1]-1)
                 self.log0 = False
 
         if windowInd==1:
@@ -2218,12 +2250,90 @@ a chemistry module in tab "Chemistry"''', icon=2)
             else:
                 self.time1 = (0,n.shape[0])
             if self.Y_axis_in_nm.isChecked():
-                self.diam1 = (log10(diam[0]*1e9), log10(diam[-1]*1e9))
+                self.diam1 = (log10(diam[0]*1e9), log10(diam[-1]*1e9), log10(diam[-2]*1e9))
                 self.log1 = True
             else:
-                self.diam1 = (0,n.shape[1])
+                self.diam1 = (0,n.shape[1], n.shape[1]-1)
                 self.log1 = False
         self.drawSurf(window, new=1)
+
+
+    def parse_ACDC_systems(self):
+        self.ACDC_linker.clear()
+        for (dirpath, dirnames, filenames) in walk('src/ACDC'):
+            break
+        n = 0
+        dirnames.sort()
+        for i,d in enumerate(dirnames):
+            if not 'ACDC_0' in d:
+                continue
+            else:
+                item_0 = QtWidgets.QTreeWidgetItem(self.ACDC_linker)
+                item_0.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable )
+                # if n<2: item_0.setCheckState(0, QtCore.Qt.Checked)
+                # else:
+                item_0.setCheckState(0, QtCore.Qt.Unchecked)
+                self.ACDC_linker.topLevelItem(n).setText(0, d)
+                f = open(osjoin('src/ACDC',d,'acdc_system_0x%d.f90'%int(d[-1])))
+                t = f.read()
+                x = re.findall('integer, parameter :: .+ neutral_monomers.+= ?\(/( ?.+)/\)',t)
+                y = re.findall(' ?clust\((\w+)\)\(\:\) ?\= ?(.+)',t)
+                names = {}
+                for i in range(len(y)):
+                    names[y[i][0]] = y[i][1]
+                monomers=[]
+                for j in x[0].split():
+                    monomers.append(names[j.strip(',')].replace('1','').strip("'"))
+                for im,m in enumerate(monomers):
+                    item_1 = QtWidgets.QTreeWidgetItem(item_0)
+                    self.ACDC_linker.topLevelItem(n).child(im).setText(0, m)
+                    # if m == 'A' : linkto = 'H2SO4'
+                    # elif m == 'N' : linkto = 'NH3'
+                    # elif m == 'D' : linkto = 'DMA'
+                    # else: linkto = '-'
+                    linkto = '-'
+                    self.ACDC_linker.topLevelItem(n).child(im).setText(1, linkto)
+                    self.ACDC_linker.topLevelItem(n).child(im).setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
+                n +=1
+        self.ACDC_n_systems = n
+        self.ACDC_current_links = self.get_ACDC_links()
+        self.ACDC_available_compounds = self.get_ACDC_links()
+
+
+    def get_ACDC_links(self):
+        root = self.ACDC_linker.invisibleRootItem()
+        child_count = root.childCount()
+        acdc_links = []
+        for i in range(child_count):
+            item = root.child(i)
+            if item.checkState(0): self.acdc_systems_flags[i] = 1
+            else: self.acdc_systems_flags[i] = 0
+            acdc_links.append([item.checkState(0)])
+            child_count1 = item.childCount()
+            for j in range(child_count1):
+                if j==0: acdc_links[i].append({})
+                item2 = item.child(j)
+                acdc_links[i][1][item2.text(0)] = item2.text(1)
+        return acdc_links
+
+
+    def set_ACDC_links(self):
+        root = self.ACDC_linker.invisibleRootItem()
+        child_count = root.childCount()
+        for i in range(child_count):
+            item = root.child(i)
+            if self.acdc_systems_flags[i]>0:
+                item.setCheckState(0, QtCore.Qt.Checked)
+                item.setExpanded(True)
+            else:
+                item.setCheckState(0, QtCore.Qt.Unchecked)
+            child_count1 = item.childCount()
+            for j in range(child_count1):
+                item2 = item.child(j)
+                if item2.text(0) in self.ACDC_current_links[i][1]:
+                    item2.setText(1,self.ACDC_current_links[i][1][item2.text(0)])
+                else:
+                    item2.setText(1,'-')
 
 
     def drawSurf(self,window, new=0):
@@ -2250,7 +2360,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
         # if self.Y_axis_in_nm.isChecked():
         #     bx = QtCore.QRectF(time[0], log10(diam[0]*1e9), time[1], log10(diam[1]*1e9))
         # else:
-        bx = QtCore.QRectF(time[0], diam[0], time[1], diam[1])
+        bx = QtCore.QRectF(time[0], diam[0], time[1], diam[1]-diam[0] + diam[1]-diam[2])
+        # (cb[-1,0]-cb[0,0] + cb[-1,0]-cb[-2,0])
         hm.setRect(bx)
 
         cb = ndarray((20,1))
@@ -2356,6 +2467,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def update_nml(self):
+        self.ACDC_current_links = self.get_ACDC_links()
         # class _SETTINGS:
         nml.SETTINGS.BATCH = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s' %(
                                 'batchRangeDayBegin', self.batchRangeDayBegin.text(),
@@ -2489,8 +2601,13 @@ a chemistry module in tab "Chemistry"''', icon=2)
             key = 'customKey_%d'%i
             value = 'customVal_%d'%i
             exec('nml.CUSTOM.CUSTOMS.append([self.%s.text(),self.%s.text()])'%(key,value))
-        return
 
+        nml.ACDC.ACDC_SYSTEMS = ','.join([str(i) for i in self.acdc_systems_flags])
+        nml.ACDC.LINKS = [' '] * self.ACDC_n_systems
+        for i in range(self.ACDC_n_systems):
+            nml.ACDC.LINKS[i] = ' '.join(['%s %s'%(j,self.ACDC_current_links[i][1][j]) for j in self.ACDC_current_links[i][1].keys()])
+
+        return
 
     def resolveHelper(self):
         text = self.fill_formation_with.currentText()
@@ -2503,6 +2620,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def load_initfile(self,file):
+
+        INC_COMP = False
+
         if not exists(file):
             if file != defaults_file_path:
                 self.popup('Ooops', 'File "%s" not found'%file, icon=3)
@@ -2631,7 +2751,6 @@ a chemistry module in tab "Chemistry"''', icon=2)
                     nml.CUSTOM.CUSTOMS = []
                 continue
 
-
             if 'INOUT_DIR' == key: self.inout_dir.setText(strng)
             elif 'CASE_NAME' == key: self.case_name.setText(strng)
             elif 'RUN_NAME' == key: self.run_name.setText(strng)
@@ -2703,6 +2822,25 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'DVAPO_RANGE' == key:
                 self.prec_low_3.setValue(float(strng.split(',')[0]))
                 self.prec_high_3.setValue(float(strng.split(',')[1]))
+
+            elif 'ACDC_SYSTEMS' == key:
+                self.acdc_systems_flags = [int(z) for z in strng.split(',')]
+                lll = len(self.acdc_systems_flags)
+                if lll==0: self.acdc_systems_flags = [1,1,0,0,0]
+                if lll<self.ACDC_n_systems: self.acdc_systems_flags = self.acdc_systems_flags + [0]*(self.ACDC_n_systems-lll)
+
+            elif len(re.findall('ACDC_(\d)_LINKS',key))>0:
+                num = int(re.findall('ACDC_(\d)_LINKS',key)[0])
+                if num<=self.ACDC_n_systems:
+                    sss = 'ACDC_%d_LINKS'%num
+                    self.ACDC_current_links[num-1][1] = {a:b for a,b in zip(strng.split()[0::2],strng.split()[1::2])}
+                    if self.ACDC_available_compounds[num-1][1].keys() != self.ACDC_current_links[num-1][1].keys():
+                        INC_COMP = True
+                        msg = """The existing ACDC system # %d does not contain the same compounds that were defined in the setting file.:
+In the ACDC system: %s
+In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-1][1].keys()),', '.join(self.ACDC_current_links[num-1][1].keys()))
+                        self.popup('Incompatible definitions', msg)
+
 
             elif in_custom:
                 nml.CUSTOM.CUSTOMS.append([key, strng])
@@ -2786,8 +2924,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
                         break
 
         self.fileLoadOngoing = False
+        if INC_COMP:
+            INC_COMP = False
+            self.popup('ACDC incompatibility','Check the linking of ACDC compounds.')
+
+        self.set_ACDC_links()
         self.updatePath()
         self.updateEnvPath()
+
 
 
     def updateMass(self):
@@ -2921,10 +3065,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
         for j,mpd_file in enumerate(self.MPD):
             self.outplot_mass = self.plotResultWindow_2.plot(mpd_file.time,
                                                         npsum(mpd_file.totalmass_ng_m[:,inds],axis=1)*1e-9,
-                                                        pen={'color':colors[j*2],'width': 2.0},
+                                                        pen={'color':colors[j],'width': 2.0},
                                                         symbol=symbols[j+1],
-                                                        symbolPen=colors[j*2],
-                                                        symbolBrush=colors[j*2],
+                                                        symbolPen=colors[j],
+                                                        symbolBrush=colors[j],
                                                         symbolSize=8,
                                                         name=self.MPD[j].legend.replace(': Particles.nc','')
                                                         )
@@ -3025,7 +3169,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.NC_lines.append( self.plotResultWindow.plot(
         self.LPD[-1].time,
         Y,
-        pen={'color':colors[2*(len(self.LPD)-1)],'width': 2.0},
+        pen={'color':colors[(len(self.LPD)-1)],'width': 2.0},
         name=self.LPD[-1].legend
         ) )
         if new:
@@ -3177,11 +3321,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
             for j,Y in enumerate(YY):
                 YY[j] = where(Y<=0, 1e-20, Y)
             # Mark plot with red to warn that negative values have been deleted
-                self.NC_lines[j].setPen({'style':QtCore.Qt.DashLine,'color':colors[2*(j)],'width': thickness})
+                self.NC_lines[j].setPen({'style':QtCore.Qt.DashLine,'color':colors[j],'width': thickness})
             positive = True
         else:
             for j,p in enumerate(self.NC_lines):
-                p.setPen({'style':QtCore.Qt.SolidLine,'color':colors[2*(j)],'width': thickness})
+                p.setPen({'style':QtCore.Qt.SolidLine,'color':colors[j],'width': thickness})
 
         if scale=='log' and positive and not zeros:
             # To avoid very small exponentials, zeros are changed to nearest small number
@@ -3371,7 +3515,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 text = text[:-1]
                 strict = True
         if text == '':
-            self.namesdat.scrollToItem(self.namesdat.item(0), QtGui.QAbstractItemView.PositionAtTop)
+            self.namesdat.scrollToItem(self.namesdat.item(0), QtWidgets.QAbstractItemView.PositionAtTop)
         else:
             for c in NAMES:
                 if strict:
@@ -3383,7 +3527,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                         if not namesPyInds[c] == divider_i:
                             item = self.namesdat.item(namesPyInds[c])
                             item.setSelected(True)
-                            self.namesdat.scrollToItem(item, QtGui.QAbstractItemView.PositionAtTop)
+                            self.namesdat.scrollToItem(item, QtWidgets.QAbstractItemView.PositionAtTop)
 
 
     def printHeaders(self):
