@@ -37,7 +37,7 @@ BACDC = ACDC
 SRCDIR = src
 CHMDIR = SimpleChem
 
-# USER OTIONS FINISH HERE ==============================================================================================
+# USER OPTIONS FINISH HERE ==============================================================================================
 
 NAC := $(shell find ${SRCDIR}/ACDC/ACDC_* -maxdepth 0 -type d |wc -l|sed 's/ //g')
 n_acdc := $(shell seq $(NAC))
