@@ -961,6 +961,7 @@ END IF in_turn_any
             ! Calculate growth rates
             IF (CALC_GR) CALL PRINT_GROWTH_RATE
             CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
+
         ELSE
             ! if --gui flag was used, print a dot and EOL so the STDOUT-reading in Python GUI will be smoother.
             if (ingui) print'(a)', '.'
@@ -971,7 +972,6 @@ END IF in_turn_any
             END IF
 
         END IF
-
 
         ! Save to netcdf
         if (GTIME%savenow) THEN
@@ -1009,6 +1009,7 @@ END IF in_turn_any
             will_stall = 0
 
             ! Update vapour concentrations to chemistry
+            if (Condensation) &
             CH_GAS(index_cond) = conc_vapour(1:VAPOUR_PROP%n_cond_org-1) *1D-6
             ! ----------------------------------------
 

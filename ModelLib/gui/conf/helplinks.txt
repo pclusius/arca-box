@@ -23,3 +23,4 @@ dmpsSpec,https://wiki.helsinki.fi/display/arca/Tab%3A%3AAerosol
 psdScheme,https://wiki.helsinki.fi/display/arca/Tab%3A%3AAerosol
 losses,https://wiki.helsinki.fi/display/arca/Tab%3A%3ALosses
 custominput,https://wiki.helsinki.fi/display/arca/Tab%3A%3ARun+ARCA%3A%3ACustom+model+options
+radiation,https://wiki.helsinki.fi/display/arca/Tab%3A%3AChemistry

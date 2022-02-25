@@ -98,7 +98,7 @@ if '-NS' in args: print('Overriding scaling from cmdline')
 
 ## Some constants --------------------------------------------
 # widths of the columns in "Input variables" tab
-column_widths = [120,90,70,70,70,90,50,3]
+column_widths = [150,80,70,70,55,80,50,3]
 
 # available units for variables, used to fill the tables and graphs with appropriate units
 units = {
@@ -1199,7 +1199,7 @@ Please provide valid spectral function.') \
         self.actionARCA_webpage.triggered.connect(lambda: self.helplink('arcaweb'))
         self.actionOnline_manual.triggered.connect(lambda: self.helplink('manual'))
         self.actionFileHelp.triggered.connect(lambda: self.helplink('filehelp'))
-
+        self.helpRadiation.clicked.connect(lambda: self.helplink('radiation'))
     # -----------------------
     # Load preferences, or create preferences if not found
     # -----------------------
@@ -1284,10 +1284,10 @@ Please provide valid spectral function.') \
 
 
     def helplink(self, linkStr):
-            if linkStr in helpd:
-                QtGui.QDesktopServices.openUrl(QtCore.QUrl(helpd[linkStr]))
-            else:
-                self.popup('This is embarassing', 'Help link is missing. Try Toolbar->Help->Online manual.')
+        if linkStr in helpd:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(helpd[linkStr]))
+        else:
+            self.popup('This is embarassing', 'Help link is missing. Try Toolbar->Help->Online manual.')
 
 
     def adjust_dt(self):
