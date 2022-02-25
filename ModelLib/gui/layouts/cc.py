@@ -114,6 +114,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.page)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.deffix = QtWidgets.QPlainTextEdit(self.page)
+        self.deffix.setPlainText("")
         self.deffix.setObjectName("deffix")
         self.horizontalLayout_3.addWidget(self.deffix)
         self.pickDeffix = QtWidgets.QToolButton(self.page)
@@ -173,9 +174,8 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Create KPP settings"))
-        self.groupBox_2.setToolTip(_translate("Dialog", "<html><head/><body><p>The location of this directory is free (except it can not be empty).  However, <br/>to use the module in ARCA the final chemistry scheme source files<br/>(written when KPP is run) have to be in &quot;src/chemistry/&lt;name&gt;&quot;.</p><p>E.g if the scheme name is &quot;MyChem&quot;, choose here src/chemistry/MyChem.</p></body></html>"))
+        self.groupBox_2.setToolTip(_translate("Dialog", "<html><head/><body><p>The location of this directory is free (but must be defined). However, <br/>to use the module in ARCA the final chemistry scheme source files<br/>(written when KPP is run) have to be in &quot;src/chemistry/&lt;name&gt;&quot;.</p><p>E.g if the scheme name is &quot;MyChem&quot;, choose here src/chemistry/MyChem.</p></body></html>"))
         self.groupBox_2.setTitle(_translate("Dialog", "Output directory (to use the scheme the output direcory must be in src/chemistry)"))
-        self.outDir.setToolTip(_translate("Dialog", "<html><head/><body><p>The location of this directory is free (except it can not be empty).  However, <br/>to use the module in ARCA the final chemistry scheme source files<br/>(written when KPP is run) have to be in &quot;src/chemistry/&lt;name&gt;&quot;.</p><p>E.g if the scheme name is &quot;MyChem&quot;, choose here src/chemistry/MyChem.</p></body></html>"))
         self.browseOut.setText(_translate("Dialog", "Browse"))
         self.groupBox_3.setTitle(_translate("Dialog", "Main source file (usually from MCM)"))
         self.sourceFile.setPlaceholderText(_translate("Dialog", "mcm_subset.kpp"))

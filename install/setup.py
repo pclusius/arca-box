@@ -71,7 +71,10 @@ if pyt == 'y' or pyt == 'Y':
     outpyt = os.system("%s -m pip install --user numpy scipy matplotlib requests"%python)
     outpyt = os.system("%s -m pip install --user netCDF4"%python)
     outpyt = os.system("%s -m pip install --user PyQt5"%python)
-    outpyt = os.system("%s -m pip install --user pyqtgraph"%python)
+    if operatingsystem == 'Windows':
+        outpyt = os.system("%s -m pip install --user pyqtgraph==0.12.0"%python)
+    else:
+        outpyt = os.system("%s -m pip install --user pyqtgraph"%python)
 
     if outpyt != 0:
         upgr = input('Unfortunately the Python module installation did not work, updating setuptools could help.\nProceed and try again? (y/n)?: ')
@@ -99,24 +102,27 @@ if out == 0:
     else:
         f = open('run_arca.sh', 'w')
 
-    f.write('#!/bin/bash%s'%le)
+    if if operatingsystem != 'Windows': f.write('#!/bin/bash%s'%le)
     if posix: f.write('cd %s %s'%(curr_path, le))
-    f.write('%s'%le)
+    if if operatingsystem != 'Windows':
+        f.write('#!/bin/bash%s'%le)
+        f.write('%s'%le)
     if csc:
         f.write('module load python-data/3.7.6-1%s'%le)
         f.write('module load gcc/9.1.0%s'%le)
         f.write('module load netcdf/4.7.0%s'%le)
         f.write('module load netcdf-fortran/4.4.4%s'%le)
-    else:
-        print('ARCA user interface can be used on CSC with NoMachine. To get correct settings,')
-        print('run this script with --csc flag or edit run_arca.sh and uncomment the csc options.')
+    elif operatingsystem != 'Windows':
         f.write('# If you are using the user interface on CSC, uncomment next 4 lines%s'%le)
         f.write('# module load python-data/3.7.6-1%s'%le)
         f.write('# module load gcc/9.1.0%s'%le)
         f.write('# module load netcdf/4.7.0%s'%le)
         f.write('# module load netcdf-fortran/4.4.4%s'%le)
+        f.write('%s'%le)
 
-    f.write('%s'%le)
+    if not csc:
+        print('ARCA user interface can be used on CSC with NoMachine. To get correct settings,')
+        print('run this script with --csc flag or edit run_arca.sh and uncomment the csc options.')
     f.write('%s ModelLib/gui/ARCA_gui.py %s'%(python, le))
     f.close()
 

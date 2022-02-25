@@ -68,16 +68,28 @@ implicit NONE
 
 contains
 
-subroutine AFTER_CHEM(TSTEP_CONC,CH_GAS,CH_GAS_old,CH_RO2,CH_RO2_old,J_TOTAL_M3)
+subroutine AFTER_CHEM(TSTEP_CONC,CH_GAS,CH_GAS_old,CH_RO2,CH_Beta,CH_H2O,CH_RO2_old,J_TOTAL_M3)
     implicit none
     real(dp), INTENT(INOUT) :: TSTEP_CONC(:)
     real(dp), INTENT(INOUT) :: CH_GAS(:)
     real(dp), INTENT(INOUT) :: CH_GAS_old(:)
-    real(dp), INTENT(INOUT) :: CH_RO2
+    real(dp), INTENT(INOUT) :: CH_RO2,CH_Beta,CH_H2O
     real(dp), INTENT(INOUT) :: CH_RO2_old
     real(dp), INTENT(INOUT) :: J_TOTAL_M3
 
-    ! -------------------------------
+    ! BEGIN CUSTOM CODE -------------------------------
+    ! CH_GAS(IND_O3) = TSTEP_CONC(inm_O3)
+    ! IF (CH_GAS(IND_O3)>1d0) THEN
+    !     IF (CH_GAS(IND_O3)>250*1d-9*GC_AIR_NOW) THEN
+    !         FLOAT_EMIS_AFTER_HRS = 0d0
+    !         CH_GAS(ind_emiO3) = 0d0
+    !     ELSE IF (CH_GAS(IND_O3)<245*1d-9*GC_AIR_NOW.and.GTIME%hrs>FLOAT_EMIS_AFTER_HRS) THEN
+    !          CH_GAS(ind_emiO3) = 25*(1d-12*GC_AIR_NOW)
+    !     END IF
+    ! END IF
+    ! if (gtime%printnow) print'(es12.3,es12.3,es12.3)', FLOAT_EMIS_AFTER_HRS, CH_GAS(IND_O3)/GC_AIR_NOW*1d9,CH_GAS(ind_emiO3)
+
+    ! END CUSTOM CODE ---------------------------------
 
 end subroutine AFTER_CHEM
 
@@ -87,7 +99,9 @@ subroutine AFTER_NUCL(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
     real(dp), INTENT(INOUT) :: CH_GAS(:)
     real(dp), INTENT(INOUT) :: J_TOTAL_M3
 
-    ! -------------------------------
+    ! BEGIN CUSTOM CODE -------------------------------
+
+    ! END CUSTOM CODE ---------------------------------
 
 end subroutine AFTER_NUCL
 

@@ -268,8 +268,9 @@ def getVaps(runforever=False, args={}):
 
     if save_atoms:
         path, file = os.path.split(args['saveto'])
-        print('Saving elemental content to %s ...' %(os.path.join(path,'elements_'+file)))
-        fa = open(os.path.join(path,'elements_'+file), 'w')
+        prefix,suffix = os.path.splitext(file)
+        print('Saving elemental content to %s ...' %(os.path.join(path,prefix+'_elements'+suffix)))
+        fa = open(os.path.join(path,prefix+'_elements'+suffix), 'w')
         fa.write('#Compound                    Mass               C   O   N   H   S  Cl  Br\n')
 
     count = 0

@@ -72,7 +72,7 @@ def plot(addr):
             ax.set_xlabel('time (s)')
             ax.set_xlabel('time (s)')
             ax.set_ylabel('Largest relative change (%)')
-            ax.legend()
+            ax.legend(loc='lower right',fontsize=6)
             ax.grid()
 
         plt.tight_layout()

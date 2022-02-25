@@ -4,7 +4,7 @@ MODULE KPP_ROOT_Main
 
   USE KPP_ROOT_Model
   USE KPP_ROOT_Initialize, ONLY: Initialize
-  
+
   IMPLICIT NONE
 
   PRIVATE
@@ -16,8 +16,8 @@ MODULE KPP_ROOT_Main
   INTEGER :: i
 
 CONTAINS
-  
-!~~~> Initialization 
+
+!~~~> Initialization
 
   SUBROUTINE KPP_SetUp()
     STEPMIN = 0.0d0

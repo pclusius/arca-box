@@ -1,0 +1,7 @@
+! Input files used to create the current system. Saved in Generic.nc:
+&ACDC_RECORD_NML
+  System   = "Perl_input/input_ANnarrow_neutral_neg_pos.inp"
+  Energies = "Perl_input/HS298.15K_426clusters2016Apr25.txt"
+  Dipoles  = "Perl_input/dip_pol_298.15K_426clusters2016Apr25.txt"
+  Name     = "RICC2 NH3 system"
+/

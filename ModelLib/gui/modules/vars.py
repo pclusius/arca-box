@@ -33,6 +33,7 @@ class INITFILE:
         self.MODS = self._MODS(names)
         self.MISC = self._MISC()
         self.VAP = self._VAP()
+        self.ACDC = self._ACDC()
         self.PRECISION = self._PRECISION()
         self.CUSTOM = self._CUSTOM()
         self.RAW = self._RAW()
@@ -55,6 +56,7 @@ class INITFILE:
         self.MODS.printall(cmd,f,eol,mods)
         self.MISC.printall(cmd,f,eol)
         self.VAP.printall(cmd,f,eol)
+        self.ACDC.printall(cmd,f,eol)
         self.PRECISION.printall(cmd,f,eol)
         self.CUSTOM.printall(cmd,f,eol)
         self.RAW.printall(cmd,f,eol)
@@ -84,10 +86,10 @@ class INITFILE:
             self.DEPOSITION=0
             self.CHEM_DEPOSITION=0
             self.MODEL_H2SO4=0
-            self.RESOLVE_BASE=0
+            # self.RESOLVE_BASE=0
             self.ORG_NUCL=0
             self.PRINT_ACDC=0
-            self.USE_SPEED=0
+            self.OPTIMIZE_DT=0
             self.AFTER_CHEM_ON=0
             self.AFTER_NUCL_ON=0
 
@@ -102,10 +104,10 @@ class INITFILE:
             exec("%s(' DEPOSITION = %s%s')"%(cmd,self.DEPOSITION,eol))
             exec("%s(' CHEM_DEPOSITION = %s%s')"%(cmd,self.CHEM_DEPOSITION,eol))
             exec("%s(' MODEL_H2SO4 = %s%s')"%(cmd,self.MODEL_H2SO4,eol))
-            exec("%s(' RESOLVE_BASE = %s%s')"%(cmd,self.RESOLVE_BASE,eol))
+            # exec("%s(' RESOLVE_BASE = %s%s')"%(cmd,self.RESOLVE_BASE,eol))
             exec("%s(' ORG_NUCL = %s%s')"%(cmd,self.ORG_NUCL,eol))
             exec("%s(' PRINT_ACDC = %s%s')"%(cmd,self.PRINT_ACDC,eol))
-            exec("%s(' USE_SPEED = %s%s')"%(cmd,self.USE_SPEED,eol))
+            exec("%s(' OPTIMIZE_DT = %s%s')"%(cmd,self.OPTIMIZE_DT,eol))
             exec("%s(' AFTER_CHEM_ON = %s%s')"%(cmd,self.AFTER_CHEM_ON,eol))
             exec("%s(' AFTER_NUCL_ON = %s%s')"%(cmd,self.AFTER_NUCL_ON,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
@@ -169,24 +171,34 @@ class INITFILE:
     class _ENV:
         def __init__(self):
             self.ENV_FILE=0
+            self.SPECTRUMFILE=0
+            self.SWR_IS_ACTINICFLUX=0
+            self.SWR_IN_UPPER=0
+            self.SWR_IN_LOWER=0
             self.LOSSES_FILE=0
             self.CHAMBER_FLOOR_AREA=0
-            self.CHAMBER_CHAMBER_HEIGHTAREA=0
+            # self.CHAMBER_CIRCUMFENCE=0
             self.CHAMBER_HEIGHT=0
             self.EDDYK=0
             self.USTAR=0
             self.ALPHAWALL=0
+            self.CW_EQV=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_ENV%s')"%(cmd, eol))
             exec("%s(' ENV_FILE = \\'%s\\'%s')"%(cmd,self.ENV_FILE,eol))
+            exec("%s(' SPECTRUMFILE = \\'%s\\'%s')"%(cmd,self.SPECTRUMFILE,eol))
+            exec("%s(' SWR_IN_LOWER = %s%s')"%(cmd,self.SWR_IN_LOWER,eol))
+            exec("%s(' SWR_IN_UPPER = %s%s')"%(cmd,self.SWR_IN_UPPER,eol))
+            exec("%s(' SWR_IS_ACTINICFLUX = %s%s')"%(cmd,self.SWR_IS_ACTINICFLUX,eol))
             exec("%s(' LOSSES_FILE = \\'%s\\'%s')"%(cmd,self.LOSSES_FILE,eol))
             exec("%s(' CHAMBER_FLOOR_AREA = %s%s')"%(cmd,self.CHAMBER_FLOOR_AREA,eol))
-            exec("%s(' CHAMBER_CIRCUMFENCE = %s%s')"%(cmd,self.CHAMBER_CIRCUMFENCE,eol))
+            # exec("%s(' CHAMBER_CIRCUMFENCE = %s%s')"%(cmd,self.CHAMBER_CIRCUMFENCE,eol))
             exec("%s(' CHAMBER_HEIGHT = %s%s')"%(cmd,self.CHAMBER_HEIGHT,eol))
             exec("%s(' EDDYK = %s%s')"%(cmd,self.EDDYK,eol))
             exec("%s(' USTAR = %s%s')"%(cmd,self.USTAR,eol))
             exec("%s(' ALPHAWALL = %s%s')"%(cmd,self.ALPHAWALL,eol))
+            exec("%s(' CW_EQV = %s%s')"%(cmd,self.CW_EQV,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _MCM:
@@ -240,10 +252,10 @@ class INITFILE:
             self.WAIT_FOR=0
             self.DESCRIPTION=0
             self.CH_ALBEDO=0
-            self.DMA_F=0
-            self.RESOLVE_BASE_PRECISION=0
-            self.FILL_FORMATION_WITH=0
-            self.SKIP_ACDC=0
+            # self.DMA_F=0
+            # self.RESOLVE_BASE_PRECISION=0
+            # self.FILL_FORMATION_WITH=0
+            # self.SKIP_ACDC=0
             self.GR_SIZES=0
 
         def printall(self,cmd,f,eol):
@@ -253,10 +265,10 @@ class INITFILE:
             exec("%s(' WAIT_FOR = %s%s')"%(cmd,self.WAIT_FOR,eol))
             exec("%s(' DESCRIPTION = \\'%s\\'%s')"%(cmd,self.DESCRIPTION,eol))
             exec("%s(' CH_ALBEDO = %s%s')"%(cmd,self.CH_ALBEDO,eol))
-            exec("%s(' DMA_F = %s%s')"%(cmd,self.DMA_F,eol))
-            exec("%s(' RESOLVE_BASE_PRECISION = %s%s')"%(cmd,self.RESOLVE_BASE_PRECISION,eol))
-            exec("%s(' FILL_FORMATION_WITH = \\'%s\\'%s')"%(cmd,self.FILL_FORMATION_WITH,eol))
-            exec("%s(' SKIP_ACDC = %s%s')"%(cmd,self.SKIP_ACDC,eol))
+            # exec("%s(' DMA_F = %s%s')"%(cmd,self.DMA_F,eol))
+            # exec("%s(' RESOLVE_BASE_PRECISION = %s%s')"%(cmd,self.RESOLVE_BASE_PRECISION,eol))
+            # exec("%s(' FILL_FORMATION_WITH = \\'%s\\'%s')"%(cmd,self.FILL_FORMATION_WITH,eol))
+            # exec("%s(' SKIP_ACDC = %s%s')"%(cmd,self.SKIP_ACDC,eol))
             exec("%s(' GR_SIZES = \\'%s\\'%s')"%(cmd,self.GR_SIZES,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
@@ -271,6 +283,20 @@ class INITFILE:
             exec("%s(' USE_ATOMS = %s%s')"%(cmd,self.USE_ATOMS,eol))
             exec("%s(' VAP_NAMES = \\'%s\\'%s')"%(cmd,self.VAP_NAMES,eol))
             exec("%s(' VAP_ATOMS = \\'%s\\'%s')"%(cmd,self.VAP_ATOMS,eol))
+            exec("%s('/ \\n%s')"%(cmd, eol))
+
+    class _ACDC:
+        def __init__(self):
+            self.ACDC_SYSTEMS=0
+            self.LINKS=0
+
+        def printall(self,cmd,f,eol):
+            exec("%s('&NML_ACDC%s')"%(cmd, eol))
+            exec("%s(' ACDC_SYSTEMS = %s%s')"%(cmd,self.ACDC_SYSTEMS,eol))
+            # for i in range(len(self.LINKS)):
+            #     exec("%s(' ACDC_%d_links = \\'%s\\'%s')"%(cmd,i+1,self.LINKS[i],eol))
+            for i in range(len(self.LINKS)):
+                exec("%s(' ACDC_links(%d) = \\'%s\\'%s')"%(cmd,i+1,self.LINKS[i],eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _PRECISION:

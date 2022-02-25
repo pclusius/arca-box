@@ -32,8 +32,6 @@ IMPLICIT NONE
 CONTAINS
 
 
-
-
 ! ======================================================================================================================
 ! Main condensation subroutine. We use the Analytical predictor of condensation scheme Jacobson 1997c, 2002 and
 ! fundamentals of atmospheric modelling. Dmass, which is the flux onto or removed from the particles is the outcome
@@ -48,7 +46,6 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
     REAL(dp), INTENT(INOUT)                     :: d_dpar(:)    ! relative change in particle diameter [1]
     REAL(dp), INTENT(INOUT)                     :: d_vap(:)     ! relative change in vapor concentrations [1]
     REAL(dp), DIMENSION(:,:), INTENT(IN)        :: Kelvin_effect
-    ! REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: Kelvin_Effect
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: kohler_effect
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp_old
     REAL(dp), DIMENSION(n_bins_par,n_cond_tot)  :: conc_pp_eq
@@ -57,18 +54,19 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
     REAL(dp), DIMENSION(n_cond_tot)             :: conc_tot
     REAL(dp), DIMENSION(n_cond_tot)             :: conc_vap_old
     REAL(dp), DIMENSION(n_bins_par)             :: n_conc
+    ! REAL(dp), DIMENSION(n_bins_par)             :: conc_pp_eq_bin
     REAL(dp), DIMENSION(n_bins_par)             :: diameter
     REAL(dp), DIMENSION(n_bins_par)             :: volume
     REAL(dp), DIMENSION(n_bins_par)             :: mass         ! [kg/m^3]
-    REAL(dp)                                    :: st           ! Surface tension for all compounds
+    ! REAL(dp), DIMENSION(n_bins_par)             :: term2
+    ! REAL(dp)                                    :: st,term1,term3         ! Surface tension for all compounds
     REAL(dp)                                    :: conc_guess
     REAL(dp)                                    :: sum_org      ! Sum of organic concentration in bin, transient variable
     INTEGER                                     :: ic           ! index for condesables
     INTEGER                                     :: ip           ! index for particles
-    INTEGER                                     :: ix(2)           ! index for particles
 
 
-    st = VAPOUR_PROP%surf_tension(1)
+    ! st = VAPOUR_PROP%surf_tension(1)
 
     conc_pp = 0d0
     conc_pp = get_composition()
@@ -84,7 +82,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
     DO ip=1,n_bins_par
         conc_pp(ip,:) = conc_pp(ip,:) * Na / VAPOUR_PROP%molar_mass * n_conc(ip)
         if (use_raoult) THEN
-            if (volume(ip) >0.0 .and. diameter(ip) > 1D-9) then
+            if (volume(ip)>0.0) then
                 sum_org = sum(conc_pp(ip,:),DIM=1, Mask=(VAPOUR_PROP%cond_type==1))
                 if (sum_org>0) THEN
                     ! mole fraction of each organic compound in each bin
@@ -111,8 +109,8 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
 
     ! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
     DO ip=1,n_bins_par
-        conc_pp_eq(ip,1:n_cond_tot-1) = conc_vap_old(1:n_cond_tot-1)*SUM(conc_pp_old(ip,1:n_cond_tot-1)) &
-                                        / (Kelvin_Effect(ip,1:n_cond_tot-1)*VAPOUR_PROP%c_sat(1:n_cond_tot-1))
+        conc_pp_eq(ip,1:n_cond_org) = conc_vap_old(1:n_cond_org)*SUM(conc_pp_old(ip,1:n_cond_org)) &
+                                        / (Kelvin_Effect(ip,1:n_cond_org)*VAPOUR_PROP%c_sat(1:n_cond_org))
     END DO
 
     DO ic = 1, n_cond_tot
@@ -128,6 +126,11 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
 
         ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
         conc_guess = (conc_vap(ic) + dt_cond*sum(CR*kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))) / (1D0 + dt_cond*sum(CR))
+
+
+        ! conc_pp_eq_bin(:) = conc_guess*SUM(conc_pp_old(ip,1:n_cond_org)) &
+        !                                     / (Kelvin_Effect(ip,1:n_cond_org)*VAPOUR_PROP%c_sat(1:n_cond_org))
+
 
         ! apc scheme cont. NOTE that for sulfuric acid VAPOUR_PROP%c_sat(ic) ~ 0 so the last term will vanish
         conc_pp(:,ic) = conc_pp_old(:,ic) + dt_cond*CR*(MIN(conc_guess,conc_tot(ic)) &
@@ -145,8 +148,9 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
             END WHERE
         END IF
 
+
         ! Update conc_vap: total conc - particle phase concentration. Sulfuric acid is handled in chemistry if it has H2SO4
-        if (ic /= VAPOUR_PROP%ind_H2SO4 .or. H2SO4_ind_in_chemistry<1)  conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
+        if (ic /= VAPOUR_PROP%ind_H2SO4 .or. H2SO4_ind_in_chemistry<1) conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
 
         ! derive the relative changes in the vapor phase. MIN_CONCTOT_CC_FOR_DVAP is in NML_CUSTOM
         IF ( conc_tot(ic) > MIN_CONCTOT_CC_FOR_DVAP * 1d6 ) d_vap(ic) = ( conc_vap(ic) - conc_vap_old(ic) ) / conc_tot(ic)
@@ -168,13 +172,13 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
         ! Derive diameter changes for integration time-step optimization
         if ( ip < n_bins_par ) THEN
             ! only if there are particles and if they had a composition in the last timestep
-            IF (SUM(conc_pp_old(ip,:)) > 0.d0 .and. n_conc(ip) > 1.d-10) THEN
-
+            IF (SUM(conc_pp_old(ip,:)) > 0.d0 .and. n_conc(ip) > 9.9d-7) THEN
+                ! print*, dmass(ip,:)
                 ! d_dpar(ip) = (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip) + SUM(dmass(ip,:))) &
                 !             / (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip))
-                d_dpar(ip) = 1d0 + SUM(dmass(ip,:)) / (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na /n_conc(ip))
+                d_dpar(ip) = 1d0 + SUM(dmass(ip,:)) / (SUM(conc_pp_old(ip,:)*VAPOUR_PROP%molar_mass(:)) / Na / n_conc(ip))
 
-                if (d_dpar(ip)<0d0.and.Use_speed) THEN
+                if (d_dpar(ip)<0d0.and.OPTIMIZE_DT) THEN
                     call SET_ERROR(PRC%cch, 'Particles shrink beyond their size')
                     return
                 ELSE
@@ -189,36 +193,24 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
 
 END SUBROUTINE Condensation_apc
 
-
-
-
-
-SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar) ! Add more variables if you need it
+! -------------------------------------------------------------------------------------------------------------
+! The Coagulation coefficient is calculated according to formula 13.56 in Seinfield and Pandis (2006), Page 603
+SUBROUTINE UPDATE_COAG_COEF()
     IMPLICIT NONE
-    REAL(dp), DIMENSION(n_bins_par,n_bins_par), intent(inout) :: dconc_coag    ! coagulation coefficients [m^3/s]
-    REAL(dp), INTENT(IN)                        :: dt_coag ! integration timestep for coagulation [s]
-    REAL(dp), INTENT(INOUT)                     :: d_npar(:) ! relative change in particle number concentrations [1]
-    REAL(dp), DIMENSION(n_bins_par)             :: n_conc,diameter, mass
-    REAL(dp), DIMENSION(n_bins_par)             :: volume
-    integer                                     :: i,j,m
-    REAL(dp), DIMENSION(n_bins_par,n_bins_par)  :: coagulation_coef        ! coagulation coefficients [m^3/s]
-    REAL(dp), DIMENSION(n_bins_par,n_bins_par)  :: sticking_prob           ! alpha in Fuchs' beta, S&P (2016) p. 550, eq. 13.56
+    integer                                     :: i
+    REAL(dp), DIMENSION(n_bins_par)             :: diameter, mass
+    REAL(dp), DIMENSION(n_bins_par,n_bins_par)  :: sticking_prob ! alpha in Fuchs' beta, S&P (2016) p. 550, eq. 13.56
     REAL(dp), DIMENSION(n_bins_par)             :: slip_correction
     REAL(dp), DIMENSION(n_bins_par)             :: diffusivity,dist
     REAL(dp), DIMENSION(n_bins_par)             :: speed_p
     REAL(dp), DIMENSION(n_bins_par)             :: free_path_p
-    REAL(dp), DIMENSION(n_bins_par, n_bins_par) :: Beta_Fuchs
-    REAL(dp)                                    :: dyn_visc  ! dynamic viscosity, kg/(m*s)
-    REAL(dp)                                    :: l_gas     ! Gas mean free path in air
-    REAL(dp)                                    :: a
+    REAL(dp), DIMENSION(n_bins_par)             :: Beta_Fuchs
+    REAL(dp)                                    :: dyn_visc     ! dynamic viscosity, kg/(m*s)
+    REAL(dp)                                    :: l_gas        ! Gas mean free path in air
 
     sticking_prob = alpha_coa
-    n_conc        = get_conc()
     diameter      = get_dp()
-    volume        = get_volume()
     mass          = get_mass()
-
-    ! The Coagulation coefficient is calculated according to formula 13.56 in Seinfield and Pandis (2006), Page 603
 
     ! Dynamic viscosity of air
     dyn_visc = 1.8D-5*(GTEMPK/298.0d0)**0.85
@@ -231,26 +223,52 @@ SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar) ! Add more variables
 
     ! Speed of particles (m/s)
     speed_p = SQRT(8D0*kb*GTEMPK/(pi*mass))
-    ! print*, 'speed 55', SQRT(8D0*kb*GTEMPK/(pi*mass(55)))
+
     ! Particle mean free path (m)
     free_path_p = 8D0*diffusivity/(pi*speed_p)
-    ! print*, 'fp 55', 8D0*diffusivity(55)/(pi*speed_p(55))
-    ! mean distance from the center of a sphere reached by particles leaving the sphere's surface (m)
+
+    ! Mean distance from the center of a sphere reached by particles leaving the sphere's surface (m)
     dist = (SQRT(2D0)/(3D0*diameter*free_path_p))*((diameter + free_path_p)**3D0 &
-    - (diameter**2D0 + free_path_p**2D0)**(3D0/2D0)) - diameter
+           - sqrt((diameter**2D0 + free_path_p**2D0)**(3D0))) - diameter
 
     DO i = 1,n_bins_par
         ! Fuchs correction factor from Seinfeld and Pandis, 2006, p. 600
-        Beta_Fuchs(i,:) = 1D0/((diameter + diameter(i))/(diameter + diameter(i) &
-                        + 2D0*(dist**2D0 + dist(i)**2D0)**0.5D0) + (8D0/sticking_prob(i,:))*(diffusivity + diffusivity(i)) &
-                        /(((speed_p**2D0+speed_p(i)**2D0)**0.5D0)*(diameter + diameter(i))))
+        Beta_Fuchs = 1D0/((diameter + diameter(i))/(diameter + diameter(i) &
+                        + 2D0*sqrt(dist**2D0 + dist(i)**2D0)) + (8D0/sticking_prob(i,:))*(diffusivity + diffusivity(i)) &
+                        /((sqrt(speed_p**2D0+speed_p(i)**2D0))*(diameter + diameter(i))))
 
         ! coagulation rates between two particles of all size combinations  (m^3/s)
-        coagulation_coef(i,:) = 2D0*pi*Beta_Fuchs(i,:)*(diameter*diffusivity(i) &
+        Gcoag_coef(i,:) = 2D0*pi*Beta_Fuchs*(diameter*diffusivity(i) &
                         + diameter*diffusivity + diameter(i)*diffusivity &
                         + diameter(i)*diffusivity(i))
     END DO
 
+END SUBROUTINE UPDATE_COAG_COEF
+
+
+SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar, update_k) ! Add more variables if you need it
+    IMPLICIT NONE
+    REAL(dp), DIMENSION(n_bins_par,n_bins_par), intent(inout) :: dconc_coag    ! coagulation coefficients [m^3/s]
+    REAL(dp), INTENT(IN)                        :: dt_coag ! integration timestep for coagulation [s]
+    REAL(dp), INTENT(INOUT)                     :: d_npar(:) ! relative change in particle number concentrations [1]
+    REAL(dp), DIMENSION(n_bins_par)             :: n_conc,diameter, mass
+    REAL(dp), DIMENSION(n_bins_par)             :: volume
+    integer                                     :: i,j,m
+    REAL(dp)                                    :: aa
+    LOGICAL, intent(INOUT)                      :: update_k
+
+    n_conc = get_conc()
+
+    ! Left here for documentation purposes only. For ARCA paper, to reproduce
+    ! Seinfelf & Pandis fig 13.6, which used analytical solution and K_ij = K
+    ! if (gtime%sec==0) Gcoag_coef = 1d-15
+    ! update_k = .false.
+
+    if (update_k) THEN
+        ! The Coagulation coefficient is calculated according to formula 13.56 in Seinfield and Pandis (2006), Page 603
+        call UPDATE_COAG_COEF()
+        update_k = .false.
+    END IF
 dconc_coag = 0d0
 
 if (GTIME%savenow) G_COAG_SINK = 0d0
@@ -258,12 +276,12 @@ if (GTIME%savenow) G_COAG_SINK = 0d0
 do j=1, n_bins_par
     do m = j, n_bins_par
         if (m==j) then
-            a=0.5_dp
+            aa=0.5_dp
         else
-            a= 1.0_dp
+            aa= 1.0_dp
         END if
-        if (GTIME%savenow) G_COAG_SINK(j) = G_COAG_SINK(j) + a * coagulation_coef(j,m) * n_conc(m)
-        IF (n_conc(j) > 1.d0 .and. n_conc(m) > 1.d0) dconc_coag(j,m) = a * coagulation_coef(j,m) * n_conc(j) * n_conc(m) * dt_coag ! 1/m^3 '/ dt
+        if (GTIME%savenow) G_COAG_SINK(j) = G_COAG_SINK(j) + aa * Gcoag_coef(j,m) * n_conc(m)
+        IF (n_conc(j) > 1.d0 .and. n_conc(m) > 1.d0) dconc_coag(j,m) = aa * Gcoag_coef(j,m) * n_conc(j) * n_conc(m) * dt_coag ! 1/m^3 '/ dt
     END DO
 
     ! Check whether changes are worth to be applied:
@@ -275,22 +293,19 @@ do j=1, n_bins_par
     END IF
 END DO
 
-
-
 END SUBROUTINE Coagulation_routine
 
 
 ! Loss rate calculation by P. Roldin
-SUBROUTINE deposition_velocity(d_p,ustar,Av,Au,Ad,V_chamber,T,p,E_field,dn_par, dt)
+SUBROUTINE deposition_velocity(d_p,ustar,Av,Au,Ad,V_chamber,T,p,E_field,dn_par, dt,k_dep)
     IMPLICIT NONE
     REAL(dp), DIMENSION(n_bins_par), INTENT(in) :: d_p
     REAL(dp), INTENT(in)                        :: ustar,Av,Au,Ad,V_chamber,T,p,dt, E_field
     REAL(dp), DIMENSION(:), INTENT(inout)       :: dn_par ! s^-1
     REAL(dp), DIMENSION(n_bins_par)             :: D,vs,Sc,r,aa,bb,Ii,vdv,vdu,vdd,Cc,dens !,ve
-    REAL(dp), DIMENSION(size(dn_par))           :: k_dep ! s^-1
+    REAL(dp), INTENT(INOUT)                     :: k_dep(:) ! s^-1
     REAL(dp)                                    :: dyn_visc,kin_visc,l_gas,dens_air
-    ! REAL(dp), DIMENSION(3) :: n
-    ! INTEGER :: j
+
     if (E_field > 0) continue
 
     dens = (get_mass())/(pi*(get_dp())**3/6)
@@ -331,8 +346,9 @@ SUBROUTINE deposition_velocity(d_p,ustar,Av,Au,Ad,V_chamber,T,p,E_field,dn_par, 
     ! ve=n(j)*e*Cc*E_field/(3D0*pi*dyn_visc*d_p) ! Characteristic average deposition velocity due to electrstatic forces
     ! k_dep(j+1,:)=ve*(Av+Au+Ad)/V_chamber+k_dep(1,:) ! First order loss rate coefficient (s^-1) due to particle charge (1,2 or 3), rectangular cavity
     ! END DO
-    if (GTIME%printnow) print*, 'G-mean k_dep', EXP(SUM(LOG(k_dep))/n_bins_par)
-    dn_par = (get_conc()) - (get_conc())*EXP(-k_dep*dt) ! calculates how the particle number concentration changes in each size bin due to dry deposition
+    if (GTIME%printnow) print FMT_SUB, 'Particle loss rate (geom.mean):'//TRIM(f2chr( EXP(SUM(LOG(k_dep))/n_bins_par)))&
+                    //'/s, '//TRIM(f2chr( EXP(SUM(LOG(k_dep))/n_bins_par)*3600d0))//'/h'
+    dn_par = get_conc() * ( 1 - EXP(-k_dep*dt)) ! calculates how the particle number concentration changes in each size bin due to dry deposition
 
 END SUBROUTINE deposition_velocity
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -344,7 +360,7 @@ SUBROUTINE UPDATE_MOLECULAR_DIFF_AND_CSPEED(VAPOUR_PROP)
     INTEGER                             :: om,sa        ! short for indices
 
     sa = VAPOUR_PROP%ind_H2SO4
-    om = VAPOUR_PROP%n_condorg
+    om = VAPOUR_PROP%n_cond_org
 
     ! --- Molecule thermal speed (m/s) ALL MOLECULES -------------------------------------------------------------------
     VAPOUR_PROP%c_speed = SQRT(8D0*Kb*GTEMPK/(pi*VAPOUR_PROP%molec_mass))

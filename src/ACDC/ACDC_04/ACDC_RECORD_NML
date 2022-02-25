@@ -1,0 +1,7 @@
+! Input files used to create the current system. Saved in Generic.nc:
+&ACDC_RECORD_NML
+  System   = "Perl_input/Besel_H2SO4_NH3_TO/INPUT.inp"
+  Energies = "Perl_input/Besel_H2SO4_NH3_TO/HS_YesSymYesQuasiHCorr.txt"
+  Dipoles  = "Perl_input/Besel_H2SO4_NH3_TO/dipoles_YesQuasiHCorr.txt"
+  Name     = "DLPNO NH3 system"
+/

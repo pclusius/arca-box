@@ -1,0 +1,68 @@
+#					h2so4	hso4-	h+	nh3
+name:					A	B	P	N
+charge:					0	-1	1	0
+corresponding neutral molecule:		-	A	-	-
+corresponding negative ion: 		B	-	-	-
+corresponding positive ion:		-	-	-	1N1P
+mass [g/mol]:				98.08	97.08	1	17.04
+density [kg/m**3]:			1830	1830	-	696
+base strength:				-1	3	-1	1
+acid strength:				2	-1	3	-1
+#######################################################################################
+#Sulfuric acid-Ammonia
+					1-3	0	0	0
+					0-3	0	0	1
+					1-4	0	0	2
+					2-5	0	0	3
+					3-6	0	0	4
+					4-6	0	0	5
+					5-6	0	0	6
+#Criteria for growing out of the simulation:
+# A
+#out neutral				7	0	0	7
+# A + B
+#out neutral				5	0	0	7   
+# A + C
+#out neutral				7	0	0	4
+# General
+#out neutral			   	6	0	0	7
+# T.O.: The 6,7 condition seems unreasonable since the cluster is expected to have a huge evap. rate
+out neutral			   	7	0	0	6
+########################################################################################
+#Anion
+					0-3	1	0	0
+					0-3	1	0	1
+					1-4	1	0	2
+					2-5	1	0	3
+					3-5	1	0	4
+					4-5	1	0	5
+					5-5	1	0	6
+#Criteria for growing out of the simulation:
+# A
+#out negative				6	1	0	7
+# A + B
+#out negative				5	1	0	7 
+# A + C
+#out negative				6	1	0	3 
+# General
+out negative				6	1	0	3
+########################################################################################
+#Cation
+					0-1	0	1	1
+					0-2	0	1	2
+					1-3	0	1	3
+					2-4	0	1	4
+					3-5	0	1	5
+					4-6	0	1	6
+#Criteria for growing out of the simulation:
+# A:
+#out positive				7	0	1	7
+# A + B:
+#out positive				4	0	1	7
+# A + C:
+#out positive				7	0	1	6
+# General
+#out positive				4	0	1	7 
+# T.O.: The 4,7 condition seems unreasonable since pos. clusters with so much more base are extremely unstable
+out positive				6	0	1	7 
+#######################################################################################

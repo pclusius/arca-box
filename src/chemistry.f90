@@ -84,7 +84,7 @@ CONTAINS
 
 
 
-    SUBROUTINE CHEMCALC(CONS, TIME_kpp, END_kpp, Tp, SWDWN, Beta, H2O, AIR, RES1, RES2, Albedo, RO2_out,reactivities)
+    SUBROUTINE CHEMCALC(CONS, TIME_kpp, END_kpp, Tp, SWDWN, Beta, H2O, AIR, RES1, RES2, Albedo, RO2_out,reactivities,swr_dis,swr_is_af)
 
         IMPLICIT NONE
 
@@ -93,12 +93,14 @@ CONTAINS
         INTEGER                        :: J1, I
         LOGICAL, SAVE                  :: first_call = .TRUE.
 
+        LOGICAL, INTENT(in)            :: swr_is_af
+
         REAL(dp), INTENT(inout)        :: CONS(NSPEC)                ! Concentrations of all gas compounds
 
         REAL(dp), INTENT(out)          :: RO2_out                    ! Concentration of peroxy radical
 
         REAL(dp), DIMENSION(75)        :: I_ACF                      ! Calculated actinic flux from 280-650nm
-        REAL(dp), DIMENSION(84), SAVE  :: swr_dis                    ! Distribution of solar radiation measured at SMEAR II
+        ! REAL(dp), DIMENSION(84), SAVE  :: swr_dis                    ! Distribution of solar radiation measured at SMEAR II
 
         REAL(dp), INTENT(in)           :: TIME_kpp, END_kpp,       & ! Model time in sec and same time plus chemical timestep
                                           H2O,                     & ! Water vapour concentration
@@ -107,7 +109,8 @@ CONTAINS
                                           Tp,                      & ! Temperature at this level of atmosphere. So in this box: temperature at ground level
                                           SWDWN,                   & ! Global short wave radiation
                                           RES1, RES2,              & ! Condensation sink for H2SO4 and HNO3
-                                          Albedo                     ! Albedo
+                                          Albedo,                  & ! Albedo
+                                          swr_dis(:)                 ! Spectral data - either distribution or absolute values
 
         REAL(dp)                       :: O2,                      & ! O2-concentration in molecule / cm3
                                           H2,                      & ! H2-concentration in molecule / cm3
@@ -115,6 +118,8 @@ CONTAINS
                                           MO2N2,                   & ! MO2N2: Sum of O2 and N2 concentration
                                           ZSD                        ! Solar elevation angle
         REAL(DP)                       :: reactivities(:)
+
+        ! CHARACTER(len=*), INTENT(in)   :: spectrumfile               ! Spectral function from 280-695 nm (min 84 rows)
 
 !        write(*,*) 'Gases: ',    CONS
 !        write(*,*) 'Time_kpp: ', TIME_kpp
@@ -137,22 +142,24 @@ CONTAINS
         MO2N2     = O2 + N2
         ZSD       = 90. - Beta
 
-        IF (first_call) THEN ! do only once
-            first_call = .FALSE.
-            ! For solar radiation distribution: measured data is read in for 280-500 nm but value at 500 nm is used for 505 - 650 nm
-            OPEN(960, file = filename1//'/General/swr_distribution.txt', status = "old")
-            DO J1 = 1,84
-                READ(960,*) swr_dis(J1)
-            ENDDO
-            CLOSE(960)
-        ENDIF
+        ! IF (first_call) THEN ! do only once
+        !     first_call = .FALSE.
+        !     ! For solar radiation distribution: measured data is read in for 280-500 nm but value at 500 nm is used for 505 - 650 nm
+        !     OPEN(960, file = TRIM(spectrumfile), status = "old")
+        !     DO J1 = 1,84
+        !         READ(960,*) swr_dis(J1)
+        !     ENDDO
+        !     CLOSE(960)
+        ! ENDIF
 
         I_ACF = 0.       ! all values for actinic flux are set to zero at the first time step
 
-        ! Calculated actinic flux based on measured global shortwave radiaton and Hyytiälä swr-distribution
-        DO J1 = 1,75
-            I_ACF(J1) = SWDWN * swr_dis(J1) * (1 + 2 * Albedo * COS(ZSD*3.1416/180) + Albedo)
-        ENDDO
+        ! Calculated actinic flux based on supplied global shortwave radiation
+        IF (swr_is_af) THEN
+            I_ACF(:) = SWDWN * swr_dis(1:75)
+        ELSE
+            I_ACF(:) = SWDWN * swr_dis(1:75) * (1 + 2 * Albedo * COS(ZSD*3.1416/180) + Albedo)
+        END IF
 
         J_values = 0.    ! all J-values are set to zero at the first time step
 
@@ -166,7 +173,7 @@ CONTAINS
         ! In the new chemistry from MCM no J-values above 56 are used
         J_values(57:size(J_values,1)) = 0
 
-        IF (ZSD .GE. 90.) THEN
+        IF (ZSD .GE. 90. .AND. .NOT. swr_is_af) THEN
             DO J1 = 1,NPHOT
                J_values(J1) = 0.
             ENDDO
@@ -251,47 +258,47 @@ CONTAINS
     IF (first_call) THEN ! do only once
         first_call = .FALSE.
 
-         OPEN(900,  FILE = ''//filename1//'/General/Photolyse/o3_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(901,  FILE = ''//filename1//'/General/Photolyse/o1d_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(902,  FILE = ''//filename1//'/General/Photolyse/o3p_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(903,  FILE = ''//filename1//'/General/Photolyse/h2o2_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(904,  FILE = ''//filename1//'/General/Photolyse/no2_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(905,  FILE = ''//filename1//'/General/Photolyse/no2_qy_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(906,  FILE = ''//filename1//'/General/Photolyse/no3_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(907,  FILE = ''//filename1//'/General/Photolyse/no3_no_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(908,  FILE = ''//filename1//'/General/Photolyse/no3_no2_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(909,  FILE = ''//filename1//'/General/Photolyse/hono_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(910,  FILE = ''//filename1//'/General/Photolyse/hno3_mcm_v2_298.dat',       STATUS = 'OLD')
-         OPEN(911,  FILE = ''//filename1//'/General/Photolyse/hcho_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(912,  FILE = ''//filename1//'/General/Photolyse/hcho_h_hco_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(913,  FILE = ''//filename1//'/General/Photolyse/hcho_h2_co_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(914,  FILE = ''//filename1//'/General/Photolyse/ch3cho_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(915,  FILE = ''//filename1//'/General/Photolyse/ch3cho_qy_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(916,  FILE = ''//filename1//'/General/Photolyse/c2h5cho_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(917,  FILE = ''//filename1//'/General/Photolyse/c2h5cho_qy_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(918,  FILE = ''//filename1//'/General/Photolyse/nc3h7cho_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(919,  FILE = ''//filename1//'/General/Photolyse/ic3h7cho_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(920,  FILE = ''//filename1//'/General/Photolyse/ic3h7cho_qy_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(921,  FILE = ''//filename1//'/General/Photolyse/macr_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(922,  FILE = ''//filename1//'/General/Photolyse/ch3coch3_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(923,  FILE = ''//filename1//'/General/Photolyse/ch3coch3_qy_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(924,  FILE = ''//filename1//'/General/Photolyse/mek_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(925,  FILE = ''//filename1//'/General/Photolyse/mvk_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(926,  FILE = ''//filename1//'/General/Photolyse/mvk_qy_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(927,  FILE = ''//filename1//'/General/Photolyse/glyox_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(928,  FILE = ''//filename1//'/General/Photolyse/glyox_qy_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(929,  FILE = ''//filename1//'/General/Photolyse/mglyox_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(930,  FILE = ''//filename1//'/General/Photolyse/mglyox_qy_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(931,  FILE = ''//filename1//'/General/Photolyse/biacet_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(932,  FILE = ''//filename1//'/General/Photolyse/ch3ooh_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(933,  FILE = ''//filename1//'/General/Photolyse/ch3no3_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(934,  FILE = ''//filename1//'/General/Photolyse/c2h5no3_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(935,  FILE = ''//filename1//'/General/Photolyse/n_c3h7no3_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(936,  FILE = ''//filename1//'/General/Photolyse/i_c3h7no3_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(937,  FILE = ''//filename1//'/General/Photolyse/tc4h9no3_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(938,  FILE = ''//filename1//'/General/Photolyse/noa_mcm_v2.dat',       STATUS = 'OLD')
-         OPEN(939,  FILE = ''//filename1//'/General/Photolyse/ho2no2_aitkinson.dat',       STATUS = 'OLD')
-         OPEN(940,  FILE = ''//filename1//'/General/Photolyse/n2o5_aitkinson.dat',       STATUS = 'OLD')
+         OPEN(900, FILE = ''//filename1//'/Photolyse/QY_CS/o3_mcm_v2.dat',           STATUS = 'OLD')
+         OPEN(901, FILE = ''//filename1//'/Photolyse/QY_CS/o1d_mcm_v2.dat',          STATUS = 'OLD')
+         OPEN(902, FILE = ''//filename1//'/Photolyse/QY_CS/o3p_mcm_v2.dat',          STATUS = 'OLD')
+         OPEN(903, FILE = ''//filename1//'/Photolyse/QY_CS/h2o2_mcm_v2.dat',         STATUS = 'OLD')
+         OPEN(904, FILE = ''//filename1//'/Photolyse/QY_CS/no2_mcm_v2.dat',          STATUS = 'OLD')
+         OPEN(905, FILE = ''//filename1//'/Photolyse/QY_CS/no2_qy_mcm_v2.dat',       STATUS = 'OLD')
+         OPEN(906, FILE = ''//filename1//'/Photolyse/QY_CS/no3_mcm_v2.dat',          STATUS = 'OLD')
+         OPEN(907, FILE = ''//filename1//'/Photolyse/QY_CS/no3_no_mcm_v2.dat',       STATUS = 'OLD')
+         OPEN(908, FILE = ''//filename1//'/Photolyse/QY_CS/no3_no2_mcm_v2.dat',      STATUS = 'OLD')
+         OPEN(909, FILE = ''//filename1//'/Photolyse/QY_CS/hono_mcm_v2.dat',         STATUS = 'OLD')
+         OPEN(910, FILE = ''//filename1//'/Photolyse/QY_CS/hno3_mcm_v2_298.dat',     STATUS = 'OLD')
+         OPEN(911, FILE = ''//filename1//'/Photolyse/QY_CS/hcho_mcm_v2.dat',         STATUS = 'OLD')
+         OPEN(912, FILE = ''//filename1//'/Photolyse/QY_CS/hcho_h_hco_mcm_v2.dat',   STATUS = 'OLD')
+         OPEN(913, FILE = ''//filename1//'/Photolyse/QY_CS/hcho_h2_co_mcm_v2.dat',   STATUS = 'OLD')
+         OPEN(914, FILE = ''//filename1//'/Photolyse/QY_CS/ch3cho_mcm_v2.dat',       STATUS = 'OLD')
+         OPEN(915, FILE = ''//filename1//'/Photolyse/QY_CS/ch3cho_qy_mcm_v2.dat',    STATUS = 'OLD')
+         OPEN(916, FILE = ''//filename1//'/Photolyse/QY_CS/c2h5cho_mcm_v2.dat',      STATUS = 'OLD')
+         OPEN(917, FILE = ''//filename1//'/Photolyse/QY_CS/c2h5cho_qy_mcm_v2.dat',   STATUS = 'OLD')
+         OPEN(918, FILE = ''//filename1//'/Photolyse/QY_CS/nc3h7cho_mcm_v2.dat',     STATUS = 'OLD')
+         OPEN(919, FILE = ''//filename1//'/Photolyse/QY_CS/ic3h7cho_mcm_v2.dat',     STATUS = 'OLD')
+         OPEN(920, FILE = ''//filename1//'/Photolyse/QY_CS/ic3h7cho_qy_mcm_v2.dat',  STATUS = 'OLD')
+         OPEN(921, FILE = ''//filename1//'/Photolyse/QY_CS/macr_mcm_v2.dat',         STATUS = 'OLD')
+         OPEN(922, FILE = ''//filename1//'/Photolyse/QY_CS/ch3coch3_mcm_v2.dat',     STATUS = 'OLD')
+         OPEN(923, FILE = ''//filename1//'/Photolyse/QY_CS/ch3coch3_qy_mcm_v2.dat',  STATUS = 'OLD')
+         OPEN(924, FILE = ''//filename1//'/Photolyse/QY_CS/mek_mcm_v2.dat',          STATUS = 'OLD')
+         OPEN(925, FILE = ''//filename1//'/Photolyse/QY_CS/mvk_mcm_v2.dat',          STATUS = 'OLD')
+         OPEN(926, FILE = ''//filename1//'/Photolyse/QY_CS/mvk_qy_mcm_v2.dat',       STATUS = 'OLD')
+         OPEN(927, FILE = ''//filename1//'/Photolyse/QY_CS/glyox_mcm_v2.dat',        STATUS = 'OLD')
+         OPEN(928, FILE = ''//filename1//'/Photolyse/QY_CS/glyox_qy_mcm_v2.dat',     STATUS = 'OLD')
+         OPEN(929, FILE = ''//filename1//'/Photolyse/QY_CS/mglyox_mcm_v2.dat',       STATUS = 'OLD')
+         OPEN(930, FILE = ''//filename1//'/Photolyse/QY_CS/mglyox_qy_mcm_v2.dat',    STATUS = 'OLD')
+         OPEN(931, FILE = ''//filename1//'/Photolyse/QY_CS/biacet_mcm_v2.dat',       STATUS = 'OLD')
+         OPEN(932, FILE = ''//filename1//'/Photolyse/QY_CS/ch3ooh_mcm_v2.dat',       STATUS = 'OLD')
+         OPEN(933, FILE = ''//filename1//'/Photolyse/QY_CS/ch3no3_mcm_v2.dat',       STATUS = 'OLD')
+         OPEN(934, FILE = ''//filename1//'/Photolyse/QY_CS/c2h5no3_mcm_v2.dat',      STATUS = 'OLD')
+         OPEN(935, FILE = ''//filename1//'/Photolyse/QY_CS/n_c3h7no3_mcm_v2.dat',    STATUS = 'OLD')
+         OPEN(936, FILE = ''//filename1//'/Photolyse/QY_CS/i_c3h7no3_mcm_v2.dat',    STATUS = 'OLD')
+         OPEN(937, FILE = ''//filename1//'/Photolyse/QY_CS/tc4h9no3_mcm_v2.dat',     STATUS = 'OLD')
+         OPEN(938, FILE = ''//filename1//'/Photolyse/QY_CS/noa_mcm_v2.dat',          STATUS = 'OLD')
+         OPEN(939, FILE = ''//filename1//'/Photolyse/QY_CS/ho2no2_aitkinson.dat',    STATUS = 'OLD')
+         OPEN(940, FILE = ''//filename1//'/Photolyse/QY_CS/n2o5_aitkinson.dat',      STATUS = 'OLD')
 
         DO I=1,75
            READ(900,*)  WL(I), ACSA_o3(I), ACSB_o3(I)

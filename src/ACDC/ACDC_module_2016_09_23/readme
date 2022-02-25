@@ -1,8 +1,0 @@
-This version of ACDC is tuned so that it creates Fortran files for ARCAs parallel-ACDC. 
-The functions and function calls are renamed with "D" suffix so that they won't mix with NH3
-engine. 
-
-Note that this program creates the "system" and "equation" -files only, to properly be functional, 
-makefile has to be properly written to point to driver files and common solvers (by default this is done in ARCA already).
-
-

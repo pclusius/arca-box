@@ -1,0 +1,7 @@
+! Input files used to create the current system. Saved in Generic.nc:
+&ACDC_RECORD_NML
+  System   = "Perl_input/Myllys_ACP_2019/SA_DMA_DLPNO.inp"
+  Energies = "Perl_input/Myllys_ACP_2019/dH_dS.txt"
+  Dipoles  = "Perl_input/Myllys_ACP_2019/dip_pol.txt"
+  Name     = "DLPNO DMA system"
+/

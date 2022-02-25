@@ -4,3 +4,5 @@ chemistry_schemes/*
 losses.sum
 MCM_densities.csv
 MCM_densities.dat
+/*.dat
+!*ALL_1e-6*

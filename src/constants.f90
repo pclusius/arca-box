@@ -135,6 +135,20 @@ TYPE error_type
     LOGICAL         :: in_turn(4)  = .true.  ! .true. if process is in turn, 4th is for any process == .true.
 END TYPE error_type
 
+TYPE acdc_in
+    LOGICAL                         :: inuse  = .false.     ! is the system in use?
+    INTEGER, ALLOCATABLE            :: ACDC_LINK_IND(:)     ! Indices that match the input in input or chemistry
+    REAL(dp), ALLOCATABLE           :: ACDC_monConc(:)      ! Monomer concentration vector that gets sent to ACDC
+    CHARACTER(len=11), ALLOCATABLE  :: ACDC_MONOMER_NAMES(:)! Monomer names vector that gets sent to ACDC
+    REAL(dp)                        :: J_OUT_M3(4) = 0d0    ! Output formation rate 1=total,2=neutral,3=pos,4=neg [particles/m3/s]
+    REAL(dp)                        :: J_OUT_CM3(4) = 0d0   ! Output formation rate 1=total,2=neutral,3=pos,4=neg [particles/cm3/s]
+    REAL(dp)                        :: Cl_diam = 1e-9      ! Outgrowing cluster diameter [m]
+    CHARACTER(len=256)              :: SYSTEM_FILE = '' ! System file that was used in perl call
+    CHARACTER(len=256)              :: ENERGY_FILE = '' ! Energy file that was used in perl call
+    CHARACTER(len=256)              :: DIPOLE_FILE = '' ! Dipole file that was used in perl call (not always needed)
+    CHARACTER(len=256)              :: NICKNAME    = '' ! System nickname. Defined in the conf file of perl script
+END TYPE acdc_in
+
 
 !===============================================================
 ! Type for storing the particles and particle losses
@@ -184,8 +198,8 @@ END TYPE PSD
 
 ! This datatype contains all parameters for input vapours
 type :: vapour_ambient
-    integer                         :: n_condorg            ! number of organics, all type 1
-    integer                         :: n_condtot            ! number of all vapours, all type 1+2 (including acids, generic etc.)
+    integer                         :: n_cond_org            ! number of organics, all type 1
+    integer                         :: n_cond_tot            ! number of all vapours, all type 1+2 (including acids, generic etc.)
     integer                         :: ind_H2SO4            ! index for H2SO4
     integer                         :: ind_GENERIC          ! index of GENERIC composition
     integer, allocatable            :: cond_type(:)         ! 1 = Organic vapour 2 = Acid (that's it for the moment)
@@ -220,18 +234,24 @@ end interface operator(.mod.)
 
 type(timetype)                  :: GTIME                      ! Model time, available in all modules and usually not explicitly sent in subroutines etc.
 type(input_mod), allocatable    :: MODS(:)                    ! THIS VECTOR HOLDS ALL INPUT AND MODIFICATION PARAMETERS
+type(acdc_in), allocatable      :: G_ACDC(:)                  ! Used to communicate between ACDC and ARCA
 type(vapour_ambient)            :: VAPOUR_PROP                ! Stores all vapour properties
 REAL(dp) :: GC_AIR_NOW, GTEMPK, GPRES, GRH, GCS               ! Global Air concentration, Temperature, Pressure, Relative humidity and H2SO4 condensation sink
-REAL(dp)                        :: J_ACDC_NH3_M3 = 0d0        ! Formation rate of NH3 calculated in ACDC [1/s/m³]
-REAL(dp)                        :: J_ACDC_DMA_M3 = 0d0        ! Formation rate of DMA calculated in ACDC [1/s/m³]
+! REAL(dp)                        :: J_ACDC_NH3_M3 = 0d0        ! Formation rate of NH3 calculated in ACDC [1/s/m³]
+! REAL(dp)                        :: J_ACDC_DMA_M3 = 0d0        ! Formation rate of DMA calculated in ACDC [1/s/m³]
+! REAL(dp)                        :: J_ACDC_3_M3   = 0d0        ! Formation rate of DMA calculated in ACDC [1/s/m³]
+! REAL(dp)                        :: J_ACDC_4_M3   = 0d0        ! Formation rate of DMA calculated in ACDC [1/s/m³]
+! REAL(dp)                        :: J_ACDC_5_M3   = 0d0        ! Formation rate of DMA calculated in ACDC [1/s/m³]
 REAL(dp)                        :: J_TOTAL_M3    = 0d0        ! Formation rates from all methods summed [1/s/m³]
-REAL(dp)                        :: clusteracid, clusterbase   ! stores informatin of cluster population
-REAL(dp)                        :: dclusteracid, dclusterbase ! stores information of cluster population
-REAL(dp)                        :: J_NH3_BY_IONS(3) = 0d0     ! Stores charge dependent formation rates [1/s/m³]
-REAL(dp)                        :: acdc_cluster_diam = 1.4d-9 ! diameter of the largest clusters, updated in ACDC
-REAL(dp)                        :: RESOLVED_BASE, RESOLVED_J  ! stores output of SOLVE_BASES
-REAL(dp)                        :: RESOLVED_J_FACTR           ! stores output of SOLVE_BASES
-Logical                         :: NO_NEGATIVE_CONCENTRATIONS = .true.
+! REAL(dp)                        :: clusteracid, clusterbase   ! stores informatin of cluster population
+! REAL(dp)                        :: dclusteracid, dclusterbase ! stores information of cluster population
+! REAL(dp)                        :: J_NH3_BY_IONS(3) = 0d0     ! Stores charge dependent formation rates [1/s/m³]
+! REAL(dp)                        :: acdc_cluster_diam = 1.4d-9 ! diameter of the largest clusters, updated in ACDC
+! REAL(dp)                        :: RESOLVED_BASE, RESOLVED_J  ! stores output of SOLVE_BASES
+! REAL(dp)                        :: RESOLVED_J_FACTR           ! stores output of SOLVE_BASES
+Logical                         :: NO_NEGATIVE_CONCENTRATIONS = .true. ! Any input concentration < 0 is set to 0.
+
+! real(dp)                      :: TIMER(6) = 0 	      ! time variable for OPTI function, only used for development work
 
 ! speed_up: factor for increasing integration time step for individual prosesses
 ! (1): chemistry & Condensation & ACDC (2): Coagulation; (3): Deposition
@@ -281,7 +301,7 @@ PURE type(timetype) function ADD(time, sec)
     END IF
     IF ((ADD%savenow .eqv. .false.) .and. (ADD%sec >= (ADD%FSAVE_INTERVAL*(1+ADD%prevSave_i)))) THEN
         ADD%savenow = .true.
-        ADD%prevSave_i =  INT(ADD%sec)/INT(ADD%FSAVE_INTERVAL)
+        ADD%prevSave_i =  INT(ADD%sec*10000)/INT(ADD%FSAVE_INTERVAL*10000)
     ELSE
         ADD%savenow = .false.
     END IF

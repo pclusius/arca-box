@@ -1,0 +1,7 @@
+! Input files used to create the current system. Saved in Generic.nc:
+&ACDC_RECORD_NML
+  System   = "Perl_input/SA-DMA-NEUT-POS-NEG.inp"
+  Energies = "Perl_input/HS298.15K_example.txt"
+  Dipoles  = "Perl_input/dip_pol_298.15K_example.txt"
+  Name     = "RICC2 DMA system"
+/

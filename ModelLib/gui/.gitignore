@@ -1,6 +1,6 @@
 *.ui
 __init__.py
-dev/*
+dev
 tmp/*
 defaults
 *.pickle

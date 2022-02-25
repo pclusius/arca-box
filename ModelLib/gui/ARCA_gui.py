@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-from layouts import varWin,gui8,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor
+from layouts import varWin,gui10,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor
 from modules import variations,vars,batch,GetVapourPressures as gvp
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, ravel, mean, round as npround
@@ -41,6 +41,7 @@ from urllib.parse import urljoin
 
 try:
     from scipy.ndimage.filters import gaussian_filter
+    from scipy.signal import savgol_filter
     scipyIs = True
 except:
     print('Consider adding SciPy to your Python')
@@ -73,6 +74,10 @@ args = []
 if len(sys.argv)>1:
     for a in sys.argv:
         args.append(a.upper())
+        if '--scaling_' in a:
+            environ["QT_SCALE_FACTOR"] = "%3.2f"%float(a.replace('--scaling_',''))
+            args.append('-NS')
+
 if osname.upper() == 'NT' or operatingsystem == 'Windows' and not '-NS' in args: # this or is only till I sort out if platform usually works for people
     try:
         import ctypes
@@ -103,10 +108,16 @@ units = {
 'PRESSURE': ['Pa','hPa','mbar','kPa','bar','atm'],
 'REL_HUMIDITY': ['%'],
 'CONDENS_SINK':['1/s'],
+'CS_CALC':['1/s'],
 'CON_SIN_NITR':['1/s'],
 'SW_RADIATION':['W/m2'],
 'ION_PROD_RATE':['ip/cm3 s'],
 'NUC_RATE_IN':['1/cm3 s'],
+'J_ACDC_1_CM3':['1/cm3 s'],
+'J_ACDC_2_CM3':['1/cm3 s'],
+'J_ACDC_3_CM3':['1/cm3 s'],
+'J_ACDC_4_CM3':['1/cm3 s'],
+'J_ACDC_5_CM3':['1/cm3 s'],
 'J_ACDC_NH3_CM3':['1/cm3 s'],
 'J_ACDC_DMA_CM3':['1/cm3 s'],
 'J_ACDC_SUM_CM3':['1/cm3 s'],
@@ -125,6 +136,9 @@ minimal_settings_path = gui_path+'conf/minimal.init'
 monitorfont_pickle = 'conf/monitorfont.pickle'
 globalfont_pickle = 'conf/globalfont.pickle'
 
+# Default global shortwave radiation spectrum file
+# (located in ModelLib/Photolyse/Spectra) -------------------------
+defaultSpectrum = 'glob_swr_distr.txt'
 # This path will be added to Common out if no other option is given
 default_inout = 'INOUT'
 # This case name will be used as case name if no other name is given
@@ -179,12 +193,6 @@ with open(osjoin(gui_path,'conf','helplinks.txt'), 'r') as b:
 # files that can be modified with the Editor
 nucl_homs = "ModelLib/required/nucl_homs.txt"
 custom_functions = "src/custom_functions.f90"
-# AmmSystemFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/input_ANnarrow_neutral_neg_pos.inp"
-# Amm_EnergyFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/HS298.15K_426clusters2016Apr25.txt"
-# Amm_DipoleFile = "src/ACDC/ACDC_module_ions_2018_08_31/Perl_input/dip_pol_298.15K_426clusters2016Apr25.txt"
-# DMASystemFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/input_AD.inp"
-# DMA_EnergyFile = "src/ACDC/ACDC_module_2016_09_23/Perl_input/dH_dS.txt"
-ACDC_dir = "src/ACDC/ACDC_module_2016_09_23/Perl_input/dH_dS.txt"
 SCREENPRINT_NML = "ModelLib/required/NML_SCREENPRINTS.def"
 # Create chemistry script location
 ccloc = 'ModelLib/gui/chemistry_package_PZ'
@@ -212,9 +220,16 @@ roman.setWeight(50)
 
 ## Create lists and dictionaries related to NAMES -------------
 i = 0
+j = 0
 with open(path_to_names) as f:
     for line in f:
+        j += 1
         name = line[:-1]
+        if name == '':
+            continue
+        if i+1!=j:
+            print('\n\nEmpty line in the middle of NAMES.DAT, it will not work!\n\n')
+            exit('ARCA will not start, check out '+path_to_names+' and remove empty lines.')
         if '#' in line:
             divider_i=i
             name = 'MCM compounds start here'
@@ -300,7 +315,8 @@ class CCWin(QtWidgets.QDialog):
         includes = self.ccw.includedFiles.toPlainText().split()
         fixed = self.ccw.deffix.toPlainText().split()
         if self.ccw.inclPram.isChecked():
-            includes.append(osjoin(ccloc,'PRAM_v21.txt'))
+            # includes.append(osjoin(ccloc,'PRAM_v21.txt'))
+            includes.append(osjoin('ModelLib','PRAM','PRAM_v21.txt'))
         out = osjoin(self.ccw.outDir.text(),'second.def')
         log = osjoin(self.ccw.outDir.text(),'second.log')
         commandstring = [currentPythonVer,ccloc+'/create_chemistry.py',cmds,'-o',out,'-l',log]
@@ -320,7 +336,7 @@ class CCWin(QtWidgets.QDialog):
             print( 'Calling chemistry script with:\n'+' '.join(commandstring))
             self.kppProcess = Popen([*commandstring], stdout=PIPE,stderr=STDOUT,stdin=None)
             output = ['Chemistry definitions were created.\n']
-            boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp"\n2) Recompile thme model code in tab "Chemistry".'
+            boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp"\n2) Recompile ARCA in tab "Chemistry".'
             while lines:
                 self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
                 if '[WARNING' in self.ccout.upper():
@@ -376,7 +392,7 @@ class CCWin(QtWidgets.QDialog):
         else:
             cpf(osjoin(ccloc,'mcm_module.f90'),osjoin(self.ccw.outDir.text(),'mcm_module.f90'))
             cpf(osjoin(ccloc,'second.kpp'),osjoin(self.ccw.outDir.text(),'second.kpp'))
-            if warnings: output.append('Read the .log and resolve the problems, then:')
+            if warnings: output.append('Read the log above, and resolve the problems in .def file, then:')
             qt_box.popup('Chemistry created', '\n'.join(output)+boilerplate,0)
 
 
@@ -547,15 +563,20 @@ class Input(QtWidgets.QDialog):
 
 # The popup window for editing simple text files
 class Editor(QtWidgets.QDialog):
-    def __init__(self, parent = None, file = None):
+    def __init__(self, parent = None, file = None, cursorToStart=False):
         super(Editor, self).__init__(parent)
         self.editor = t_editor.Ui_Dialog()
         self.editor.setupUi(self)
         self.setWindowTitle("Editing "+file)
-        self.editor.editedText.setFont(qt_box.mfont)
         f = open(file, 'r')
         t = f.read()
         self.editor.editedText.appendPlainText(t)
+        self.editor.editedText.setFont(qt_box.mfont)
+        if cursorToStart:
+            crs=self.editor.editedText.textCursor()
+            crs.movePosition(QtGui.QTextCursor.Start)
+            self.editor.editedText.setTextCursor(crs);
+
 
 # The Class for storing compound input
 class Comp:
@@ -583,7 +604,7 @@ class Comp:
 
 class NcPlot:
     """Class for plot file contents"""
-    def __init__(self, file):
+    def __init__(self, file, mdim=False):
         self.path = file
         self.masterfile = ossplit(file)[1]
         ncs = netCDF4.Dataset(file, 'r')
@@ -596,8 +617,15 @@ class NcPlot:
         self.measdmps = False
         if self.masterfile == 'Particles.nc':
             self.par = True
-            b = ravel(ncs.variables['CONDENSABLES'][:,:].astype(str),'C')
-            names=b.reshape(ncs.variables['CONDENSABLES'].shape)
+            try:
+                # Better way to read netCDF4 strings:
+                # netCDF4.chartostring(nc.variables['VAPOURS'][:])
+                # Simplify this when time
+                b = ravel(ncs.variables['VAPOURS'][:,:].astype(str),'C')
+                names=b.reshape(ncs.variables['VAPOURS'].shape)
+            except:
+                b = ravel(ncs.variables['CONDENSABLES'][:,:].astype(str),'C') # the variable was renamed in v1.2
+                names=b.reshape(ncs.variables['CONDENSABLES'].shape)
             self.nc_cm3 = ncs.variables['NUMBER_CONCENTRATION'][:] #
             self.composition_ng = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_cm3[:,:,newaxis], 1)*1e18 # kg->grams,g->ng cm3->m3=1e18
             self.totalmass_ng_m = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_cm3[:,:,newaxis], 2)*1e18
@@ -618,8 +646,12 @@ class NcPlot:
                 break
 
         checker = lambda v,n: v.lower() in timedim and 'Shifter' not in n and 'Multipl' not in n and 'TIME_IN' not in n.upper()
-        cache = array([i.name for i in ncs.get_variables_by_attributes(ndim=1)])
-        timevars = [checker(i.dimensions[0], i.name) for i in ncs.get_variables_by_attributes(ndim=1)]
+        if mdim:
+            cache = array([i.name for i in ncs.get_variables_by_attributes(ndim=lambda d:d in range(1,3))])
+            timevars = [checker(i.dimensions[0], i.name) for i in ncs.get_variables_by_attributes(ndim=lambda d:d in range(1,3))]
+        else:
+            cache = array([i.name for i in ncs.get_variables_by_attributes(ndim=1)])
+            timevars = [checker(i.dimensions[0], i.name) for i in ncs.get_variables_by_attributes(ndim=1)]
         self.varnames = cache[timevars]
 
         # Unfortunately these early version files are still somewhere out there
@@ -658,12 +690,23 @@ class NcPlot:
         except:
             print('... Netcdf file was already closed')
 
+    def getinfo(self,n):
+        v = self.nc[n]
+        sss = 'NetCDF attributes for %s\n\n'%n
+        for a in v.ncattrs():
+            sss += a+': '+getattr(v,a)+'\n'
+        qt_box.popup('Variable info',sss,0)
+
+
     def getconc(self,n, return_unit=False):
         if n in self.convars:
+            y = self.nc.variables[n][self.mask]
+            if len(shape(y))>1:
+                y = y[:,0]
             if return_unit:
-                return self.nc.variables[n][self.mask], '['+units.get(n,units['REST'])[0]+']'
+                return y, '['+units.get(n,units['REST'])[0]+']'
             else:
-                return self.nc.variables[n][self.mask]
+                return y
         else: return
 
     def getloc(self,i, return_unit=False):
@@ -731,7 +774,7 @@ class NcPlot:
             self.have_aircc = False
 
 
-class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
+class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
     """Main program window."""
     def __init__(self):
         super(QtBoxGui,self).__init__()
@@ -740,6 +783,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Common stuff
     # -----------------------
+        self.setAcceptDrops(True)
         self.setWindowTitle(CurrentVersion)
         self.setWindowIcon(QtGui.QIcon(boxicon))
         self.inout_dir.setPlaceholderText("\""+default_inout+"\" if left empty")
@@ -780,7 +824,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionStopCurrentRunClean.triggered.connect(self.softStop)
         self.actionPrint_Custom_commands_cheat_sheet.triggered.connect(lambda: print(CustomCommandsCheatSheet))
         self.actionPlt_changes_from_current_dir.triggered.connect(self.plotChanges)
-
+        self.actionShow_variable_attributes.triggered.connect(lambda: self.showOutputUpdate(info=True))
     # -----------------------
     # tab General options
     # -----------------------
@@ -845,7 +889,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.run_name.editingFinished.connect(lambda: self.allcaps(self.run_name))
         self.inout_dir.textChanged.connect(self.updatePath)
         self.indexRadioDate.toggled.connect(self.updatePath)
-        self.useSpeed.toggled.connect(lambda: self.grayIfChecked(self.useSpeed,self.resolve_base))
+        # self.useSpeed.toggled.connect(lambda: self.grayIfChecked(self.useSpeed,self.resolve_base))
         self.useSpeed.toggled.connect(self.adjust_dt)
         self.dateEdit.dateChanged.connect(self.updateEnvPath)
         self.dateEdit.dateChanged.connect(lambda: self.curDate.setText(self.dateEdit.text()))
@@ -925,14 +969,10 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.updteGraph(first=True)
 
     # -----------------------
-    # tab Losses
-    # -----------------------
-        self.browseLosses.clicked.connect(lambda: self.browse_path(self.losses_file, 'file'))
-
-    # -----------------------
     # tab Chemistry
     # -----------------------
 
+        self.butSpectralData.clicked.connect(lambda: self.browse_path(self.spectralFunctions, 'file'))
         self.kppTool.clicked.connect(self.createCC)
         self.vapTool.clicked.connect(self.vapours)
         self.recompile.clicked.connect(self.remake)
@@ -942,6 +982,17 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.running = 0
         self.get_available_chemistry(checkonly=False)
         self.chemLabel.setText('Current chemistry scheme in makefile: '+self.get_available_chemistry(checkonly=True))
+        self.spectralFunctions.textChanged.connect(lambda: \
+                                        self.frame_27.setEnabled(False) if (self.spectralFunctions.text()!='' \
+                                        and ossplit(self.spectralFunctions.text())[1]!=defaultSpectrum) \
+                                        else self.frame_27.setEnabled(True))
+
+        self.SW_is_AF.toggled.connect(lambda: self.popup('Warning','If irradiation is interpreted as Actinic flux, default spectrum is invalid. \
+Please provide valid spectral function.') \
+                    if ((self.spectralFunctions.text()=='' or ossplit(self.spectralFunctions.text())[1]==defaultSpectrum) \
+                    and self.SW_is_AF.isChecked()) else False)
+
+        self.SW_is_AF.toggled.connect(lambda: self.grayIfChecked(self.SW_is_AF,self.groupBox_23))
 
     # -----------------------
     # tab Aerosols
@@ -951,8 +1002,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.butVapourAtoms.clicked.connect(lambda: self.browse_path(self.vap_atoms, 'file'))
         self.use_atoms.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_atoms,self.vap_atoms))
         self.use_atoms.stateChanged.connect(lambda: self.grayIfNotChecked(self.use_atoms,self.butVapourAtoms))
-        self.Org_nucl.toggled.connect(lambda: self.grayIfChecked(self.Org_nucl,self.resolve_base))
-        self.resolve_base.toggled.connect(lambda: self.grayIfChecked(self.resolve_base,self.groupBox_16))
+        # self.Org_nucl.toggled.connect(lambda: self.grayIfChecked(self.Org_nucl,self.resolve_base))
+        # self.resolve_base.toggled.connect(lambda: self.grayIfChecked(self.resolve_base,self.groupBox_16))
         # self.resolve_base.stateChanged.connect(lambda: self.grayIfNotChecked(self.resolve_base,self.frameBase))
         # self.use_dmps_partial.toggled.connect(lambda: self.toggle_gray(self.use_dmps_partial,self.gridLayout_11))
         self.saveBatch.clicked.connect(lambda: self.batchCaller())
@@ -972,31 +1023,42 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.viewCustomChem.clicked.connect(lambda: self.editTxtFile(custom_functions))
         self.use_dmps.toggled.connect(lambda: self.grayIfChecked(self.use_dmps,self.multiModalBox))
         self.multiModalBox.toggled.connect(lambda: self.grayIfChecked(self.multiModalBox,self.use_dmps))
-
-        # self.EditAmmSystem.clicked.connect(lambda: self.editTxtFile(AmmSystemFile))
-        # self.EditAmm_E.clicked.connect(lambda: self.editTxtFile(Amm_EnergyFile))
-        # self.EditAmmDipoles.clicked.connect(lambda: self.editTxtFile(Amm_DipoleFile))
-        # self.EditDMASystem.clicked.connect(lambda: self.editTxtFile(DMASystemFile))
-        # self.EditDMA_E.clicked.connect(lambda: self.editTxtFile(DMA_EnergyFile))
         self.EditAcdcGen.clicked.connect(lambda: self.editTxtFile('src/ACDC/'+self.CurrentAcdcSystem+"/settings.conf"))
         self.openPerlDir.clicked.connect(lambda: self.openOutputDir(None, 'src/ACDC/'+self.CurrentAcdcSystem+'/Perl_input'))
-        self.runPerlScript.clicked.connect(self.rerunACDC)
+        self.runPerlScript.clicked.connect(lambda: self.rerunACDC(make=False))
+        self.runPerlScript_and_make.clicked.connect(lambda: self.rerunACDC(make=True))
         self.ACDC_available_compounds = []
         self.acdc_systems_flags = [1,1,0,0,0]
-        self.ACDC_current_links = []
+        self.ACDC_current_links = [ [0, {'A': 'H2SO4', 'N': 'NH3'}  ],
+                                    [0, {'A': 'H2SO4', 'D': 'DMA'}  ],
+                                    [0, {'A': '-', 'N': '-'}        ],
+                                    [0, {'A': '-', 'N': '-'}        ],
+                                    [0, {'A': '-', 'N': '-'}        ] ]
         self.ACDC_n_systems = 5
+        self.nickname = []
         self.parse_ACDC_systems()
         self.editACDC.setEnabled(False)
         self.CurrentAcdcSystem = ''
-        self.ACDC_linker.itemSelectionChanged.connect(self.setCurrentAcdcSystem)
+        self.ACDC_linker.setCurrentItem(self.ACDC_linker.topLevelItem(0))
+        self.ACDC_linker.itemClicked.connect(self.setCurrentAcdcSystem)
+        for i in range(2):
+            self.ACDC_linker.setColumnWidth(i,[150,50][i]);
+
+    # -----------------------
+    # tab Losses
+    # -----------------------
+        self.floorArea.valueChanged.connect(self.update_title)
+        self.chamberHeight.valueChanged.connect(self.update_title)
+        self.browseLosses.clicked.connect(lambda: self.browse_path(self.losses_file, 'file'))
+        self.losses_file.textChanged.connect(lambda: \
+                                        self.grayIfChecked(True,self.deposition) if self.losses_file.text()!='' \
+                                        else self.grayIfChecked(False,self.deposition))
 
     # -----------------------
     # tab Process Monitor
     # -----------------------
         self.currentEndLine = 0
         self.fulltext = ''
-        # self.tabWidget.currentChanged.connect(self.activeTab)
-        # self.tabWidget_4.currentChanged.connect(self.activeSubTab)
         fixedFont = QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
         fixedFont.setPointSize(10)
         self.MonitorWindow.setFont(fixedFont)
@@ -1050,8 +1112,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         if netcdf:
             self.show_netcdf.hide()
             self.show_netcdf_2.hide()
-            self.fLog_2.clicked.connect(self.showOutputUpdate)
-            self.fLin_2.clicked.connect(self.showOutputUpdate)
+            self.fLog_2.clicked.connect(lambda: self.showOutputUpdate(info=False))
+            self.fLin_2.clicked.connect(lambda: self.showOutputUpdate(info=False))
             self.findComp.textChanged.connect(self.filterListOfComp)
             self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'addplot', ftype="NetCDF (*.nc)"))
             self.addSimilar.clicked.connect(self.addAnotherNC)
@@ -1089,11 +1151,12 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             wnd.getAxis('bottom').setPen(pen)
 
         self.addSimilar.setEnabled(False)
+        self.actionShow_variable_attributes.setEnabled(False)
         self.CloseLinePlotsButton.setEnabled(False)
         self.findComp.setEnabled(False)
-        self.ppm.toggled.connect(self.showOutputUpdate)
-        self.ppb.toggled.connect(self.showOutputUpdate)
-        self.ppt.toggled.connect(self.showOutputUpdate)
+        self.ppm.toggled.connect(lambda: self.showOutputUpdate(info=False))
+        self.ppb.toggled.connect(lambda: self.showOutputUpdate(info=False))
+        self.ppt.toggled.connect(lambda: self.showOutputUpdate(info=False))
         self.toggleppm('off')
         self.ShowPPC.setEnabled(False)
         self.sumSelection.stateChanged.connect(self.selectionMode)
@@ -1122,7 +1185,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         self.helpSwitchChem.clicked.connect(lambda: self.helplink(    'switchChem'))
         self.helpCc.clicked.connect(lambda: self.helplink(            'ccmanual'))
         self.helpCustomf.clicked.connect(lambda: self.helplink(       'customFunc'))
-        self.helpACDC.clicked.connect(lambda: self.helplink(          'acdc1'))
+        # self.helpACDC.clicked.connect(lambda: self.helplink(          'acdc1'))
         self.helpACDCAdv.clicked.connect(lambda: self.helplink(       'acdc2'))
         self.helpOrgNucl.clicked.connect(lambda: self.helplink(       'orgnucl'))
         self.helpCustomf2.clicked.connect(lambda: self.helplink(      'customFunc'))
@@ -1143,36 +1206,66 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         # try:
         #     # if defaults exist, use them
         if exists(defaults_file_path):
-            self.load_initfile(defaults_file_path)
+            out = self.load_initfile(defaults_file_path)
         else:
             try:
                 # If defaults did not exist, load minimal working settings
-                self.load_initfile(minimal_settings_path)
+                out = self.load_initfile(minimal_settings_path)
             except:
                 # If they also were missing, use "factory settings"
                 pass
             # Save the obtained settings as default
             self.save_file(file=defaults_file_path, mode='silent')
-        self.updateEnvPath()
+        if out==None: self.updateEnvPath()
 
     # -----------------------
     # Class methods
     # -----------------------
-    def rerunACDC(self):
+
+    def dragEnterEvent(self, e):
+        if e.mimeData().hasFormat('text/plain'): e.accept()
+        else: e.ignore()
+    def dropEvent(self, e):
+        file = e.mimeData().text().replace('file://','').strip()
+        out = self.load_initfile(file)
+        if out==None: self.show_currentInit(file)
+
+
+    def rerunACDC(self, make=False):
         bashscript = "src/ACDC/run_perl.sh"
         cdto = "src/ACDC/"+self.CurrentAcdcSystem
         self.rra = Popen(["bash", bashscript, "settings.conf",cdto])
+        while True:
+            xx = self.rra.poll()
+            if xx != None: break
+        num = int(self.CurrentAcdcSystem[-1])
+        self.parse_ACDC_systems(num)
+        if make:
+            self.remake(syst=self.CurrentAcdcSystem[-1])
+
 
     def setCurrentAcdcSystem(self):
         title = 'Actions for the highlighted system'
-        if self.ACDC_linker.currentItem().parent() == None:
-            self.CurrentAcdcSystem = self.ACDC_linker.currentIndex().data()
+        b1 = 'View/edit settings'
+        b2 = 'Open system input directory'
+        b3 = 'Run ACDC Perl script'
+        b4 = 'Run ACDC Perl and recompile ARCA'
+        if self.ACDC_linker.currentItem().parent() == None and self.ACDC_linker.currentIndex().data() != None:
+            self.CurrentAcdcSystem = self.ACDC_linker.currentIndex().siblingAtColumn(0).data()
             self.editACDC.setEnabled(True)
             self.editACDC.setTitle(title+' ('+self.CurrentAcdcSystem+')')
+            self.EditAcdcGen.setText(b1 + ' for ' + self.CurrentAcdcSystem)
+            self.openPerlDir.setText(b2 + ' of ' + self.CurrentAcdcSystem)
+            self.runPerlScript.setText('Update  *f.90 for ' + ' ' + self.CurrentAcdcSystem)
+            self.runPerlScript_and_make.setText('Update  *f.90 for ' + ' ' + self.CurrentAcdcSystem + ' and recompile ARCA')
         else:
             self.CurrentAcdcSystem = ''
             self.editACDC.setEnabled(False)
             self.editACDC.setTitle(title)
+            self.EditAcdcGen.setText(b1)
+            self.openPerlDir.setText(b2)
+            self.runPerlScript.setText(b3)
+            self.runPerlScript_and_make.setText(b4)
 
     def openOutputDir(self, a, dir):
         import os
@@ -1203,9 +1296,6 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
         else:
             self.dt.setValue(10.0)
 
-    # def activeSubTab(self,i):
-    #     pass
-        # if i == 0: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.currentEndLine)
 
     def guiSetFont(self, wdgt, name, reset=False):
         if not reset:
@@ -1249,6 +1339,7 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
                 return
         except:
             return
+        # X = diameters of PSD
         x = 10**linspace(log10(x0),log10(x1),nb)
         acl = zeros(len(x))
         k = log10(x[1]/x[0])
@@ -1259,6 +1350,8 @@ class QtBoxGui(gui8.Ui_MainWindow,QtWidgets.QMainWindow):
             Z = N * acl / (sum( acl ))
             ndel = -min(nb-1, 8)
             Z[ndel:] = where(Z[ndel:]>1e-12, 0,Z[ndel:])
+            self.massLabel.setText('Total mass: %9.2e µg/m3 (Density: 1.4g/cm³)'%(npsum(Z*(pi*x**3)/6)*1.4e3*1e15))
+            self.areaLabel.setText('Total Area: %9.2e µm2/cm3 '%(npsum(Z*(pi*x**2))*1e12))
             self.HPLotter.plot(x,Z/k,pen=pg.mkPen('w', width=4), clear=True, name='PSD')
             self.HPLotter.setLogMode(x=True)
             self.HPLotter.showGrid(x=True,y=True)
@@ -1699,14 +1792,14 @@ the numerical model or chemistry scheme differs from the current, results may va
         # return norm
 
 
-    def radio(self,*buts):
+    def radio(self,*buts, action=True):
         for but in buts:
             if but.isChecked():
                 if but.text() == 'Linear':
-                    self.PLOT.setLogMode(y=False)
+                    if action: self.PLOT.setLogMode(y=False)
                     return 'lin'
                 if but.text() == 'Logarithmic':
-                    self.PLOT.setLogMode(y=True)
+                    if action: self.PLOT.setLogMode(y=True)
                     return 'log'
 
     def createCaseFolders(self,mode=0):
@@ -1749,7 +1842,7 @@ the numerical model or chemistry scheme differs from the current, results may va
 
             # path = dialog.getExistingDirectory(self, 'Choose Directory', options=options)
             dialog.setOption(QtWidgets.QFileDialog.DontUseNativeDialog)
-            dialog.setWindowTitle('Choose File')
+            dialog.setWindowTitle('Choose directory')
             if dialog.exec() == 1:
                 path = dialog.selectedFiles()[0]
             else: path=''
@@ -1763,8 +1856,9 @@ the numerical model or chemistry scheme differs from the current, results may va
                 path = dialog.selectedFiles()[0]
             else: path=''
         if path != '':
-            if path[:currentdir_l] == currentdir and path[currentdir_l] == '/':
-                path = path[currentdir_l+1:]
+            if osrelpath(path, currentdir)[0] != '.':
+            # if path[:currentdir_l] == currentdir and path[currentdir_l] == '/':
+                path = osrelpath(path, currentdir)
             if mode == 'load':
                 self.load_initfile(path)
                 self.show_currentInit(path)
@@ -1786,10 +1880,10 @@ the numerical model or chemistry scheme differs from the current, results may va
                 self.showParOutput(path,plWind)
             elif mode == 'batchList':
                 self.ListbatchCaller(path)
-            elif mode == 'dironly':
-                path = path[path.rfind('/')+1:]
-                target.clear()
-                target.insert(path)
+            # elif mode == 'dironly':
+            #     path = path[path.rfind('/')+1:]
+            #     target.clear()
+            #     target.insert(path)
             elif mode == 'export':
                 self.exportCurrentCase(path)
             elif mode == 'append':
@@ -1943,7 +2037,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
     def editTxtFile(self, file):
         """Envoke script to edit some plain text file."""
-        self.edwin = Editor(file=file)
+        self.edwin = Editor(file=file,cursorToStart=True)
         response = self.edwin.exec()
         if response == 0:
             return
@@ -2099,7 +2193,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def grayIfChecked(self, guard, frame):
-        if guard.isChecked() == True:
+        if 'bool' in str(type(guard)):
+            tester=guard
+        else:
+            tester=guard.isChecked()
+        if tester == True:
             frame.setChecked(0)
             frame.setEnabled(False)
         else:
@@ -2258,44 +2356,71 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.drawSurf(window, new=1)
 
 
-    def parse_ACDC_systems(self):
-        self.ACDC_linker.clear()
-        for (dirpath, dirnames, filenames) in walk('src/ACDC'):
-            break
-        n = 0
-        dirnames.sort()
-        for i,d in enumerate(dirnames):
-            if not 'ACDC_0' in d:
-                continue
+    def parse_ACDC_systems(self, num=0):
+
+        def parsefile(d):
+            f = open(osjoin('src/ACDC',d,'acdc_system_0x%d.f90'%int(d[-1])))
+            t = f.read()
+            nickname = ''.join(re.findall('! System name: .+',t)).replace('! System name: ','')
+            if num==0:
+                self.nickname.append(nickname)
             else:
-                item_0 = QtWidgets.QTreeWidgetItem(self.ACDC_linker)
-                item_0.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable )
-                # if n<2: item_0.setCheckState(0, QtCore.Qt.Checked)
+                self.nickname[num-1] = nickname
+            x = re.findall('integer, parameter :: .+ neutral_monomers.+= ?\(/( ?.+)/\)',t)
+            y = re.findall(' ?clust\((\w+)\)\(\:\) ?\= ?(.+)',t)
+            names = {}
+            for i in range(len(y)):
+                names[y[i][0]] = y[i][1]
+            monomers=[]
+            for j in x[0].split():
+                monomers.append(names[j.strip(',')].replace('1','').strip("'"))
+            return monomers
+
+        def linker(n,new=True):
+            for im,m in enumerate(monomers):
+                if self.ACDC_linker.topLevelItem(n).child(im) != None:
+                #     new = True
                 # else:
-                item_0.setCheckState(0, QtCore.Qt.Unchecked)
-                self.ACDC_linker.topLevelItem(n).setText(0, d)
-                f = open(osjoin('src/ACDC',d,'acdc_system_0x%d.f90'%int(d[-1])))
-                t = f.read()
-                x = re.findall('integer, parameter :: .+ neutral_monomers.+= ?\(/( ?.+)/\)',t)
-                y = re.findall(' ?clust\((\w+)\)\(\:\) ?\= ?(.+)',t)
-                names = {}
-                for i in range(len(y)):
-                    names[y[i][0]] = y[i][1]
-                monomers=[]
-                for j in x[0].split():
-                    monomers.append(names[j.strip(',')].replace('1','').strip("'"))
-                for im,m in enumerate(monomers):
-                    item_1 = QtWidgets.QTreeWidgetItem(item_0)
-                    self.ACDC_linker.topLevelItem(n).child(im).setText(0, m)
-                    # if m == 'A' : linkto = 'H2SO4'
-                    # elif m == 'N' : linkto = 'NH3'
-                    # elif m == 'D' : linkto = 'DMA'
-                    # else: linkto = '-'
-                    linkto = '-'
-                    self.ACDC_linker.topLevelItem(n).child(im).setText(1, linkto)
-                    self.ACDC_linker.topLevelItem(n).child(im).setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
-                n +=1
-        self.ACDC_n_systems = n
+                    csystm = self.ACDC_linker.topLevelItem(n)
+                    children = [csystm.child(nnn) for nnn in reversed(range(csystm.childCount()))]
+                    for child in children:
+                        csystm.removeChild(child)
+                item_1 = QtWidgets.QTreeWidgetItem(self.ACDC_linker.topLevelItem(n))
+                self.ACDC_linker.topLevelItem(n).child(im).setText(0, m)
+                linkto = '-'
+                self.ACDC_linker.topLevelItem(n).child(im).setText(1, linkto)
+                self.ACDC_linker.topLevelItem(n).child(im).setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
+
+
+
+        if num==0: cl_all = True
+        if num>0:  cl_all = False
+        if cl_all:
+            self.ACDC_linker.clear()
+            for (dirpath, dirnames, filenames) in walk('src/ACDC'):
+                break
+            n = 0
+            dirnames.sort()
+        if num>0:
+            monomers = parsefile('ACDC_%02d'%num)
+            linker(num-1,new=False)
+            self.set_ACDC_links()
+        else:
+            for i,d in enumerate(dirnames):
+                if not 'ACDC_0' in d:
+                    continue
+                else:
+                    item_0 = QtWidgets.QTreeWidgetItem(self.ACDC_linker)
+                    item_0.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable )
+                    item_0.setCheckState(0, QtCore.Qt.Unchecked)
+                    self.ACDC_linker.topLevelItem(n).setText(0, d)
+                    monomers = parsefile(d)
+                    # self.ACDC_linker.topLevelItem(n).setText(2, self.nickname[n])
+
+                    linker(n)
+                    n +=1
+
+            self.ACDC_n_systems = n
         self.ACDC_current_links = self.get_ACDC_links()
         self.ACDC_available_compounds = self.get_ACDC_links()
 
@@ -2317,11 +2442,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
         return acdc_links
 
 
-    def set_ACDC_links(self):
+    def set_ACDC_links(self,loose=False):
         root = self.ACDC_linker.invisibleRootItem()
+
         child_count = root.childCount()
         for i in range(child_count):
             item = root.child(i)
+            item.setText(2,self.nickname[i])
+            # print(self.nickname[i])
             if self.acdc_systems_flags[i]>0:
                 item.setCheckState(0, QtCore.Qt.Checked)
                 item.setExpanded(True)
@@ -2330,7 +2458,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             child_count1 = item.childCount()
             for j in range(child_count1):
                 item2 = item.child(j)
-                if item2.text(0) in self.ACDC_current_links[i][1]:
+                if item2.text(0) in self.ACDC_current_links[i][1] or (loose and j==1):
                     item2.setText(1,self.ACDC_current_links[i][1][item2.text(0)])
                 else:
                     item2.setText(1,'-')
@@ -2352,9 +2480,17 @@ a chemistry module in tab "Chemistry"''', icon=2)
             l_scale = self.log1
             if self.Filter_1.isChecked():
                 use_filter = True
-
+        filter_MA = False
         levels=(self.lowlev.value(),self.highlev.value())
-        if scipyIs and use_filter: n_levelled = gaussian_filter(n_levelled,(self.gauss_x.value(),self.gauss_y.value()),mode='constant')
+        if scipyIs and use_filter:
+            if filter_MA:
+                w = (int(shape(n_levelled)[1]/10))//2*2+1
+                for i in range(shape(n_levelled)[0]):
+                    for j in range(5):
+                        n_levelled[i,:] = savgol_filter(n_levelled[i,:],w,2)
+                n_levelled = where(n_levelled<0,0,n_levelled)
+            else:
+                n_levelled = gaussian_filter(n_levelled,(self.gauss_x.value(),self.gauss_y.value()),mode='constant')
         n_levelled = where(n_levelled>=levels[1],levels[1]*0.98,n_levelled)
         hm = pg.ImageItem(n_levelled)
         # if self.Y_axis_in_nm.isChecked():
@@ -2474,19 +2610,19 @@ a chemistry module in tab "Chemistry"''', icon=2)
                                 'batchRangeDayEnd', self.batchRangeDayEnd.text(),
                                 'batchRangeIndBegin', self.batchRangeIndBegin.text(),
                                 'batchRangeIndEnd', self.batchRangeIndEnd.text(),
-
                                 'indexRadioIndex', self.checkboxToFOR(self.indexRadioIndex),
                                 'indexRadioDate', self.checkboxToFOR(self.indexRadioDate),
                                 'createBashFile', self.checkboxToFOR(self.createBashFile),
                                 'batchRangeDay', self.checkboxToFOR(self.batchRangeDay),
                                 'batchRangeInd', self.checkboxToFOR(self.batchRangeInd),
         )
-        nml.SETTINGS.INPUT = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s' %(
+        nml.SETTINGS.INPUT = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s' %(
                                 'env_file', self.env_file.text(),
                                 'mcm_file', self.mcm_file.text(),
                                 'dmps_file', self.dmps_file.text(),
                                 'extra_particles', self.extra_particles.text(),
-
+                                'losses_file', self.losses_file.text(),
+                                'spectralFunctions', self.spectralFunctions.text(),
                                 'stripRoot_env', self.checkboxToFOR(self.stripRoot_env),
                                 'stripRoot_mcm', self.checkboxToFOR(self.stripRoot_mcm),
                                 'stripRoot_par', self.checkboxToFOR(self.stripRoot_par),
@@ -2512,9 +2648,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.FLAG.CHEM_DEPOSITION=self.checkboxToFOR(self.chemDeposition)
         nml.FLAG.MODEL_H2SO4=self.checkboxToFOR(self.model_h2so4)
         nml.FLAG.ORG_NUCL=self.checkboxToFOR(self.Org_nucl)
-        nml.FLAG.RESOLVE_BASE=self.checkboxToFOR(self.resolve_base)
+        # nml.FLAG.RESOLVE_BASE=self.checkboxToFOR(self.resolve_base)
         nml.FLAG.PRINT_ACDC=self.checkboxToFOR(self.print_acdc)
-        nml.FLAG.USE_SPEED=self.checkboxToFOR(self.useSpeed)
+        nml.FLAG.OPTIMIZE_DT=self.checkboxToFOR(self.useSpeed)
         nml.FLAG.AFTER_CHEM_ON=self.checkboxToFOR(self.after_chem_on)
         nml.FLAG.AFTER_NUCL_ON=self.checkboxToFOR(self.after_nucl_on)
 
@@ -2551,13 +2687,18 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
         # class _ENV:
         nml.ENV.ENV_FILE=self.pars(self.env_file.text(), file=self.indir, stripRoot=self.stripRoot_env.isChecked())
+        nml.ENV.SPECTRUMFILE=self.pars(self.spectralFunctions.text(), file=self.indir, stripRoot=False)
         nml.ENV.LOSSES_FILE=self.pars(self.losses_file.text(), file=self.indir, stripRoot=False)
         nml.ENV.CHAMBER_FLOOR_AREA=self.floorArea.value()
-        nml.ENV.CHAMBER_CIRCUMFENCE=self.chamberCircumfence.value()
+        nml.ENV.SWR_IS_ACTINICFLUX=self.checkboxToFOR(self.SW_is_AF)
+        # nml.ENV.CHAMBER_CIRCUMFENCE=self.chamberCircumfence.value()
         nml.ENV.CHAMBER_HEIGHT=self.chamberHeight.value()
-        nml.ENV.EDDYK=self.eddyK.value()
-        nml.ENV.USTAR=self.ustar.value()
-        nml.ENV.ALPHAWALL=self.alphaWall.value()
+        nml.ENV.EDDYK=self.eddyK.text()
+        nml.ENV.USTAR=self.ustar.text()
+        nml.ENV.ALPHAWALL=self.alphaWall.text()
+        nml.ENV.CW_EQV=self.Cw_eqv.text()
+        nml.ENV.SWR_IN_LOWER=self.swr_in_lower.value()
+        nml.ENV.SWR_IN_UPPER=self.swr_in_upper.value()
 
         # class _MCM:
         nml.MCM.MCM_FILE=self.pars(self.mcm_file.text(), file=self.indir, stripRoot=self.stripRoot_mcm.isChecked())
@@ -2568,10 +2709,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.MISC.WAIT_FOR=self.wait_for
         nml.MISC.DESCRIPTION=self.description.toPlainText().replace('\n','<br>')
         nml.MISC.CH_ALBEDO=self.ch_albedo.value()
-        nml.MISC.DMA_F=self.dma_f.value()
-        nml.MISC.RESOLVE_BASE_PRECISION=self.resolve_base_precision.value()
-        nml.MISC.FILL_FORMATION_WITH=self.resolveHelper()
-        nml.MISC.SKIP_ACDC=self.checkboxToFOR(self.skip_acdc)
+        # nml.MISC.DMA_F=self.dma_f.value()
+        # nml.MISC.RESOLVE_BASE_PRECISION=self.resolve_base_precision.value()
+        # nml.MISC.FILL_FORMATION_WITH=self.resolveHelper()
+        # nml.MISC.SKIP_ACDC=self.checkboxToFOR(self.skip_acdc)
         nml.MISC.GR_SIZES=self.GR_sizes.text()
 
         # class _VAP:
@@ -2620,13 +2761,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def load_initfile(self,file):
-
         INC_COMP = False
 
         if not exists(file):
             if file != defaults_file_path:
                 self.popup('Ooops', 'File "%s" not found'%file, icon=3)
-                return
+                return 0
         self.fileLoadOngoing = True
         self.markReverseSelection('all')
         self.remv_item()
@@ -2635,10 +2775,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.show_extra_plots = ''
             self.updteGraph(first=True)
 
-        def solve_for_parser(query):
-            if query.upper() == 'NH3': return 2
-            elif query.upper() == 'DMA': return 1
-            else: return 0
+        # def solve_for_parser(query):
+        #     if query.upper() == 'NH3': return 2
+        #     elif query.upper() == 'DMA': return 1
+        #     else: return 0
 
         def parse_date(str):
             if len(str)==10:
@@ -2764,11 +2904,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'CHEM_DEPOSITION' == key: self.chemDeposition.setChecked(strng)
             elif 'MODEL_H2SO4' == key: self.model_h2so4.setChecked(strng)
             elif 'ORG_NUCL' == key: self.Org_nucl.setChecked(strng)
-            elif 'RESOLVE_BASE' == key: self.resolve_base.setChecked(strng)
+            # elif 'RESOLVE_BASE' == key: self.resolve_base.setChecked(strng)
             elif 'RUNTIME' == key and isFl: self.runtime.setValue(float(strng))
             elif 'DT' == key and isFl: self.dt.setValue(float(strng)),
             elif 'PRINT_ACDC' == key: self.print_acdc.setChecked(strng)
-            elif 'USE_SPEED' == key: self.useSpeed.setChecked(strng)
+            elif 'OPTIMIZE_DT' == key: self.useSpeed.setChecked(strng)
             elif 'AFTER_CHEM_ON' == key: self.after_chem_on.setChecked(strng)
             elif 'AFTER_NUCL_ON' == key: self.after_nucl_on.setChecked(strng)
             elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(int(strng))
@@ -2791,12 +2931,15 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'USE_DMPS' == key: self.use_dmps.setChecked(strng)
             elif 'USE_DMPS_PARTIAL' == key: self.use_dmps_partial.setChecked(strng)
             elif 'ENV_FILE' == key: self.env_file.setText(strng)
+            elif 'SPECTRUMFILE' == key: self.spectralFunctions.setText(strng)
+            elif 'SWR_IS_ACTINICFLUX' == key: self.SW_is_AF.setChecked(strng)
             elif 'CHAMBER_FLOOR_AREA' == key and isFl: self.floorArea.setValue(float(strng))#  0.20000000000000001     ,
-            elif 'CHAMBER_CIRCUMFENCE' == key and isFl: self.chamberCircumfence.setValue(float(strng))#  0.20000000000000001     ,
+            # elif 'CHAMBER_CIRCUMFENCE' == key and isFl: self.chamberCircumfence.setValue(float(strng))#  0.20000000000000001     ,
             elif 'CHAMBER_HEIGHT' == key and isFl: self.chamberHeight.setValue(float(strng))#  0.20000000000000001     ,
-            elif 'EDDYK' == key and isFl: self.eddyK.setValue(float(strng))#  0.05000000000000001     ,
-            elif 'USTAR' == key and isFl: self.ustar.setValue(float(strng))#  0.050000000000000001     ,
-            elif 'ALPHAWALL' == key and isFl: self.alphaWall.setValue(float(strng))#  0.050000000000000001     ,
+            elif 'EDDYK' == key and isFl: self.eddyK.setText(strng)#  0.05000000000000001     ,
+            elif 'USTAR' == key and isFl: self.ustar.setText(strng)#  0.050000000000000001     ,
+            elif 'ALPHAWALL' == key and isFl: self.alphaWall.setText(strng)#  0.050000000000000001     ,
+            elif 'CW_EQV' == key and isFl: self.Cw_eqv.setText(strng)#  0.050000000000000001     ,
             elif 'MCM_FILE' == key: self.mcm_file.setText(strng)# "
             elif 'LOSSES_FILE' == key: self.losses_file.setText(strng)# "
             elif 'LAT' == key and isFl: self.lat.setValue(float(strng))
@@ -2804,10 +2947,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'WAIT_FOR' == key and isFl: self.wait_for = (int(strng))
             elif 'DESCRIPTION' == key: self.description.setPlainText(strng.replace('<br>','\n'))# "Just some keying
             elif 'CH_ALBEDO' == key and isFl: self.ch_albedo.setValue(float(strng))#  0.20000000000000001     ,
-            elif 'DMA_F' == key and isFl: self.dma_f.setValue(float(strng))
-            elif 'RESOLVE_BASE_PRECISION' == key and isFl: self.resolve_base_precision.setValue(float(strng))
-            elif 'FILL_FORMATION_WITH' == key: self.fill_formation_with.setCurrentIndex(solve_for_parser(strng))
-            elif 'SKIP_ACDC' == key: self.skip_acdc.setChecked(strng)
+            elif 'SWR_IN_LOWER' == key and isFl: self.swr_in_lower.setValue(int(strng))#  0.20000000000000001     ,
+            elif 'SWR_IN_UPPER' == key and isFl: self.swr_in_upper.setValue(int(strng))#  0.20000000000000001     ,
+            # elif 'DMA_F' == key and isFl: self.dma_f.setValue(float(strng))
+            # elif 'RESOLVE_BASE_PRECISION' == key and isFl: self.resolve_base_precision.setValue(float(strng))
+            # elif 'FILL_FORMATION_WITH' == key: self.fill_formation_with.setCurrentIndex(solve_for_parser(strng))
+            # elif 'SKIP_ACDC' == key: self.skip_acdc.setChecked(strng)
             elif 'USE_ATOMS' == key: self.use_atoms.setChecked(strng)
             elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
@@ -2829,10 +2974,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 if lll==0: self.acdc_systems_flags = [1,1,0,0,0]
                 if lll<self.ACDC_n_systems: self.acdc_systems_flags = self.acdc_systems_flags + [0]*(self.ACDC_n_systems-lll)
 
-            elif len(re.findall('ACDC_(\d)_LINKS',key))>0:
-                num = int(re.findall('ACDC_(\d)_LINKS',key)[0])
+            elif len(re.findall('ACDC_LINKS\((\d)\)',key))>0:
+                num = int(re.findall('ACDC_LINKS\((\d)\)',key)[0])
                 if num<=self.ACDC_n_systems:
-                    sss = 'ACDC_%d_LINKS'%num
                     self.ACDC_current_links[num-1][1] = {a:b for a,b in zip(strng.split()[0::2],strng.split()[1::2])}
                     if self.ACDC_available_compounds[num-1][1].keys() != self.ACDC_current_links[num-1][1].keys():
                         INC_COMP = True
@@ -2927,7 +3071,6 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         if INC_COMP:
             INC_COMP = False
             self.popup('ACDC incompatibility','Check the linking of ACDC compounds.')
-
         self.set_ACDC_links()
         self.updatePath()
         self.updateEnvPath()
@@ -3098,14 +3241,15 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                                                             symbolBrush=colors[i%10],
                                                             symbolSize=8,
                                                             )
-        # if target == 'numb' or first: self.plotResultWindow_3.setRange(yRange=[nminy*0.95,nmaxy*1.05])
-        yr=self.plotResultWindow_3.getViewBox().state['viewRange'][1]
+
+        # yr=self.plotResultWindow_3.getViewBox().state['viewRange'][1]
         self.plotResultWindow_3.setRange(yRange=[-0.02*nmax,nmax*1.05])
 
 
 #
     def toggleppm(self,what):
         if what == 'off':
+            self.n_conc.setChecked(True)
             self.ppm.setEnabled(False)
             self.ppb.setEnabled(False)
             self.ppt.setEnabled(False)
@@ -3139,6 +3283,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             # Close all previus netcdf-files and clear plot
             self.closenetcdf()
             self.addSimilar.setEnabled(True)
+            self.actionShow_variable_attributes.setEnabled(True)
             self.CloseLinePlotsButton.setEnabled(True)
             self.findComp.setEnabled(True)
 
@@ -3152,10 +3297,20 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         else: return
         # the file checks, move on
         if new:
-            self.LPD = [NcPlot(file)]
+            if 'General.nc' in file:
+                mdim = True
+                self.LPD = [NcPlot(file,mdim=mdim)]
+            else:
+                mdim = False
+                self.LPD = [NcPlot(file)]
             if self.LPD[-1].masterfile == 'Particles.nc': self.ShowPPC.setEnabled(True)
         else:
-            self.LPD.append(NcPlot(file))
+            if 'General.nc' in file:
+                mdim = True
+                self.LPD.append(NcPlot(file,mdim=mdim))
+            else:
+                mdim = False
+                self.LPD.append(NcPlot(file,mdim=mdim))
             if not self.LPD[0].convars.keys() <= self.LPD[-1].convars.keys():
                 self.LPD.pop(len(self.LPD)-1)
                 self.popup('No can do', 'The file you are trying to add has less compounds than the original, cannot add the new file. Loading the file which has less compounds first might work.')
@@ -3177,8 +3332,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.availableVars.addItems(self.LPD[-1].names)
             self.availableVars.item(0).setSelected(True)
             self.availableVars.setCurrentItem(self.availableVars.item(0))
-            self.availableVars.itemSelectionChanged.connect(self.showOutputUpdate)
-            self.ShowPPC.toggled.connect(self.showOutputUpdate)
+            self.availableVars.itemSelectionChanged.connect(lambda: self.showOutputUpdate(info=False))
+            self.ShowPPC.toggled.connect(lambda: self.showOutputUpdate(info=False))
         # If fails, give information and return
         # except:
         #     self.popup('Bummer...', "Output file does not contain any plottable data",icon=3)
@@ -3209,7 +3364,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         print(self.listOfplottedFiles)
 
 
-    def showOutputUpdate(self):
+    def showOutputUpdate(self,info=False):
         """This function is called when lin/log radio button or any variable in the list is changed"""
         # find out which y-scale should be used
         if self.ShowPPC.isChecked():
@@ -3220,7 +3375,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         else:
             PPconc = False
             self.plotResultWindow.setBackground('w')
-        scale = self.radio(self.fLin_2, self.fLog_2)
+        scale = self.radio(self.fLin_2, self.fLog_2, action=False)
         if scale == 'log':loga = True
         else: loga = False
 
@@ -3242,7 +3397,9 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 else:
                     self.n_conc.setChecked(True)
                     self.toggleppm('off')
-
+        if info:
+            self.LPD[-1].getinfo(comp)
+            return
         # Exctract that variable from netCDF-dataset and save to Y
         YY = []
         TT = []
@@ -3286,6 +3443,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
         if all([z.have_aircc for z in self.LPD]): have_aircc = True
 
+        un = ''
         if have_aircc:
             for j,Y in enumerate(YY):
                 if self.ppm.isChecked():
@@ -3381,6 +3539,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         self.LPD = []
         self.NC_lines = []
         self.addSimilar.setEnabled(False)
+        self.actionShow_variable_attributes.setEnabled(False)
         self.CloseLinePlotsButton.setEnabled(False)
         self.findComp.setEnabled(False)
 
@@ -3460,7 +3619,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             if self.makeClean.isChecked(): self.makeClean.setChecked(False)
 
 
-    def remake(self):
+    def remake(self, syst=0):
         if self.running != None:
             if self.ReplChem.isChecked():
                 self.editMakefile(mod=self.chemistryModules.currentText())
@@ -3472,6 +3631,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 while True:
                     self.running = self.compile.poll()
                     if self.running != None: break
+            if syst!=0:
+                self.compile = Popen(["make", "cleanoneacdc","ACDCTARG=%s"%syst])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
             self.compile = Popen(["make"])#, stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=None)
             self.recompile.setEnabled(False)
             self.compileProgressBar.show()
@@ -3529,6 +3690,10 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                             item.setSelected(True)
                             self.namesdat.scrollToItem(item, QtWidgets.QAbstractItemView.PositionAtTop)
 
+    def update_title(self):
+        self.chamberLossBox.setTitle("Chamber properties (assuming square floor, volume: %0.2f m³)"
+            %(self.floorArea.value()*self.chamberHeight.value()))
+
 
     def printHeaders(self):
         print('\n+----------------- Print input headers with column numbers -----------------+')
@@ -3567,28 +3732,40 @@ defCompound = Comp()
 
 CustomCommandsCheatSheet = """
 Options available in CUSTOM_NML (and defaults)
-LOG: USE_RAOULT=T
-LOG: VARIABLE_DENSITY=F
-REA: DMPS_TRES_MIN=  10.0
-REA: START_TIME_S=  0.0
-REA: DMPS_MULTI=  1000000.0
-CHR: INITIALIZE_WITH=""
-INT: INITIALIZE_FROM=0
-REA: VP_MULTI=  1.0000000000000000,
-LOG: DONT_SAVE_CONDENSIBLES=F
-INT: LIMIT_VAPOURS=999999
-REA: END_DMPS_SPECIAL=1.0000000000000000E+100
-LOG: NO2_IS_NOX=F
-LOG: NO_NEGATIVE_CONCENTRATIONS=T
-REA: FLOAT_CHEMISTRY_AFTER_HRS=1.0000000000000000E+100
-LOG: USE_RH_CORRECTION=T
-LOG: TEMP_DEP_SURFACE_TENSION=F
-LOG: USE_DIFF_DIA_FROM_DIFF_VOL=F
-REA: SPEED_DT_LIMIT=150d0, 150d0, 150d0
-LOG: ENABLE_END_FROM_OUTSIDE=T
-REA: LIMIT_FOR_EVAPORATION=0.0
-REA: MIN_CONCTOT_CC_FOR_DVAP=1d3
-LOG: Kelvin_taylor=F
+
+CHARACTER(1000) :: INITIALIZE_WITH = ''
+CHARACTER(1000) :: HARD_CORE = 'GENERIC' ! define what compound is used to initialize particles
+INTEGER         :: limit_vapours = 999999
+INTEGER         :: INITIALIZE_FROM = 0
+Logical         :: use_raoult = .True.
+! if true, will not save condensible vapour concentration in Particles.nc. They will always be saved also in Chemistry.nc
+Logical         :: DONT_SAVE_CONDENSIBLES = .False.
+real(dp)        :: dmps_tres_min = 10.
+real(dp)        :: VP_MULTI = 1d0
+real(dp)        :: start_time_s = 0d0
+real(dp)        :: END_DMPS_PARTIAL = 1d100 ! Any number larger than runtime will do as defaults
+real(dp)        :: FLOAT_CHEMISTRY_AFTER_HRS = 1d100 ! Any number larger than runtime will do as defaults
+real(dp)        :: dmps_multi = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
+real(dp)        :: SURFACE_TENSION = 0.05 ! Common surface tension /surface energy density N/m^2 or J/m^3
+real(dp)        :: ORGANIC_DENSITY = 1400d0 ! Common density for organic particle (liquid) phase compounds kg/m^3
+Logical         :: NO2_IS_NOX = .false.
+Logical         :: reverse_losses = .false.
+Logical         :: Kelvin_taylor = .false.
+Logical         :: Kelvin_exp = .true.
+Logical         :: USE_RH_CORRECTION = .true.
+LOGICAL         :: TEMP_DEP_SURFACE_TENSION = .False.
+LOGICAL         :: use_diff_dia_from_diff_vol = .False.
+REAL(dp)        :: GR_bins(:) ! used for GR calculation [m]
+Logical         :: CALC_GR = .True.
+Logical         :: ENABLE_END_FROM_OUTSIDE = .True.
+Logical         :: Use_old_composition = .false.
+
+! First one is the Global timestep lower limit, three four are upper limits for individual processes
+real(dp)        :: DT_UPPER_LIMIT(3) = [150d0,150d0,150d0]
+real(dp)        :: Limit_for_Evaporation = 0_dp ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
+real(dp)        :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
+real(dp)        :: alpha_coa = 1d0 ! Accomodation coefficient for coagulation
+
 """
 
 
@@ -3596,6 +3773,7 @@ if __name__ == '__main__':
     print(CurrentVersion+' started at:', ( time.strftime("%B %d %Y, %H:%M:%S", time.localtime())))
     app = QtWidgets.QApplication([])
     qt_box = QtBoxGui()
+    qt_box.setGeometry(30, 30, 900, 700)
     qt_box.show()
     styles = QtWidgets.QStyleFactory.keys()
     if "Fusion" in styles:

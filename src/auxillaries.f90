@@ -175,10 +175,10 @@ INTEGER FUNCTION COLCOUNT(file_id, separator)
     COLCOUNT = -9999
   else
     DO i=1,LEN_TRIM(buffer)
-      if ((buffer(i:i) /= sep) .and. (invalue .neqv. .true.)) THEN
+      if (((buffer(i:i) /= sep).and.(buffer(i:i) /= achar(9))) .and. (invalue .neqv. .true.)) THEN
         if (COLCOUNT == 0) COLCOUNT = 1
         invalue = .true.
-      elseif ((buffer(i:i) == sep) .and. (invalue) ) THEN
+      elseif (((buffer(i:i) == sep).or.(buffer(i:i) == achar(9))).and. (invalue) ) THEN
         invalue = .false.
         COLCOUNT = COLCOUNT +1
       end if
@@ -405,6 +405,47 @@ pure elemental function saturation_conc_m3(A,B, Temperature) result(Vapour_conce
 
 end function saturation_conc_m3
 
+
+SUBROUTINE opti(report)
+    implicit none
+    integer, save :: total = 0
+    integer, save :: count = 0
+    real(dp), allocatable, save :: times(:), times_tot(:)
+    logical, save :: first = .true.
+    integer, optional :: report
+    integer:: i
+
+    if (GTIME%sec>0d0 .and. first) THEN
+        first = .false.
+        allocate(times(total))
+        allocate(times_tot(total/2))
+        times_tot = 0d0
+        if (mod(total,2)/=0) then
+            print*, "uneven amount of timer points"
+            stop
+        else
+            print*, total/2, "timer points"
+        end if
+    end if
+    if (first) THEN
+        total = total + 1
+    ELSE
+        count = count + 1
+        call CPU_TIME(times(count))
+        if (mod(count,2) == 0) THEN
+            times_tot(count/2) = times_tot(count/2) + times(count) - times(count-1)
+        END IF
+        if (count == total) count = 0
+    END IF
+
+    if (present(report)) THEN
+        do i=1,total/2
+            print*, 'Process ',i,':', times_tot(i)
+        end do
+    end if
+
+
+END SUBROUTINE opti
 
 
 

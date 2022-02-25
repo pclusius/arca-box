@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(576, 438)
+        Dialog.resize(853, 606)
         self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.editedText = QtWidgets.QPlainTextEdit(Dialog)
@@ -23,6 +23,7 @@ class Ui_Dialog(object):
         self.editedText.setFont(font)
         self.editedText.setFrameShape(QtWidgets.QFrame.Box)
         self.editedText.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.editedText.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.editedText.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
         self.editedText.setObjectName("editedText")
         self.verticalLayout.addWidget(self.editedText)

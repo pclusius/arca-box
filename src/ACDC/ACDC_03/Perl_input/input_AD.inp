@@ -1,0 +1,19 @@
+#								sulfuric_acid	dimethylamine
+name:							A				D
+charge:							0				0
+corresponding neutral molecule:	-				-
+corresponding negative ion:		-				-
+corresponding positive ion:		-				-
+mass [g/mol]:					98.08			45.08
+density [kg/m**3]:              1830.0			680.0
+base strength:					-1				1
+acid strength:					1				-1
+################################################################
+								1-4				0
+								0-4				1
+								0-4				2
+								0-4				3
+								0-4				4
+# Criteria for growing out of the simulation:
+out neutral						5				4
+################################################################
