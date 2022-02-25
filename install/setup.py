@@ -102,9 +102,9 @@ if out == 0:
     else:
         f = open('run_arca.sh', 'w')
 
-    if if operatingsystem != 'Windows': f.write('#!/bin/bash%s'%le)
+    if operatingsystem != 'Windows': f.write('#!/bin/bash%s'%le)
     if posix: f.write('cd %s %s'%(curr_path, le))
-    if if operatingsystem != 'Windows':
+    if operatingsystem != 'Windows':
         f.write('#!/bin/bash%s'%le)
         f.write('%s'%le)
     if csc:
