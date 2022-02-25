@@ -1,8 +1,0 @@
-03-31 00:39-12s INFO       reactivity config file       : ModelLib/Examples/reactivity.xml
-03-31 00:39-12s INFO       input kpp def file           : src/chemistry/Hyde2/second.def
-03-31 00:39-12s INFO       output second_reactivity file: src/chemistry/Hyde2/second_reactivity.f90
-03-31 00:39-12s INFO       class: rOH_inorg found 5 chemicals
-03-31 00:39-12s INFO       class: rOH_inorg2 found 6 chemicals
-03-31 00:39-12s INFO       class: rOH_monoter found 3 chemicals
-03-31 00:39-12s INFO       class: rOH_other found 987 chemicals
-03-31 00:39-12s INFO       class: rNO3_monoter found 3 chemicals
