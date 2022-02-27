@@ -1,6 +1,6 @@
 #--------------------------------------------------
 #      ARCA box setting file: ModelLib/Examples/Example_case_w_Hyde3.init
-#         Created at: helmi 27 2022, 16:27:43
+#         Created at: helmi 27 2022, 23:29:11
 #--------------------------------------------------
 
 &NML_PATH
@@ -135,6 +135,7 @@
 / 
 
 &NML_CUSTOM
+ ALPHA_COA = 0.95
 / 
 
 

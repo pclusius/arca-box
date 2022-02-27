@@ -38,6 +38,7 @@ import re
 import sys
 import pickle
 from urllib.parse import urljoin
+import csv
 
 try:
     from scipy.ndimage.filters import gaussian_filter
@@ -3729,7 +3730,6 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
 dummy = Comp()
 defCompound = Comp()
-import csv
 
 def CustomCommandsCheatSheet():
     print("""
