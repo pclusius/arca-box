@@ -70,6 +70,7 @@ REAL(dp), allocatable :: CONC_MAT(:,:)  ! will be of shape ( len(timevec) : N_VA
 real(dp), allocatable :: par_data(:,:)
 real(dp), allocatable :: GGR(:)
 INTEGER               :: H2SO4_ind_in_chemistry = 0 ! Will be checked later and set to correct if H2SO4 is found
+INTEGER               :: OH_ind_in_chemistry    = 0 ! Will be checked later and set to correct if H2SO4 is found
 REAL(dp)              :: swr_spectrum(84) = 0d0     ! Vector for holding SWR spectral data, read in once from file or the interpolated values from swr_temporal_data
 LOGICAL               :: swr_is_time_dependent = .false.
 REAL(dp), ALLOCATABLE :: swr_times(:)               ! Vectors for holding SWR spectral data time stamps, used if SWR spectrum time dependent
@@ -373,6 +374,7 @@ subroutine READ_INPUT_DATA()
     If (.not.Aerosol_flag) Deposition   = .false.
     if (.not.Condensation) CALC_GR = .false.
     H2SO4_ind_in_chemistry = IndexFromName( 'H2SO4', SPC_NAMES )
+    OH_ind_in_chemistry = IndexFromName( 'OH', SPC_NAMES )
 
     ! ALLOCATE CONC_MAT Currently both files need to have same time resolution FIX THIS SOME DAY!
     ! The idea here is to count the rows to get time and allocate CONCMAT and TIMEVEC

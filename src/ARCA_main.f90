@@ -1431,11 +1431,15 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
     if (Aerosol_flag) print FMT_MSG, 'Max change in par diam. '&
             //TRIM(f2chr(1d2*d_dpar(maxloc(d_dpar,1))))//'% in bin # '//i2chr((maxloc(d_dpar,1)))
 
-    print FMT10_CVU,'ACID C: ', H2SO4, ' [1/cm3]'!,'sum(An)/A1',clusteracid,' []'
+    if (OH_ind_in_chemistry>0) THEN
+        print FMT10_2CVU, 'H2SO4: ', H2SO4, ' [1/cm3]','OH: ',CH_GAS(ind_OH),' [1/cm3]'
+    else
+        print FMT10_CVU, 'H2SO4: ', H2SO4, ' [1/cm3]'
+    end if
     print FMT10_3CVU,'Temp:', C(inm_TempK), ' [K]','Pressure: ', C(inm_pres), ' [Pa]', 'Air_conc', C_AIR_cc(C(inm_TempK), C(inm_pres)), ' [1/cm3]'
     IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', G_ACDC(1)%J_OUT_M3(1)*1d-6, ' [1/s/cm3]'!,'sum(Nn)/N1',clusterbase,' []'
     IF (inm_DMA   /= 0) print FMT10_3CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', G_ACDC(2)%J_OUT_M3(1)*1d-6, ' [1/s/cm3]', 'J-total', J_TOTAL_M3*1e-6,' [1/s/cm3]'
-    print FMT10_3CVU, 'Jion neutral:', G_ACDC(1)%J_OUT_M3(2)*1d-6 , ' [1/s/cm3]','Jion neg:', G_ACDC(1)%J_OUT_M3(3)*1d-6 , ' [1/s/cm3]','Jion pos:', G_ACDC(1)%J_OUT_M3(4)*1d-6 , ' [1/s/cm3]'
+    print FMT10_3CVU, 'Jion neut:', sum(G_ACDC(1:2)%J_OUT_CM3(2)) , ' [/s/cm3]','Jion pos:', SUM(G_ACDC(1:2)%J_OUT_CM3(3)) , ' [/s/cm3]','Jion neg:', SUM(G_ACDC(1:2)%J_OUT_CM3(4)) , ' [/s/cm3]'
     IF (inm_IPR   /= 0) print FMT10_2CVU, 'C-sink:', GCS , ' [1/s]','IPR:', C(inm_IPR) , ' [1/s/cm3]'
     if ((GTIME%sec)>0 .and. (cpu2 - cpu1 > 0d0)) print '("| ",a,i0,a,i0.2,a,i0,a,i0.2,t65,a,f7.2,t100,"|")', 'Elapsed time (m:s) ',int(cpu2 - cpu1)/60,':',modulo(int(cpu2 - cpu1),60) ,' Est. time to finish (m:s) ',&
                             int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec))/60,':', MODULO(int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec)),60),&
