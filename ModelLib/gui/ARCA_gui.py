@@ -822,7 +822,7 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
         self.actionOpen_output_directory.triggered.connect(lambda: self.openOutputDir(None, self.currentAddressTb.text()))
         self.actionStopCurrentRunClean.triggered.connect(self.softStop)
-        self.actionPrint_Custom_commands_cheat_sheet.triggered.connect(lambda: print(CustomCommandsCheatSheet))
+        self.actionPrint_Custom_commands_cheat_sheet.triggered.connect(lambda: CustomCommandsCheatSheet())
         self.actionPlt_changes_from_current_dir.triggered.connect(self.plotChanges)
         self.actionShow_variable_attributes.triggered.connect(lambda: self.showOutputUpdate(info=True))
     # -----------------------
@@ -3729,45 +3729,39 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
 dummy = Comp()
 defCompound = Comp()
+import csv
 
-CustomCommandsCheatSheet = """
-Options available in CUSTOM_NML (and defaults)
+def CustomCommandsCheatSheet():
+    print("""
+List of Custom commands; can be set in Run ARCA -> Custom model options
+TYPE UNIT  NAME                       Options, (default), DESCRIPTION
+----|-----|--------------------------|---------------------------------------
+    """)
+    with open('ModelLib/gui/conf/Custom_description.txt.csv', encoding="utf8", errors='ignore') as csvfile:
+        f = csv.reader(csvfile, delimiter=',', quotechar='"')
+        for k,line in enumerate(f):
+            if k>0:
+                print('\n%s'%(''.join(['_']*80)))
+                print('')
 
-CHARACTER(1000) :: INITIALIZE_WITH = ''
-CHARACTER(1000) :: HARD_CORE = 'GENERIC' ! define what compound is used to initialize particles
-INTEGER         :: limit_vapours = 999999
-INTEGER         :: INITIALIZE_FROM = 0
-Logical         :: use_raoult = .True.
-! if true, will not save condensible vapour concentration in Particles.nc. They will always be saved also in Chemistry.nc
-Logical         :: DONT_SAVE_CONDENSIBLES = .False.
-real(dp)        :: dmps_tres_min = 10.
-real(dp)        :: VP_MULTI = 1d0
-real(dp)        :: start_time_s = 0d0
-real(dp)        :: END_DMPS_PARTIAL = 1d100 ! Any number larger than runtime will do as defaults
-real(dp)        :: FLOAT_CHEMISTRY_AFTER_HRS = 1d100 ! Any number larger than runtime will do as defaults
-real(dp)        :: dmps_multi = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
-real(dp)        :: SURFACE_TENSION = 0.05 ! Common surface tension /surface energy density N/m^2 or J/m^3
-real(dp)        :: ORGANIC_DENSITY = 1400d0 ! Common density for organic particle (liquid) phase compounds kg/m^3
-Logical         :: NO2_IS_NOX = .false.
-Logical         :: reverse_losses = .false.
-Logical         :: Kelvin_taylor = .false.
-Logical         :: Kelvin_exp = .true.
-Logical         :: USE_RH_CORRECTION = .true.
-LOGICAL         :: TEMP_DEP_SURFACE_TENSION = .False.
-LOGICAL         :: use_diff_dia_from_diff_vol = .False.
-REAL(dp)        :: GR_bins(:) ! used for GR calculation [m]
-Logical         :: CALC_GR = .True.
-Logical         :: ENABLE_END_FROM_OUTSIDE = .True.
-Logical         :: Use_old_composition = .false.
+            # if k>0: print('\n....|.....|..........................|.......................................')
+            print('%-04s %-05s %-28s'%(line[0],line[1],line[2]), end='')
+            fmt = '\n%38s %s'
+            words = line[3].split()
+            j=0
+            for i in range(len(words)):
+                j = j + len(words[i]) + 1
+                if j<=40:
+                    print(words[i],end=' ')
+                else:
+                    print('\n%38s %s'%(' ',words[i]),end=' ')
+                    j=len(words[i]) + 1
+    print('')
 
-! First one is the Global timestep lower limit, three four are upper limits for individual processes
-real(dp)        :: DT_UPPER_LIMIT(3) = [150d0,150d0,150d0]
-real(dp)        :: Limit_for_Evaporation = 0_dp ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
-real(dp)        :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! different limit for acceptable evaporation in optimized time step, 0=use same as condensation
-real(dp)        :: alpha_coa = 1d0 ! Accomodation coefficient for coagulation
-
-"""
-
+# with open("ModelLib/gui/conf/Custom_description.txt.csv") as f:
+#     for line in f:
+#         print(o,line.split(','))
+        # print(' %04s  %04s %32s %s'%(line.split(',')[0],line.split(',')[1],line.split(',')[2],line.split(',')[3]))
 
 if __name__ == '__main__':
     print(CurrentVersion+' started at:', ( time.strftime("%B %d %Y, %H:%M:%S", time.localtime())))
