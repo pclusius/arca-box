@@ -107,6 +107,34 @@ and then run the setup.py again.
 
 Version history
 ---------------
+
+1.2.0
+What's new:
+- 5 ACDC systems that are dynamically used so that their monomer names and system size can be changed without hard
+  coding, needs recompiling though
+- ACDC systems have proper recording of the inut data files and system names
+- Added new section to the GUI->"Cluster formation"-tab, where ACDC components can be linked with model components
+- Updated ACDC plugin
+- Hyde3 chemistry scheme replaced Hyde2. Inorganic precursors are fixed (their concentration time derivatives are 0).
+  This steady state approach is already used in some OVOCs in the scheme. The user is advised to check the compounds in
+  listed unde DEFFIX in file second.def and use the appropriate approach for their work.
+- Drag and drop INITFILE loading
+- Losses calculated with DVODE
+- loss parametrization clarified
+- Updated spectral data
+- It is possible to send in direct actinic flux data
+- (multi)modal distribution shows mass and total area
+- ARCA paper submission version
+
+Fixes:
+- Windows installer now prefers pyqtgraph 0.12.0
+- Minor bug fixes in GUI and Fortran model
+
+
+1.1.2
+Hotfix:
+- fixed error in calculation of Koehler factor for particles of size 1 nm (in aerosol_dynamics.f90)
+
 1.1.1
 Fixes:
 - Fixed empty array problem in second_reactivity.90 and add_reactivity.py (producing error with some fortran compilers).
