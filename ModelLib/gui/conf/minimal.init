@@ -7,7 +7,7 @@
  INOUT_DIR = 'INOUT'
  CASE_NAME = 'DEFAULT'
  RUN_NAME = 'FIRST'
-/ 
+/
 
 &NML_FLAG
  CHEMISTRY_FLAG = .TRUE.
@@ -24,7 +24,7 @@
  OPTIMIZE_DT = .FALSE.
  AFTER_CHEM_ON = .FALSE.
  AFTER_NUCL_ON = .FALSE.
-/ 
+/
 
 &NML_TIME
  RUNTIME = 1.0
@@ -34,7 +34,7 @@
  FSAVE_DIVISION = 0
  DATE = '2025-01-01'
  INDEX = ''
-/ 
+/
 
 &NML_PARTICLE
  PSD_MODE = 1
@@ -47,17 +47,17 @@
  EXTRA_PARTICLES = ''
  MMODAL_INPUT = '3e-8 0.15 0.5  1e-7 0.25 0.3 '
  DMPS_READ_IN_TIME = 0.1
- DMPS_HIGHBAND_LOWER_LIMIT = 
- DMPS_LOWBAND_UPPER_LIMIT = 
+ DMPS_HIGHBAND_LOWER_LIMIT =
+ DMPS_LOWBAND_UPPER_LIMIT =
  USE_DMPS = .FALSE.
  USE_DMPS_PARTIAL = .FALSE.
-/ 
+/
 
 &NML_ENV
  ENV_FILE = ''
  SPECTRUMFILE = 'ModelLib/Photolyse/Spectra/swr_distribution.txt'
  SWR_IN_LOWER = 300
- SWR_IN_UPPER = 4000
+ SWR_IN_UPPER = 4800
  SWR_IS_ACTINICFLUX = .FALSE.
  LOSSES_FILE = ''
  CHAMBER_FLOOR_AREA = 0.0
@@ -65,18 +65,18 @@
  EDDYK = 0.05
  USTAR = 0.05
  ALPHAWALL = 5e-05
- CW_EQV = 
-/ 
+ CW_EQV =
+/
 
 &NML_MCM
  MCM_FILE = ''
-/ 
+/
 
 &NML_MODS
  MODS(1)   =  0  -1  1.00000d+00  0.00000d+00  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'C' '' ! TEMPK
  MODS(2)   =  0  -1  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'hPa' '' ! PRESSURE
  MODS(17)  =  1  -1  1.00000d+00  0.00000d+00  1.00000d-03  1.00000d+00 0.180000d0 2.285760d0 0.000000d0 0.000000d0 1.000000d0 '#' '' ! NUC_RATE_IN
-/ 
+/
 
 &NML_MISC
  LAT = 60.0
@@ -85,13 +85,13 @@
  DESCRIPTION = ''
  CH_ALBEDO = 0.2
  GR_SIZES = ''
-/ 
+/
 
 &NML_VAP
  USE_ATOMS = .TRUE.
  VAP_NAMES = 'ModelLib/EVAPORATION_ALL_1e-6.dat'
  VAP_ATOMS = 'ModelLib/EVAPORATION_ALL_1e-6_elements.dat'
-/ 
+/
 
 &NML_ACDC
  ACDC_SYSTEMS = 0,0,0,0,0
@@ -100,23 +100,22 @@
  ACDC_links(3) = 'A - D -'
  ACDC_links(4) = 'A - N -'
  ACDC_links(5) = 'A - N -'
-/ 
+/
 
 &NML_PRECISION
  DDIAM_RANGE = 0.200000,10.000000
  DPNUM_RANGE = 0.200000,10.000000
  DVAPO_RANGE = 0.200000,100.000000
-/ 
+/
 
 &NML_CUSTOM
-/ 
+/
 
 
 
 
-# Following settings are for the GUI and not directly used by the model ----- 
-# RAW_INPUT = 
+# Following settings are for the GUI and not directly used by the model -----
+# RAW_INPUT =
 # INPUT_SETTINGS = 'env_file: mcm_file: dmps_file: extra_particles: losses_file: spectralFunctions:ModelLib/Photolyse/Spectra/swr_distribution.txt stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2020-01-01 batchRangeDayEnd:2020-01-05 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.FALSE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
-#---------------------------------------------------------------------------- 
-
+#----------------------------------------------------------------------------
