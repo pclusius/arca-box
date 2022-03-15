@@ -55,7 +55,7 @@
 
 &NML_ENV
  ENV_FILE = ''
- SPECTRUMFILE = 'ModelLib/Photolyse/Spectra/swr_distribution.txt'
+ SPECTRUMFILE = 'ModelLib/Photolyse/Spectra/glob_swr_distr.txt'
  SWR_IN_LOWER = 300
  SWR_IN_UPPER = 4800
  SWR_IS_ACTINICFLUX = .FALSE.
@@ -116,6 +116,6 @@
 
 # Following settings are for the GUI and not directly used by the model -----
 # RAW_INPUT =
-# INPUT_SETTINGS = 'env_file: mcm_file: dmps_file: extra_particles: losses_file: spectralFunctions:ModelLib/Photolyse/Spectra/swr_distribution.txt stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
+# INPUT_SETTINGS = 'env_file: mcm_file: dmps_file: extra_particles: losses_file: spectralFunctions:ModelLib/Photolyse/Spectra/glob_swr_distr.txt stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
 # BATCH_SETTINGS = 'batchRangeDayBegin:2020-01-01 batchRangeDayEnd:2020-01-05 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.FALSE. indexRadioDate:.TRUE. createBashFile:.FALSE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
 #----------------------------------------------------------------------------
