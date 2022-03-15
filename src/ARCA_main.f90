@@ -553,11 +553,7 @@ END IF
         if (ACDC) THEN
             CALL ACDC_J(TSTEP_CONC, GTIME%dt*minval(pack(speed_up, speed_up > 0)))
             J_TOTAL_M3 = sum(G_ACDC(:)%J_OUT_M3(1)) ! [particles/s/m^3]
-            ! IF (RESOLVE_BASE) THEN
-            !     J_TOTAL_M3 = TSTEP_CONC(inm_JIN) * 1d6 ! [particles/s/m^3]
-            ! ELSE
             J_TOTAL_M3 = J_TOTAL_M3 + TSTEP_CONC(inm_JIN) * 1d6 ! [particles/s/m^3]
-            ! END IF
         else
           ! Only use input formation rate
           J_TOTAL_M3 = TSTEP_CONC(inm_JIN) * 1d6
