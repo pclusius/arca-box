@@ -109,6 +109,7 @@ Version history
 ---------------
 
 1.2.0
+
 What's new:
 - 5 ACDC systems that are dynamically used so that their monomer names and system size can be changed without hard
   coding, needs recompiling though
@@ -127,6 +128,7 @@ What's new:
 - ARCA paper submission version
 
 Fixes:
+- Fixed SMEAR II short wave radiation spectrum
 - Windows installer now prefers pyqtgraph 0.12.0
 - Minor bug fixes in GUI and Fortran model
 
@@ -135,6 +137,7 @@ Fixes:
 Hotfix:
 - fixed error in calculation of Koehler factor for particles of size 1 nm (in aerosol_dynamics.f90)
 
+
 1.1.1
 Fixes:
 - Fixed empty array problem in second_reactivity.90 and add_reactivity.py (producing error with some fortran compilers).
@@ -142,6 +145,7 @@ Fixes:
 
 
 1.1.0
+
 ARCA is now licenced under GNU GPL
 
 
@@ -151,6 +155,10 @@ Fixes:
 - Kelvin term was approximated using Taylor series. This is a bad approximation with very small particles.
   Now Kelvin term is calculated using exponential form. To use the old Kelvin term (used by many other models and the
   ACP scheme), set custom option (in NML_CUSTOM or in the GUI Run ARCA -> Custom model options) Kelvin_taylor = .true.
+
+(Further additions in current version, will be put to next release)
+  What's new:
+  Fixes:
 
 
 1.0.5
