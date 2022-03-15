@@ -86,7 +86,6 @@ class INITFILE:
             self.DEPOSITION=0
             self.CHEM_DEPOSITION=0
             self.MODEL_H2SO4=0
-            # self.RESOLVE_BASE=0
             self.ORG_NUCL=0
             self.PRINT_ACDC=0
             self.OPTIMIZE_DT=0
@@ -104,7 +103,6 @@ class INITFILE:
             exec("%s(' DEPOSITION = %s%s')"%(cmd,self.DEPOSITION,eol))
             exec("%s(' CHEM_DEPOSITION = %s%s')"%(cmd,self.CHEM_DEPOSITION,eol))
             exec("%s(' MODEL_H2SO4 = %s%s')"%(cmd,self.MODEL_H2SO4,eol))
-            # exec("%s(' RESOLVE_BASE = %s%s')"%(cmd,self.RESOLVE_BASE,eol))
             exec("%s(' ORG_NUCL = %s%s')"%(cmd,self.ORG_NUCL,eol))
             exec("%s(' PRINT_ACDC = %s%s')"%(cmd,self.PRINT_ACDC,eol))
             exec("%s(' OPTIMIZE_DT = %s%s')"%(cmd,self.OPTIMIZE_DT,eol))
@@ -177,7 +175,6 @@ class INITFILE:
             self.SWR_IN_LOWER=0
             self.LOSSES_FILE=0
             self.CHAMBER_FLOOR_AREA=0
-            # self.CHAMBER_CIRCUMFENCE=0
             self.CHAMBER_HEIGHT=0
             self.EDDYK=0
             self.USTAR=0
@@ -193,7 +190,6 @@ class INITFILE:
             exec("%s(' SWR_IS_ACTINICFLUX = %s%s')"%(cmd,self.SWR_IS_ACTINICFLUX,eol))
             exec("%s(' LOSSES_FILE = \\'%s\\'%s')"%(cmd,self.LOSSES_FILE,eol))
             exec("%s(' CHAMBER_FLOOR_AREA = %s%s')"%(cmd,self.CHAMBER_FLOOR_AREA,eol))
-            # exec("%s(' CHAMBER_CIRCUMFENCE = %s%s')"%(cmd,self.CHAMBER_CIRCUMFENCE,eol))
             exec("%s(' CHAMBER_HEIGHT = %s%s')"%(cmd,self.CHAMBER_HEIGHT,eol))
             exec("%s(' EDDYK = %s%s')"%(cmd,self.EDDYK,eol))
             exec("%s(' USTAR = %s%s')"%(cmd,self.USTAR,eol))
@@ -252,10 +248,6 @@ class INITFILE:
             self.WAIT_FOR=0
             self.DESCRIPTION=0
             self.CH_ALBEDO=0
-            # self.DMA_F=0
-            # self.RESOLVE_BASE_PRECISION=0
-            # self.FILL_FORMATION_WITH=0
-            # self.SKIP_ACDC=0
             self.GR_SIZES=0
 
         def printall(self,cmd,f,eol):
@@ -265,10 +257,6 @@ class INITFILE:
             exec("%s(' WAIT_FOR = %s%s')"%(cmd,self.WAIT_FOR,eol))
             exec("%s(' DESCRIPTION = \\'%s\\'%s')"%(cmd,self.DESCRIPTION,eol))
             exec("%s(' CH_ALBEDO = %s%s')"%(cmd,self.CH_ALBEDO,eol))
-            # exec("%s(' DMA_F = %s%s')"%(cmd,self.DMA_F,eol))
-            # exec("%s(' RESOLVE_BASE_PRECISION = %s%s')"%(cmd,self.RESOLVE_BASE_PRECISION,eol))
-            # exec("%s(' FILL_FORMATION_WITH = \\'%s\\'%s')"%(cmd,self.FILL_FORMATION_WITH,eol))
-            # exec("%s(' SKIP_ACDC = %s%s')"%(cmd,self.SKIP_ACDC,eol))
             exec("%s(' GR_SIZES = \\'%s\\'%s')"%(cmd,self.GR_SIZES,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
