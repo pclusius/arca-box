@@ -16,8 +16,9 @@ What's new:
 - It is possible to send in direct actinic flux data
 - (multi)modal distribution shows mass and total area
 - ARCA paper submission version
-     
+
 Fixes:
+- Fixed SMEAR II short wave radiation spectrum
 - Windows installer now prefers pyqtgraph 0.12.0
 - Minor bug fixes in GUI and Fortran model
 
