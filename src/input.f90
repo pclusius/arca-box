@@ -249,7 +249,6 @@ real(dp) :: ORGANIC_DENSITY            = 1400d0 ! Common density for organic par
 real(dp) :: HARD_CORE_DENSITY          = 1400d0 ! Common density for organic particle (liquid) phase compounds kg/m^3
 real(dp) :: NPF_DIST                   = 1.15d0 ! Maximum relative diameter (w.r.t. to minimum diameter) where new particles are distributed
 Logical  :: NO2_IS_NOX                 = .false.
-Logical  :: reverse_losses             = .false.
 Logical  :: Kelvin_taylor              = .false.
 Logical  :: Kelvin_exp                 = .true.
 Logical  :: USE_RH_CORRECTION          = .true.
@@ -275,7 +274,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       DONT_SAVE_CONDENSIBLES, limit_vapours, END_DMPS_PARTIAL,NO2_IS_NOX,&
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, DT_UPPER_LIMIT, ENABLE_END_FROM_OUTSIDE, &
-                      Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor,reverse_losses,&
+                      Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor,&
                       SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,FLOAT_EMIS_AFTER_HRS,NPF_DIST
 
 ! ==================================================================================================================

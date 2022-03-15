@@ -20,17 +20,16 @@
 
 PROGRAM ARCA_main
 
-USE second_MAIN                         ! Main second file
-USE second_PARAMETERS                   ! CH_NSPEC (originally NSPEC) and chemical indices, ind_xxxx, come from here
-USE second_Precision,  ONLY : dp        ! KPP Numerical type
-USE second_Monitor,    ONLY : SPC_NAMES ! Names of chemicals from KPP
-USE SECOND_REACTIVITY, ONLY : NREACTIVITY
+USE second_MAIN                            ! Main second file
+USE second_PARAMETERS                      ! CH_NSPEC (originally NSPEC) and chemical indices, ind_xxxx, come from here
+USE second_Precision,  ONLY : dp           ! KPP Numerical type
+USE second_Monitor,    ONLY : SPC_NAMES    ! Names of chemicals from KPP
+USE SECOND_REACTIVITY, ONLY : NREACTIVITY  !
 USE Chemistry
 USE constants
 USE AUXILLARIES
 USE INPUT
 use OUTPUT
-! USE SOLVE_BASES
 USE PSD_scheme
 USE aerosol_dynamics
 USE custom_functions
@@ -62,20 +61,18 @@ INTEGER               :: dmps_ln = 0, dmps_ln_old      ! line number from where 
 INTEGER               :: dmps_sp_min = 0, dmps_sp_max = 0 ! Indices for dmps_special
 
 ! Variables related to chemistry module
-REAL(dp) :: CH_RO2,CH_RO2_old      ! RO2 concentration in [molecules / cm^3]
-REAL(dp) :: CH_H2O      ! H20 concentration in [molecules / cm^3]
-REAL(dp) :: CH_Beta     ! solar zenit angle
-REAL(dp) :: EW          ! Water content in Pa
-REAL(dp) :: ES          ! Saturation vapour pressure
-REAL(dp) :: STW         ! Water surface energy density / surface tension
-REAL(dp) :: H2SO4       ! transient keeper for H2SO4 variable
-LOGICAL  :: acdc_goback = .false.
+REAL(dp) :: CH_RO2,CH_RO2_old       ! RO2 concentration in [molecules / cm^3]
+REAL(dp) :: CH_H2O                  ! H20 concentration in [molecules / cm^3]
+REAL(dp) :: CH_Beta                 ! solar zenit angle
+REAL(dp) :: EW                      ! Water content in Pa
+REAL(dp) :: ES                      ! Saturation vapour pressure
+REAL(dp) :: STW                     ! Water surface energy density / surface tension
 
 ! Variables related to aerosol module
 REAL(dp), dimension(:), allocatable:: conc_vapour
 
 ! Transient variables
-CHARACTER(:), allocatable:: RUN_OUTPUT_DIR ! Saves the output directory relative to this executable
+CHARACTER(:), allocatable:: RUN_OUTPUT_DIR      ! Saves the output directory relative to this executable
 CHARACTER(1000) :: inibuf                       ! Buffer to save backp from the INITfile that was called
 INTEGER         :: I,II,J,JJ                    ! Loop indices
 INTEGER         :: ioi                          ! iostat variable
@@ -84,8 +81,9 @@ INTEGER(dint)   :: add_rounds=1                 ! transient variable
 INTEGER(dint)   :: bookkeeping(3,2) = 0_dint    ! save total rounds and latest point of error
 REAL(dp)        :: cpu1,cpu2,cpu3,cpu4          ! CPU times in seconds
 REAL(dp)        :: errortime(3) = -9999d0       ! CPU time in seconds
+REAL(dp)        :: H2SO4                        ! Transient keeper for H2SO4 variable
+LOGICAL         :: acdc_goback = .false.        ! Used for time step optimization
 
-! Temporary variables -> will be replaced
 REAL(dp), ALLOCATABLE   :: nominal_dp(:)        ! [m] array with nominal diameters. Stays constant independent of PSD_style
 INTEGER(dint)           :: n_of_Rounds = 0_dint ! Stores the total rounds, most of whic are skipped if OPTIMIZE_DT
 REAL(dp), ALLOCATABLE   :: J_distr(:)           ! Transient variable for distributing ACDC particles
@@ -114,20 +112,14 @@ CurrentVers = VERSION
 #endif
 ! end of C preprocessor commands -----------------------------------!
 
-! Welcoming message
+! Welcome message
 print'(a,t35,a)', achar(10),  '--~:| ARCA BOX MODEL '//TRIM(CurrentVers)//' |:~--'//achar(10)
 print FMT_HDR, 'Compiled with "'//TRIM(CurrentChem)//'" chemistry module'
 print*, ''
 ! ==================================================================================================================
+
 ! Declare most variables and read user input and options in input.f90
 CALL READ_INPUT_DATA
-! ==================================================================================================================
-
-! = We assume square floor shape. Considering the simplicity of the parametrization, this is good enough. ==========
-A_vert = 4d0*SQRT(CHAMBER_FLOOR_AREA)*CHAMBER_HEIGHT
-Vol_chamber = CHAMBER_FLOOR_AREA*CHAMBER_HEIGHT
-if (((Deposition.and.LOSSES_FILE=='').or.Chem_Deposition).and.(EQUAL(Vol_chamber, 0d0))) &
-    STOP '   ----------- CHAMBER VOLUME IS ZERO! -------------'
 ! ==================================================================================================================
 
 ! ==================================================================================================================
@@ -142,6 +134,15 @@ IF (Chemistry_flag.or.Condensation) THEN
     ! This only called once for KPP in the beginning
     IF (Chemistry_flag) CALL KPP_SetUp
 ENDIF
+! ==================================================================================================================
+
+! ==================================================================================================================
+! Calculate chamber dimensions, assume square floor shape.
+! Considering the simplicity of the parametrization, this is good enough. ==========================================
+A_vert = 4d0*SQRT(CHAMBER_FLOOR_AREA)*CHAMBER_HEIGHT
+Vol_chamber = CHAMBER_FLOOR_AREA*CHAMBER_HEIGHT
+if (((Deposition.and.LOSSES_FILE=='').or.Chem_Deposition).and.(EQUAL(Vol_chamber, 0d0))) &
+STOP '   ----------- CHAMBER VOLUME IS ZERO! -------------'
 ! ==================================================================================================================
 
 ! ==================================================================================================================
@@ -169,11 +170,6 @@ INIT_AEROSOL: IF (Aerosol_flag) THEN
     ALLOCATE(conc_fit(n_bins_par))
     save_measured = conc_fit
     losses_fit    = conc_fit
-    if (reverse_losses) THEN
-        losses_fit0   = conc_fit
-        losses_fit1   = conc_fit
-        inv_loss      = conc_fit
-    END IF
 
     ! Allocate the change vectors for integration timestep control
     ALLOCATE(d_dpar(n_bins_par))
@@ -280,8 +276,6 @@ if (Aerosol_flag) THEN
     end do
     CLOSE(600)
 
-    ! OPEN(611,file=RUN_OUTPUT_DIR//"/kelvinerrors.txt",status='replace',action='write')
-
     ! Open text files to save particle size ditribution in easily accessible format
     ! Sumfile that uses same format as SMEAR sumfiles, (with exception of time resolution; here model save interval is used)
     ! Format is:
@@ -297,14 +291,6 @@ if (Aerosol_flag) THEN
     ! Time 1 (s)---------dN--------------dN----------------dN . . . . . . . dN
     OPEN(604,file=RUN_OUTPUT_DIR//"/particle_conc.dat",status='replace',action='write')
     WRITE(604,*) 0d0,get_dp()
-
-    ! OPEN(605,file=RUN_OUTPUT_DIR//"/coag_sink.dat",status='replace',action='write')
-    ! WRITE(605,*) 0d0,get_dp()
-    !
-    ! if (reverse_losses) THEN
-    !     OPEN(620,file=RUN_OUTPUT_DIR//"/particle_losses.dat",status='replace',action='write')
-    !     WRITE(620,*) 0d0,get_dp()
-    ! END IF
 
 END IF
 
@@ -364,8 +350,8 @@ write(610,'(4(a,"                "),a)') '#  time_sec  ','max_d_diam','max_d_npa
 
 if (ENABLE_END_FROM_OUTSIDE) THEN
     print FMT_SUB, "Simulation can be stopped using file called ENDNOW.INIT with text 'STOP' in it, saved"
-    print FMT_SUB, "in output directory. The program stops in orderly fashion upon next PRINTNOW time and"
-    print FMT_SUB, "closes the output files."
+    print FMT_SUB, "in the output directory. The program stops in orderly fashion upon next PRINTNOW time"
+    print FMT_SUB, "and closes the output files."
 end if
 
 print FMT_LEND
@@ -377,8 +363,7 @@ end if
 
 ! Sanity checks for bad input, add more when needed
 if (EQUAL(Cw_eqv,0d0)) STOP 'Effective wall concentration should not be zero.'
-
-! End Sanity checks
+! End sanity checks, entering bonkers mode
 
 call cpu_time(cpu1) ! For efficiency calculation
 
@@ -519,9 +504,6 @@ END IF
             call BETA(CH_Beta)
         END IF
 
-        ! if ( ( minval(CH_GAS)<0 ).and.GTIME%sec>100d0) print FMT_WARN0,&
-        ! 'Negative values going to chemistry: '//SPC_NAMES(MINLOC(CH_GAS))//', '//TRIM(f2chr(MINVAL(CH_GAS)))
-
         IF (Chemistry_flag) Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRC%cch)), GTEMPK, max(0d0,TSTEP_CONC(inm_swr)),&
                     CH_Beta,CH_H2O, GC_AIR_NOW, GCS, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2, reactivities, swr_spectrum, SWR_IS_ACTINICFLUX)
 
@@ -615,29 +597,7 @@ END IF
             if (GTIME%hrs >= DMPS_read_in_time) N_MODAL = -1d0
         END IF
 
-        PARTICLE_INIT: if (reverse_losses) THEN
-            do i=1,n_bins_par
-                losses_fit0(i) = INTERP(BG_PAR%time,  BG_PAR%conc_matrix(:,i))
-            end do
-            CALL GeneratePSDfromInput( BG_PAR%sections,  losses_fit0, losses_fit1 )
-            WHERE  (losses_fit1>0 .and.get_conc()>losses_fit1*1d6)
-                losses_fit0 = get_conc() / (losses_fit1*1d6)
-            elsewhere
-                losses_fit0 = 1d0
-            end where
-
-            inv_loss = (1d0)/GTIME%dt * LOG(losses_fit0)
-
-            CAll send_conc(current_PSD%dp_range(1),current_PSD%dp_range(2),(losses_fit1*1d6))
-            do i = 1, n_bins_par
-                if (GTIME%sec<1d0) THEN
-                    CALL set_composition(i,nominal_dp(i), .false.)
-                else
-                    CALL set_composition(i,nominal_dp(i), Use_old_composition)
-                end if
-            end do
-
-        ELSE if (use_dmps .and. GTIME%min >= (dmps_ln*dmps_tres_min)) THEN
+        PARTICLE_INIT: if (use_dmps .and. GTIME%min >= (dmps_ln*dmps_tres_min)) THEN
             ! Particles are read in from measuremensts throughout the simulation and saved to Particles.nc for comparison
             CALL GeneratePSDfromInput( BG_PAR%sections,  BG_PAR%conc_matrix(min(dmps_ln+1, size(BG_PAR%time, 1)),:), conc_fit )
             conc_fit = conc_fit*dmps_multi
@@ -879,11 +839,7 @@ END IF
                                  [((INTERP(PAR_LOSSES%time, PAR_LOSSES%conc_matrix(:,i),unit=LOSSFILE_TIME_UNIT)), i=1,size(PAR_LOSSES%sections, 1))], &
                                   timein=nominal_dp(j)) ), j=1,n_bins_par)]
                 end if
-                if (reverse_losses) THEN
-                    ! Just an experiment
-                end if
-                ! Funny thing
-                losses_fit = losses_fit * TSTEP_CONC(inm_IPR)
+
                 ! Deposited concentratios calculated here
                 dconc_dep_mix = get_conc() * (1 - EXP(-losses_fit*GTIME%dt*speed_up(PRC%dep)))
 
@@ -983,7 +939,7 @@ END IF in_turn_any
                 ! WRITE(605,*) GTIME%sec, G_COAG_SINK
                 save_measured = conc_fit/1d6
             END IF
-            ! if (reverse_losses) WRITE(620,*) GTIME%day, inv_loss
+
             WRITE(610,*) GTIME%sec, d_dpar(maxloc(abs(d_dpar),1)), d_npar(maxloc(abs(d_npar),1)), refdvap, d_npdep(maxloc(abs(d_npdep),1))
             FLUSH(610)
 
@@ -1048,7 +1004,6 @@ if (Aerosol_flag) THEN
     CLOSE(601)
     CLOSE(604)
     CLOSE(610)
-    ! if (reverse_losses) CLOSE(620)
 END IF
 
 
