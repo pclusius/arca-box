@@ -967,7 +967,7 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # tab Chemistry
     # -----------------------
-
+        self.ReplChem.setChecked(False)
         self.butSpectralData.clicked.connect(lambda: self.browse_path(self.spectralFunctions, 'file'))
         self.kppTool.clicked.connect(self.createCC)
         self.vapTool.clicked.connect(self.vapours)
