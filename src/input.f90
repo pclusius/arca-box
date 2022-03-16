@@ -578,20 +578,18 @@ IF (Aerosol_flag) then
                 VAPOUR_PROP%psat_b(ii)       = parameter_B
                 VAPOUR_PROP%vapour_names(ii) = TRIM(species_name)
                 VAPOUR_PROP%molec_mass(ii)   = VAPOUR_PROP%molar_mass(ii)/Na  !kg/#
-
-                !! Option for simple parametrisation of organic vapour liquid density. Use with caution, not yet thoroughly implemented
-                ! IF (variable_density) THEN
-                !     VAPOUR_PROP%density(ii)  = -30d0 * (parameter_A - parameter_B/293.15d0) + 1029d0  ! kg/m3
-                ! ELSE
-                VAPOUR_PROP%density(ii)  = HARD_CORE_DENSITY  ! kg/m3
-                ! END IF
+                VAPOUR_PROP%cond_type(ii)    = 1
+                if (TRIM(species_name)=='GENERIC') THEN
+                    VAPOUR_PROP%density(ii)   = HARD_CORE_DENSITY  ! kg/m3
+                ELSE
+                    VAPOUR_PROP%density(ii)   = ORGANIC_DENSITY  ! kg/m3
+                END IF
                 VAPOUR_PROP%molec_volume(ii) = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
                 VAPOUR_PROP%diff_vol(ii)     = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
                 VAPOUR_PROP%surf_tension(ii) = SURFACE_TENSION
-                VAPOUR_PROP%cond_type(ii)    = 1  ! not an acid (H2SO4 or HCL)
-                VAPOUR_PROP%alpha(ii)        = 1.0
+                VAPOUR_PROP%alpha(ii)         = 1.0
                 ! this is just initial value, always gets updated with T
-                VAPOUR_PROP%c_sat(ii)        = saturation_conc_m3(VAPOUR_PROP%psat_a(ii),VAPOUR_PROP%psat_b(ii), 293.15d0)
+                VAPOUR_PROP%c_sat(ii)         = saturation_conc_m3(VAPOUR_PROP%psat_a(ii),VAPOUR_PROP%psat_b(ii), 293.15d0)
 
                 ii = ii + 1
             END IF
@@ -601,14 +599,14 @@ IF (Aerosol_flag) then
 
     ! In case GENERIC was not in Vapour file (should not happen if the file was from the GUI), add GENERIC with default values
     if (VAPOUR_PROP%vapour_names(VAPOUR_PROP%n_cond_org) /= 'GENERIC') THEN
-        print FMT_WARN0, 'The vapour file did not contain GENERIC, adding it now. You should update your file.'
+        print FMT_WARN0, 'The vapour file did not contain GENERIC, adding it now. You should update your vapour file.'
         ii = VAPOUR_PROP%n_cond_org
         VAPOUR_PROP%vapour_names(ii)  = 'GENERIC'
-        VAPOUR_PROP%cond_type(ii)     = 1  ! Acid
+        VAPOUR_PROP%cond_type(ii)     = 1  ! Generic non-evaporating
         VAPOUR_PROP%molar_mass(ii)    = 437.0 * 1d-3
         VAPOUR_PROP%psat_a(ii)        = 10
         VAPOUR_PROP%psat_b(ii)        = 1d4
-        VAPOUR_PROP%density(ii)       = ORGANIC_DENSITY
+        VAPOUR_PROP%density(ii)       = HARD_CORE_DENSITY
         VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
         VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
         VAPOUR_PROP%diff_vol(ii)      = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
