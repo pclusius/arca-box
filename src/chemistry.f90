@@ -105,7 +105,7 @@ CONTAINS
         REAL(dp), INTENT(in)           :: TIME_kpp, END_kpp,       & ! Model time in sec and same time plus chemical timestep
                                           H2O,                     & ! Water vapour concentration
                                           AIR,                     & ! air molecules - calculated in the main file
-                                          Beta,                    & ! Solar zenith angle
+                                          Beta,                    & ! Solar elevation angle
                                           Tp,                      & ! Temperature at this level of atmosphere. So in this box: temperature at ground level
                                           SWDWN,                   & ! Global short wave radiation
                                           RES1, RES2,              & ! Condensation sink for H2SO4 and HNO3
@@ -116,7 +116,7 @@ CONTAINS
                                           H2,                      & ! H2-concentration in molecule / cm3
                                           N2,                      & ! N2-concentration in molecule / cm3
                                           MO2N2,                   & ! MO2N2: Sum of O2 and N2 concentration
-                                          ZSD                        ! Solar elevation angle
+                                          ZSD                        ! Solar zenith angle
         REAL(DP)                       :: reactivities(:)
 
         ! CHARACTER(len=*), INTENT(in)   :: spectrumfile               ! Spectral function from 280-695 nm (min 84 rows)
