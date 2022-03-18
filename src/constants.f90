@@ -301,13 +301,12 @@ PURE type(timetype) function ADD(time, sec)
     END IF
     IF ((ADD%savenow .eqv. .false.) .and. (ADD%sec >= (ADD%FSAVE_INTERVAL*(1+ADD%prevSave_i)))) THEN
         ADD%savenow = .true.
-        ADD%prevSave_i =  INT(ADD%sec*10000)/INT(ADD%FSAVE_INTERVAL*10000)
+        ADD%prevSave_i =  INT(10000_dint*ADD%sec, dint)/INT(ADD%FSAVE_INTERVAL*10000_dint, dint)
     ELSE
         ADD%savenow = .false.
     END IF
 
 end function ADD
-
 
 ! =================================================================================================
 ! Function to calculate concentrations based on the input units and modifyers
