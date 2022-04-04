@@ -69,9 +69,10 @@ if pyt == 'y' or pyt == 'Y':
     print("Ok, let's see  what we need...")
     print()
 
+    outpyt = os.system("%s -m pip install --upgrade pip"%python)
     outpyt = os.system("%s -m pip install --user numpy scipy matplotlib requests"%python)
     outpyt = os.system("%s -m pip install --user netCDF4"%python)
-    outpyt = os.system("%s -m pip install --user PyQt5"%python)
+    outpyt = os.system("%s -m pip install --user PyQt5>=5.11.0"%python)
     if operatingsystem == 'Windows':
         outpyt = os.system("%s -m pip install --user pyqtgraph==0.12.0"%python)
     else:

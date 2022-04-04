@@ -273,7 +273,7 @@ class About(QtWidgets.QDialog):
         self.ab = about.Ui_Dialog()
         self.ab.setupUi(self)
         self.ab.okgreat.clicked.connect(self.reject)
-        self.ab.logo.setPixmap(QtWidgets.QPixmap(modellogo.replace('.png', 'HR.png')))
+        self.ab.logo.setPixmap(QtGui.QPixmap(modellogo.replace('.png', 'HR.png')))
 
 # The popup window for Create KPP files
 class CCWin(QtWidgets.QDialog):
