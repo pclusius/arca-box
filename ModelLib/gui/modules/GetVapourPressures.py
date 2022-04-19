@@ -225,6 +225,7 @@ def getVaps(runforever=False, args={}):
 
             for j,s in enumerate(smiles):
                 # print(names[j],s)
+                s=s.replace('c','C')
                 for i,e in enumerate(elements):
                     atoms[j,i] = (-len(s.replace(e,''))+len(s))/len(e)
                     # print(i,e,atoms[j,i])
