@@ -147,7 +147,7 @@ def getVaps(runforever=False, args={}):
         temp = np.linspace(253.15,323.15,n_temp)
 
         n_first = (len(names)%100)
-        if n_first<len(names):
+        if n_first<=len(names):
             rest = len(names[n_first:])//100
 
         buffer  = np.zeros((N, n_temp))
@@ -161,7 +161,7 @@ def getVaps(runforever=False, args={}):
                     buffer[j*100:(j+1)*100,:] = ManU(temp, smiles[j*100:(j+1)*100], args['vp_method'], args['bp_method'])
             print('Fetching compounds %i to %i.'%(N-n_first+1, N))
             buffer[-n_first:,:] = ManU(temp, smiles[-n_first:], args['vp_method'], args['bp_method'])
-            pickle.dump( buffer, open( os.path.join(smilesdir, smilesfile+args['vp_method']+args['bp_method']+"_UMan_Fetch.pickle"), "wb" ) )
+            #pickle.dump( buffer, open( os.path.join(smilesdir, smilesfile+args['vp_method']+args['bp_method']+"_UMan_Fetch.pickle"), "wb" ) )
 
         n_homs = 0
 
@@ -222,8 +222,10 @@ def getVaps(runforever=False, args={}):
             sort_ats    = [2,3,4,5,6,1,0]
 
             for j,s in enumerate(smiles):
+                # print(names[j],s)
                 for i,e in enumerate(elements):
                     atoms[j,i] = (-len(s.replace(e,''))+len(s))/len(e)
+                    # print(i,e,atoms[j,i])
                     s = s.replace(e,'')
                 atoms[j,5] = int(round(float(mass[j]),0) - np.sum(atoms[j,:]*mass_number))
 
@@ -231,6 +233,7 @@ def getVaps(runforever=False, args={}):
             atoms   = atoms[:,sort_ats]
 
             atomlib = {}
+            atomlib['GENERIC'] = [22,30,0,2,0,0,0]
             for i in range(len(smiles)):
                 atomlib[names[i]] = atoms[i,:]
             if args['pram']:
@@ -255,16 +258,16 @@ def getVaps(runforever=False, args={}):
     if ii == -1:
         names.append('GENERIC')
         MAB = np.append(MAB, [[437,10,10000]], axis=0)
-        if save_atoms: atoms = np.append(atoms, [[22,30,0,2,0,0,0]], axis=0)
+        # if save_atoms: atoms = np.append(atoms, [[22,30,0,2,0,0,0]], axis=0)
     elif ii<len(names)-1 and ii>-1:
         print('GENERIC moved to last...')
         names.pop(ii)
         names.append('GENERIC')
         MAB = np.append(MAB, [MAB[ii,:]], axis=0)
         MAB = np.delete(MAB, ii, 0)
-        if save_atoms:
-            atoms = np.append(atoms, [atoms[ii,:]], axis=0)
-            atoms = np.delete(atoms, ii, 0)
+        # if save_atoms:
+        #     atoms = np.append(atoms, [atoms[ii,:]], axis=0)
+        #     atoms = np.delete(atoms, ii, 0)
 
     if save_atoms:
         path, file = os.path.split(args['saveto'])
@@ -276,14 +279,15 @@ def getVaps(runforever=False, args={}):
     count = 0
     f = open(args['saveto'], 'w')
     f.write( '#Compound                    Mass                        parameter_A              parameter_B\n')
-    for name,m,A,B,ats in zip(names,MAB[:,0],MAB[:,1],MAB[:,2],atoms):
+    # print(names)
+    for name,m,A,B in zip(names,MAB[:,0],MAB[:,1],MAB[:,2]):
         if name == 'GENERIC' or name == 'HOA':
             print('\nNOTE!: The list contains a generic/pseudovapour which is not found in the gas phase: '+name)
         if 10**(A-B/298.15)<float(args['psat_lim']):
             f.write('%-18s   %24.12f   %24.12f   %24.12f\n' %(name,m,A,B))
             count += 1
             if save_atoms:
-                fa.write('%-18s   %24.12f %3d %3d %3d %3d %3d %3d %3d\n' %(name,m,*ats))
+                fa.write('%-18s   %24.12f %3d %3d %3d %3d %3d %3d %3d\n' %(name,m,*atomlib[name]))
     f.close()
     if save_atoms:
         fa.close()
@@ -328,7 +332,7 @@ if __name__ == '__main__':
     runon = True
     while runon:
         runon = False
-        getVaps(runforever=True, slave=False)
+        getVaps(runforever=True)
         q = input('\nRestart (r) program or quit (q, default)?:\n')
         if q.lower() == 'r': runon = True
 

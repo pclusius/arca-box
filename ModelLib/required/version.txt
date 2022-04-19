@@ -1,3 +1,8 @@
+1.2.1
+Fixes:
+- Fixed bug in GetVapourPressures.py which saved the wrong elemental composition of filtered sets
+
+
 1.2.0
 
 What's new:
