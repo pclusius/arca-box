@@ -180,6 +180,8 @@ def getVaps(runforever=False, args={}):
             mass = np.append(mass,hom_mass)
             try:
                 hom_atoms = np.genfromtxt(props,usecols=(3,4,5,6))
+                hom_atoms_full = np.zeros( (hom_atoms.shape[0],7 )  )
+                hom_atoms_full[:,:4] = hom_atoms
             except:
                 print('Cannot find elemental information from extra file')
 
@@ -238,7 +240,7 @@ def getVaps(runforever=False, args={}):
                 atomlib[names[i]] = atoms[i,:]
             if args['pram']:
                 for j in range(len(homs)):
-                    atomlib[homs[j]] = hom_atoms[j,:]
+                    atomlib[homs[j]] = hom_atoms_full[j,:]
 
         for i in range(N):
             MAB[i,0] = selected_vapourmass[i]
