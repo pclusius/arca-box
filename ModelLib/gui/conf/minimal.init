@@ -89,8 +89,8 @@
 
 &NML_VAP
  USE_ATOMS = .TRUE.
- VAP_NAMES = 'ModelLib/EVAPORATION_ALL_1e-6.dat'
- VAP_ATOMS = 'ModelLib/EVAPORATION_ALL_1e-6_elements.dat'
+ VAP_NAMES = 'ModelLib/EVAPORATION_1.2.1_ALL_1e-6.dat'
+ VAP_ATOMS = 'ModelLib/EVAPORATION_1.2.1_ALL_1e-6_elements.dat'
 /
 
 &NML_ACDC

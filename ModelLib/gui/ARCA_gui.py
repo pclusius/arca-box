@@ -2818,6 +2818,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 if key[:5]=='MODS(':
                     y = key.find(')')
                     index = int(key[5:y])
+                    if index>len(NAMES): continue
                     if index-1 == divider_i:
                         continue
                     name = NAMES[index-1]

@@ -56,7 +56,7 @@ libgssapi_krb5_2                        1.15.2-2
 libguile2.2_1                           2.2.7-1
 libhdf5_10                              1.8.20-1
 libhdf5_101                             1.10.2-1
-libhdf5_103                             1.10.6-1
+libhdf5_103                             1.10.8-1
 libhdf5hl_10                            1.8.20-1
 libhdf5hl_100                           1.10.6-1
 libiconv                                1.16-2
