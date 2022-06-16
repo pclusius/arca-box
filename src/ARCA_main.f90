@@ -53,9 +53,9 @@ real(dp) :: P_prev = 0d0
 REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)    ! Array to hold input variables for the current timestep
 REAL(DP), ALLOCATABLE :: CH_GAS(:), CH_GAS_old(:),d_chem(:), reactivities(:) ! Array to hold all chemistry compounds; old: to restore in case of an error related to timestep handling
 REAL(dp), ALLOCATABLE :: conc_fit(:)      ! An array giving particle conc independant of PSD_style [m⁻³]
-REAL(dp), ALLOCATABLE :: losses_fit(:)    ! An array giving particle conc independant of PSD_style [m-3]
+REAL(dp), ALLOCATABLE :: losses_fit(:)    ! interpolated loss rates [/s]
 REAL(dp), ALLOCATABLE :: losses_fit0(:),losses_fit1(:), intrp_losses(:), inv_loss(:) ! Experimental stuff, deprecated [m-3]
-REAL(dp), ALLOCATABLE :: save_measured(:)      ! An aray for saving measurements
+REAL(dp), ALLOCATABLE :: save_measured(:)      ! An array for saving measurements
 
 INTEGER               :: dmps_ln = 0, dmps_ln_old      ! line number from where background particles are read from
 INTEGER               :: dmps_sp_min = 0, dmps_sp_max = 0 ! Indices for dmps_special
@@ -180,9 +180,9 @@ INIT_AEROSOL: IF (Aerosol_flag) THEN
     d_npdep = 0d0
 
     if (use_dmps_partial .and. use_dmps) THEN
-        write(*, FMT_MSG) 'Using dmps_special:'
+        ! write(*, FMT_MSG) 'Using dmps_special:'
 
-        ! both limits have to be far enough for the smallest and largest diameters
+        ! both limits have to be far enough from the smallest and largest diameters
         if (dmps_lowband_upper_limit > nominal_dp(2)) THEN
             dmps_sp_min = minloc(abs(get_dp()-dmps_lowband_upper_limit),1)
             print FMT_SUB, 'Lower bins replaced from 1 to '//i2chr(dmps_sp_min)
@@ -797,15 +797,6 @@ END IF
 
             if (.not. PRC%err) THEN
 
-                ! if (GTIME%printnow) THEN
-                !     CoagGrowth = sum( &
-                !     get_composition(new_PSD) * TRANSPOSE(SPREAD(get_conc(new_PSD),1,VAPOUR_PROP%n_cond_tot)) &
-                !     - get_composition(current_PSD) * TRANSPOSE(SPREAD(get_conc(current_PSD),1,VAPOUR_PROP%n_cond_tot)) &
-                !     ,2)
-                !     print*, CoagGrowth(5:6), CoagGrowth(50:51)
-                ! END IF
-
-
                 ! Update PSD with new concentrations
                 current_PSD = new_PSD
                 ! Check whether timestep can be increased:
@@ -1321,9 +1312,9 @@ SUBROUTINE CALCULATE_CHEMICAL_WALL_LOSS(conc, c_org_wall)
     integer            :: nc,ii ! nc=short for number of condensible organic vapours, loop indices
 
     nc = VAPOUR_PROP%n_cond_org
-
-    k_g2w = ((A_vert + 2d0*Chamber_floor_area)/Vol_chamber)*(ALPHAWALL*VAPOUR_PROP%c_speed(1:nc)/4D0)/(1D0+(pi/2D0) &
-                 * (ALPHAWALL*VAPOUR_PROP%c_speed(1:nc)/(4D0*sqrt(EDDYK*VAPOUR_PROP%diff(1:nc)))))
+    if (GTIME%printnow) print*, VAPOUR_PROP%alphawall(1:50)
+    k_g2w = ((A_vert + 2d0*Chamber_floor_area)/Vol_chamber)*(VAPOUR_PROP%alphawall(1:nc)*VAPOUR_PROP%c_speed(1:nc)/4D0)/(1D0+(pi/2D0) &
+                 * (VAPOUR_PROP%alphawall(1:nc)*VAPOUR_PROP%c_speed(1:nc)/(4D0*sqrt(EDDYK*VAPOUR_PROP%diff(1:nc)))))
     k_w2g = k_g2w/(Na/VAPOUR_PROP%c_sat(1:nc) * Cw_eqv) ! Cw_eqv=40 mumol/m^3, => ~10 mg/m^3 as in Zhang et al., 2014
 
     old_gas_mass = SUM(VAPOUR_PROP%molec_mass(1:nc)*conc)
@@ -1495,6 +1486,15 @@ SUBROUTINE WATER(ES,EW,CW,STW)
     IMPLICIT NONE
     REAL(dp), INTENT(INOUT) :: ES, EW, CW, STW
     REAL(dp)                :: TEMPC
+    ! Saturation vapour pressure of water in Pa
+    REAL, PARAMETER        :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
+                              a1 = 4.436518524E-1,  &
+                              a2 = 1.428945805E-2,  &
+                              a3 = 2.650648471E-4,  &
+                              a4 = 3.031240396E-6,  &
+                              a5 = 2.034080948E-8,  &
+                              a6 = 6.136820929E-11
+
 
     TEMPC = GTEMPK-273.15d0
 

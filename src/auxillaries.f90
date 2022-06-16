@@ -154,7 +154,7 @@ INTEGER FUNCTION COLCOUNT(file_id, separator)
   IMPLICIT NONE
   INTEGER             :: file_id,ioi,i
   INTEGER(8)          :: OFFSET
-  CHARACTER(6000)     :: buffer
+  CHARACTER(60000)    :: buffer
   CHARACTER,OPTIONAL  :: separator
   CHARACTER           :: sep
   logical             :: invalue

@@ -39,10 +39,9 @@ else:
 import platform
 operatingsystem = platform.system()
 # "Windows"/"Linux"/"Darwin"
-if '--csc' in sys.argv:
-    csc = True
-else:
-    csc = False
+
+csc = '--csc' in sys.argv
+
 out = 0
 curr_path = os.path.split(os.getcwd())[0]
 os.chdir(curr_path)
@@ -72,7 +71,10 @@ if pyt == 'y' or pyt == 'Y':
     outpyt = os.system("%s -m pip install --upgrade pip"%python)
     outpyt = os.system("%s -m pip install --user numpy scipy matplotlib requests"%python)
     outpyt = os.system("%s -m pip install --user netCDF4"%python)
-    outpyt = os.system("%s -m pip install --user PyQt5>=5.11.0"%python)
+    if csc:
+        outpyt = os.system("%s -m pip install --user PyQt5"%python)
+    else:
+        outpyt = os.system("%s -m pip install --user PyQt5>=5.11.0"%python)
     if operatingsystem == 'Windows':
         outpyt = os.system("%s -m pip install --user pyqtgraph==0.12.0"%python)
     else:

@@ -1,5 +1,5 @@
 ! Input files used to create this file:
-! System name: RICC2 NH3 system, acdc repo
+! System name: RICC2 NH3 system, acdc repository
 ! System file: Perl_input/input_ANnarrow_neutral_neg_pos.inp
 ! Energy file: Perl_input/HS298.15K_example.txt
 ! Dipole file: Perl_input/dip_pol_298.15K_example.txt

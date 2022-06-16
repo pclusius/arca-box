@@ -40,14 +40,15 @@ REAL(dp), PARAMETER    :: Keq1 = 0.13D0          ! H2SO4 diffusivity RH dependen
 REAL(dp), PARAMETER    :: Keq2 = 0.016D0         ! H2SO4 diffusivity RH dependence parameters, Hanson & Eisele
 INTEGER, PARAMETER     :: dint = selected_int_kind(16)
 
-! Saturation vapour pressure of water in Pa
-REAL, PARAMETER        :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
-                          a1 = 4.436518524E-1,  &
-                          a2 = 1.428945805E-2,  &
-                          a3 = 2.650648471E-4,  &
-                          a4 = 3.031240396E-6,  &
-                          a5 = 2.034080948E-8,  &
-                          a6 = 6.136820929E-11
+! THESE ARE MOVED IN THE FUNCTION WATER AS THEY ARE NOT USED ELSEWHERE
+! ! Saturation vapour pressure of water in Pa
+! REAL, PARAMETER        :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
+!                           a1 = 4.436518524E-1,  &
+!                           a2 = 1.428945805E-2,  &
+!                           a3 = 2.650648471E-4,  &
+!                           a4 = 3.031240396E-6,  &
+!                           a5 = 2.034080948E-8,  &
+!                           a6 = 6.136820929E-11
 
 
 ! ======================================================================================================================
@@ -206,6 +207,7 @@ type :: vapour_ambient
     real(dp), allocatable           :: molar_mass(:)        ! molar mass [kg]
     real(dp), allocatable           :: psat_a(:), psat_b(:) ! Parameters to calculate sat. vapour press.: log10(Psat) = a-b/T Psat=[atm]
     real(dp), allocatable           :: alpha(:)             ! accomodation coefficient i.e. "sticking coef."= 1.0 []
+    real(dp), allocatable           :: alphawall(:)         ! wall accomodation coefficient i.e. "sticking coef."= 1.0 []
     real(dp), allocatable           :: density(:)           ! bulk density of liquid [kg/m³]
     real(dp), allocatable           :: surf_tension(:)      ! Surface tension [N/m]
     real(dp), allocatable           :: diff(:)              ! mass diffusivity
