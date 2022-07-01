@@ -78,6 +78,11 @@ subroutine AFTER_CHEM(TSTEP_CONC,CH_GAS,CH_GAS_old,CH_RO2,CH_Beta,CH_H2O,CH_RO2_
     real(dp), INTENT(INOUT) :: J_TOTAL_M3
 
     ! BEGIN CUSTOM CODE -------------------------------
+    ! USED FOR ARCA-PAPER, FIGURE 11.
+    ! if (GTIME%hrs > 0.307 .and. CH_GAS(ind_O3) < 1d1) THEN
+    ! 	CH_GAS(ind_O3) = 250*1d-9*GC_AIR_NOW
+    ! 	print*, 'Injecting OZONE'
+    ! end if
 
 
     ! END CUSTOM CODE ---------------------------------

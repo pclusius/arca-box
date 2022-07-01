@@ -906,7 +906,8 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.min_particle_diam.textChanged.connect(self.seeInAction)
         self.max_particle_diam.textChanged.connect(self.seeInAction)
         self.n_bins_particle.valueChanged.connect(self.seeInAction)
-
+        self.fileTimeUnit_a.currentIndexChanged.connect(lambda: self.fileTimeUnit_b.setCurrentIndex(self.fileTimeUnit_a.currentIndex()))
+        self.fileTimeUnit_b.currentIndexChanged.connect(lambda: self.fileTimeUnit_a.setCurrentIndex(self.fileTimeUnit_b.currentIndex()))
     # -----------------------
     # tab Input variables
     # -----------------------
@@ -1464,7 +1465,7 @@ the numerical model or chemistry scheme differs from the current, results may va
     def updateEnvPath(self):
         if self.fileLoadOngoing:
             return
-        self.update_nml()
+        status = self.update_nml()
         self.env_file.setToolTip('Location: "'+nml.ENV.ENV_FILE+'"')
         self.mcm_file.setToolTip('Location: "'+nml.MCM.MCM_FILE+'"')
         self.dmps_file.setToolTip('Location: "'+nml.PARTICLE.DMPS_FILE+'"')
@@ -1478,7 +1479,7 @@ the numerical model or chemistry scheme differs from the current, results may va
     def updatePath(self):
         if self.fileLoadOngoing:
             return
-        self.update_nml()
+        status = self.update_nml()
 
         if self.indexRadioDate.isChecked():
             r = [self.dateEdit.text()]*2
@@ -1507,7 +1508,8 @@ the numerical model or chemistry scheme differs from the current, results may va
 
 
     def batchCaller(self, listofinds=[]):
-        self.update_nml()
+        status = self.update_nml()
+        if status != 0: return
         if self.batchRangeDay.isChecked():
             r = self.batchRangeDayBegin.text(),self.batchRangeDayEnd.text()
         else:
@@ -1888,7 +1890,8 @@ the numerical model or chemistry scheme differs from the current, results may va
 
     def save_file(self, file=None, mode=None,nobatch=True, changeTitle=True):
         if nobatch:
-            self.update_nml()
+            status = self.update_nml()
+            if status != 0: return
         if file==None:
             dialog = QtWidgets.QFileDialog()
             options = dialog.Options()
@@ -2206,7 +2209,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
     def print_values(self, file=None, mode=None, nobatch=True):
         if nobatch:
-            self.update_nml()
+            status = self.update_nml()
+            if status != 0 and file: return status
         self.prints += 1
         if (file):
             f = open(file, 'w')
@@ -2234,6 +2238,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             print('#',('-')*50, '\n')
             nml.printall(vars.mods, target='p')
 
+        return status
 
     def select_compounds(self):
         compounds = self.namesdat.selectedItems()
@@ -2544,7 +2549,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.wait_for = 0
         if not exists(gui_path+'tmp'):
             mkdir(gui_path+'tmp')
-        self.print_values(tempfile)
+        st = self.print_values(tempfile)
+        if st != 0: return
         self.wait_for = currentWait
 
         try:
@@ -2596,6 +2602,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def update_nml(self):
+        status = 0
         self.ACDC_current_links = self.get_ACDC_links()
         # class _SETTINGS:
         nml.SETTINGS.BATCH = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s' %(
@@ -2645,6 +2652,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.FLAG.OPTIMIZE_DT=self.checkboxToFOR(self.useSpeed)
         nml.FLAG.AFTER_CHEM_ON=self.checkboxToFOR(self.after_chem_on)
         nml.FLAG.AFTER_NUCL_ON=self.checkboxToFOR(self.after_nucl_on)
+        nml.FLAG.FILE_TIME_UNIT=self.fileTimeUnit_a.currentText()
+        nml.FLAG.LOSSFILE_TIME_UNIT=self.lossfileTimeUnit.currentText()
 
         # class _TIME:
         nml.TIME.RUNTIME=self.runtime.value()
@@ -2664,6 +2673,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
         # class _PARTICLE:
         nml.PARTICLE.PSD_MODE=self.psd_mode.currentIndex()
         nml.PARTICLE.N_BINS_PAR=self.n_bins_particle.value()
+        try:
+            float(self.min_particle_diam.text())
+            float(self.max_particle_diam.text())
+        except:
+            self.popup('Error', 'Minimum and maximum particle diameters must be numbers', icon=3)
+            status = 1
         nml.PARTICLE.MIN_PARTICLE_DIAM=self.min_particle_diam.text()
         nml.PARTICLE.MAX_PARTICLE_DIAM=self.max_particle_diam.text()
         nml.PARTICLE.MMODAL_INPUT_INUSE=self.checkboxToINT(self.multiModalBox)
@@ -2676,6 +2691,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.PARTICLE.DMPS_LOWBAND_UPPER_LIMIT=self.dmps_lowband_upper_limit.text()
         nml.PARTICLE.USE_DMPS=self.checkboxToFOR(self.use_dmps)
         nml.PARTICLE.USE_DMPS_PARTIAL=self.checkboxToFOR(self.use_dmps_partial)
+        nml.PARTICLE.DMPS_INTERVAL=self.dmpsIntvl.value()
 
         # class _ENV:
         nml.ENV.ENV_FILE=self.pars(self.env_file.text(), file=self.indir, stripRoot=self.stripRoot_env.isChecked())
@@ -2736,7 +2752,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         for i in range(self.ACDC_n_systems):
             nml.ACDC.LINKS[i] = ' '.join(['%s %s'%(j,self.ACDC_current_links[i][1][j]) for j in self.ACDC_current_links[i][1].keys()])
 
-        return
+        return status
 
     def resolveHelper(self):
         text = self.fill_formation_with.currentText()
@@ -2750,6 +2766,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
     def load_initfile(self,file):
         INC_COMP = False
+        timeunits = {'day':0,'hrs':1,'min':2,'sec':3}
+        self.fileTimeUnit_a.setCurrentIndex( timeunits['day'] )
+        self.fileTimeUnit_b.setCurrentIndex( timeunits['day'] )
+        self.lossfileTimeUnit.setCurrentIndex( timeunits['day'] )
 
         if not exists(file):
             if file != defaults_file_path:
@@ -2768,7 +2788,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
         #     elif query.upper() == 'DMA': return 1
         #     else: return 0
 
-        def parse_date(str):
+        def parse_date(strg):
+            str = strg.strip()
             if len(str)==10:
                 y = int(str[0:4])
                 m = int(str[5:7])
@@ -2805,6 +2826,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 # remove apostrophes from ends if they exist
                 if (strng[0] == "\'" and strng[-1] == "\'") or (strng[0] == "\"" and strng[-1] == "\""):
                     strng = strng[1:-1]
+                    strng = strng.strip()
+
                 # change fortran boolean to python boolean
                 if not in_custom:
                     if strng == "T" or strng.upper() == ".TRUE.": strng = True
@@ -2894,22 +2917,29 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'MODEL_H2SO4' == key: self.model_h2so4.setChecked(strng)
             elif 'ORG_NUCL' == key: self.Org_nucl.setChecked(strng)
             elif 'RUNTIME' == key and isFl: self.runtime.setValue(float(strng))
-            elif 'DT' == key and isFl: self.dt.setValue(float(strng)),
+            elif 'DT' == key and isFl: self.dt.setValue(float(strng))
+            elif 'FILE_TIME_UNIT' == key:
+                iii = timeunits.get(strng, 0)
+                self.fileTimeUnit_a.setCurrentIndex( iii )
+                self.fileTimeUnit_b.setCurrentIndex( iii )
+            elif 'LOSSFILE_TIME_UNIT' == key:
+                iii = timeunits.get(strng, 0)
+                self.lossfileTimeUnit.setCurrentIndex( iii )
             elif 'PRINT_ACDC' == key: self.print_acdc.setChecked(strng)
             elif 'OPTIMIZE_DT' == key: self.useSpeed.setChecked(strng)
             elif 'AFTER_CHEM_ON' == key: self.after_chem_on.setChecked(strng)
             elif 'AFTER_NUCL_ON' == key: self.after_nucl_on.setChecked(strng)
-            elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(int(strng))
-            elif 'PRINT_INTERVAL' == key and isFl: self.print_interval.setValue(int(strng))
-            elif 'FSAVE_DIVISION' == key and isFl: self.fsave_division.setValue(int(strng))
+            elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(int(float(strng)))
+            elif 'PRINT_INTERVAL' == key and isFl: self.print_interval.setValue(int(float(strng)))
+            elif 'FSAVE_DIVISION' == key and isFl: self.fsave_division.setValue(int(float(strng)))
             elif 'DATE' == key: self.dateEdit.setDate(parse_date(strng))
-            elif 'INDEX' == key and isFl: self.indexEdit.setValue(int(strng))
-            elif 'PSD_MODE' == key and isFl: self.psd_mode.setCurrentIndex(int(strng))
-            elif 'N_BINS_PAR' == key and isFl: self.n_bins_particle.setValue(int(strng))
+            elif 'INDEX' == key and isFl: self.indexEdit.setValue(int(float(strng)))
+            elif 'PSD_MODE' == key and isFl: self.psd_mode.setCurrentIndex(int(float(strng)))
+            elif 'N_BINS_PAR' == key and isFl: self.n_bins_particle.setValue(int(float(strng)))
             elif 'MIN_PARTICLE_DIAM' == key: self.min_particle_diam.setText(strng)#   1.0000000000000001E-009,
             elif 'MAX_PARTICLE_DIAM' == key: self.max_particle_diam.setText(strng)#   9.9999999999999995E-007,
             elif 'N_MODAL' == key: self.n_modal.setText(strng)#   9.9999999999999995E-007,
-            elif 'MMODAL_INPUT_INUSE' == key: self.multiModalBox.setChecked(int(strng))#   9.9999999999999995E-007,
+            elif 'MMODAL_INPUT_INUSE' == key: self.multiModalBox.setChecked(int(float(strng)))#   9.9999999999999995E-007,
             elif 'DMPS_FILE' == key: self.dmps_file.setText(strng)
             elif 'EXTRA_PARTICLES' == key: self.extra_particles.setText(strng)
             elif 'MMODAL_INPUT' == key: self.mmodal_input.setText(strng)
@@ -2918,6 +2948,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'DMPS_LOWBAND_UPPER_LIMIT' == key: self.dmps_lowband_upper_limit.setText(strng)
             elif 'USE_DMPS' == key: self.use_dmps.setChecked(strng)
             elif 'USE_DMPS_PARTIAL' == key: self.use_dmps_partial.setChecked(strng)
+            elif 'DMPS_INTERVAL' == key: self.dmpsIntvl.setValue(int(float(strng)))
             elif 'ENV_FILE' == key: self.env_file.setText(strng)
             elif 'SPECTRUMFILE' == key: self.spectralFunctions.setText(strng)
             elif 'SWR_IS_ACTINICFLUX' == key: self.SW_is_AF.setChecked(strng)
@@ -2932,11 +2963,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'LOSSES_FILE' == key: self.losses_file.setText(strng)# "
             elif 'LAT' == key and isFl: self.lat.setValue(float(strng))
             elif 'LON' == key and isFl: self.lon.setValue(float(strng))
-            elif 'WAIT_FOR' == key and isFl: self.wait_for = (int(strng))
+            elif 'WAIT_FOR' == key and isFl: self.wait_for = (int(float(strng)))
             elif 'DESCRIPTION' == key: self.description.setPlainText(strng.replace('<br>','\n'))# "Just some keying
             elif 'CH_ALBEDO' == key and isFl: self.ch_albedo.setValue(float(strng))#  0.20000000000000001     ,
-            elif 'SWR_IN_LOWER' == key and isFl: self.swr_in_lower.setValue(int(strng))#  0.20000000000000001     ,
-            elif 'SWR_IN_UPPER' == key and isFl: self.swr_in_upper.setValue(int(strng))#  0.20000000000000001     ,
+            elif 'SWR_IN_LOWER' == key and isFl: self.swr_in_lower.setValue(int(float(strng)))#  0.20000000000000001     ,
+            elif 'SWR_IN_UPPER' == key and isFl: self.swr_in_upper.setValue(int(float(strng)))#  0.20000000000000001     ,
             elif 'USE_ATOMS' == key: self.use_atoms.setChecked(strng)
             elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
@@ -2953,7 +2984,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.prec_high_3.setValue(float(strng.split(',')[1]))
 
             elif 'ACDC_SYSTEMS' == key:
-                self.acdc_systems_flags = [int(z) for z in strng.split(',')]
+                if ',' in strng:
+                    self.acdc_systems_flags = [int(z) for z in strng.split(',')]
+                elif '*' in strng:
+                    self.acdc_systems_flags = [int(strng[2:])]*int(strng[0])
                 lll = len(self.acdc_systems_flags)
                 if lll==0: self.acdc_systems_flags = [1,1,0,0,0]
                 if lll<self.ACDC_n_systems: self.acdc_systems_flags = self.acdc_systems_flags + [0]*(self.ACDC_n_systems-lll)
@@ -2971,6 +3005,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
 
             elif in_custom:
+                if strng == 'T': strng = '.TRUE.'
+                if strng == 'F': strng = '.FALSE.'
                 nml.CUSTOM.CUSTOMS.append([key, strng])
                 pass
 

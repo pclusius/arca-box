@@ -1,0 +1,131 @@
+#--------------------------------------------------
+#      ARCA box setting file: ModelLib/Examples/APINENE_OXY/GMD-2022-55
+#         Created at: kesä 28 2022, 13:43:58
+#--------------------------------------------------
+
+&NML_PATH
+ INOUT_DIR = 'INOUT'
+ CASE_NAME = 'PAPER'
+ RUN_NAME = 'EXAMPLE_APINENE_OXY'
+/ 
+
+&NML_FLAG
+ CHEMISTRY_FLAG = .TRUE.
+ AEROSOL_FLAG = .TRUE.
+ ACDC_SOLVE_SS = .FALSE.
+ ACDC = .FALSE.
+ CONDENSATION = .TRUE.
+ COAGULATION = .TRUE.
+ DEPOSITION = .FALSE.
+ CHEM_DEPOSITION = .TRUE.
+ MODEL_H2SO4 = .FALSE.
+ ORG_NUCL = .FALSE.
+ PRINT_ACDC = .FALSE.
+ OPTIMIZE_DT = .TRUE.
+ AFTER_CHEM_ON = .FALSE.
+ AFTER_NUCL_ON = .FALSE.
+ FILE_TIME_UNIT = 'sec'
+ LOSSFILE_TIME_UNIT = 'sec'
+/ 
+
+&NML_TIME
+ RUNTIME = 5.3466
+ DT = 0.001
+ FSAVE_INTERVAL = 5
+ PRINT_INTERVAL = 300
+ FSAVE_DIVISION = 200
+ DATE = ''
+ INDEX = '0003'
+/ 
+
+&NML_PARTICLE
+ PSD_MODE = 1
+ N_BINS_PAR = 100
+ MIN_PARTICLE_DIAM = 5e-9
+ MAX_PARTICLE_DIAM = 10e-6
+ N_MODAL = 4.53658536585e3
+ MMODAL_INPUT_INUSE = 1
+ DMPS_FILE = ''
+ EXTRA_PARTICLES = ''
+ MMODAL_INPUT = '95e-9 0.200 1'
+ DMPS_READ_IN_TIME = 0.0
+ DMPS_HIGHBAND_LOWER_LIMIT = 
+ DMPS_LOWBAND_UPPER_LIMIT = 
+ USE_DMPS = .FALSE.
+ USE_DMPS_PARTIAL = .FALSE.
+/ 
+
+&NML_ENV
+ ENV_FILE = 'ModelLib/Examples/APINENE_OXY/exportedData/apine_profile.dat'
+ SPECTRUMFILE = ''
+ SWR_IN_LOWER = 300
+ SWR_IN_UPPER = 4000
+ SWR_IS_ACTINICFLUX = .FALSE.
+ LOSSES_FILE = 'ModelLib/Examples/APINENE_OXY/exportedData/losses_2d_A.dat'
+ CHAMBER_FLOOR_AREA = 5.0
+ CHAMBER_HEIGHT = 2.0
+ EDDYK = 0.05
+ USTAR = 0.9
+ ALPHAWALL = 5e-05
+ CW_EQV = 4e-05
+/ 
+
+&NML_MCM
+ MCM_FILE = 'ModelLib/Examples/APINENE_OXY/exportedData/apine_profile.dat'
+/ 
+
+&NML_MODS
+ MODS(1)   =  0  -1  1.00000d+00  2.00000d+01  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'C' '' ! TEMPK
+ MODS(2)   =  0  -1  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'hPa' '' ! PRESSURE
+ MODS(3)   =  0  -1  1.00000d+00  1.00000d+01  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' '' ! REL_HUMIDITY
+ MODS(16)  =  0  -1  1.00000d+00  2.50000d+02  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' '' ! O3
+ MODS(24)  =  0  -1  1.00000d+00  8.00000d+01  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppm' '' ! BUT2OL
+ MODS(151) =  0  -1  1.00000d+00  3.83000d+01  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' '' ! APINENE
+/ 
+
+&NML_MISC
+ LAT = 60.0
+ LON = -25.0
+ WAIT_FOR = 0
+ DESCRIPTION = 'Experiment 13 from: Pathak, R. K., C. O. Stanier, N. M. Donahue, and S. N. Pandis (2007), Ozonolysis of a-pinene at atmospherically relevant concentrations: Temperature dependence of aerosol mass fractions (yields), J. Geophys. Res., 112, D03201, doi:10.1029/2006JD007436.<br>Psat from EVAPORATION, Par loss rate constant from the reference, enhanced in the beginning, chemical wall loss from parametrization.'
+ CH_ALBEDO = 0.2
+ GR_SIZES = ''
+/ 
+
+&NML_VAP
+ USE_ATOMS = .TRUE.
+ VAP_NAMES = 'ModelLib/Examples/APINENE_OXY/exportedData/MTVapours_June2022_EVAP.dat'
+ VAP_ATOMS = 'ModelLib/Examples/APINENE_OXY/exportedData/MTVapours_June2022_EVAP_elements.dat'
+/ 
+
+&NML_ACDC
+ ACDC_SYSTEMS = 0,0,0,0,0
+ ACDC_links(1) = 'A H2SO4 N NH3'
+ ACDC_links(2) = 'A H2SO4 D DMA'
+ ACDC_links(3) = 'A H2SO4 D DMA'
+ ACDC_links(4) = 'A H2SO4 N NH3'
+ ACDC_links(5) = 'A H2SO4 N NH3'
+/ 
+
+&NML_PRECISION
+ DDIAM_RANGE = 0.100000,1.000000
+ DPNUM_RANGE = 0.100000,2.000000
+ DVAPO_RANGE = 0.100000,1.000000
+/ 
+
+&NML_CUSTOM
+ FLOAT_CONC_AFTER_HRS = 0.0001
+ ORGANIC_DENSITY = 1400
+ HARD_CORE_DENSITY = 1200
+ DT_UPPER_LIMIT = 30,70,70
+/ 
+
+
+
+
+# Following settings are for the GUI and not directly used by the model ----- 
+# RAW_INPUT = 
+# INPUT_SETTINGS = 'env_file:ModelLib/Examples/APINENE_OXY/exportedData/apine_profile.dat mcm_file:ModelLib/Examples/APINENE_OXY/exportedData/apine_profile.dat dmps_file: extra_particles: losses_file:ModelLib/Examples/APINENE_OXY/exportedData/losses_2d_A.dat spectralFunctions: stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
+# BATCH_SETTINGS = 'batchRangeDayBegin:2020-01-01 batchRangeDayEnd:2020-01-05 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.TRUE. indexRadioDate:.FALSE. createBashFile:.TRUE. batchRangeDay:.FALSE. batchRangeInd:.TRUE.'
+#---------------------------------------------------------------------------- 
+

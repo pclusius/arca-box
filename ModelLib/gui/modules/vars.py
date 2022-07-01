@@ -91,6 +91,8 @@ class INITFILE:
             self.OPTIMIZE_DT=0
             self.AFTER_CHEM_ON=0
             self.AFTER_NUCL_ON=0
+            self.FILE_TIME_UNIT=0
+            self.LOSSFILE_TIME_UNIT=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_FLAG%s')"%(cmd, eol))
@@ -108,6 +110,9 @@ class INITFILE:
             exec("%s(' OPTIMIZE_DT = %s%s')"%(cmd,self.OPTIMIZE_DT,eol))
             exec("%s(' AFTER_CHEM_ON = %s%s')"%(cmd,self.AFTER_CHEM_ON,eol))
             exec("%s(' AFTER_NUCL_ON = %s%s')"%(cmd,self.AFTER_NUCL_ON,eol))
+            exec("%s(' FILE_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.FILE_TIME_UNIT,eol))
+            exec("%s(' LOSSFILE_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.LOSSFILE_TIME_UNIT,eol))
+
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _TIME:
@@ -147,6 +152,7 @@ class INITFILE:
             self.DMPS_LOWBAND_UPPER_LIMIT=0
             self.USE_DMPS=0
             self.USE_DMPS_PARTIAL=0
+            self.DMPS_INTERVAL=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_PARTICLE%s')"%(cmd, eol))
@@ -164,6 +170,7 @@ class INITFILE:
             exec("%s(' DMPS_LOWBAND_UPPER_LIMIT = %s%s')"%(cmd,self.DMPS_LOWBAND_UPPER_LIMIT,eol))
             exec("%s(' USE_DMPS = %s%s')"%(cmd,self.USE_DMPS,eol))
             exec("%s(' USE_DMPS_PARTIAL = %s%s')"%(cmd,self.USE_DMPS_PARTIAL,eol))
+            exec("%s(' DMPS_INTERVAL = %s%s')"%(cmd,self.DMPS_INTERVAL,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _ENV:

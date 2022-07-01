@@ -1,0 +1,153 @@
+[INFO     ] Created at 13:49:42, December 15, 2021
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Added complex reaction rates.
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Fix the bug: "= IGNORE --> dummy = IGNORE".
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Deleted the line "USE constants".
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Deleted the line "CALL mcm_constants(time, temp, M, N2, O2, RO2, H2O)".
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Fix the bug: "O + O3 = --> O + O3 = dummy".
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Fix the bug: "OH + HO2 = --> OH + HO2 = dummy".
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] 2 SA are changed to H2SO4.
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Add condensation sink RES1 for H2SO4: "H2SO4 = dummy : RES1 ;"
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Comment out KNO
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Comment out KHO2
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Comment out KRO2
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Comment out KNO3
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Comment out KTR
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Comment out K16ISOM
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] The final included files are:
+[INFO     ] ModelLib/gui/chemistry_package_PZ/PRAM_v21.txt
+[INFO     ] 
+[INFO     ] -----------------------------------
+[INFO     ] 
+[INFO     ] Combined all the species defined in #DEFVAR.
+[INFO     ] 
+[INFO     ] -----------------------------------
+[INFO     ] 
+[INFO     ] Combined all the species defined in #DEFFIX.
+[INFO     ] 
+[INFO     ] -----------------------------------
+[INFO     ] 
+[INFO     ] Combined all the RO2 species.
+[INFO     ] 
+[INFO     ] -----------------------------------
+[INFO     ] 
+[INFO     ] Combined all the equations:
+[INFO     ] If the reactants, products and k values of several equations are the same,
+[INFO     ] only one is left.
+[INFO     ] If the reactants, products of several equations are the same,
+[INFO     ] but k values are different, all of them are kept,
+[INFO     ] and the duplicated equations will be shown below.
+[INFO     ] You should decide how to modify the final def file and then use kpp.
+[WARNING  ] {4029.} INANCOPAN = INANCOCO3 + NO2 : KBPAN ;
+[WARNING  ] {3.}      APINOOA = C107O2 + OH :                     KDEC*0.55*0.90 ;
+[WARNING  ] {4.}      APINOOA = C109O2 + OH :                     KDEC*0.45*0.90 ;
+[WARNING  ] {5.}      LIMOOA = LIMALAO2 + OH :                    KDEC*0.5*0.7 ;
+[WARNING  ] {6.}      LIMOOA = LIMALBO2 + OH :                    KDEC*0.5*0.7 ;
+[WARNING  ] {1153.}     C107O2 = C107O : 	                            9.20D-14*0.7*RO2*0.9 ;
+[WARNING  ] {1154.}     C107O2 = C107OH : 	                            9.20D-14*0.3*RO2*0.9 ;
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] The reaction rates of these equations (CI -> SO3) are modified from 7.00D-14 to 7.00D-13:
+[INFO     ] {271.} BCAOO + SO2 = BCAL + SO3 : 7.00D-13 ;
+
+[INFO     ] {277.} BCBOO + SO2 = BCAL + SO3 : 7.00D-13 ;
+
+[INFO     ] {367.} CH2OO + SO2 = HCHO + SO3 : 7.00D-13 ;
+
+[INFO     ] {595.} APINBOO + SO2 = PINAL + SO3 : 7.00D-13 ;
+
+[INFO     ] {660.} NOPINOO + SO2 = NOPINONE + SO3 : 7.00D-13 ;
+
+[INFO     ] {704.} LIMBOO + SO2 = LIMAL + SO3 : 7.00D-13 ;
+
+[INFO     ] {1115.} CO2C3OO + SO2 = CO2C3CHO + SO3 : 7.00D-13 ;
+
+[INFO     ] {1336.} BCKSZOO + SO2 = BCKSOZ + SO3 : 7.00D-13 ;
+
+[INFO     ] {1556.} CH3CHOO + SO2 = CH3CHO + SO3 : 7.00D-13 ;
+
+[INFO     ] {1775.} NC41OO + SO2 = HMVKANO3 + SO3 : 7.00D-13 ;
+
+[INFO     ] {2035.} BCALOO + SO2 = BCLKET + SO3 : 7.00D-13 ;
+
+[INFO     ] {2095.} C141OO + SO2 = C131CO2H + SO3 : 7.00D-13 ;
+
+[INFO     ] {2121.} BCBOCOO + SO2 = BCLKBOC + SO3 : 7.00D-13 ;
+
+[INFO     ] {2182.} BCKAOO + SO2 = BCLKET + SO3 : 7.00D-13 ;
+
+[INFO     ] {2188.} BCKBOO + SO2 = BCKET + SO3 : 7.00D-13 ;
+
+[INFO     ] {2335.} HMGLOO + SO2 = HOCH2COCHO + SO3 : 7.00D-13 ;
+
+[INFO     ] {2740.} LMKBOO + SO2 = LMLKET + SO3 : 7.00D-13 ;
+
+[INFO     ] {2844.} C126OO + SO2 = C116CHO + SO3 : 7.00D-13 ;
+
+[INFO     ] {2907.} M3FOO + SO2 = C532CO + SO3 : 7.00D-13 ;
+
+[INFO     ] {3634.} HMGLYOO + SO2 = HOCH2COCHO + SO3 : 7.00D-13 ;
+
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Removing SO2 = IGNORE ; from DEFVAR (already in DEFFIX)
+[INFO     ] Removing NO = IGNORE ; from DEFVAR (already in DEFFIX)
+[INFO     ] Removing NO2 = IGNORE ; from DEFVAR (already in DEFFIX)
+[INFO     ] Removing CO = IGNORE ; from DEFVAR (already in DEFFIX)
+[INFO     ] Removing H2 = IGNORE ; from DEFVAR (already in DEFFIX)
+[INFO     ] Removing O3 = IGNORE ; from DEFVAR (already in DEFFIX)
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] Removed all the carriage return character ^M.
+[INFO     ] 
+[INFO     ] ============================================================
+[INFO     ] 
+[INFO     ] The final file is written.

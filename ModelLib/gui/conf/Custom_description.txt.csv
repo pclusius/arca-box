@@ -1,5 +1,4 @@
 LGCL,,USE_RAOULT,"T/F (T): When T, use Raoult's law, the solute effect to the saturation concentration. Should generally always be T."
-REAL,min,DMPS_TRES_MIN,"(10) Time resolution for the background particles file."
 REAL,sec,START_TIME_S,"(0) If > 0, the simulation clock will be set to this time when the integration loop starts.  By default the simulation clock starts at oo:oo (midnight). A caveat is that if background aerosols are initialized for example for 1 hour, and start_time_s>3600, there will be no initialization for particles. If the initialization is set to 2 hours, particles are constrained one hour. The model assumes that the input files still start at time zero (specifically, the first time stamp is subtracted from the time vector). Therefore, if the input data must contain some values at midnight, it is sufficient to have a row of zeros (one in each column) in the beginning of the input file (after the header)."
 REAL,,DMPS_MULTI,"(1e6) The conversion factor to convert the number concentration values in the background particle file from particles/cm3 to particles/m3."
 CHRC,,INITIALIZE_WITH,Path to a similar simulation which is used as initialization for the current run. Works only with constant time step.
@@ -8,7 +7,7 @@ REAL,,VP_MULTI,"(1.0) Factor for pure liquid saturation vapour pressures. Used f
 INTG,,LIMIT_VAPOURS,"(0) if >0, only the first n compounds in the VAP_NAMES are taken to condense on particles "
 REAL,h,END_DMPS_PARTIAL,"(0) If >0, will terminate USE_DMPS_PARTIAL after this time (in simulation hours)."
 LGCL,,NO2_IS_NOX,"T/F (F) If T, NO2 input is considered as NOX. NO2 concentration will be calculated inside the model by subtracting NO from NOX."
-LGCL,,NO_NEGATIVE_CONCENTRATIONS,"T/F (T): If T, all concentrations and environmental variables will be max(0,<input>) (T after it has been converted from øC to K)"
+LGCL,,NO_NEGATIVE_CONCENTRATIONS,"T/F (T): If T, all concentrations and environmental variables will be max(0,<input>) (T after it has been converted from ï¿½C to K)"
 REAL,h,FLOAT_CHEMISTRY_AFTER_HRS,"(1e100): Stops updating gas phase concentrations with input values after this time. Affects both concentrations and emissions"
 REAL,h,FLOAT_CONC_AFTER_HRS,"(1e100): Same as previous, but only for concentrations"
 REAL,h,FLOAT_EMIS_AFTER_HRS,"(1e100): Same as previous, but only for emissions"

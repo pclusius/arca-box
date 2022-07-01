@@ -131,7 +131,7 @@ CONTAINS
         parbuf(i)%name = 'PARTICLE_LOSS_RATE' ; parbuf(i)%u = '[/s]'    ; parbuf(i)%d = 3 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     END IF
     if (Chem_Deposition) THEN
-        parbuf(i)%name = 'MASS_FLUX_ON_WALLS' ; parbuf(i)%u = '[kg]'; parbuf(i)%d = 5 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
+        parbuf(i)%name = 'MASS_FLUX_ON_WALLS' ; parbuf(i)%u = '[kg/s]'; parbuf(i)%d = 5 ; parbuf(i)%type = NF90_DOUBLE ; i=i+1
     END IF
 
     allocate(savepar(i-1))
@@ -293,7 +293,7 @@ CONTAINS
   I=3 ! Particle file.
   if (Aerosol_flag) THEN
 
-      do j = 1,size(savepar)
+    do j = 1,size(savepar)
 
         if (savepar(J)%d == 0) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, dconstant_id  , savepar(J)%i) )
         if (savepar(J)%d == 3) call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  savepar(J)%name  ), savepar(J)%type, ([dbins_id, dtime_id])  , savepar(J)%i) )
@@ -304,27 +304,30 @@ CONTAINS
         call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), savepar(J)%i, shuff, compress, compression) )
         call handler(__LINE__, nf90_put_att(ncfile_ids(I), savepar(J)%i, 'unit' , savepar(J)%u))
         call handler(__LINE__, nf90_put_att(ncfile_ids(I), savepar(J)%i, 'type' , '0'))
-      end do
+    end do
 
-        do j = 1,vapours%n_cond_org-1
-          k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
-          if (k>0) THEN
+    do j = 1,vapours%n_cond_org-1
+        k = IndexFromName( vapours%vapour_names(j), SPC_NAMES )
+        if (k>0) THEN
             call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(j)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
             call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
             call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
             call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'type' , TRIM(i2chr(vapours%cond_type(j))) ))
-          end if
-        end do
-        ! Generic vapour - these values are only for consistency, the gas concetrations will be zero
-        call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(vapours%ind_GENERIC)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
-        call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
-        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
-        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'type' , trim(i2chr(vapours%cond_type(j)))))
-        ! Sulfuric acid
-        call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(vapours%ind_H2SO4)  ), NF90_DOUBLE, dtime_id, par_ind(j+1)) )
-        call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), par_ind(j+1), shuff, compress, compression) )
-        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j+1), 'unit' , '1/cm^3'))
-        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j+1), 'type' , trim(i2chr(vapours%cond_type(j+1)))))
+            call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'surface_tension' , vapours%surf_tension(j) ))
+        end if
+    end do
+    ! Generic vapour - these values are only for consistency, the gas concetrations will be zero
+    call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(vapours%ind_GENERIC)  ), NF90_DOUBLE, dtime_id, par_ind(j)) )
+    call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'type' , trim(i2chr(vapours%cond_type(j)))))
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'surface_tension' , vapours%surf_tension(j)))
+    ! Sulfuric acid
+    call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(  vapours%vapour_names(vapours%ind_H2SO4)  ), NF90_DOUBLE, dtime_id, par_ind(j+1)) )
+    call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), par_ind(j+1), shuff, compress, compression) )
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j+1), 'unit' , '1/cm^3'))
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j+1), 'type' , trim(i2chr(vapours%cond_type(j+1)))))
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j+1), 'surface_tension' , vapours%surf_tension(j+1)))
   end if
 
 

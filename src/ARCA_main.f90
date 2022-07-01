@@ -348,6 +348,10 @@ end if
 
 write(610,'(4(a,"                "),a)') '#  time_sec  ','max_d_diam','max_d_npar','max_d_vap ','max_d_npdep'
 
+print*, ''
+print FMT_LEND
+print FMT_MSG, 'Starting main loop'
+
 if (ENABLE_END_FROM_OUTSIDE) THEN
     print FMT_SUB, "Simulation can be stopped using file called ENDNOW.INIT with text 'STOP' in it, saved"
     print FMT_SUB, "in the output directory. The program stops in orderly fashion upon next PRINTNOW time"
@@ -1312,7 +1316,7 @@ SUBROUTINE CALCULATE_CHEMICAL_WALL_LOSS(conc, c_org_wall)
     integer            :: nc,ii ! nc=short for number of condensible organic vapours, loop indices
 
     nc = VAPOUR_PROP%n_cond_org
-    if (GTIME%printnow) print*, VAPOUR_PROP%alphawall(1:50)
+
     k_g2w = ((A_vert + 2d0*Chamber_floor_area)/Vol_chamber)*(VAPOUR_PROP%alphawall(1:nc)*VAPOUR_PROP%c_speed(1:nc)/4D0)/(1D0+(pi/2D0) &
                  * (VAPOUR_PROP%alphawall(1:nc)*VAPOUR_PROP%c_speed(1:nc)/(4D0*sqrt(EDDYK*VAPOUR_PROP%diff(1:nc)))))
     k_w2g = k_g2w/(Na/VAPOUR_PROP%c_sat(1:nc) * Cw_eqv) ! Cw_eqv=40 mumol/m^3, => ~10 mg/m^3 as in Zhang et al., 2014

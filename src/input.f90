@@ -164,12 +164,14 @@ REAL(dp)            :: dmps_highband_lower_limit = 0d0    !for use_dmps_partial,
 REAL(dp)            :: dmps_lowband_upper_limit = 0d0  !for use_dmps_partial, read all dmps data below this diameter [m]
 logical             :: use_dmps = .false.
 logical             :: use_dmps_partial = .false.
-REAL(dp)            :: N_MODAL = -1d0   !for use_dmps_partial, read all dmps data below this diameter [m]
+REAL(dp)            :: N_MODAL = -1d0   ! number of modes in multimodal intialization
+real(dp)            :: dmps_interval = -1d0
+
 NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_par,min_particle_diam,max_particle_diam, DMPS_file,extra_particles,& !DMPS_dir,extra_p_dir,
                         DMPS_read_in_time,dmps_highband_lower_limit, dmps_lowband_upper_limit,use_dmps,use_dmps_partial, &
-                        mmodal_input, N_MODAL, mmodal_input_inuse
+                        mmodal_input, N_MODAL, mmodal_input_inuse, dmps_interval
 
-REAL(dp), ALLOCATABLE            :: MMODES(:)  !for use_dmps_partial, read all dmps data below this diameter [m]
+REAL(dp), ALLOCATABLE            :: MMODES(:)  ! Modal PSD parameters
 type(particle_grid), ALLOCATABLE :: xtras(:)
 ! BG_PAR is here in case you want to use it Carlton and Lukas, in the end we remove either BG_PAR or par_data mmkay.
 type(particle_grid) :: BG_PAR       ! Var to store the particle size distribution. This might become redundant
@@ -245,6 +247,7 @@ real(dp) :: FLOAT_CONC_AFTER_HRS       = 1d100 ! Any number larger than runtime 
 real(dp) :: FLOAT_EMIS_AFTER_HRS       = 1d100 ! Any number larger than runtime will do as defaults
 real(dp) :: dmps_multi                 = 1d6 ! Multiplicator to convert dmps linear concentration to #/m^3
 real(dp) :: SURFACE_TENSION            = 0.05 ! Common surface tension /surface energy density N/m^2 or J/m^3
+                                              ! Will be overwritten if vapours-file contains 5th column with compound specific surface tension
 real(dp) :: ORGANIC_DENSITY            = 1400d0 ! Common density for organic particle (liquid) phase compounds kg/m^3
 real(dp) :: HARD_CORE_DENSITY          = 1400d0 ! Common density for organic particle (liquid) phase compounds kg/m^3
 real(dp) :: NPF_DIST                   = 1.15d0 ! Maximum relative diameter (w.r.t. to minimum diameter) where new particles are distributed
@@ -307,7 +310,7 @@ subroutine READ_INPUT_DATA()
     integer                           :: i, j, k, jj, path_l(2), N_Xtr = 0
     integer                           :: rows, cols
     LOGICAL                           :: elements_missing = .false.
-    real(dp)                          :: molar_mass, parameter_A, parameter_B
+    real(dp)                          :: molar_mass, parameter_A, parameter_B,SURFACE_TENSION_buf=-1d0, ALPHAWALL_buf=-1d0
     CHARACTER(len=256)                :: species_name
     CHARACTER(len=20), ALLOCATABLE    :: atoms_name(:)
     CHARACTER(len=2)    :: noacd
@@ -374,6 +377,9 @@ subroutine READ_INPUT_DATA()
     if (.not.Condensation) CALC_GR = .false.
     H2SO4_ind_in_chemistry = IndexFromName( 'H2SO4', SPC_NAMES )
     OH_ind_in_chemistry = IndexFromName( 'OH', SPC_NAMES )
+
+    ! dmps_tres_min is being phazed out and replaced/overridden by dmps_interval
+    if (dmps_interval>0d0) dmps_tres_min = dmps_interval
 
     ! ALLOCATE CONC_MAT Currently both files need to have same time resolution FIX THIS SOME DAY!
     ! The idea here is to count the rows to get time and allocate CONCMAT and TIMEVEC
@@ -489,7 +495,7 @@ IF (Aerosol_flag) then
     write(*,FMT_MSG) 'Reading Vapour name file '// TRIM(Vap_names)
     OPEN(unit=802, File= TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
     call handle_file_io(ioi, Vap_names, &
-        'If Condensation is used, "Vapour file" must be defined (in tab "Advanced").')
+        'If Condensation is used, "Vapour file" must be defined (in tab "Aerosol").')
 
     rows = ROWCOUNT(802)
     cols = COLCOUNT(802)
@@ -531,6 +537,7 @@ IF (Aerosol_flag) then
     allocate(VAPOUR_PROP%molec_dia    (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%mfractions   (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%alpha        (VAPOUR_PROP%n_cond_tot) )
+    allocate(VAPOUR_PROP%alphawall    (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%diff_vol     (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%diff_dia     (VAPOUR_PROP%n_cond_tot) )
 
@@ -562,7 +569,10 @@ IF (Aerosol_flag) then
     ! ---------------------------------------------------------------------
     ii = 1
     do j = 1, rows
-        read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B
+        if (cols==4) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B
+        if (cols==5) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, SURFACE_TENSION_buf
+        if (cols==6) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, SURFACE_TENSION_buf, ALPHAWALL_buf
+
         if (j<=limit_vapours .or. j==rows) THEN ! j==rows is because "GENERIC" is selected even if limitvapours<rows
 
             ! Check if the compounds exists in Chemistry and only then add to vapours
@@ -586,7 +596,21 @@ IF (Aerosol_flag) then
                 END IF
                 VAPOUR_PROP%molec_volume(ii) = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
                 VAPOUR_PROP%diff_vol(ii)     = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
-                VAPOUR_PROP%surf_tension(ii) = SURFACE_TENSION
+
+                if (cols==4) VAPOUR_PROP%surf_tension(ii) = SURFACE_TENSION
+                if (cols>=5) THEN
+                    if (SURFACE_TENSION_buf<0d0) VAPOUR_PROP%surf_tension(ii) = abs(SURFACE_TENSION_buf)*SURFACE_TENSION
+                    if (SURFACE_TENSION_buf>=0d0) VAPOUR_PROP%surf_tension(ii) = SURFACE_TENSION_buf
+                end if
+                SURFACE_TENSION_buf = -1d0
+
+                if (cols<6) VAPOUR_PROP%alphawall(ii) = ALPHAWALL
+                if (cols>=6) THEN
+                    if (ALPHAWALL_buf<0d0) VAPOUR_PROP%alphawall(ii) = abs(ALPHAWALL_buf)*ALPHAWALL
+                    if (ALPHAWALL_buf>=0d0) VAPOUR_PROP%alphawall(ii) = ALPHAWALL_buf
+                end if
+                ALPHAWALL_buf = -1d0
+
                 VAPOUR_PROP%alpha(ii)         = 1.0
                 ! this is just initial value, always gets updated with T
                 VAPOUR_PROP%c_sat(ii)         = saturation_conc_m3(VAPOUR_PROP%psat_a(ii),VAPOUR_PROP%psat_b(ii), 293.15d0)
@@ -610,7 +634,7 @@ IF (Aerosol_flag) then
         VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
         VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
         VAPOUR_PROP%diff_vol(ii)      = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
-        VAPOUR_PROP%surf_tension(ii)  = 0.05
+        VAPOUR_PROP%surf_tension(ii)  = SURFACE_TENSION
         VAPOUR_PROP%alpha(ii)         = 1.0
         ! this is just initial value, always gets updated with T
         VAPOUR_PROP%c_sat(ii)         = saturation_conc_m3(VAPOUR_PROP%psat_a(ii),VAPOUR_PROP%psat_b(ii), 293.15d0)
