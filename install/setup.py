@@ -74,7 +74,7 @@ if pyt == 'y' or pyt == 'Y':
     if csc:
         outpyt = os.system("%s -m pip install --user PyQt5"%python)
     else:
-        outpyt = os.system("%s -m pip install --user PyQt5>=5.11.0"%python)
+        outpyt = os.system("%s -m pip install --user \"PyQt5>=5.11.0\""%python)
     if operatingsystem == 'Windows':
         outpyt = os.system("%s -m pip install --user pyqtgraph==0.12.0"%python)
     else:
