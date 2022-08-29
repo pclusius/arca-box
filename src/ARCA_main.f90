@@ -101,6 +101,7 @@ REAL(dp) :: E_field = 0d0                       ! chamber Electric field (not im
 ! REAL(dp) :: wl_rates(2)                         ! Transient vector for storing reversible chemical loss rates for chamber [1/s]
 CHARACTER(len=64) :: CurrentChem, CurrentVers ! Name of the chemistry module and current compiled version
 
+
 ! This block is handled by C preprocessor --------------------------!
 #ifdef CHEM
 CurrentChem = CHEM
@@ -132,7 +133,8 @@ IF (Chemistry_flag.or.Condensation) THEN
     ! Check that the input exists in chemistry, or if not, print warning
     CALL CHECK_INPUT_AGAINST_KPP
     ! This only called once for KPP in the beginning
-    IF (Chemistry_flag) CALL KPP_SetUp
+    call READ_rates(CurrentChem)
+    IF (Chemistry_flag) CALL KPP_SetUp(factorsForReactionRates)
 ENDIF
 ! ==================================================================================================================
 

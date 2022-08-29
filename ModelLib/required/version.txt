@@ -3,6 +3,7 @@ Updates:
 - added MTChamberEms2 chemistry which was used in the ARCA GMD paper.
 - time units in the ENV and MCM files as well as loss rate files are explicitly defined in the gui
 - Surface tension and Wall accommodation coefficient can optionally be set in the Vapour file
+- chemical reaction rate constants can be modified dynamically (experimental feature)
 Fixes:
 - increased the buffer size of input to accommodate huge input files.
 - minor bug fixes in the GUI

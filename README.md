@@ -107,10 +107,31 @@ and then run the setup.py again.
 
 Version history
 ---------------
+1.2.2
+
+Updates:
+
+- added MTChamberEms2 chemistry which was used in the ARCA GMD paper.
+- time units in the ENV and MCM files as well as loss rate files are explicitly defined in the gui
+- Surface tension and Wall accommodation coefficient can optionally be set in the Vapour file
+- chemical reaction rate constants can be modified dynamically (experimental feature)
+
+Fixes:
+
+- increased the buffer size of input to accommodate huge input files.
+- minor bug fixes in the GUI
+
+1.2.1
+
+Fixes:
+
+- Fixed bug in GetVapourPressures.py which saved the wrong elemental composition of filtered sets
+
 
 1.2.0
 
 What's new:
+
 - 5 ACDC systems that are dynamically used so that their monomer names and system size can be changed without hard
   coding, needs recompiling though
 - ACDC systems have proper recording of the inut data files and system names
@@ -128,18 +149,23 @@ What's new:
 - ARCA paper submission version
 
 Fixes:
+
 - Fixed SMEAR II short wave radiation spectrum
 - Windows installer now prefers pyqtgraph 0.12.0
 - Minor bug fixes in GUI and Fortran model
 
 
 1.1.2
+
 Hotfix:
+
 - fixed error in calculation of Koehler factor for particles of size 1 nm (in aerosol_dynamics.f90)
 
 
 1.1.1
+
 Fixes:
+
 - Fixed empty array problem in second_reactivity.90 and add_reactivity.py (producing error with some fortran compilers).
 - Fixed makefile (version control gave problems on some Win systems)
 
@@ -152,6 +178,7 @@ ARCA is now licenced under GNU GPL
 1.0.6
 
 Fixes:
+
 - Kelvin term was approximated using Taylor series. This is a bad approximation with very small particles.
   Now Kelvin term is calculated using exponential form. To use the old Kelvin term (used by many other models and the
   ACP scheme), set custom option (in NML_CUSTOM or in the GUI Run ARCA -> Custom model options) Kelvin_taylor = .true.
@@ -164,10 +191,12 @@ Fixes:
 1.0.5
 
 What's new:
+
 - makefile supplemented with Puhti configurations
 - Output directories are now created automatically
 
 Fixes:
+
 - makefile improved; compiling chemistry module for the first time should not lead to error
 - On mac, the setup.py creates run_arca.command instead of run_arca.sh; is also be double-clickable
 - gui: replaced some deprecated Pyqtgraph methods giving errors on pyqtgraph 0.12
@@ -177,11 +206,13 @@ Fixes:
 1.0.4
 
 What's new:
+
 - added GPL licence to KPP and ACDC directories.
 - added coag_sink to Particles.nc
 - added CS_calc to General.nc
 
 Fixes:
+
 - Added new Hyde chemistry to accommodate reactivity calculations
 - fixed color issues in mass plotting
 - fix for how losses file was interpolated
@@ -190,6 +221,9 @@ Fixes:
 1.0.3
 
 What's new:
+
 - Create second_reactivity.f90
+
 Fixes:
-- minor fixes in the mass plotting
+
+  - minor fixes in the mass plotting

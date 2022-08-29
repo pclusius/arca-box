@@ -22,6 +22,7 @@
 Module INPUT
 ! Module to read init file
 use second_Monitor
+use second_Global, ONLY: NREACT
 USE second_precision, ONLY: dp
 use constants
 USE auxillaries
@@ -271,6 +272,7 @@ real(dp) :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! [#/cm3] lower threshold of concentra
                                           ! small concentrations
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .true.
+REAL(dp) :: factorsForReactionRates(NREACT) = 1d0   ! factors to modify chemical reaction rates (optionally)
 
 NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI,&
@@ -299,6 +301,26 @@ NAMELIST /NML_ACDC/ ACDC_SYSTEMS, ACDC_links
 
 contains
 
+subroutine READ_rates(Chem)
+    real(dp) :: RCONST(NREACT) = 1d0 ! This variable is only used in this subroutine; not the same as in the chemistry
+    integer :: iii, k
+    CHARACTER(len=*),INTENT(IN) :: Chem
+
+    NAMELIST /NML_RATES/  RCONST
+    print FMT_MSG, 'Looking for '//'src/chemistry/'//TRIM(ADJUSTL(Chem))//'/RATES.dat'
+
+    OPEN(UNIT=888, FILE='src/chemistry/'//TRIM(ADJUSTL(Chem))//'/RATES.dat', STATUS='OLD', ACTION='READ', iostat=iii)
+    if (iii==0) THEN
+        do k=1, ROWCOUNT(888)
+            READ(888,NML = NML_RATES, IOSTAT=iii)
+        end do
+        print FMT_MSG, 'Reaction rates are complimented from RATES.dat'
+        factorsForReactionRates = RCONST
+    else
+        print FMT_MSG, 'Using hardcoded reaction rates'
+    END IF
+
+end subroutine READ_rates
 ! ======================================================================================================================
 ! Subroutine reads all user input from INITFILE and input files and processes the input etc.
 ! ......................................................................................................................

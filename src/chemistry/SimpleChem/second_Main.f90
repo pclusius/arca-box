@@ -46,11 +46,15 @@ MODULE second_Main
   INTEGER :: ICNTRL(20) ! Added by Sampo Smolander
   INTEGER :: i
 
+  REAL(DP), SAVE :: R_F(NREACT) = 1d0
+
 CONTAINS
   
 !~~~> Initialization 
 
-  SUBROUTINE KPP_SetUp()
+  SUBROUTINE KPP_SetUp(R_F_in)
+  REAL(DP), OPTIONAL :: R_F_in(NREACT)
+  IF (PRESENT(R_F_in)) R_F = R_F_in
     STEPMIN = 0.0d0
     STEPMAX = 0.0d0
     ICNTRL = (/ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 /)
@@ -90,6 +94,9 @@ CONTAINS
     C = CONS
 
     CALL Update_RCONST()
+
+    ! Modify rate constants
+    RCONST = RCONST * R_F
 
     ! In INTEGRATE VAR and FIX are calculated, so we need to put values from C to them
     ! And FIX is meaningful only when NVAR < NSPEC
