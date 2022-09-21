@@ -1408,9 +1408,9 @@ SUBROUTINE PARSE_ACDC_SYSTEMS
                         print FMT_WARN0, 'In ACDC '//i2chr(jj)//': Compound '//TRIM(name(((ii-1)*2)+2))//' does not exist in input'
                         print FMT_SUB, 'Searching compound '//TRIM(name(((ii-1)*2)+2))//' from chemistry...'
                         G_ACDC(jj)%ACDC_LINK_IND(ii) = -1 * IndexFromName(TRIM(name(((ii-1)*2)+2)), SPC_NAMES )
-                        if (G_ACDC(jj)%ACDC_LINK_IND(ii)<0) print FMT_SUB, 'Found '//TRIM(name(((ii-1)*2)+2))//' from chemistry. Using as input '//i2chr(ii)//' for ACDC 1.'
+                        if (G_ACDC(jj)%ACDC_LINK_IND(ii)<0) print FMT_SUB, 'Found '//TRIM(name(((ii-1)*2)+2))//' from chemistry. Using as input '//i2chr(ii)//' for ACDC '//i2chr(jj)//'.'
                         if (G_ACDC(jj)%ACDC_LINK_IND(ii)==0) THEN
-                            print FMT_FAT0, 'In ACDC 1: Could not find '//TRIM(name(((ii-1)*2)+2))
+                            print FMT_FAT0, 'In ACDC '//i2chr(jj)//': Could not find '//TRIM(name(((ii-1)*2)+2))
                             stop
                         END IF
                     END IF
