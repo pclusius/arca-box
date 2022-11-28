@@ -35,28 +35,32 @@ except:
 def fitSimple(T,A,B):
     return A - B/(T)
 
-def ManU(temp, smiles,vp_method,bp_method):
+def ManU(temp, smiles,vp_method,bp_method,s):
     N=len(smiles)
     prop_matrix = np.zeros((N, len(temp) ) )
     url = 'http://umansysprop.seaes.manchester.ac.uk/api/vapour_pressure'
     print('Contacting ', url)
-    header = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Accept-Encoding': 'gzip, deflate',
-            'User-Agent': 'python-requests/2.4.1 CPython/2.7.6 Linux/3.13.0-48-generic',
-            'keep-alive': 'timeout=600, max=100',
-            'Connection': 'keep-alive'
-            }
-
     get_vapours = {
                 "vp_method": vp_method,
                 "bp_method": bp_method,
                 "temperatures": list(temp),
                 "compounds": list(smiles)
                 }
+    header = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Content-Length': '%d'%(len(str(get_vapours))+1),
+            'Accept-Encoding': 'gzip, deflate',
+            'User-Agent': 'python-requests/2.4.1 CPython/2.7.6 Linux/3.13.0-48-generic',
+            'keep-alive': 'timeout=10, max=100',
+            'Connection': 'keep-alive'
+            }
 
-    x = requests.post(url, data = json.dumps(get_vapours), headers=header)
+    try:
+        x = s.post(url, data = json.dumps(get_vapours), headers=header)
+    except requests.Timeout:
+        print('Timeout, maybe try again?')
+        return
     data = x.json()[0]
     alldata = data['data']
     # print(len(alldata))
@@ -154,14 +158,15 @@ def getVaps(runforever=False, args={}):
         try:
             buffer = pickle.load(open(os.path.join(smilesdir, smilesfile+args['vp_method']+args['bp_method']+"_UMan_Fetch.pickle"), "rb"))
         except:
-            if rest>0:
-                print('Fetching compounds in chunks of 100, have patience, this might take a while.')
-                for j in range(rest):
-                    print('Fetching compounds from %i to %i of %d.'%(j*100, (j+1)*100, N))
-                    buffer[j*100:(j+1)*100,:] = ManU(temp, smiles[j*100:(j+1)*100], args['vp_method'], args['bp_method'])
-            print('Fetching compounds %i to %i.'%(N-n_first+1, N))
-            buffer[-n_first:,:] = ManU(temp, smiles[-n_first:], args['vp_method'], args['bp_method'])
-            #pickle.dump( buffer, open( os.path.join(smilesdir, smilesfile+args['vp_method']+args['bp_method']+"_UMan_Fetch.pickle"), "wb" ) )
+            with requests.Session() as session:
+                if rest>0:
+                    print('Fetching compounds in chunks of 100, have patience, this might take a while.')
+                    for j in range(rest):
+                        print('Fetching compounds from %i to %i of %d.'%(j*100, (j+1)*100, N))
+                        buffer[j*100:(j+1)*100,:] = ManU(temp, smiles[j*100:(j+1)*100], args['vp_method'], args['bp_method'],session)
+                print('Fetching compounds %i to %i.'%(N-n_first+1, N))
+                buffer[-n_first:,:] = ManU(temp, smiles[-n_first:], args['vp_method'], args['bp_method'],session)
+                #pickle.dump( buffer, open( os.path.join(smilesdir, smilesfile+args['vp_method']+args['bp_method']+"_UMan_Fetch.pickle"), "wb" ) )
 
         n_homs = 0
 
@@ -179,7 +184,7 @@ def getVaps(runforever=False, args={}):
             names = np.append(names,homs)
             mass = np.append(mass,hom_mass)
             try:
-                hom_atoms = np.genfromtxt(props,usecols=(3,4,5,6))
+                hom_atoms = np.genfromtxt(props,usecols=(3,6,5,4))
                 hom_atoms_full = np.zeros( (hom_atoms.shape[0],7 )  )
                 hom_atoms_full[:,:4] = hom_atoms
             except:
