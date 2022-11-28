@@ -42,7 +42,7 @@ from urllib.parse import urljoin
 import csv
 
 try:
-    from scipy.ndimage.filters import gaussian_filter
+    from scipy.ndimage import gaussian_filter
     from scipy.signal import savgol_filter
     scipyIs = True
 except:
@@ -75,9 +75,12 @@ QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)    # u
 args = []
 if len(sys.argv)>1:
     for a in sys.argv:
-        args.append(a.upper())
         if '--scaling_' in a:
             environ["QT_SCALE_FACTOR"] = "%3.2f"%float(a.replace('--scaling_',''))
+            args.append('-NS')
+        if '--scaleall_' in a:
+            sfs = a.replace('--scaleall_','').split('_')
+            environ["QT_SCREEN_SCALE_FACTORS"] = "%s"%(';'.join(sfs))
             args.append('-NS')
 
 if osname.upper() == 'NT' or operatingsystem == 'Windows' and not '-NS' in args: # this or is only till I sort out if platform usually works for people
@@ -3821,7 +3824,7 @@ TYPE UNIT  NAME                       Options, (default), DESCRIPTION
 
 if __name__ == '__main__':
     print(CurrentVersion+' started at:', ( time.strftime("%B %d %Y, %H:%M:%S", time.localtime())))
-    app = QtWidgets.QApplication([])
+    app = QtWidgets.QApplication([sys.argv])
     qt_box = QtBoxGui()
     qt_box.setGeometry(30, 30, 900, 700)
     qt_box.show()
