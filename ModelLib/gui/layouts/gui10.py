@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'dev/ARCAGUI_16_6.ui'
+# Form implementation generated from reading ui file 'dev/ARCAGUI_16_7.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.1
 #
@@ -429,10 +429,8 @@ class Ui_MainWindow(object):
         self.fileTimeUnit_a.addItem("")
         self.fileTimeUnit_a.addItem("")
         self.gridLayout_9.addWidget(self.fileTimeUnit_a, 0, 2, 1, 1)
-        self.dmpsIntvl = QtWidgets.QSpinBox(self.groupBox_9)
-        self.dmpsIntvl.setMinimum(1)
-        self.dmpsIntvl.setMaximum(60)
-        self.dmpsIntvl.setProperty("value", 10)
+        self.dmpsIntvl = QtWidgets.QDoubleSpinBox(self.groupBox_9)
+        self.dmpsIntvl.setProperty("value", 5.0)
         self.dmpsIntvl.setObjectName("dmpsIntvl")
         self.gridLayout_9.addWidget(self.dmpsIntvl, 2, 2, 1, 1)
         self.gridLayout_39.addLayout(self.gridLayout_9, 2, 0, 1, 2)
@@ -4230,7 +4228,7 @@ class Ui_MainWindow(object):
         self.indexRadioIndex.setToolTip(_translate("MainWindow", "Use index for chamber simulation, this will\n"
 "assume that the short wave radiation input\n"
 "comes from directly above for the whole run.\n"
-"Albedo in \'Advanced\'-tab is still used to\n"
+"Albedo in \'Chemistry\'-tab is still used to\n"
 "estimate the scattering of light."))
         self.indexRadioIndex.setText(_translate("MainWindow", "Inde&x:"))
         self.dateEdit.setStatusTip(_translate("MainWindow", "Set the date of the simulation"))
@@ -4238,7 +4236,7 @@ class Ui_MainWindow(object):
         self.indexRadioDate.setToolTip(_translate("MainWindow", "Using correct date for outdoor simulation simulates\n"
 "the movement of sun and the effect of sun angle to\n"
 "the actinic flux, using ground albedo (specified in\n"
-"\'Advanced\'-tab)."))
+"\'Chemistry\'-tab)."))
         self.indexRadioDate.setText(_translate("MainWindow", "&Date:"))
         self.helpGroupName.setToolTip(_translate("MainWindow", "Browse for existing case directories"))
         self.helpGroupName.setText(_translate("MainWindow", "?"))
@@ -4289,7 +4287,7 @@ class Ui_MainWindow(object):
         self.fileTimeUnit_a.setItemText(2, _translate("MainWindow", "min"))
         self.fileTimeUnit_a.setItemText(3, _translate("MainWindow", "sec"))
         self.dmpsIntvl.setToolTip(_translate("MainWindow", "Temporal spacing of the particle size distribution file"))
-        self.dmpsIntvl.setSuffix(_translate("MainWindow", " mins"))
+        self.dmpsIntvl.setSuffix(_translate("MainWindow", "min"))
         self.groupBox_11.setTitle(_translate("MainWindow", "Create batch (using the current settings)"))
         self.batchRangeDayEnd.setDisplayFormat(_translate("MainWindow", "yyyy-MM-dd"))
         self.batchRangeDayBegin.setDisplayFormat(_translate("MainWindow", "yyyy-MM-dd"))
