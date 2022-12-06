@@ -3,6 +3,8 @@ import re
 import sys
 import os
 import shutil
+from pdb import set_trace as bp
+
 """
 =============================================================================
 Copyright (C) 2021  Multi-Scale Modelling group
@@ -41,16 +43,17 @@ created, where N = product of values in column "number of steps".
 """
 ops = np.array([
 # index    number-of-steps   min_multi   max_multi    min_shift    max_shift     log
-[ 1 ,             2 ,            1 ,         1 ,          10 ,        100 ,       0 ],
-[ 2 ,             4 ,            1 ,         1 ,          0  ,        100 ,       0 ],
-[ 3 ,             3 ,            1 ,         5 ,          0  ,        0   ,       0 ],
-])
+# [ 1 ,             2 ,            1 ,         1 ,          0  ,        0   ,       0],
+# [ 2 ,             4 ,            1 ,         1 ,          0  ,        0   ,       0],
+# [ 3 ,             3 ,            1 ,         1 ,          0  ,        0   ,       0],
 
+[ [1,2,3]  ,       5  ,            0.8 ,      1.2 ,         0 ,         0 ,         0 ],
+[ 4        ,       5  ,            0.8 ,      1.2 ,         0 ,         0 ,         0 ],
+],dtype=object)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ----------- USER OPTIONS END HERE -----------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
-
 
 def readfile(init,multi,shift,mod,dir=None):
     with open(init) as f:
@@ -58,8 +61,14 @@ def readfile(init,multi,shift,mod,dir=None):
         found = False
         rundirs = ''
         indices = {}
-        n = r'MODS\(0*%d\)'%mod
+        group=False
+        if 'list' in str(type(mod)):
+            n = [r'MODS\(0*%d\)'%m for m in mod]
+            group=True
+        else:
+            n = [r'MODS\(0*%d\)'%mod]
         c = r'RUN_NAME'
+        # bp()
         for line in f:
             vars = line.split()
             if len(vars) > 0:
@@ -69,11 +78,12 @@ def readfile(init,multi,shift,mod,dir=None):
                 if re.findall(r'MODS\((\d+)\)', vars[0]):
                     iii = (int(re.findall(r'MODS\((\d+)\)', vars[0])[0]))
                     indices[vars[-1]] = iii
-                if re.findall(n,vars[0]):
+                if any (re.findall(nn,vars[0]) for nn in n):
+                    # bp()
                     found = True
-                    vars[4] = ('%12.8e'%(multi)).replace('e','d')
-                    vars[5] = ('%12.8e'%(shift)).replace('e','d')
-                    print('Found index %d from file '%mod+init)
+                    vars[4] = ('%12.8e'%(multi*float(vars[4].replace('d','e')))).replace('e','d')
+                    vars[5] = ('%12.8e'%(shift+float(vars[5].replace('d','e')))).replace('e','d')
+                    print('Found %s from file '%vars[0]+init)
                 if vars[0][0] != '&' and vars[0][0] != '#' and vars[0][0] != '/':
                     vars[0] = ' '+vars[0]
             modified_file.append(' '.join(vars)+'\n')
@@ -109,6 +119,7 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False):
     sout = np.zeros((N,dim))
     M = []
     S = []
+    # bp()
     for n in range(dim):
         if ops[n,6] == 1:
             M.append(np.logspace(np.log10(ops[n,2]),np.log10(ops[n,3]),int(ops[n,1])))
@@ -116,10 +127,11 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False):
         else:
             M.append(np.linspace(ops[n,2],ops[n,3],int(ops[n,1])))
             S.append(np.linspace(ops[n,4],ops[n,5],int(ops[n,1])))
-
+    # bp()
     for i in range(N):
         d = 1
         for j in range(dim):
+                # bp()
                 mout[i,j] = M[j][(i//d)%len(M[j])]
                 sout[i,j] = S[j][(i//d)%len(S[j])]
                 d = d*len(M[j])
@@ -154,7 +166,7 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False):
                         batchfile[i_init][0]  # the ./arcabox.exe part
                         +' '+ os.path.join(os.path.split(batchfile[i_init][1])[0], os.path.split(newfile)[1]) # new initfile
                         +' '+ batchfile[i_init][2] # the tee command
-                        +' '+ os.path.join(os.path.split(os.path.split(batchfile[i_init][3])[0])[0],workdir,'RunReport.txt')  # the runReport path
+                        +' '+ os.path.join(os.path.split(os.path.split(batchfile[i_init][3])[0])[0],workdir,'runReport.txt')  # the runReport path
                         )
                     # save it for later...
                     newfiles.append(to_bashfile)
@@ -172,6 +184,7 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False):
 
             else:
                 for i_c,mod in enumerate(ops[:,0]):
+                    # bp()
                     modified_file, rd, found, indices = readfile(init,1.0,0.0,mod)
                     if dryrun:
                         return indices
@@ -182,8 +195,15 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False):
         if r == 'forreal':
             bash = bashhdr
             bash += ['','#  ind  steps mul_mn          mul_mx          sh_mn           sh_mx           log']
-            bash += ['#  '+'{:0.0f}    {:0.0f}     {:12.8e}  {:12.8e}  {:12.8e}  {:12.8e}  {:0.0f}'.format(
-                                                                                *ops[i,:]) for i in range(ops.shape[0])] + ['']
+            for i in range(ops.shape[0]):
+                if 'list' in str((ops[i,:])):
+                    buff = [','.join(['%d'%indzz for indzz in ops[i,0]])]
+                    # bp()
+                    buff += list(ops[i,1:])
+                    bash += ['#  '+'{:s}    {:0.0f}     {:12.8e}  {:12.8e}  {:12.8e}  {:12.8e}  {:0.0f}'.format(*buff) ] + ['']
+                else:
+                    buff = ops[i,:]
+                    bash += ['#  '+'{:0.0f}    {:0.0f}     {:12.8e}  {:12.8e}  {:12.8e}  {:12.8e}  {:0.0f}'.format(*buff) ] + ['']
             bash += newfiles
 
             bf = batch.replace('.bash','')+'_mod'+'.bash'

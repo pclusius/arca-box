@@ -365,6 +365,9 @@ print FMT_LEND
 if (start_time_s>0) then
     write(*, '(a)', advance='no') 'Starting simulation at: ', ACHAR(10)
     print FMT_TIME, GTIME%hms
+    if (GTIME%min - dmps_ln*dmps_tres_min >= dmps_tres_min) THEN
+      dmps_ln = INT(GTIME%min/dmps_tres_min)
+    end if
 end if
 
 ! Sanity checks for bad input, add more when needed
@@ -439,6 +442,8 @@ if (PRC%in_turn(4)) THEN
         IF (I == 2) THEN
             GTEMPK     = TSTEP_CONC(inm_TempK)
             GPRES      = TSTEP_CONC(inm_pres)
+            if (equal(GTEMPK, 0d0)) STOP 'TEMPERATURE IN KELVINS CANNOT BE 0'
+            if (equal(GPRES, 0d0))  STOP 'PRESSURE CANNOT BE 0'
             GC_AIR_NOW = C_AIR_cc(GTEMPK, GPRES)
         END IF
     END DO
@@ -516,6 +521,18 @@ END IF
         if ( ( minval(CH_GAS)<-1d2 ).and.GTIME%sec>100d0) print FMT_WARN0,&
         'Negative values from chemistry, setting to zero: '//SPC_NAMES(MINLOC(CH_GAS))//', '//TRIM(f2chr(MINVAL(CH_GAS)))
         WHERE (CH_GAS<0d0) CH_GAS = 0d0
+
+        IF (ALLOCATED(init_only_these)) THEN
+          do i=1,size(init_only_these)
+            IF (MINVAL(ABS(init_only_these(i)-INDRELAY_CH))==0) THEN
+              j = MINLOC(ABS(init_only_these(i)-INDRELAY_CH),1)
+              print FMT_NOTE0, TRIM(MODS(j)%NAME)//' CONCENTRATION: '//TRIM(f2chr(CH_GAS(INDRELAY_CH(J)))) &
+                    //' cm⁻¹. FROM NOW ON '//TRIM(MODS(j)%NAME)//' WILL FLOAT '
+              INDRELAY_CH(j) = 0
+            END IF
+          end do
+          DEALLOCATE(init_only_these)
+        END IF
 
         ! Normally changes in chemical compounds is monitored from condensation scheme
         if (.not. Condensation) THEN
@@ -619,7 +636,6 @@ END IF
                     end if
                 end do
             END IF
-
             ! If the mdodel is still in initialization mode, replace the model particles with measured
             if (use_dmps_partial &
             .and. (GTIME%hrs > DMPS_read_in_time)&
@@ -940,7 +956,6 @@ END IF in_turn_any
                             1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar,losses_fit)
             ! At this point the simulation can be stopped if desired
             if (ENABLE_END_FROM_OUTSIDE) CALL CHECK_IF_END_CMD_GIVEN
-
         END IF
 
         ! Add main timestep to GTIME

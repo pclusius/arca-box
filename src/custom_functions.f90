@@ -83,7 +83,7 @@ subroutine AFTER_CHEM(TSTEP_CONC,CH_GAS,CH_GAS_old,CH_RO2,CH_Beta,CH_H2O,CH_RO2_
     ! 	CH_GAS(ind_O3) = 250*1d-9*GC_AIR_NOW
     ! 	print*, 'Injecting OZONE'
     ! end if
-
+    ! CH_GAS(ind_HONO) = 1*1d-9*GC_AIR_NOW
 
     ! END CUSTOM CODE ---------------------------------
 

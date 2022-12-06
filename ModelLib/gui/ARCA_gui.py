@@ -25,6 +25,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
 from layouts import varWin,gui10,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor
 from modules import variations,vars,batch,GetVapourPressures as gvp
+from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, ravel, mean, round as npround
 import numpy.ma as ma
@@ -112,22 +113,25 @@ units = {
 'TIME_IN_SEC': ['s'],
 'PRESSURE': ['Pa','hPa','mbar','kPa','bar','atm'],
 'REL_HUMIDITY': ['%'],
-'CONDENS_SINK':['1/s'],
-'CS_CALC':['1/s'],
-'CON_SIN_NITR':['1/s'],
-'SW_RADIATION':['W/m2'],
-'ION_PROD_RATE':['ip/cm3 s'],
-'NUC_RATE_IN':['1/cm3 s'],
-'J_ACDC_1_CM3':['1/cm3 s'],
-'J_ACDC_2_CM3':['1/cm3 s'],
-'J_ACDC_3_CM3':['1/cm3 s'],
-'J_ACDC_4_CM3':['1/cm3 s'],
-'J_ACDC_5_CM3':['1/cm3 s'],
-'J_ACDC_NH3_CM3':['1/cm3 s'],
-'J_ACDC_DMA_CM3':['1/cm3 s'],
-'J_ACDC_SUM_CM3':['1/cm3 s'],
-'J_TOTAL_CM3':['1/cm3 s'],
-'REST':['#/cm3','ppm','ppb','ppt','ppq']
+'CONDENS_SINK':['s⁻¹'],
+'CS_CALC':['s⁻¹'],
+'CON_SIN_NITR':['s⁻¹'],
+'SW_RADIATION':['W m⁻²'],
+'ION_PROD_RATE':['ip cm⁻³s⁻¹'],
+'NUC_RATE_IN':['cm⁻³s⁻¹'],
+'J_ACDC_1_CM3':['cm⁻³s⁻¹'],
+'J_ACDC_2_CM3':['cm⁻³s⁻¹'],
+'J_ACDC_3_CM3':['cm⁻³s⁻¹'],
+'J_ACDC_4_CM3':['cm⁻³s⁻¹'],
+'J_ACDC_5_CM3':['cm⁻³s⁻¹'],
+'J_ACDC_NH3_CM3':['cm⁻³s⁻¹'],
+'J_ACDC_DMA_CM3':['cm⁻³s⁻¹'],
+'J_ACDC_SUM_CM3':['cm⁻³s⁻¹'],
+'J_TOTAL_CM3':['cm⁻³s⁻¹'],
+'emi':['cm⁻³s⁻¹'],
+'GMD':['m'],
+'GSD':['-'],
+'REST':['cm⁻³','ppm','ppb','ppt','ppq']
 }
 # Name of the executable -------------------------------------------
 exe_name = 'arcabox.exe'
@@ -426,19 +430,35 @@ class Variation(QtWidgets.QDialog):
     def vars(self):
         p=self.vary.lineEdit.text()
         if self.vary.table.rowCount() == 0: return
-        ops = zeros((self.vary.table.rowCount(), 7))
+        ops = zeros((self.vary.table.rowCount(), 7),dtype=object)
         for i in range(self.vary.table.rowCount()):
             for j in range(7):
                 if j==0:
                     try:
                         ops[i,j] = float(self.vary.table.item(i,j).text())
                     except:
-                        if self.vary.table.item(i,j).text().upper() in self.indices:
+                        braprt = self.vary.table.item(i,j).text().split(',')
+                        if len(braprt)>1:
+                            grouped = []
+                            for zz in braprt:
+                                try:
+                                    grouped.append(int(zz))
+                                except:
+                                    if zz.upper() in self.indices:
+                                        grouped.append(self.indices[zz.upper()])
+                                    else:
+                                        print('Check the input, compound '+zz.upper()+' was not found.')
+                                        return
+                            print(grouped)
+                            ops[i,j] = grouped
+                        elif self.vary.table.item(i,j).text().upper() in self.indices:
                             ops[i,j] = self.indices[self.vary.table.item(i,j).text().upper()]
                         else:
                             print('Check the input, compound '+self.vary.table.item(i,j).text().upper()+' was not found.')
+                            return
                 else:
                     ops[i,j] = float(self.vary.table.item(i,j).text())
+
         print(variations.zzzz(p, ossplit(p)[0], ops, dryrun=False, nopause=True))
 
     def loadOps(self):
@@ -709,7 +729,7 @@ class NcPlot:
             if len(shape(y))>1:
                 y = y[:,0]
             if return_unit:
-                return y, '['+units.get(n,units['REST'])[0]+']'
+                return y, '['+units.get(grepunit(n),units['REST'])[0]+']'
             else:
                 return y
         else: return
@@ -717,7 +737,7 @@ class NcPlot:
     def getloc(self,i, return_unit=False):
         if i in self.invvars:
             if return_unit:
-                return self.nc.variables[self.invvars[i]][self.mask], '['+units.get(self.invvars[i],units['REST'])[0]+']'
+                return self.nc.variables[self.invvars[i]][self.mask], '['+units.get(grepunit(self.invvars[i]),units['REST'])[0]+']'
             else:
                 return self.nc.variables[self.invvars[i]][self.mask]
         else: return
@@ -725,7 +745,7 @@ class NcPlot:
     def getcom(self,n, return_unit=False):
         if self.par and n in self.parvars:
             if return_unit:
-                return self.composition_ng[:,self.parvars[n]][self.mask], '['+units.get(n,units['REST'])[0]+']'
+                return self.composition_ng[:,self.parvars[n]][self.mask], '['+units.get(grepunit(n),units['REST'])[0]+']'
             else:
                 return self.composition_ng[:,self.parvars[n]][self.mask]
         else: return
@@ -733,9 +753,9 @@ class NcPlot:
     def getcomsum(self,names, return_unit=False):
         retarr = zeros(len(self.mask))
         for i,n in enumerate(names):
-            if i==0: u = units.get(n,units['REST'])[0]
+            if i==0: u = units.get(grepunit(n),units['REST'])[0]
             if self.par and n in self.parvars:
-                if u == units.get(n,units['REST'])[0]:
+                if u == units.get(grepunit(n),units['REST'])[0]:
                     unit = True
                 else:
                     unit = False
@@ -749,9 +769,9 @@ class NcPlot:
     def getconcsum(self,names, return_unit=False):
         retarr = zeros(len(self.mask))
         for i,n in enumerate(names):
-            if i==0: u = units.get(n,units['REST'])[0]
+            if i==0: u = units.get(grepunit(n),units['REST'])[0]
             if n in self.convars:
-                if u == units.get(n,units['REST'])[0]:
+                if u == units.get(grepunit(n),units['REST'])[0]:
                     unit = True
                 else:
                     unit = False
@@ -1582,7 +1602,7 @@ the numerical model or chemistry scheme differs from the current, results may va
         for date,file in zip(dates,files_to_create):
             self.index_for_parser = date
             if self.createBashFile.isChecked():
-                bf.write('./'+exe_name+' '+file+' |tee '+dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME+'/RunReport.txt'+'\n' )
+                bf.write('./'+exe_name+' '+file+' |tee '+dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME+'/runReport.txt'+'\n' )
             if self.batchRangeDay.isChecked():
                 nml.TIME.DATE='%s'%(date)
                 nml.TIME.INDEX=''
@@ -2103,7 +2123,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         pmInUse = QtWidgets.QComboBox()
         pmInUse.addItems(['No','Yes'])
         unit = QtWidgets.QComboBox()
-        unit.addItems(units.get(name,units['REST']))
+        unit.addItems(units.get(grepunit(name),units['REST']))
         unit.setCurrentIndex(unt)
         markBut = QtWidgets.QPushButton()
         markBut.setCheckable(True)
@@ -2211,7 +2231,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.fsave_interval.setEnabled(True)
 
 
-    def print_values(self, file=None, mode=None, nobatch=True):
+    def print_values(self, file=None, mode=None, nobatch=True,status=0):
         if nobatch:
             status = self.update_nml()
             if status != 0 and file: return status
@@ -2952,7 +2972,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'DMPS_LOWBAND_UPPER_LIMIT' == key: self.dmps_lowband_upper_limit.setText(strng)
             elif 'USE_DMPS' == key: self.use_dmps.setChecked(strng)
             elif 'USE_DMPS_PARTIAL' == key: self.use_dmps_partial.setChecked(strng)
-            elif 'DMPS_INTERVAL' == key: self.dmpsIntvl.setValue(int(float(strng)))
+            elif 'DMPS_INTERVAL' == key: self.dmpsIntvl.setValue(float(strng))
             elif 'ENV_FILE' == key: self.env_file.setText(strng)
             elif 'SPECTRUMFILE' == key: self.spectralFunctions.setText(strng)
             elif 'SWR_IS_ACTINICFLUX' == key: self.SW_is_AF.setChecked(strng)
@@ -3011,8 +3031,11 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             elif in_custom:
                 if strng == 'T': strng = '.TRUE.'
                 if strng == 'F': strng = '.FALSE.'
-                nml.CUSTOM.CUSTOMS.append([key, strng])
-                pass
+                if key=='DMPS_TRES_MIN':
+                    print('Moving obsoleted DMPS_TRES_MIN to dmpsIntvl')
+                    self.dmpsIntvl.setValue(float(strng))
+                else:
+                    nml.CUSTOM.CUSTOMS.append([key, strng])
 
             elif '# RAW_INPUT' == key:
                 self.rawEdit.clear()
@@ -3053,7 +3076,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             pmInUse = 0
             if vars.mods[key].mode > 0:
                 pmInUse = 1
-            unts = units.get(key,units['REST'])
+            unts = units.get(grepunit(key),units['REST'])
             unitIndex = 0
             for unit in unts:
                 if unit.upper() == vars.mods[key].unit.upper(): break
@@ -3220,25 +3243,25 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 maxy = miny*100000
         if self.MPD[0].measdmps and self.showAlsoMeasInMassConc.isChecked():
             self.outplot_mass = self.plotResultWindow_2.plot(self.mp_time,
-                                                            y2,
-                                                            pen={'color':'r','width': 2.0,'style': QtCore.Qt.DotLine},
-                                                            symbol='x',
-                                                            symbolPen='b',
-                                                            symbolBrush='b',
-                                                            symbolSize=6,
-                                                            name='Model init'
-                                                            )
+                                y2,
+                                pen={'color':'r','width': 2.0,'style': QtCore.Qt.DotLine},
+                                symbol='x',
+                                symbolPen='b',
+                                symbolBrush='b',
+                                symbolSize=6,
+                                name='Model init'
+                                )
 
         for j,mpd_file in enumerate(self.MPD):
             self.outplot_mass = self.plotResultWindow_2.plot(mpd_file.time,
-                                                        npsum(mpd_file.totalmass_ng_m[:,inds],axis=1)*1e-9,
-                                                        pen={'color':colors[j],'width': 2.0},
-                                                        symbol=symbols[j+1],
-                                                        symbolPen=colors[j],
-                                                        symbolBrush=colors[j],
-                                                        symbolSize=8,
-                                                        name=self.MPD[j].legend.replace(': Particles.nc','')
-                                                        )
+                                npsum(mpd_file.totalmass_ng_m[:,inds],axis=1)*1e-9,
+                                pen={'color':colors[j],'width': 2.0},
+                                symbol=symbols[j+1],
+                                symbolPen=colors[j],
+                                symbolBrush=colors[j],
+                                symbolSize=8,
+                                name=self.MPD[j].legend.replace(': Particles.nc','')
+                                )
 
         if target == 'mass' or first: self.plotResultWindow_2.setRange(yRange=[miny*0.95,maxy*1.05])
         nmax = 0.01
@@ -3246,29 +3269,28 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             if self.MPD[0].measdmps and self.showAlsoMeasInMassConc.isChecked():
                 nmax = max(nmax,max(self.MPD[0].lognormdmps[ii,:]))
                 self.outplot_numb2 = self.plotResultWindow_3.plot(self.MPD[0].diameter,
-                                                                self.MPD[0].lognormdmps[ii,:],
-                                                                pen={'color':colors[i%10],'width': 2.0,'style': QtCore.Qt.DotLine},
-                                                                symbol='x',
-                                                                symbolPen=colors[i%10],
-                                                                symbolBrush=colors[i%10],
-                                                                symbolSize=6,
-                                                                name='Model init'
-                                                                )
+                                self.MPD[0].lognormdmps[ii,:],
+                                pen={'color':colors[i%10],'width': 2.0,'style': QtCore.Qt.DotLine},
+                                symbol='x',
+                                symbolPen=colors[i%10],
+                                symbolBrush=colors[i%10],
+                                symbolSize=6,
+                                name='Model init'
+                                )
             for j,mpd_file in enumerate(self.MPD):
                 if ii >= len(mpd_file.time): continue
                 nmax = max(nmax,max(mpd_file.lognorm_nc_cm3[ii,:]))
                 self.outplot_numb = self.plotResultWindow_3.plot(self.MPD[0].diameter,
-                                                            mpd_file.lognorm_nc_cm3[ii,:],
-                                                            pen={'color':colors[i%10],'width': 2.0},
-                                                            symbol=symbols[j+1],
-                                                            symbolPen=colors[i%10],
-                                                            symbolBrush=colors[i%10],
-                                                            symbolSize=8,
-                                                            )
+                                mpd_file.lognorm_nc_cm3[ii,:],
+                                pen={'color':colors[i%10],'width': 2.0},
+                                symbol=symbols[j+1],
+                                symbolPen=colors[i%10],
+                                symbolBrush=colors[i%10],
+                                symbolSize=8,
+                                )
 
         # yr=self.plotResultWindow_3.getViewBox().state['viewRange'][1]
         self.plotResultWindow_3.setRange(yRange=[-0.02*nmax,nmax*1.05])
-
 
 #
     def toggleppm(self,what):
@@ -3484,12 +3506,12 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 elif self.sumSelection.isChecked():
                     if any(c.text() in units for c in self.availableVars.selectedItems()):
                         if len(self.availableVars.selectedItems())==1:
-                            un = '['+units.get(self.availableVars.selectedItems()[0].text(),units['REST'])[0]+']'
+                            un = '['+units.get(grepunit(self.availableVars.selectedItems()[0].text()),units['REST'])[0]+']'
                         else:
                             un = '[-]'
                     else:
                         un = '[#/cm3]'
-                else : un = '['+units.get(comp,units['REST'])[0]+']'
+                else : un = '['+units.get(grepunit(comp),units['REST'])[0]+']'
 
 
         # Are the values non-negative?

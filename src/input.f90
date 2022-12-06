@@ -76,6 +76,7 @@ REAL(dp)              :: swr_spectrum(84) = 0d0     ! Vector for holding SWR spe
 LOGICAL               :: swr_is_time_dependent = .false.
 REAL(dp), ALLOCATABLE :: swr_times(:)               ! Vectors for holding SWR spectral data time stamps, used if SWR spectrum time dependent
 REAL(dp), ALLOCATABLE :: swr_temporal_data(:,:)     ! Vectors for holding SWR spectral data, used if SWR spectrum time dependent
+INTEGER, ALLOCATABLE  :: init_only_these(:)         ! Indices of the variables in MODS that will only be read in the first loop
 
 ! variable for storing init file name
 CHARACTER(len=256) :: Fname_init ! init file names
@@ -232,6 +233,7 @@ CHARACTER(len=256)      :: Vap_atoms = ''
 NAMELIST /NML_VAP/ Use_atoms, Vap_names, Vap_atoms !, Vap_props
 
 CHARACTER(1000) :: INITIALIZE_WITH = ''
+CHARACTER(1000) :: INIT_ONLY = ''
 CHARACTER(1000) :: HARD_CORE = 'GENERIC' ! define what compound is used to initialize particles
 INTEGER  :: limit_vapours = 999999
 INTEGER  :: INITIALIZE_FROM = 0
@@ -280,7 +282,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, DT_UPPER_LIMIT, ENABLE_END_FROM_OUTSIDE, &
                       Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor,&
-                      SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,FLOAT_EMIS_AFTER_HRS,NPF_DIST
+                      SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,FLOAT_EMIS_AFTER_HRS,NPF_DIST,INIT_ONLY
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -382,6 +384,8 @@ subroutine READ_INPUT_DATA()
     CALL READ_INIT_FILE
     ! Time conversions, Julian Day etc.
     CALL PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
+    ! check if some concentratinos are used only for intialization
+    CALL PARSE_INIT_ONLY
     ! Report what is being read from where
     CALL REPORT_INPUT_COLUMNS_TO_USER
     ! Determine what to do with shortwave input
@@ -1427,5 +1431,27 @@ SUBROUTINE PARSE_ACDC_SYSTEMS
 
 END SUBROUTINE PARSE_ACDC_SYSTEMS
 
+SUBROUTINE PARSE_INIT_ONLY()
+  implicit none
+  CHARACTER(25) :: buffer = ''
+  INTEGER :: ii
+
+  iF (INIT_ONLY == '') RETURN
+
+  ALLOCATE(init_only_these(0))
+  print*, INIT_ONLY
+  do ii=1, len(TRIM(INIT_ONLY))
+    if (INIT_ONLY(ii:ii) == ',') THEN
+      if (IndexFromName(TRIM(buffer),SPC_NAMES)>0) &
+        init_only_these = [init_only_these,IndexFromName(TRIM(buffer),SPC_NAMES)]
+      buffer = ''
+    else
+      buffer(len(TRIM(buffer))+1:len(TRIM(buffer))+2) = INIT_ONLY(ii:ii)
+    end if
+  end do
+  if (TRIM(buffer) /= '') &
+    init_only_these = [init_only_these,IndexFromName(TRIM(buffer),SPC_NAMES)]
+
+END SUBROUTINE PARSE_INIT_ONLY
 
 end module INPUT
