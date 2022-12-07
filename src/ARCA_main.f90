@@ -154,6 +154,9 @@ INIT_AEROSOL: IF (Aerosol_flag) THEN
     ! Initialize the Particle representation
     CALL INITIALIZE_PSD
 
+    IF (PARAM_AGING) &
+        print FMT_MSG, 'Using hyper experimental aging. Common halflife: '//TRIM(f2chr(AGING_HL_HRS))//' hrs.'
+
     ! Initialize the nominal diameter vector
     ALLOCATE(nominal_dp(n_bins_par))
     nominal_dp = get_dp()
@@ -266,8 +269,8 @@ write(*,*)
 print FMT_HDR, 'INITIALIZING OUTPUT '
 
 ! All run output goes to RUN_OUTPUT_DIR directory. RUN_OUTPUT_DIR is allocated to correct length so we dont need to TRIM every time
-ALLOCATE(CHARACTER(len=LEN(TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME))) :: RUN_OUTPUT_DIR)
-RUN_OUTPUT_DIR = TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)
+ALLOCATE(CHARACTER(len=LEN(TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME))) :: RUN_OUTPUT_DIR)
+RUN_OUTPUT_DIR = TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME)
 
 if (Aerosol_flag) THEN
 
@@ -706,6 +709,28 @@ END IF
 
     END IF add_particles
 
+    add_emitted_particles: if (PRC%in_turn(4).and.N_MODAL_EMS>0) THEN
+        ! ..........................................................................................................
+        ! ADD EMITTED PARTICLES TO PSD
+
+        ! print FMT_HDR, 'emitting particles!'
+        ! PRINT*, N_MODAL_EMS
+        call aero_emissions(get_dp(), dconc_dep_mix, TSTEP_CONC(MMODES_EMS))
+
+        ! Negative mixing ratio makes this emissions
+        mix_ratio = -1d0
+
+        ! New particles are assigned GENERIC composition.
+        dmass(:,VAPOUR_PROP%ind_GENERIC) = nominal_dp**3*pi/6d0 * VAPOUR_PROP%density(VAPOUR_PROP%ind_GENERIC)
+        dconc_dep_mix = 1d6*LOG10(bin_ratio)*dconc_dep_mix*GTIME%dt*minval(pack(speed_up, speed_up > 0))
+
+        CALL Mass_Number_Change('mixing')
+
+        ! Update current_psd
+        current_PSD = new_PSD
+
+    END IF add_emitted_particles
+
 
         in_turn_cch_2: if (PRC%in_turn(PRC%cch)) THEN
         ! ..........................................................................................................
@@ -772,6 +797,7 @@ END IF
                 ! Update current_psd
                 current_PSD = new_PSD
 
+                IF (PARAM_AGING) call AGING(current_PSD%composition_fs, 3600d0*AGING_HL_HRS, Gtime%dt)
                 ! NOTE Update vapour concentrations to chemistry is done at the end of the timestep
 
                 ! Check whether timestep can be increased:
@@ -1464,7 +1490,7 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
     END IF
 
     print FMT_HDR, 'Checking against KPP for chemicals'
-    do i=1,N_VARS
+    do i=1,N_VARS-N_XTRS
         check = 0
         IF (MODS(I)%ISPROVIDED) THEN
             DO j=1,size(SPC_NAMES)

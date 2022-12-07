@@ -31,8 +31,10 @@ Implicit none
 
 ! Relative path to NAMES.DAT
 CHARACTER(27), PARAMETER :: NAMESDAT = 'ModelLib/required/NAMES.dat'
+CHARACTER(27), PARAMETER :: XTRASDAT = 'ModelLib/required/AEMS.dat'
 
 INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
+INTEGER :: N_XTRS ! This will store the number of variables in NAMES.DAT
 INTEGER :: LENV   ! This will store the number of named indices in this code
 
 ! INDICES TO PROPERLY COMBINE INPUT TO CORRECT VALUES IN THE MODEL
@@ -126,8 +128,8 @@ real(dp)  :: FSAVE_INTERVAL = 300d0
 real(dp)  :: PRINT_INTERVAL = 15*60d0
 INTEGER   :: FSAVE_DIVISION = 0
 real(dp)  :: dt = -1d0
-CHARACTER(len=10)  :: DATE = '1800-01-01', INDEX = ''
-NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, DATE, INDEX
+CHARACTER(len=10)  :: DATE = '1800-01-01', NUMBER = ''
+NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, DATE, NUMBER
 
 ! MODIFIER OPTIONS
 ! MODS is declared in CONSTANTS.f90, in order to be more widely available
@@ -174,6 +176,7 @@ NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_par,min_particle_diam,max_particle_diam,
                         mmodal_input, N_MODAL, mmodal_input_inuse, dmps_interval
 
 REAL(dp), ALLOCATABLE            :: MMODES(:)  ! Modal PSD parameters
+REAL(dp), ALLOCATABLE            :: MMODES_EMS(:)  ! Modal PSD emission parameters
 type(particle_grid), ALLOCATABLE :: xtras(:)
 ! BG_PAR is here in case you want to use it Carlton and Lukas, in the end we remove either BG_PAR or par_data mmkay.
 type(particle_grid) :: BG_PAR       ! Var to store the particle size distribution. This might become redundant
@@ -260,6 +263,8 @@ Logical  :: Kelvin_exp                 = .true.
 Logical  :: USE_RH_CORRECTION          = .true.
 LOGICAL  :: TEMP_DEP_SURFACE_TENSION   = .False.
 LOGICAL  :: use_diff_dia_from_diff_vol = .False.
+LOGICAL  :: PARAM_AGING                = .False.
+real(dp) :: AGING_HL_HRS               = 1d3 ! [hrs] common aging halflife in particle phase organics.
 REAL(dp), ALLOCATABLE :: GR_bins(:)  ! used for GR calculation [m]
 Logical  :: CALC_GR                 = .True.
 Logical  :: ENABLE_END_FROM_OUTSIDE = .True.
@@ -272,6 +277,9 @@ real(dp) :: alpha_coa               = 1d0 ! Accomodation coefficient for coagula
 real(dp) :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! [#/cm3] lower threshold of concentration, which is checked in optimized time step.
                                           ! Here the idea is that we don't worry about changes of gases whic only exist in so
                                           ! small concentrations
+CHARACTER(len=500)  :: mmodal_input_ems  = ''       ! String defining the Modal PSD emissions
+INTEGER             :: N_MODAL_EMS = 0              ! number of modes in multimodal intialization
+INTEGER             :: mmodal_input_inuse_ems  = -1 ! Switch toggling the Modal PSD
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .true.
 REAL(dp) :: factorsForReactionRates(NREACT) = 1d0   ! factors to modify chemical reaction rates (optionally)
@@ -282,7 +290,8 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       NO_NEGATIVE_CONCENTRATIONS, FLOAT_CHEMISTRY_AFTER_HRS, USE_RH_CORRECTION, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, DT_UPPER_LIMIT, ENABLE_END_FROM_OUTSIDE, &
                       Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor,&
-                      SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,FLOAT_EMIS_AFTER_HRS,NPF_DIST,INIT_ONLY
+                      SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,INIT_ONLY, &
+                      FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS !,mmodal_input_ems,N_MODAL_EMS,mmodal_input_inuse_ems
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -370,6 +379,12 @@ subroutine READ_INPUT_DATA()
     ! Check the number of rows in NAMESDAT and close file
     N_VARS = rowcount(800)
     CLOSE(800)
+
+    OPEN(800, file=XTRASDAT, ACTION='READ', status='OLD', iostat=ioi)
+    N_XTRS = rowcount(800)
+    CLOSE(800)
+
+    N_VARS = N_VARS + N_XTRS
 
     ! BASED ON N_VARS, ALLOCATE AND INITIALIZE VECTORS
     ALLOCATE(MODS(N_VARS))
@@ -513,6 +528,8 @@ CALL PARSE_ACDC_SYSTEMS
 IF (Aerosol_flag) then
 
     CALL PARSE_MULTIMODAL
+    CALL PARSE_MULTIMODAL_EMS
+
     if (CALC_GR) CALL PARSE_GR_SIZES
 
     if (PSD_MODE == 1) write(*,FMT_MSG) 'Using fully stationary PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
@@ -774,6 +791,10 @@ subroutine READ_INIT_FILE
   write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM:'
   write(*,FMT_HDR) TRIM(ADJUSTL(Fname_init))
 
+  if (.not. ingui) &
+    CALL EXECUTE_COMMAND_LINE('sh ModelLib/gui/modules/compatibility_layer.sh '//TRIM(ADJUSTL(Fname_init)))
+
+
   do k=1, ROWCOUNT(888); READ(888,NML = NML_TIME, IOSTAT=IOS(i)) ! #1
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
@@ -836,15 +857,15 @@ subroutine READ_INIT_FILE
   IF (INOUT_DIR(len(TRIM(INOUT_DIR)):len(TRIM(INOUT_DIR))) == '/') INOUT_DIR(len(TRIM(INOUT_DIR)):len(TRIM(INOUT_DIR))) = ' '
 
   ! Also save all settings to initfile. Use this file to rerun if necessary
-  open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE',iostat=i)
+  open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE',iostat=i)
   if (i/=0) THEN
     ! Create output directory
     print FMT_MSG, 'Output directory did not exist -> creating...'
-    call system('mkdir -p '//TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME), I)
-    call handle_file_io(I, TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME),&
+    call system('mkdir -p '//TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME), I)
+    call handle_file_io(I, TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME),&
                      'Could not create output directories')
-    open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE',iostat=i)
-    call handle_file_io(I, TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(INDEX)//'/'//TRIM(RUN_NAME)//'/NMLS.conf',&
+    open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE',iostat=i)
+    call handle_file_io(I, TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME)//'/NMLS.conf',&
     'Could not write files, do you have permissions?')
   END if
 
@@ -863,7 +884,7 @@ subroutine READ_INIT_FILE
   close(889)
 
   DO i=1, N_VARS
-    IF (TRIM(MODS(i)%UNIT) == '-') THEN
+    IF (TRIM(MODS(i)%UNIT) == 'X') THEN
         MODS(i)%UNIT = '#'
     ELSE
         MODS(i)%ISPROVIDED = .true.
@@ -896,9 +917,9 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
     if (ioi == 0) read(date(6:7),*,iostat=ioi) m
     if (ioi == 0) read(date(9:) ,*,iostat=ioi) d
     if (ioi /= 0) THEN
-        if (INDEX /= '') THEN
+        if (NUMBER /= '') THEN
             print FMT_HDR,
-            print FMT_HDR, 'USING INDEX INSTEAD OF DATE -> ASSUMING LIGHT DIRECTION IS FROM DIRECTLY UP'
+            print FMT_HDR, 'USING NUMBER INSTEAD OF DATE -> ASSUMING LIGHT DIRECTION IS FROM DIRECTLY UP'
             print FMT_HDR,
         ELSE
             print FMT_WARN0, 'Date provided in the INITFILE is not a proper date'
@@ -927,10 +948,11 @@ end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
 
 subroutine NAME_MODS_SORT_NAMED_INDICES
     implicit none
-    INTEGER :: i
+    INTEGER :: i, j
+    CHARACTER(len=100) :: dummy
 
     OPEN(800, file=NAMESDAT, ACTION='READ', status='OLD')
-    DO i = 1,N_VARS
+    DO i = 1,N_VARS - N_XTRS
         READ(800, *) MODS(I)%NAME
         IF (TRIM(MODS(I)%NAME) == 'TEMPK'        ) inm_TempK = i
         IF (TRIM(MODS(I)%NAME) == 'PRESSURE'     ) inm_pres = i
@@ -951,6 +973,16 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
         IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_IN ' ) inm_JIN = i
         IF (TRIM(MODS(I)%NAME) == '#'            ) LENV = i
         IF (.not.TRIM(UCASE(MODS(I)%NAME(1:3))) == 'EMI') N_CONCENTRATIONS = i
+    END DO
+    close(800)
+
+    OPEN(800, file=XTRASDAT, ACTION='READ', status='OLD')
+    DO j = 1, N_XTRS
+      READ(800, *) MODS(i+j-1)%NAME
+        ! IF (j == 1) THEN
+        !     READ(800, *) dummy
+        ! ELSE
+        ! END IF
     END DO
     close(800)
 
@@ -1077,13 +1109,15 @@ END SUBROUTINE CHECK_MODIFIERS
 SUBROUTINE CONVERT_TEMPS_TO_KELVINS
     IMPLICIT NONE
     CHARACTER(len=1) :: TempUnit = 'X'
+    !
+    ! if (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
+    !     print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins. This may lead to SIGFPE."
+    !     TempUnit = 'K'
+    ! ELSEIF (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'K' .or. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C' )THEN
+    !     TempUnit = TRIM(UCASE(MODS(inm_TempK)%UNIT))
+    ! END IF
 
-    if (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == '#') THEN
-        print FMT_WARN0, "No unit for temperature. Use either 'K' or 'C'. Now assuming Kelvins. This may lead to SIGFPE."
-        TempUnit = 'K'
-    ELSEIF (TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'K' .or. TRIM(UCASE(MODS(inm_TempK)%UNIT)) == 'C' )THEN
-        TempUnit = TRIM(UCASE(MODS(inm_TempK)%UNIT))
-    END IF
+    TempUnit = TRIM(UCASE(MODS(inm_TempK)%UNIT))
 
     IF (UCASE(TempUnit) == 'K') THEN
         print FMT_MSG, '- Temperature input in Kelvins.'
@@ -1095,6 +1129,7 @@ SUBROUTINE CONVERT_TEMPS_TO_KELVINS
     ELSE
         print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
     END IF
+
     ! Check if accidental double conversion is attempted
     IF ((TempUnit == 'C') .and. (  ABS(MODS(inm_TempK)%shift - 273.15)<1d0  )) THEN
         print FMT_WARN1, 'Temperature will be converted to Kelvins, but an additional constant is added: ',MODS(inm_TempK)%shift
@@ -1215,6 +1250,56 @@ SUBROUTINE PARSE_MULTIMODAL()
     IF (mmodal_input_inuse == 0) N_MODAL = -1d0
 
 END SUBROUTINE PARSE_MULTIMODAL
+
+
+SUBROUTINE PARSE_MULTIMODAL_EMS()
+    IMPLICIT NONE
+    real(dp) :: buffer(100)
+    INTEGER  :: ioi, sze,i, nm1=1, nm2=1, nm3=1
+    integer  :: temp(15) = 0, jjj1,jjj2,jjj3, M
+
+    do i=N_VARS-N_XTRS, N_VARS
+      if (MODS(i)%ISPROVIDED) THEN
+        jjj1 = index(MODS(i)%NAME, '_GMD') - 1
+        jjj2 = index(MODS(i)%NAME, '_ln(s)') - 1
+        jjj3 = index(MODS(i)%NAME, '_emission') - 1
+
+        if (jjj1>0) then
+          read(MODS(i)%NAME(jjj1:jjj1),*) M
+          temp(M * 3 - 2) = i
+          N_MODAL_EMS = N_MODAL_EMS + 1
+
+        else if (jjj2>0) then
+          read(MODS(i)%NAME(jjj2:jjj2),*) M
+          temp(M * 3 - 1) = i
+          N_MODAL_EMS = N_MODAL_EMS + 1
+
+        else if (jjj3>0) then
+          read(MODS(i)%NAME(jjj3:jjj3),*) M
+          temp(M * 3) = i
+          N_MODAL_EMS = N_MODAL_EMS + 1
+
+        END IF
+      END IF
+    end do
+
+    if (MOD(N_MODAL_EMS,3) /= 0 ) &
+      STOP 'AEROSOL EMISSION INPUT IS INCOMPLETE, PROGRAM WILL EXIT.'
+    N_MODAL_EMS = N_MODAL_EMS/3
+    ALLOCATE(MMODES_EMS(SIZE(PACK(temp,temp>0))))
+    MMODES_EMS = PACK(temp,temp>0)
+    ! buffer = -9999d0
+    ! read(mmodal_input_ems, *, IOSTAT=ioi) buffer
+    ! sze =  SIZE(PACK(buffer,buffer>0))
+    ! if (sze>=3) THEN
+    !     ALLOCATE(MMODES_EMS(sze))
+    !     MMODES_EMS = PACK(buffer,buffer>0)
+    ! ELSE
+    !     N_MODAL_EMS = -1d0
+    ! ENDIF
+    ! IF (mmodal_input_inuse_ems == 0) N_MODAL_EMS = -1d0
+
+END SUBROUTINE PARSE_MULTIMODAL_EMS
 
 
 SUBROUTINE PARSE_GR_SIZES()
@@ -1439,7 +1524,7 @@ SUBROUTINE PARSE_INIT_ONLY()
   iF (INIT_ONLY == '') RETURN
 
   ALLOCATE(init_only_these(0))
-  print*, INIT_ONLY
+
   do ii=1, len(TRIM(INIT_ONLY))
     if (INIT_ONLY(ii:ii) == ',') THEN
       if (IndexFromName(TRIM(buffer),SPC_NAMES)>0) &

@@ -386,6 +386,36 @@ subroutine Multimodal(modevector, diameters, psd, N)
 end subroutine Multimodal
 
 
+!====================================================================================
+! Calculates multimodal particle size distribution, used for intialization. Modevector
+! is of length <number of modes>*3 and contains the ount median diameter, (CMD),
+! geometric standard deviation (GSD) and relative size in total particle count
+! (relative sizes must add up to 1). diameters is the diameter vector of the model
+! (the bins), psd is the output vector and N is the total particle count in the output
+! vector
+!....................................................................................
+subroutine aero_emissions(diameters, psd, descp)
+    implicit none
+    real(dp), INTENT(in)    :: diameters(:)
+    real(dp), INTENT(inout) :: psd(:)
+    real(dp), INTENT(in)    :: descp(:)            ! number of modes
+    real(dp)                :: mu, sig, N, sumv,x(size(diameters))  ! GMD, ln(GSD)
+    INTEGER                 :: ii
+
+    psd = 0d0
+    !
+    x = LOG10(diameters)
+    !
+    DO ii = 1,size(descp)/3
+        mu  = LOG10(descp((ii-1)*3+1))
+        sig = descp((ii-1)*3+2)
+        psd = psd + descp((ii-1)*3+3) * gauss(x, mu, sig)
+    END DO
+
+
+end subroutine aero_emissions
+
+
 pure function gauss(x,mu,sig) result(zz)
     real(dp), INTENT(IN) :: x(:)
     real(dp), INTENT(IN) :: mu,sig

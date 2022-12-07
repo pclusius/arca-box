@@ -193,6 +193,26 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
 
 END SUBROUTINE Condensation_apc
 
+
+SUBROUTINE AGING(composition, halflife, dt)
+    real(dp), intent(INOUT) :: composition(:,:)
+    real(dp), intent(IN   ) :: halflife
+    real(dp), intent(IN   ) :: dt
+    real(dp)                :: decay, k, agedmass(n_bins_par)
+    INTEGER                 :: ic,ip
+
+    agedmass = 0d0
+    do ic=1,VAPOUR_PROP%n_cond_org
+        k = log(2d0)/halflife
+        decay = exp(-k*dt)
+        composition(:,ic) = composition(:,ic) * decay
+        agedmass = agedmass + composition(:,ic)*(1-decay)
+    END DO
+    composition(:,VAPOUR_PROP%ind_GENERIC) = composition(:,VAPOUR_PROP%ind_GENERIC) + agedmass
+
+END SUBROUTINE AGING
+
+
 ! -------------------------------------------------------------------------------------------------------------
 ! The Coagulation coefficient is calculated according to formula 13.56 in Seinfield and Pandis (2006), Page 603
 SUBROUTINE UPDATE_COAG_COEF()

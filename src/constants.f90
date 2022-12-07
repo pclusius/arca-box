@@ -74,7 +74,7 @@ type input_mod
     real(dp)  :: fv  = 0d0    ! Angular frequency [hours] of modifying sine function
     real(dp)  :: ph  = 0d0    ! Angular frequency [hours] of modifying sine function
     real(dp)  :: am  = 1d0    ! Amplitude of modification
-    CHARACTER(5)  :: UNIT = '-'      ! Unit for the given number. CASE INSENSITIVE
+    CHARACTER(5)  :: UNIT = 'X'      ! Unit for the given number. CASE INSENSITIVE
     CHARACTER(16) :: TIED = ''       ! variable is coupled with this variable
     CHARACTER(16) :: NAME = 'NONAME' ! Human readable name for modified variable
     LOGICAL :: ISPROVIDED = .false.  ! Human readable name for modified variable

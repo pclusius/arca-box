@@ -130,13 +130,15 @@ units = {
 'J_TOTAL_CM3':['cm⁻³s⁻¹'],
 'emi':['cm⁻³s⁻¹'],
 'GMD':['m'],
-'GSD':['-'],
+'GSD':['[-]'],
 'REST':['cm⁻³','ppm','ppb','ppt','ppq']
 }
 # Name of the executable -------------------------------------------
 exe_name = 'arcabox.exe'
 # Path to variable names -------------------------------------------
 path_to_names = 'ModelLib/required/NAMES.dat'
+# Path to extra variables ------------------------------------------
+path_to_xtras = 'ModelLib/required/AEMS.dat'
 # GUI root
 gui_path = 'ModelLib/gui/'
 # GUI defaults are saved into this file. If it doesn't exist, it gets created in first start
@@ -169,6 +171,10 @@ env_yes = (128,179,255)
 # BG colour for ORG vars
 org_no = (243,240,239)
 org_yes = (172,147,147)
+
+# BG colour for XTR vars
+xtr_no = (255, 230, 128)
+xtr_yes = (212, 170, 0)
 
 # icon
 modellogo = gui_path+"/icons/ArcaLogo.png"
@@ -242,6 +248,19 @@ with open(path_to_names) as f:
         if '#' in line:
             divider_i=i
             name = 'MCM compounds start here'
+        NAMES.append(name)
+        namesPyInds[name] = i
+        namesFoInds[name] = i+1
+        i += 1
+
+divider_xtr_i = i
+with open(path_to_xtras) as f:
+    for line in f:
+        j += 1
+        name = line.strip()
+        if name == '':
+            print('\n\nEmpty line in the middle of AEMS.dat, it will not work!\n\n')
+            exit('ARCA will not start, check out '+path_to_xtras+' and remove empty lines.')
         NAMES.append(name)
         namesPyInds[name] = i
         namesFoInds[name] = i+1
@@ -861,7 +880,11 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
                 # item.setForeground(QtGui.QColor(0, 70, 0))
                 # item.setBackground(QtGui.QColor(200, 230, 200))
                 item.setBackground(QtGui.QColor(*env_no))
-            elif i==divider_i:
+            elif i>divider_xtr_i:
+                # item.setForeground(QtGui.QColor(0, 70, 0))
+                # item.setBackground(QtGui.QColor(200, 230, 200))
+                item.setBackground(QtGui.QColor(*xtr_no))
+            elif i==divider_i or i==divider_xtr_i:
                 item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
                 item.setBackground(QtGui.QColor(*org_yes))
                 item.setForeground(QtGui.QColor(250, 250, 250))
@@ -1605,10 +1628,10 @@ the numerical model or chemistry scheme differs from the current, results may va
                 bf.write('./'+exe_name+' '+file+' |tee '+dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME+'/runReport.txt'+'\n' )
             if self.batchRangeDay.isChecked():
                 nml.TIME.DATE='%s'%(date)
-                nml.TIME.INDEX=''
+                nml.TIME.NUMBER=''
             else:
                 nml.TIME.DATE=''
-                nml.TIME.INDEX='%s'%(date)
+                nml.TIME.NUMBER='%s'%(date)
 
             nml.ENV.ENV_FILE = self.pars(self.env_file.text(), file, self.stripRoot_env.isChecked())
             nml.MCM.MCM_FILE = self.pars(self.mcm_file.text(), file, self.stripRoot_mcm.isChecked())
@@ -2146,6 +2169,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.selected_vars.setItem(row, i, tag)
             if namesPyInds[name]<divider_i:
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*env_no))
+            elif namesPyInds[name]>divider_xtr_i:
+                self.selected_vars.item(row, i).setBackground(QtGui.QColor(*xtr_no))
             else:
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*org_no))
         if name == 'PRESSURE' :
@@ -2166,6 +2191,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
     def toggleColorPre(self, n):
         if namesPyInds[n]<divider_i:
             c = (env_yes,env_no)
+        elif namesPyInds[n]>divider_xtr_i:
+            c = (xtr_yes,xtr_no)
         else:
             c = (org_yes,org_no)
         for i in range(self.selected_vars.rowCount()):
@@ -2688,18 +2715,18 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if self.indexRadioDate.isChecked():
             self.index_for_parser = self.dateEdit.text()
             nml.TIME.DATE=self.dateEdit.text()
-            nml.TIME.INDEX=''
+            nml.TIME.NUMBER=''
         if self.indexRadioIndex.isChecked():
             self.index_for_parser = self.indexEdit.value()
             nml.TIME.DATE=''
-            nml.TIME.INDEX='%04d'%self.indexEdit.value()
+            nml.TIME.NUMBER='%04d'%self.indexEdit.value()
 
         # class _PARTICLE:
         nml.PARTICLE.PSD_MODE=self.psd_mode.currentIndex()
         nml.PARTICLE.N_BINS_PAR=self.n_bins_particle.value()
         try:
-            float(self.min_particle_diam.text())
-            float(self.max_particle_diam.text())
+            float(self.min_particle_diam.text().lower().replace('d','e'))
+            float(self.max_particle_diam.text().lower().replace('d','e'))
         except:
             self.popup('Error', 'Minimum and maximum particle diameters must be numbers', icon=3)
             status = 1
@@ -2866,7 +2893,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                     y = key.find(')')
                     index = int(key[5:y])
                     if index>len(NAMES): continue
-                    if index-1 == divider_i:
+                    if index-1 == divider_i or index-1 == divider_xtr_i:
                         continue
                     name = NAMES[index-1]
                     if not name in vars.mods:
@@ -2958,6 +2985,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'FSAVE_DIVISION' == key and isFl: self.fsave_division.setValue(int(float(strng)))
             elif 'DATE' == key: self.dateEdit.setDate(parse_date(strng))
             elif 'INDEX' == key and isFl: self.indexEdit.setValue(int(float(strng)))
+            elif 'NUMBER' == key and isFl: self.indexEdit.setValue(int(float(strng)))
             elif 'PSD_MODE' == key and isFl: self.psd_mode.setCurrentIndex(int(float(strng)))
             elif 'N_BINS_PAR' == key and isFl: self.n_bins_particle.setValue(int(float(strng)))
             elif 'MIN_PARTICLE_DIAM' == key: self.min_particle_diam.setText(strng)#   1.0000000000000001E-009,
@@ -3094,6 +3122,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 for z in range(4):
                     if namesPyInds[key]<divider_i:
                         self.selected_vars.item(row, z).setBackground(QtGui.QColor(*env_no))
+                    elif namesPyInds[key]>divider_xtr_i:
+                        self.selected_vars.item(row, z).setBackground(QtGui.QColor(*xtr_no))
                     else:
                         self.selected_vars.item(row, z).setBackground(QtGui.QColor(*org_no))
 
@@ -3729,11 +3759,11 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             for c in NAMES:
                 if strict:
                     if text == c.upper():
-                        if not namesPyInds[c] == divider_i:
+                        if (not namesPyInds[c] == divider_i) and (not namesPyInds[c] == divider_xtr_i):
                             self.namesdat.item(namesPyInds[c]).setSelected(True)
                 else:
                     if text in c.upper():
-                        if not namesPyInds[c] == divider_i:
+                        if(not namesPyInds[c] == divider_i) and (not namesPyInds[c] == divider_xtr_i):
                             item = self.namesdat.item(namesPyInds[c])
                             item.setSelected(True)
                             self.namesdat.scrollToItem(item, QtWidgets.QAbstractItemView.PositionAtTop)
