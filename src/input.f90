@@ -175,8 +175,10 @@ NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_par,min_particle_diam,max_particle_diam,
                         DMPS_read_in_time,dmps_highband_lower_limit, dmps_lowband_upper_limit,use_dmps,use_dmps_partial, &
                         mmodal_input, N_MODAL, mmodal_input_inuse, dmps_interval
 
-REAL(dp), ALLOCATABLE            :: MMODES(:)  ! Modal PSD parameters
-REAL(dp), ALLOCATABLE            :: MMODES_EMS(:)  ! Modal PSD emission parameters
+REAL(dp), ALLOCATABLE            :: MMODES(:)       ! Modal PSD parameters
+REAL(dp), ALLOCATABLE            :: MMODES_EMS(:)   ! Modal PSD emission parameters
+INTEGER                          :: N_MODAL_EMS = 0 ! number of modes in multimodal intialization
+
 type(particle_grid), ALLOCATABLE :: xtras(:)
 ! BG_PAR is here in case you want to use it Carlton and Lukas, in the end we remove either BG_PAR or par_data mmkay.
 type(particle_grid) :: BG_PAR       ! Var to store the particle size distribution. This might become redundant
@@ -277,9 +279,8 @@ real(dp) :: alpha_coa               = 1d0 ! Accomodation coefficient for coagula
 real(dp) :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! [#/cm3] lower threshold of concentration, which is checked in optimized time step.
                                           ! Here the idea is that we don't worry about changes of gases whic only exist in so
                                           ! small concentrations
-CHARACTER(len=500)  :: mmodal_input_ems  = ''       ! String defining the Modal PSD emissions
-INTEGER             :: N_MODAL_EMS = 0              ! number of modes in multimodal intialization
-INTEGER             :: mmodal_input_inuse_ems  = -1 ! Switch toggling the Modal PSD
+! CHARACTER(len=500)  :: mmodal_input_ems  = ''       ! String defining the Modal PSD emissions
+! INTEGER             :: mmodal_input_inuse_ems  = -1 ! Switch toggling the Modal PSD
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .true.
 REAL(dp) :: factorsForReactionRates(NREACT) = 1d0   ! factors to modify chemical reaction rates (optionally)
@@ -291,7 +292,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, DT_UPPER_LIMIT, ENABLE_END_FROM_OUTSIDE, &
                       Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor,&
                       SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,INIT_ONLY, &
-                      FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS !,mmodal_input_ems,N_MODAL_EMS,mmodal_input_inuse_ems
+                      FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -1254,9 +1255,7 @@ END SUBROUTINE PARSE_MULTIMODAL
 
 SUBROUTINE PARSE_MULTIMODAL_EMS()
     IMPLICIT NONE
-    real(dp) :: buffer(100)
-    INTEGER  :: ioi, sze,i, nm1=1, nm2=1, nm3=1
-    integer  :: temp(15) = 0, jjj1,jjj2,jjj3, M
+    integer  :: temp(60) = 0, i,jjj1,jjj2,jjj3, M
 
     do i=N_VARS-N_XTRS, N_VARS
       if (MODS(i)%ISPROVIDED) THEN
@@ -1288,16 +1287,6 @@ SUBROUTINE PARSE_MULTIMODAL_EMS()
     N_MODAL_EMS = N_MODAL_EMS/3
     ALLOCATE(MMODES_EMS(SIZE(PACK(temp,temp>0))))
     MMODES_EMS = PACK(temp,temp>0)
-    ! buffer = -9999d0
-    ! read(mmodal_input_ems, *, IOSTAT=ioi) buffer
-    ! sze =  SIZE(PACK(buffer,buffer>0))
-    ! if (sze>=3) THEN
-    !     ALLOCATE(MMODES_EMS(sze))
-    !     MMODES_EMS = PACK(buffer,buffer>0)
-    ! ELSE
-    !     N_MODAL_EMS = -1d0
-    ! ENDIF
-    ! IF (mmodal_input_inuse_ems == 0) N_MODAL_EMS = -1d0
 
 END SUBROUTINE PARSE_MULTIMODAL_EMS
 
