@@ -205,7 +205,6 @@ INIT_AEROSOL: IF (Aerosol_flag) THEN
 
     END IF
 
-
     ALLOCATE(conc_vapour(n_cond_tot))
     ALLOCATE(CONDENSED_MASS(n_cond_tot))
     CONDENSED_MASS = 0d0
@@ -699,7 +698,7 @@ END IF
 
         ! New particles are assigned GENERIC composition.
         dmass(1:size(J_distr,1),VAPOUR_PROP%ind_GENERIC) = nominal_dp(1:size(J_distr,1))**3*pi/6d0 * VAPOUR_PROP%density(VAPOUR_PROP%ind_GENERIC)
-        ! The new particles are distributed over bins spanning bins that are 15% larger in diameter than the first bin, typically 3 bins
+        ! The new particles are distributed over bins spanning bins that are ~15% larger in diameter than the first bin, typically 3 bins
         dconc_dep_mix(1:size(J_distr,1)) = J_TOTAL_M3*GTIME%dt*minval(pack(speed_up, speed_up > 0))*J_distr
 
         CALL Mass_Number_Change('mixing')
@@ -713,8 +712,6 @@ END IF
         ! ..........................................................................................................
         ! ADD EMITTED PARTICLES TO PSD
 
-        ! print FMT_HDR, 'emitting particles!'
-        ! PRINT*, N_MODAL_EMS
         call aero_emissions(get_dp(), dconc_dep_mix, TSTEP_CONC(MMODES_EMS))
 
         ! Negative mixing ratio makes this emissions

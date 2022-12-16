@@ -232,7 +232,7 @@ NAMELIST /NML_MISC/ lat, lon, wait_for, Description, CH_Albedo, DMA_f, resolve_B
 
 ! Logical                 :: VAP_logical = .True. deprecated
 Logical                 :: Use_atoms = .False.
-CHARACTER(len=256)      :: Vap_names
+CHARACTER(len=256)      :: Vap_names,Vap_file
 CHARACTER(len=256)      :: Vap_atoms = ''
 
 NAMELIST /NML_VAP/ Use_atoms, Vap_names, Vap_atoms !, Vap_props
@@ -536,10 +536,16 @@ IF (Aerosol_flag) then
     if (PSD_MODE == 1) write(*,FMT_MSG) 'Using fully stationary PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
     if (PSD_MODE == 2) write(*,FMT_MSG) 'Using fixed grid/moving average PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
     print FMT_LEND,
-    write(*,FMT_MSG) 'Reading Vapour name file '// TRIM(Vap_names)
-    OPEN(unit=802, File= TRIM(Vap_names) , STATUS='OLD', iostat=ioi)
-    call handle_file_io(ioi, Vap_names, &
-        'If Condensation is used, "Vapour file" must be defined (in tab "Aerosol").')
+    IF (condensation) THEN
+      Vap_file = Vap_names
+      write(*,FMT_MSG) 'Reading Vapour name file '// TRIM(Vap_file)
+    else
+      Vap_file = 'ModelLib/required/empty.dat'
+      Use_atoms = .false.
+    end if
+    OPEN(unit=802, File= TRIM(Vap_file) , STATUS='OLD', iostat=ioi)
+    call handle_file_io(ioi, Vap_file, &
+        'If Condensation is used, "Vapour file" must be properly defined (in tab "Aerosol").')
 
     rows = ROWCOUNT(802)
     cols = COLCOUNT(802)
@@ -599,8 +605,8 @@ IF (Aerosol_flag) then
     END IF
 
 
-    print FMT_SUB, 'Compounds picked from Vapours file: '//TRIM(i2chr(VAPOUR_PROP%n_cond_org))
-    print FMT_SUB, 'Total number of condensibles      : '//TRIM(i2chr(VAPOUR_PROP%n_cond_tot))
+    IF (condensation) print FMT_SUB, 'Compounds picked from Vapours file: '//TRIM(i2chr(VAPOUR_PROP%n_cond_org))
+    IF (condensation) print FMT_SUB, 'Total number of condensibles      : '//TRIM(i2chr(VAPOUR_PROP%n_cond_tot))
 
     ! Reading the vap names and vap vapour_properties
     VAPOUR_PROP%ind_GENERIC = VAPOUR_PROP%n_cond_org
@@ -667,7 +673,7 @@ IF (Aerosol_flag) then
 
     ! In case GENERIC was not in Vapour file (should not happen if the file was from the GUI), add GENERIC with default values
     if (VAPOUR_PROP%vapour_names(VAPOUR_PROP%n_cond_org) /= 'GENERIC') THEN
-        print FMT_WARN0, 'The vapour file did not contain GENERIC, adding it now. You should update your vapour file.'
+        IF (condensation) print FMT_WARN0, 'The vapour file did not contain GENERIC, adding it now. You should update your vapour file.'
         ii = VAPOUR_PROP%n_cond_org
         VAPOUR_PROP%vapour_names(ii)  = 'GENERIC'
         VAPOUR_PROP%cond_type(ii)     = 1  ! Generic non-evaporating
@@ -754,7 +760,7 @@ IF (Aerosol_flag) then
     VAPOUR_PROP%alpha(ii)         = 1.0
     VAPOUR_PROP%c_sat(ii)         = 0.0 ! Sulfuric acid stays put
 
-  end if
+end if
 
   CALL CHECK_MODIFIERS ! Print out which modifiers differ from default values
 end subroutine READ_INPUT_DATA
