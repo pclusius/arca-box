@@ -21,7 +21,7 @@
 
 Module INPUT
 ! Module to read init file
-use second_Monitor
+use second_Monitor, ONLY: SPC_NAMES
 use second_Global, ONLY: NREACT
 USE second_precision, ONLY: dp
 use constants
@@ -1261,7 +1261,7 @@ END SUBROUTINE PARSE_MULTIMODAL
 
 SUBROUTINE PARSE_MULTIMODAL_EMS()
     IMPLICIT NONE
-    integer  :: temp(60) = 0, i,jjj1,jjj2,jjj3, M
+    integer  :: temp(297) = 0, i,jjj1,jjj2,jjj3, M
 
     do i=N_VARS-N_XTRS, N_VARS
       if (MODS(i)%ISPROVIDED) THEN
@@ -1270,17 +1270,17 @@ SUBROUTINE PARSE_MULTIMODAL_EMS()
         jjj3 = index(MODS(i)%NAME, '_emission') - 1
 
         if (jjj1>0) then
-          read(MODS(i)%NAME(jjj1:jjj1),*) M
+          read(MODS(i)%NAME(jjj1-1:jjj1),*) M
           temp(M * 3 - 2) = i
           N_MODAL_EMS = N_MODAL_EMS + 1
 
         else if (jjj2>0) then
-          read(MODS(i)%NAME(jjj2:jjj2),*) M
+          read(MODS(i)%NAME(jjj2-1:jjj2),*) M
           temp(M * 3 - 1) = i
           N_MODAL_EMS = N_MODAL_EMS + 1
 
         else if (jjj3>0) then
-          read(MODS(i)%NAME(jjj3:jjj3),*) M
+          read(MODS(i)%NAME(jjj3-1:jjj3),*) M
           temp(M * 3) = i
           N_MODAL_EMS = N_MODAL_EMS + 1
 

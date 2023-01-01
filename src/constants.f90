@@ -385,9 +385,9 @@ END FUNCTION UCONV
 ! and time of maximum at [mju]. Relies completely on the correct formulation
 ! of MODS (input_mod)
 !..............................................................................
-PURE REAL(dp) FUNCTION NORMALD(MODS, timein)
+PURE REAL(dp) FUNCTION NORMALD(MODS_, timein)
     IMPLICIT NONE
-    type(input_mod), INTENT(in) :: MODS
+    type(input_mod), INTENT(in) :: MODS_
     type(timetype), OPTIONAL, INTENT(in)  :: timein
     type(timetype)            :: time
     REAL(dp) :: f, D
@@ -397,19 +397,19 @@ PURE REAL(dp) FUNCTION NORMALD(MODS, timein)
         time = GTIME
     END IF
 
-    D       = MODS%mju + sin((GTIME%hrs-MODS%mju)*MODS%fv)*MODS%am + MODS%ph
-    f       = 1d0/SQRT(2d0*pi*MODS%sig**2)
-    NORMALD = f * EXP(- (GTIME%hrs-D)**2/(2d0*MODS%sig**2))
+    D       = MODS_%mju + sin((GTIME%hrs-MODS_%mju)*MODS_%fv)*MODS_%am + MODS_%ph
+    f       = 1d0/SQRT(2d0*pi*MODS_%sig**2)
+    NORMALD = f * EXP(- (GTIME%hrs-D)**2/(2d0*MODS_%sig**2))
     ! Check if minimum is same or more than maximum and if so, use constant concentration (minumum)
-    IF (ABS(MODS%max-MODS%min) <1e-12) THEN
-        NORMALD = MODS%min
+    IF (ABS(MODS_%max-MODS_%min) <1e-12) THEN
+        NORMALD = MODS_%min
     ELSE
-        if (MODS%MODE == 2) THEN
-            f = (LOG10(MODS%max-MODS%min+1))/f
-            NORMALD = 10**(NORMALD*f)-1 + MODS%min
-        ELSEIF  (MODS%MODE == 1) THEN
-            f = (MODS%max-MODS%min)/f
-            NORMALD = NORMALD*f + MODS%min
+        if (MODS_%MODE == 2) THEN
+            f = (LOG10(MODS_%max-MODS_%min+1))/f
+            NORMALD = 10**(NORMALD*f)-1 + MODS_%min
+        ELSEIF  (MODS_%MODE == 1) THEN
+            f = (MODS_%max-MODS_%min)/f
+            NORMALD = NORMALD*f + MODS_%min
         END IF
     END IF
 end FUNCTION NORMALD
