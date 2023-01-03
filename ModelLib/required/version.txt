@@ -1,9 +1,14 @@
+1.3.1
+Updates:
+- GUI: option for dark mode
+- GUI: config.ini file for global options
+
 1.3.0
 Updates:
 - aerosol emissions can be added as time-dependent modes (maximum number of modes is 99 but this will be very slow).
   Each mode consists of GMD [m], ln(sigma) [-] and emissions [s⁻¹]. Same input methods apply as for other inputs.
 - As a first step to particle phase chemistry, version 1.3 will be used to deliver parametric aging of particles.
--
+
 Fixes:
 - Fixed a problem when condensation was not used but vapour file still needed to be properly defined.
 - GUI: Added troubleshooting options for high dpi scaling
@@ -23,7 +28,6 @@ Fixes:
 1.2.1
 Fixes:
 - Fixed bug in GetVapourPressures.py which saved the wrong elemental composition of filtered sets
-
 
 1.2.0
 

@@ -41,6 +41,7 @@ import sys
 import pickle
 from urllib.parse import urljoin
 import csv
+from modules.config import get_config, set_config, remove_config
 
 try:
     from scipy.ndimage import gaussian_filter
@@ -74,6 +75,20 @@ QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) # e
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)    # use highdpi icons
 # See if scaling is necessary, currently only on Windows
 args = []
+
+# Get the dark/light mode settings
+_dark_mode = get_config("style", "darkmode", fallback='False')
+if _dark_mode.lower() == 'false' or _dark_mode.lower() == 'true':
+    dark_mode = eval('%s'%(_dark_mode.capitalize()))
+    set_config("style", "darkmode", str(dark_mode))
+if dark_mode:
+    icondir = 'dark'
+    darken_by = float(get_config("style", "darkness", fallback=0.35))
+    set_config("style", "darkness", str(darken_by))
+
+else:
+    icondir = 'light'
+
 if len(sys.argv)>1:
     for a in sys.argv:
         if '--scaling_' in a:
@@ -166,19 +181,27 @@ colors = [(120,0,0),(180,0,0),(220,0,0),(255,10,0),(255,85,0),
 # linetypes
 linetypes = [QtCore.Qt.SolidLine, QtCore.Qt.DashLine]
 # BG colour for ENV vars
-env_no = (215,238,244)
-env_yes = (128,179,255)
+env_no  = array((215,238,244))
+env_yes = array((128,179,255))
 # BG colour for ORG vars
-org_no = (243,240,239)
-org_yes = (172,147,147)
+org_no  = array((243,240,239))
+org_yes = array((172,147,147))
 
 # BG colour for XTR vars
-xtr_no = (255, 230, 128)
-xtr_yes = (212, 170, 0)
+xtr_no  = array((255, 230, 128))
+xtr_yes = array((212, 170, 0))
+
+if dark_mode:
+    org_yes = array(darken_by*org_yes,dtype=int)
+    org_no = array(darken_by*org_no,dtype=int)
+    env_yes = array(darken_by*env_yes,dtype=int)
+    env_no = array(darken_by*env_no,dtype=int)
+    xtr_yes = array(darken_by*xtr_yes,dtype=int)
+    xtr_no = array(darken_by*xtr_no,dtype=int)
 
 # icon
-modellogo = gui_path+"/icons/ArcaLogo.png"
-boxicon = gui_path+"/icons/thebox_ico.png"
+modellogo = gui_path+"/icons/%s/ArcaLogo.png"%icondir
+boxicon = gui_path+"/icons/%s/thebox_ico.png"%icondir
 CurrentVersion = "ARCA Box Model "
 # Some messages
 netcdfMissinnMes = ('Please note:',
@@ -827,6 +850,13 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
     # Common stuff
     # -----------------------
+        if dark_mode:
+            self.saveButton.setStyleSheet("background-image: url(\'ModelLib/gui/icons/dark/saveas.png\'); background-repeat: no-repeat;")
+            self.saveCurrentButton.setStyleSheet("background-image: url(\'ModelLib/gui/icons/dark/saveia.png\'); background-repeat: no-repeat;")
+            self.loadButton.setStyleSheet("background-image: url(\'ModelLib/gui/icons/dark/load.png\'); background-repeat: no-repeat;")
+            self.saveDefaults.setStyleSheet("background-image: url(\'ModelLib/gui/icons/dark/defaults.png\'); background-repeat: no-repeat;")
+            self.recompile.setStyleSheet("background-image: url(\'ModelLib/gui/icons/dark/recompile.png\'); background-repeat: no-repeat;")
+
         self.setAcceptDrops(True)
         self.setWindowTitle(CurrentVersion)
         self.setWindowIcon(QtGui.QIcon(boxicon))
@@ -869,6 +899,8 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionPrint_Custom_commands_cheat_sheet.triggered.connect(lambda: CustomCommandsCheatSheet())
         self.actionPlt_changes_from_current_dir.triggered.connect(self.plotChanges)
         self.actionShow_variable_attributes.triggered.connect(lambda: self.showOutputUpdate(info=True))
+        if dark_mode: self.actionAcommodateForDarkMode.setChecked(True)
+        self.actionAcommodateForDarkMode.triggered.connect(self.darkMode)
     # -----------------------
     # tab General options
     # -----------------------
@@ -1115,37 +1147,20 @@ Please provide valid spectral function.') \
         self.pollTimer.timeout.connect(self.pollMonitor)
         self.pollTimer.timeout.connect(self.updateOutput)
         self.pauseScroll.clicked.connect(lambda: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()))
-        if exists(osjoin(gui_path,monitorfont_pickle)):
-            try:
-                sf = pickle.load(open(osjoin(gui_path,monitorfont_pickle), "rb"))
-                self.mfont = self.MonitorWindow.font()
-                self.mfont.setFamily(sf[0])
-                self.mfont.setPointSize(sf[1])
-                self.mfont.setBold(sf[2])
-                self.mfont.setItalic(sf[3])
-                self.MonitorWindow.setFont(self.mfont)
-            except:
-                pass
-        else:
-            self.mfont = self.MonitorWindow.font()
-            savefont = [self.mfont.family(),self.mfont.pointSize(),self.mfont.bold(),self.mfont.italic()]
-            pickle.dump(savefont, open(osjoin(gui_path,monitorfont_pickle), 'wb'))
-
-        if exists(osjoin(gui_path,globalfont_pickle)):
-            try:
-                sf = pickle.load(open(osjoin(gui_path,globalfont_pickle), "rb"))
-                self.font = self.centralwidget.font()
-                self.font.setFamily(sf[0])
-                self.font.setPointSize(sf[1])
-                self.font.setBold(sf[2])
-                self.font.setItalic(sf[3])
-                self.centralwidget.setFont(self.font)
-            except:
-                pass
-        else:
-            self.font = self.centralwidget.font()
-            savefont = [self.font.family(),self.font.pointSize(),self.font.bold(),self.font.italic()]
-            pickle.dump(savefont, open(osjoin(gui_path,globalfont_pickle), 'wb'))
+        self.mfont = self.MonitorWindow.font()
+        self.mfont.setFamily(    get_config("fonts", "monitorfont",  fallback=str(self.mfont.family())   ) )
+        self.mfont.setPointSize( int (get_config("fonts", "monitorsize",  fallback=self.mfont.pointSize()) ) )
+        self.mfont.setBold(   eval("%s"%(get_config("fonts", "monitorbold",  fallback=str(self.mfont.bold()) ).capitalize()  ) ))
+        self.mfont.setItalic( eval("%s"%(get_config("fonts", "monitoritalic",fallback=str(self.mfont.italic()) ).capitalize()  ) ))
+        self.MonitorWindow.setFont(self.mfont)
+        self.savefonts(self.mfont, 'monitor')
+        self.font = self.centralwidget.font()
+        self.font.setFamily(    get_config("fonts", "globalfont",  fallback=str(self.font.family())   ) )
+        self.font.setPointSize( int (get_config("fonts", "globalsize",  fallback=self.font.pointSize()) ) )
+        self.font.setBold(   eval("%s"%(get_config("fonts", "globalbold",  fallback=str(self.font.bold()) ).capitalize()  ) ))
+        self.font.setItalic( eval("%s"%(get_config("fonts", "globalitalic",fallback=str(self.font.italic()) ).capitalize()  ) ))
+        self.centralwidget.setFont(self.font)
+        self.savefonts(self.font, 'global')
         self.viewPrintNML.clicked.connect(lambda: self.editTxtFile(SCREENPRINT_NML))
     # -----------------------
     # tab Output Graph
@@ -1337,6 +1352,11 @@ Please provide valid spectral function.') \
         else:
             self.dt.setValue(10.0)
 
+    def savefonts(self, font, name):
+        set_config("fonts", "%sfont"%name,   str(font.family())   )
+        set_config("fonts", "%ssize"%name,   str(font.pointSize()))
+        set_config("fonts", "%sbold"%name,   str(font.bold())     )
+        set_config("fonts", "%sitalic"%name, str(font.italic())   )
 
     def guiSetFont(self, wdgt, name, reset=False):
         if not reset:
@@ -1344,8 +1364,7 @@ Please provide valid spectral function.') \
             font, ok = dialog.getFont(wdgt.font(), parent=self)
             if ok:
                 wdgt.setFont(font)
-                savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
-                pickle.dump(savefont, open(osjoin(gui_path,globalfont_pickle.replace('global', name)), 'wb'))
+                self.savefonts(font, name)
         else:
             font = QtGui.QFont()
             font.setBold(False)
@@ -1361,8 +1380,7 @@ Please provide valid spectral function.') \
             else:
                 self.font = font
             wdgt.setFont(font)
-            savefont = [font.family(),font.pointSize(),font.bold(),font.italic()]
-            pickle.dump(savefont, open(osjoin(gui_path,globalfont_pickle.replace('global', name)), 'wb'))
+            self.savefonts(font, name)
 
     def splot(self,vals,N, nb, x0,x1):
         """Harry Plotter"""
@@ -1396,6 +1414,17 @@ Please provide valid spectral function.') \
             self.HPLotter.plot(x,Z/k,pen=pg.mkPen('w', width=4), clear=True, name='PSD')
             self.HPLotter.setLogMode(x=True)
             self.HPLotter.showGrid(x=True,y=True)
+
+
+    def darkMode(self):
+        msg = "The GUI is using system theme, but some colors are \
+adjusted for MODE mode. The settings are applied after the next application launch."
+        if self.actionAcommodateForDarkMode.isChecked():
+            self.popup('Dark mode', msg.replace('MODE', 'dark'), 0)
+            set_config("style", "darkmode",  'True')
+        else:
+            self.popup('Light mode', msg.replace('MODE', 'light'), 0)
+            set_config("style", "darkmode",  'False')
 
 
     def resetFont(self):
@@ -1492,7 +1521,7 @@ the numerical model or chemistry scheme differs from the current, results may va
 
     def show_currentInit(self,file):
         self.saveCurrentButton.setEnabled(True)
-        self.saveCurrentButton.setStyleSheet("background-image: url('%s'); background-repeat: no-repeat" %(gui_path+"icons/save.png"))
+        self.saveCurrentButton.setStyleSheet("background-image: url('%s'); background-repeat: no-repeat" %(gui_path+"icons/%s/save.png"%icondir))
         self.actionSave_to_current.setEnabled(True)
         self.currentInitFile.setText(file)
         self.setWindowTitle(CurrentVersion+': '+file)
