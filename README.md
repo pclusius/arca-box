@@ -82,6 +82,8 @@ The necessary Python modules are:
 
 - matplotlib (also optional, but recommended)
 
+- requests
+
 The setup.py script tries to install these using command [python3] -m pip install \--user [module], where [python3] is
 the call for the user's Python 3.
 
