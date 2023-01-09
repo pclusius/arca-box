@@ -1,7 +1,8 @@
 1.3.1
 Updates:
-- GUI: option for dark mode
-- GUI: config.ini file for global options
+- GUI: option to accomodate the gui for dark mode. Note, the gui still uses system theme, but the colours
+and logos in the GUI are tuned for fdark background.
+- GUI: gui_config.ini file for global options
 
 1.3.0
 Updates:
