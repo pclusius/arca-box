@@ -28,7 +28,7 @@ import pathlib
 
 from .resources import resource_path, open_resource
 
-_CONFIG_PATH = "conf/config.ini"
+_CONFIG_PATH = "conf/gui_config.ini"
 
 
 # Get a configuration value from the INI file
