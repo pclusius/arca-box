@@ -271,6 +271,8 @@ REAL(dp), ALLOCATABLE :: GR_bins(:)  ! used for GR calculation [m]
 Logical  :: CALC_GR                 = .True.
 Logical  :: ENABLE_END_FROM_OUTSIDE = .True.
 Logical  :: Use_old_composition     = .false.
+Logical  :: NETCDF_OUT              = .true.
+Logical  :: FINAL_CHEM_TXT          = .false.
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
 real(dp) :: DT_UPPER_LIMIT(3)       = [150d0,150d0,150d0]
@@ -292,7 +294,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, DT_UPPER_LIMIT, ENABLE_END_FROM_OUTSIDE, &
                       Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor,&
                       SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,INIT_ONLY, &
-                      FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS
+                      FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS,FINAL_CHEM_TXT,NETCDF_OUT
 
 ! ==================================================================================================================
 ! Define change range in percentage

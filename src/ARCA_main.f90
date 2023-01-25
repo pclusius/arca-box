@@ -135,6 +135,7 @@ IF (Chemistry_flag.or.Condensation) THEN
     ! This only called once for KPP in the beginning
     call READ_rates(CurrentChem)
     IF (Chemistry_flag) CALL KPP_SetUp(factorsForReactionRates)
+
 ENDIF
 ! ==================================================================================================================
 
@@ -311,7 +312,8 @@ call system('mv '//RUN_OUTPUT_DIR//'/InitBackup_temp.txt '//RUN_OUTPUT_DIR//'/In
 if (I/=0) print FMT_WARN0, "Could not save InitBackup.txt, is the file locked?"
 
 ! Open netCDF files
-CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChem,CurrentVers, MODS, CH_GAS, reactivities, VAPOUR_PROP,Vol_chamber)
+IF (NETCDF_OUT) &
+  CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChem,CurrentVers, MODS, CH_GAS, reactivities, VAPOUR_PROP,Vol_chamber)
 
 ! If wait_for was defined in user options, wait for a sec
 CALL PAUSE_FOR_WHILE(wait_for)
@@ -519,6 +521,7 @@ END IF
 
         IF (Chemistry_flag) Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRC%cch)), GTEMPK, max(0d0,TSTEP_CONC(inm_swr)),&
                     CH_Beta,CH_H2O, GC_AIR_NOW, GCS, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2, reactivities, swr_spectrum, SWR_IS_ACTINICFLUX)
+
 
         if ( ( minval(CH_GAS)<-1d2 ).and.GTIME%sec>100d0) print FMT_WARN0,&
         'Negative values from chemistry, setting to zero: '//SPC_NAMES(MINLOC(CH_GAS))//', '//TRIM(f2chr(MINVAL(CH_GAS)))
@@ -812,7 +815,7 @@ END IF
         ! end of condensation
     END IF in_turn_cch_2
 
-    
+
     in_turncoa: if (PRC%in_turn(PRC%coa)) THEN
 
         ! ..........................................................................................................
@@ -975,7 +978,8 @@ END IF in_turn_any
             WRITE(610,*) GTIME%sec, d_dpar(maxloc(abs(d_dpar),1)), d_npar(maxloc(abs(d_npar),1)), refdvap, d_npdep(maxloc(abs(d_npdep),1))
             FLUSH(610)
 
-            CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapour*1d-6,VAPOUR_PROP, save_measured,&
+            if (NETCDF_OUT) &
+              CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapour*1d-6,VAPOUR_PROP, save_measured,&
                             1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar,losses_fit)
             ! At this point the simulation can be stopped if desired
             if (ENABLE_END_FROM_OUTSIDE) CALL CHECK_IF_END_CMD_GIVEN
@@ -1039,7 +1043,8 @@ END IF
 
 
 ! Close output file netcdf
-CALL CLOSE_FILES(RUN_OUTPUT_DIR)
+if (NETCDF_OUT) &
+  CALL CLOSE_FILES(RUN_OUTPUT_DIR)
 if (OPTIMIZE_DT) THEN
     print*, 'Total rounds for chemistry and/or condensation: ', bookkeeping(1,1)
     print*, 'Total rounds for nucleation and/or coagulation: ', bookkeeping(2,1)
@@ -1457,7 +1462,7 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
             WRITE(604,*) GTIME%sec, get_conc()*1d-6
             save_measured = conc_fit/1d6
         END IF
-
+        IF (NETCDF_OUT) &
         CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapour*1d-6, VAPOUR_PROP, save_measured,&
                         1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar,losses_fit)
 
@@ -1618,6 +1623,14 @@ SUBROUTINE FINISH
     write(*,*)
     write(608,*) '---------- SIMULATION REACHED END SUCCESFULLY ------------'
     close(608)
+    if (FINAL_CHEM_TXT) THEN
+      OPEN(600,file=RUN_OUTPUT_DIR//"/CHEM_FINAL.txt",status='replace',action='write')
+      do ii = 1,size(CH_GAS)
+          WRITE(600,'(a,e12.3)') SPC_NAMES(ii), CH_GAS(ii)
+      end do
+      CLOSE(600)
+    end if
+
 
 END SUBROUTINE FINISH
 

@@ -1,0 +1,132 @@
+#--------------------------------------------------
+#      ARCA box setting file: test
+#         Created at: tammi 24 2023, 14:45:37
+#--------------------------------------------------
+
+&NML_PATH
+ INOUT_DIR = 'INOUT'
+ CASE_NAME = 'MCMC'
+ RUN_NAME = 'BASENOX'
+/ 
+
+&NML_FLAG
+ CHEMISTRY_FLAG = .TRUE.
+ AEROSOL_FLAG = .FALSE.
+ ACDC_SOLVE_SS = .FALSE.
+ ACDC = .FALSE.
+ CONDENSATION = .TRUE.
+ COAGULATION = .TRUE.
+ DEPOSITION = .FALSE.
+ CHEM_DEPOSITION = .FALSE.
+ MODEL_H2SO4 = .TRUE.
+ ORG_NUCL = .FALSE.
+ PRINT_ACDC = .FALSE.
+ OPTIMIZE_DT = .FALSE.
+ AFTER_CHEM_ON = .FALSE.
+ AFTER_NUCL_ON = .FALSE.
+ FILE_TIME_UNIT = 'day'
+ LOSSFILE_TIME_UNIT = 'day'
+/ 
+
+&NML_TIME
+ RUNTIME = 0.0028
+ DT = 0.01
+ FSAVE_INTERVAL = 50
+ PRINT_INTERVAL = 600
+ FSAVE_DIVISION = 10
+ DATE = ''
+ NUMBER = '0000'
+/ 
+
+&NML_PARTICLE
+ PSD_MODE = 1
+ N_BINS_PAR = 100
+ MIN_PARTICLE_DIAM = 1.07e-9
+ MAX_PARTICLE_DIAM = 2e-6
+ N_MODAL = 1000
+ MMODAL_INPUT_INUSE = 0
+ DMPS_FILE = ''
+ EXTRA_PARTICLES = ''
+ MMODAL_INPUT = '3e-8 0.15 0.5  1e-7 0.25 0.3'
+ DMPS_READ_IN_TIME = 1.0
+ DMPS_HIGHBAND_LOWER_LIMIT = 
+ DMPS_LOWBAND_UPPER_LIMIT = 
+ USE_DMPS = .TRUE.
+ USE_DMPS_PARTIAL = .FALSE.
+ DMPS_INTERVAL = 10.0
+/ 
+
+&NML_ENV
+ ENV_FILE = ''
+ SPECTRUMFILE = 'ModelLib/Photolyse/Spectra/swr_distribution_v1.2.txt'
+ SWR_IN_LOWER = 300
+ SWR_IN_UPPER = 4800
+ SWR_IS_ACTINICFLUX = .FALSE.
+ LOSSES_FILE = ''
+ CHAMBER_FLOOR_AREA = 0.0
+ CHAMBER_HEIGHT = 0.0
+ EDDYK = 0.05
+ USTAR = 0.05
+ ALPHAWALL = 5e-05
+ CW_EQV = 40e-6
+/ 
+
+&NML_MCM
+ MCM_FILE = ''
+/ 
+
+&NML_MODS
+ MODS(1)   =  0  -1  1.00000d+00  1.50000d+01  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'C' '' ! TEMPK
+ MODS(2)   =  0  -1  1.00000d+00  1.00000d+03  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'hPa' '' ! PRESSURE
+ MODS(6)   =  0  -1  1.00000d+00  5.00000d+02  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' '' ! SW_RADIATION
+ MODS(12)  =  0  -1  1.00000d+00  1.00000d+00  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' '' ! NO
+ MODS(13)  =  0  -1  1.00000d+00  1.00000d+01  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' '' ! NO2
+ MODS(16)  =  0  -1  1.00000d+00  2.00000d+01  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' '' ! O3
+ MODS(46)  =  0  -1  1.00000d+00  1.90000d+03  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 'ppb' '' ! CH4
+ MODS(163) =  0  -1  1.00000d+00  1.00000d+06  1.00000d+01  1.00000d+05 2.340000d0 12.000000d0 0.000000d0 0.000000d0 1.000000d0 '#' '' ! OH
+/ 
+
+&NML_MISC
+ LAT = 60.0
+ LON = -25.0
+ WAIT_FOR = 0
+ DESCRIPTION = 'Playing with methane'
+ CH_ALBEDO = 0.2
+ GR_SIZES = '3e-9,10e-9,20e-9'
+/ 
+
+&NML_VAP
+ USE_ATOMS = .TRUE.
+ VAP_NAMES = 'ModelLib/NANNOLAAL_1.2.2_ALL_1e-6.dat'
+ VAP_ATOMS = 'ModelLib/NANNOLAAL_1.2.2_ALL_1e-6_elements.dat'
+/ 
+
+&NML_ACDC
+ ACDC_SYSTEMS = 0,0,0,0,0
+ ACDC_links(1) = 'A H2SO4 N NH3'
+ ACDC_links(2) = 'A H2SO4 D DMA'
+ ACDC_links(3) = 'A H2SO4 D DMA'
+ ACDC_links(4) = 'A H2SO4 N NH3'
+ ACDC_links(5) = 'A H2SO4 N NH3'
+/ 
+
+&NML_PRECISION
+ DDIAM_RANGE = 0.200000,10.000000
+ DPNUM_RANGE = 0.200000,10.000000
+ DVAPO_RANGE = 0.200000,100.000000
+/ 
+
+&NML_CUSTOM
+ NETCDF_OUT = .false.
+ FINAL_CHEM_TXT = .true.
+/ 
+
+
+
+
+# Following settings are for the GUI and not directly used by the model ----- 
+# RAW_INPUT = 
+# INPUT_SETTINGS = 'env_file: mcm_file: dmps_file: extra_particles: losses_file: spectralFunctions:ModelLib/Photolyse/Spectra/swr_distribution_v1.2.txt stripRoot_env:.FALSE. stripRoot_mcm:.FALSE. stripRoot_par:.FALSE. stripRoot_xtr:.FALSE.'
+# BATCH_SETTINGS = 'batchRangeDayBegin:2020-01-01 batchRangeDayEnd:2020-01-05 batchRangeIndBegin:0 batchRangeIndEnd:0 indexRadioIndex:.TRUE. indexRadioDate:.FALSE. createBashFile:.FALSE. batchRangeDay:.TRUE. batchRangeInd:.FALSE.'
+#---------------------------------------------------------------------------- 
+
