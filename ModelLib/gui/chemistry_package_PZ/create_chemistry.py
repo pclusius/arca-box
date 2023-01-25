@@ -222,6 +222,8 @@ inline_file_lines = [ \
   '  REAL(dp) :: J(NPHOT)\n', \
   '\n', \
   '  REAL(dp) :: RES1, RES2\n', \
+  '  ! Enables changing reactions rates from the outside of chemistry \n', \
+  '  REAL(DP), SAVE :: R_F(NREACT) = 1d0\n', \
   '#ENDINLINE\n', \
   '\n', \
   '\n', \

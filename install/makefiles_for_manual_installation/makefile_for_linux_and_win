@@ -80,6 +80,13 @@ all: arcabox.exe
 version:
 	@echo \'$(VERSION)\'
 
+#
+reactions:
+	-@cp ModelLib/required/write_reactions.sh $(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.sh
+	-@cp ModelLib/required/save_reactions.f90 $(SRCDIR)/chemistry/$(CHMDIR)/save_reactions.f90
+	-@cd $(SRCDIR)/chemistry/$(CHMDIR); sh write_reactions.sh; rm write_reactions.sh save_reactions.f90
+
+
 # Linking ==============================================================================================================
 arcabox.exe: $(OD)/arcabox.o $(BOX_OBJECTS) $(CHEM_OBJECTS) $(ACDC_OBJECTS) $(PSD_OBJECTS)
 	$(F90) $(BOX_OPTS) $^ -o $@ $(NETLIBS)
@@ -122,11 +129,15 @@ $(OD)/$(BACDC)/dvode.o: $(SRCDIR)/ACDC/solvers/dvode.f
 
 # KPP chemistry ========================================================================================================
 
-$(OD)/$(CHMDIR)/%.o: $(SRCDIR)/chemistry/$(CHMDIR)/%.f90
+$(OD)/$(CHMDIR)/%.o: $(SRCDIR)/chemistry/$(CHMDIR)/%.f90 fixratesFile
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 
 BOX_MODS = $(BOX_OBJECTS:.o=.mod)
 ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
+
+fixratesFile:
+	@python ModelLib/required/editRateSource.py $(SRCDIR)/chemistry/$(CHMDIR)
+	@python3 ModelLib/required/editRateSource.py $(SRCDIR)/chemistry/$(CHMDIR)
 
 # Cleaning =============================================================================================================
 # 'clean' doesn't remove chemistry and acdc object files, since it takes very long time to compile them.

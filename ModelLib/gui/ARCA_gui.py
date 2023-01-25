@@ -29,12 +29,11 @@ from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, ravel, mean, round as npround
 import numpy.ma as ma
-from re import sub, finditer
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname, remove as osremove, rename as osrename
 from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin, relpath as osrelpath
 from shutil import copyfile as cpf
 from shutil import move as mvf
-from re import sub,IGNORECASE, findall, match
+from re import sub,IGNORECASE, findall, match, finditer
 import time
 import re
 import sys
@@ -3728,7 +3727,6 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         if self.running != None:
             if self.ReplChem.isChecked():
                 self.editMakefile(mod=self.chemistryModules.currentText())
-                fixOldChemistryInterface(self.chemistryModules.currentText())
                 writeRATESdat(self.chemistryModules.currentText())
                 if self.makeClean.isChecked():
                     target = "clean_current_chemistry"
@@ -3837,34 +3835,6 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 dummy = Comp()
 defCompound = Comp()
 
-def fixOldChemistryInterface(scheme):
-    # determine if the update is needed:
-    with open(osjoin('src','chemistry', scheme, 'second_Main.f90')) as file:
-        oldfile = False
-        for ln in file:
-            if re.search('SUBROUTINE KPP_SetUp\(\)', ln.strip('\n')) != None:
-                oldfile = True
-    if not oldfile:
-        return
-
-    print('\nApplying backward compatibility fix in second_Main.f90\n')
-
-    temp = open(osjoin('src','chemistry', scheme, 'second_Main.temp'), 'w+')
-    with open(osjoin('src','chemistry', scheme, 'second_Main.f90')) as file:
-        for ln in file:
-            if re.search('CONTAINS', ln.strip('\n')) != None:
-                temp.write('  REAL(DP), SAVE :: R_F(NREACT) = 1d0\n\nCONTAINS\n')
-            elif re.search('SUBROUTINE KPP_SetUp\(\)', ln.strip('\n')) != None:
-                temp.write('  SUBROUTINE KPP_SetUp(R_F_in)\n  REAL(DP), OPTIONAL :: R_F_in(NREACT)\n  IF (PRESENT(R_F_in)) R_F = R_F_in\n')
-            elif re.search('CALL Update_RCONST()', ln.strip('\n')) != None:
-                temp.write('    CALL Update_RCONST()\n\n    ! Modify rate constants\n    RCONST = RCONST * R_F\n')
-            else:
-                temp.write(ln)
-    temp.close()
-    osremove(osjoin('src','chemistry', scheme, 'second_Main.f90'))
-    osrename(osjoin('src','chemistry', scheme, 'second_Main.temp'),osjoin('src','chemistry', scheme, 'second_Main.f90'))
-    # Update mcm_module
-    cpf(osjoin(ccloc,'mcm_module.f90'),osjoin('src','chemistry', scheme, 'mcm_module.f90'))
 
 def writeRATESdat(scheme):
     commandstring = [currentPythonVer, osjoin(gui_path, 'modules', 'parseRates.py'), osjoin('src','chemistry', scheme)]
