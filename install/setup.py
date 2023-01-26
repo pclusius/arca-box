@@ -59,7 +59,11 @@ if not os.path.exists('makefile'):
         filename = 'makefile_for_linux_and_win'
     elif operatingsystem == 'Darwin':
         filename = 'makefile_for_mac'
-    cpf('install/makefiles_for_manual_installation/'+filename, 'makefile')
+    mfile = open('makefile', 'w+')
+    with open('install/makefiles_for_manual_installation/'+filename, 'r') as mfsource:
+        for line in mfsource:
+            mfile.write(line.replace('@python3','@%s'%python))
+    mfile.close()
 
 pyt = input('Install necessary Python packages? (y/n)?: ')
 

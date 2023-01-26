@@ -67,6 +67,8 @@ MODULE second_Global
 ! CFACTOR - Conversion factor for concentration units
   REAL(kind=dp) :: CFACTOR
 
+  ! Enables changing reactions rates from the outside of chemistry
+  REAL(DP), SAVE :: R_F(NREACT) = 1D0
 ! INLINED global variable declarations
  
  REAL(dp)::M, N2, O2, RO2, H2O 

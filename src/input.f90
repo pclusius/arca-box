@@ -22,7 +22,7 @@
 Module INPUT
 ! Module to read init file
 use second_Monitor, ONLY: SPC_NAMES
-use second_Global, ONLY: NREACT
+USE second_Parameters, ONLY: NREACT
 USE second_precision, ONLY: dp
 use constants
 USE auxillaries

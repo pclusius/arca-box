@@ -65,7 +65,7 @@ ACDC_OBJECTS = $(addprefix $(OD)/$(BACDC)/, dvode.o solution_settings_new.o $(fo
 acdc_simulation_setup_0x$(n).o acdc_equations_0x$(n).o driver_0x$(n).o get_acdc_J_0x$(n).o))
 
 # Main target ==========================================================================================================
-all: arcabox.exe
+all: fixratesFile arcabox.exe
 
 # Version information ==================================================================================================
 version:
@@ -119,14 +119,13 @@ $(OD)/$(BACDC)/dvode.o: $(SRCDIR)/ACDC/solvers/dvode.f
 
 # KPP chemistry ========================================================================================================
 
-$(OD)/$(CHMDIR)/%.o: $(SRCDIR)/chemistry/$(CHMDIR)/%.f90 fixratesFile
+$(OD)/$(CHMDIR)/%.o: $(SRCDIR)/chemistry/$(CHMDIR)/%.f90
 	 $(F90) $(CHEM_OPTS) -c $< -o $@
 
 BOX_MODS = $(BOX_OBJECTS:.o=.mod)
 ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
 
-fixratesFile:
-	@python ModelLib/required/editRateSource.py $(SRCDIR)/chemistry/$(CHMDIR)
+.PHONY fixratesFile:
 	@python3 ModelLib/required/editRateSource.py $(SRCDIR)/chemistry/$(CHMDIR)
 
 # Cleaning =============================================================================================================

@@ -1,7 +1,7 @@
 import sys,os,re,shutil
 
 f = sys.argv[1]
-
+unchanged = True
 if int(sys.version_info.major) < 3:
     exit('this script only works with Python3')
 
@@ -23,8 +23,8 @@ if hits==0:
     mod_Rfile = open(os.path.join(f,'second_Rates.f90'), "w")
     mod_Rfile.write(ratesfile)
     mod_Rfile.close()
+    unchanged = False
     print(' Edited second_Rates.f90 to accommodate manipulation of reaction constants from outside')
-
 
 hits = 0
 mainfile = ''
@@ -47,6 +47,7 @@ if hits>0:
     mod_Rfile = open(os.path.join(f,'second_Main.f90'), "w")
     mod_Rfile.write(mainfile)
     mod_Rfile.close()
+    unchanged = False
     print('Fixed old procedures in second_Main.f90 to v 1.3.2 (& >>)')
 
 
@@ -69,8 +70,13 @@ if hits==0:
     mod_Rfile = open(os.path.join(f,'second_Global.f90'), "w")
     mod_Rfile.write(mainfile)
     mod_Rfile.close()
+    unchanged = False
     print(' Edited second_Global.f90 to accommodate manipulation of reaction constants from outside')
+
 if hits>1:
     shutil.move(os.path.join(f,'second_Global.f90'),os.path.join(f,'second_Global_CHECK.f90'))
     print(''.join(['\n']*10)+'    second_Global.f90 is messed up, check manually and remove unnecessary R_F declarations')
     exit('    second_Global.f90 is renamed to second_Global_CHECK.f90 in %s'%f+''.join(['\n']*10))
+
+if unchanged:
+    print('  ---')
