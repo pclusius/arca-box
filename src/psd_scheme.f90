@@ -176,9 +176,9 @@ SUBROUTINE GeneratePSDarrays()
         current_PSD%particle_mass_fs = current_PSD%volume_fs * current_PSD%particle_density_fs
         ! get bin ratio:
         bin_ratio = current_PSD%diameter_fs(2)/current_PSD%diameter_fs(1)
-        ! Initialize concentration
+        ! Initialize concentration and composition
         current_PSD%conc_fs = 0.d0
-
+        current_PSD%composition_fs = 0.d0
     ! --------------------------
     ! MOVING AVERAGE, FIXED GRID
     ELSE IF (current_PSD%PSD_style == 2) THEN
@@ -205,8 +205,9 @@ SUBROUTINE GeneratePSDarrays()
         current_PSD%particle_mass_ma = current_PSD%volume_ma * current_PSD%particle_density_ma
         ! Get bin ratio:
         bin_ratio = current_PSD%grid_ma(2)/current_PSD%grid_ma(1)
-        ! Initialize concentration
+        ! Initialize concentration and composition
         current_PSD%conc_ma = 0.d0
+        current_PSD%composition_ma = 0.d0
 
     ELSE
         print*,'choose other form of representation:'
@@ -649,9 +650,8 @@ SUBROUTINE bin_redistribute_fs(ind)
     REAL(dp)            :: r1,r2 ! Contraction fractions that move to bin a and a-1, respectively
 
     !Find the bin numbers (aa-1, a) where the content goes to
-    aa = MINLOC(current_PSD%volume_fs-mix_PSD%volume_fs(ind),1, &
-    mask = (current_PSD%volume_fs-mix_PSD%volume_fs(ind)) >= 0.0_dp)
-
+      aa = MINLOC(current_PSD%volume_fs-mix_PSD%volume_fs(ind),1, &
+          mask = (current_PSD%volume_fs-mix_PSD%volume_fs(ind)) >= 0.0_dp)
 
     ! Move to largest bin or beyond
     IF (aa < 1) THEN
@@ -716,7 +716,7 @@ SUBROUTINE bin_redistribute_fs(ind)
     ! The particles stay in the same bin without any changes (should not happen)
     ELSE
         new_PSD%conc_fs(ind) = new_PSD%conc_fs(ind) + mix_PSD%conc_fs(ind)
-        ! print*, 'Trouble ahead: ',ind, aa, GTIME%sec, 'mix conc:', mix_PSD%conc_fs(ind)
+        ! print*, 'Trouble ahead: ',ind, aa, GTIME%sec, 'mix conc:', mix_PSD%conc_fs(ind)!, current_PSD%volume_fs,mix_PSD%volume_fs(ind)
     END IF
 END SUBROUTINE bin_redistribute_fs
 
