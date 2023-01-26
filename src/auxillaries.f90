@@ -388,7 +388,7 @@ end subroutine Multimodal
 
 !====================================================================================
 ! Calculates aerosol emissions in similar fashion as subroutine Multimodal, except
-! that emissions are per mode, not total concentrations.  
+! that emissions are per mode, not total concentrations.
 !....................................................................................
 subroutine aero_emissions(diameters, psd, descp)
     implicit none
@@ -406,7 +406,7 @@ subroutine aero_emissions(diameters, psd, descp)
         sig = descp((ii-1)*3+2)
         psd = psd + descp((ii-1)*3+3) * gauss(x, mu, sig)
     END DO
-
+    WHERE (PSD < MAXVAL(psd)/1D6) PSD = 0d0
 
 end subroutine aero_emissions
 
