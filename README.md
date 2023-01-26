@@ -22,7 +22,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 How to Install ARCA and the necessary software for it
 -----------------------------------------------------
 You will need C and Fortran compilers (gcc, gfortran, iFortran and/or similar) to compile the model. Model relies on
-NetCDF4 to save files, so you'll need that too. The user interface is written in Python 3.
+NetCDF4 to save files, so you'll need that too. Before using the python installer, make sure you have a working
+netCDF4. On Linux libnetcdf-dev and libnetcdff-dev are needed. The user interface is written in Python 3.
 
 How to install on Linux Mint / Ubuntu:
 ---------------------------------------
@@ -46,7 +47,17 @@ The best way install the necessary packages is with Cygwin. See this tutorial vi
 https://www.helsinki.fi/fi/unitube/video/7419bbe3-3fc8-493a-b076-7307d2e8191c
 
 To use the graphical user interface, you need Python 3. We strongly encourage to use the native Python on Windows
-instead of Linux Subsystem (although this may work also).
+instead of Linux Subsystem (although this may work also, please report if you find a good solution).
+
+
+How to install on MacOS:
+-------------------------
+
+Mac has changed there processor type from Intel to M1/2, and this has created some extra complications for some users.
+There seems to be a problem getting PyQt5 installed using the native python, but Miniconda seems to work well.
+Additionally, Macs do not have natively the necessary terminal tools, and Xcode is needed before installation of ARCA
+specific packages can begin. On the online manual, there is a link where the necessary steps are explained. Following
+those instructions the installations have so far always worked out.
 
 
 For all systems (except Puhti/CSC), when Fortran and Python 3 is available:
@@ -54,7 +65,7 @@ For all systems (except Puhti/CSC), when Fortran and Python 3 is available:
 
 After Python 3 is available, there is a script to set up the model. Go to directory install/, start the terminal and run
 setup.py (for example, if you call Python 3 with python3, the command is "python3 setup.py"). The setup will ask you to
-install the necessary Python Modules, if they are not available. If you want to use some other installation procedure for
+install the necessary Python modules, if they are not available. If you want to use some other installation procedure for
 them, or you know you already have the necessary modules, just answer "n" for the prompt.
 
 Next you will be asked if the Fortran model should be compiled. If this is succesful*, a starter script file is written
@@ -78,7 +89,7 @@ The necessary Python modules are:
 
 - pyqtgraph
 
-- netcdf4-python (optional, but highly recommended)
+- netcdf4-python
 
 - matplotlib (also optional, but recommended)
 
