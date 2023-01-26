@@ -81,17 +81,17 @@ using some other Fortran compiler than gfortran, you need to define this in the 
 The necessary Python modules are:
 ---------------------------------
 
-- numpy
-
-- scipy
-
 - PyQt5
 
 - pyqtgraph
 
 - netcdf4-python
 
-- matplotlib (also optional, but recommended)
+- numpy
+
+- scipy
+
+- matplotlib (optional, but recommended)
 
 - requests
 
