@@ -11,6 +11,9 @@ NETLIBS = -I/opt/local/include -L/opt/local/lib -L/usr/lib -lnetcdff -lnetcdf -l
 # Or this
 # NETLIBS = -I$(NETCDF_INCLUDE) -L$(NETCDF_LIB) -L$(H5_LIB) -lnetcdf -lnetcdff -lcurl -lhdf5 -lhdf5_hl
 
+# Or this
+# NETLIBS = -I/opt/local/include -L/opt/local/lib -L/usr/lib -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lnetcdff -lnetcdf -lcurl -lhdf5 -lhdf5_hl
+
 # ------------------------------- end NETCDF configuring ---------------------------------------
 
 
