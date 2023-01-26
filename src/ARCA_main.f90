@@ -715,6 +715,9 @@ END IF
         ! ..........................................................................................................
         ! ADD EMITTED PARTICLES TO PSD
 
+        dmass = 0d0
+        dconc_dep_mix = 0d0
+
         call aero_emissions(get_dp(), dconc_dep_mix, TSTEP_CONC(MMODES_EMS))
 
         ! Negative mixing ratio makes this emissions
@@ -840,6 +843,7 @@ END IF
                 call set_error(PRC%coa, 'Too large particle number change: '//f2chr(1d2*maxval(abs(d_npar)))//'%')
                 dconc_coag = 0.d0
             END IF
+
             ! Distribute mass
             if (.not. PRC%err) Call Mass_Number_Change('coagulation')
 
