@@ -212,12 +212,12 @@ currentdir   = currentdir.replace('/ModelLib/gui', '')
 currentdir_l = len(currentdir)
 chdir(currentdir)
 
-with open("ModelLib/required/version.txt") as f:
+with open("ModelLib/required/version.txt", encoding="utf-8") as f:
     for line in f: break
 CurrentVersion += line.strip('\n\r').strip('\n')
 
 helpd = {}
-with open(osjoin(gui_path,'conf','helplinks.txt'), 'r') as b:
+with open(osjoin(gui_path,'conf','helplinks.txt'), 'r', encoding="utf-8") as b:
     for l in b:
         ll = l.replace('\n','').replace('\r\n','')
         if ll != '':
@@ -3474,7 +3474,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         if self.ShowPPC.isChecked():
             self.toggleppm('off')
             PPconc = True
-            self.plotResultWindow.setBackground(org_no)
+            self.plotResultWindow.setBackground('#F3F0EF')
 
         else:
             PPconc = False
