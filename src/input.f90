@@ -736,13 +736,6 @@ IF (Aerosol_flag) then
 
     end if
 
-    ! Now the volumes are updated, the diameter can be calculated
-    VAPOUR_PROP%molec_dia = (6D0 * VAPOUR_PROP%molec_volume / pi )**(1D0/3D0)  ! molecular diameter [m]
-    if (use_diff_dia_from_diff_vol) THEN
-        VAPOUR_PROP%diff_dia = (6D0 * 1d-30 * VAPOUR_PROP%diff_vol / pi )**(1D0/3D0)  ! molecular diameter [m]
-    ELSE
-        VAPOUR_PROP%diff_dia = VAPOUR_PROP%molec_dia  ! molecular diameter [m]
-    END IF
     ! ---------------------------------------------------------------------
     ! Sulfuric acid treated separately
     ! ---------------------------------------------------------------------
@@ -756,11 +749,19 @@ IF (Aerosol_flag) then
     VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
     VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
     VAPOUR_PROP%diff_vol(ii)      = 4*6.11D0 + 2*2.31D0 + 22.9D0 ! O=4, H=2, S=1
-    VAPOUR_PROP%diff_dia(ii)      = VAPOUR_PROP%molec_dia(ii)
     VAPOUR_PROP%surf_tension(ii)  = 0.07
     VAPOUR_PROP%molec_dia(ii)     = (6D0 * VAPOUR_PROP%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
     VAPOUR_PROP%alpha(ii)         = 1.0
     VAPOUR_PROP%c_sat(ii)         = 0.0 ! Sulfuric acid stays put
+    VAPOUR_PROP%diff_dia(ii)      = VAPOUR_PROP%molec_dia(ii)
+
+    ! Now the volumes are updated, the diameter can be calculated
+    VAPOUR_PROP%molec_dia(:ii-1) = (6D0 * VAPOUR_PROP%molec_volume(:ii-1) / pi )**(1D0/3D0)  ! molecular diameter [m]
+    if (use_diff_dia_from_diff_vol) THEN
+        VAPOUR_PROP%diff_dia(:ii-1) = (6D0 * 1d-30 * VAPOUR_PROP%diff_vol(:ii-1) / pi )**(1D0/3D0)  ! molecular diameter [m]
+    ELSE
+        VAPOUR_PROP%diff_dia(:ii-1) = VAPOUR_PROP%molec_dia(:ii-1)  ! molecular diameter [m]
+    END IF
 
 end if
 
