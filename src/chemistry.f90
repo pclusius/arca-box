@@ -89,34 +89,26 @@ SUBROUTINE CHEMCALC(CONS, TIME_kpp, END_kpp, Tp, SWDWN, Beta, H2O, AIR, RES1, RE
 
     ! Global variables for chemistry module:
 
-    INTEGER                        :: J1, I
-    LOGICAL, SAVE                  :: first_call = .TRUE.
-
-    LOGICAL, INTENT(in)            :: swr_is_af
-
-    REAL(dp), INTENT(inout)        :: CONS(NSPEC)                ! Concentrations of all gas compounds
-
-    REAL(dp), INTENT(out)          :: RO2_out                    ! Concentration of peroxy radical
-
-    REAL(dp), DIMENSION(75)        :: I_ACF                      ! Calculated actinic flux from 280-650nm
-    ! REAL(dp), DIMENSION(84), SAVE  :: swr_dis                    ! Distribution of solar radiation measured at SMEAR II
-
-    REAL(dp), INTENT(in)           :: TIME_kpp, END_kpp,       & ! Model time in sec and same time plus chemical timestep
-                                      H2O,                     & ! Water vapour concentration
-                                      AIR,                     & ! air molecules - calculated in the main file
-                                      Beta,                    & ! Solar elevation angle
-                                      Tp,                      & ! Temperature [K]
-                                      SWDWN,                   & ! Global short wave radiation
-                                      RES1, RES2,              & ! Condensation sink for H2SO4 and HNO3
-                                      Albedo,                  & ! Albedo
-                                      swr_dis(:)                 ! Spectral data - either distribution or absolute values
-
-    REAL(dp)                       :: O2,                      & ! O2-concentration in molecule / cm3
-                                      H2,                      & ! H2-concentration in molecule / cm3
-                                      N2,                      & ! N2-concentration in molecule / cm3
-                                      MO2N2,                   & ! MO2N2: Sum of O2 and N2 concentration
-                                      ZSD                        ! Solar zenith angle
-    REAL(DP)                       :: reactivities(:)
+    LOGICAL,  INTENT(in)    :: swr_is_af
+    REAL(dp), INTENT(out)   :: CONS(NSPEC)               ! Concentrations of all gas compounds
+    REAL(dp), INTENT(out)   :: RO2_out                   ! Concentration of peroxy radical
+    REAL(dp), INTENT(in)    :: TIME_kpp, END_kpp         ! Model time in sec and same time plus chemical timestep
+    REAL(dp), INTENT(in)    :: H2O                       ! Water vapour concentration
+    REAL(dp), INTENT(in)    :: AIR                       ! air molecules - calculated in the main file
+    REAL(dp), INTENT(in)    :: Beta                      ! Solar elevation angle
+    REAL(dp), INTENT(in)    :: Tp                        ! Temperature [K]
+    REAL(dp), INTENT(in)    :: SWDWN                     ! Global short wave radiation
+    REAL(dp), INTENT(in)    :: RES1, RES2                ! Condensation sink for H2SO4 and HNO3
+    REAL(dp), INTENT(in)    :: Albedo                    ! Albedo
+    REAL(dp), INTENT(in)    :: swr_dis(:)                ! Spectral data - either distribution or absolute values
+    REAL(DP), INTENT(out)   :: reactivities(:)
+    REAL(dp)                :: I_ACF(75)                 ! Calculated actinic flux from 280-650nm
+    REAL(dp)                :: O2                        ! O2-concentration in molecule / cm3
+    REAL(dp)                :: H2                        ! H2-concentration in molecule / cm3
+    REAL(dp)                :: N2                        ! N2-concentration in molecule / cm3
+    REAL(dp)                :: MO2N2                     ! MO2N2: Sum of O2 and N2 concentration
+    REAL(dp)                :: ZSD                       ! Solar zenith angle
+    INTEGER                 :: I
 
     ! Calculation of O2, N2, H2 and MO2N2 in molecule / cm3:
     O2        = 0.209460 * Air
