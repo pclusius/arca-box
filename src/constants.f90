@@ -200,10 +200,11 @@ END TYPE PSD
 ! This datatype contains all parameters for input vapours
 type :: vapour_ambient
     integer                         :: n_cond_org            ! number of organics, all type 1
-    integer                         :: n_cond_tot            ! number of all vapours, all type 1+2 (including acids, generic etc.)
+    integer                         :: n_cond_ino            ! number of inorganic, all type 2+
+    integer                         :: n_cond_tot            ! number of all vapours, all types 1+2+3 (including acids, generic etc.)
     integer                         :: ind_H2SO4            ! index for H2SO4
     integer                         :: ind_GENERIC          ! index of GENERIC composition
-    integer, allocatable            :: cond_type(:)         ! 1 = Organic vapour 2 = Acid (that's it for the moment)
+    integer, allocatable            :: cond_type(:)         ! 0 = Non-evaporating Generic, 1 = Organic vapour 2 = Acid 3=Base. cond_type >= 2 are inorganics
     real(dp), allocatable           :: molar_mass(:)        ! molar mass [kg]
     real(dp), allocatable           :: psat_a(:), psat_b(:) ! Parameters to calculate sat. vapour press.: log10(Psat) = a-b/T Psat=[atm]
     real(dp), allocatable           :: alpha(:)             ! accomodation coefficient i.e. "sticking coef."= 1.0 []
@@ -222,7 +223,19 @@ type :: vapour_ambient
     real(dp), allocatable           :: c_sat(:)             ! saturation concentration 1/m3
     real(dp), allocatable           :: mfractions(:)        ! dimension(tot_spec) mole fractions
     character(len=25), allocatable  :: vapour_names(:)      ! Must match those in chemistry, come from "Vapours file"
+    integer , allocatable           :: VBS_BINS(:,:)        ! index of VBS bin, from the lowest Psat
 end type vapour_ambient
+
+TYPE :: vapourfile_input
+  CHARACTER(len=32) :: Compound = 'NONAME'
+  REAL(DP) :: Mass    = 0d0
+  REAL(DP) :: par_A   = 0d0
+  REAL(DP) :: par_B   = 0d0
+  REAL(DP) :: st      = 0d0
+  REAL(DP) :: alpha_w = 0d0
+  REAL(DP) :: density = 0d0
+  REAL(DP) :: henry   = 0d0
+END TYPE vapourfile_input
 
 
 ! ------------------------------------------------------------
