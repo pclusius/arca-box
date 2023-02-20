@@ -31,10 +31,10 @@ Implicit none
 
 ! Relative path to NAMES.DAT
 CHARACTER(27), PARAMETER :: NAMESDAT = 'ModelLib/required/NAMES.dat'
+CHARACTER(31), PARAMETER :: INORGANIC = 'ModelLib/required/INORGANIC.dat'
 CHARACTER(27), PARAMETER :: XTRASDAT = 'ModelLib/required/AEMS.dat'
-
 INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
-INTEGER :: N_XTRS ! This will store the number of variables in NAMES.DAT
+INTEGER :: N_XTRS ! This will store the number of variables in AEMS.DAT
 INTEGER :: LENV   ! This will store the number of named indices in this code
 
 ! INDICES TO PROPERLY COMBINE INPUT TO CORRECT VALUES IN THE MODEL
@@ -65,6 +65,7 @@ INTEGER :: N_CONCENTRATIONS = 0
 INTEGER, ALLOCATABLE :: INDRELAY_CH(:)
 INTEGER, ALLOCATABLE :: INDRELAY_TIED(:)
 INTEGER, ALLOCATABLE :: index_cond(:)
+! INTEGER, ALLOCATABLE :: index_inorg(:)
 
 REAL(dp), allocatable, private :: INPUT_ENV(:,:)  ! will be of same shape as the files
 REAL(dp), allocatable, private :: INPUT_MCM(:,:)  ! will be of same shape as the files
@@ -176,7 +177,7 @@ NAMELIST /NML_PARTICLE/ PSD_MODE,n_bins_par,min_particle_diam,max_particle_diam,
                         mmodal_input, N_MODAL, mmodal_input_inuse, dmps_interval
 
 REAL(dp), ALLOCATABLE            :: MMODES(:)       ! Modal PSD parameters
-REAL(dp), ALLOCATABLE            :: MMODES_EMS(:)   ! Modal PSD emission parameters
+INTEGER,  ALLOCATABLE            :: MMODES_EMS(:)   ! Modal PSD emission parameters
 INTEGER                          :: N_MODAL_EMS = 0 ! number of modes in multimodal intialization
 
 type(particle_grid), ALLOCATABLE :: xtras(:)
@@ -286,6 +287,9 @@ real(dp) :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! [#/cm3] lower threshold of concentra
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .true.
 REAL(dp) :: factorsForReactionRates(NREACT) = 1d0   ! factors to modify chemical reaction rates (optionally)
+INTEGER,PARAMETER :: NVBS = 6
+REAL(DP) :: VBS_LIMITS(NVBS-1) = [-8.5,-4.5,-0.5,2.5,6.0]
+CHARACTER(8) :: VBS_NAMES(NVBS) = ['ULVOC   ','ELVOC   ','LVOC    ','SVOC    ','IVOC    ','REST    ']
 
 NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       start_time_s, dmps_multi, INITIALIZE_WITH,INITIALIZE_FROM, VP_MULTI,&
@@ -294,7 +298,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, DT_UPPER_LIMIT, ENABLE_END_FROM_OUTSIDE, &
                       Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor,&
                       SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,INIT_ONLY, &
-                      FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS,FINAL_CHEM_TXT,NETCDF_OUT
+                      FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS,FINAL_CHEM_TXT,NETCDF_OUT,VBS_LIMITS,VBS_NAMES
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -344,15 +348,25 @@ subroutine READ_INPUT_DATA()
     integer, allocatable              :: Natoms(:,:)
     integer                           :: ioi, ii, ind_core
     integer                           :: i, j, k, jj, path_l(2), N_Xtr = 0
-    integer                           :: rows, cols
+    integer                           :: rows, cols, class
     LOGICAL                           :: elements_missing = .false.
-    real(dp)                          :: molar_mass, parameter_A, parameter_B,SURFACE_TENSION_buf=-1d0, ALPHAWALL_buf=-1d0
+    real(dp)                          :: molar_mass, parameter_A, parameter_B,SURFACE_TENSION_buf=-1d0, ALPHAWALL_buf=-1d0,Henry, rho
     CHARACTER(len=256)                :: species_name
     CHARACTER(len=20), ALLOCATABLE    :: atoms_name(:)
     CHARACTER(len=2)    :: noacd
     INTEGER             :: nr_of_acdc_modules = 0   ! Number of ACDC submodules NOTE this number is (and should be) defined in
                                                     ! makefile variable NMACDC, because the number of ACDC systems is essentially
                                                     ! only limited upon compilation)
+    TYPE(vapourfile_input)  :: vap_in,default_vap
+    LOGICAL                 :: CSV_INPUT = .false.
+
+    default_vap%Compound = 'NONAME'
+    default_vap%Mass     = 0d0
+    default_vap%par_A    = 0d0
+    default_vap%par_B    = 0d0
+    default_vap%st       = SURFACE_TENSION
+    default_vap%alpha_w  = ALPHAWALL
+    default_vap%density  = ORGANIC_DENSITY
 
 ! This block is handled by C preprocessor --------------------------!
 #ifdef NMACDC
@@ -454,7 +468,11 @@ subroutine READ_INPUT_DATA()
         OPEN(unit=801, File=TRIM(ENV_file), ACTION='READ', STATUS='OLD', iostat=ioi)
         CALL handle_file_io(ioi, ENV_file, 'Terminating on CONCMAT allocation')
         rows = ROWCOUNT(801,'#')
-        cols = COLCOUNT(801)
+        if ('.CSV' == UCASE(ENV_file(len(TRIM(ENV_file))-3:len(TRIM(ENV_file))))) THEN
+          cols = COLCOUNT(801, ',')
+        ELSE
+          cols = COLCOUNT(801)
+        END IF
         ALLOCATE(INPUT_ENV(rows,cols))
         INPUT_ENV = 0
         call FILL_INPUT_BUFF(801,cols,INPUT_ENV,ENV_file)
@@ -466,7 +484,11 @@ subroutine READ_INPUT_DATA()
     if (MCM_file /= '') THEN
         OPEN(unit=801, File=TRIM(MCM_file), ACTION='READ', STATUS='OLD')
         rows = ROWCOUNT(801,'#')
-        cols = COLCOUNT(801)
+        if ('.CSV' == UCASE(MCM_file(len(TRIM(MCM_file))-3:len(TRIM(MCM_file))))) THEN
+          cols = COLCOUNT(801, ',')
+        ELSE
+          cols = COLCOUNT(801)
+        END IF
         allocate(INPUT_MCM(rows,cols))
         INPUT_MCM = 0
         call FILL_INPUT_BUFF(801,cols,INPUT_MCM,MCM_file)
@@ -540,6 +562,7 @@ IF (Aerosol_flag) then
     print FMT_LEND,
     IF (condensation) THEN
       Vap_file = Vap_names
+      if ('.CSV' == UCASE(Vap_file(len(TRIM(Vap_file))-3:len(TRIM(Vap_file))))) CSV_INPUT = .true.
       write(*,FMT_MSG) 'Reading Vapour name file '// TRIM(Vap_file)
     else
       Vap_file = 'ModelLib/required/empty.dat'
@@ -569,10 +592,27 @@ IF (Aerosol_flag) then
     end do
     REWIND(802)
 
+    write(*,FMT_MSG) 'Reading list of particle phase inorganics '// TRIM(INORGANIC)
+    OPEN(unit=803, File= TRIM(INORGANIC) , STATUS='OLD', iostat=ioi)
+    call handle_file_io(ioi, INORGANIC, &
+        'Could not access list of inorganics '//INORGANIC)
+    rows = ROWCOUNT(803)
+
+    VAPOUR_PROP%n_cond_ino = 0
+
+    do j = 1,rows
+        read(803,*,iostat=ioi) species_name
+        k = IndexFromName( TRIM(species_name), SPC_NAMES )
+        if (k>0) THEN
+            VAPOUR_PROP%n_cond_ino = VAPOUR_PROP%n_cond_ino + 1
+        end if
+    end do
+
+    REWIND(803)
     ! Here we account for the non-volatile pseudocompound GENERIC
     VAPOUR_PROP%n_cond_org = VAPOUR_PROP%n_cond_org + 1
     ! Here we add place for sulfuric acid, non-organic
-    VAPOUR_PROP%n_cond_tot = VAPOUR_PROP%n_cond_org + 1
+    VAPOUR_PROP%n_cond_tot = VAPOUR_PROP%n_cond_org + VAPOUR_PROP%n_cond_ino
 
     allocate(VAPOUR_PROP%Vapour_names (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%molar_mass   (VAPOUR_PROP%n_cond_tot) )
@@ -592,12 +632,15 @@ IF (Aerosol_flag) then
     allocate(VAPOUR_PROP%alphawall    (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%diff_vol     (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%diff_dia     (VAPOUR_PROP%n_cond_tot) )
-
+    allocate(VAPOUR_PROP%VBS_BINS     (VAPOUR_PROP%n_cond_org-1, NVBS) )
+    VAPOUR_PROP%VBS_BINS = 0
     ! This is the vector that combines chemistry and condensible vapours.
     ! -1 because GENERIC is not in gas phase. Ever. H2SO4 is picked from chemistry manually
-    ALLOCATE(index_cond(VAPOUR_PROP%n_cond_org-1))
+    ALLOCATE(index_cond(VAPOUR_PROP%n_cond_tot))
+    ! ALLOCATE(index_inorg(VAPOUR_PROP%n_cond_org+1:VAPOUR_PROP%n_cond_tot))
 
     index_cond = 0
+    ! index_inorg = 0
 
     if (USE_RH_CORRECTION) THEN
         ! These are only allocated for sulfuric acid, maybe nitric acid in the future.
@@ -619,12 +662,24 @@ IF (Aerosol_flag) then
     ! ---------------------------------------------------------------------
     ! ORGANIC VAPOUR PROPERTIES
     ! ---------------------------------------------------------------------
+    rows = ROWCOUNT(802)
     ii = 1
     do j = 1, rows
-        if (cols==4) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B
-        if (cols==5) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, SURFACE_TENSION_buf
-        if (cols==6) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, SURFACE_TENSION_buf, ALPHAWALL_buf
-
+        if (CSV_INPUT) THEN
+          read(802,*,iostat=ioi) vap_in
+          species_name        = vap_in%Compound
+          molar_mass          = vap_in%Mass
+          parameter_A         = vap_in%par_A
+          parameter_B         = vap_in%par_B
+          SURFACE_TENSION_buf = vap_in%st
+          ALPHAWALL_buf       = vap_in%alpha_w
+          rho                 = vap_in%density
+          vap_in              = default_vap
+        ELSE
+          if (cols==4) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B
+          if (cols==5) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, SURFACE_TENSION_buf
+          if (cols==6) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, SURFACE_TENSION_buf, ALPHAWALL_buf
+        end IF
         if (j<=limit_vapours .or. j==rows) THEN ! j==rows is because "GENERIC" is selected even if limitvapours<rows
 
             ! Check if the compounds exists in Chemistry and only then add to vapours
@@ -640,24 +695,25 @@ IF (Aerosol_flag) then
                 VAPOUR_PROP%psat_b(ii)       = parameter_B
                 VAPOUR_PROP%vapour_names(ii) = TRIM(species_name)
                 VAPOUR_PROP%molec_mass(ii)   = VAPOUR_PROP%molar_mass(ii)/Na  !kg/#
-                VAPOUR_PROP%cond_type(ii)    = 1
                 if (TRIM(species_name)=='GENERIC') THEN
+                    VAPOUR_PROP%cond_type(ii) = 0  ! Generic non-evaporating
                     VAPOUR_PROP%density(ii)   = HARD_CORE_DENSITY  ! kg/m3
                 ELSE
+                    VAPOUR_PROP%cond_type(ii) = 1  ! Organic compound
                     VAPOUR_PROP%density(ii)   = ORGANIC_DENSITY  ! kg/m3
                 END IF
                 VAPOUR_PROP%molec_volume(ii) = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
                 VAPOUR_PROP%diff_vol(ii)     = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
 
                 if (cols==4) VAPOUR_PROP%surf_tension(ii) = SURFACE_TENSION
-                if (cols>=5) THEN
+                if (cols>=5.or.CSV_INPUT) THEN
                     if (SURFACE_TENSION_buf<0d0) VAPOUR_PROP%surf_tension(ii) = abs(SURFACE_TENSION_buf)*SURFACE_TENSION
                     if (SURFACE_TENSION_buf>=0d0) VAPOUR_PROP%surf_tension(ii) = SURFACE_TENSION_buf
                 end if
                 SURFACE_TENSION_buf = -1d0
 
                 if (cols<6) VAPOUR_PROP%alphawall(ii) = ALPHAWALL
-                if (cols>=6) THEN
+                if (cols>=6.or.CSV_INPUT) THEN
                     if (ALPHAWALL_buf<0d0) VAPOUR_PROP%alphawall(ii) = abs(ALPHAWALL_buf)*ALPHAWALL
                     if (ALPHAWALL_buf>=0d0) VAPOUR_PROP%alphawall(ii) = ALPHAWALL_buf
                 end if
@@ -673,12 +729,43 @@ IF (Aerosol_flag) then
     end do
     close(802)
 
+    ! READ INORGANICS
+    rows = ROWCOUNT(803)
+    ii = VAPOUR_PROP%n_cond_org + 1
+    do j = 1, rows
+        read(803,*,iostat=ioi)   species_name, molar_mass, Henry, rho, class
+        ! Check if the compounds exists in Chemistry and only then add to vapours
+        k = IndexFromName( species_name, SPC_NAMES )
+
+        if (k>0) THEN
+            index_cond(ii) = k
+
+            ! fill the hash table for vapour index -> chemistry index
+
+            VAPOUR_PROP%molar_mass(ii)   = molar_mass *1D-3 ! kg/mol
+            VAPOUR_PROP%vapour_names(ii) = TRIM(species_name)
+            VAPOUR_PROP%molec_mass(ii)   = VAPOUR_PROP%molar_mass(ii)/Na  !kg/#
+            VAPOUR_PROP%cond_type(ii) = class  ! some other compound
+            VAPOUR_PROP%density(ii)   = rho  ! kg/m3
+
+            VAPOUR_PROP%molec_volume(ii) = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
+            VAPOUR_PROP%diff_vol(ii)     = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
+            VAPOUR_PROP%surf_tension(ii) = 0d0
+            VAPOUR_PROP%alpha(ii)        = 1.0
+            VAPOUR_PROP%c_sat(ii)        = 0d0
+
+            ii = ii + 1
+        END IF
+    end do
+    close(803)
+
+
     ! In case GENERIC was not in Vapour file (should not happen if the file was from the GUI), add GENERIC with default values
     if (VAPOUR_PROP%vapour_names(VAPOUR_PROP%n_cond_org) /= 'GENERIC') THEN
         IF (condensation) print FMT_WARN0, 'The vapour file did not contain GENERIC, adding it now. You should update your vapour file.'
         ii = VAPOUR_PROP%n_cond_org
         VAPOUR_PROP%vapour_names(ii)  = 'GENERIC'
-        VAPOUR_PROP%cond_type(ii)     = 1  ! Generic non-evaporating
+        VAPOUR_PROP%cond_type(ii)     = 0  ! Generic non-evaporating
         VAPOUR_PROP%molar_mass(ii)    = 437.0 * 1d-3
         VAPOUR_PROP%psat_a(ii)        = 10
         VAPOUR_PROP%psat_b(ii)        = 1d4
@@ -736,16 +823,6 @@ IF (Aerosol_flag) then
 
     end if
 
-    ! Now the volumes are updated, the diameter can be calculated
-    VAPOUR_PROP%molec_dia = (6D0 * VAPOUR_PROP%molec_volume / pi )**(1D0/3D0)  ! molecular diameter [m]
-    if (use_diff_dia_from_diff_vol) THEN
-        VAPOUR_PROP%diff_dia = (6D0 * 1d-30 * VAPOUR_PROP%diff_vol / pi )**(1D0/3D0)  ! molecular diameter [m]
-    ELSE
-        VAPOUR_PROP%diff_dia = VAPOUR_PROP%molec_dia  ! molecular diameter [m]
-    END IF
-    ! ---------------------------------------------------------------------
-    ! Sulfuric acid treated separately
-    ! ---------------------------------------------------------------------
     ii = VAPOUR_PROP%n_cond_tot
     VAPOUR_PROP%vapour_names(ii)  = 'H2SO4'
     VAPOUR_PROP%cond_type(ii)     = 2  ! Acid
@@ -756,11 +833,19 @@ IF (Aerosol_flag) then
     VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
     VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
     VAPOUR_PROP%diff_vol(ii)      = 4*6.11D0 + 2*2.31D0 + 22.9D0 ! O=4, H=2, S=1
-    VAPOUR_PROP%diff_dia(ii)      = VAPOUR_PROP%molec_dia(ii)
     VAPOUR_PROP%surf_tension(ii)  = 0.07
     VAPOUR_PROP%molec_dia(ii)     = (6D0 * VAPOUR_PROP%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
     VAPOUR_PROP%alpha(ii)         = 1.0
     VAPOUR_PROP%c_sat(ii)         = 0.0 ! Sulfuric acid stays put
+    VAPOUR_PROP%diff_dia(ii)      = VAPOUR_PROP%molec_dia(ii)
+
+    ! Now the volumes are updated, the diameter can be calculated
+    VAPOUR_PROP%molec_dia(:ii-1) = (6D0 * VAPOUR_PROP%molec_volume(:ii-1) / pi )**(1D0/3D0)  ! molecular diameter [m]
+    if (use_diff_dia_from_diff_vol) THEN
+        VAPOUR_PROP%diff_dia(:ii-1) = (6D0 * 1d-30 * VAPOUR_PROP%diff_vol(:ii-1) / pi )**(1D0/3D0)  ! molecular diameter [m]
+    ELSE
+        VAPOUR_PROP%diff_dia(:ii-1) = VAPOUR_PROP%molec_dia(:ii-1)  ! molecular diameter [m]
+    END IF
 
 end if
 
@@ -854,15 +939,6 @@ subroutine READ_INIT_FILE
 
   CLOSE(888)
 
-
-  ! IF (SUM(ABS(IOS)) /= 0) then
-  !     write(*,FMT_MSG) 'There was a problem with INITFILE. Maybe an older version?'
-  !     DO i=1,size(IOS,1)
-  !         write(*,FMT_SUB) TRIM(namelists(i))//' ('//TRIM(i2chr(I))//') returned '//TRIM(i2chr(IOS(i)))
-  !     END DO
-  !     write(*,FMT_LEND)
-  !     IF (SUM(ABS(IOS(1:11))) /= 0) STOP
-  ! end if
   IF (INOUT_DIR(len(TRIM(INOUT_DIR)):len(TRIM(INOUT_DIR))) == '/') INOUT_DIR(len(TRIM(INOUT_DIR)):len(TRIM(INOUT_DIR))) = ' '
 
   ! Also save all settings to initfile. Use this file to rerun if necessary
@@ -956,44 +1032,39 @@ END if
 end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
 
 subroutine NAME_MODS_SORT_NAMED_INDICES
-    implicit none
-    INTEGER :: i, j
-    CHARACTER(len=100) :: dummy
+  implicit none
+  INTEGER :: i, j
 
-    OPEN(800, file=NAMESDAT, ACTION='READ', status='OLD')
-    DO i = 1,N_VARS - N_XTRS
-        READ(800, *) MODS(I)%NAME
-        IF (TRIM(MODS(I)%NAME) == 'TEMPK'        ) inm_TempK = i
-        IF (TRIM(MODS(I)%NAME) == 'PRESSURE'     ) inm_pres = i
-        IF (TRIM(MODS(I)%NAME) == 'REL_HUMIDITY' ) inm_RH = i
-        IF (TRIM(MODS(I)%NAME) == 'CONDENS_SINK' ) inm_CS = i
-        IF (TRIM(MODS(I)%NAME) == 'CON_SIN_NITR' ) inm_CS_NA = i
-        IF (TRIM(MODS(I)%NAME) == 'SW_RADIATION' ) inm_swr = i
-        IF (TRIM(MODS(I)%NAME) == 'ION_PROD_RATE') inm_IPR = i
-        IF (TRIM(MODS(I)%NAME) == 'H2SO4'        ) inm_H2SO4 = i
-        IF (TRIM(MODS(I)%NAME) == 'NH3'          ) inm_NH3 = i
-        IF (TRIM(MODS(I)%NAME) == 'DMA'          ) inm_DMA = i
-        IF (TRIM(MODS(I)%NAME) == 'SO2'          ) inm_SO2 = i
-        IF (TRIM(MODS(I)%NAME) == 'NO'           ) inm_NO = i
-        IF (TRIM(MODS(I)%NAME) == 'NO2'          ) inm_NO2 = i
-        IF (TRIM(MODS(I)%NAME) == 'CO'           ) inm_CO = i
-        IF (TRIM(MODS(I)%NAME) == 'H2'           ) inm_H2 = i
-        IF (TRIM(MODS(I)%NAME) == 'O3'           ) inm_O3 = i
-        IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_IN ' ) inm_JIN = i
-        IF (TRIM(MODS(I)%NAME) == '#'            ) LENV = i
-        IF (.not.TRIM(UCASE(MODS(I)%NAME(1:3))) == 'EMI') N_CONCENTRATIONS = i
-    END DO
-    close(800)
+  OPEN(800, file=NAMESDAT, ACTION='READ', status='OLD')
+  DO i = 1,N_VARS - N_XTRS
+    READ(800, *) MODS(I)%NAME
+    IF (TRIM(MODS(I)%NAME) == 'TEMPK'        ) inm_TempK = i
+    IF (TRIM(MODS(I)%NAME) == 'PRESSURE'     ) inm_pres = i
+    IF (TRIM(MODS(I)%NAME) == 'REL_HUMIDITY' ) inm_RH = i
+    IF (TRIM(MODS(I)%NAME) == 'CONDENS_SINK' ) inm_CS = i
+    IF (TRIM(MODS(I)%NAME) == 'CON_SIN_NITR' ) inm_CS_NA = i
+    IF (TRIM(MODS(I)%NAME) == 'SW_RADIATION' ) inm_swr = i
+    IF (TRIM(MODS(I)%NAME) == 'ION_PROD_RATE') inm_IPR = i
+    IF (TRIM(MODS(I)%NAME) == 'H2SO4'        ) inm_H2SO4 = i
+    IF (TRIM(MODS(I)%NAME) == 'NH3'          ) inm_NH3 = i
+    IF (TRIM(MODS(I)%NAME) == 'DMA'          ) inm_DMA = i
+    IF (TRIM(MODS(I)%NAME) == 'SO2'          ) inm_SO2 = i
+    IF (TRIM(MODS(I)%NAME) == 'NO'           ) inm_NO = i
+    IF (TRIM(MODS(I)%NAME) == 'NO2'          ) inm_NO2 = i
+    IF (TRIM(MODS(I)%NAME) == 'CO'           ) inm_CO = i
+    IF (TRIM(MODS(I)%NAME) == 'H2'           ) inm_H2 = i
+    IF (TRIM(MODS(I)%NAME) == 'O3'           ) inm_O3 = i
+    IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_IN ' ) inm_JIN = i
+    IF (TRIM(MODS(I)%NAME) == '#'            ) LENV = i
+    IF (.not.TRIM(UCASE(MODS(I)%NAME(1:3))) == 'EMI') N_CONCENTRATIONS = i
+  END DO
+  close(800)
 
-    OPEN(800, file=XTRASDAT, ACTION='READ', status='OLD')
-    DO j = 1, N_XTRS
-      READ(800, *) MODS(i+j-1)%NAME
-        ! IF (j == 1) THEN
-        !     READ(800, *) dummy
-        ! ELSE
-        ! END IF
-    END DO
-    close(800)
+  OPEN(800, file=XTRASDAT, ACTION='READ', status='OLD')
+  DO j = 1, N_XTRS
+    READ(800, *) MODS(i+j-1)%NAME
+  END DO
+  close(800)
 
 end subroutine NAME_MODS_SORT_NAMED_INDICES
 
@@ -1050,7 +1121,7 @@ subroutine FILL_INPUT_BUFF(unit,cols,INPUT_BF,Input_file)
     real(dp), intent(inout) :: INPUT_BF(:,:)
     integer, intent(in)     :: cols
     CHARACTER(*)            :: Input_file
-    integer                 :: i,j,k,ioi,unit,loc
+    integer                 :: i,j,k,ioi,unit
     CHARACTER(len=6000)     :: dump
 
     i = 1
@@ -1210,9 +1281,14 @@ SUBROUTINE PARSE_PARTICLE_GRID(file, parvar)
     call handle_file_io(ioi, file, 'Exiting the program')
 
     rows = rowcount(8889)
-    cols = colcount(8889)
+    IF ('.CSV' == UCASE(file(len(TRIM(file))-3:len(TRIM(file))))) THEN
+      cols = colcount(8889, separator=',')
+    ELSE
+      cols = colcount(8889)
+    END IF
 
     read(8889,*) fl_buff
+
     REWIND(8889)
     IF (fl_buff(2) > 0d0) THEN
         allocate(parvar%conc_matrix(rows-1,cols-1))
@@ -1295,7 +1371,6 @@ SUBROUTINE PARSE_MULTIMODAL_EMS()
     N_MODAL_EMS = N_MODAL_EMS/3
     ALLOCATE(MMODES_EMS(SIZE(PACK(temp,temp>0))))
     MMODES_EMS = PACK(temp,temp>0)
-
 END SUBROUTINE PARSE_MULTIMODAL_EMS
 
 
@@ -1325,7 +1400,7 @@ END SUBROUTINE PARSE_GR_SIZES
 
 SUBROUTINE SW_PP()
     IMPLICIT NONE
-    INTEGER :: cols,rows,unit,ii,allrows,aa,bb,skiphdr
+    INTEGER :: cols,rows,ii,allrows,aa,bb,skiphdr
     REAL(dp) :: dummy, DL
     REAL(dp), ALLOCATABLE :: WL(:), Weight(:)
     character(1) :: bufr
@@ -1437,7 +1512,7 @@ END SUBROUTINE SW_PP
 SUBROUTINE PARSE_ACDC_SYSTEMS
 
     IMPLICIT NONE
-    INTEGER :: ii,jj,kk,ioi=0, sze, counter,mm
+    INTEGER :: ii,jj,ioi=0, counter,mm
     CHARACTER(len=16)   :: name(24)
     CHARACTER(len=256)  :: System,Energies,Dipoles,path,Nickname
     NAMELIST /ACDC_RECORD_NML/ System,Energies,Dipoles,Nickname
@@ -1516,23 +1591,18 @@ END SUBROUTINE PARSE_ACDC_SYSTEMS
 SUBROUTINE PARSE_INIT_ONLY()
   implicit none
   CHARACTER(25) :: buffer = ''
+  CHARACTER(25) :: bufferlist(100) = '#'
   INTEGER :: ii
 
   iF (INIT_ONLY == '') RETURN
 
   ALLOCATE(init_only_these(0))
-
-  do ii=1, len(TRIM(INIT_ONLY))
-    if (INIT_ONLY(ii:ii) == ',') THEN
-      if (IndexFromName(TRIM(buffer),SPC_NAMES)>0) &
-        init_only_these = [init_only_these,IndexFromName(TRIM(buffer),SPC_NAMES)]
-      buffer = ''
-    else
-      buffer(len(TRIM(buffer))+1:len(TRIM(buffer))+2) = INIT_ONLY(ii:ii)
-    end if
+  read(INIT_ONLY, *,IOSTAT=ii), bufferlist(:)
+  do ii=1,100
+    if (TRIM(bufferlist(ii)) == '#') EXIT
+    if (IndexFromName(TRIM(bufferlist(ii)),SPC_NAMES) > 0) &
+      init_only_these = [init_only_these,IndexFromName(TRIM(bufferlist(ii)),SPC_NAMES)]
   end do
-  if (TRIM(buffer) /= '') &
-    init_only_these = [init_only_these,IndexFromName(TRIM(buffer),SPC_NAMES)]
 
 END SUBROUTINE PARSE_INIT_ONLY
 
