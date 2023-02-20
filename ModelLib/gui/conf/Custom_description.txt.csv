@@ -22,4 +22,6 @@ CHRC,,HARD_CORE,"('GENERIC'): Name of the non-evaporating generic composition, u
 REAL,kg/m3,ORGANIC_DENSITY,"(1400) Common liquid phase density for organic compounds"
 REAL,kg/m3,HARD_CORE_DENSITY,"(1400) Density of the GENERIC"
 REAL,,NPF_DIST,"(1.15) multiplied with MIN_PARTICLE_DIAM to get the upper diameter where the nucleated particles are distributed. Majority of the clusters will be assigned in MIN_PARTICLE_DIAM."
-CHRC,,INIT_ONLY,"Comma-separated list of time dependent input variables. These variables will only be initialized in the first time step; later they are not anymore updated from the prescrined/input. This makes sense for compounds that are under DEFVAR in the chemistry scheme."
+CHRC,,INIT_ONLY,"Comma-separated list of time dependent input variables. These variables will only be initialized in the first time step; later they are not anymore updated from the prescribed/input. This makes only sense for compounds that are under DEFVAR in the chemistry scheme."
+LGCL,,NETCDF_OUT,"(T) Write netCDF4 output. If F, NetCDF files are omitted (and all information stored there). Other output is unchanged."
+LGCL,,FINAL_CHEM_TXT,"(F) Write final chemistry concentrations to a text file."
