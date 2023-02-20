@@ -83,7 +83,7 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
         conc_pp(ip,:) = conc_pp(ip,:) * Na / VAPOUR_PROP%molar_mass * n_conc(ip)
         if (use_raoult) THEN
             if (volume(ip)>0.0) then
-                sum_org = sum(conc_pp(ip,:),DIM=1, Mask=(VAPOUR_PROP%cond_type==1))
+                sum_org = sum(conc_pp(ip,:),DIM=1, Mask=(VAPOUR_PROP%cond_type<=1))
                 if (sum_org>0) THEN
                     ! mole fraction of each organic compound in each bin
                     kohler_effect(ip,:)= conc_pp(ip,:)/sum_org
@@ -110,13 +110,21 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
     ! Approximate equilibrium concentration (#/m^3) of each compound in each size bin
     DO ip=1,n_bins_par
         conc_pp_eq(ip,1:n_cond_org) = conc_vap_old(1:n_cond_org)*SUM(conc_pp_old(ip,1:n_cond_org)) &
-                                        / (Kelvin_Effect(ip,1:n_cond_org)*VAPOUR_PROP%c_sat(1:n_cond_org))
+                                        / (Kelvin_effect(ip,1:n_cond_org)*VAPOUR_PROP%c_sat(1:n_cond_org))
     END DO
 
     DO ic = 1, n_cond_tot
-
+        ! write(*,'(a)',advance='no'), VAPOUR_PROP%vapour_names(ic)
         ! NOTE GENERIC does not exist in gas phase
-        if (ic == VAPOUR_PROP%ind_GENERIC) cycle
+        if (ic == VAPOUR_PROP%ind_GENERIC) THEN
+            ! print*, ''
+            cycle
+        end if
+        if (VAPOUR_PROP%cond_type(ic)>2) THEN
+            ! print*, ''
+            cycle
+        end if
+        ! if (GTIME%printnow) write(*,*), GTIME%hms,'->', VAPOUR_PROP%vapour_names(ic),VAPOUR_PROP%cond_type(ic)
 
         ! Collision rate of particles and gas molecules * concentration -> total number of collisions/s
         CR = n_conc * collision_rate(ic,diameter,mass,VAPOUR_PROP)
@@ -150,10 +158,12 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
 
 
         ! Update conc_vap: total conc - particle phase concentration. Sulfuric acid is handled in chemistry if it has H2SO4
-        if (ic /= VAPOUR_PROP%ind_H2SO4 .or. H2SO4_ind_in_chemistry<1) conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
+        if (ic /= VAPOUR_PROP%ind_H2SO4 .or. H2SO4_ind_in_chemistry<1) &
+            conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
 
         ! derive the relative changes in the vapor phase. MIN_CONCTOT_CC_FOR_DVAP is in NML_CUSTOM
-        IF ( conc_tot(ic) > MIN_CONCTOT_CC_FOR_DVAP * 1d6 ) d_vap(ic) = ( conc_vap(ic) - conc_vap_old(ic) ) / conc_tot(ic)
+        IF ( conc_tot(ic) > MIN_CONCTOT_CC_FOR_DVAP * 1d6 ) &
+            d_vap(ic) = ( conc_vap(ic) - conc_vap_old(ic) ) / conc_tot(ic)
 
         ! Calculate dmass for PSD
         dmass(:,ic) = (conc_pp(:,ic) - conc_pp_old(:,ic))*VAPOUR_PROP%molar_mass(ic) / Na
@@ -199,7 +209,7 @@ SUBROUTINE AGING(composition, halflife, dt)
     real(dp), intent(IN   ) :: halflife
     real(dp), intent(IN   ) :: dt
     real(dp)                :: decay, k, agedmass(n_bins_par)
-    INTEGER                 :: ic,ip
+    INTEGER                 :: ic
 
     agedmass = 0d0
     do ic=1,VAPOUR_PROP%n_cond_org
@@ -271,9 +281,8 @@ SUBROUTINE Coagulation_routine(dconc_coag, dt_coag, d_npar, update_k) ! Add more
     REAL(dp), DIMENSION(n_bins_par,n_bins_par), intent(inout) :: dconc_coag    ! coagulation coefficients [m^3/s]
     REAL(dp), INTENT(IN)                        :: dt_coag ! integration timestep for coagulation [s]
     REAL(dp), INTENT(INOUT)                     :: d_npar(:) ! relative change in particle number concentrations [1]
-    REAL(dp), DIMENSION(n_bins_par)             :: n_conc,diameter, mass
-    REAL(dp), DIMENSION(n_bins_par)             :: volume
-    integer                                     :: i,j,m
+    REAL(dp), DIMENSION(n_bins_par)             :: n_conc
+    integer                                     :: j,m
     REAL(dp)                                    :: aa
     LOGICAL, intent(INOUT)                      :: update_k
 
@@ -470,7 +479,7 @@ subroutine avg3(arr, refdvap, irefdvap)
     integer  :: irefdvap
     real(dp),intent(in)::arr(:)
     REAL(dp) :: ret(2)
-    integer :: i
+
     ret(1) = avg3neg(pack( arr,arr<0d0 ))
     ret(2) = avg3pos(arr)
     refdvap = ret(maxloc(abs(ret),1))
@@ -524,6 +533,25 @@ real(dp) function avg3neg(arr)
         avg3neg = avg3neg/3_dp
     END IF
 end function avg3neg
+
+SUBROUTINE VBS_BINNING(VAP_PROP)
+  type(vapour_ambient), INTENT(INOUT) :: VAP_PROP
+  integer :: i,j
+
+  VAP_PROP%VBS_BINS = 0
+  VAP_PROP%VBS_BINS(:,1) = 1
+  do i = 1,VAP_PROP%n_cond_org-1
+    do j=NVBS-1,1,-1
+    IF (log10(VAP_PROP%c_sat(i)/Na*VAP_PROP%molar_mass(i)*1d9)>VBS_LIMITS(j)) THEN
+      VAP_PROP%VBS_BINS(i,j+1) = 1
+      VAP_PROP%VBS_BINS(i,1) = 0
+      EXIT
+    END IF
+
+  END DO
+  END DO
+
+END SUBROUTINE VBS_BINNING
 
 
 END MODULE aerosol_dynamics
