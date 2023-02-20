@@ -1,0 +1,12 @@
+# comp       M       H       rho      class
+SVIaq        50.0    1e-9    1.1e3    3
+NVaq         50.0    1e-9    1.1e3    3
+ClIaq        50.0    1e-9    1.1e3    3
+NIIIaq       50.0    1e-9    1.1e3    3
+HNO3aq       50.0    1e-9    1.1e3    3
+BCaq         50.0    1e-9    1.1e3    3
+BXXCaq       50.0    1e-9    1.1e3    3
+CH3SO3Iaq    50.0    1e-9    1.1e3    3
+HIO3aq       50.0    1e-9    1.1e3    3
+HSO4aq       98.07   1e-9    1.1e3    3
+H2SO4        98.07   1       1870     2
