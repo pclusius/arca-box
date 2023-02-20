@@ -36,7 +36,6 @@ USE custom_functions
 
 IMPLICIT NONE
 
-REAL(dp), ALLOCATABLE  :: conc_pp(:,:)      ! [#/m^3] Particle phase concentrations, DIM(n_bins_par,n_cond_tot)
 real(dp) :: T_prev = 0d0
 real(dp) :: P_prev = 0d0
 
@@ -54,7 +53,6 @@ REAL(dp), ALLOCATABLE :: TSTEP_CONC(:)    ! Array to hold input variables for th
 REAL(DP), ALLOCATABLE :: CH_GAS(:), CH_GAS_old(:),d_chem(:), reactivities(:) ! Array to hold all chemistry compounds; old: to restore in case of an error related to timestep handling
 REAL(dp), ALLOCATABLE :: conc_fit(:)      ! An array giving particle conc independant of PSD_style [m⁻³]
 REAL(dp), ALLOCATABLE :: losses_fit(:)    ! interpolated loss rates [/s]
-REAL(dp), ALLOCATABLE :: losses_fit0(:),losses_fit1(:), intrp_losses(:), inv_loss(:) ! Experimental stuff, deprecated [m-3]
 REAL(dp), ALLOCATABLE :: save_measured(:)      ! An array for saving measurements
 
 INTEGER               :: dmps_ln = 0, dmps_ln_old      ! line number from where background particles are read from
@@ -99,7 +97,7 @@ REAL(dp) :: A_vert                              ! chamber vertical wall area [m�
 REAL(dp) :: Vol_chamber                         ! chamber volume [m³]
 REAL(dp) :: E_field = 0d0                       ! chamber Electric field (not implemented yet) [V/m]
 ! REAL(dp) :: wl_rates(2)                         ! Transient vector for storing reversible chemical loss rates for chamber [1/s]
-CHARACTER(len=64) :: CurrentChem, CurrentVers ! Name of the chemistry module and current compiled version
+CHARACTER(len=64) :: CurrentChem, CurrentVers,SHA ! Name of the chemistry module and current compiled version and its hash
 
 
 ! This block is handled by C preprocessor --------------------------!
@@ -110,6 +108,10 @@ CurrentChem = CHEM
 ! This block is handled by C preprocessor --------------------------!
 #ifdef VERSION
 CurrentVers = VERSION
+#endif
+! This block is handled by C preprocessor --------------------------!
+#ifdef VERSION
+SHA = HASH
 #endif
 ! end of C preprocessor commands -----------------------------------!
 
@@ -208,7 +210,9 @@ INIT_AEROSOL: IF (Aerosol_flag) THEN
 
     ALLOCATE(conc_vapour(n_cond_tot))
     ALLOCATE(CONDENSED_MASS(n_cond_tot))
+    ALLOCATE(CONDENSED_MASS_VBS(n_bins_par,NVBS))
     CONDENSED_MASS = 0d0
+    CONDENSED_MASS_VBS = 0d0
 
     ! Allocate the change vectors for integration timestep control
     ALLOCATE(d_vap(max(VAPOUR_PROP%n_cond_tot,1)))
@@ -277,7 +281,7 @@ if (Aerosol_flag) THEN
     ! Save all condensibles for easier access
     OPEN(600,file=RUN_OUTPUT_DIR//"/CondensingVapours.txt",status='replace',action='write')
     do ii = 1,size(VAPOUR_PROP%vapour_names)
-        WRITE(600,'(a)') TRIM(VAPOUR_PROP%vapour_names(ii))
+        WRITE(600,'(a,es12.4)') TRIM(VAPOUR_PROP%vapour_names(ii)), VAPOUR_PROP%molar_mass(ii)
     end do
     CLOSE(600)
 
@@ -313,7 +317,7 @@ if (I/=0) print FMT_WARN0, "Could not save InitBackup.txt, is the file locked?"
 
 ! Open netCDF files
 IF (NETCDF_OUT) &
-  CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChem,CurrentVers, MODS, CH_GAS, reactivities, VAPOUR_PROP,Vol_chamber)
+  CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChem,CurrentVers,SHA, MODS, CH_GAS, reactivities, VAPOUR_PROP,Vol_chamber)
 
 ! If wait_for was defined in user options, wait for a sec
 CALL PAUSE_FOR_WHILE(wait_for)
@@ -742,7 +746,8 @@ END IF
 
             ! Pick the condensibles from chemistry and change units from #/cm^3 to #/m^3
             conc_vapour = 0d0
-            conc_vapour(1:VAPOUR_PROP%n_cond_org-1) =  CH_GAS(index_cond)*1D6 ! mol/m3
+            conc_vapour(1:VAPOUR_PROP%n_cond_org-1) =  CH_GAS(index_cond(1:VAPOUR_PROP%n_cond_org-1))*1D6 ! mol/m3
+            conc_vapour(VAPOUR_PROP%n_cond_org+1:) =  CH_GAS(index_cond(VAPOUR_PROP%n_cond_org+1:))*1D6 ! mol/m3
 
             ! Poor sulfuric acid always needs special treatment
             conc_vapour(VAPOUR_PROP%ind_H2SO4) = H2SO4*1d6
@@ -753,6 +758,12 @@ END IF
                                 VAPOUR_PROP%psat_b(1:VAPOUR_PROP%n_cond_org),  &
                                 GTEMPK) * VP_MULTI
 
+            CALL VBS_BINNING(VAPOUR_PROP)
+
+            ! print*, VAPOUR_PROP%VBS_BINS(:,:)
+            ! if (GTIME%PRINTNOW) print*,'VBS GAS',GTIME%sec, MATMUL(conc_vapour(1:VAPOUR_PROP%n_cond_org-1)/Na * &
+            !                       VAPOUR_PROP%molar_mass(1:VAPOUR_PROP%n_cond_org-1)*1d9, VAPOUR_PROP%VBS_BINS(:,:))
+            ! if (GTIME%PRINTNOW) print*,'VBS PAR',GTIME%sec, MATMUL(MATMUL(get_conc(),current_PSD%composition_fs(:,1:VAPOUR_PROP%n_cond_org-1))*1e9, VAPOUR_PROP%VBS_BINS(:,:))
 
             CALL UPDATE_MOLECULAR_DIFF_AND_CSPEED(VAPOUR_PROP)
 
@@ -769,7 +780,9 @@ END IF
 
             if (Kelvin_taylor) Kelvin_Eff = 1d0 + pre_Kelvin * 300d0 / GTEMPK + (pre_Kelvin * 300d0 / GTEMPK) **2 / 2d0 + (pre_Kelvin * 300d0 / GTEMPK) **3 / 6d0
 
+            ! print*, conc_vapour(ind('BCALBOOH', VAPOUR_PROP%vapour_names)), Vapour_prop%c_sat(ind('BCALBOOH', VAPOUR_PROP%vapour_names))
             CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRC%cch),d_dpar,d_vap, kelvin_eff)
+            ! print*, sum(dmass(:, ind('BCALBOOH', VAPOUR_PROP%vapour_names))), vapour_prop%molar_mass(ind('BCALBOOH', VAPOUR_PROP%vapour_names))
 
             ! calculate reference d_vap value, largest in magnitude but with sign
             call avg3(d_vap,refdvap, irefdvap)
@@ -793,6 +806,14 @@ END IF
 
                 CONDENSED_MASS = CONDENSED_MASS + SUM(dmass * &
                                     (TRANSPOSE(SPREAD(get_conc(current_PSD),1,VAPOUR_PROP%n_cond_tot))), 1)
+
+
+                CONDENSED_MASS_VBS = CONDENSED_MASS_VBS + MATMUL (  &
+                  TRANSPOSE(SPREAD(get_conc(),1,VAPOUR_PROP%n_cond_org-1)) &
+                  * dmass(:,1:VAPOUR_PROP%n_cond_org-1)*1d9, VAPOUR_PROP%VBS_BINS  &
+                                                                  )
+
+                ! print*, 'xxxxx',SHAPE(CONDENSED_MASS_VBS)
 
                 ! Distribute mass
                 CALL Mass_Number_Change('condensation')
@@ -1005,8 +1026,23 @@ END IF in_turn_any
 
             ! Update vapour concentrations to chemistry
             if (Condensation) &
-            CH_GAS(index_cond) = conc_vapour(1:VAPOUR_PROP%n_cond_org-1) *1D-6
+                CH_GAS(index_cond(1:VAPOUR_PROP%n_cond_org-1)) = conc_vapour(1:VAPOUR_PROP%n_cond_org-1) *1D-6
+            ! print*, 'H2SO4', IND('H2SO4', VAPOUR_PROP%vapour_names), index_cond(IND('H2SO4', VAPOUR_PROP%vapour_names))!, ind_H2SO4
+            ! print*, 'H2SO4 chem', IND('H2SO4', SPC_NAMES)
+            ! print*, 'GENERIC', IND('GENERIC', VAPOUR_PROP%vapour_names), index_cond(IND('GENERIC', VAPOUR_PROP%vapour_names))
+            ! print*, 'GENERIC chem', IND('GENERIC', SPC_NAMES)
+            ! print*, 'NIIIaq', IND('NIIIaq', VAPOUR_PROP%vapour_names), index_cond(IND('NIIIaq', VAPOUR_PROP%vapour_names))!, ind_NIIIaq
+            ! print*, 'NIIIaq chem', IND('NIIIaq', SPC_NAMES)
+            ! print*, 'HSO4aq', IND('HSO4aq', VAPOUR_PROP%vapour_names), index_cond(IND('HSO4aq', VAPOUR_PROP%vapour_names))!, ind_HSO4aq
+            ! print*, 'HSO4aq chem', IND('HSO4aq', SPC_NAMES)
+            ! stop
+            ! if (Condensation) &
+            ! CH_GAS(index_inorg) = conc_vapour(VAPOUR_PROP%n_cond_org+1:VAPOUR_PROP%n_cond_tot) *1D-6
+            ! print*,  conc_vapour(VAPOUR_PROP%n_cond_org+1:VAPOUR_PROP%n_cond_tot) *1D-6
             ! ----------------------------------------
+
+            ! print*, conc_vapour(index_inorg(ind_HIO3aq))
+            ! print*, VAPOUR_PROP%vapour_names(index_inorg(ind_HIO3aq))
 
         ELSE ! Exit the main loop when time is up
             EXIT
@@ -1035,6 +1071,18 @@ END DO MAINLOOP
 !=======================================================================================================================
 
 CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
+! print*, 'VAPOUR_PROP%VBS_BINS(:,:)'
+! do i = 1, VAPOUR_PROP%n_cond_org-1
+!   print*, VAPOUR_PROP%vapour_names(i),conc_vapour(i),VAPOUR_PROP%c_sat(i),VAPOUR_PROP%molar_mass(i), SUM(current_PSD%composition_fs(:,i), 1),  VAPOUR_PROP%VBS_BINS(i,:)
+! end do
+
+! print*, 'conc_vapour(1:VAPOUR_PROP%n_cond_org-1)'
+! print*, conc_vapour(1:VAPOUR_PROP%n_cond_org-1)
+!
+! print*, 'current_PSD%composition_fs(:,1:VAPOUR_PROP%n_cond_org-1), 1)'
+! print*, SUM(current_PSD%composition_fs(:,1:VAPOUR_PROP%n_cond_org-1), 1)
+
+
 
 ! print*, 'total rounds: ',n_of_Rounds
 ! print*, 'kelvin calculated: ', i_kel
@@ -1539,15 +1587,13 @@ SUBROUTINE WATER(ES,EW,CW,STW)
     IMPLICIT NONE
     REAL(dp), INTENT(INOUT) :: ES, EW, CW, STW
     REAL(dp)                :: TEMPC
-    ! Saturation vapour pressure of water in Pa
-    REAL, PARAMETER        :: a0 = 6.107799961,     & ! Parameters to calculate the saturation vapour pressure for water
-                              a1 = 4.436518524E-1,  &
-                              a2 = 1.428945805E-2,  &
-                              a3 = 2.650648471E-4,  &
-                              a4 = 3.031240396E-6,  &
-                              a5 = 2.034080948E-8,  &
-                              a6 = 6.136820929E-11
-
+    REAL, PARAMETER         :: a0 = 6.107799961     ! Parameters to calculate the saturation vapour pressure for water
+    REAL, PARAMETER         :: a1 = 4.436518524E-1
+    REAL, PARAMETER         :: a2 = 1.428945805E-2
+    REAL, PARAMETER         :: a3 = 2.650648471E-4
+    REAL, PARAMETER         :: a4 = 3.031240396E-6
+    REAL, PARAMETER         :: a5 = 2.034080948E-8
+    REAL, PARAMETER         :: a6 = 6.136820929E-11
 
     TEMPC = GTEMPK-273.15d0
 
