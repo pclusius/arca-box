@@ -1278,10 +1278,15 @@ Please provide valid spectral function.') \
     # -----------------------
 
     def dragEnterEvent(self, e):
-        if e.mimeData().hasFormat('text/plain'): e.accept()
+        if e.mimeData().hasText(): e.accept()
+        else: e.ignore()
+    def dragMoveEvent(self, e):
+        if e.mimeData().hasText(): e.accept()
         else: e.ignore()
     def dropEvent(self, e):
-        file = e.mimeData().text().replace('file://','').strip()
+        if operatingsystem == 'Windows': preF = 'file:///'
+        else: preF = 'file://'
+        file = e.mimeData().text().replace(preF,'').strip()
         out = self.load_initfile(file)
         if out==None: self.show_currentInit(file)
 
@@ -1749,11 +1754,13 @@ the numerical model or chemistry scheme differs from the current, results may va
         self.monAm.setValue(dummy.am)
 
         norm = self.gauss(dummy,yscale,rt)
-        if (first or self.second) and self.legend in self.skene.items():
-            self.skene.removeItem(self.legend)
-            self.legend = self.PLOT.addLegend()
-            if self.legend not in self.skene.items():
-                self.skene.addItem(self.legend)
+        if float('.'.join(pg.__version__.split('.')[0:2]))<0.13:
+            if (first or self.second) and self.legend in self.skene.items():
+                self.skene.removeItem(self.legend)
+                self.legend = self.PLOT.addLegend()
+                if self.legend not in self.skene.items():
+                    self.skene.addItem(self.legend)
+
         if first:
             self.currentPIVar = label
             self.editableselfPI = self.PLOT.plot(x,norm,pen=pg.mkPen('r', width=4), clear=True, name=label)
@@ -1960,7 +1967,7 @@ the numerical model or chemistry scheme differs from the current, results may va
                 target.appendPlainText(path)
             else:
                 target.clear()
-                target.insert(path)
+                target.insert(path.replace('\\','/'))
 
 
     def save_file(self, file=None, mode=None,nobatch=True, changeTitle=True):
@@ -3202,7 +3209,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
     def showMass(self, file=None, first=True, target=None, add=False):
         symbols = ['x','+','t1','t','star']
 
-        self.unnecessaryLegendTrick()
+        if float('.'.join(pg.__version__.split('.')[0:2]))<0.13:
+            self.unnecessaryLegendTrick()
 
         if first:
             if file==None: return
@@ -3647,11 +3655,12 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         self.CloseLinePlotsButton.setEnabled(False)
         self.findComp.setEnabled(False)
 
-        if self.ncleg in self.ncleg_skene.items():
-            self.ncleg_skene.removeItem(self.ncleg)
-            self.ncleg = self.plotResultWindow.addLegend()
-            if self.ncleg not in self.ncleg_skene.items():
-                self.ncleg_skene.addItem(self.ncleg)
+        if float('.'.join(pg.__version__.split('.')[0:2]))<0.13:
+            if self.ncleg in self.ncleg_skene.items():
+                self.ncleg_skene.removeItem(self.ncleg)
+                self.ncleg = self.plotResultWindow.addLegend()
+                if self.ncleg not in self.ncleg_skene.items():
+                    self.ncleg_skene.addItem(self.ncleg)
 
 
         try:
@@ -3680,7 +3689,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
     def closenetcdf_mass(self):
         self.MPD = []
         self.loadNetcdf_massAdd.setEnabled(False)
-        self.unnecessaryLegendTrick()
+        if float('.'.join(pg.__version__.split('.')[0:2]))<0.13:
+            self.unnecessaryLegendTrick()
         try: self.ncs_mass.close()
         except: pass
         try:
