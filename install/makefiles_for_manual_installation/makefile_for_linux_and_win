@@ -49,11 +49,12 @@ $(shell mkdir -p $(OD)/$(BACDC))
 VPATH = $(OD):src:Aerosol:$(OD)/$(CHMDIR):$(foreach n,$(n_acdc),src/ACDC/ACDC_0$(n):)
 FILE = ModelLib/required/version.txt
 VERSION := $(shell head -1 ${FILE})
+HASH := $(shell git rev-parse HEAD)
 
-BOX_OPTS = -g -Wno-unused $(BOPTI) -ffree-line-length-none -cpp -DLINUX -DCHEM=\"$(CHMDIR)\" -DVERSION=\"$(VERSION)\" \
--DNMACDC=\"$(NAC)\" -J$(OD) -I$(OD) -I$(OD)/$(CHMDIR) -I$(OD)/$(BACDC) -fcheck=bounds,do -Wall -Wextra -Wsurprising \
--Wno-unused-dummy-argument -Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation -fbacktrace \
--ffpe-trap=invalid,zero,overflow $(PROF) -g -fcheck=all
+BOX_OPTS = -Wno-unused $(BOPTI) -ffree-line-length-none -cpp -DLINUX -DCHEM=\"$(CHMDIR)\" -DVERSION=\"$(VERSION)\" \
+-DNMACDC=\"$(NAC)\" -DHASH=\"$(HASH)\" -J$(OD) -I$(OD) -I$(OD)/$(CHMDIR) -I$(OD)/$(BACDC) -fcheck=bounds,do -Wall \
+-Wextra -Wsurprising -Wno-unused-dummy-argument -Wno-maybe-uninitialized -Wtabs -Wno-tabs -Wno-character-truncation \
+-fbacktrace -ffpe-trap=invalid,zero,overflow $(PROF) -g -fcheck=all
 
 CHEM_OPTS = -w -cpp $(PROF) $(COPTI) -ffree-line-length-none -fcheck=all -ffpe-trap=invalid,zero,overflow -J$(OD)/$(CHMDIR) -I$(OD)/$(CHMDIR)
 
