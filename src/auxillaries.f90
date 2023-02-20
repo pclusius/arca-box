@@ -288,6 +288,15 @@ PURE INTEGER FUNCTION IndexFromName(NAME, list_of_names)
 
 END FUNCTION IndexFromName
 
+! convenience function of IndexFromName
+PURE INTEGER FUNCTION IND(NAME, list_of_names)
+    IMPLICIT NONE
+    character(*), INTENT(IN) :: NAME
+    character(*), optional, INTENT(IN) :: list_of_names(:)
+    IND = IndexFromName(NAME, list_of_names)
+END FUNCTION IND
+
+
 subroutine handle_file_io(ioi, file, halt)
   IMPLICIT NONE
   INTEGER, INTENT(in) :: ioi
@@ -392,19 +401,28 @@ end subroutine Multimodal
 !....................................................................................
 subroutine aero_emissions(diameters, psd, descp)
     implicit none
-    real(dp), INTENT(in)    :: diameters(:)                   ! model psd diameters
-    real(dp), INTENT(inout) :: psd(:)                         ! Outgoing psd
-    real(dp), INTENT(in)    :: descp(:)                       ! mode parameters
-    real(dp)                :: mu, sig, N,x(size(diameters))  ! transient GMD, ln(GSD), N
-    INTEGER                 :: ii                             ! loop
+    real(dp), INTENT(in)    :: diameters(:)  ! model psd diameters
+    real(dp), INTENT(in)    :: descp(:)      ! mode parameters
+    real(dp), INTENT(inout) :: psd(:)        ! Outgoing psd
+    real(dp)                :: mu,sig        ! transient GMD, ln(GSD)
+    INTEGER                 :: ii            ! loop
 
     psd = 0d0
-    x = LOG10(diameters)
 
     DO ii = 1,size(descp)/3
+      if (equal(descp((ii-1)*3+1),0d0)) THEN
+        print FMT_WARN0, "Aerosol emission mode GMD can not be zero, GMD="//f2chr( descp((ii-1)*3+1) )//'in mode'//i2chr(ii)
+        print FMT_SUB, "Omitting mode"
+        cycle
+      end if
         mu  = LOG10(descp((ii-1)*3+1))
         sig = descp((ii-1)*3+2)
-        psd = psd + descp((ii-1)*3+3) * gauss(x, mu, sig)
+      if (equal(sig,0d0)) THEN
+        print FMT_WARN0, "Aerosol emission mode can not be a delta function, sigma="//f2chr(sig)//'in mode '//i2chr(ii)
+        print FMT_SUB, "Omitting mode"
+        cycle
+      end if
+        psd = psd + descp((ii-1)*3+3) * gauss(LOG10(diameters), mu, sig)
     END DO
     WHERE (PSD < MAXVAL(psd)/1D6) PSD = 0d0
 
