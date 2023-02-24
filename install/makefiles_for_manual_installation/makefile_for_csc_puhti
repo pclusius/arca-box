@@ -91,8 +91,8 @@ test:
 #
 reactions:
 	-@cp ModelLib/required/write_reactions.sh $(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.sh
-	-@cp ModelLib/required/save_reactions.f90 $(SRCDIR)/chemistry/$(CHMDIR)/save_reactions.f90
-	-@cd $(SRCDIR)/chemistry/$(CHMDIR); sh write_reactions.sh; rm write_reactions.sh save_reactions.f90
+	-@cp ModelLib/required/save_reactions.f90 $(SRCDIR)/chemistry/$(CHMDIR)/tmp.f90
+	-@cd $(SRCDIR)/chemistry/$(CHMDIR); sh write_reactions.sh; rm write_reactions.sh
 
 # Compiling ============================================================================================================
 
