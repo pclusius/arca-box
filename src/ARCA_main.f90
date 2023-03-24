@@ -1377,7 +1377,7 @@ SUBROUTINE ORGANIC_NUCL(J_TOTAL_M3)
         if (PRODUCT(inds) == 0) THEN
             print FMT_LEND,
             print FMT_FAT0, "List of nucleating organic compounds has vapours which are not in the chemistry."
-            print FMT_SUB, "Options: Edit the file 'ModelLib/required/nucl_homs.txt' or turn of organic nucleation."
+            print FMT_SUB, "Options: Edit the file 'ModelLib/required/nucl_homs.txt' or turn off organic nucleation."
             print FMT_LEND,
             STOP "  ----------- Bye -------------"
         END IF

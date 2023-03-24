@@ -338,7 +338,7 @@ class CCWin(QtWidgets.QDialog):
         self.ccw.browseReactFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.react_file, 'file'))
         self.ccw.browseIncludes.clicked.connect(lambda: qt_box.browse_path(self.ccw.includedFiles, 'append'))
         self.ccw.mainFrame.setFont(qt_box.font)
-        self.ccw.manualCC.clicked.connect(lambda: qt_box.helplink('ccmanual'))
+        self.ccw.manualCC.clicked.connect(lambda: qt_box.helplink('ccmanual_CC'))
         self.ccw.pickDeffix.clicked.connect(self.ListFixed)
         self.ccw.justReact.toggled.connect(self.ch_txt)
         self.ccw.deffix.setPlainText("SO2\nNO\nNO2\nCO\nH2\nO3")
@@ -386,7 +386,7 @@ class CCWin(QtWidgets.QDialog):
             print( 'Calling chemistry script with:\n'+' '.join(commandstring))
             self.kppProcess = Popen([*commandstring], stdout=PIPE,stderr=STDOUT,stdin=None)
             output = ['Chemistry definitions were created.\n']
-            boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp"\n2) Recompile ARCA in tab "Chemistry".'
+            boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp (or kpp second.kpp3 if kpp v.3 is used)"\n2) Recompile ARCA in tab "Chemistry".'
             while lines:
                 self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
                 if '[WARNING' in self.ccout.upper():
@@ -442,6 +442,8 @@ class CCWin(QtWidgets.QDialog):
         else:
             cpf(osjoin(ccloc,'mcm_module.f90'),osjoin(self.ccw.outDir.text(),'mcm_module.f90'))
             cpf(osjoin(ccloc,'second.kpp'),osjoin(self.ccw.outDir.text(),'second.kpp'))
+            cpf(osjoin(ccloc,'mcm_module_kpp3.f90'),osjoin(self.ccw.outDir.text(),'mcm_module_kpp3.f90'))
+            cpf(osjoin(ccloc,'second.kpp3'),osjoin(self.ccw.outDir.text(),'second.kpp3'))
             if warnings: output.append('Read the log above, and resolve the problems in .def file, then:')
             qt_box.popup('Chemistry created', '\n'.join(output)+boilerplate,0)
 
