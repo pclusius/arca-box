@@ -157,7 +157,7 @@ exe_name = 'arcabox.exe'
 if NAMES_override != '':
     path_to_names = f'ModelLib/required/{NAMES_override}'
 else:
-path_to_names = 'ModelLib/required/NAMES.dat'
+    path_to_names = 'ModelLib/required/NAMES.dat'
 # Path to extra variables ------------------------------------------
 path_to_xtras = 'ModelLib/required/AEMS.dat'
 # GUI root
