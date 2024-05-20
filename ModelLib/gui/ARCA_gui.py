@@ -28,6 +28,7 @@ from modules import variations,vars,batch,GetVapourPressures as gvp
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
 from numpy import linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, ravel, mean, round as npround
+from numpy import argsort
 import numpy.ma as ma
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname, remove as osremove, rename as osrename
 from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin, relpath as osrelpath
@@ -69,7 +70,7 @@ except:
 # -----------------------------------------------------------------------------
 
 environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-
+NAMES_override = ''
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) # enable highdpi scaling
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)    # use highdpi icons
 # See if scaling is necessary, currently only on Windows
@@ -93,6 +94,9 @@ if len(sys.argv)>1:
         if '--scaling_' in a:
             environ["QT_SCALE_FACTOR"] = "%3.2f"%float(a.replace('--scaling_',''))
             args.append('-NS')
+        if '--names' in a:
+            NAMES_override = a.split(',')[1]
+            print(f'WARNING: using list of available input from {NAMES_override}')
         if '--scaleall_' in a:
             sfs = a.replace('--scaleall_','').split('_')
             environ["QT_SCREEN_SCALE_FACTORS"] = "%s"%(';'.join(sfs))
@@ -150,6 +154,9 @@ units = {
 # Name of the executable -------------------------------------------
 exe_name = 'arcabox.exe'
 # Path to variable names -------------------------------------------
+if NAMES_override != '':
+    path_to_names = f'ModelLib/required/{NAMES_override}'
+else:
 path_to_names = 'ModelLib/required/NAMES.dat'
 # Path to extra variables ------------------------------------------
 path_to_xtras = 'ModelLib/required/AEMS.dat'
@@ -369,7 +376,14 @@ class CCWin(QtWidgets.QDialog):
             includes.append(osjoin('ModelLib','PRAM','PRAM_v21.txt'))
         out = osjoin(self.ccw.outDir.text(),'second.def')
         log = osjoin(self.ccw.outDir.text(),'second.log')
-        commandstring = [currentPythonVer,ccloc+'/create_chemistry.py',cmds,'-o',out,'-l',log]
+        if cmds[-4:] == '.kpp':
+            newold_mcm = 'old'
+        elif cmds[-4:] == '.eqn':
+            newold_mcm = 'new'
+        else:
+            qt_box.popup('Cannot determine input syntax version', 'Assuming new type. Files with .kpp are old style mcm output, files with .eqn are new type',1)
+            newold_mcm = 'new'
+        commandstring = [currentPythonVer,ccloc+'/create_chemistry.py',cmds,'-o',out,'-l',log, '-v',newold_mcm]
         if len(fixed)>0:
             commandstring.append('-d')
             commandstring += fixed
@@ -441,6 +455,7 @@ class CCWin(QtWidgets.QDialog):
             qt_box.popup('Reactivity file created', 'Success, see the log for details.',0)
         else:
             cpf(osjoin(ccloc,'mcm_module.f90'),osjoin(self.ccw.outDir.text(),'mcm_module.f90'))
+            cpf(osjoin(ccloc,'second_Constants.f90'),osjoin(self.ccw.outDir.text(),'second_Constants.f90'))
             cpf(osjoin(ccloc,'second.kpp'),osjoin(self.ccw.outDir.text(),'second.kpp'))
             cpf(osjoin(ccloc,'mcm_module_kpp3.f90'),osjoin(self.ccw.outDir.text(),'mcm_module_kpp3.f90'))
             cpf(osjoin(ccloc,'second.kpp3'),osjoin(self.ccw.outDir.text(),'second.kpp3'))
@@ -565,14 +580,15 @@ class VpressWin(QtWidgets.QDialog):
         self.vp.VapourClose.clicked.connect(self.reject)
         self.vp.UmanFrame.setEnabled(False)
         self.vp.useUMan.toggled.connect(lambda: qt_box.grayIfNotChecked(self.vp.useUMan,self.vp.UmanFrame))
-        self.vp.massSmilesButton.clicked.connect(lambda: qt_box.browse_path(self.vp.lineEdit, 'file'))
+        self.vp.massSmilesButton.clicked.connect(lambda: qt_box.browse_path(self.vp.lineEdit, 'file',ftype="MCM compound list (*mcm_subset_mass.txt *mcm_export_species.tsv)"))
         self.vp.PramButton.clicked.connect(lambda: qt_box.browse_path(self.vp.pramFile, 'file'))
         self.vp.browseVapourPath.clicked.connect(self.filename)
         self.vp.createVapourFileButton.clicked.connect(self.saveVapours)
         self.vp.UmanWWW.clicked.connect(lambda: qt_box.helplink('umanweb'))
         self.vp.manualVap.clicked.connect(lambda: qt_box.helplink('CreateVapourFile'))
         self.vp.mainFrame.setFont(qt_box.font)
-
+        uMan_loc = get_config("paths", "uMan_loc", fallback='The path to local UManSYsProp needs to be specified here')
+        self.vp.UManSys_location.setText(uMan_loc)
     def filename(self):
         dialog = QtWidgets.QFileDialog()
         options = dialog.Options()
@@ -582,6 +598,9 @@ class VpressWin(QtWidgets.QDialog):
 
     def saveVapours(self):
         """This tool creates the Vapour and Elements files from user input or from the AMG server."""
+
+        set_config("paths", "uMan_loc", self.vp.UManSys_location.text()  )
+
         filterlist = []
         if self.vp.filterWChem.isChecked():
             chemistry = qt_box.chemistryModules.currentText()
@@ -605,15 +624,21 @@ class VpressWin(QtWidgets.QDialog):
         else : plim = self.vp.limPsat.text()
         vp_method = {0:'nannoolal',1:'myrdal_and_yalkowsky',2:'evaporation'}
         bp_method = {0:'nannoolal',1:'joback_and_reid',2:'stein_and_brown'}
+        if 'mcm_subset_mass.txt' in self.vp.lineEdit.text():
+            newold_mcm = 'old'
+        elif 'mcm_export_species.tsv' in self.vp.lineEdit.text():
+            newold_mcm = 'new'
 
         message = gvp.getVaps(args={
         'vp_method':vp_method[self.vp.vpCombo.currentIndex()],
-        'bp_method':vp_method[self.vp.bpCombo.currentIndex()],
+        'bp_method':bp_method[self.vp.bpCombo.currentIndex()],
         'server':source,
+        'uMan_loc':self.vp.UManSys_location.text(),
         'smilesfile':self.vp.lineEdit.text(),
         'pram':self.vp.usePRAM.isChecked(),
         'pramfile':self.vp.pramFile.text(),
         'psat_lim':plim,
+        'mcm_type':newold_mcm,
         'saveto':self.vp.VapourPath.text(),
         'filter':filterlist,
         'save_atoms':self.vp.saveElements.isChecked()
@@ -679,6 +704,7 @@ class NcPlot:
         self.legend = getattr(ncs, 'experiment')+': '+self.masterfile
         self.getaircc(file, ncs)
         self.parvars = {}
+        self.csat = {}
         self.convars = {}
         self.invvars = {}
         self.par = False
@@ -700,7 +726,20 @@ class NcPlot:
             self.diameter       = ncs.variables['DIAMETER'][0,:]
             self.lognorm_nc_cm3 = self.nc_cm3/log10(self.diameter[1]/self.diameter[0]) #
             for i,word in enumerate(names):
-                self.parvars[(''.join(list(word))).strip()] = i
+                comp = (''.join(list(word))).strip()
+                self.parvars[comp] = i
+            try:
+                    self.csat[comp] = ncs.variables[comp].Psat_A - ncs.variables[comp].Psat_B/300
+                    self.csat[comp] = 10**self.csat[comp] * (1e-6 * 101325 / 300 /1.38064852e-23)
+                    self.csat_unit = 'cm⁻³'
+                except:
+                    try:
+                        self.csat[comp] = 10** ncs.variables[comp].Csat_300
+                        self.csat_unit = 'µg m⁻³'
+                    except:
+                        self.csat[comp] = - 9999
+                        self.csat_unit = '?'
+            self.sorter = argsort(list(self.csat.values()))
             try:
                 DMPS_CONCENTRATION = ncs.variables['INPUT_CONCENTRATION'][:]
                 self.massdmps = ncs.variables['MASS'][:]*DMPS_CONCENTRATION * 1e3 * 1e6 * 1e9 # kg->grams>ng, cm3->m3
@@ -1146,7 +1185,7 @@ Please provide valid spectral function.') \
         self.pollTimer = QtCore.QTimer(self);
         self.Timer.timeout.connect(self.updateOutput)
         self.pollTimer.timeout.connect(self.pollMonitor)
-        self.pollTimer.timeout.connect(self.updateOutput)
+        # self.pollTimer.timeout.connect(self.updateOutput)
         self.pauseScroll.clicked.connect(lambda: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()))
         self.mfont = self.MonitorWindow.font()
         self.mfont.setFamily(    get_config("fonts", "monitorfont",  fallback=str(self.mfont.family())   ) )
@@ -2035,7 +2074,7 @@ the numerical model or chemistry scheme differs from the current, results may va
         for (dirpath, dirnames, filenames) in walk('src/chemistry'):
             break
         ii = -1
-        for i,d in enumerate(dirnames):
+        for i,d in enumerate(sorted(dirnames)):
             self.chemistryModules.addItem(d)
             if d == dir:
                 if checkonly:
@@ -2647,7 +2686,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.MonitorWindow.clear()
             self.Timer.start(5)
             # self.TimerPlot.start(1000)
-            self.pollTimer.start(2000)
+            self.pollTimer.start(1)
+            QtCore.QTimer.singleShot(2000, lambda : self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()))
             self.liveUpdate.setEnabled(True)
             self.toggle_frame(self.frameStart)
             self.toggle_frame(self.frameStop)
