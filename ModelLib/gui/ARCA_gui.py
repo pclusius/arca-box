@@ -3538,6 +3538,10 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             return
         else:
             comp = self.availableVars.currentItem().text()
+            if self.LPD[-1].masterfile == 'Particles.nc':
+                csat = f' c*:{self.LPD[-1].csat[comp]:7.1e} {self.LPD[-1].csat_unit}'
+            else:
+                csat = ''
         if not PPconc:
             if self.sumSelection.isChecked():
                 if any(c.text() in units for c in self.availableVars.selectedItems()):
@@ -3595,6 +3599,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 # if the variable is PRACTICALLY nonvariant, set the value to constant
                 if (max(Y)-min(Y))/max(Y)<1e-5: YY[j][:]=mean(Y)
 
+        have_aircc = False
         if all([z.have_aircc for z in self.LPD]): have_aircc = True
 
         un = ''
@@ -3627,7 +3632,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         # Are all the values zeros?
         zeros = all([all(Y==0) for Y in YY])
         thickness = 2.0
-        if PPconc: thickness = 1.0
+        if PPconc: thickness = 2.5
         # if non-negative and not all zeros, and log-scale is possible without any fixes
         if not zeros and not positive and scale=='log':
             for j,Y in enumerate(YY):
@@ -3665,7 +3670,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         #     self.outplot.setData(time,Y)
         self.plotResultWindow.setLogMode(y=loga)
         # update title
-        self.plotResultTitle.setText(self.plotTitle+un)
+        self.plotResultTitle.setText(self.plotTitle+un+csat)
 
 
 
@@ -3803,21 +3808,38 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
     def filterListOfComp(self):
         text = self.findComp.text().upper()
         strict = False
+        nonzeros = False
+        sortByPsat = False
         if text != '':
             if text[-1] == '.':
                 text = text[:-1]
                 strict = True
+            if '+' in text:
+                nonzeros = True
+                text = text.replace('+','')
+            if '^' in text:
+                text = text.replace('^','')
+                sortByPsat = True
+
         self.availableVars.clear()
+        if sortByPsat and self.LPD[0].masterfile == 'Particles.nc':
+            names_ = array(self.LPD[0].names)[self.LPD[0].sorter]
+        else:
+            names_ = self.LPD[0].names
+        if nonzeros:
+            names_ = filter(lambda x: self.LPD[0].getconc(x).sum()>0, names_)
+
         if text == '':
-            self.availableVars.addItems(self.LPD[0].names)
+            self.availableVars.addItems(names_)
             self.availableVars.item(0).setSelected(True)
             self.availableVars.setCurrentItem(self.availableVars.item(0))
 
         else:
-            for c in self.LPD[0].names:
+            for c in names_:
                 if strict:
                     if text == c.upper():
                         self.availableVars.addItem(c)
+                        break
                 else:
                     if text in c.upper():
                         self.availableVars.addItem(c)
