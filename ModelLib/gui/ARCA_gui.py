@@ -728,10 +728,10 @@ class NcPlot:
             for i,word in enumerate(names):
                 comp = (''.join(list(word))).strip()
                 self.parvars[comp] = i
-            try:
-                    self.csat[comp] = ncs.variables[comp].Psat_A - ncs.variables[comp].Psat_B/300
-                    self.csat[comp] = 10**self.csat[comp] * (1e-6 * 101325 / 300 /1.38064852e-23)
-                    self.csat_unit = 'cm⁻³'
+                try:
+                        self.csat[comp] = ncs.variables[comp].Psat_A - ncs.variables[comp].Psat_B/300
+                        self.csat[comp] = 10**self.csat[comp] * (1e-6 * 101325 / 300 /1.38064852e-23)
+                        self.csat_unit = 'cm⁻³'
                 except:
                     try:
                         self.csat[comp] = 10** ncs.variables[comp].Csat_300
@@ -3486,7 +3486,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.availableVars.addItems(self.LPD[-1].names)
             self.availableVars.item(0).setSelected(True)
             self.availableVars.setCurrentItem(self.availableVars.item(0))
-            self.availableVars.itemSelectionChanged.connect(lambda: self.showOutputUpdate(info=False))
+            self.availableVars.itemSelectionChanged.connect(self.showOutputUpdate)
             self.ShowPPC.toggled.connect(lambda: self.showOutputUpdate(info=False))
         # If fails, give information and return
         # except:
