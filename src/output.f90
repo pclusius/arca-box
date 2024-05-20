@@ -26,7 +26,7 @@ use INPUT
 use second_Monitor
 USE SECOND_REACTIVITY, ONLY : reactivity_name, NREACTIVITY
 use AUXILLARIES
-USE PSD_scheme, ONLY: get_composition, get_dp, get_volume, get_mass, get_conc,G_COAG_SINK
+USE PSD_scheme, ONLY: old_PSD,get_composition, get_dp, get_volume, get_mass, get_conc,G_COAG_SINK
 
 IMPLICIT NONE
 private
@@ -321,7 +321,15 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
       call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), par_ind(j), shuff, compress, compression) )
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'unit' , '1/cm^3'))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'type' , TRIM(i2chr(vapours%cond_type(j))) ))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'Molar_mass_kg' , vapours%molar_mass(j) ))
       call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'bulk_density' , vapours%density(j) ))
+      if (VBS_CSAT) THEN
+        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'Csat_300' , vapours%psat_a(j) ))
+        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'Enthalpy' , vapours%psat_b(j) ))
+      ELSE
+        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'Psat_A' , vapours%psat_a(j) ))
+        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'Psat_B' , vapours%psat_b(j) ))
+      END IF
       if (vapours%cond_type(j)<2) &
         call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'surface_tension' , vapours%surf_tension(j) ))
       if (vapours%cond_type(j)<2) &
@@ -415,13 +423,13 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours, VAPOURS,
 
     do j = 1,size(savepar)
       if (savepar(j)%name == 'NUMBER_CONCENTRATION'  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, &
-          1d-6*(get_conc()), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
+          1d-6*(get_conc(old_PSD)), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
 
       if (savepar(j)%name == 'INPUT_CONCENTRATION'   ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, &
           save_measured, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
 
       if (savepar(j)%name == 'DIAMETER'              ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, &
-          get_dp(), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
+          get_dp(old_PSD), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
 
       if (savepar(j)%name == 'GROWTH_RATE'           ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, &
           GR, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
@@ -430,13 +438,13 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours, VAPOURS,
           G_COAG_SINK, start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
 
       if (savepar(j)%name == 'CORE_VOLUME'           ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, &
-          get_volume(), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
+          get_volume(old_PSD), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
 
       if (savepar(j)%name == 'MASS'                  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, &
-          get_mass(), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
+          get_mass(old_PSD), start=(/1,GTIME%ind_netcdf/), count=(/n_bins_par/)))
 
       if (savepar(j)%name == 'PARTICLE_COMPOSITION'  ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, &
-          TRANSPOSE(get_composition()), (/1,1,GTIME%ind_netcdf/), (/vapours%n_cond_tot,n_bins_par,1/)))
+          TRANSPOSE(get_composition(old_PSD)), (/1,1,GTIME%ind_netcdf/), (/vapours%n_cond_tot,n_bins_par,1/)))
 
       if (savepar(j)%name == 'VBS_MATRIX'            ) call handler(__LINE__, nf90_put_var(ncfile_ids(I), savepar(J)%i, &
           TRANSPOSE(VAPOUR_PROP%VBS_BINS), (/1,1,GTIME%ind_netcdf/), (/NVBS,vapours%n_cond_org-1,1/)))

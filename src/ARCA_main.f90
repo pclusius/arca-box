@@ -99,7 +99,6 @@ REAL(dp) :: E_field = 0d0                       ! chamber Electric field (not im
 ! REAL(dp) :: wl_rates(2)                         ! Transient vector for storing reversible chemical loss rates for chamber [1/s]
 CHARACTER(len=64) :: CurrentChem, CurrentVers,SHA ! Name of the chemistry module and current compiled version and its hash
 
-
 ! This block is handled by C preprocessor --------------------------!
 #ifdef CHEM
 CurrentChem = CHEM
@@ -156,6 +155,7 @@ INIT_AEROSOL: IF (Aerosol_flag) THEN
 
     ! Initialize the Particle representation
     CALL INITIALIZE_PSD
+    CALL VBS_BINNING(VAPOUR_PROP, .true.)
 
     IF (PARAM_AGING) &
         print FMT_MSG, 'Using hyper experimental aging. Common halflife: '//TRIM(f2chr(AGING_HL_HRS))//' hrs.'
@@ -522,9 +522,12 @@ END IF
             ! Solar angle above horizon. For this to properly work, lat, lon and Date need to be defined in INIT_FILE
             call BETA(CH_Beta)
         END IF
-
-        IF (Chemistry_flag) Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRC%cch)), GTEMPK, max(0d0,TSTEP_CONC(inm_swr)),&
-                    CH_Beta,CH_H2O, GC_AIR_NOW, GCS, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2, reactivities, swr_spectrum, SWR_IS_ACTINICFLUX)
+        ! if (.not. OPTIMIZE_DT) CH_GAS_old = CH_GAS
+        IF (Chemistry_flag .and. GTIME%sec>=START_CHEM.and.GTIME%sec<=STOP_CHEM) THEN
+          !! NOTE Condensation sink of Sulfuric acid not anymore applied in chemistry but aerosol module !!!
+          Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRC%cch)), GTEMPK, max(0d0,TSTEP_CONC(inm_swr)),&
+                    CH_Beta,CH_H2O, GC_AIR_NOW, 0d0, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2, reactivities, swr_spectrum, SWR_IS_ACTINICFLUX)
+          END IF
 
 
         if ( ( minval(CH_GAS)<-1d2 ).and.GTIME%sec>100d0) print FMT_WARN0,&
@@ -538,6 +541,7 @@ END IF
               print FMT_NOTE0, TRIM(MODS(j)%NAME)//' CONCENTRATION: '//TRIM(f2chr(CH_GAS(INDRELAY_CH(J)))) &
                     //' cm⁻¹. FROM NOW ON '//TRIM(MODS(j)%NAME)//' WILL FLOAT '
               INDRELAY_CH(j) = 0
+              MODS(i)%isprovided = .false.
             END IF
           end do
           DEALLOCATE(init_only_these)
@@ -594,7 +598,6 @@ END IF
         IF (ORG_NUCL) CALL ORGANIC_NUCL(J_TOTAL_M3)
 
         IF (AFTER_NUCL_ON) CALL AFTER_NUCL(TSTEP_CONC,CH_GAS,J_TOTAL_M3)
-        ! if (GTIME%savenow .and. RESOLVE_BASE .and..not.OPTIMIZE_DT) CALL Get_BASE(TSTEP_CONC, RESOLVED_BASE, RESOLVED_J)
 
     ! =================================================================================================
     END if in_turn_acdc
@@ -609,7 +612,6 @@ END IF
     ! =================================================================================================
 
     AEROSOL_ROUTINES: IF (Aerosol_flag) THEN
-
         ! Read in background particles
         IF (N_MODAL>0) THEN
             call Multimodal(MMODES, get_dp(), conc_fit, N_MODAL)
@@ -742,29 +744,38 @@ END IF
         in_turn_cch_2: if (PRC%in_turn(PRC%cch)) THEN
         ! ..........................................................................................................
         ! CONDENSATION
-        onlyIfCondIsUsed: if (Condensation .and.(.not. PRC%err)) THEN
 
             ! Pick the condensibles from chemistry and change units from #/cm^3 to #/m^3
             conc_vapour = 0d0
-            conc_vapour(1:VAPOUR_PROP%n_cond_org-1) =  CH_GAS(index_cond(1:VAPOUR_PROP%n_cond_org-1))*1D6 ! mol/m3
-            conc_vapour(VAPOUR_PROP%n_cond_org+1:) =  CH_GAS(index_cond(VAPOUR_PROP%n_cond_org+1:))*1D6 ! mol/m3
+            conc_vapour(1:VAPOUR_PROP%n_cond_org-1) = CH_GAS(index_cond(1:VAPOUR_PROP%n_cond_org-1))*1D6 ! mol/m3
+            conc_vapour(VAPOUR_PROP%n_cond_org+1:)  = CH_GAS(index_cond(VAPOUR_PROP%n_cond_org+1:))*1D6 ! mol/m3
 
             ! Poor sulfuric acid always needs special treatment
             conc_vapour(VAPOUR_PROP%ind_H2SO4) = H2SO4*1d6
 
             ! Update vapour pressures for organics
+            if (VBS_CSAT) THEN
+              ! CSat_VBS_temp(Csat,enthalpy,M,temperature)
+              VAPOUR_PROP%c_sat(1:VAPOUR_PROP%n_cond_org) =  CSat_VBS_temp( &
+                                  VAPOUR_PROP%psat_a(1:VAPOUR_PROP%n_cond_org),  &
+                                  VAPOUR_PROP%psat_b(1:VAPOUR_PROP%n_cond_org),  &
+                                  VAPOUR_PROP%molar_mass(1:VAPOUR_PROP%n_cond_org),  &
+                                  GTEMPK) * VP_MULTI
+            ELSE
             VAPOUR_PROP%c_sat(1:VAPOUR_PROP%n_cond_org) =  saturation_conc_m3( &
                                 VAPOUR_PROP%psat_a(1:VAPOUR_PROP%n_cond_org),  &
                                 VAPOUR_PROP%psat_b(1:VAPOUR_PROP%n_cond_org),  &
                                 GTEMPK) * VP_MULTI
-
-            CALL VBS_BINNING(VAPOUR_PROP)
+            END IF
+            if (GTIME%sec <= LAST_VBS_BINNING_S) &
+              CALL VBS_BINNING(VAPOUR_PROP, .false.)
 
             ! print*, VAPOUR_PROP%VBS_BINS(:,:)
             ! if (GTIME%PRINTNOW) print*,'VBS GAS',GTIME%sec, MATMUL(conc_vapour(1:VAPOUR_PROP%n_cond_org-1)/Na * &
             !                       VAPOUR_PROP%molar_mass(1:VAPOUR_PROP%n_cond_org-1)*1d9, VAPOUR_PROP%VBS_BINS(:,:))
             ! if (GTIME%PRINTNOW) print*,'VBS PAR',GTIME%sec, MATMUL(MATMUL(get_conc(),current_PSD%composition_fs(:,1:VAPOUR_PROP%n_cond_org-1))*1e9, VAPOUR_PROP%VBS_BINS(:,:))
 
+          onlyIfCondIsUsed: if (Condensation .and.(.not. PRC%err).and.(.not.VBS_ONLY)) THEN
             CALL UPDATE_MOLECULAR_DIFF_AND_CSPEED(VAPOUR_PROP)
 
             IF (CHEM_DEPOSITION) CALL CALCULATE_CHEMICAL_WALL_LOSS(conc_vapour(1:VAPOUR_PROP%n_cond_org),c_org_wall)
@@ -779,9 +790,8 @@ END IF
             END IF
 
             if (Kelvin_taylor) Kelvin_Eff = 1d0 + pre_Kelvin * 300d0 / GTEMPK + (pre_Kelvin * 300d0 / GTEMPK) **2 / 2d0 + (pre_Kelvin * 300d0 / GTEMPK) **3 / 6d0
-
             ! print*, conc_vapour(ind('BCALBOOH', VAPOUR_PROP%vapour_names)), Vapour_prop%c_sat(ind('BCALBOOH', VAPOUR_PROP%vapour_names))
-            CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRC%cch),d_dpar,d_vap, kelvin_eff)
+            if (GTIME%sec>=START_AER.and.GTIME%sec<=STOP_AER) CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRC%cch),d_dpar,d_vap, kelvin_eff)
             ! print*, sum(dmass(:, ind('BCALBOOH', VAPOUR_PROP%vapour_names))), vapour_prop%molar_mass(ind('BCALBOOH', VAPOUR_PROP%vapour_names))
 
             ! calculate reference d_vap value, largest in magnitude but with sign
@@ -821,7 +831,7 @@ END IF
                 ! Update current_psd
                 current_PSD = new_PSD
 
-                IF (PARAM_AGING) call AGING(current_PSD%composition_fs, 3600d0*AGING_HL_HRS, Gtime%dt)
+                IF (PARAM_AGING) call AGING(current_PSD%composition_fs, 3600d0*AGING_HL_HRS, GTIME%dt*speed_up(PRC%cch))
                 ! NOTE Update vapour concentrations to chemistry is done at the end of the timestep
 
                 ! Check whether timestep can be increased:
@@ -960,7 +970,7 @@ END IF in_turn_any
         CH_RO2      = CH_RO2_old
         acdc_goback = .true.
         dmps_ln     = dmps_ln_old
-        if (Chem_Deposition) c_org_wall_old = c_org_wall
+        if (Chem_Deposition) c_org_wall = c_org_wall_old
 
         ! Reset relative change vectors documenting the precision:
         d_dpar      = 0.d0
@@ -980,8 +990,8 @@ END IF in_turn_any
 
         ELSE
             ! if --gui flag was used, print a dot and EOL so the STDOUT-reading in Python GUI will be smoother.
-            if (ingui) print'(a)', '.'
             call cpu_time(cpu3)
+            if (ingui.and.cpu3-cpu4>1d0) write(*,'(a)') '.'
             if (cpu3-cpu4>15d0) THEN
                 print*, '... ',GTIME%hms, '......... '
                 cpu4=cpu3
@@ -1004,7 +1014,7 @@ END IF in_turn_any
             FLUSH(610)
 
             if (NETCDF_OUT) &
-              CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapour*1d-6,VAPOUR_PROP, save_measured,&
+              CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS_old,reactivities,conc_vapour*1d-6,VAPOUR_PROP, save_measured,&
                             1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar,losses_fit)
             ! At this point the simulation can be stopped if desired
             if (ENABLE_END_FROM_OUTSIDE) CALL CHECK_IF_END_CMD_GIVEN
@@ -1025,8 +1035,23 @@ END IF in_turn_any
             will_stall = 0
 
             ! Update vapour concentrations to chemistry
-            if (Condensation) &
+            if (Condensation) THEN
                 CH_GAS(index_cond(1:VAPOUR_PROP%n_cond_org-1)) = conc_vapour(1:VAPOUR_PROP%n_cond_org-1) *1D-6
+                IF ( H2SO4_ind_in_chemistry>0) THEN
+                  CH_GAS(H2SO4_ind_in_chemistry) = conc_vapour(VAPOUR_PROP%ind_H2SO4) *1D-6
+                ELSE
+
+                END IF
+              END IF
+
+            if (Condensation.and. GTIME%SAVENOW .and. VAPOUR_PROP%ind_g_ULVOC>0) THEN
+              CH_GAS(VAPOUR_PROP%ind_g_ULVOC) = SUM(conc_vapour(1:VAPOUR_PROP%n_cond_org-1) * VAPOUR_PROP%VBS_BINS(:,1) * 1d-6)
+              CH_GAS(VAPOUR_PROP%ind_g_ELVOC) = SUM(conc_vapour(1:VAPOUR_PROP%n_cond_org-1) * VAPOUR_PROP%VBS_BINS(:,2) * 1d-6)
+              CH_GAS(VAPOUR_PROP%ind_g_LVOC) = SUM(conc_vapour(1:VAPOUR_PROP%n_cond_org-1) * VAPOUR_PROP%VBS_BINS(:,3) * 1d-6)
+              CH_GAS(VAPOUR_PROP%ind_g_SVOC) = SUM(conc_vapour(1:VAPOUR_PROP%n_cond_org-1) * VAPOUR_PROP%VBS_BINS(:,4) * 1d-6)
+              CH_GAS(VAPOUR_PROP%ind_g_IVOC) = SUM(conc_vapour(1:VAPOUR_PROP%n_cond_org-1) * VAPOUR_PROP%VBS_BINS(:,5) * 1d-6)
+              CH_GAS(VAPOUR_PROP%ind_g_REST) = SUM(conc_vapour(1:VAPOUR_PROP%n_cond_org-1) * VAPOUR_PROP%VBS_BINS(:,6) * 1d-6)
+            END IF
             ! print*, 'H2SO4', IND('H2SO4', VAPOUR_PROP%vapour_names), index_cond(IND('H2SO4', VAPOUR_PROP%vapour_names))!, ind_H2SO4
             ! print*, 'H2SO4 chem', IND('H2SO4', SPC_NAMES)
             ! print*, 'GENERIC', IND('GENERIC', VAPOUR_PROP%vapour_names), index_cond(IND('GENERIC', VAPOUR_PROP%vapour_names))
@@ -1095,8 +1120,7 @@ END IF
 
 
 ! Close output file netcdf
-if (NETCDF_OUT) &
-  CALL CLOSE_FILES(RUN_OUTPUT_DIR)
+if (NETCDF_OUT) CALL CLOSE_FILES(RUN_OUTPUT_DIR)
 if (OPTIMIZE_DT) THEN
     print*, 'Total rounds for chemistry and/or condensation: ', bookkeeping(1,1)
     print*, 'Total rounds for nucleation and/or coagulation: ', bookkeeping(2,1)
@@ -1531,17 +1555,17 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
     implicit none
     integer :: i,j, check
 
-    if (model_H2SO4) THEN
-        if (H2SO4_ind_in_chemistry<1) THEN
-            print FMT_FAT0, 'H2SO4 should explicitly come from chemistry but it does not exist there. Either '
-            print FMT_SUB, '  uncheck "Replace any input H2SO4 with modelled..." and include H2SO4 to input, or '
-            print FMT_SUB, '  use chemistry that has H2SO4 included.'
-            stop ' '
-        ELSE
-            MODS(inm_H2SO4)%ISPROVIDED = .false.
-            print FMT_SUB, 'Replacing HSO4 input with modelled chemistry'
-        END IF
-    END IF
+    ! if (model_H2SO4) THEN
+    !     if (H2SO4_ind_in_chemistry<1) THEN
+    !         print FMT_FAT0, 'H2SO4 should explicitly come from chemistry but it does not exist there. Either '
+    !         print FMT_SUB, '  uncheck "Replace any input H2SO4 with modelled..." and include H2SO4 to input, or '
+    !         print FMT_SUB, '  use chemistry that has H2SO4 included.'
+    !         stop ' '
+    !     ELSE
+    !         MODS(inm_H2SO4)%ISPROVIDED = .false.
+    !         print FMT_SUB, 'Replacing H2SO4 input with modelled chemistry'
+    !     END IF
+    ! END IF
 
     print FMT_HDR, 'Checking against KPP for chemicals'
     do i=1,N_VARS-N_XTRS
@@ -1678,6 +1702,12 @@ SUBROUTINE FINISH
       do ii = 1,size(CH_GAS)
           WRITE(600,'(a,e12.3)') SPC_NAMES(ii), CH_GAS(ii)
       end do
+      CLOSE(600)
+    end if
+    if (VBS_ONLY) THEN
+      OPEN(600,file=RUN_OUTPUT_DIR//"/VBS_final.txt",status='replace',action='write')
+      WRITE(600,*) GTIME%sec, MATMUL(conc_vapour(1:VAPOUR_PROP%n_cond_org-1)/Na * &
+                   VAPOUR_PROP%molar_mass(1:VAPOUR_PROP%n_cond_org-1)*1d9, VAPOUR_PROP%VBS_BINS(:,:))
       CLOSE(600)
     end if
 

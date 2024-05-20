@@ -50,6 +50,48 @@ extraTwist = True
 # Helper functions
 #
 #==============================================================================#
+# preprocessing newer mcm -> kpp file to smooth this script
+#==============================================================================#
+def preprocess_new_mcm_output(infile):
+  tmpfile = infile+'.txt'
+  ofile = open(tmpfile, 'w+')
+  with open(infile, 'r') as file:
+    in_definitions=False
+    in_defvar = False
+    dummy = False
+    first_comments = True
+    for line in file:
+      if not '//' in line[:4] and first_comments:
+        first_comments = False
+        ofile.write(line)
+        ofile.write("\n")
+        ofile.write("#INLINE F90_GLOBAL \n")
+        ofile.write("  REAL(dp)::M, N2, O2, RO2, H2O \n")
+        ofile.write("#ENDINLINE {above lines go into MODULE KPP_ROOT_Global}\n")
+        ofile.write("\n")
+        continue
+      if '#DEFVAR' in line:
+        in_definitions=True
+        in_defvar=True
+        ofile.write(line)
+        continue
+      if '#DEFFIX' in line:
+        in_definitions=True
+        ofile.write(line)
+        continue
+      if in_definitions and 'dummy' in line.lower():
+        dummy = True
+      if in_definitions and '#' in line[:4]:
+        in_definitions=False
+        if in_defvar and not dummy:
+          ofile.write('dummy = IGNORE ;\n\n')
+          dummy = True
+          defvar = False
+      if in_definitions and re.search('=',line) != None:
+        ofile.write(line.split('=')[0] + '= IGNORE ;\n')
+      else:
+        ofile.write(line)
+  return tmpfile
 
 # Find first index containing substring
 def index_containing_substring(the_list, substring, case_sensative=True):
@@ -216,86 +258,89 @@ def update_equation_list(file_lines, equation_list, equation_norate_list, equati
 
   return
 
-inline_file_lines = [ \
-  '#INLINE F90_GLOBAL\n', \
-  '  INTEGER, PARAMETER :: NPHOT=71\n', \
-  '  REAL(dp) :: J(NPHOT)\n', \
-  '\n', \
-  '  REAL(dp) :: RES1, RES2\n', \
-  '  ! Enables changing reactions rates from the outside of chemistry \n', \
-  '  REAL(DP), SAVE :: R_F(NREACT) = 1d0\n', \
-  '#ENDINLINE\n', \
-  '\n', \
-  '\n', \
-  '#INLINE F90_GLOBAL\n', \
-  '  ! generic reaction rate variables\n', \
-  '  REAL(dp) kro2no, kro2ho2, kapho2, kapno, kro2no3, kno3al, kdec, &\n', \
-  '    krosec, kalkoxy, kalkpxy, kroprim, k14isom1\n', \
-  '  ! variables for calculation of kfpan and kbpan\n', \
-  '  REAL(dp) kfpan, kbpan\n', \
-  '  REAL(dp) kc0, kci, krc, fcc, nc, fc\n', \
-  '  REAL(dp) kd0, kdi, krd, fcd, ncd, fd\n', \
-  '  ! variables for calculation of kmt01\n', \
-  '  REAL(dp) kmt01\n', \
-  '  REAL(dp) k10, k1i, kr1, fc1, nc1, f1\n', \
-  '  ! variables for calculation of kmt02\n', \
-  '  REAL(dp) kmt02\n', \
-  '  REAL(dp) k20, k2i, kr2, fc2, nc2, f2\n', \
-  '  ! variables for calculation of kmt03\n', \
-  '  REAL(dp) kmt03\n', \
-  '  REAL(dp) k30, k3i, kr3, fc3, nc3, f3\n', \
-  '  ! variables for calculation of kmt04\n', \
-  '  REAL(dp) kmt04\n', \
-  '  REAL(dp) k40, k4i, kr4, fc4, nc4, f4\n', \
-  '  ! variables for calculation of kmt05\n', \
-  '  REAL(dp) kmt05\n', \
-  '  ! variables for calculation of kmt06\n', \
-  '  REAL(dp) kmt06\n', \
-  '  ! variables for calculation of kmt07\n', \
-  '  REAL(dp) kmt07\n', \
-  '  REAL(dp) k70, k7i, kr7, fc7, nc7, f7\n', \
-  '  ! variables for calculation of kmt08\n', \
-  '  REAL(dp) kmt08\n', \
-  '  REAL(dp) k80, k8i, kr8, fc8, nc8, f8\n', \
-  '  ! variables for calculation of kmt09\n', \
-  '  REAL(dp) kmt09\n', \
-  '  REAL(dp) k90, k9i, kr9, fc9, nc9, f9\n', \
-  '  ! variables for calculation of kmt10\n', \
-  '  REAL(dp) kmt10\n', \
-  '  REAL(dp) k100, k10i, kr10, fc10, nc10, f10\n', \
-  '  ! variables for calculation of kmt11\n', \
-  '  REAL(dp) kmt11\n', \
-  '  REAL(dp) k1,k2,k3,k4\n', \
-  '  ! variables for calculation of kmt12\n', \
-  '  REAL(dp) kmt12\n', \
-  '  REAL(dp) k120, k12i, kr12, fc12, nc12, f12\n', \
-  '  ! variables for calculation of kmt13\n', \
-  '  REAL(dp) kmt13\n', \
-  '  REAL(dp) k130, k13i, kr13, nc13, fc13, f13\n', \
-  '  ! variables for calculation of kmt14\n', \
-  '  REAL(dp) kmt14\n', \
-  '  REAL(dp) k140, k14i, kr14, nc14, fc14, f14\n', \
-  '  ! variables for calculation of kmt15\n', \
-  '  REAL(dp) kmt15\n', \
-  '  REAL(dp) k150, k15i, kr15, fc15, nc15, f15\n', \
-  '  ! variables for calculation of kmt16\n', \
-  '  REAL(dp) kmt16\n', \
-  '  REAL(dp) k160, k16i, kr16, nc16, fc16, f16\n', \
-  '  ! variables for calculation of kmt17\n', \
-  '  REAL(dp) kmt17\n', \
-  '  REAL(dp) k170, k17i, kr17, fc17, nc17, f17\n', \
-  '  ! variables for calculation of kmt17\n', \
-  '  REAL(dp) kmt18\n', \
-  '  ! variables for calculation of kbppn\n', \
-  '  REAL(dp) :: kbppn\n', \
-  '  REAL(dp) :: kppn0, kppni, krppn, fcppn, ncppn, fppn\n', \
-  '\n', \
-  '  REAL(dp) kch3o2, k298ch3o2\n', \
-  '\n', \
-  '  REAL(dp) kp_rooh, kp_ho2, kp_n2o5, kp_no3, kp_all\n', \
-  '#ENDINLINE\n' \
-  ]
-
+def get_inline_file_lines(args):
+  inline_file_lines = [ \
+    '#INLINE F90_GLOBAL\n', \
+    '  INTEGER, PARAMETER :: NPHOT=71\n', \
+    '  REAL(dp) :: J(NPHOT)\n', \
+    '\n', \
+    '  REAL(dp) :: RES1, RES2\n', \
+    '  ! Enables changing reactions rates from the outside of chemistry \n', \
+    '  REAL(DP), SAVE :: R_F(NREACT) = 1d0\n', \
+    '#ENDINLINE\n', \
+    '\n', \
+    '\n']
+  if args.mcm_output_version == 'old':
+        inline_file_lines = inline_file_lines + [\
+    '#INLINE F90_GLOBAL\n', \
+    '  ! generic reaction rate variables\n', \
+    '  REAL(dp) kro2no, kro2ho2, kapho2, kapno, kro2no3, kno3al, kdec, &\n', \
+    '    krosec, kalkoxy, kalkpxy, kroprim, k14isom1\n', \
+    '  ! variables for calculation of kfpan and kbpan\n', \
+    '  REAL(dp) kfpan, kbpan\n', \
+    '  REAL(dp) kc0, kci, krc, fcc, nc, fc\n', \
+    '  REAL(dp) kd0, kdi, krd, fcd, ncd, fd\n', \
+    '  ! variables for calculation of kmt01\n', \
+    '  REAL(dp) kmt01\n', \
+    '  REAL(dp) k10, k1i, kr1, fc1, nc1, f1\n', \
+    '  ! variables for calculation of kmt02\n', \
+    '  REAL(dp) kmt02\n', \
+    '  REAL(dp) k20, k2i, kr2, fc2, nc2, f2\n', \
+    '  ! variables for calculation of kmt03\n', \
+    '  REAL(dp) kmt03\n', \
+    '  REAL(dp) k30, k3i, kr3, fc3, nc3, f3\n', \
+    '  ! variables for calculation of kmt04\n', \
+    '  REAL(dp) kmt04\n', \
+    '  REAL(dp) k40, k4i, kr4, fc4, nc4, f4\n', \
+    '  ! variables for calculation of kmt05\n', \
+    '  REAL(dp) kmt05\n', \
+    '  ! variables for calculation of kmt06\n', \
+    '  REAL(dp) kmt06\n', \
+    '  ! variables for calculation of kmt07\n', \
+    '  REAL(dp) kmt07\n', \
+    '  REAL(dp) k70, k7i, kr7, fc7, nc7, f7\n', \
+    '  ! variables for calculation of kmt08\n', \
+    '  REAL(dp) kmt08\n', \
+    '  REAL(dp) k80, k8i, kr8, fc8, nc8, f8\n', \
+    '  ! variables for calculation of kmt09\n', \
+    '  REAL(dp) kmt09\n', \
+    '  REAL(dp) k90, k9i, kr9, fc9, nc9, f9\n', \
+    '  ! variables for calculation of kmt10\n', \
+    '  REAL(dp) kmt10\n', \
+    '  REAL(dp) k100, k10i, kr10, fc10, nc10, f10\n', \
+    '  ! variables for calculation of kmt11\n', \
+    '  REAL(dp) kmt11\n', \
+    '  REAL(dp) k1,k2,k3,k4\n', \
+    '  ! variables for calculation of kmt12\n', \
+    '  REAL(dp) kmt12\n', \
+    '  REAL(dp) k120, k12i, kr12, fc12, nc12, f12\n', \
+    '  ! variables for calculation of kmt13\n', \
+    '  REAL(dp) kmt13\n', \
+    '  REAL(dp) k130, k13i, kr13, nc13, fc13, f13\n', \
+    '  ! variables for calculation of kmt14\n', \
+    '  REAL(dp) kmt14\n', \
+    '  REAL(dp) k140, k14i, kr14, nc14, fc14, f14\n', \
+    '  ! variables for calculation of kmt15\n', \
+    '  REAL(dp) kmt15\n', \
+    '  REAL(dp) k150, k15i, kr15, fc15, nc15, f15\n', \
+    '  ! variables for calculation of kmt16\n', \
+    '  REAL(dp) kmt16\n', \
+    '  REAL(dp) k160, k16i, kr16, nc16, fc16, f16\n', \
+    '  ! variables for calculation of kmt17\n', \
+    '  REAL(dp) kmt17\n', \
+    '  REAL(dp) k170, k17i, kr17, fc17, nc17, f17\n', \
+    '  ! variables for calculation of kmt17\n', \
+    '  REAL(dp) kmt18\n', \
+    '  ! variables for calculation of kbppn\n', \
+    '  REAL(dp) :: kbppn\n', \
+    '  REAL(dp) :: kppn0, kppni, krppn, fcppn, ncppn, fppn\n', \
+    '\n', \
+    '  REAL(dp) kch3o2, k298ch3o2\n', \
+    '\n', \
+    '  REAL(dp) kp_rooh, kp_ho2, kp_n2o5, kp_no3, kp_all\n', \
+    '#ENDINLINE\n' \
+    ]
+  return inline_file_lines
 
 
 if __name__ == '__main__':
@@ -358,6 +403,12 @@ if __name__ == '__main__':
     action='store', \
     help='Log file name.')
 
+  parser.add_argument('--mcmver', '-v', \
+    dest='mcm_output_version', \
+    default='old', \
+    action='store', \
+    help='Determines if constants are defined as inline (old mcm output).')
+
   parser.add_argument('--include-files', '-f', \
     dest='include_file_list', \
     nargs='+', \
@@ -375,7 +426,10 @@ if __name__ == '__main__':
     help='Compounds to be put to DEFFIX"')
 
   args = parser.parse_args()
+  if args.mcm_output_version == 'new':
+    args.mcm_kpp_file_name = preprocess_new_mcm_output(args.mcm_kpp_file_name)
 
+  os.makedirs(os.path.split(args.modified_mcm_kpp_file_name)[0], exist_ok=True)
   # Absolute path of the molar mass file generated by MCM
   # Columns after header: name, SMILES, InChI, molar mass (g mol-1)
   # Inorganic species are not included
@@ -437,6 +491,7 @@ if __name__ == '__main__':
   # The text are defined in inline_file_lines
 
   # Insert the content after '#INCLUDE atoms'
+  inline_file_lines = get_inline_file_lines(args)
   line_number_include_atoms, i1, i2 = index_containing_substring(file_lines, r'#include atoms', False)
   file_lines[line_number_include_atoms+1:line_number_include_atoms+1] = \
       ['\n'] + inline_file_lines + ['\n']
@@ -470,27 +525,37 @@ if __name__ == '__main__':
     logging.info('Fix the bug: "= IGNORE --> dummy = IGNORE".')
     logging.info('')
 
+
   # Delete 'USE constants'
   line_number_use_constants, i1, i2 = index_containing_substring(file_lines, r'\s*USE\s*constants', False)
   if line_number_use_constants >= 0:
-    file_lines[line_number_use_constants] = ''
+    if args.mcm_output_version == 'old':
+      file_lines[line_number_use_constants] = ''
+      # Write to log file
+      logging.info('============================================================')
+      logging.info('')
+      logging.info('Deleted the line "USE constants".')
+      logging.info('')
+    else:
+      file_lines[line_number_use_constants] = 'USE second_Constants\n'
+      # Write to log file
+      logging.info('============================================================')
+      logging.info('')
+      logging.info('Changed "USE constants_mcm" to "USE second_Constants".')
+      logging.info('')
 
-    # Write to log file
-    logging.info('============================================================')
-    logging.info('')
-    logging.info('Deleted the line "USE constants".')
-    logging.info('')
 
   # Delete 'Call mcm_constants(..)'
-  line_number_call_constants, i1, i2 = index_containing_substring(file_lines, r'\s*CALL\s*mcm_constants', False)
-  if line_number_call_constants >= 0:
-    file_lines[line_number_call_constants] = ''
+  if args.mcm_output_version == 'old':
+    line_number_call_constants, i1, i2 = index_containing_substring(file_lines, r'\s*CALL\s*mcm_constants', False)
+    if line_number_call_constants >= 0:
+      file_lines[line_number_call_constants] = ''
 
-    # Write to log file
-    logging.info('============================================================')
-    logging.info('')
-    logging.info('Deleted the line "CALL mcm_constants(time, temp, M, N2, O2, RO2, H2O)".')
-    logging.info('')
+      # Write to log file
+      logging.info('============================================================')
+      logging.info('')
+      logging.info('Deleted the line "CALL mcm_constants(time, temp, M, N2, O2, RO2, H2O)".')
+      logging.info('')
 
   # "O + O3 = xxx :" --> "O + O3 = dummy :"
   # Notice: double check is used here to avoid changing, e.g., CH3O + O3 = xxx.
@@ -896,6 +961,11 @@ if __name__ == '__main__':
   logging.info('')
   logging.info('Removed all the carriage return character ^M.')
   logging.info('')
+
+  if args.mcm_output_version == 'new':
+      file_lines.pop(index_containing_substring(file_lines, "^#INCLUDE atoms")[0])
+      import os
+      os.remove(args.mcm_kpp_file_name)
   with open(args.modified_mcm_kpp_file_name, 'w') as f:
     f.writelines(file_lines)
 

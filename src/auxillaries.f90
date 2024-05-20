@@ -448,6 +448,65 @@ pure elemental function saturation_conc_m3(A,B, Temperature) result(Vapour_conce
 
 end function saturation_conc_m3
 
+elemental function CSat_VBS(nC,nO,nN,method) result(Csat)
+  IMPLICIT NONE
+  real(dp), intent(in) :: nC,nO,nN
+  real(dp) :: Csat ![µg/m3]
+  real(dp) :: bC,bO,bCO,bN, enthalpy, aa, bb
+  character(4), intent(in) :: method
+
+  if ((UCASE(method)=='STOL').and.(nC<11)) THEN
+    ! Stolzenburg et al. (2018) MT-autoxidation monomers
+    bC = 0.475
+    bO = 1.4
+    bCO = -0.3
+    bN = 2.5
+  else if ((UCASE(method)=='STOL').and.(nC>10)) THEN
+    ! Stolzenburg et al. (2018) MT-autoxidation dimers
+    bC = 0.475
+    bO = 1.17
+    bCO = -0.3
+    bN = 2.5
+  else if (UCASE(method)=='MOHR') THEN
+    ! Mohr et al. (2019), all MT products
+    bC = 0.475
+    bO = 0.2
+    bCO = 0.9
+    bN = 2.5
+  else if (UCASE(method)=='DONA') THEN
+    ! Donahue, Epstein, et al. (2011), the rest
+    bC = 0.475
+    bO = 2.3
+    bCO = -0.3
+    bN = 2.5
+  end if
+
+  Csat =  (25-nC)*bC-(nO-3*nN)*bO-2*((nO-3*nN)*nC/(nC+nO-3*nN))*bCO-nN*bN  ! log10(Csat)
+
+end function CSat_VBS
+
+pure elemental function Enthalpy_VBS(Csat) result(enthalpy)
+  IMPLICIT NONE
+  real(dp), intent(in) :: Csat
+  real(dp)             :: enthalpy, aa, bb
+  aa = -5.7d0
+  bb = 129d0
+  enthalpy = aa*Csat + bb
+end function Enthalpy_VBS
+
+
+elemental function CSat_VBS_temp(Csat,enthalpy,M,temperature) result(Vapour_concentration)
+  IMPLICIT NONE
+  real(dp), intent(in) :: Csat,enthalpy, temperature,M
+  real(dp) :: Vapour_concentration
+
+  Vapour_concentration = Csat + (1000d0*enthalpy) / (Rg*log(10d0)) * (1d0/300d0 - 1d0/temperature)
+  Vapour_concentration = (10**Vapour_concentration) * 1e-9 * Na / M
+
+end function CSat_VBS_temp
+
+
+
 
 SUBROUTINE opti(report)
     implicit none

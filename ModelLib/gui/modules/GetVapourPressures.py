@@ -21,52 +21,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 =============================================================================
 """
 
-try:
-    import numpy as np
-    import sys
-    import os
-    import json
-    import requests
-    import pickle # optional
-    from scipy import optimize
-except:
-    print('To run this script, you need NumPy, SciPy, requests, pickle')
+from pdb import set_trace as bp
+# try:
+import numpy as np
+import sys
+import os
+import json
+import requests
+import pickle # optional
+from scipy import optimize
+# except:
+    # print('To run this script, you need NumPy, SciPy, requests, pickle')
 
 def fitSimple(T,A,B):
     return A - B/(T)
-
-def ManU(temp, smiles,vp_method,bp_method,s):
-    N=len(smiles)
-    prop_matrix = np.zeros((N, len(temp) ) )
-    url = 'http://umansysprop.seaes.manchester.ac.uk/api/vapour_pressure'
-    print('Contacting ', url)
-    get_vapours = {
-                "vp_method": vp_method,
-                "bp_method": bp_method,
-                "temperatures": list(temp),
-                "compounds": list(smiles)
-                }
-    header = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Content-Length': '%d'%(len(str(get_vapours))+1),
-            'Accept-Encoding': 'gzip, deflate',
-            'User-Agent': 'python-requests/2.4.1 CPython/2.7.6 Linux/3.13.0-48-generic',
-            'keep-alive': 'timeout=10, max=100',
-            'Connection': 'keep-alive'
-            }
-
-    try:
-        x = s.post(url, data = json.dumps(get_vapours), headers=header)
-    except requests.Timeout:
-        print('Timeout, maybe try again?')
-        return
-    data = x.json()[0]
-    alldata = data['data']
-    # print(len(alldata))
-    for i in range(len(alldata)):
-        prop_matrix[i%N,i//N] = float(alldata[i]['value'])
-    return prop_matrix
 
 def askfor(key):
     return
@@ -139,34 +107,46 @@ def getVaps(runforever=False, args={}):
 
 
         i = 0
-        for line in f:
-            if "Molecular weights for species present in the subset" in line: break
-            i = i+1
-        f.close()
+        if args['mcm_type'] == 'old':
+            for line in f:
+                if "Molecular weights for species present in the subset" in line: break
+                i = i+1
+            f.close()
+            names, smiles, mass = np.genfromtxt(args['smilesfile'], usecols=(0,1,3),unpack=True, skip_header=i+3, dtype=str, comments='@')
+        if args['mcm_type'] == 'new':
+            names, smiles, mass = [],[],[]
+            incomps = False
+            for line in f:
+                if "NameSmilesInchiInchiKeyFormulaMass" in line.replace('\t','').replace(' ',''):
+                    incomps = True
+                    continue
+                if incomps:
+                    vals = line.split()
+                    if len(vals)>5:
+                        names.append(vals[0])
+                        smiles.append(vals[1])
+                        mass.append(vals[5])
+            f.close()
+            names = np.array(names)
+            smiles = np.array(smiles)
+            mass = np.array(mass)
 
-        names, smiles, mass = np.genfromtxt(args['smilesfile'], usecols=(0,1,3),unpack=True, skip_header=i+3, dtype=str, comments='@')
         N = len(names)
 
-        n_temp = 8
-        temp = np.linspace(253.15,323.15,n_temp)
-
-        n_first = (len(names)%100)
-        if n_first<=len(names):
-            rest = len(names[n_first:])//100
-
+        n_temp = 10
+        temp = np.linspace(253.15,333.15,n_temp)
+        sigma = np.ones(n_temp)*0.2
+        sigma[temp<268] = 0.8
+        sigma[-1] = 0.8
         buffer  = np.zeros((N, n_temp))
-        try:
-            buffer = pickle.load(open(os.path.join(smilesdir, smilesfile+args['vp_method']+args['bp_method']+"_UMan_Fetch.pickle"), "rb"))
-        except:
-            with requests.Session() as session:
-                if rest>0:
-                    print('Fetching compounds in chunks of 100, have patience, this might take a while.')
-                    for j in range(rest):
-                        print('Fetching compounds from %i to %i of %d.'%(j*100, (j+1)*100, N))
-                        buffer[j*100:(j+1)*100,:] = ManU(temp, smiles[j*100:(j+1)*100], args['vp_method'], args['bp_method'],session)
-                print('Fetching compounds %i to %i.'%(N-n_first+1, N))
-                buffer[-n_first:,:] = ManU(temp, smiles[-n_first:], args['vp_method'], args['bp_method'],session)
-                #pickle.dump( buffer, open( os.path.join(smilesdir, smilesfile+args['vp_method']+args['bp_method']+"_UMan_Fetch.pickle"), "wb" ) )
+
+        for i_s, cheese in enumerate(smiles):
+            # get_VP(temperatures, mySmiles,vp_method='',bp_method='',umanpath='/xyz'):
+            tmp = get_VP(temp,[cheese],vp_method=args['vp_method'],bp_method=args['bp_method'],umanpath=args['uMan_loc'])
+            if i_s == 0 and 'str' in str(type(tmp)):
+                return ('FAILED' ,tmp)
+            if i_s%100 == 0: print(f'Working with compound nr {i_s:0d}')
+            buffer[i_s,:] = tmp[cheese]
 
         n_homs = 0
 
@@ -251,7 +231,7 @@ def getVaps(runforever=False, args={}):
         for i in range(N):
             MAB[i,0] = selected_vapourmass[i]
             try:
-                MAB[i,1:], pcovS = optimize.curve_fit(fitSimple, temp, selected_vapours[i,:], maxfev = 100000)
+                MAB[i,1:], pcovS = optimize.curve_fit(fitSimple, temp, selected_vapours[i,:], maxfev = 100000, sigma=sigma)
             except:
                 print('WARNING: Failed to fit Antoine equation to : '+selected_vapournames[i])
 
@@ -302,46 +282,107 @@ def getVaps(runforever=False, args={}):
     print('    Done, saved %d compounds' %count)
     return ('Done', 'Succesfully saved %d compounds' %count)
 
+
+def get_VP(temperatures, mySmiles,vp_method='',bp_method='',umanpath='/xyz'):
+    ##########################################################################################
+    #											                                             #
+    #    Based on an example file that loads in SMILES strings and then calculates           #
+    #    pure component properties for a given temperature                                   #
+    #                                                                                        #
+    #    Copyright (C) 2016  David Topping : david.topping@manchester.ac.uk                  #
+    #                                      : davetopp80@gmail.com     			             #
+    #    Personal website: davetoppingsci.com                                                #
+    #											                                             #
+    #    This program is free software: you can redistribute it and/or modify                #
+    #    it under the terms of the GNU Affero General Public License as published            #
+    #    by the Free Software Foundation, either version 3 of the License, or                #
+    #    (at your option) any later version.                                                 #
+    #                                                                                        #
+    #    This program is distributed in the hope that it will be useful,                     #
+    #    but WITHOUT ANY WARRANTY; without even the implied warranty of                      #
+    #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                       #
+    #    GNU Affero General Public License for more details.                                 #
+    #                                                                                        #
+    #    You should have received a copy of the GNU Affero General Public License            #
+    #    along with this program.  If not, see <http://www.gnu.org/licenses/>.               #
+    #                                                                                        #
+    ##########################################################################################
+    try:
+        from openbabel import pybel
+    except:
+        print('Openbabel is needed for umansysprop. You can install it with python -m pip install openbabel')
+        return('Openbabel is needed for umansysprop. You can install it with python -m pip install openbabel')
+    try:
+        from flask import request
+    except:
+        print('Flask-WTF is needed for umansysprop. You can install it with python -m pip install -U Flask-WTF')
+        return('Flask-WTF is needed for umansysprop. You can install it with python -m pip install -U Flask-WTF')
+
+    import collections
+
+    sys.path.insert(0,os.path.abspath(umanpath))
+    try:
+        from umansysprop import boiling_points
+        from umansysprop import vapour_pressures
+        from umansysprop import critical_properties
+        from umansysprop import liquid_densities
+    except:
+        print( 'Failed to import umansysprop, was the path to it correct?')
+        return 'Failed to import umansysprop, was the path to it correct?'
+    Pybel_object_dict = {}
+
+    for Smiles in mySmiles:
+       # Now create Pybel objects which are used in all property predictive techniquexs
+       Pybel_object=pybel.readstring('smi',Smiles)
+       Pybel_object_dict[Smiles]=Pybel_object
+
+    ##########################################################################################
+    # 2) Create a dictionary of properties based on these Pybel objects
+
+    # NOTE: For some of the vapour pressure values, you need to perform a boiling point estimation first
+    # It is therefore wise to do this initially
+
+    # 2a) Boiling points [(K)]
+    boiling_point_dict=collections.defaultdict()
+
+    if vp_method != 'evaporation':
+        for Smiles in mySmiles:
+            if bp_method == 'joback_and_reid':
+                boiling_point_dict[Smiles] = boiling_points.joback_and_reid(Pybel_object_dict[Smiles])
+            elif bp_method == 'stein_and_brown':
+                boiling_point_dict[Smiles] = boiling_points.stein_and_brown(Pybel_object_dict[Smiles])
+            elif bp_method == 'nannoolal':
+                boiling_point_dict[Smiles] = boiling_points.nannoolal(Pybel_object_dict[Smiles])
+
+    vapour_pressure_dict=collections.defaultdict(list)
+
+    for Smiles in mySmiles:
+        for temperature in temperatures:
+            if vp_method == 'evaporation':
+                vapour_pressure_dict[Smiles].append(vapour_pressures.evaporation(Pybel_object_dict[Smiles], temperature))
+            elif vp_method == 'nannoolal':
+                vapour_pressure_dict[Smiles].append(vapour_pressures.nannoolal(Pybel_object_dict[Smiles], temperature, boiling_point_dict[Smiles]))
+            elif  vp_method == 'myrdal_and_yalkowsky':
+                vapour_pressure_dict[Smiles].append(vapour_pressures.myrdal_and_yalkowsky(Pybel_object_dict[Smiles], temperature, boiling_point_dict[Smiles]))
+            else:
+                return 'Unknown method '+vp_method
+    return vapour_pressure_dict
+
+
+
 # ------------------------
 if __name__ == '__main__':
-    # if len(sys.args)
-    root = '/home/pecl/05-ARCA/ChemistryPackage/mcm_large.txt'
-    qserver = input('Use AMG database y/n (default=yes)?:\n')
-    if qserver.upper()=='N':
-        server = False
-        mcmfile = input('Give path to SMILES file (from (MCM), default %s):\n'%root)
-        if mcmfile != '': root = mcmfile
 
-        replace_UMAN = input('Fetch from UMAN database y/n (replacing any current, default=No)?:\n')
-        if replace_UMAN.upper() == 'Y' and os.path.exists('umansysprop.pickle'):
-            os.remove('umansysprop.pickle')
-    else: server = True
-
-    qpram = input('Use PRAM y/n (default=yes)?:\n')
-    if qpram.upper()=='N':
-        pram = False
-    else: pram = True
-
-    psat_lim = input('Limit Psat[atm] to (default=1e-6)?:\n')
-    if psat_lim=='':
-        psat_lim = 1e-6
-    else:
-        psat_lim = float(psat_lim)
-
-    qsortDesc = input('Sort to descending order by Psat (y/n, default = No sorting)?:\n')
-    if qsortDesc.upper()=='Y':
-        sortDesc = True
-    else: sortDesc = False
-
-    print('Using ',root)
-    print('Picking compounds with vapour pressure lower than ',psat_lim)
+    args = {}
+    args['server'] = "UMan"
+    args['smilesfile'] = "/home/pecl/05-ARCA/ARCA-box/ModelLib/chemistry_schemes/Full_MCM/mcm_subset_mass_reduced.txt"
+    args['saveto'] = "/home/pecl/Desktop/test.txt"
+    args['psat_lim'] = 1e9
+    args['pram'] = False
+    args['pramfile'] = ""
 
 
-    runon = True
-    while runon:
-        runon = False
-        getVaps(runforever=True)
-        q = input('\nRestart (r) program or quit (q, default)?:\n')
-        if q.lower() == 'r': runon = True
+
+
 
 #

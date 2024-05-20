@@ -114,16 +114,20 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
     END DO
 
     DO ic = 1, n_cond_tot
-        ! write(*,'(a)',advance='no'), VAPOUR_PROP%vapour_names(ic)
-        ! NOTE GENERIC does not exist in gas phase
-        if (ic == VAPOUR_PROP%ind_GENERIC) THEN
+        ! write(*,'(a,i0)'), VAPOUR_PROP%vapour_names(ic),VAPOUR_PROP%cond_type(ic)
+        ! NOTE GENERIC and other genric organics do not exist in gas phase
+        if (VAPOUR_PROP%cond_type(ic)>2.or.VAPOUR_PROP%cond_type(ic)<1) THEN
             ! print*, ''
             cycle
         end if
-        if (VAPOUR_PROP%cond_type(ic)>2) THEN
-            ! print*, ''
-            cycle
-        end if
+        ! if (TRIM(VAPOUR_PROP%vapour_names(ic))=='NVaq' .and.conc_vap(ic)>conc_vap(VAPOUR_PROP%ind_H2SO4)) THEN
+        !     dmass(:,ic) = dmass(:,VAPOUR_PROP%ind_H2SO4)*0.3474d0
+        !     conc_vap(ic) = conc_vap(ic) - sum(Na*dmass(:,ic)/VAPOUR_PROP%molar_mass(ic))
+        !     cycle
+        ! end if
+
+
+
         ! if (GTIME%printnow) write(*,*), GTIME%hms,'->', VAPOUR_PROP%vapour_names(ic),VAPOUR_PROP%cond_type(ic)
 
         ! Collision rate of particles and gas molecules * concentration -> total number of collisions/s
@@ -157,9 +161,10 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
         END IF
 
 
-        ! Update conc_vap: total conc - particle phase concentration. Sulfuric acid is handled in chemistry if it has H2SO4
-        if (ic /= VAPOUR_PROP%ind_H2SO4 .or. H2SO4_ind_in_chemistry<1) &
+        ! Update conc_vap: total conc - particle phase concentration.
+        ! if ((ic /= VAPOUR_PROP%ind_H2SO4 .or. H2SO4_ind_in_chemistry<1 ).or..not.Chemistry_flag) THEN
             conc_vap(ic) = conc_tot(ic) - sum(conc_pp(:,ic))
+          ! END IF
 
         ! derive the relative changes in the vapor phase. MIN_CONCTOT_CC_FOR_DVAP is in NML_CUSTOM
         IF ( conc_tot(ic) > MIN_CONCTOT_CC_FOR_DVAP * 1d6 ) &
@@ -208,17 +213,42 @@ SUBROUTINE AGING(composition, halflife, dt)
     real(dp), intent(INOUT) :: composition(:,:)
     real(dp), intent(IN   ) :: halflife
     real(dp), intent(IN   ) :: dt
-    real(dp)                :: decay, k, agedmass(n_bins_par)
-    INTEGER                 :: ic
+    real(dp)                :: decay, k, newcompo(n_bins_par),vbscompo(n_bins_par),vbs_frac(n_bins_par)
+    real(dp)                :: meanmass
+    INTEGER                 :: ic,ivbs
 
-    agedmass = 0d0
-    do ic=1,VAPOUR_PROP%n_cond_org
+
+    SELECT case (Aging_exponent)
+    CASE(1)
         k = log(2d0)/halflife
         decay = exp(-k*dt)
-        composition(:,ic) = composition(:,ic) * decay
-        agedmass = agedmass + composition(:,ic)*(1-decay)
+      do ivbs = 0, 5
+        composition(:,VAPOUR_PROP%ind_p_ULVOC + ivbs) = composition(:,VAPOUR_PROP%ind_p_ULVOC + ivbs) &
+           & + sum(composition(:,:VAPOUR_PROP%n_cond_org-1) * SPREAD(VAPOUR_PROP%VBS_BINS(:,ivbs+1),1,n_bins_par),2) * (1-decay)
+      end do
+      composition(:,:VAPOUR_PROP%n_cond_org-1) = composition(:,:VAPOUR_PROP%n_cond_org-1) * decay
+
+    CASE(2)
+      do ivbs = 0, 5
+        k = AGING_K(ivbs+1)
+        newcompo = 0d0
+        vbs_frac = 1d0
+        if (SUM(VAPOUR_PROP%VBS_BINS(:,ivbs+1))==0) cycle
+        meanmass = SUM(VAPOUR_PROP%molar_mass(:VAPOUR_PROP%n_cond_org-1) * VAPOUR_PROP%VBS_BINS(:,ivbs+1)) / SUM(VAPOUR_PROP%VBS_BINS(:,ivbs+1))
+        vbscompo = SUM(composition(:,:VAPOUR_PROP%n_cond_org-1) * SPREAD(VAPOUR_PROP%VBS_BINS(:,ivbs+1),1,n_bins_par), 2)
+        vbscompo = Na * vbscompo / meanmass / (current_PSD%volume_fs * 1e6)
+        where (vbscompo>0d0) newcompo = 1d0 / (1d0/vbscompo + k*dt)
+        where (vbscompo>0d0) vbs_frac = newcompo/vbscompo
+
+        composition(:,VAPOUR_PROP%ind_p_ULVOC + ivbs) = composition(:,VAPOUR_PROP%ind_p_ULVOC + ivbs) &
+           & + sum(composition(:,:VAPOUR_PROP%n_cond_org-1) * SPREAD(VAPOUR_PROP%VBS_BINS(:,ivbs+1),1,n_bins_par),2) * (1-vbs_frac)
+
+        composition(:,:VAPOUR_PROP%n_cond_org-1) = composition(:,:VAPOUR_PROP%n_cond_org-1) &
+          & - composition(:,:VAPOUR_PROP%n_cond_org-1) * SPREAD(VAPOUR_PROP%VBS_BINS(:,ivbs+1),1,n_bins_par) * TRANSPOSE(SPREAD(1-vbs_frac, 1, VAPOUR_PROP%n_cond_org-1))
+
     END DO
-    composition(:,VAPOUR_PROP%ind_GENERIC) = composition(:,VAPOUR_PROP%ind_GENERIC) + agedmass
+
+    END select
 
 END SUBROUTINE AGING
 
@@ -534,23 +564,25 @@ real(dp) function avg3neg(arr)
     END IF
 end function avg3neg
 
-SUBROUTINE VBS_BINNING(VAP_PROP)
+SUBROUTINE VBS_BINNING(VAP_PROP, indexing)
   type(vapour_ambient), INTENT(INOUT) :: VAP_PROP
-  integer :: i,j
+  integer :: i
+  logical :: indexing
 
   VAP_PROP%VBS_BINS = 0
-  VAP_PROP%VBS_BINS(:,1) = 1
   do i = 1,VAP_PROP%n_cond_org-1
-    do j=NVBS-1,1,-1
-    IF (log10(VAP_PROP%c_sat(i)/Na*VAP_PROP%molar_mass(i)*1d9)>VBS_LIMITS(j)) THEN
-      VAP_PROP%VBS_BINS(i,j+1) = 1
-      VAP_PROP%VBS_BINS(i,1) = 0
-      EXIT
-    END IF
-
+    VAP_PROP%VBS_BINS(i,1+size(pack(VBS_LIMITS,VBS_LIMITS<log10(VAP_PROP%c_sat(i)/Na*VAP_PROP%molar_mass(i)*1d9)))) = 1
   END DO
+  if (indexing) THEN
+    do i = VAP_PROP%n_cond_org,VAP_PROP%n_cond_tot
+      if (TRIM(VAP_PROP%vapour_names(i)) == 'p_ULVOC') VAP_PROP%ind_p_ULVOC = i
+      if (TRIM(VAP_PROP%vapour_names(i)) == 'p_ELVOC') VAP_PROP%ind_p_ELVOC = i
+      if (TRIM(VAP_PROP%vapour_names(i)) == 'p_LVOC') VAP_PROP%ind_p_LVOC = i
+      if (TRIM(VAP_PROP%vapour_names(i)) == 'p_SVOC') VAP_PROP%ind_p_SVOC = i
+      if (TRIM(VAP_PROP%vapour_names(i)) == 'p_IVOC') VAP_PROP%ind_p_IVOC = i
+      if (TRIM(VAP_PROP%vapour_names(i)) == 'p_REST') VAP_PROP%ind_p_REST = i
   END DO
-
+  END IF
 END SUBROUTINE VBS_BINNING
 
 

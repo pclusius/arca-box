@@ -1,3 +1,18 @@
+1.3.2
+Updates:
+- GUI: Compatible with new MCM web interface and the files it provides
+- GUI: As UManSysProp website was terminated, the user can now install the offline version and use it through the GUI's
+  "Create Vapour file" -tool. Clone UManSysProp from github: https://github.com/loftytopping/UManSysProp_public.git,
+  and take note of the path of "UManSysProp_public" and save it in the "Create Vapour file" -tool. The tool relies on
+  Python and needs the openbabel and Flask-WTF packages. 
+
+Changes:
+- Sulfuric acid is now treated as other condensables, and removed from gas phase in the aerosol module, not in chemistry
+  as previously (mainly for historic reasons).
+- removed the strange Ignore Input H2SO4 and always use modelled -option. If H2SO4 is sent in as time dependent variable,
+  it will override modelled H2SO4. To initialize, use the custom option "INIT_ONLY"
+- KPP 2 support will be faded out, the user is incouraged to install KPP 3
+
 1.3.1
 Updates:
 - GUI: option to accomodate the gui for dark mode. Note, the gui still uses system theme, but the colours

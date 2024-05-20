@@ -39,6 +39,12 @@ CHMDIR = SimpleChem
 
 # USER OTIONS FINISH HERE ==============================================================================================
 
+ifeq ($(wildcard ${SRCDIR}/chemistry/${CHMDIR}/second_Constants.f90),)
+	CHM_CNST =
+else
+	CHM_CNST = second_Constants.o
+endif
+
 NAC := $(shell find ${SRCDIR}/ACDC/ACDC_* -maxdepth 0 -type d |wc -l|sed 's/ //g')
 n_acdc := $(shell seq $(NAC))
 

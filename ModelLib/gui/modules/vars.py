@@ -85,7 +85,7 @@ class INITFILE:
             self.COAGULATION=0
             self.DEPOSITION=0
             self.CHEM_DEPOSITION=0
-            self.MODEL_H2SO4=0
+            # self.MODEL_H2SO4=0
             self.ORG_NUCL=0
             self.PRINT_ACDC=0
             self.OPTIMIZE_DT=0
@@ -104,7 +104,7 @@ class INITFILE:
             exec("%s(' COAGULATION = %s%s')"%(cmd,self.COAGULATION,eol))
             exec("%s(' DEPOSITION = %s%s')"%(cmd,self.DEPOSITION,eol))
             exec("%s(' CHEM_DEPOSITION = %s%s')"%(cmd,self.CHEM_DEPOSITION,eol))
-            exec("%s(' MODEL_H2SO4 = %s%s')"%(cmd,self.MODEL_H2SO4,eol))
+            # exec("%s(' MODEL_H2SO4 = %s%s')"%(cmd,self.MODEL_H2SO4,eol))
             exec("%s(' ORG_NUCL = %s%s')"%(cmd,self.ORG_NUCL,eol))
             exec("%s(' PRINT_ACDC = %s%s')"%(cmd,self.PRINT_ACDC,eol))
             exec("%s(' OPTIMIZE_DT = %s%s')"%(cmd,self.OPTIMIZE_DT,eol))

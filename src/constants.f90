@@ -204,6 +204,18 @@ type :: vapour_ambient
     integer                         :: n_cond_tot            ! number of all vapours, all types 1+2+3 (including acids, generic etc.)
     integer                         :: ind_H2SO4            ! index for H2SO4
     integer                         :: ind_GENERIC          ! index of GENERIC composition
+    integer                         :: ind_p_ULVOC
+    integer                         :: ind_p_ELVOC
+    integer                         :: ind_p_LVOC
+    integer                         :: ind_p_SVOC
+    integer                         :: ind_p_IVOC
+    integer                         :: ind_p_REST
+    integer                         :: ind_g_ULVOC
+    integer                         :: ind_g_ELVOC
+    integer                         :: ind_g_LVOC
+    integer                         :: ind_g_SVOC
+    integer                         :: ind_g_IVOC
+    integer                         :: ind_g_REST
     integer, allocatable            :: cond_type(:)         ! 0 = Non-evaporating Generic, 1 = Organic vapour 2 = Acid 3=Base. cond_type >= 2 are inorganics
     real(dp), allocatable           :: molar_mass(:)        ! molar mass [kg]
     real(dp), allocatable           :: psat_a(:), psat_b(:) ! Parameters to calculate sat. vapour press.: log10(Psat) = a-b/T Psat=[atm]

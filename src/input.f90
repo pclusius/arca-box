@@ -29,10 +29,6 @@ USE auxillaries
 
 Implicit none
 
-! Relative path to NAMES.DAT
-CHARACTER(27), PARAMETER :: NAMESDAT = 'ModelLib/required/NAMES.dat'
-CHARACTER(31), PARAMETER :: INORGANIC = 'ModelLib/required/INORGANIC.dat'
-CHARACTER(27), PARAMETER :: XTRASDAT = 'ModelLib/required/AEMS.dat'
 INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
 INTEGER :: N_XTRS ! This will store the number of variables in AEMS.DAT
 INTEGER :: LENV   ! This will store the number of named indices in this code
@@ -87,7 +83,7 @@ CHARACTER(len=5)   :: gui        ! magic word for gui in use
 LOGICAL            :: ingui = .False. ! True if program is invoked from gui, from command line
 CHARACTER(len=14), parameter  :: namelists(21) = &
 ['NML_TIME      ','NML_Flag      ','NML_Path      ','NML_MISC      ','NML_VAP       ','NML_PARTICLE  ','NML_ENV       ',&
- 'NML_MCM       ','NML_MODS      ','NML_PRECISION ','NML_CUSTOM    ','NML_ACDC      ','              ','              ',&       ! to help troubleshooting
+ 'NML_MCM       ','NML_MODS      ','NML_PRECISION ','NML_CUSTOM    ','NML_ACDC      ','NML_NAMES     ','              ',&       ! to help troubleshooting
  '              ','              ','              ','              ','              ','              ','              ']       ! to help troubleshooting
 
 ! MAIN PATHS
@@ -112,8 +108,8 @@ Logical :: Chem_Deposition     = .false.
 ! Logical :: Extra_data          = .false.
 Logical :: RESOLVE_BASE        = .false.
 Logical :: PRINT_ACDC          = .false.
-Logical :: OPTIMIZE_DT           = .false. ! Will be deprecated after 1.2
-Logical :: USE_SPEED         = .false. ! Replacing OPTIMIZE_DT
+Logical :: OPTIMIZE_DT         = .false. ! Will be deprecated after 1.2
+Logical :: USE_SPEED           = .false. ! Replacing OPTIMIZE_DT
 Logical :: AFTER_CHEM_ON       = .false.
 Logical :: AFTER_NUCL_ON       = .false.
 CHARACTER(len=3) :: FILE_TIME_UNIT  = 'day'
@@ -250,6 +246,7 @@ Logical  :: DONT_SAVE_CONDENSIBLES     = .False. ! DEPRECATED, has no effect
 real(dp) :: dmps_tres_min              = 10.
 real(dp) :: VP_MULTI                   = 1d0
 real(dp) :: start_time_s               = 0d0
+real(dp) :: LAST_VBS_BINNING_S         = 1d100 ! Any number larger than runtime will do as defaults
 real(dp) :: END_DMPS_PARTIAL           = 1d100 ! Any number larger than runtime will do as defaults
 real(dp) :: FLOAT_CHEMISTRY_AFTER_HRS  = 1d100 ! Any number larger than runtime will do as defaults
 real(dp) :: FLOAT_CONC_AFTER_HRS       = 1d100 ! Any number larger than runtime will do as defaults
@@ -268,27 +265,43 @@ LOGICAL  :: TEMP_DEP_SURFACE_TENSION   = .False.
 LOGICAL  :: use_diff_dia_from_diff_vol = .False.
 LOGICAL  :: PARAM_AGING                = .False.
 real(dp) :: AGING_HL_HRS               = 1d3 ! [hrs] common aging halflife in particle phase organics.
+INTEGER  :: Aging_exponent             = 1
 REAL(dp), ALLOCATABLE :: GR_bins(:)  ! used for GR calculation [m]
 Logical  :: CALC_GR                 = .True.
 Logical  :: ENABLE_END_FROM_OUTSIDE = .True.
 Logical  :: Use_old_composition     = .false.
 Logical  :: NETCDF_OUT              = .true.
 Logical  :: FINAL_CHEM_TXT          = .false.
+Logical  :: VBS_ONLY                = .false.
+Logical  :: VBS_CSAT                = .false.
+Logical  :: PP_H2SO4_TO_AMM_SULFATE = .false.
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
 real(dp) :: DT_UPPER_LIMIT(3)       = [150d0,150d0,150d0]
 real(dp) :: Limit_for_Evaporation   = 0_dp ! not in use
 real(dp) :: alpha_coa               = 1d0 ! Accomodation coefficient for coagulation
+! real(dp) :: DP_large_particle_limit = 1d0 ! smallest diameter vith viscosity effects [m]
+! real(dp) :: k_large_particle_limit  = 0d0 ! expoent for viscosity effect: activity = activity * (1 + log10(diam/viscous_diam)**viscous_exp)
 real(dp) :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! [#/cm3] lower threshold of concentration, which is checked in optimized time step.
                                           ! Here the idea is that we don't worry about changes of gases whic only exist in so
                                           ! small concentrations
 ! CHARACTER(len=500)  :: mmodal_input_ems  = ''       ! String defining the Modal PSD emissions
 ! INTEGER             :: mmodal_input_inuse_ems  = -1 ! Switch toggling the Modal PSD
+! CHARACTER(4)  :: nonhomspara = 'mohr'
+! CHARACTER(4)  :: homspara = 'stol'
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .true.
 REAL(dp) :: factorsForReactionRates(NREACT) = 1d0   ! factors to modify chemical reaction rates (optionally)
+REAL(dp) :: START_CHEM = -9.9d10 ! Start and stop times in seconds for chem and aero
+REAL(dp) :: STOP_CHEM  =  9.9d10 ! Start and stop times in seconds for chem and aero
+REAL(dp) :: START_AER  = -9.9d10 ! Start and stop times in seconds for chem and aero
+REAL(dp) :: STOP_AER   =  9.9d10 ! Start and stop times in seconds for chem and aero
+
 INTEGER,PARAMETER :: NVBS = 6
+!                                ULVOC   |  ELVOC   |   LVOC   |  SVOC   |  IVOC   |   REST
+!                                      -8.5       -4.5       -0.5       2.5       6.0
 REAL(DP) :: VBS_LIMITS(NVBS-1) = [-8.5,-4.5,-0.5,2.5,6.0]
+REAL(DP) :: AGING_K(NVBS) = [1.6e-23,1.6e-23,1.6e-23,1.6e-23,1.6e-23,1.6e-23]
 CHARACTER(8) :: VBS_NAMES(NVBS) = ['ULVOC   ','ELVOC   ','LVOC    ','SVOC    ','IVOC    ','REST    ']
 
 NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
@@ -298,7 +311,9 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       TEMP_DEP_SURFACE_TENSION, use_diff_dia_from_diff_vol, DT_UPPER_LIMIT, ENABLE_END_FROM_OUTSIDE, &
                       Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor,&
                       SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,INIT_ONLY, &
-                      FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS,FINAL_CHEM_TXT,NETCDF_OUT,VBS_LIMITS,VBS_NAMES
+                      FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS,FINAL_CHEM_TXT,NETCDF_OUT,VBS_LIMITS,VBS_NAMES,&
+                      VBS_ONLY,PP_H2SO4_TO_AMM_SULFATE,VBS_CSAT, &
+                      LAST_VBS_BINNING_S,Aging_exponent,AGING_K, START_CHEM, STOP_CHEM, START_AER, STOP_AER
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -312,10 +327,20 @@ INTEGER, ALLOCATABLE        :: ACDC_SYSTEMS(:)
 CHARACTER(250), ALLOCATABLE :: ACDC_links(:)
 
 NAMELIST /NML_ACDC/ ACDC_SYSTEMS, ACDC_links
+! ==================================================================================================================
 ! ! Options for screen output
 ! LOGICAL :: clusterfractions,jions,timestep_multipliers,time_efficiency,Jorganic,GR
 ! NAMELIST /NML_SCREENPRINTS/ clusterfractions,jions,timestep_multipliers,time_efficiency,Jorganic,GR
+! Relative path to NAMES.DAT
 
+! ==================================================================================================================
+CHARACTER(27) :: NAMESDAT = 'ModelLib/required/NAMES.dat'
+! CHARACTER(27) :: NAMESDAT = 'ModelLib/required/VBS_G_PAR'
+CHARACTER(31) :: INORGANIC = 'ModelLib/required/INORGANIC.dat'
+CHARACTER(27) :: XTRASDAT = 'ModelLib/required/AEMS.dat'
+
+NAMELIST /NML_NAMES/ NAMESDAT,INORGANIC,XTRASDAT
+! ==================================================================================================================
 
 contains
 
@@ -389,6 +414,8 @@ subroutine READ_INPUT_DATA()
         ACDC_links(2)       = 'A H2SO4 D DMA'
     End IF
 
+    CALL READ_NAMESDAT
+
     ! CHECK HOW MANY POSSIBLE INPUT VARIABLES (METEOROLOGICAL, MCM ETC.) THERE ARE IN THE MODEL
     OPEN(800, file=NAMESDAT, ACTION='READ', status='OLD', iostat=ioi)
     call handle_file_io(ioi, NAMESDAT, 'This file is essential.')
@@ -410,10 +437,11 @@ subroutine READ_INPUT_DATA()
     INDRELAY_CH = 0
     INDRELAY_TIED = 0
 
+    CALL READ_INIT_FILE
     ! Declare named indices for convenience in deving
     CALL NAME_MODS_SORT_NAMED_INDICES
-    ! Read user supplied options
-    CALL READ_INIT_FILE
+    ! Save Initfile options to backup file
+    CALL CREATE_DIRECTORIES
     ! Time conversions, Julian Day etc.
     CALL PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
     ! check if some concentratinos are used only for intialization
@@ -591,6 +619,8 @@ IF (Aerosol_flag) then
         end if
     end do
     REWIND(802)
+    ! Here we account for the non-volatile pseudocompound GENERIC
+    VAPOUR_PROP%n_cond_org = VAPOUR_PROP%n_cond_org + 1
 
     write(*,FMT_MSG) 'Reading list of particle phase inorganics '// TRIM(INORGANIC)
     OPEN(unit=803, File= TRIM(INORGANIC) , STATUS='OLD', iostat=ioi)
@@ -599,18 +629,19 @@ IF (Aerosol_flag) then
     rows = ROWCOUNT(803)
 
     VAPOUR_PROP%n_cond_ino = 0
+    VAPOUR_PROP%ind_H2SO4 = 0
 
     do j = 1,rows
         read(803,*,iostat=ioi) species_name
         k = IndexFromName( TRIM(species_name), SPC_NAMES )
         if (k>0) THEN
             VAPOUR_PROP%n_cond_ino = VAPOUR_PROP%n_cond_ino + 1
+            if (TRIM(UCASE(species_name)) == 'H2SO4') &
+              VAPOUR_PROP%ind_H2SO4 = VAPOUR_PROP%n_cond_ino + VAPOUR_PROP%n_cond_org
         end if
     end do
 
     REWIND(803)
-    ! Here we account for the non-volatile pseudocompound GENERIC
-    VAPOUR_PROP%n_cond_org = VAPOUR_PROP%n_cond_org + 1
     ! Here we add place for sulfuric acid, non-organic
     VAPOUR_PROP%n_cond_tot = VAPOUR_PROP%n_cond_org + VAPOUR_PROP%n_cond_ino
 
@@ -634,6 +665,13 @@ IF (Aerosol_flag) then
     allocate(VAPOUR_PROP%diff_dia     (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%VBS_BINS     (VAPOUR_PROP%n_cond_org-1, NVBS) )
     VAPOUR_PROP%VBS_BINS = 0
+    VAPOUR_PROP%ind_g_ULVOC = IndexFromName( 'g_ULVOC', SPC_NAMES)
+    VAPOUR_PROP%ind_g_ELVOC = IndexFromName( 'g_ELVOC', SPC_NAMES)
+    VAPOUR_PROP%ind_g_LVOC = IndexFromName( 'g_LVOC', SPC_NAMES)
+    VAPOUR_PROP%ind_g_SVOC = IndexFromName( 'g_SVOC', SPC_NAMES)
+    VAPOUR_PROP%ind_g_IVOC = IndexFromName( 'g_IVOC', SPC_NAMES)
+    VAPOUR_PROP%ind_g_REST = IndexFromName( 'g_REST', SPC_NAMES)
+
     ! This is the vector that combines chemistry and condensible vapours.
     ! -1 because GENERIC is not in gas phase. Ever. H2SO4 is picked from chemistry manually
     ALLOCATE(index_cond(VAPOUR_PROP%n_cond_tot))
@@ -655,7 +693,6 @@ IF (Aerosol_flag) then
 
     ! Reading the vap names and vap vapour_properties
     VAPOUR_PROP%ind_GENERIC = VAPOUR_PROP%n_cond_org
-    VAPOUR_PROP%ind_H2SO4   = VAPOUR_PROP%n_cond_tot
     VAPOUR_PROP%Mfractions  = 0.0
     VAPOUR_PROP%Mfractions(VAPOUR_PROP%ind_GENERIC) = 1d0 !
 
@@ -743,10 +780,12 @@ IF (Aerosol_flag) then
             ! fill the hash table for vapour index -> chemistry index
 
             VAPOUR_PROP%molar_mass(ii)   = molar_mass *1D-3 ! kg/mol
+            VAPOUR_PROP%psat_a(ii)       = 1d0
+            VAPOUR_PROP%psat_b(ii)       = 20000d0
             VAPOUR_PROP%vapour_names(ii) = TRIM(species_name)
             VAPOUR_PROP%molec_mass(ii)   = VAPOUR_PROP%molar_mass(ii)/Na  !kg/#
-            VAPOUR_PROP%cond_type(ii) = class  ! some other compound
-            VAPOUR_PROP%density(ii)   = rho  ! kg/m3
+            VAPOUR_PROP%cond_type(ii)    = class  ! some other compound
+            VAPOUR_PROP%density(ii)      = rho  ! kg/m3
 
             VAPOUR_PROP%molec_volume(ii) = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
             VAPOUR_PROP%diff_vol(ii)     = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
@@ -823,21 +862,21 @@ IF (Aerosol_flag) then
 
     end if
 
-    ii = VAPOUR_PROP%n_cond_tot
-    VAPOUR_PROP%vapour_names(ii)  = 'H2SO4'
-    VAPOUR_PROP%cond_type(ii)     = 2  ! Acid
-    VAPOUR_PROP%molar_mass(ii)    = 98.0785 * 1d-3
-    VAPOUR_PROP%psat_a(ii)        = 0
-    VAPOUR_PROP%psat_b(ii)        = 20000d0
-    VAPOUR_PROP%density(ii)       = 1830.5 ! kg/m3
-    VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
-    VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
-    VAPOUR_PROP%diff_vol(ii)      = 4*6.11D0 + 2*2.31D0 + 22.9D0 ! O=4, H=2, S=1
-    VAPOUR_PROP%surf_tension(ii)  = 0.07
-    VAPOUR_PROP%molec_dia(ii)     = (6D0 * VAPOUR_PROP%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
-    VAPOUR_PROP%alpha(ii)         = 1.0
-    VAPOUR_PROP%c_sat(ii)         = 0.0 ! Sulfuric acid stays put
-    VAPOUR_PROP%diff_dia(ii)      = VAPOUR_PROP%molec_dia(ii)
+    ! ii = VAPOUR_PROP%n_cond_tot
+    ! VAPOUR_PROP%vapour_names(ii)  = 'H2SO4'
+    ! VAPOUR_PROP%cond_type(ii)     = 2  ! Acid
+    ! VAPOUR_PROP%molar_mass(ii)    = 98.0785 * 1d-3
+    ! VAPOUR_PROP%psat_a(ii)        = 0
+    ! VAPOUR_PROP%psat_b(ii)        = 20000d0
+    ! VAPOUR_PROP%density(ii)       = 1830.5 ! kg/m3
+    ! VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
+    ! VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
+    ! VAPOUR_PROP%diff_vol(ii)      = 4*6.11D0 + 2*2.31D0 + 22.9D0 ! O=4, H=2, S=1
+    ! VAPOUR_PROP%surf_tension(ii)  = 0.07
+    ! VAPOUR_PROP%molec_dia(ii)     = (6D0 * VAPOUR_PROP%molec_volume(ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
+    ! VAPOUR_PROP%alpha(ii)         = 1.0
+    ! VAPOUR_PROP%c_sat(ii)         = 0.0 ! Sulfuric acid stays put
+    ! VAPOUR_PROP%diff_dia(ii)      = VAPOUR_PROP%molec_dia(ii)
 
     ! Now the volumes are updated, the diameter can be calculated
     VAPOUR_PROP%molec_dia(:ii-1) = (6D0 * VAPOUR_PROP%molec_volume(:ii-1) / pi )**(1D0/3D0)  ! molecular diameter [m]
@@ -853,10 +892,10 @@ end if
 end subroutine READ_INPUT_DATA
 
 
-subroutine READ_INIT_FILE
 !-------------------------------------------------------------------------------
-! Reads the init file and fills user-provided variables
+! Reads the path to NAMESDAT
 !-------------------------------------------------------------------------------
+subroutine READ_NAMESDAT
   implicit none
   integer :: IOS(20)=0, i=1, k
   CALL GETARG(1,Fname_init)
@@ -889,50 +928,94 @@ subroutine READ_INIT_FILE
     CALL EXECUTE_COMMAND_LINE('sh ModelLib/gui/modules/compatibility_layer.sh '//TRIM(ADJUSTL(Fname_init)))
 
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_TIME, IOSTAT=IOS(i)) ! #1
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_NAMES, IOSTAT=IOS(i)) ! #1
+  ! IF (IOS(i) == 0) EXIT;
+  end do; REWIND(888); i=i+1
+  CLOSE(888)
+
+end subroutine READ_NAMESDAT
+
+subroutine READ_INIT_FILE
+  implicit none
+  integer :: IOS(20)=0, i=1, k
+  ! CALL GETARG(1,Fname_init)
+  ! ! Advice user if no INITFILE was provided
+  ! IF (Fname_init == '') THEN
+  !   write(*,FMT_LEND)
+  !   write(*,FMT_MSG) 'No INITFILE Defined. Send the relative path to proper INITFILE as command line option.'
+  !   CALL GETARG(0,Fname_init)
+  !   write(*,FMT_MSG) 'For example: $ '//TRIM(Fname_init)//' model_init'
+  !   write(*,FMT_LEND)
+  !   STOP
+  ! END IF
+  !
+  ! CALL GETARG(2,gui)
+  ! if (gui == '--gui') ingui = .true.
+  !
+  OPEN(UNIT=888, FILE=TRIM(ADJUSTL(Fname_init)), STATUS='OLD', ACTION='READ', iostat=IOS(1))
+  ! ! Handle file not found error
+  ! IF (IOS(1) /= 0) THEN
+  !   write(*,FMT_FAT0) 'There is no INITFILE '//TRIM(ADJUSTL(Fname_init))//', exiting. Good bye.'
+  !   write(*,FMT_LEND)
+  !   STOP
+  ! END IF
+
+  ! ! if INITFILE was found, we read it. In case there is a problem in namelist filling, give en error.
+  ! write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM:'
+  ! write(*,FMT_HDR) TRIM(ADJUSTL(Fname_init))
+  !
+  ! if (.not. ingui) &
+  !   CALL EXECUTE_COMMAND_LINE('sh ModelLib/gui/modules/compatibility_layer.sh '//TRIM(ADJUSTL(Fname_init)))
+  !
+  !
+  ! do k=1, ROWCOUNT(888); READ(888,NML = NML_NAMES, IOSTAT=IOS(i)) ! #1
+  ! ! IF (IOS(i) == 0) EXIT;
+  ! end do; REWIND(888); i=i+1
+
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_TIME, IOSTAT=IOS(i)) ! #2
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_Flag, IOSTAT=IOS(i)) ! #2
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_Flag, IOSTAT=IOS(i)) ! #3
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_Path, IOSTAT=IOS(i)) ! #3
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_Path, IOSTAT=IOS(i)) ! #4
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_MISC, IOSTAT=IOS(i)) ! #4
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_MISC, IOSTAT=IOS(i)) ! #5
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_VAP, IOSTAT=IOS(i)) ! #5
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_VAP, IOSTAT=IOS(i)) ! #6
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_PARTICLE, IOSTAT=IOS(i)) ! #6
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_PARTICLE, IOSTAT=IOS(i)) ! #7
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_ENV, IOSTAT=IOS(i)) ! #7
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_ENV, IOSTAT=IOS(i)) ! #8
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_MCM, IOSTAT=IOS(i)) ! #8
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_MCM, IOSTAT=IOS(i)) ! #9
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_MODS, IOSTAT=IOS(i)) ! #9
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_MODS, IOSTAT=IOS(i)) ! #10
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_PRECISION, IOSTAT=IOS(i)) ! #10
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_PRECISION, IOSTAT=IOS(i)) ! #11
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_CUSTOM, IOSTAT=IOS(i)) ! #11
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_CUSTOM, IOSTAT=IOS(i)) ! #12
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_ACDC, IOSTAT=IOS(i)) ! #12
+  do k=1, ROWCOUNT(888); READ(888,NML = NML_ACDC, IOSTAT=IOS(i)) ! #13
   ! IF (IOS(i) == 0) EXIT;
   end do; REWIND(888); i=i+1
   REWIND(888); i=i+1
@@ -941,6 +1024,11 @@ subroutine READ_INIT_FILE
 
   IF (INOUT_DIR(len(TRIM(INOUT_DIR)):len(TRIM(INOUT_DIR))) == '/') INOUT_DIR(len(TRIM(INOUT_DIR)):len(TRIM(INOUT_DIR))) = ' '
 
+end subroutine READ_INIT_FILE
+
+subroutine CREATE_DIRECTORIES
+  implicit none
+  integer :: i
   ! Also save all settings to initfile. Use this file to rerun if necessary
   open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE',iostat=i)
   if (i/=0) THEN
@@ -966,18 +1054,10 @@ subroutine READ_INIT_FILE
   write(889,NML = NML_CUSTOM     ) ! custom input
   write(889,NML = NML_ACDC       ) ! ACDC systems
   write(889,NML = NML_MODS       ) ! vapour input
+  write(889,NML = NML_NAMES      ) ! vapour input
   close(889)
 
-  DO i=1, N_VARS
-    IF (TRIM(MODS(i)%UNIT) == 'X') THEN
-        MODS(i)%UNIT = '#'
-    ELSE
-        MODS(i)%ISPROVIDED = .true.
-    END IF
-  END DO
-
-end subroutine READ_INIT_FILE
-
+end subroutine CREATE_DIRECTORIES
 
 subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
     implicit none
@@ -1034,6 +1114,14 @@ end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
 subroutine NAME_MODS_SORT_NAMED_INDICES
   implicit none
   INTEGER :: i, j
+
+  DO i=1, N_VARS
+    IF (TRIM(MODS(i)%UNIT) == 'X') THEN
+        MODS(i)%UNIT = '#'
+    ELSE
+        MODS(i)%ISPROVIDED = .true.
+    END IF
+  END DO
 
   OPEN(800, file=NAMESDAT, ACTION='READ', status='OLD')
   DO i = 1,N_VARS - N_XTRS
@@ -1597,7 +1685,7 @@ SUBROUTINE PARSE_INIT_ONLY()
   iF (INIT_ONLY == '') RETURN
 
   ALLOCATE(init_only_these(0))
-  read(INIT_ONLY, *,IOSTAT=ii), bufferlist(:)
+  read(INIT_ONLY, *,IOSTAT=ii) bufferlist(:)
   do ii=1,100
     if (TRIM(bufferlist(ii)) == '#') EXIT
     if (IndexFromName(TRIM(bufferlist(ii)),SPC_NAMES) > 0) &

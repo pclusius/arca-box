@@ -120,6 +120,48 @@ and then run the setup.py again.
 
 Version history
 ---------------
+1.3.2
+
+Updates:
+
+- GUI: Compatible with new MCM web interface and the files it provides
+- GUI: As UManSysProp website was terminated, the user can now install the offline version and use it through the GUI's
+  "Create Vapour file" -tool. Clone UManSysProp from github: https://github.com/loftytopping/UManSysProp_public.git,
+  and take note of the path of "UManSysProp_public" and save it in the "Create Vapour file" -tool. The tool relies on
+  Python and needs the openbabel and Flask-WTF packages.
+
+Changes:
+
+- Sulfuric acid is now treated as other condensables, and removed from gas phase in the aerosol module, not in chemistry
+  as previously (mainly for historic reasons).
+- removed the strange Ignore Input H2SO4 and always use modelled -option. If H2SO4 is sent in as time dependent variable,
+  it will override modelled H2SO4. To initialize, use the custom option "INIT_ONLY"
+- KPP 2 support will be faded out, the user is incouraged to install KPP 3
+
+1.3.1
+
+Updates:
+
+- GUI: option to accomodate the gui for dark mode. Note, the gui still uses system theme, but the colours
+and logos in the GUI are tuned for fdark background.
+- GUI: gui_config.ini file for global options
+
+1.3.0
+
+Updates:
+
+- aerosol emissions can be added as time-dependent modes (maximum number of modes is 99 but this will be very slow).
+  Each mode consists of GMD [m], ln(sigma) [-] and emissions [s⁻¹]. Same input methods apply as for other inputs.
+- As a first step to particle phase chemistry, version 1.3 will be used to deliver parametric aging of particles.
+
+Fixes:
+
+- Fixed a problem when condensation was not used but vapour file still needed to be properly defined.
+- GUI: Added troubleshooting options for high dpi scaling
+- Other minor fixes in GUI
+- Fixed further bugs in elemental composition of PRAM HOMs compounds
+
+
 1.2.2
 
 Updates:
