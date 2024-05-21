@@ -21,8 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 
-import sys
-import os
+import sys,os
 from shutil import copyfile as cpf
 
 if sys.version_info.major < 3:
@@ -45,11 +44,11 @@ csc = '--csc' in sys.argv
 out = 0
 curr_path = os.path.split(os.getcwd())[0]
 os.chdir(curr_path)
-
-python = input('Type the command you use to call Python 3 (hit Enter for "python3"): ')
+python_guess = os.path.split(sys.executable)[1]
+python = input('Type the command you use to call Python 3 (hit Enter for "%s"): '%python_guess)
 print(python)
 if python == '':
-    python = 'python3'
+    python = python_guess
 
 if not os.path.exists('makefile'):
     # write makefile
