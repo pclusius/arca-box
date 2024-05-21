@@ -4561,7 +4561,7 @@ class Ui_MainWindow(object):
         self.butVapourAtoms.setText(_translate("MainWindow", "..."))
         self.helpVapour.setText(_translate("MainWindow", "?"))
         self.groupBox_41.setTitle(_translate("MainWindow", "PSD initialization"))
-        self.label_43.setText(_translate("MainWindow", "Init model PSD for"))
+        self.label_43.setText(_translate("MainWindow", "Init model PSD for (including):"))
         self.dmps_read_in_time.setSuffix(_translate("MainWindow", " h"))
         self.helpPsdInit.setText(_translate("MainWindow", "?"))
         self.use_dmps.setText(_translate("MainWindow", "Use measured background particles for initialization"))

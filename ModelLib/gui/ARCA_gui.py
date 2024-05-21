@@ -589,6 +589,15 @@ class VpressWin(QtWidgets.QDialog):
         self.vp.mainFrame.setFont(qt_box.font)
         uMan_loc = get_config("paths", "uMan_loc", fallback='The path to local UManSYsProp needs to be specified here')
         self.vp.UManSys_location.setText(uMan_loc)
+        self.vp.vpCombo.currentIndexChanged.connect(self.grayEvap)
+
+    def grayEvap(self):
+        if self.vp.vpCombo.currentIndex() == 2:
+            self.vp.bpCombo.setEnabled(False)
+        else:
+            self.vp.bpCombo.setEnabled(True)
+        return
+
     def filename(self):
         dialog = QtWidgets.QFileDialog()
         options = dialog.Options()
