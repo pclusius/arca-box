@@ -580,7 +580,8 @@ class VpressWin(QtWidgets.QDialog):
         self.vp.VapourClose.clicked.connect(self.reject)
         self.vp.UmanFrame.setEnabled(False)
         self.vp.useUMan.toggled.connect(lambda: qt_box.grayIfNotChecked(self.vp.useUMan,self.vp.UmanFrame))
-        self.vp.massSmilesButton.clicked.connect(lambda: qt_box.browse_path(self.vp.lineEdit, 'file',ftype="MCM compound list (*mcm_subset_mass.txt *mcm_export_species.tsv)"))
+        self.vp.massSmilesButton.clicked.connect(lambda: qt_box.browse_path(self.vp.lineEdit, 'file',
+            ftype="*mcm_subset_mass.txt *mcm_export_species.tsv *.csv *.ssv *.tsv"))
         self.vp.PramButton.clicked.connect(lambda: qt_box.browse_path(self.vp.pramFile, 'file'))
         self.vp.browseVapourPath.clicked.connect(self.filename)
         self.vp.createVapourFileButton.clicked.connect(self.saveVapours)
@@ -637,6 +638,10 @@ class VpressWin(QtWidgets.QDialog):
             newold_mcm = 'old'
         elif 'mcm_export_species.tsv' in self.vp.lineEdit.text():
             newold_mcm = 'new'
+        elif 'mcm_export_species.tsv' in self.vp.lineEdit.text():
+            newold_mcm = 'new'
+        elif '.csv' in self.vp.lineEdit.text():
+            newold_mcm = 'csv'
 
         message = gvp.getVaps(args={
         'vp_method':vp_method[self.vp.vpCombo.currentIndex()],

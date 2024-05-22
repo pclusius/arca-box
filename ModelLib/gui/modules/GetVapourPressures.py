@@ -40,7 +40,7 @@ def askfor(key):
     return
 
 def getVaps(runforever=False, args={}):
-    filter = False
+    filter_w_chem = False
     save_atoms = False
     needed = ['server','smilesfile','pram','pramfile','psat_lim','saveto']
 
@@ -50,7 +50,7 @@ def getVaps(runforever=False, args={}):
         else:
             return ('not enough arguments...',)
     if 'filter' in args.keys():
-        if args['filter'] != []: filter = True
+        if args['filter'] != []: filter_w_chem = True
     if 'save_atoms' in args.keys():
         if args['save_atoms']: save_atoms = True
     outpath, outfile = os.path.split(args['saveto'])
@@ -66,7 +66,7 @@ def getVaps(runforever=False, args={}):
             for line in urllib.request.urlopen(file):
                 string = line.decode("utf-8").strip('\n')
                 if not '#' in string and string.split(',')[0] != '':
-                    if filter:
+                    if filter_w_chem:
                         if string.split(',')[0].upper().strip() in args['filter']:
                             string_a.append(string.split(','))
                             count += 1
@@ -107,6 +107,22 @@ def getVaps(runforever=False, args={}):
 
 
         i = 0
+        Calculate_mass = False
+        if args['mcm_type'] == 'csv':
+            tmp_A = np.genfromtxt(args['smilesfile'], delimiter=',',dtype=None, encoding='UTF-8', unpack=True,comments='//')
+            if len(tmp_A)==3:
+                names, smiles, mass = tmp_A
+            if len(tmp_A)==2:
+                names, smiles = tmp_A
+                Calculate_mass = True
+                mass = np.zeros(len(names))
+            smiles = np.array(smiles)
+            mask = smiles != ''
+            smiles = smiles[mask]
+            names = np.array(names)[mask]
+            mass = np.array(mass)[mask]
+
+
         if args['mcm_type'] == 'old':
             for line in f:
                 if "Molecular weights for species present in the subset" in line: break
@@ -142,11 +158,13 @@ def getVaps(runforever=False, args={}):
 
         for i_s, cheese in enumerate(smiles):
             # get_VP(temperatures, mySmiles,vp_method='',bp_method='',umanpath='/xyz'):
-            tmp = get_VP(temp,[cheese],vp_method=args['vp_method'],bp_method=args['bp_method'],umanpath=args['uMan_loc'])
+            tmp = get_VP(temp,[cheese],vp_method=args['vp_method'],bp_method=args['bp_method'],umanpath=args['uMan_loc'],include_mass=Calculate_mass)
             if i_s == 0 and 'str' in str(type(tmp)):
                 return ('FAILED' ,tmp)
             if i_s%100 == 0: print(f'Working with compound nr {i_s:0d}')
             buffer[i_s,:] = tmp[cheese]
+            if Calculate_mass:
+                mass[i_s] = tmp[cheese+'_Mw']
 
         n_homs = 0
 
@@ -184,7 +202,7 @@ def getVaps(runforever=False, args={}):
         selected_vapours = prop_matrix[10**(prop_matrix[:,n_temp//2]) < float(args['psat_lim'])]
         selected_vapournames = names[10**(prop_matrix[:,n_temp//2]) < float(args['psat_lim'])]
         selected_vapourmass = mass[10**(prop_matrix[:,n_temp//2]) < float(args['psat_lim'])]
-        if filter:
+        if filter_w_chem:
             filter_a = [False]*len(selected_vapours)
             for i in range(len(selected_vapours)):
                 if selected_vapournames[i].upper() in args['filter']:
@@ -283,7 +301,7 @@ def getVaps(runforever=False, args={}):
     return ('Done', 'Succesfully saved %d compounds' %count)
 
 
-def get_VP(temperatures, mySmiles,vp_method='',bp_method='',umanpath='/xyz'):
+def get_VP(temperatures, mySmiles,vp_method='',bp_method='',umanpath='/xyz',include_mass=False):
     ##########################################################################################
     #											                                             #
     #    Based on an example file that loads in SMILES strings and then calculates           #
@@ -357,6 +375,8 @@ def get_VP(temperatures, mySmiles,vp_method='',bp_method='',umanpath='/xyz'):
     vapour_pressure_dict=collections.defaultdict(list)
 
     for Smiles in mySmiles:
+        if include_mass:
+            vapour_pressure_dict[Smiles+'_Mw'] = Pybel_object_dict[Smiles].molwt
         for temperature in temperatures:
             if vp_method == 'evaporation':
                 vapour_pressure_dict[Smiles].append(vapour_pressures.evaporation(Pybel_object_dict[Smiles], temperature))
@@ -365,7 +385,8 @@ def get_VP(temperatures, mySmiles,vp_method='',bp_method='',umanpath='/xyz'):
             elif  vp_method == 'myrdal_and_yalkowsky':
                 vapour_pressure_dict[Smiles].append(vapour_pressures.myrdal_and_yalkowsky(Pybel_object_dict[Smiles], temperature, boiling_point_dict[Smiles]))
             else:
-                return 'Unknown method '+vp_method
+                return 'Unknown method '+ vp_method
+
     return vapour_pressure_dict
 
 

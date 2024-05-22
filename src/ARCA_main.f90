@@ -1052,22 +1052,6 @@ END IF in_turn_any
               CH_GAS(VAPOUR_PROP%ind_g_IVOC) = SUM(conc_vapour(1:VAPOUR_PROP%n_cond_org-1) * VAPOUR_PROP%VBS_BINS(:,5) * 1d-6)
               CH_GAS(VAPOUR_PROP%ind_g_REST) = SUM(conc_vapour(1:VAPOUR_PROP%n_cond_org-1) * VAPOUR_PROP%VBS_BINS(:,6) * 1d-6)
             END IF
-            ! print*, 'H2SO4', IND('H2SO4', VAPOUR_PROP%vapour_names), index_cond(IND('H2SO4', VAPOUR_PROP%vapour_names))!, ind_H2SO4
-            ! print*, 'H2SO4 chem', IND('H2SO4', SPC_NAMES)
-            ! print*, 'GENERIC', IND('GENERIC', VAPOUR_PROP%vapour_names), index_cond(IND('GENERIC', VAPOUR_PROP%vapour_names))
-            ! print*, 'GENERIC chem', IND('GENERIC', SPC_NAMES)
-            ! print*, 'NIIIaq', IND('NIIIaq', VAPOUR_PROP%vapour_names), index_cond(IND('NIIIaq', VAPOUR_PROP%vapour_names))!, ind_NIIIaq
-            ! print*, 'NIIIaq chem', IND('NIIIaq', SPC_NAMES)
-            ! print*, 'HSO4aq', IND('HSO4aq', VAPOUR_PROP%vapour_names), index_cond(IND('HSO4aq', VAPOUR_PROP%vapour_names))!, ind_HSO4aq
-            ! print*, 'HSO4aq chem', IND('HSO4aq', SPC_NAMES)
-            ! stop
-            ! if (Condensation) &
-            ! CH_GAS(index_inorg) = conc_vapour(VAPOUR_PROP%n_cond_org+1:VAPOUR_PROP%n_cond_tot) *1D-6
-            ! print*,  conc_vapour(VAPOUR_PROP%n_cond_org+1:VAPOUR_PROP%n_cond_tot) *1D-6
-            ! ----------------------------------------
-
-            ! print*, conc_vapour(index_inorg(ind_HIO3aq))
-            ! print*, VAPOUR_PROP%vapour_names(index_inorg(ind_HIO3aq))
 
         ELSE ! Exit the main loop when time is up
             EXIT
@@ -1554,18 +1538,6 @@ END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 SUBROUTINE CHECK_INPUT_AGAINST_KPP
     implicit none
     integer :: i,j, check
-
-    ! if (model_H2SO4) THEN
-    !     if (H2SO4_ind_in_chemistry<1) THEN
-    !         print FMT_FAT0, 'H2SO4 should explicitly come from chemistry but it does not exist there. Either '
-    !         print FMT_SUB, '  uncheck "Replace any input H2SO4 with modelled..." and include H2SO4 to input, or '
-    !         print FMT_SUB, '  use chemistry that has H2SO4 included.'
-    !         stop ' '
-    !     ELSE
-    !         MODS(inm_H2SO4)%ISPROVIDED = .false.
-    !         print FMT_SUB, 'Replacing H2SO4 input with modelled chemistry'
-    !     END IF
-    ! END IF
 
     print FMT_HDR, 'Checking against KPP for chemicals'
     do i=1,N_VARS-N_XTRS
