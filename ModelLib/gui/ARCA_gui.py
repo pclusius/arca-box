@@ -3136,10 +3136,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
             elif 'GR_SIZES' == key: self.GR_sizes.setText(strng)
             elif 'NAMESDAT' == key:
-                if key != path_to_names:
+                if strng != path_to_names:
                     self.popup('Hazard', """These settings need different set of input compounds, you should restart the GUI \n
                     and use -o flag in the bash command, or --names flag in the python command to define the correct path \n"""
-                    +key, 3)
+                    +strng, 3)
 
             elif 'DDIAM_RANGE' == key:
                 self.prec_low_1.setValue(float(strng.split(',')[0]))
