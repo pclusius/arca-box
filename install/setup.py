@@ -142,7 +142,7 @@ if out == 0:
     f.write('    esac%s'%le)
     f.write('done%s'%le)
 
-    f.write('%s ModelLib/gui/ARCA_gui.py %s'%(python, le))
+    f.write('%s ModelLib/gui/ARCA_gui.py $organic_compoundlist $inorganic_compoundlist $scaling $scaleall %s'%(python, le))
     f.close()
 
 
