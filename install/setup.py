@@ -130,6 +130,18 @@ if out == 0:
     if not csc:
         print('ARCA user interface can be used on CSC with NoMachine. To get correct settings,')
         print('run this script with --csc flag or edit run_arca.sh and uncomment the csc options.')
+
+    f.write()
+    f.write('while getopts o:i:s:a: flag')
+    f.write('do')
+    f.write('    case "${flag}" in')
+    f.write('        o) organic_compoundlist="--names ${OPTARG}";;')
+    f.write('        i) inorganic_compoundlist="-i ${OPTARG}";;')
+    f.write('        s) scaling="--scaling_${OPTARG}";;')
+    f.write('        a) scaleall="--scaleall_${OPTARG}";;')
+    f.write('    esac')
+    f.write('done')
+
     f.write('%s ModelLib/gui/ARCA_gui.py %s'%(python, le))
     f.close()
 
