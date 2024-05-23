@@ -90,14 +90,14 @@ else:
     icondir = 'light'
 
 if len(sys.argv)>1:
-    for a in sys.argv:
+    for ia,a in enumerate(sys.argv):
         if '--scaling_' in a:
             environ["QT_SCALE_FACTOR"] = "%3.2f"%float(a.replace('--scaling_',''))
             args.append('-NS')
-        if '--names' in a:
-            NAMES_override = a.split(',')[1]
+        elif a == '--names':
+            NAMES_override = sys.argv[ia+1].replace('ModelLib/required/','')
             print(f'WARNING: using list of available input from {NAMES_override}')
-        if '--scaleall_' in a:
+        elif '--scaleall_' in a:
             sfs = a.replace('--scaleall_','').split('_')
             environ["QT_SCREEN_SCALE_FACTORS"] = "%s"%(';'.join(sfs))
             args.append('-NS')
@@ -949,12 +949,14 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
         self.actionOpen_output_directory.triggered.connect(lambda: self.openOutputDir(None, self.currentAddressTb.text()))
-        self.actionStopCurrentRunClean.triggered.connect(self.softStop)
         self.actionPrint_Custom_commands_cheat_sheet.triggered.connect(lambda: CustomCommandsCheatSheet())
         self.actionPlt_changes_from_current_dir.triggered.connect(self.plotChanges)
         self.actionShow_variable_attributes.triggered.connect(lambda: self.showOutputUpdate(info=True))
         if dark_mode: self.actionAcommodateForDarkMode.setChecked(True)
         self.actionAcommodateForDarkMode.triggered.connect(self.darkMode)
+        self.actionRunARCA.triggered.connect(self.StartboxShortcut)
+        self.actionStopCurrentRunAndIgnoreOutput.triggered.connect(self.QuitShortcut)
+        self.actionStopCurrentRunClean.triggered.connect(self.QuitGracefullyShortcut)
     # -----------------------
     # tab General options
     # -----------------------
@@ -2422,7 +2424,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         else:
             return
 
-    def softStop(self,a):
+    def softStop(self):
         if exists(self.saveCurrentOutputDir):
             f = open(osjoin(self.saveCurrentOutputDir,'ENDNOW.INIT'), 'w')
             f.write('STOP')
@@ -2679,6 +2681,22 @@ a chemistry module in tab "Chemistry"''', icon=2)
         ret = optich.plot(self.currentAddressTb.text())
         if ret!='': self.popup('Plot changes:',ret,0)
 
+    def StartboxShortcut(self):
+        if self.frameStop.isEnabled():
+            self.stopBox()
+        self.tabWidget.setCurrentIndex(6)
+        self.startBox()
+
+    def QuitShortcut(self):
+        if self.frameStop.isEnabled():
+            self.stopBox()
+        self.tabWidget.setCurrentIndex(6)
+
+    def QuitGracefullyShortcut(self):
+        if self.frameStop.isEnabled():
+            self.softStop()
+        self.tabWidget.setCurrentIndex(6)
+
     def startBox(self):
         self.closenetcdf()
         self.closenetcdf_mass()
@@ -2771,6 +2789,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
                                 'stripRoot_xtr', self.checkboxToFOR(self.stripRoot_xtr),
         )
 
+        # class NAMES:
+        nml.NAMES.NAMESDAT=path_to_names
         # class _PATH:
         nml.PATH.INOUT_DIR=self.inout_dir.text()
         if nml.PATH.INOUT_DIR == '': nml.PATH.INOUT_DIR = default_inout
@@ -3115,6 +3135,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
             elif 'GR_SIZES' == key: self.GR_sizes.setText(strng)
+            elif 'NAMESDAT' == key:
+                if key != path_to_names:
+                    self.popup('Hazard', """These settings need different set of input compounds, you should restart the GUI \n
+                    and use -o flag in the bash command, or --names flag in the python command to define the correct path \n"""
+                    +key, 3)
 
             elif 'DDIAM_RANGE' == key:
                 self.prec_low_1.setValue(float(strng.split(',')[0]))

@@ -24,6 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 class INITFILE:
     def __init__(self, names=None):
         super(INITFILE,self).__init__()
+        self.NAMES = self._NAMES()
         self.PATH = self._PATH()
         self.FLAG = self._FLAG()
         self.TIME = self._TIME()
@@ -47,6 +48,7 @@ class INITFILE:
             eol = '\\n'
             cmd = 'f.write'
 
+        self.NAMES.printall(cmd,f,eol)
         self.PATH.printall(cmd,f,eol)
         self.FLAG.printall(cmd,f,eol)
         self.TIME.printall(cmd,f,eol)
@@ -61,6 +63,15 @@ class INITFILE:
         self.CUSTOM.printall(cmd,f,eol)
         self.RAW.printall(cmd,f,eol)
         self.SETTINGS.printall(cmd,f,eol)
+
+    class _NAMES:
+        def __init__(self):
+            self.NAMESDAT=0
+
+        def printall(self,cmd,f,eol):
+            exec("%s('&NML_NAMES%s')"%(cmd, eol))
+            exec("%s(' NAMESDAT = \\'%s\\'%s')"%(cmd,self.NAMESDAT,eol))
+            exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _PATH:
         def __init__(self):

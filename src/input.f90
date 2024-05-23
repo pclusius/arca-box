@@ -334,10 +334,9 @@ NAMELIST /NML_ACDC/ ACDC_SYSTEMS, ACDC_links
 ! Relative path to NAMES.DAT
 
 ! ==================================================================================================================
-CHARACTER(27) :: NAMESDAT = 'ModelLib/required/NAMES.dat'
-! CHARACTER(27) :: NAMESDAT = 'ModelLib/required/VBS_G_PAR'
-CHARACTER(31) :: INORGANIC = 'ModelLib/required/INORGANIC.dat'
-CHARACTER(27) :: XTRASDAT = 'ModelLib/required/AEMS.dat'
+CHARACTER(200) :: NAMESDAT = 'ModelLib/required/NAMES.dat'
+CHARACTER(200) :: INORGANIC = 'ModelLib/required/INORGANIC.dat'
+CHARACTER(200) :: XTRASDAT = 'ModelLib/required/AEMS.dat'
 
 NAMELIST /NML_NAMES/ NAMESDAT,INORGANIC,XTRASDAT
 ! ==================================================================================================================
@@ -417,14 +416,17 @@ subroutine READ_INPUT_DATA()
     CALL READ_NAMESDAT
 
     ! CHECK HOW MANY POSSIBLE INPUT VARIABLES (METEOROLOGICAL, MCM ETC.) THERE ARE IN THE MODEL
-    OPEN(800, file=NAMESDAT, ACTION='READ', status='OLD', iostat=ioi)
-    call handle_file_io(ioi, NAMESDAT, 'This file is essential.')
+    OPEN(800, file=TRIM(NAMESDAT), ACTION='READ', status='OLD', iostat=ioi)
+    write(*,FMT_HDR) 'READING COMPOUND NAMES AND ORDER FROM '
+    write(*,FMT_SUB) TRIM(NAMESDAT)
+    write(*,FMT_HDR),''
+    call handle_file_io(ioi, TRIM(NAMESDAT), 'This file is essential.')
 
     ! Check the number of rows in NAMESDAT and close file
     N_VARS = rowcount(800)
     CLOSE(800)
 
-    OPEN(800, file=XTRASDAT, ACTION='READ', status='OLD', iostat=ioi)
+    OPEN(800, file=TRIM(XTRASDAT), ACTION='READ', status='OLD', iostat=ioi)
     N_XTRS = rowcount(800)
     CLOSE(800)
 
@@ -624,8 +626,8 @@ IF (Aerosol_flag) then
 
     write(*,FMT_MSG) 'Reading list of particle phase inorganics '// TRIM(INORGANIC)
     OPEN(unit=803, File= TRIM(INORGANIC) , STATUS='OLD', iostat=ioi)
-    call handle_file_io(ioi, INORGANIC, &
-        'Could not access list of inorganics '//INORGANIC)
+    call handle_file_io(ioi, TRIM(INORGANIC), &
+        'Could not access list of inorganics '//TRIM(INORGANIC))
     rows = ROWCOUNT(803)
 
     VAPOUR_PROP%n_cond_ino = 0
@@ -922,7 +924,7 @@ subroutine READ_NAMESDAT
 
   ! if INITFILE was found, we read it. In case there is a problem in namelist filling, give en error.
   write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM:'
-  write(*,FMT_HDR) TRIM(ADJUSTL(Fname_init))
+  write(*,FMT_SUB) TRIM(ADJUSTL(Fname_init))
 
   if (.not. ingui) &
     CALL EXECUTE_COMMAND_LINE('sh ModelLib/gui/modules/compatibility_layer.sh '//TRIM(ADJUSTL(Fname_init)))
@@ -1123,7 +1125,7 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
     END IF
   END DO
 
-  OPEN(800, file=NAMESDAT, ACTION='READ', status='OLD')
+  OPEN(800, file=TRIM(NAMESDAT), ACTION='READ', status='OLD')
   DO i = 1,N_VARS - N_XTRS
     READ(800, *) MODS(I)%NAME
     IF (TRIM(MODS(I)%NAME) == 'TEMPK'        ) inm_TempK = i
@@ -1148,7 +1150,7 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
   END DO
   close(800)
 
-  OPEN(800, file=XTRASDAT, ACTION='READ', status='OLD')
+  OPEN(800, file=TRIM(XTRASDAT), ACTION='READ', status='OLD')
   DO j = 1, N_XTRS
     READ(800, *) MODS(i+j-1)%NAME
   END DO
