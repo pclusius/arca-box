@@ -155,7 +155,7 @@ units = {
 exe_name = 'arcabox.exe'
 # Path to variable names -------------------------------------------
 if NAMES_override != '':
-    path_to_names = f'ModelLib/required/{NAMES_override}'
+    path_to_names = NAMES_override
 else:
     path_to_names = 'ModelLib/required/NAMES.dat'
 # Path to extra variables ------------------------------------------
