@@ -95,7 +95,7 @@ if len(sys.argv)>1:
             environ["QT_SCALE_FACTOR"] = "%3.2f"%float(a.replace('--scaling_',''))
             args.append('-NS')
         elif a == '--names':
-            NAMES_override = sys.argv[ia+1].replace('ModelLib/required/','')
+            NAMES_override = sys.argv[ia+1]
             print(f'WARNING: using list of available input from {NAMES_override}')
         elif '--scaleall_' in a:
             sfs = a.replace('--scaleall_','').split('_')
