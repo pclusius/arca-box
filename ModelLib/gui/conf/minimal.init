@@ -3,6 +3,11 @@
 #         Created at: helmi 25 2022, 16:40:16
 #--------------------------------------------------
 
+
+&NML_NAMES
+ NAMESDAT = 'ModelLib/required/NAMES.dat'
+/
+
 &NML_PATH
  INOUT_DIR = 'INOUT'
  CASE_NAME = 'DEFAULT'
