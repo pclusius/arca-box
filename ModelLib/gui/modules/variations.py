@@ -32,7 +32,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 This matrix defines the variations. Number of steps is used for both multi and shift, usually one or the other stays
-constant, meaning that both min and max are the same. Steps are taken linearly if "log" is not 1. Call the script with
+constant, meaning that both min and max are the same. Steps are taken linearly if "log" is 0. Call the script with
 the path to the bash-script that was created with ARCA's batch tool, e.g.:
 
 python3 Variations.py ../../INOUT/PC_CONTROL_2018-04-01-2018-04-05.bash
@@ -55,7 +55,7 @@ ops = np.array([
 # ----------- USER OPTIONS END HERE -----------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def readfile(init,multi,shift,mod,dir=None):
+def readfile(init,multi,shift,mod,dir=None,replace_current=False):
     with open(init) as f:
         modified_file = []
         found = False
@@ -81,8 +81,13 @@ def readfile(init,multi,shift,mod,dir=None):
                 if any (re.findall(nn,vars[0]) for nn in n):
                     # bp()
                     found = True
-                    vars[4] = ('%12.8e'%(multi*float(vars[4].replace('d','e')))).replace('e','d')
-                    vars[5] = ('%12.8e'%(shift+float(vars[5].replace('d','e')))).replace('e','d')
+                    if replace_current:
+                        vars[4] = ('%12.8e'%( multi )).replace('e','d')
+                        vars[5] = ('%12.8e'%( shift )).replace('e','d')
+                    else:
+                        vars[4] = ('%12.8e'%(multi*float(vars[4].replace('d','e')))).replace('e','d')
+                        vars[5] = ('%12.8e'%(shift+float(vars[5].replace('d','e')))).replace('e','d')
+
                     print('Found %s from file '%vars[0]+init)
                 if vars[0][0] != '&' and vars[0][0] != '#' and vars[0][0] != '/':
                     vars[0] = ' '+vars[0]
@@ -91,7 +96,7 @@ def readfile(init,multi,shift,mod,dir=None):
     return modified_file, rundirs, found, indices
 
 
-def zzzz(batch, batchdir, ops, dryrun=False, nopause=False):
+def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False):
     if batch == None:
         return 'No input'
     if not os.path.exists(batch):
@@ -177,7 +182,7 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False):
 
                     # Now the silly part, open and write the files N times. Inefficient but won't be the bottleneck in your work...
                     for dd in range(dim):
-                        a,_,_,_ = readfile(newfile, mout[fn,dd],sout[fn,dd],ops[dd,0],workdir)
+                        a,_,_,_ = readfile(newfile, mout[fn,dd],sout[fn,dd],ops[dd,0],workdir,replace_current)
                         fff = open(newfile,'w')
                         fff.write(''.join(a))
                         fff.close()
@@ -185,7 +190,7 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False):
             else:
                 for i_c,mod in enumerate(ops[:,0]):
                     # bp()
-                    modified_file, rd, found, indices = readfile(init,1.0,0.0,mod)
+                    modified_file, rd, found, indices = readfile(init,1.0,0.0,mod,replace_current=replace_current)
                     if dryrun:
                         return indices
                     rundirs.append(rd)

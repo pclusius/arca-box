@@ -517,7 +517,7 @@ class Variation(QtWidgets.QDialog):
                 else:
                     ops[i,j] = float(self.vary.table.item(i,j).text())
 
-        print(variations.zzzz(p, ossplit(p)[0], ops, dryrun=False, nopause=True))
+        print(variations.zzzz(p, ossplit(p)[0], ops, dryrun=False, nopause=True, replace_current=self.vary.replace_current.isChecked()))
 
     def loadOps(self):
         path = self.pickF(None)

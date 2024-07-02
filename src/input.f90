@@ -419,7 +419,7 @@ subroutine READ_INPUT_DATA()
     OPEN(800, file=TRIM(NAMESDAT), ACTION='READ', status='OLD', iostat=ioi)
     write(*,FMT_HDR) 'READING COMPOUND NAMES AND ORDER FROM '
     write(*,FMT_SUB) TRIM(NAMESDAT)
-    write(*,FMT_HDR),''
+    write(*,FMT_HDR) ''
     call handle_file_io(ioi, TRIM(NAMESDAT), 'This file is essential.')
 
     ! Check the number of rows in NAMESDAT and close file
