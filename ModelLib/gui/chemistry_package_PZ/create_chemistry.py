@@ -44,6 +44,8 @@ import datetime
 import re
 import argparse
 
+from pdb import set_trace as bp
+
 extraTwist = True
 #==============================================================================#
 #
@@ -194,7 +196,7 @@ def update_ro2_list(file_lines, ro2_list):
   return
 
 
-def update_equation_list(file_lines, equation_list, equation_norate_list, equation_print_list, equation_duplicate_print_list):
+def update_equation_list(file_lines, equation_list, equation_norate_list, equation_print_list, equation_duplicate_print_list, insecond=False):
   # Find '#EQUATIONS'
   line_number_equations, i1, i2 = index_containing_substring(file_lines, r'^\s*#EQUATIONS', False)
 
@@ -219,6 +221,7 @@ def update_equation_list(file_lines, equation_list, equation_norate_list, equati
           products = [x.strip() for x in mat.group(2).split('+')]
           ratecoef = mat.group(3).strip()
 
+          ratecoef = re.sub(r'([0-9]\.?)E|e(-?[0-9])',r'\1D\2',ratecoef)
           # Whole equation with sorted reactants and products
           equation = []
           equation.extend(sorted(reactants))
@@ -227,7 +230,7 @@ def update_equation_list(file_lines, equation_list, equation_norate_list, equati
           equation.append(':')
           equation.append(ratecoef)
 
-          # print(equation)
+          # print(i, equation)
 
           # Equation with sorted reactants and products and without rate coefficient
           equation_norate = []
@@ -247,11 +250,13 @@ def update_equation_list(file_lines, equation_list, equation_norate_list, equati
           else:
             # Only the rates are different, then save the line to equation_duplicate_print_list
             # Still print out to final modified file, but keep the information in a log file
+
             if equation not in equation_list:
               equation_list.append(equation)
               equation_norate_list.append(equation_norate)
               equation_print_list.append(s)
               equation_duplicate_print_list.append(s)
+
         # Found other statement, e.g., comments starting with //
         else:
           equation_print_list.append(s)
@@ -867,7 +872,7 @@ if __name__ == '__main__':
   for file_name in include_file_list:
     with open(file_name, 'r') as f:
       tmp_file_lines = f.readlines()
-      update_equation_list(tmp_file_lines, equation_list, equation_norate_list, equation_print_list, equation_duplicate_print_list)
+      update_equation_list(tmp_file_lines, equation_list, equation_norate_list, equation_print_list, equation_duplicate_print_list, insecond=True)
 
   # Count the old #EQUATIONS block lines
   line_number_equations, i1, i2 = index_containing_substring(file_lines, r'^\s*#EQUATIONS', False)
