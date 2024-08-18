@@ -926,8 +926,8 @@ subroutine READ_NAMESDAT
   write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM:'
   write(*,FMT_SUB) TRIM(ADJUSTL(Fname_init))
 
-  if (.not. ingui) &
-    CALL EXECUTE_COMMAND_LINE('sh ModelLib/gui/modules/compatibility_layer.sh '//TRIM(ADJUSTL(Fname_init)))
+  ! if (.not. ingui) &
+  !   CALL EXECUTE_COMMAND_LINE('sh ModelLib/gui/modules/compatibility_layer.sh '//TRIM(ADJUSTL(Fname_init)))
 
 
   do k=1, ROWCOUNT(888); READ(888,NML = NML_NAMES, IOSTAT=IOS(i)) ! #1
