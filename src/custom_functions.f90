@@ -76,6 +76,9 @@ subroutine AFTER_CHEM(TSTEP_CONC,CH_GAS,CH_GAS_old,CH_RO2,CH_Beta,CH_H2O,CH_RO2_
     real(dp), INTENT(INOUT) :: CH_RO2,CH_Beta,CH_H2O
     real(dp), INTENT(INOUT) :: CH_RO2_old
     real(dp), INTENT(INOUT) :: J_TOTAL_M3
+
+    integer :: ii,reclen,jj,rows
+    integer,save :: NN
     real,allocatable,save   :: TIMESERIES(:,:)
     integer, save           :: i_TIMESERIES = 1
     logical, SAVE           :: FIRST_TIME = .true.
