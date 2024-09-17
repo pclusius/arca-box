@@ -60,7 +60,7 @@ CHEM_OPTS = -w -cpp $(PROF) $(COPTI) -ffree-line-length-none -fcheck=all -ffpe-t
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OD)/$(BACDC) -I$(OD)/$(BACDC) -fcheck=all -ffpe-trap=invalid,zero,overflow -O2
 
 CHEM_OBJECTS = $(addprefix $(OD)/$(CHMDIR)/, second_Precision.o second_Parameters.o second_Function.o second_Global.o \
-								second_Initialize.o second_reactivity.o second_Monitor.o second_Util.o second_JacobianSP.o \
+								$(CHM_CNST) second_Initialize.o second_reactivity.o second_Monitor.o second_Util.o second_JacobianSP.o \
 								second_LinearAlgebra.o second_Jacobian.o second_Rates.o second_Integrator.o second_Model.o second_Main.o)
 
 BOX_OBJECTS = $(addprefix $(OD)/, constants.o auxillaries.o input.o chemistry.o \
