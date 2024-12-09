@@ -318,7 +318,11 @@ if (I/=0) print FMT_WARN0, "Could not save InitBackup.txt, is the file locked?"
 ! Open netCDF files
 IF (NETCDF_OUT) &
   CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChem,CurrentVers,SHA, MODS, CH_GAS, reactivities, VAPOUR_PROP,Vol_chamber)
-
+if (BINARY_DUMP) THEN
+  ! NN = INT(GTIME%SIM_TIME_S/GTIME%dt+0.5d0) + 1
+  ALLOCATE(TIMESERIES(NSPEC,INT(GTIME%SIM_TIME_S/GTIME%dt+0.5d0) + 1))
+  TIMESERIES = 0.0
+END IF
 ! If wait_for was defined in user options, wait for a sec
 CALL PAUSE_FOR_WHILE(wait_for)
 
@@ -507,9 +511,11 @@ END IF
                     ! In concentrations
                     IF (I<=N_CONCENTRATIONS.and.GTIME%hrs<=FLOAT_CONC_AFTER_HRS) THEN
                         CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
+                        CH_GAS_old(INDRELAY_CH(I)) = TSTEP_CONC(I)
                     ! In emissions
                     ELSE IF (I>N_CONCENTRATIONS.and.GTIME%hrs<=FLOAT_EMIS_AFTER_HRS) THEN
                         CH_GAS(INDRELAY_CH(I)) = TSTEP_CONC(I)
+                        CH_GAS_old(INDRELAY_CH(I)) = TSTEP_CONC(I)
                     END IF
                 END IF
             END DO
@@ -522,6 +528,12 @@ END IF
             ! Solar angle above horizon. For this to properly work, lat, lon and Date need to be defined in INIT_FILE
             call BETA(CH_Beta)
         END IF
+
+        if (BINARY_DUMP) THEN
+          TIMESERIES(:,i_TIMESERIES) = CH_GAS_OLD
+          i_TIMESERIES = i_TIMESERIES + 1
+        END IF
+
         ! if (.not. OPTIMIZE_DT) CH_GAS_old = CH_GAS
         IF (Chemistry_flag .and. GTIME%sec>=START_CHEM.and.GTIME%sec<=STOP_CHEM) THEN
           !! NOTE Condensation sink of Sulfuric acid not anymore applied in chemistry but aerosol module !!!
@@ -744,6 +756,7 @@ END IF
         in_turn_cch_2: if (PRC%in_turn(PRC%cch)) THEN
         ! ..........................................................................................................
         ! CONDENSATION
+        ! onlyIfCondIsUsed: if (Condensation .and.(.not. PRC%err).and.(.not.VBS_ONLY)) THEN
 
             ! Pick the condensibles from chemistry and change units from #/cm^3 to #/m^3
             conc_vapour = 0d0
@@ -775,7 +788,7 @@ END IF
             !                       VAPOUR_PROP%molar_mass(1:VAPOUR_PROP%n_cond_org-1)*1d9, VAPOUR_PROP%VBS_BINS(:,:))
             ! if (GTIME%PRINTNOW) print*,'VBS PAR',GTIME%sec, MATMUL(MATMUL(get_conc(),current_PSD%composition_fs(:,1:VAPOUR_PROP%n_cond_org-1))*1e9, VAPOUR_PROP%VBS_BINS(:,:))
 
-          onlyIfCondIsUsed: if (Condensation .and.(.not. PRC%err).and.(.not.VBS_ONLY)) THEN
+            onlyIfCondIsUsed: if (Condensation .and.(.not. PRC%err).and.(.not.VBS_ONLY)) THEN
             CALL UPDATE_MOLECULAR_DIFF_AND_CSPEED(VAPOUR_PROP)
 
             IF (CHEM_DEPOSITION) CALL CALCULATE_CHEMICAL_WALL_LOSS(conc_vapour(1:VAPOUR_PROP%n_cond_org),c_org_wall)
@@ -791,7 +804,8 @@ END IF
 
             if (Kelvin_taylor) Kelvin_Eff = 1d0 + pre_Kelvin * 300d0 / GTEMPK + (pre_Kelvin * 300d0 / GTEMPK) **2 / 2d0 + (pre_Kelvin * 300d0 / GTEMPK) **3 / 6d0
             ! print*, conc_vapour(ind('BCALBOOH', VAPOUR_PROP%vapour_names)), Vapour_prop%c_sat(ind('BCALBOOH', VAPOUR_PROP%vapour_names))
-            if (GTIME%sec>=START_AER.and.GTIME%sec<=STOP_AER) CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRC%cch),d_dpar,d_vap, kelvin_eff)
+            if (GTIME%sec>=START_AER.and.GTIME%sec<=STOP_AER) &
+              CALL Condensation_apc(VAPOUR_PROP,conc_vapour,dmass, GTIME%dt*speed_up(PRC%cch),d_dpar,d_vap, kelvin_eff)
             ! print*, sum(dmass(:, ind('BCALBOOH', VAPOUR_PROP%vapour_names))), vapour_prop%molar_mass(ind('BCALBOOH', VAPOUR_PROP%vapour_names))
 
             ! calculate reference d_vap value, largest in magnitude but with sign
@@ -1105,6 +1119,8 @@ END IF
 
 ! Close output file netcdf
 if (NETCDF_OUT) CALL CLOSE_FILES(RUN_OUTPUT_DIR)
+if (BINARY_DUMP) CALL WRITE_GAS_BINARY_DUMP(RUN_OUTPUT_DIR)
+
 if (OPTIMIZE_DT) THEN
     print*, 'Total rounds for chemistry and/or condensation: ', bookkeeping(1,1)
     print*, 'Total rounds for nucleation and/or coagulation: ', bookkeeping(2,1)

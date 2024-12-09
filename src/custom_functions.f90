@@ -91,46 +91,6 @@ subroutine AFTER_CHEM(TSTEP_CONC,CH_GAS,CH_GAS_old,CH_RO2,CH_Beta,CH_H2O,CH_RO2_
     ! end if
     ! CH_GAS(ind_HONO) = 1*1d-9*GC_AIR_NOW
 
-    ! END CUSTOM CODE ---------------------------------
-    if (FIRST_TIME) THEN
-      ! ALLOCATE(chem_losses(NSPEC))
-      ! if (TRIM(LOSSES_FILE) /= '') THEN
-      !   open(8889, file=TRIM(LOSSES_FILE), IOSTAT=ii)
-      !   rows = rowcount(8889)
-      !   do ii=1, NSPEC
-      !     read(8889,*) ignore, chem_losses(ii)
-      !   end do
-      ! ELSE
-      !   chem_losses = 0
-      ! END IF
-      NN = INT(GTIME%SIM_TIME_S/GTIME%dt+0.5d0) + 1
-      ALLOCATE(TIMESERIES(NSPEC,NN))
-      TIMESERIES = 0.0
-      FIRST_TIME = .false.
-    END IF
-
-    ! CH_GAS = CH_GAS * EXP(-chem_losses*GTIME%dt)
-
-
-    TIMESERIES(:,i_TIMESERIES) = CH_GAS_OLD
-    i_TIMESERIES = i_TIMESERIES + 1
-
-    if ((GTIME%sec+GTIME%dt>GTIME%SIM_TIME_S)) THEN
-      INQUIRE(iolength=reclen) TIMESERIES
-      call system('rm TIMESERIES.r4')
-      open (unit=1,file='TIMESERIES.r4',form='unformatted',access='direct',recl=reclen,STATUS='new')
-      write (1,rec=1) TIMESERIES
-      close(1)
-
-      ! OPEN(611,file="GASES.txt",status='replace',action='write')
-      ! WRITE(611,'(a,es12.3)') "#", GTIME%sec
-      ! DO ii = 1,size(SPC_NAMES)
-      !   WRITE(611,'(a,es12.3)') SPC_NAMES(ii), CH_GAS(ii)
-      ! END DO
-      ! CLOSE(611)
-
-    END IF
-
 end subroutine AFTER_CHEM
 
 subroutine AFTER_NUCL(TSTEP_CONC,CH_GAS,J_TOTAL_M3)

@@ -1466,6 +1466,8 @@ Please provide valid spectral function.') \
         for i in range(len(luvut)//3):
             if abs(luvut[3*i+1])>0:
                 acl = acl + luvut[3*i+2]*(gaussian(log10(x), log10(luvut[3*i+0]),luvut[3*i+1]))
+                # will change to this form asap
+                # acl = acl + luvut[3*i+2]*(gaussian(log(x), log(luvut[3*i+0]),luvut[3*i+1]))
         if sum( acl )>0:
             Z = N * acl / (sum( acl ))
             ndel = -min(nb-1, 8)

@@ -46,6 +46,10 @@ INTEGER, PARAMETER :: shuff=1, compress=1, compression=9
 INTEGER       :: ncfile_ids(N_FILES)
 CHARACTER(200) :: ncfile_names(N_FILES) = (['General  ', 'Chemistry', 'Particles'])
 
+real,allocatable     :: TIMESERIES(:,:)
+integer              :: i_TIMESERIES = 1
+integer              :: reclen
+
 INTEGER, allocatable :: shifter_ind(:)
 INTEGER, allocatable :: multipl_ind(:)
 INTEGER, allocatable :: mods_ind(:)
@@ -67,7 +71,7 @@ INTEGER :: gJ_out_SUM_id
 INTEGER :: gJ_out_TOT_id
 INTEGER :: gCS_calc_id
 
-public :: OPEN_FILES, SAVE_GASES,CLOSE_FILES,INITIALIZE_WITH_LAST
+public :: OPEN_FILES, SAVE_GASES,CLOSE_FILES,INITIALIZE_WITH_LAST,WRITE_GAS_BINARY_DUMP,TIMESERIES,i_TIMESERIES
 
 type(parsave) :: parbuf(25)
 type(parsave), ALLOCATABLE :: savepar(:)
@@ -579,5 +583,15 @@ if (Aerosol_flag) THEN
 END IF
 
 END SUBROUTINE INITIALIZE_WITH_LAST
+
+SUBROUTINE WRITE_GAS_BINARY_DUMP(dir)
+    CHARACTER(LEN=*) :: dir
+    INQUIRE(iolength=reclen) TIMESERIES
+
+    call system('rm -f '//trim(dir)//'/TIMESERIES.r4')
+    open (unit=1,file=trim(dir)//'/TIMESERIES.r4',form='unformatted',access='direct',recl=reclen,STATUS='new')
+    write (1,rec=1) TIMESERIES
+    close(1)
+END SUBROUTINE WRITE_GAS_BINARY_DUMP
 
 END MODULE OUTPUT
