@@ -37,7 +37,7 @@ from shutil import move as mvf
 from re import sub,IGNORECASE, findall, match, finditer
 import time
 import re
-import sys
+import sys,os
 import pickle
 from urllib.parse import urljoin
 import csv
@@ -75,7 +75,7 @@ QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) # e
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)    # use highdpi icons
 # See if scaling is necessary, currently only on Windows
 args = []
-
+startupInitfile = None
 # Get the dark/light mode settings
 _dark_mode = get_config("style", "darkmode", fallback='False')
 if _dark_mode.lower() == 'false' or _dark_mode.lower() == 'true':
@@ -97,6 +97,9 @@ if len(sys.argv)>1:
         elif a == '--names':
             NAMES_override = sys.argv[ia+1]
             print(f'WARNING: using list of available input from {NAMES_override}')
+        elif a == '--initfile':
+            startupInitfile = sys.argv[ia+1]
+            print(f'Loading settings from: {startupInitfile}')
         elif '--scaleall_' in a:
             sfs = a.replace('--scaleall_','').split('_')
             environ["QT_SCREEN_SCALE_FACTORS"] = "%s"%(';'.join(sfs))
@@ -1317,6 +1320,10 @@ Please provide valid spectral function.') \
     # -----------------------
         # try:
         #     # if defaults exist, use them
+        if startupInitfile is not None and exists(startupInitfile):
+            out = self.load_initfile(startupInitfile)
+            self.show_currentInit(startupInitfile)
+        else:
         if exists(defaults_file_path):
             out = self.load_initfile(defaults_file_path)
         else:
@@ -1385,7 +1392,6 @@ Please provide valid spectral function.') \
             self.runPerlScript_and_make.setText(b4)
 
     def openOutputDir(self, a, dir):
-        import os
         if dir == '': dir = './'
         if not exists(dir):
             self.popup('Sorry','Directory does not exist.',2)
@@ -2091,8 +2097,9 @@ the numerical model or chemistry scheme differs from the current, results may va
         self.chemistryModules.clear()
         for (dirpath, dirnames, filenames) in walk('src/chemistry'):
             break
+        dirnames = sorted(dirnames,key=str.lower)
         ii = -1
-        for i,d in enumerate(sorted(dirnames)):
+        for i,d in enumerate(dirnames):
             self.chemistryModules.addItem(d)
             if d == dir:
                 if checkonly:
