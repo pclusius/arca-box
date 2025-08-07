@@ -2115,7 +2115,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         f = open('makefile','r')
         data = f.read()
         f.close()
-        pattern = '(CHMDIR)( )*(=)( )*(\S+)\n'
+        pattern = r'(CHMDIR)( )*(=)( )*(\S+)\n'
         data = sub(pattern,replacement, data)
         f = open('makefile','w')
         f.write(data)
