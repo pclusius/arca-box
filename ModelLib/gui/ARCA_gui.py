@@ -388,6 +388,8 @@ class CCWin(QtWidgets.QDialog):
         log = osjoin(self.outDir,'second.log')
         if cmds[-4:] == '.kpp':
             newold_mcm = 'old'
+            qt_box.popup('Old MCM files are not supprted', 'Please export the chemistry again from the current MCM, and use this tool again.',3)
+            return
         elif cmds[-4:] == '.eqn':
             newold_mcm = 'new'
         else:
@@ -592,8 +594,8 @@ class VpressWin(QtWidgets.QDialog):
         self.vp = vdialog.Ui_Dialog()
         self.vp.setupUi(self)
         self.vp.VapourClose.clicked.connect(self.reject)
-        self.vp.UmanFrame.setEnabled(False)
-        self.vp.useUMan.toggled.connect(lambda: qt_box.grayIfNotChecked(self.vp.useUMan,self.vp.UmanFrame))
+        self.vp.UmanFrame.setEnabled(True)
+        # self.vp.useUMan.toggled.connect(lambda: qt_box.grayIfNotChecked(self.vp.useUMan,self.vp.UmanFrame))
         self.vp.massSmilesButton.clicked.connect(lambda: qt_box.browse_path(self.vp.lineEdit, 'file',
             ftype="*mcm_subset_mass.txt *mcm_export_species.tsv *.csv *.ssv *.tsv"))
         self.vp.PramButton.clicked.connect(lambda: qt_box.browse_path(self.vp.pramFile, 'file'))
@@ -642,8 +644,8 @@ class VpressWin(QtWidgets.QDialog):
         if self.vp.VapourPath.text() == '':
             qt_box.popup('Oops...', 'Output filename must be defined.',1)
             return
-        if self.vp.useUMan.isChecked(): source = 'UMan'
-        else: source = 'AMG'
+        source = 'UMan'
+        # else: source = 'AMG'
         if self.vp.limPsat.text() == '' : plim = 1e-6
         else : plim = self.vp.limPsat.text()
         vp_method = {0:'nannoolal',1:'myrdal_and_yalkowsky',2:'evaporation'}
@@ -652,10 +654,10 @@ class VpressWin(QtWidgets.QDialog):
             newold_mcm = 'old'
         elif 'mcm_export_species.tsv' in self.vp.lineEdit.text():
             newold_mcm = 'new'
-        elif 'mcm_export_species.tsv' in self.vp.lineEdit.text():
-            newold_mcm = 'new'
         elif '.csv' in self.vp.lineEdit.text():
             newold_mcm = 'csv'
+        else:
+            newold_mcm = 'new'
 
         message = gvp.getVaps(args={
         'vp_method':vp_method[self.vp.vpCombo.currentIndex()],
