@@ -14,7 +14,6 @@ MODULE KPP_ROOT_Main
   KPP_REAL :: RSTATE(20)
   INTEGER :: ICNTRL(20) ! Added by Sampo Smolander
   INTEGER :: i
-  REAL(DP), SAVE :: R_F(NREACT) = 1d0
 
 CONTAINS
 
@@ -64,23 +63,7 @@ CONTAINS
 
     CALL Update_RCONST()
 
-    ! Modify rate constants
-    RCONST = RCONST * R_F
-
-    ! In INTEGRATE VAR and FIX are calculated, so we need to put values from C to them
-    ! And FIX is meaningful only when NVAR < NSPEC
-    VAR(1:NVAR) = C(1:NVAR)
-    DO i = NVAR+1, NSPEC
-      FIX(i-NVAR) = C(i)
-    END DO
-
     CALL INTEGRATE( TIN = T1, TOUT = T2, RSTATUS_U = RSTATE, ICNTRL_U = ICNTRL )
-
-    ! Set VAR and FIX back to C
-    C(1:NVAR) = VAR(1:NVAR)
-    DO i = NVAR+1, NSPEC
-      C(i) = FIX(i-NVAR)
-    END DO
 
     CONS = C
 

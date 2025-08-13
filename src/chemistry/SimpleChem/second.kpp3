@@ -2,7 +2,7 @@
 #LANGUAGE   Fortran90
 #DOUBLE     ON
 #INTEGRATOR rosenbrock
-#DRIVER     ./mcm_module
+#DRIVER     ./mcm_module_kpp3
 #JACOBIAN   SPARSE_LU_ROW
 #HESSIAN    OFF
 #STOICMAT   OFF
