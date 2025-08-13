@@ -165,8 +165,8 @@ END SUBROUTINE CHEMCALC
 !
 !ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 SUBROUTINE PHOTOLYSIS_KPP(SAFN, T, J_pc)
+    USE Second_constants
     IMPLICIT NONE
-
     INTEGER :: I, ioi, JJ, cols, R
 
     INTEGER,  DIMENSION(75), SAVE      :: WL        ! Wavelengths from the input files
@@ -182,7 +182,9 @@ SUBROUTINE PHOTOLYSIS_KPP(SAFN, T, J_pc)
     ! Input of absorption cross spectrum and quantum yields for different molecules:
     IF (first_call) THEN ! do only once
         first_call = .FALSE.
-
+        ! NOTE the names of the files are following the 1-56 photolysis rate numbering - for some
+        ! reason MCM_constants uses different numbering.
+        ! XXX NOTE MAKE SURE THE NAMED J-INDICES in Second_constants.f90 USE THE OLD NUMBERING CONVENTION!
         CS_QY = 0d0
         DO I=1,56
             OPEN(900, FILE = data_root//'/Photolyse/MCM3_CS_QY/J'//TRIM(i2chr(I))//'.txt',STATUS = 'OLD', IOSTAT=ioi)
@@ -200,69 +202,69 @@ SUBROUTINE PHOTOLYSIS_KPP(SAFN, T, J_pc)
     J_pc = 0d0
     ! Calculate J-values:
     DO I=1,75
-        R=1;  J_pc(R) = J_pc(R) &
+        R = J_O3_O1D; J_pc(R)       = J_pc(R) &
                         + CS_QY(R,I,1) * EXP(CS_QY(R,I,2)/T) &
                         * CS_QY(R,I,3) * SAFN(I) * DL
 
-        R=2;  J_pc(R) = J_pc(R) &
+        R = J_O3_O3P; J_pc(R)       = J_pc(R) &
                         + CS_QY(R,I,1) * EXP(CS_QY(R,I,2)/T) &
                         * CS_QY(R,I,3) * SAFN(I) * DL
-        R=3;  J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=4;  J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=5;  J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=6;  J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=7;  J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        ! (T-independent) ACS, QY=1
-        R=8;  J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,4) * SAFN(I) * DL
+        R = J_H2O2; J_pc(R)         = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_NO2; J_pc(R)          = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_NO3_NO; J_pc(R)       = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_NO3_NO2; J_pc(R)      = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_HONO; J_pc(R)         = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        ! (T-independent) ACS, QY =1
+        R = J_HNO3; J_pc(R)         = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,4) * SAFN(I) * DL
 
-        R=11; J_pc(R) = J_pc(R) &
+        R = J_HCHO_H; J_pc(R)       = J_pc(R) &
                        + (CS_QY(R,I,1) + CS_QY(R,I,2) * (T-298)) &
                        * CS_QY(R,I,3) * SAFN(I) * DL
 
-        R=12; J_pc(R) = J_pc(R) &
+        R = J_HCHO_H2; J_pc(R)      = J_pc(R) &
                         + (CS_QY(R,I,1) + CS_QY(R,I,2) * (T-298)) &
                         * CS_QY(R,I,3) * SAFN(I) * DL
 
-        R=13; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=14; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=15; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=16; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=17; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=18; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=19; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_CH3CHO; J_pc(R)       = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_C2H5CHO; J_pc(R)      = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_C3H7CHO_HCO; J_pc(R)  = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_C3H7CHO_C2H4; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_IPRCHO; J_pc(R)       = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_MACR_HCO; J_pc(R)     = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_MACR_H; J_pc(R)       = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
         ! Reaction J20 was previously missing
-        R=20; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=21; J_pc(R) = J_pc(R) &
+        R = J_C5HPALD1; J_pc(R)     = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_CH3COCH3; J_pc(R)     = J_pc(R) &
                    + CS_QY(R,I,1) * (1 + (CS_QY(R,I,2) * T) + (CS_QY(R,I,3) * (T**2)) + (CS_QY(R,I,4) * (T**3))) &
                    ! Using summed quantum yields (from column 7)
                    * CS_QY(R,I,7) * SAFN(I) * DL
 
-        R=22; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=23; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=24; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=31; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=32; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=33; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=34; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=35; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=41; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_MEK; J_pc(R)          = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_MVK_CO; J_pc(R)       = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_MVK_C2H3; J_pc(R)     = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_GLYOX_H2; J_pc(R)     = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_GLYOX_HCHO; J_pc(R)   = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_GLYOX_HCO; J_pc(R)    = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_MGLYOX; J_pc(R)       = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_BIACET; J_pc(R)       = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_CH3OOH; J_pc(R)       = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
 
-        R=51; J_pc(R) = J_pc(R) &
+        R = J_CH3NO3; J_pc(R)       = J_pc(R) &
                    + CS_QY(R,I,1) * EXP(CS_QY(R,I,2) * (T-298)) &
                    * CS_QY(R,I,3) * SAFN(I) * DL
 
-        R=52; J_pc(R) = J_pc(R) &
+        R = J_C2H5NO3; J_pc(R)      = J_pc(R) &
                    + CS_QY(R,I,1) * EXP(CS_QY(R,I,2) * (T-298)) &
                    * CS_QY(R,I,3) * SAFN(I) * DL
 
-        R=53; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_NC3H7NO3; J_pc(R)     = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
 
-        R=54; J_pc(R) = J_pc(R) &
+        R = J_IC3H7NO3; J_pc(R)     = J_pc(R) &
                    + CS_QY(R,I,1) * EXP(CS_QY(R,I,2) * (T-298)) &
                    * CS_QY(R,I,3) * SAFN(I) * DL
 
-        R=55; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
-        R=56; J_pc(R) = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_TC4H9NO3; J_pc(R)     = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
+        R = J_NOA; J_pc(R)          = J_pc(R) + CS_QY(R,I,1) * CS_QY(R,I,2) * SAFN(I) * DL
 
     ENDDO
 
