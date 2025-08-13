@@ -120,6 +120,16 @@ and then run the setup.py again.
 
 Version history
 ---------------
+
+1.3.3
+Updates:
+- New custom option of writing a binary file of chemical componenst at eadch timestep
+- fixes in regular expressions, accommodating python 3.10 ->
+- GUI has a post-processing slot for custom code (in a bash call). This is a convenience tool only.
+- Create Chemistry tool: One can define a master file that will override other duplicate equations
+- KPP 2.x not provided with ARCA anymore, as the current version is preferred https://kpp.readthedocs.io/en/stable/
+
+
 1.3.2
 
 Updates:
