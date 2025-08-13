@@ -340,10 +340,11 @@ class CCWin(QtWidgets.QDialog):
         super(CCWin, self).__init__(parent)
         self.ccw = cc.Ui_Dialog()
         self.ccw.setupUi(self)
+        self.outDir = './'
         self.ccw.ccClose.clicked.connect(self.reject)
         self.ccw.createKPPsettings.clicked.connect(self.kpp)
-        self.ccw.openOutput.clicked.connect(lambda: qt_box.openOutputDir(None, self.ccw.outDir.text()))
-        self.ccw.browseOut.clicked.connect(lambda: qt_box.browse_path(self.ccw.outDir, 'dir'))
+        self.ccw.openOutput.clicked.connect(lambda: qt_box.openOutputDir(None, self.outDir))
+        # self.ccw.browseOut.clicked.connect(lambda: qt_box.browse_path(self.ccw.outDir, 'dir')) XXX
         self.ccw.browseSourceFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.sourceFile, 'file'))
         self.ccw.browseReactFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.react_file, 'file'))
         self.ccw.browseIncludes.clicked.connect(lambda: qt_box.browse_path(self.ccw.includedFiles, 'append'))
@@ -369,17 +370,22 @@ class CCWin(QtWidgets.QDialog):
         if cmds == '':
             qt_box.popup('No input', 'Please give the main source file (e.g. mcm subset).',3)
             return
-        if self.ccw.outDir.text() == '' or self.ccw.outDir.text() == './':
-            qt_box.popup('No output directory', 'Please provide the output directory.',3)
+        if self.ccw.chemName.text() == '' or self.ccw.chemName.text() == './':
+            qt_box.popup('Chemistry name is missing', 'Please provide a name for the chemistry.',3)
             return
+        self.outDir = osjoin('src','chemistry/',self.ccw.chemName.text())
+        if exists(self.outDir):
+            qt_box.popup('Chemistry '+self.ccw.chemName.text()+' already exists', 'Please provide a different name for the chemistry.',3)
+            return
+
         includes = self.ccw.includedFiles.toPlainText().split()
         fixed = self.ccw.deffix.toPlainText().split()
         master = self.ccw.prioritySystem.text()
         if self.ccw.inclPram.isChecked():
             # includes.append(osjoin(ccloc,'PRAM_v21.txt'))
             includes.append(osjoin('ModelLib','PRAM','PRAM_v21.txt'))
-        out = osjoin(self.ccw.outDir.text(),'second.def')
-        log = osjoin(self.ccw.outDir.text(),'second.log')
+        out = osjoin(self.outDir,'second.def')
+        log = osjoin(self.outDir,'second.log')
         if cmds[-4:] == '.kpp':
             newold_mcm = 'old'
         elif cmds[-4:] == '.eqn':
@@ -407,7 +413,7 @@ class CCWin(QtWidgets.QDialog):
             print( 'Calling chemistry script with:\n'+' '.join(commandstring))
             self.kppProcess = Popen([*commandstring], stdout=PIPE,stderr=STDOUT,stdin=None)
             output = ['Chemistry definitions were created.\n']
-            boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp (or kpp second.kpp3 if kpp v.3 is used)"\n2) Recompile ARCA in tab "Chemistry".'
+            boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp3"\n2) Recompile ARCA in tab "Chemistry".'
             while lines:
                 self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
                 if '[WARNING' in self.ccout.upper():
@@ -435,7 +441,7 @@ class CCWin(QtWidgets.QDialog):
                 xml = self.ccw.react_file.text()
 
         commandstring = [currentPythonVer,osjoin(ccloc,'reactivity','add_reactivity.py'),'-k',out,xml,
-                        '-o',osjoin(self.ccw.outDir.text(),'second_reactivity.f90'),'--log', osjoin(self.ccw.outDir.text(),'reactivity.log')]
+                        '-o',osjoin(self.outDir,'second_reactivity.f90'),'--log', osjoin(self.outDir,'reactivity.log')]
         self.kppProcess = Popen([*commandstring], stdout=PIPE,stderr=STDOUT,stdin=None)
         lines = True
         error = False
@@ -461,11 +467,12 @@ class CCWin(QtWidgets.QDialog):
         if self.ccw.justReact.isChecked():
             qt_box.popup('Reactivity file created', 'Success, see the log for details.',0)
         else:
-            cpf(osjoin(ccloc,'mcm_module.f90'),osjoin(self.ccw.outDir.text(),'mcm_module.f90'))
-            cpf(osjoin(ccloc,'second_Constants.f90'),osjoin(self.ccw.outDir.text(),'second_Constants.f90'))
-            cpf(osjoin(ccloc,'second.kpp'),osjoin(self.ccw.outDir.text(),'second.kpp'))
-            cpf(osjoin(ccloc,'mcm_module_kpp3.f90'),osjoin(self.ccw.outDir.text(),'mcm_module_kpp3.f90'))
-            cpf(osjoin(ccloc,'second.kpp3'),osjoin(self.ccw.outDir.text(),'second.kpp3'))
+            # cpf(osjoin(ccloc,'mcm_module.f90'),osjoin(self.outDir,'mcm_module.f90'))
+            cpf(cmds,osjoin(self.outDir,ossplit(cmds)[1]))
+            cpf(osjoin(ccloc,'second_Constants.f90'),osjoin(self.outDir,'second_Constants.f90'))
+            # cpf(osjoin(ccloc,'second.kpp'),osjoin(self.outDir,'second.kpp'))
+            cpf(osjoin(ccloc,'mcm_module_kpp3.f90'),osjoin(self.outDir,'mcm_module_kpp3.f90'))
+            cpf(osjoin(ccloc,'second.kpp3'),osjoin(self.outDir,'second.kpp3'))
             if warnings: output.append('Read the log above, and resolve the problems in .def file, then:')
             qt_box.popup('Chemistry created', '\n'.join(output)+boilerplate,0)
 
