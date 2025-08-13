@@ -374,6 +374,7 @@ class CCWin(QtWidgets.QDialog):
             return
         includes = self.ccw.includedFiles.toPlainText().split()
         fixed = self.ccw.deffix.toPlainText().split()
+        master = self.ccw.prioritySystem.text()
         if self.ccw.inclPram.isChecked():
             # includes.append(osjoin(ccloc,'PRAM_v21.txt'))
             includes.append(osjoin('ModelLib','PRAM','PRAM_v21.txt'))
@@ -393,6 +394,9 @@ class CCWin(QtWidgets.QDialog):
         if len(includes)>0:
             commandstring.append('-f')
             commandstring += includes
+        if len(master)>0:
+            commandstring.append('-p')
+            commandstring.append(master)
 
         error = False
         warnings = False
@@ -1196,6 +1200,7 @@ Please provide valid spectral function.') \
         self.MonitorWindow.setFont(fixedFont)
         self.frameStop.setEnabled(False)
         self.startButton.clicked.connect(self.startBox)
+        self.runPostProc.clicked.connect(self.postProcessing)
         self.stopButton.clicked.connect(self.stopBox)
         self.softStopButton.clicked.connect(self.softStop)
         self.boxProcess = 0 # arcabox run handle
@@ -1207,10 +1212,10 @@ Please provide valid spectral function.') \
         # self.pollTimer.timeout.connect(self.updateOutput)
         self.pauseScroll.clicked.connect(lambda: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()))
         self.mfont = self.MonitorWindow.font()
-        self.mfont.setFamily(    get_config("fonts", "monitorfont",  fallback=str(self.mfont.family())   ) )
-        self.mfont.setPointSize( int (get_config("fonts", "monitorsize",  fallback=self.mfont.pointSize()) ) )
-        self.mfont.setBold(   eval("%s"%(get_config("fonts", "monitorbold",  fallback=str(self.mfont.bold()) ).capitalize()  ) ))
-        self.mfont.setItalic( eval("%s"%(get_config("fonts", "monitoritalic",fallback=str(self.mfont.italic()) ).capitalize()  ) ))
+        self.mfont.setFamily(    get_config("fonts", "monitorfont",  fallback='Ubuntu Mono'   ) )
+        self.mfont.setPointSize( int (get_config("fonts", "monitorsize",  fallback=11 ) ) )
+        self.mfont.setBold(   eval("%s"%(get_config("fonts", "monitorbold",  fallback=True )  ) ))
+        self.mfont.setItalic( eval("%s"%(get_config("fonts", "monitoritalic",fallback=False )  ) ))
         self.MonitorWindow.setFont(self.mfont)
         self.savefonts(self.mfont, 'monitor')
         self.font = self.centralwidget.font()
@@ -1324,19 +1329,18 @@ Please provide valid spectral function.') \
             out = self.load_initfile(startupInitfile)
             self.show_currentInit(startupInitfile)
         else:
-        if exists(defaults_file_path):
-            out = self.load_initfile(defaults_file_path)
-        else:
-            try:
-                # If defaults did not exist, load minimal working settings
-                out = self.load_initfile(minimal_settings_path)
-            except:
-                # If they also were missing, use "factory settings"
-                pass
-            # Save the obtained settings as default
-            self.save_file(file=defaults_file_path, mode='silent')
+            if exists(defaults_file_path):
+                out = self.load_initfile(defaults_file_path)
+            else:
+                try:
+                    # If defaults did not exist, load minimal working settings
+                    out = self.load_initfile(minimal_settings_path)
+                except:
+                    # If they also were missing, use "factory settings"
+                    pass
+                # Save the obtained settings as default
+                self.save_file(file=defaults_file_path, mode='silent')
         if out==None: self.updateEnvPath()
-
     # -----------------------
     # Class methods
     # -----------------------
@@ -2120,7 +2124,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         and replaces it with mod (which comes from current chemistry module drop down menu), replaces
         then the makefile.
         """
-        replacement = 'CHMDIR = '+mod
+        replacement = 'CHMDIR = '+mod.strip()+'\n'
         f = open('makefile','r')
         data = f.read()
         f.close()
@@ -2201,7 +2205,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                     if ind > 0 and not '!' in line:
                         ind2 = line.find('=')
                         comp = line[ind+5:ind2].strip()
-                        if comp not in vars.mods:
+                        if comp not in vars.mods and comp in namesPyInds.keys():
                             self.namesdat.item(namesPyInds[comp]).setSelected(True)
                             count += 1
                 self.popup('File parsed', 'Selected %d variables'%count, icon=1)
@@ -2432,6 +2436,16 @@ a chemistry module in tab "Chemistry"''', icon=2)
             f.close()
         else:
             return
+        self.postProcessing()
+
+    def postProcessing(self):
+        self.postprocess = []
+        commands = self.postProcCmd.toPlainText().split('\n')
+        for cmd in commands:
+            # self.postprocess.append(Popen(cmd.split()))
+            cmdprocessed = cmd.replace('<outputdir>', self.currentAddressTb.text()  )
+            os.system(cmdprocessed)
+        return
 
     def softStop(self):
         if exists(self.saveCurrentOutputDir):
@@ -2516,8 +2530,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.nickname.append(nickname)
             else:
                 self.nickname[num-1] = nickname
-            x = re.findall('integer, parameter :: .+ neutral_monomers.+= ?\(/( ?.+)/\)',t)
-            y = re.findall(' ?clust\((\w+)\)\(\:\) ?\= ?(.+)',t)
+            x = re.findall(r'integer, parameter :: .+ neutral_monomers.+= ?\(/( ?.+)/\)',t)
+            y = re.findall(r' ?clust\((\w+)\)\(\:\) ?\= ?(.+)',t)
             names = {}
             for i in range(len(y)):
                 names[y[i][0]] = y[i][1]
@@ -2912,8 +2926,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
             vars.mods[name].unit = self.selected_vars.cellWidget(i,5).currentText()
 
         nml.RAW.RAW = self.rawEdit.toPlainText()
+        nml.RAW.POST = self.postProcCmd.toPlainText()
         nml.CUSTOM.CUSTOMS = []
-        for i in range(1,31):
+        for i in range(1,25):
             key = 'customKey_%d'%i
             value = 'customVal_%d'%i
             exec('nml.CUSTOM.CUSTOMS.append([self.%s.text(),self.%s.text()])'%(key,value))
@@ -2987,7 +3002,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             x = line.find('!')
             if i<x or (x==-1 and i!=-1):
                 key = line[:i].upper().strip()
-                if key == '# RAW_INPUT':
+                if key == '# RAW_INPUT' or key == '# RAW_POST':
                     rawline = line[i+1:].lstrip().rstrip()
                 # remove comma and excess whitespace
                 strng = line[i+1:x].strip(' ,')
@@ -3063,7 +3078,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                         valueW = 'customVal_%d'%ii
                         exec("self.%s.setText(\'%s\')"%(keyW,nml.CUSTOM.CUSTOMS[ii-1][0]))
                         exec("self.%s.setText(\'%s\')"%(valueW,nml.CUSTOM.CUSTOMS[ii-1][1]))
-                    for j in range(ii+1,31):
+                    for j in range(ii+1,25):
                         keyW = 'customKey_%d'%j
                         valueW = 'customVal_%d'%j
                         exec("self.%s.clear()"%(keyW))
@@ -3169,8 +3184,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 if lll==0: self.acdc_systems_flags = [1,1,0,0,0]
                 if lll<self.ACDC_n_systems: self.acdc_systems_flags = self.acdc_systems_flags + [0]*(self.ACDC_n_systems-lll)
 
-            elif len(re.findall('ACDC_LINKS\((\d)\)',key))>0:
-                num = int(re.findall('ACDC_LINKS\((\d)\)',key)[0])
+            elif len(re.findall(r'ACDC_LINKS\((\d)\)',key))>0:
+                num = int(re.findall(r'ACDC_LINKS\((\d)\)',key)[0])
                 if num<=self.ACDC_n_systems:
                     self.ACDC_current_links[num-1][1] = {a:b for a,b in zip(strng.split()[0::2],strng.split()[1::2])}
                     if self.ACDC_available_compounds[num-1][1].keys() != self.ACDC_current_links[num-1][1].keys():
@@ -3193,6 +3208,9 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             elif '# RAW_INPUT' == key:
                 self.rawEdit.clear()
                 self.rawEdit.insertPlainText(rawline.replace('<br>', '\n'))
+            elif '# RAW_POST' == key:
+                self.postProcCmd.clear()
+                self.postProcCmd.insertPlainText(rawline.replace('<br>', '\n'))
             elif '# INPUT_SETTINGS' == key:
                 sets = strng.split()
                 for kv in sets:
