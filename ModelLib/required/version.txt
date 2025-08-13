@@ -3,6 +3,7 @@ Updates:
 - New custom option of writing a binary file of chemical componenst at eadch timestep
 - fixes in regular expressions, accommodating python 3.10 ->
 - GUI has a post-processing slot for custom code (in a bash call). This is a convenience tool only.
+- Create Chemistry tool: One can defien a master file that will override other duplicate equations
 
 1.3.2
 Updates:
