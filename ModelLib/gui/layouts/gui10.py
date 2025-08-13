@@ -4541,7 +4541,7 @@ class Ui_MainWindow(object):
         self.GR_sizes.setToolTip(_translate("MainWindow", "<html><head/><body><p>If particle growth rates can be calculated, they are shown for size ranges. The range always starts with the smallest particle (whatever that is) and from there on the diameters (m) defined here are used. </p><p><span style=\" font-weight:600;\">Enter the values as space separated list.</span></p></body></html>"))
         self.viewPrintNML.setText(_translate("MainWindow", "Edit print namelist"))
         self.helpCustom.setText(_translate("MainWindow", "?"))
-        self.groupBox_6.setTitle(_translate("MainWindow", "Postprossing commands (will execute after simulation finishes)"))
+        self.groupBox_6.setTitle(_translate("MainWindow", "Postprossing commands (executed after simulation). Use <outputdir> for outputdir."))
         self.runPostProc.setText(_translate("MainWindow", "Run postprocessing commands"))
         self.groupBox_7.setTitle(_translate("MainWindow", "Raw input"))
         self.tabWidget_4.setTabText(self.tabWidget_4.indexOf(self.tab_16), _translate("MainWindow", "Advanced model options"))
