@@ -168,8 +168,8 @@ gui_path = 'ModelLib/gui/'
 # GUI defaults are saved into this file. If it doesn't exist, it gets created in first start
 defaults_file_path = gui_path+'conf/defaults.init'
 minimal_settings_path = gui_path+'conf/minimal.init'
-monitorfont_pickle = 'conf/monitorfont.pickle'
-globalfont_pickle = 'conf/globalfont.pickle'
+#monitorfont_pickle = 'conf/monitorfont.pickle'#
+#globalfont_pickle = 'conf/globalfont.pickle'
 
 # Default global shortwave radiation spectrum file
 # (located in ModelLib/Photolyse/Spectra) -------------------------
