@@ -9,7 +9,7 @@ __pycache__
 arca.desktop
 *.nc
 run_arca.sh
-makefile
+makefile*
 INOUT/**
 !INOUT/.gitkeep
 Asetuksia

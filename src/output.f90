@@ -46,7 +46,7 @@ INTEGER, PARAMETER :: shuff=1, compress=1, compression=9
 INTEGER       :: ncfile_ids(N_FILES)
 CHARACTER(200) :: ncfile_names(N_FILES) = (['General  ', 'Chemistry', 'Particles'])
 
-real,allocatable     :: TIMESERIES(:,:)
+real(dp),allocatable :: TIMESERIES(:,:)
 integer              :: i_TIMESERIES = 1
 integer              :: reclen
 
@@ -290,7 +290,8 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
     call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(SPC_NAMES(j)), NF90_DOUBLE, dtime_id, chem_ind(j)) )
     call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), chem_ind(j), shuff, compress, compression) )
     call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'unit' , '1/cm^3'))
-    call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'unit' , 'gas'))
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'type' , 'gas'))
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'index' , j))
   end do
 
   if (NREACTIVITY>0) THEN
@@ -584,14 +585,31 @@ END IF
 
 END SUBROUTINE INITIALIZE_WITH_LAST
 
-SUBROUTINE WRITE_GAS_BINARY_DUMP(dir)
+SUBROUTINE WRITE_GAS_BINARY_DUMP(dir, mode)
     CHARACTER(LEN=*) :: dir
-    INQUIRE(iolength=reclen) TIMESERIES
+    INTEGER :: ii
+    INTEGER,INTENT(IN) :: mode
+    real(dp) :: n1,n2
+    real, ALLOCATABLE :: tmp(:,:)
+    character(len=25) :: fmt
 
-    call system('rm -f '//trim(dir)//'/TIMESERIES.r4')
-    open (unit=1,file=trim(dir)//'/TIMESERIES.r4',form='unformatted',access='direct',recl=reclen,STATUS='new')
-    write (1,rec=1) TIMESERIES
-    close(1)
+    if (mode==1) then
+      tmp = TIMESERIES
+      INQUIRE(iolength=reclen) tmp
+      call system('rm -f '//trim(dir)//'/TIMESERIES.r4')
+      open (unit=1,file=trim(dir)//'/TIMESERIES.r4',form='unformatted',access='direct',recl=reclen,STATUS='new')
+      write (1,rec=1) tmp
+      close(1)
+    else if (mode==2) then
+      INQUIRE(iolength=reclen) TIMESERIES
+      n1 = size(TIMESERIES,1)
+      n2 = size(TIMESERIES,2)
+      call system('rm -f '//trim(dir)//'/TIMESERIES.r16')
+      open (unit=1,file=trim(dir)//'/TIMESERIES.r16',form='unformatted',access='direct',recl=reclen+8*3,STATUS='new')
+      write (1,rec=1) [GTIME%dt,n1,n2,PACK(TIMESERIES,.true.)]
+      close(1)
+    end if
 END SUBROUTINE WRITE_GAS_BINARY_DUMP
+
 
 END MODULE OUTPUT

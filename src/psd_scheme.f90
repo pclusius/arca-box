@@ -131,6 +131,7 @@ SUBROUTINE PSD_Allocate()
         ALLOCATE(current_PSD%particle_density_fs(current_PSD%nr_bins))
         ALLOCATE(current_PSD%particle_mass_fs(current_PSD%nr_bins))
         ALLOCATE(current_PSD%dp_dry_fs(current_PSD%nr_bins))
+        ALLOCATE(current_PSD%grid_fs(current_PSD%nr_bins+1))
 
     ! MOVING AVERAGE, FIXED GRID representation !
     ELSE IF (current_PSD%PSD_style == 2) THEN
@@ -179,6 +180,12 @@ SUBROUTINE GeneratePSDarrays()
         ! Initialize concentration and composition
         current_PSD%conc_fs = 0.d0
         current_PSD%composition_fs = 0.d0
+
+        current_PSD%grid_fs(1:current_PSD%nr_bins) = current_PSD%diameter_fs &
+          * (1.d0 - 0.5d0 * (current_PSD%diameter_fs(2) / current_PSD%diameter_fs(1) - 1.d0))
+        current_PSD%grid_fs(current_PSD%nr_bins+1) = current_PSD%diameter_fs(current_PSD%nr_bins) &
+          * (1.d0 + 0.5d0 * (current_PSD%diameter_fs(2) / current_PSD%diameter_fs(1) - 1.d0))
+
     ! --------------------------
     ! MOVING AVERAGE, FIXED GRID
     ELSE IF (current_PSD%PSD_style == 2) THEN
@@ -889,6 +896,27 @@ PURE FUNCTION get_dp(parts)
         get_dp = exp(log(d_PSD%grid_ma(:(size(d_PSD%grid_ma)-1))) + 0.5*log(d_PSD%grid_ma(2)/d_PSD%grid_ma(1)))
     END IF
 END FUNCTION get_dp
+
+
+! =====================================================================================================================
+! Returns an array of bin edges of size(nr_bins+1) that is independant of PSD_style
+PURE FUNCTION get_bin_edges(parts)
+    IMPLICIT none
+    REAL(dp) :: get_bin_edges(current_PSD%nr_bins+1)
+    type(PSD),INTENT(IN), optional :: parts
+    type(PSD) :: d_PSD
+    if (PRESENT(parts)) THEN
+        d_PSD = parts
+    ELSE
+        d_PSD = current_PSD
+    END IF
+
+    IF (d_PSD%PSD_style == 1) THEN
+        get_bin_edges = d_PSD%grid_fs
+    ELSE IF (d_PSD%PSD_style == 2) THEN
+        get_bin_edges = d_PSD%grid_ma
+    END IF
+END FUNCTION get_bin_edges
 
 
 ! =====================================================================================================================

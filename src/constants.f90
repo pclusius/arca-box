@@ -182,6 +182,7 @@ type PSD
     REAL(dp), ALLOCATABLE :: particle_mass_fs(:)     ! particle mass [kg] (nr_bins)
     REAL(dp), ALLOCATABLE :: composition_fs(:,:)     ! mass of all species in the particle phase [kg/particle] (nr_bins,n_cond_tot)
     REAL(dp), ALLOCATABLE :: conc_fs(:)              ! particle concentration in each size bin [m⁻³] (nr_bins)
+    REAL(dp), ALLOCATABLE :: grid_fs(:)              ! grid that contains the bin borders [m⁻³] (nr_bins+1)
 
     ! MOVING AVERAGE, FIXED GRID
     REAL(dp), ALLOCATABLE :: diameter_ma(:)          ! particle diameter [m] (nr_bins)

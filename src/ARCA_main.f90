@@ -318,11 +318,13 @@ if (I/=0) print FMT_WARN0, "Could not save InitBackup.txt, is the file locked?"
 ! Open netCDF files
 IF (NETCDF_OUT) &
   CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChem,CurrentVers,SHA, MODS, CH_GAS, reactivities, VAPOUR_PROP,Vol_chamber)
-if (BINARY_DUMP) THEN
+
+if (BINARY_FILE>0) THEN
   ! NN = INT(GTIME%SIM_TIME_S/GTIME%dt+0.5d0) + 1
   ALLOCATE(TIMESERIES(NSPEC,INT(GTIME%SIM_TIME_S/GTIME%dt+0.5d0) + 1))
   TIMESERIES = 0.0
 END IF
+
 ! If wait_for was defined in user options, wait for a sec
 CALL PAUSE_FOR_WHILE(wait_for)
 
@@ -529,7 +531,7 @@ END IF
             call BETA(CH_Beta)
         END IF
 
-        if (BINARY_DUMP) THEN
+        if (BINARY_FILE>0) THEN
           TIMESERIES(:,i_TIMESERIES) = CH_GAS_OLD
           i_TIMESERIES = i_TIMESERIES + 1
         END IF
@@ -729,7 +731,7 @@ END IF
 
     END IF add_particles
 
-    add_emitted_particles: if (PRC%in_turn(4).and.N_MODAL_EMS>0) THEN
+    add_emitted_particles: if (PRC%in_turn(4).and.N_MODAL_EMS>0.and.GTIME%hrs<=FLOAT_EMIS_AFTER_HRS) THEN
         ! ..........................................................................................................
         ! ADD EMITTED PARTICLES TO PSD
 
@@ -844,7 +846,7 @@ END IF
 
                 ! Update current_psd
                 current_PSD = new_PSD
-
+                dmass = 0d0
                 IF (PARAM_AGING) call AGING(current_PSD%composition_fs, 3600d0*AGING_HL_HRS, GTIME%dt*speed_up(PRC%cch))
                 ! NOTE Update vapour concentrations to chemistry is done at the end of the timestep
 
@@ -1119,7 +1121,7 @@ END IF
 
 ! Close output file netcdf
 if (NETCDF_OUT) CALL CLOSE_FILES(RUN_OUTPUT_DIR)
-if (BINARY_DUMP) CALL WRITE_GAS_BINARY_DUMP(RUN_OUTPUT_DIR)
+if (BINARY_FILE>0) CALL WRITE_GAS_BINARY_DUMP(RUN_OUTPUT_DIR,BINARY_FILE)
 
 if (OPTIMIZE_DT) THEN
     print*, 'Total rounds for chemistry and/or condensation: ', bookkeeping(1,1)

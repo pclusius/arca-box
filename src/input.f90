@@ -275,7 +275,7 @@ Logical  :: FINAL_CHEM_TXT          = .false.
 Logical  :: VBS_ONLY                = .false.
 Logical  :: VBS_CSAT                = .false.
 Logical  :: PP_H2SO4_TO_AMM_SULFATE = .false.
-Logical  :: BINARY_DUMP             = .false.
+INTEGER  :: BINARY_FILE             = 0
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
 real(dp) :: DT_UPPER_LIMIT(3)       = [150d0,150d0,150d0]
@@ -313,7 +313,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       Limit_for_Evaporation,MIN_CONCTOT_CC_FOR_DVAP, Use_old_composition, alpha_coa, Kelvin_taylor,&
                       SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,INIT_ONLY, &
                       FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS,FINAL_CHEM_TXT,NETCDF_OUT,VBS_LIMITS,VBS_NAMES,&
-                      VBS_ONLY,PP_H2SO4_TO_AMM_SULFATE,VBS_CSAT, BINARY_DUMP, &
+                      VBS_ONLY,PP_H2SO4_TO_AMM_SULFATE,VBS_CSAT, BINARY_FILE, &
                       LAST_VBS_BINNING_S,Aging_exponent,AGING_K, START_CHEM, STOP_CHEM, START_AER, STOP_AER
 
 ! ==================================================================================================================
