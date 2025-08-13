@@ -413,7 +413,7 @@ class CCWin(QtWidgets.QDialog):
             print( 'Calling chemistry script with:\n'+' '.join(commandstring))
             self.kppProcess = Popen([*commandstring], stdout=PIPE,stderr=STDOUT,stdin=None)
             output = ['Chemistry definitions were created.\n']
-            boilerplate = '\n1) Run KPP in the output directory: "kpp second.kpp3"\n2) Recompile ARCA in tab "Chemistry".'
+            boilerplate = '\n1) Run KPP (v.3.2.0 =>) in the output directory: "kpp second.kpp3"\n2) Recompile ARCA in tab "Chemistry".'
             while lines:
                 self.ccout = self.kppProcess.stdout.readline().decode("utf-8")
                 if '[WARNING' in self.ccout.upper():
