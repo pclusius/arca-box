@@ -210,7 +210,7 @@ def update_equation_list(file_lines, equation_list, equation_norate_list, equati
       # Still in the block '#EQUATIONS'
       else:
         # Search for, e.g., "{10.}    NO + NO3 = NO2 + NO2 :   1.8D-11*EXP(110/TEMP)   ;"
-        if re.search('\{', s):  # with {tag} in the beginning
+        if re.search(r'\{', s):  # with {tag} in the beginning
           mat = re.search(r'^\s*{.*}\s*(\S+.*)=(\s*\S+.*):(\s*\S+.*);', s)
         else:  # without {tag}
           mat = re.search(r'^\s*(\S+.*)=(\s*\S+.*):(\s*\S+.*);', s)

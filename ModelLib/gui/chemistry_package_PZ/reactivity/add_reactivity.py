@@ -75,12 +75,12 @@ def find_reactions(kppdef_file, species):
 
   # Search equation lines
   for line in file:
-    if re.search('^\s*$',line): continue  # empty line
-    if re.search('^//',line): continue    # comment line
+    if re.search(r'^\s*$',line): continue  # empty line
+    if re.search(r'^//',line): continue    # comment line
 
-    equation_str = '(^|\s|\+){0}(\s|\+|(?==)).*='.format(species)
+    equation_str = r'(^|\s|\+){0}(\s|\+|(?==)).*='.format(species)
     if re.search(equation_str,line):
-      if re.search('\+.*\+.*=',line):
+      if re.search(r'\+.*\+.*=',line):
         logging.error('This program can only handle equations with species' \
             + ' and one other term on\n' \
             + 'the left side. Not more than one, like in this line:')
