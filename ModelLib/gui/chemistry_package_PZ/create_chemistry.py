@@ -532,6 +532,10 @@ if __name__ == '__main__':
 
 
   # Delete 'USE constants'
+  line_number_F90_RCONST, i1, i2 = index_containing_substring(file_lines, r'\s*#INLINE F90_RCONST', False)
+  if line_number_F90_RCONST >= 0:
+      file_lines[line_number_F90_RCONST] = '#INLINE F90_RCONST_USE\n  USE second_Constants\n#ENDINLINE\n#INLINE F90_RCONST\n'
+
   line_number_use_constants, i1, i2 = index_containing_substring(file_lines, r'\s*USE\s*constants', False)
   if line_number_use_constants >= 0:
     if args.mcm_output_version == 'old':
@@ -542,11 +546,11 @@ if __name__ == '__main__':
       logging.info('Deleted the line "USE constants".')
       logging.info('')
     else:
-      file_lines[line_number_use_constants] = 'USE second_Constants\n'
+      file_lines[line_number_use_constants] = ''
       # Write to log file
       logging.info('============================================================')
       logging.info('')
-      logging.info('Changed "USE constants_mcm" to "USE second_Constants".')
+      logging.info('Moved "USE second_Constants" to INLINE F90_RCONST_USE')
       logging.info('')
 
 
