@@ -361,7 +361,7 @@ class CCWin(QtWidgets.QDialog):
             self.ccw.createKPPsettings.setText("Create KPP settings")
 
     def ListFixed(self):
-        file = qt_box.browse_path(None, 'fixed_cc', ftype="MCM mass subset file (*.txt)")
+        file = qt_box.browse_path(None, 'fixed_cc', ftype="mcm_export_species.tsv (*.tsv)")
         list = qt_box.loadFixedFile(file, cc=True)
         self.ccw.deffix.appendPlainText('\n'.join(list))
 
@@ -2146,18 +2146,23 @@ a chemistry module in tab "Chemistry"''', icon=2)
         indef = False
         count = 0
         parsethis = False
+        comps = ''
         with open(path, 'r') as f:
             for line in f:
-                if parsethis:
-                    comps = line.upper().strip(' \n').replace('\t','').replace(' ','').split(',')
-                    if cc: return comps
-                    for comp in comps:
-                        if comp not in vars.mods:
-                            self.namesdat.item(namesPyInds[comp]).setSelected(True)
-                            count = count +1
-                    break
-                if 'MOLECULAR WEIGHTS FOR SPECIES PRESENT IN THE SUBSET' in line.upper():
+                if 'NAMESMILESINCHIINCHIKEY' in ''.join(re.findall(r'\b\S+\b',line)).upper():
+                    if cc: return re.findall(r'\b\S+\b', comps)
+                elif parsethis:
+                    comps += line.upper().replace('\t',' ').replace('*',' ')
+                    # if cc: return comps
+                    # for comp in comps:
+                    #     if comp not in vars.mods:
+                    #         self.namesdat.item(namesPyInds[comp]).setSelected(True)
+                    #         count = count +1
+                    # break
+                elif 'SELECTED VOCS:' in line.upper():
+                    comps += ' '.join(re.findall(r'\b\S+\b', line.upper().replace('SELECTED VOCS:','')))
                     parsethis = True
+
         self.popup('File parsed', 'Selected %d variables'%count, icon=1)
 
     def vapours(self):
@@ -3585,10 +3590,10 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 self.availableVars.currentItem().setSelected(True)
 
 
-    def loadsecondFile(self):
-        newfile = self.browse_path(target=None,mode='fixed_cc', ftype=self.plotMasterFile)
-        self.listOfplottedFiles.append(newfile)
-        print(self.listOfplottedFiles)
+    # def loadsecondFile(self):
+    #     newfile = self.browse_path(target=None,mode='fixed_cc', ftype=self.plotMasterFile)
+    #     self.listOfplottedFiles.append(newfile)
+    #     print(self.listOfplottedFiles)
 
 
     def showOutputUpdate(self,info=False):
