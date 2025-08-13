@@ -1059,7 +1059,7 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.butRemoveSelVars.clicked.connect(self.remv_item)
         self.selected_vars.setColumnHidden(7, True)
         self.selected_vars.verticalHeader().setVisible(False);
-        self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed', ftype="MCM mass subset file (*.txt)"))
+        # self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed', ftype="MCM mass subset file (*.txt)"))
         self.loadFixedChemistry.clicked.connect(self.loadFixedFromChemistry)
         self.findInput.textChanged.connect(self.filterListOfInput)
 
@@ -2008,8 +2008,8 @@ the numerical model or chemistry scheme differs from the current, results may va
             if mode == 'load':
                 self.load_initfile(path)
                 self.show_currentInit(path)
-            elif mode == 'fixed':
-                self.loadFixedFile(path)
+            # elif mode == 'fixed':
+            #     self.loadFixedFile(path)
             elif mode == 'fixed_cc':
                 return path
             elif mode == 'plot':
