@@ -45,6 +45,7 @@ import re
 import argparse
 
 from pdb import set_trace as bp
+import numpy as np
 
 extraTwist = True
 #==============================================================================#
@@ -91,6 +92,7 @@ def preprocess_new_mcm_output(infile):
           defvar = False
       if in_definitions and re.search('=',line) != None:
         ofile.write(line.split('=')[0] + '= IGNORE ;\n')
+        atomlibrary[line.split('=')[0].strip()] = fourAtoms(line.split('=')[1].strip())
       else:
         ofile.write(line)
   return tmpfile
@@ -108,6 +110,27 @@ def index_containing_substring(the_list, substring, case_sensative=True):
 
   return -1, -1, -1
 
+def fourAtoms(s):
+    # CHON
+    counts = s.replace(' ','').replace(';','').split('+')
+    out = [0]*8
+    # print(s)
+    for count in counts:
+        c = re.findall(r'\D+', count)
+        if len(c)>0:
+            a = c[0]
+            num = count.replace(a,'')
+            if num=='': num=1
+            if a=='C':out[0] = int(num)
+            elif a=='H':out[1] = int(num)
+            elif a=='O':out[2] = int(num)
+            elif a=='N':out[3] = int(num)
+            elif a=='S':out[4] = int(num)
+            elif a=='Cl':out[5] = int(num)
+            elif a=='Br':out[6] = int(num)
+            elif a=='I':out[7] = int(num)
+    return out
+
 def update_defvar_list(file_lines, species_list, defvar_print_list):
   # Find '#DEFVAR'
   line_number_defvar, i1, i2 = index_containing_substring(file_lines, r'^\s*#DEFVAR', False)
@@ -123,13 +146,18 @@ def update_defvar_list(file_lines, species_list, defvar_print_list):
       else:
         # Search for, e.g., 'OH = IGNORE ;'
         # \S: not white space, opposite to \s
-        mat = re.search(r'^\s*(\S+)\s*=\s*\S+.*;', s)
+        mat = re.search(r'^\s*(\S+)\s*=\s*(\S+.*);', s)
+
         # Found species
         if mat:
           # Not duplicated, case insensitive
           if mat.group(1).upper() not in (tmp.upper() for tmp in species_list):
             species_list.append(mat.group(1))
             defvar_print_list.append(s)
+          if mat.group(1) not in atomlibrary.keys():
+            atomlibrary[mat.group(1)] = fourAtoms(mat.group(2))
+          elif atomlibrary[mat.group(1)]==[8]*0:
+            atomlibrary[mat.group(1)] = fourAtoms(mat.group(2))
         # Found other statement
         else:
           defvar_print_list.append(s)
@@ -152,13 +180,17 @@ def update_deffix_list(file_lines, species_list, deffix_print_list):
       else:
         # Search for, e.g., 'OH = IGNORE ;'
         # \S: not white space, opposite to \s
-        mat = re.search(r'^\s*(\S+)\s*=\s*\S+.*;', s)
+        mat = re.search(r'^\s*(\S+)\s*=\s*(\S+.*);', s)
         # Found species
         if mat:
           # Not duplicated, case insensitive
           if mat.group(1).upper() not in (tmp.upper() for tmp in species_list):
             species_list.append(mat.group(1))
             deffix_print_list.append(s)
+          if mat.group(1) not in atomlibrary.keys():
+            atomlibrary[mat.group(1)] = fourAtoms(mat.group(2))
+          elif atomlibrary[mat.group(1)]==[8]*0:
+            atomlibrary[mat.group(1)] = fourAtoms(mat.group(2))
         # Found other statement
         else:
           deffix_print_list.append(s)
@@ -196,7 +228,9 @@ def update_ro2_list(file_lines, ro2_list):
   return
 
 
-def update_equation_list(file_lines, equation_list, equation_norate_list, equation_print_list, equation_duplicate_print_list, insecond=False):
+def update_equation_list(file_lines, equation_list, equation_norate_list,
+    equation_print_list, equation_duplicate_print_list,print_linenumbers,
+    insecond=False,master=False):
   # Find '#EQUATIONS'
   line_number_equations, i1, i2 = index_containing_substring(file_lines, r'^\s*#EQUATIONS', False)
 
@@ -212,6 +246,8 @@ def update_equation_list(file_lines, equation_list, equation_norate_list, equati
         # Search for, e.g., "{10.}    NO + NO3 = NO2 + NO2 :   1.8D-11*EXP(110/TEMP)   ;"
         if re.search(r'\{', s):  # with {tag} in the beginning
           mat = re.search(r'^\s*{.*}\s*(\S+.*)=(\s*\S+.*):(\s*\S+.*);', s)
+        elif re.search(r'\<', s):  # with {tag} in the beginning
+          mat = re.search(r'^\s*<.*>\s*(\S+.*)=(\s*\S+.*):(\s*\S+.*);', s)
         else:  # without {tag}
           mat = re.search(r'^\s*(\S+.*)=(\s*\S+.*):(\s*\S+.*);', s)
         # Found equations
@@ -237,7 +273,6 @@ def update_equation_list(file_lines, equation_list, equation_norate_list, equati
           equation_norate.extend(sorted(reactants))
           equation_norate.append('=')
           equation_norate.extend(sorted(products))
-
           # print(equation_norate)
 
           # Not duplicated equation without considering rate
@@ -245,6 +280,8 @@ def update_equation_list(file_lines, equation_list, equation_norate_list, equati
             equation_list.append(equation)
             equation_norate_list.append(equation_norate)
             equation_print_list.append(s)
+            print_linenumbers[' '.join(equation_norate)] = len(equation_print_list)-1
+
             # print(equation_norate)
           # Duplicated equation without rate
           else:
@@ -252,10 +289,17 @@ def update_equation_list(file_lines, equation_list, equation_norate_list, equati
             # Still print out to final modified file, but keep the information in a log file
 
             if equation not in equation_list:
-              equation_list.append(equation)
-              equation_norate_list.append(equation_norate)
-              equation_print_list.append(s)
-              equation_duplicate_print_list.append(s)
+              if master:
+                ii = equation_norate_list.index(equation_norate)
+                equation_list[ii] = equation
+                # print(print_linenumbers.keys())
+                # print(s)
+                equation_print_list[print_linenumbers[' '.join(equation_norate)]] = s
+              elif args.priority_eqs == '':
+                equation_list.append(equation)
+                equation_norate_list.append(equation_norate)
+                equation_print_list.append(s)
+                equation_duplicate_print_list.append(s)
 
         # Found other statement, e.g., comments starting with //
         else:
@@ -414,6 +458,12 @@ if __name__ == '__main__':
     action='store', \
     help='Determines if constants are defined as inline (old mcm output).')
 
+  parser.add_argument('--priority_eqs', '-p', \
+    dest='priority_eqs', \
+    default='', \
+    action='store', \
+    help='If not empty, in case of duplicate equations, this file will have priority')
+
   parser.add_argument('--include-files', '-f', \
     dest='include_file_list', \
     nargs='+', \
@@ -430,8 +480,10 @@ if __name__ == '__main__':
     action='store', \
     help='Compounds to be put to DEFFIX"')
 
+  atomlibrary = {} # CHONSBrClI.txt
   args = parser.parse_args()
   if args.mcm_output_version == 'new':
+    print(args.mcm_kpp_file_name)
     args.mcm_kpp_file_name = preprocess_new_mcm_output(args.mcm_kpp_file_name)
 
   os.makedirs(os.path.split(args.modified_mcm_kpp_file_name)[0], exist_ok=True)
@@ -868,15 +920,22 @@ if __name__ == '__main__':
   equation_norate_list = []
   equation_print_list = []
   equation_duplicate_print_list = []
+  print_linenumbers = {}
 
   # Update equations lists for the root def file
-  update_equation_list(file_lines, equation_list, equation_norate_list, equation_print_list, equation_duplicate_print_list)
+  update_equation_list(file_lines, equation_list, equation_norate_list,
+    equation_print_list, equation_duplicate_print_list,print_linenumbers)
 
   # Update equations lists for the included files
   for file_name in include_file_list:
+    if args.priority_eqs==file_name:
+        master=True
+    else:
+        master=False
     with open(file_name, 'r') as f:
       tmp_file_lines = f.readlines()
-      update_equation_list(tmp_file_lines, equation_list, equation_norate_list, equation_print_list, equation_duplicate_print_list, insecond=True)
+      update_equation_list(tmp_file_lines, equation_list, equation_norate_list, equation_print_list,
+        equation_duplicate_print_list, print_linenumbers, insecond=True, master=master)
 
   # Count the old #EQUATIONS block lines
   line_number_equations, i1, i2 = index_containing_substring(file_lines, r'^\s*#EQUATIONS', False)
@@ -907,6 +966,7 @@ if __name__ == '__main__':
     logging.warning(re.sub(r'\n$', '', e))
   logging.info('')
 
+  # print(equation_print_list)
 
   #==============================================================================#
   #
@@ -972,7 +1032,7 @@ if __name__ == '__main__':
   logging.info('')
 
   if args.mcm_output_version == 'new':
-      file_lines.pop(index_containing_substring(file_lines, "^#INCLUDE atoms")[0])
+      # file_lines.pop(index_containing_substring(file_lines, "^#INCLUDE atoms")[0])
       import os
       os.remove(args.mcm_kpp_file_name)
   with open(args.modified_mcm_kpp_file_name, 'w') as f:
@@ -982,3 +1042,21 @@ if __name__ == '__main__':
   logging.info('============================================================')
   logging.info('')
   logging.info('The final file is written.')
+  with open(os.path.split(args.modified_mcm_kpp_file_name)[0]+'/Elements.txt', 'w') as f:
+    f.write('# !!! ------------------------------- NOTE!! --------------------------------- !!!\n')
+    f.write('# !!! THESE COMPOUNDS ARE READ FROM THE DEFINITION FILE, NOT KPP OUTPUT. THIS  !!!\n')
+    f.write('# !!! MEANS THAT THE NUMBER OF COMPOUNDS MAY BE MORE THAN IS ACTUALLY IN THE   !!!\n')
+    f.write('# !!! SCHEME. ALSO, THE ORDER OF COMPOUNDS IS _NOT_ THE SAME AS THE INDICES IN !!!\n')
+    f.write('# !!! CHEMISTRY. THE INFORMATION IN THIS FILE SHOULD BE USED IN A DICTIONARY.  !!! \n')
+    f.write('# If all atoms are zero, scheme definition had IGNORE in elemental composition\n')
+    f.write('# name                         mass          C  H  O  N  S Cl Br  I  is_Radical\n')
+    Mmasses = np.array([12.011,1.0080,15.999,14.007,32.06,35.45,79.904,126.904])
+    radicals = re.findall(r'C\(ind_(\S*)\)', ''.join(file_lines))
+    for k in atomlibrary.keys():
+      if k in radicals:
+          rad = 1
+      else:
+          rad = 0
+      f.write(f'{k:30s} {np.sum(Mmasses*np.array(atomlibrary[k])):12.8f} {atomlibrary[k][0]:2d} \
+{atomlibrary[k][1]:2d} {atomlibrary[k][2]:2d} {atomlibrary[k][3]:2d} \
+{atomlibrary[k][4]:2d} {atomlibrary[k][5]:2d} {atomlibrary[k][6]:2d} {atomlibrary[k][7]:2d}   {rad}\n')
