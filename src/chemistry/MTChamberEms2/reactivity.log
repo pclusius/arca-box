@@ -1,3 +1,0 @@
-12-15 13:49-12s INFO       reactivity config file       : ModelLib/gui/chemistry_package_PZ/reactivity/reactivity_empty.xml
-12-15 13:49-12s INFO       input kpp def file           : src/chemistry/MTChamber/second.def
-12-15 13:49-12s INFO       output second_reactivity file: src/chemistry/MTChamber/second_reactivity.f90
