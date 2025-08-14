@@ -583,7 +583,7 @@ if __name__ == '__main__':
     logging.info('')
 
 
-  # Delete 'USE constants'
+  # Update 'USE constants to kpp 3.2.0'
   line_number_F90_RCONST, i1, i2 = index_containing_substring(file_lines, r'\s*#INLINE F90_RCONST', False)
   if line_number_F90_RCONST >= 0:
       file_lines[line_number_F90_RCONST] = '#INLINE F90_RCONST_USE\n  USE second_Constants\n#ENDINLINE\n#INLINE F90_RCONST\n'
