@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 How to Install ARCA and the necessary software for it
 -----------------------------------------------------
-You will need C and Fortran compilers (gcc, gfortran, iFortran and/or similar) to compile the model. Model relies on
+You will need C and Fortran compilers (we recommend gfortran) to compile the model. Model relies on
 NetCDF4 to save files, so you'll need that too. Before using the python installer, make sure you have a working
 netCDF4. On Linux libnetcdf-dev and libnetcdff-dev are needed. The user interface is written in Python 3.
 
