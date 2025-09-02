@@ -753,6 +753,7 @@ class NcPlot:
             self.nc_cm3 = ncs.variables['NUMBER_CONCENTRATION'][:] #
             self.composition_ng = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_cm3[:,:,newaxis], 1)*1e18 # kg->grams,g->ng cm3->m3=1e18
             self.totalmass_ng_m = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_cm3[:,:,newaxis], 2)*1e18
+            self.growth_rates = ncs.variables['GROWTH_RATE'][:,:]
             self.diameter       = ncs.variables['DIAMETER'][0,:]
             self.lognorm_nc_cm3 = self.nc_cm3/log10(self.diameter[1]/self.diameter[0]) #
             for i,word in enumerate(names):
@@ -2686,11 +2687,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
         try:
             # If matplotlib is installed, we get colours
-            from matplotlib import cm
+            from matplotlib import colormaps
             if self.cmJet.isChecked():
-                colormap = cm.get_cmap("jet")
+                colormap = colormaps.get_cmap("jet")
             else:
-                colormap = cm.get_cmap("viridis")
+                colormap = colormaps.get_cmap("viridis")
             colormap._init()
             lut = (colormap._lut * 255).view(ndarray)  # Convert matplotlib colormap from 0-1 to 0 -255 for Qt
             # Apply the colormap
@@ -3395,6 +3396,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 self.times.item(0).setSelected(True)
                 self.diams.selectAll()
                 self.diams.itemSelectionChanged.connect(self.updateMass)
+                self.showGrowthRates.toggled.connect(self.updateMass)
                 self.times.itemSelectionChanged.connect(self.updateNumbers)
             # try:
             #     DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
@@ -3418,8 +3420,18 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         inds = [i.row() for i in self.diams.selectedIndexes()]
         # y is the array that gets plotted
         miny, maxy = 0,0
+        if self.showGrowthRates.isChecked():
+            self.plotResultWindow_2.setLabel('left', 'GR', units='nm')
+            self.show_netcdf_6.setText("Growth rate h^-1")
+        else:
+            self.show_netcdf_6.setText("Particle mass / m³")
+            self.plotResultWindow_2.setLabel('left', 'Mass', units='g')
+
         for j,m in enumerate(self.MPD):
-            y  = npsum(self.MPD[j].totalmass_ng_m[:,inds],axis=1)*1e-9
+            if self.showGrowthRates.isChecked():
+                y  = mean(self.MPD[j].growth_rates[:,inds],axis=1)
+            else:
+                y  = npsum(self.MPD[j].totalmass_ng_m[:,inds],axis=1)*1e-9
             y[y<1e-22] = 0e0
             miny, maxy = min(miny,y.min()),max(maxy,y.max())
 
@@ -3441,7 +3453,19 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                                 )
 
         for j,mpd_file in enumerate(self.MPD):
-            self.outplot_mass = self.plotResultWindow_2.plot(mpd_file.time,
+            if self.showGrowthRates.isChecked():
+                self.outplot_mass = self.plotResultWindow_2.plot(mpd_file.time,
+                    mean(self.MPD[j].growth_rates[:,inds],axis=1),
+                    pen={'color':colors[j],'width': 2.0},
+                    symbol=symbols[j+1],
+                    symbolPen=colors[j],
+                    symbolBrush=colors[j],
+                    symbolSize=8,
+                    name=self.MPD[j].legend.replace(': Particles.nc','')
+                )
+
+            else:
+                self.outplot_mass = self.plotResultWindow_2.plot(mpd_file.time,
                                 npsum(mpd_file.totalmass_ng_m[:,inds],axis=1)*1e-9,
                                 pen={'color':colors[j],'width': 2.0},
                                 symbol=symbols[j+1],
