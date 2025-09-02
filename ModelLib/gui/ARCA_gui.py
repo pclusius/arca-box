@@ -3422,7 +3422,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         miny, maxy = 0,0
         if self.showGrowthRates.isChecked():
             self.plotResultWindow_2.setLabel('left', 'GR', units='nm')
-            self.show_netcdf_6.setText("Growth rate h^-1")
+            self.show_netcdf_6.setText("(Mean) Growth rate h^-1")
         else:
             self.show_netcdf_6.setText("Particle mass / m³")
             self.plotResultWindow_2.setLabel('left', 'Mass', units='g')

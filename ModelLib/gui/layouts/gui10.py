@@ -4583,7 +4583,7 @@ class Ui_MainWindow(object):
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_8), _translate("MainWindow", "Surface plots"))
         self.label_64.setText(_translate("MainWindow", "Diameter (nm)"))
         self.label_66.setText(_translate("MainWindow", "Time (h)"))
-        self.diams.setToolTip(_translate("MainWindow", "Select which size bins are used in total mass calculation"))
+        self.diams.setToolTip(_translate("MainWindow", "<html><head/><body><p>Select the size bins that are used in total </p><p>mass or mean growth rate calculation.</p></body></html>"))
         self.times.setToolTip(_translate("MainWindow", "Select which size time(s) are for size distribution"))
         self.showAlsoMeasInMassConc.setToolTip(_translate("MainWindow", "<html><head/><body><p>If particle measurements were used as input, they can be compared with model output. Measurements are shown only fo the first loaded file.</p></body></html>"))
         self.showAlsoMeasInMassConc.setText(_translate("MainWindow", "Show measurements (marked with x)"))
