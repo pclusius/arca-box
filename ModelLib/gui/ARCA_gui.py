@@ -532,8 +532,9 @@ class Variation(QtWidgets.QDialog):
                             return
                 else:
                     ops[i,j] = float(self.vary.table.item(i,j).text())
-
-        print(variations.zzzz(p, ossplit(p)[0], ops, dryrun=False, nopause=True, replace_current=self.vary.replace_current.isChecked()))
+        print(variations.zzzz(p, ossplit(p)[0], ops, dryrun=False, nopause=True,
+                replace_current=self.vary.replace_current.isChecked(),
+                postprocess=qt_box.postProcCmd.toPlainText()))
 
     def loadOps(self):
         path = self.pickF(None)
@@ -1738,6 +1739,8 @@ the numerical model or chemistry scheme differs from the current, results may va
             self.index_for_parser = date
             if self.createBashFile.isChecked():
                 bf.write('./'+exe_name+' '+file+' |tee '+dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME+'/runReport.txt'+'\n' )
+                for cmd in self.postProcCmd.toPlainText().split('\n'):
+                    if cmd != '': bf.write(cmd.replace('<outputdir>', dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME)+' # postProcessing'+'\n')
             if self.batchRangeDay.isChecked():
                 nml.TIME.DATE='%s'%(date)
                 nml.TIME.NUMBER=''

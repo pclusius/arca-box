@@ -96,7 +96,7 @@ def readfile(init,multi,shift,mod,dir=None,replace_current=False):
     return modified_file, rundirs, found, indices
 
 
-def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False):
+def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False, postprocess=''):
     if batch == None:
         return 'No input'
     if not os.path.exists(batch):
@@ -113,6 +113,8 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False
                 if 'arcabox.exe' in vars[0]:
                     initfile.append (os.path.join(batchdir,cd,vars[1]))
                     batchfile.append (vars)
+                elif "postProcessing" in vars[-1]:
+                    pass
                 else:
                     bashhdr.append(line.strip('\n'))
     rundirs = []
@@ -150,6 +152,10 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False
 
                 # Here the "old" bash file row is appended to the new bash file text
                 newfiles.append(' '.join(batchfile[i_init]))
+                workdir = os.path.split(batchfile[i_init][-1])[0]
+                for cmd in postprocess.split('\n'):
+                    if cmd != '':
+                        newfiles.append(cmd.replace('<outputdir>', workdir ))
 
                 # Loop through all the initfiles
                 for fn in range(N):
@@ -173,6 +179,10 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False
                         +' '+ batchfile[i_init][2] # the tee command
                         +' '+ os.path.join(os.path.split(os.path.split(batchfile[i_init][3])[0])[0],workdir,'runReport.txt')  # the runReport path
                         )
+                    for cmd in postprocess.split('\n'):
+                        if cmd != '':
+                            to_bashfile += '\n'+cmd.replace('<outputdir>', os.path.join(os.path.split(os.path.split(batchfile[i_init][3])[0])[0],workdir) )
+
                     # save it for later...
                     newfiles.append(to_bashfile)
 
