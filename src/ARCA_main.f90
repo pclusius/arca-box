@@ -1011,6 +1011,7 @@ END IF in_turn_any
             if (cpu3-cpu4>15d0) THEN
                 print*, '... ',GTIME%hms, '......... '
                 cpu4=cpu3
+                if (ENABLE_END_FROM_OUTSIDE) CALL CHECK_IF_END_CMD_GIVEN
             END IF
 
         END IF
