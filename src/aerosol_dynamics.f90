@@ -136,17 +136,23 @@ SUBROUTINE Condensation_apc(VAPOUR_PROP, conc_vap, dmass, dt_cond, d_dpar,d_vap,
         ! Update sulfuric acid condensation sink
         if (ic == VAPOUR_PROP%ind_H2SO4) GCS = sum(CR)
 
-        ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
-        conc_guess = (conc_vap(ic) + dt_cond*sum(CR*kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))) / (1D0 + dt_cond*sum(CR))
-
-
         ! conc_pp_eq_bin(:) = conc_guess*SUM(conc_pp_old(ip,1:n_cond_org)) &
         !                                     / (Kelvin_Effect(ip,1:n_cond_org)*VAPOUR_PROP%c_sat(1:n_cond_org))
 
+        if (Constant_vapour_conc) THEN
+          ! if gas contentrations are not affected by condensation. NOT APC.
+          conc_pp(:,ic) = conc_pp_old(:,ic) + dt_cond*CR*(conc_vap(ic) &
+          - kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))
+        ELSE
+          ! apc scheme here. NOTE that for sulfuric kohler_effect = Kelvin_Effect
+          conc_guess = (conc_vap(ic) + dt_cond*sum(CR*kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))) / (1D0 + dt_cond*sum(CR))
+          ! apc scheme cont. NOTE that for sulfuric acid VAPOUR_PROP%c_sat(ic) ~ 0 so the last term will vanish
+          conc_pp(:,ic) = conc_pp_old(:,ic) + dt_cond*CR*(MIN(conc_guess,conc_tot(ic)) &
+                          - kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))
+        end if
 
-        ! apc scheme cont. NOTE that for sulfuric acid VAPOUR_PROP%c_sat(ic) ~ 0 so the last term will vanish
-        conc_pp(:,ic) = conc_pp_old(:,ic) + dt_cond*CR*(MIN(conc_guess,conc_tot(ic)) &
-                        - kohler_effect(:,ic)*VAPOUR_PROP%c_sat(ic))
+
+
 
         ! Prevent overestimation of evaporation by setting negative concentrations to zero
         WHERE ( conc_pp(:,ic)<0D0 ) conc_pp(:,ic) = 0D0

@@ -276,6 +276,7 @@ Logical  :: VBS_ONLY                = .false.
 Logical  :: VBS_CSAT                = .false.
 Logical  :: PP_H2SO4_TO_AMM_SULFATE = .false.
 INTEGER  :: BINARY_FILE             = 0
+Logical  :: Constant_vapour_conc    = .false. ! Only for special cases where vapour concentrations should be kept constants (dC/dt=0 over dt) during condensation, overriding APC method 
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
 real(dp) :: DT_UPPER_LIMIT(3)       = [150d0,150d0,150d0]
@@ -314,7 +315,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,INIT_ONLY, &
                       FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS,FINAL_CHEM_TXT,NETCDF_OUT,VBS_LIMITS,VBS_NAMES,&
                       VBS_ONLY,PP_H2SO4_TO_AMM_SULFATE,VBS_CSAT, BINARY_FILE, &
-                      LAST_VBS_BINNING_S,Aging_exponent,AGING_K, START_CHEM, STOP_CHEM, START_AER, STOP_AER
+                      LAST_VBS_BINNING_S,Aging_exponent,AGING_K, START_CHEM, STOP_CHEM, START_AER, STOP_AER, Constant_vapour_conc
 
 ! ==================================================================================================================
 ! Define change range in percentage
