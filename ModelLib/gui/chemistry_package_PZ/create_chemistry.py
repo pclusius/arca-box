@@ -1035,14 +1035,14 @@ if __name__ == '__main__':
       # file_lines.pop(index_containing_substring(file_lines, "^#INCLUDE atoms")[0])
       import os
       os.remove(args.mcm_kpp_file_name)
-  with open(args.modified_mcm_kpp_file_name, 'w') as f:
+  with open(args.modified_mcm_kpp_file_name, 'w', newline='\n') as f:
     f.writelines(file_lines)
 
   # Write to log file
   logging.info('============================================================')
   logging.info('')
   logging.info('The final file is written.')
-  with open(os.path.split(args.modified_mcm_kpp_file_name)[0]+'/Elements.txt', 'w') as f:
+  with open(os.path.split(args.modified_mcm_kpp_file_name)[0]+'/Elements.txt', 'w', newline='\n') as f:
     f.write('# !!! ------------------------------- NOTE!! --------------------------------- !!!\n')
     f.write('# !!! THESE COMPOUNDS ARE READ FROM THE DEFINITION FILE, NOT KPP OUTPUT. THIS  !!!\n')
     f.write('# !!! MEANS THAT THE NUMBER OF COMPOUNDS MAY BE MORE THAN IS ACTUALLY IN THE   !!!\n')
