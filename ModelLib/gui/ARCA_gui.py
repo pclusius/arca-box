@@ -61,6 +61,8 @@ except:
 try:
     import platform
     operatingsystem = platform.system()
+    if os.environ.get('WSL_DISTRO_NAME', '-') != '-':
+        operatingsystem = "WSL"
     # "Windows"/"Linux"/"Darwin"
 except:
     operatingsystem = 'Linux'
@@ -1413,6 +1415,8 @@ Please provide valid spectral function.') \
             return
         if operatingsystem == 'Windows':
             os.startfile(dir)
+        if operatingsystem == 'WSL':
+            _ = os.system(f'explorer.exe  `wslpath -w "$PWD/{dir}"`')
         if operatingsystem == 'Linux':
             os.system('xdg-open "%s"' % dir)
         if operatingsystem == 'Darwin':
