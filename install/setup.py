@@ -40,6 +40,13 @@ operatingsystem = platform.system()
 # "Windows"/"Linux"/"Darwin"
 
 csc = '--csc' in sys.argv
+if csc:
+    idx = sys.argv.index('--csc')
+    if idx + 1 < len(sys.argv):
+        cluster = sys.argv[idx+1]
+    else:
+        print("Please specify cluster among [puhti, mahti, lumi]")
+        
 
 out = 0
 curr_path = os.path.split(os.getcwd())[0]
@@ -53,7 +60,7 @@ if python == '':
 if not os.path.exists('makefile'):
     # write makefile
     if csc:
-        filename = 'makefile_for_csc_puhti'
+        filename = 'makefile_for_csc'
     elif (operatingsystem == 'Linux' or operatingsystem == 'Windows'):
         filename = 'makefile_for_linux_and_win'
     elif operatingsystem == 'Darwin':
@@ -98,7 +105,10 @@ if comp == 'y' or comp == 'Y':
     print("This will take a while, have patience...")
     print()
 
-    out = os.system("make")
+    if csc:
+        out = os.system(f"make CLUSTER={cluster}")
+    else:
+        out = os.system("make")
     if out == 0:
         print("+------------------------------------------+\n")
         print("Compiling of arcabox.exe was succesful!\n")
@@ -115,16 +125,23 @@ if out == 0:
         f.write('#!/bin/bash%s'%le)
         f.write('%s'%le)
     if csc:
-        f.write('module load python-data/3.7.6-1%s'%le)
-        f.write('module load gcc/9.1.0%s'%le)
-        f.write('module load netcdf/4.7.0%s'%le)
-        f.write('module load netcdf-fortran/4.4.4%s'%le)
+        if cluster in ("puhti", "mahti"):
+            f.write('module load python-data%s'%le)
+            f.write('module load gcc%s'%le)
+            f.write('module load netcdf-c%s'%le)
+            f.write('module load netcdf-fortran%s'%le)
+        elif cluster == "lumi":
+            f.write('module load cray-python%s'%le)
+            f.write('module load PrgEnv-gnu%s'%le)
+            f.write('module load cray-hdf5%s'%le)
+            f.write('module load cray-netcdf%s'%le)
+            f.write('module load craype-x86-rome%s'%le)
     elif operatingsystem != 'Windows':
         f.write('# If you are using the user interface on CSC, uncomment next 4 lines%s'%le)
-        f.write('# module load python-data/3.7.6-1%s'%le)
-        f.write('# module load gcc/9.1.0%s'%le)
-        f.write('# module load netcdf/4.7.0%s'%le)
-        f.write('# module load netcdf-fortran/4.4.4%s'%le)
+        f.write('# module load python-data%s'%le)
+        f.write('# module load gcc%s'%le)
+        f.write('# module load netcdf-c%s'%le)
+        f.write('# module load netcdf-fortran%s'%le)
         f.write('%s'%le)
 
     if not csc:

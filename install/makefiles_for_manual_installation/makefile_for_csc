@@ -11,20 +11,23 @@
 # Or this
 # NETLIBS = -I$(NETCDF_INCLUDE) -L$(NETCDF_LIB) -L$(H5_LIB) -lnetcdf -lnetcdff -lcurl -lhdf5 -lhdf5_hl
 
-# On CSC/Puhti ------------------------------------------------------
-NETLIBS =  -I/appl/spack/install-tree/gcc-9.1.0/netcdf-fortran-4.4.4-4tj6tj/include \
-							-L/appl/spack/install-tree/gcc-9.1.0/netcdf-fortran-4.4.4-4tj6tj/lib -lnetcdff -lnetcdf -lnetcdf
-
-# Load the correct modules before compiling and running:
-# module load python-data/3.7.6-1
-# module load gcc/9.1.0
-# module load netcdf/4.7.0
-# module load netcdf-fortran/4.4.4%s
+# On CSC ------------------------------------------------------
+CLUSTER ?= puhti
+ifeq ($(CLUSTER),puhti)
+	NETLIBS = -I$(NETCDF_FORTRAN_INSTALL_ROOT)/include -L$(NETCDF_FORTRAN_INSTALL_ROOT)/lib -lnetcdff -lnetcdf
+endif
+ifeq ($(CLUSTER),mahti)
+	NETLIBS = -I$(NETCDF_FORTRAN_INSTALL_ROOT)/include -L$(NETCDF_FORTRAN_INSTALL_ROOT)/lib -lnetcdff -lnetcdf
+endif
+ifeq ($(CLUSTER),lumi)
+	F90 = ftn
+	NETLIBS =
+endif
 # ------------------------------- end NETCDF configuring ---------------------------------------
 
 
 # compiler
-F90 = gfortran
+F90 ?= gfortran
 
 COPTI = -O2
 BOPTI = -O2
@@ -92,7 +95,8 @@ arcabox.exe: $(OD)/arcabox.o $(BOX_OBJECTS) $(CHEM_OBJECTS) $(ACDC_OBJECTS) $(PS
 	$(F90) $(BOX_OPTS) $^ -o $@ $(NETLIBS)
 
 test:
-		@echo ${BOX_OPTS}
+	@echo $(BOX_OPTS)
+	@echo $(NETLIBS)
 
 #
 reactions:
