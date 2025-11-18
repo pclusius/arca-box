@@ -279,7 +279,7 @@ def getVaps(runforever=False, args={}):
         path, file = os.path.split(args['saveto'])
         prefix,suffix = os.path.splitext(file)
         print('Saving elemental content to %s ...' %(os.path.join(path,prefix+'_elements'+suffix)))
-        fa = open(os.path.join(path,prefix+'_elements'+suffix), 'w')
+        fa = open(os.path.join(path,prefix+'_elements'+suffix), 'w+')
         fa.write('#Compound                    Mass               C   O   N   H   S  Cl  Br\n')
 
     count = 0
