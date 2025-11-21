@@ -321,13 +321,13 @@ PURE type(timetype) function ADD(time, sec)
     ADD%day = ADD%sec/3600d0/24d0
     write(ADD%hms, '(i2.2, ":" i2.2, ":" i2.2)') nint(ADD%sec)/3600, &
     int(MODULO(nint(ADD%sec),3600)/60d0), MODULO(MODULO(nint(ADD%sec),3600), 60)
-    IF ((ADD%printnow .eqv. .false.) .and. (ADD%sec >= (ADD%PRINT_INTERVAL*(1+ADD%prevPrint_i)))) THEN
+    IF (ADD%sec >= (ADD%PRINT_INTERVAL*(1+ADD%prevPrint_i))) THEN
         ADD%printnow = .true.
         ADD%prevPrint_i = INT(ADD%sec)/INT(ADD%PRINT_INTERVAL)
     ELSE
         ADD%printnow = .false.
     END IF
-    IF ((ADD%savenow .eqv. .false.) .and. (ADD%sec >= (ADD%FSAVE_INTERVAL*(1+ADD%prevSave_i)))) THEN
+    IF (ADD%sec >= (ADD%FSAVE_INTERVAL*(1+ADD%prevSave_i))) THEN
         ADD%savenow = .true.
         ADD%prevSave_i =  INT(10000_dint*ADD%sec, dint)/INT(ADD%FSAVE_INTERVAL*10000_dint, dint)
     ELSE
