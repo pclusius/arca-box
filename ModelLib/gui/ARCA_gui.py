@@ -377,8 +377,9 @@ class CCWin(QtWidgets.QDialog):
             return
         self.outDir = osjoin('src','chemistry/',self.ccw.chemName.text())
         if exists(self.outDir):
-            qt_box.popup('Chemistry '+self.ccw.chemName.text()+' already exists', 'Please provide a different name for the chemistry.',3)
-            return
+            ok = qt_box.popup('Chemistry '+self.ccw.chemName.text()+' already exists', 'Please provide a different name for the chemistry. Overwrite?',4)
+            if not ok:
+                return
 
         includes = self.ccw.includedFiles.toPlainText().split()
         fixed = self.ccw.deffix.toPlainText().split()
@@ -3794,10 +3795,14 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
     def popup(self,title,message,icon=2):
         """Handle for giving popup messages"""
         msg = QtWidgets.QMessageBox()
-        msg.setIcon(icon)
-        msg.setWindowTitle(title)
-        msg.setText(message)
-        retval = msg.exec_()
+        if icon==4:
+            ok = msg.question(self,title, message, msg.Yes|msg.No)
+            return ok == msg.Yes
+        else:
+            msg.setIcon(icon)
+            msg.setWindowTitle(title)
+            msg.setText(message)
+            retval = msg.exec_()
 
 
     def closenetcdf(self):
