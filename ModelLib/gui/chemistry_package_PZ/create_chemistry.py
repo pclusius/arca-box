@@ -660,14 +660,6 @@ if __name__ == '__main__':
   logging.info('')
 
 
-  # Add "H2SO4 = dummy : RES1"
-  file_lines.append(string_h2so4_dummy)
-
-  # Write to log file
-  logging.info('============================================================')
-  logging.info('')
-  logging.info('Add condensation sink RES1 for H2SO4: "{0}"'.format(re.sub(r'\n$', '', string_h2so4_dummy)))
-  logging.info('')
 
 
   #---------- Comment out the unused reaction rate coefficients calculation ----------#
@@ -844,6 +836,16 @@ if __name__ == '__main__':
   logging.info('')
   logging.info('Combined all the species defined in #DEFFIX.')
   logging.info('')
+
+  # Add "H2SO4 = dummy : RES1"
+  if 'H2SO4' in species_list:
+      file_lines.append(string_h2so4_dummy)
+
+      # Write to log file
+      logging.info('============================================================')
+      logging.info('')
+      logging.info('Add condensation sink RES1 for H2SO4: "{0}"'.format(re.sub(r'\n$', '', string_h2so4_dummy)))
+      logging.info('')
 
 
   #---------- 4. Combine RO2 species ----------#
