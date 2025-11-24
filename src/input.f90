@@ -73,6 +73,7 @@ INTEGER               :: H2SO4_ind_in_chemistry = 0 ! Will be checked later and 
 INTEGER               :: OH_ind_in_chemistry    = 0 ! Will be checked later and set to correct if H2SO4 is found
 REAL(dp)              :: swr_spectrum(84) = 0d0     ! Vector for holding SWR spectral data, read in once from file or the interpolated values from swr_temporal_data
 LOGICAL               :: swr_is_time_dependent = .false.
+LOGICAL               :: Gaussian_plume = .false.
 REAL(dp), ALLOCATABLE :: swr_times(:)               ! Vectors for holding SWR spectral data time stamps, used if SWR spectrum time dependent
 REAL(dp), ALLOCATABLE :: swr_temporal_data(:,:)     ! Vectors for holding SWR spectral data, used if SWR spectrum time dependent
 INTEGER, ALLOCATABLE  :: init_only_these(:)         ! Indices of the variables in MODS that will only be read in the first loop
@@ -276,7 +277,7 @@ Logical  :: VBS_ONLY                = .false.
 Logical  :: VBS_CSAT                = .false.
 Logical  :: PP_H2SO4_TO_AMM_SULFATE = .false.
 INTEGER  :: BINARY_FILE             = 0
-Logical  :: Constant_vapour_conc    = .false. ! Only for special cases where vapour concentrations should be kept constants (dC/dt=0 over dt) during condensation, overriding APC method 
+Logical  :: Constant_vapour_conc    = .false. ! Only for special cases where vapour concentrations should be kept constants (dC/dt=0 over dt) during condensation, overriding APC method
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
 real(dp) :: DT_UPPER_LIMIT(3)       = [150d0,150d0,150d0]
@@ -355,9 +356,9 @@ subroutine READ_rates(Chem)
 
     OPEN(UNIT=888, FILE='src/chemistry/'//TRIM(ADJUSTL(Chem))//'/RATES.dat', STATUS='OLD', ACTION='READ', iostat=iii)
     if (iii==0) THEN
-        do k=1, ROWCOUNT(888)
-            READ(888,NML = NML_RATES, IOSTAT=iii)
-        end do
+
+        READ(888,NML = NML_RATES, IOSTAT=iii)
+
         print FMT_MSG, 'Reaction rates are complimented from RATES.dat'
         factorsForReactionRates = RCONST
     else
@@ -540,6 +541,8 @@ subroutine READ_INPUT_DATA()
 IF ((TRIM(LOSSES_FILE) /= '') .and. Aerosol_flag) THEN
     if (LOSSES_FILE(1:1) == '#') THEN
         READ(LOSSES_FILE(2:), *) CONSTANT_PAR_LOSS_RATE
+    ELSEIF (LOSSES_FILE(1:5) == 'PLUME') THEN
+        Gaussian_plume = .true.
     ELSE
         CALL PARSE_PARTICLE_GRID(LOSSES_FILE, PAR_LOSSES)
     END IF
@@ -932,9 +935,10 @@ subroutine READ_NAMESDAT
   !   CALL EXECUTE_COMMAND_LINE('sh ModelLib/gui/modules/compatibility_layer.sh '//TRIM(ADJUSTL(Fname_init)))
 
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_NAMES, IOSTAT=IOS(i)) ! #1
+  READ(888,NML = NML_NAMES, IOSTAT=IOS(i)) ! #1
   ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  REWIND(888)
+  i=i+1
   CLOSE(888)
 
 end subroutine READ_NAMESDAT
@@ -972,56 +976,56 @@ subroutine READ_INIT_FILE
   !   CALL EXECUTE_COMMAND_LINE('sh ModelLib/gui/modules/compatibility_layer.sh '//TRIM(ADJUSTL(Fname_init)))
   !
   !
-  ! do k=1, ROWCOUNT(888); READ(888,NML = NML_NAMES, IOSTAT=IOS(i)) ! #1
-  ! ! IF (IOS(i) == 0) EXIT;
-  ! end do; REWIND(888); i=i+1
+  ! READ(888,NML = NML_NAMES, IOSTAT=IOS(i)) ! #1
+  ! REWIND(888)
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_TIME, IOSTAT=IOS(i)) ! #2
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_TIME, IOSTAT=IOS(i)) ! #2
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_Flag, IOSTAT=IOS(i)) ! #3
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_Flag, IOSTAT=IOS(i)) ! #3
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_Path, IOSTAT=IOS(i)) ! #4
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_Path, IOSTAT=IOS(i)) ! #4
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_MISC, IOSTAT=IOS(i)) ! #5
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_MISC, IOSTAT=IOS(i)) ! #5
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_VAP, IOSTAT=IOS(i)) ! #6
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_VAP, IOSTAT=IOS(i)) ! #6
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_PARTICLE, IOSTAT=IOS(i)) ! #7
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_PARTICLE, IOSTAT=IOS(i)) ! #7
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_ENV, IOSTAT=IOS(i)) ! #8
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_ENV, IOSTAT=IOS(i)) ! #8
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_MCM, IOSTAT=IOS(i)) ! #9
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_MCM, IOSTAT=IOS(i)) ! #9
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_MODS, IOSTAT=IOS(i)) ! #10
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_MODS, IOSTAT=IOS(i)) ! #10
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_PRECISION, IOSTAT=IOS(i)) ! #11
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_PRECISION, IOSTAT=IOS(i)) ! #11
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_CUSTOM, IOSTAT=IOS(i)) ! #12
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_CUSTOM, IOSTAT=IOS(i)) ! #12
+  REWIND(888)
+  i=i+1
 
-  do k=1, ROWCOUNT(888); READ(888,NML = NML_ACDC, IOSTAT=IOS(i)) ! #13
-  ! IF (IOS(i) == 0) EXIT;
-  end do; REWIND(888); i=i+1
+  READ(888,NML = NML_ACDC, IOSTAT=IOS(i)) ! #13
+  REWIND(888)
+  i=i+1
   REWIND(888); i=i+1
 
   CLOSE(888)
@@ -1631,9 +1635,9 @@ SUBROUTINE PARSE_ACDC_SYSTEMS
             OPEN(UNIT=889, FILE=TRIM(path), STATUS='OLD', ACTION='READ', iostat=ii)
             if (ii==0) THEN
                 Nickname = '-not defined-'
-                do while (ii==0)
-                    READ(889,NML = ACDC_RECORD_NML, IOSTAT=ii)
-                end do
+
+                READ(889,NML = ACDC_RECORD_NML, IOSTAT=ii)
+
                 close(889)
                 G_ACDC(jj)%SYSTEM_FILE=System
                 G_ACDC(jj)%ENERGY_FILE=Energies

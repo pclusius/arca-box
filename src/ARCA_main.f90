@@ -917,8 +917,12 @@ END IF
             dconc_dep_mix = 0.d0
 
             IF (LOSSES_FILE /= '') THEN
-                if (CONSTANT_PAR_LOSS_RATE>=0d0) THEN
+                if (CONSTANT_PAR_LOSS_RATE>=0d0.and..not.Gaussian_plume) THEN
                     losses_fit=CONSTANT_PAR_LOSS_RATE
+                ELSEIF (Gaussian_plume) THEN
+                  losses_fit = MIN( 0.1/GTIME%dt*speed_up(PRC%dep), &
+                  & (2.0*GTIME%sec+GTIME%dt*speed_up(PRC%dep))/(GTIME%sec+GTIME%dt*speed_up(PRC%dep))**2)
+
                 ELSE
                     ! The losses file is interpolated spatially and temporally to fit the current bin structure and time
                     losses_fit = [ ((INTERP( PAR_LOSSES%sections,                                                             &
@@ -927,7 +931,14 @@ END IF
                 end if
 
                 ! Deposited concentratios calculated here
-                dconc_dep_mix = get_conc() * (1 - EXP(-losses_fit*GTIME%dt*speed_up(PRC%dep)))
+                IF (Gaussian_plume) THEN
+                  dconc_dep_mix = get_conc() * losses_fit * GTIME%dt*speed_up(PRC%dep)
+                else
+                  dconc_dep_mix = get_conc() * (1 - EXP(-losses_fit*GTIME%dt*speed_up(PRC%dep)))
+                end if
+                ! do ii=1,n_bins_par
+                !   print*, CURRENT_PSD%conc_fs(ii), dconc_dep_mix(ii)
+                ! end do
 
             ELSE
                 call deposition_velocity(get_dp(),ustar,A_vert,CHAMBER_FLOOR_AREA,CHAMBER_FLOOR_AREA,&
@@ -1021,8 +1032,8 @@ END IF in_turn_any
 
             ! PSD is also saved to txt
             if (Aerosol_flag) THEN
-                WRITE(601,*) GTIME%sec, sum(get_conc()*1d-6), get_conc()*1d-6 / LOG10(bin_ratio)
-                WRITE(604,*) GTIME%sec, get_conc()*1d-6
+                WRITE(601,*) GTIME%sec, sum(get_conc(old_PSD)*1d-6), get_conc(old_PSD)*1d-6 / LOG10(bin_ratio)
+                WRITE(604,*) GTIME%sec, get_conc(old_PSD)*1d-6
                 ! WRITE(605,*) GTIME%sec, G_COAG_SINK
                 save_measured = conc_fit/1d6
             END IF
