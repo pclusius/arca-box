@@ -46,7 +46,7 @@ if csc:
         cluster = sys.argv[idx+1]
     else:
         print("Please specify cluster among [puhti, mahti, lumi]")
-        
+
 
 out = 0
 curr_path = os.path.split(os.getcwd())[0]
@@ -71,32 +71,32 @@ if not os.path.exists('makefile'):
             mfile.write(line.replace('@python3','@%s'%python))
     mfile.close()
 
-# pyt = input('Install necessary Python packages? (y/n)?: ')
-#
-# if pyt == 'y' or pyt == 'Y':
-#     print()
-#     print("Ok, let's see  what we need...")
-#     print()
-#
-#     outpyt = os.system("%s -m pip install --upgrade pip"%python)
-#     outpyt = os.system("%s -m pip install --user numpy scipy matplotlib requests"%python)
-#     outpyt = os.system("%s -m pip install --user netCDF4"%python)
-#     if csc:
-#         outpyt = os.system("%s -m pip install --user PyQt5"%python)
-#     else:
-#         outpyt = os.system("%s -m pip install --user \"PyQt5>=5.11.0\""%python)
-#     if operatingsystem == 'Windows':
-#         outpyt = os.system("%s -m pip install --user pyqtgraph==0.12.0"%python)
-#     else:
-#         outpyt = os.system("%s -m pip install --user pyqtgraph"%python)
-#
-#     if outpyt != 0:
-#         upgr = input('Unfortunately the Python module installation did not work, updating setuptools could help.\nProceed and try again? (y/n)?: ')
-#         if upgr == 'y' or upgr == 'Y':
-#             outpyt = os.system("%s -m pip install --upgrade setuptools"%python)
-#             outpyt += os.system("%s -m pip install --user numpy scipy matplotlib netCDF4 PyQt5 pyqtgraph"%python)
-#         if outpyt != 0:
-#             print('Unfortunately still some Python modules failed to install.')
+if csc:
+    pyt = input('Install necessary Python packages? (y/n)?: ')
+
+    if pyt == 'y' or pyt == 'Y':
+        print()
+        print("Ok, let's see  what we need...")
+        print()
+        # outpyt = os.system("%s -m pip install --upgrade pip"%python)
+        outpyt = os.system("%s -m pip install --user numpy scipy matplotlib requests"%python)
+        outpyt = os.system("%s -m pip install --user netCDF4"%python)
+        if csc:
+            outpyt = os.system("%s -m pip install --user PyQt5"%python)
+        else:
+            outpyt = os.system("%s -m pip install --user \"PyQt5>=5.11.0\""%python)
+        if operatingsystem == 'Windows':
+            outpyt = os.system("%s -m pip install --user pyqtgraph==0.12.0"%python)
+        else:
+            outpyt = os.system("%s -m pip install --user pyqtgraph"%python)
+
+        if outpyt != 0:
+            upgr = input('Unfortunately the Python module installation did not work, updating setuptools could help.\nProceed and try again? (y/n)?: ')
+            if upgr == 'y' or upgr == 'Y':
+                outpyt = os.system("%s -m pip install --upgrade setuptools"%python)
+                outpyt += os.system("%s -m pip install --user numpy scipy matplotlib netCDF4 PyQt5 pyqtgraph"%python)
+            if outpyt != 0:
+                print('Unfortunately still some Python modules failed to install.')
 
 comp = input('Compile the Fortran module (y/n)?: ')
 
