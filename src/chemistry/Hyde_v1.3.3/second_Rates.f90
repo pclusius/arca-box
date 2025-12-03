@@ -429,8 +429,8 @@ SUBROUTINE Update_RCONST ( YIN )
 
 
   ! Peroxy radicals
-  ! WARNING: The following species do not have SMILES strings in the database. 
-  !           If any of these are peroxy radicals the RO2 sum will be wrong! 
+  ! WARNING: The following species do not have SMILES strings in the database.
+  !           If any of these are peroxy radicals the RO2 sum will be wrong!
   ! NA H2SO4
   RO2 = C(ind_CH3O2) + C(ind_C2H5O2) + C(ind_HOCH2CH2O2) + C(ind_HOC2H4CO3) + &
     C(ind_C51O2) + C(ind_CH3COCH2O2) + C(ind_HOCH2CO3) + &
@@ -584,6 +584,9 @@ SUBROUTINE Update_RCONST ( YIN )
     C(ind_C533O2) + C(ind_C58AO2) + C(ind_C47CO3) + &
     C(ind_C57AO2) + C(ind_C536O2) + C(ind_C537O2)
   CALL define_constants_mcm
+
+    C(ind_RO2) = RO2
+
 
 ! End inlined code from F90_RCONST
 
@@ -8728,6 +8731,9 @@ SUBROUTINE Update_RCONST ( YIN )
   RCONST(8139) = (1D-13*EXP(0./TEMP))
   RCONST(8140) = (1D-13*EXP(0./TEMP))
   RCONST(8141) = (1D-13*EXP(0./TEMP))
+  RCONST(8142) = (0d0)
+  RCONST(8143) = (0d0)
+  RCONST(8144) = (0d0)
 
   RCONST = RCONST * R_F
 END SUBROUTINE UPDATE_RCONST
@@ -8753,8 +8759,8 @@ SUBROUTINE Update_PHOTO ( )
 
 
   ! Peroxy radicals
-  ! WARNING: The following species do not have SMILES strings in the database. 
-  !           If any of these are peroxy radicals the RO2 sum will be wrong! 
+  ! WARNING: The following species do not have SMILES strings in the database.
+  !           If any of these are peroxy radicals the RO2 sum will be wrong!
   ! NA H2SO4
   RO2 = C(ind_CH3O2) + C(ind_C2H5O2) + C(ind_HOCH2CH2O2) + C(ind_HOC2H4CO3) + &
     C(ind_C51O2) + C(ind_CH3COCH2O2) + C(ind_HOCH2CO3) + &
@@ -8908,6 +8914,9 @@ SUBROUTINE Update_PHOTO ( )
     C(ind_C533O2) + C(ind_C58AO2) + C(ind_C47CO3) + &
     C(ind_C57AO2) + C(ind_C536O2) + C(ind_C537O2)
   CALL define_constants_mcm
+
+    C(ind_RO2) = RO2
+
 
 ! End inlined code from F90_RCONST
 

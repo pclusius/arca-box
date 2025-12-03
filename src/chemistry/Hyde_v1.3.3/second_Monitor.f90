@@ -33,137 +33,137 @@ MODULE second_Monitor
      'APINOOB                         ','NOPINOOA                        ','NOPINOO                         ', & ! index 10 - 12
      'CH2OOG                          ','LIMOOA                          ','LIMOOB                          ', & ! index 13 - 15
      'LIMBOO                          ','BCOOA                           ','BCOOB                           ', & ! index 16 - 18
-     'BCAOO                           ','BCBOO                           ','NA                              ', & ! index 19 - 21
-     'dummy                           ','H2SO4                           ','SO3                             ', & ! index 22 - 24
-     'HOM_O3                          ','HOM_O4                          ','HOM_O5                          ', & ! index 25 - 27
-     'HOM_O6                          ','HOM_O7                          ','HOM_O8                          ', & ! index 28 - 30
-     'HOM_O9                          ','HOM_O10                         ','HOM_O11                         ', & ! index 31 - 33
-     'HOM_O12                         ','HOM_O13                         ','HOM_O14                         ', & ! index 34 - 36
-     'HOM_O3CBN                       ','HOM_O4CBN                       ','HOM_O5CBN                       ', & ! index 37 - 39
-     'HOM_O6CBN                       ','HOM_O7CBN                       ','HOM_O8CBN                       ', & ! index 40 - 42
-     'HOM_O9CBN                       ','HOM_O10CBN                      ','HOM_O11CBN                      ', & ! index 43 - 45
-     'HOM_O12CBN                      ','HOM_O13CBN                      ','RHOM_O13                        ', & ! index 46 - 48
-     'HOM_NO5                         ','HOM_NO6                         ','HOM_NO7                         ', & ! index 49 - 51
-     'HOM_NO8                         ','HOM_NO9                         ','HOM_NO10                        ', & ! index 52 - 54
-     'HOM_NO11                        ','HOM_NO12                        ','HOM_NO13                        ', & ! index 55 - 57
-     'HOM_NO14                        ','HOM_NO15                        ','HOM20_O5                        ', & ! index 58 - 60
-     'HOM20_O6                        ','HOM20_O7                        ','HOM20_O8                        ', & ! index 61 - 63
-     'HOM20_O9                        ','HOM20_O10                       ','HOM20_O11                       ', & ! index 64 - 66
-     'HOM20_O12                       ','HOM20_O13                       ','HOM20_O14                       ', & ! index 67 - 69
-     'HOM20_O15                       ','HOM20_O16                       ','HOM20_O17                       ', & ! index 70 - 72
-     'HOM20_NO7                       ','HOM20_NO8                       ','HOM20_NO9                       ', & ! index 73 - 75
-     'HOM20_NO10                      ','HOM20_NO11                      ','HOM20_NO12                      ', & ! index 76 - 78
-     'HOM20_NO13                      ','HOM20_NO14                      ','HOM20_NO15                      ', & ! index 79 - 81
-     'HOM20_NO16                      ','HOM20_NO17                      ','HOM20_NO18                      ', & ! index 82 - 84
-     'HOM20_OH_O6                     ','HOM20_OH_O7                     ','HOM20_OH_O8                     ', & ! index 85 - 87
-     'HOM20_OH_O9                     ','HOM20_OH_O10                    ','HOM20_OH_O11                    ' /) ! index up to 90
+     'BCAOO                           ','BCBOO                           ','RO2                             ', & ! index 19 - 21
+     'NA                              ','dummy                           ','H2SO4                           ', & ! index 22 - 24
+     'SO3                             ','HOM_O3                          ','HOM_O4                          ', & ! index 25 - 27
+     'HOM_O5                          ','HOM_O6                          ','HOM_O7                          ', & ! index 28 - 30
+     'HOM_O8                          ','HOM_O9                          ','HOM_O10                         ', & ! index 31 - 33
+     'HOM_O11                         ','HOM_O12                         ','HOM_O13                         ', & ! index 34 - 36
+     'HOM_O14                         ','HOM_O3CBN                       ','HOM_O4CBN                       ', & ! index 37 - 39
+     'HOM_O5CBN                       ','HOM_O6CBN                       ','HOM_O7CBN                       ', & ! index 40 - 42
+     'HOM_O8CBN                       ','HOM_O9CBN                       ','HOM_O10CBN                      ', & ! index 43 - 45
+     'HOM_O11CBN                      ','HOM_O12CBN                      ','HOM_O13CBN                      ', & ! index 46 - 48
+     'RHOM_O13                        ','HOM_NO5                         ','HOM_NO6                         ', & ! index 49 - 51
+     'HOM_NO7                         ','HOM_NO8                         ','HOM_NO9                         ', & ! index 52 - 54
+     'HOM_NO10                        ','HOM_NO11                        ','HOM_NO12                        ', & ! index 55 - 57
+     'HOM_NO13                        ','HOM_NO14                        ','HOM_NO15                        ', & ! index 58 - 60
+     'HOM20_O5                        ','HOM20_O6                        ','HOM20_O7                        ', & ! index 61 - 63
+     'HOM20_O8                        ','HOM20_O9                        ','HOM20_O10                       ', & ! index 64 - 66
+     'HOM20_O11                       ','HOM20_O12                       ','HOM20_O13                       ', & ! index 67 - 69
+     'HOM20_O14                       ','HOM20_O15                       ','HOM20_O16                       ', & ! index 70 - 72
+     'HOM20_O17                       ','HOM20_NO7                       ','HOM20_NO8                       ', & ! index 73 - 75
+     'HOM20_NO9                       ','HOM20_NO10                      ','HOM20_NO11                      ', & ! index 76 - 78
+     'HOM20_NO12                      ','HOM20_NO13                      ','HOM20_NO14                      ', & ! index 79 - 81
+     'HOM20_NO15                      ','HOM20_NO16                      ','HOM20_NO17                      ', & ! index 82 - 84
+     'HOM20_NO18                      ','HOM20_OH_O6                     ','HOM20_OH_O7                     ', & ! index 85 - 87
+     'HOM20_OH_O8                     ','HOM20_OH_O9                     ','HOM20_OH_O10                    ' /) ! index up to 90
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_1 = (/ &
-     'HOM20_OH_O12                    ','HOM20_OH_O13                    ','HOM20_OH_NO8                    ', & ! index 91 - 93
-     'HOM20_OH_NO9                    ','HOM20_OH_NO10                   ','HOM20_OH_NO11                   ', & ! index 94 - 96
-     'HOM20_OH_NO12                   ','HOM20_OH_NO13                   ','HOM20_OH_NO14                   ', & ! index 97 - 99
-     'HOM_OH_O4CBN                    ','HOM_OH_O5CBN                    ','HOM_OH_O6CBN                    ', & ! index 100 - 102
-     'HOM_OH_O7CBN                    ','HOM_OH_O8CBN                    ','HOM_OH_O9CBN                    ', & ! index 103 - 105
-     'HOM_OH_O4                       ','HOM_OH_O5                       ','HOM_OH_O6                       ', & ! index 106 - 108
-     'HOM_OH_O7                       ','HOM_OH_O8                       ','HOM_OH_O9                       ', & ! index 109 - 111
-     'HOM_OH_O10                      ','HOM_OH_NO6                      ','HOM_OH_NO7                      ', & ! index 112 - 114
-     'HOM_OH_NO8                      ','HOM_OH_NO9                      ','HOM_OH_NO10                     ', & ! index 115 - 117
-     'HOM_OH_NO11                     ','HOM19_O5                        ','HOM19_O6                        ', & ! index 118 - 120
-     'HOM19_O7                        ','HOM19_O8                        ','HOM19_O9                        ', & ! index 121 - 123
-     'HOM19_O10                       ','HOM19_O11                       ','HOM19_O12                       ', & ! index 124 - 126
-     'HOM19_O13                       ','HOM19_O14                       ','HOM19_O15                       ', & ! index 127 - 129
-     'HOM19_O16                       ','HOM19_O17                       ','HOM19_O18                       ', & ! index 130 - 132
-     'HOM19_NO8                       ','HOM19_NO9                       ','HOM19_NO10                      ', & ! index 133 - 135
-     'HOM19_NO11                      ','HOM19_NO12                      ','HOM19_NO13                      ', & ! index 136 - 138
-     'HOM19_NO14                      ','HOM19_NO15                      ','HOM19_NO16                      ', & ! index 139 - 141
-     'HOM19_NO17                      ','HOM19_NO18                      ','HOM19_OH_O6                     ', & ! index 142 - 144
-     'HOM19_OH_O7                     ','HOM19_OH_O8                     ','HOM19_OH_O9                     ', & ! index 145 - 147
-     'HOM19_OH_O10                    ','HOM19_OH_O11                    ','HOM19_OH_O12                    ', & ! index 148 - 150
-     'HOM19_OH_O13                    ','HOM19_OH_O14                    ','HOM19_OH_NO9                    ', & ! index 151 - 153
-     'HOM19_OH_NO10                   ','HOM19_OH_NO11                   ','HOM19_OH_NO12                   ', & ! index 154 - 156
-     'HOM19_OH_NO13                   ','HOM19_OH_NO14                   ','HOM18_O4                        ', & ! index 157 - 159
-     'HOM18_O5                        ','HOM18_O6                        ','HOM18_O7                        ', & ! index 160 - 162
-     'HOM18_O8                        ','HOM18_O9                        ','HOM18_O10                       ', & ! index 163 - 165
-     'HOM18_O11                       ','HOM18_O12                       ','HOM18_O13                       ', & ! index 166 - 168
-     'HOM18_O14                       ','HOM18_O15                       ','HOM18_O16                       ', & ! index 169 - 171
-     'HOM18_O17                       ','HOM18_O18                       ','HOM18_NO9                       ', & ! index 172 - 174
-     'HOM18_NO10                      ','HOM18_NO11                      ','HOM18_NO12                      ', & ! index 175 - 177
-     'HOM18_NO13                      ','HOM18_NO14                      ','HOM18_NO15                      ' /) ! index up to 180
+     'HOM20_OH_O11                    ','HOM20_OH_O12                    ','HOM20_OH_O13                    ', & ! index 91 - 93
+     'HOM20_OH_NO8                    ','HOM20_OH_NO9                    ','HOM20_OH_NO10                   ', & ! index 94 - 96
+     'HOM20_OH_NO11                   ','HOM20_OH_NO12                   ','HOM20_OH_NO13                   ', & ! index 97 - 99
+     'HOM20_OH_NO14                   ','HOM_OH_O4CBN                    ','HOM_OH_O5CBN                    ', & ! index 100 - 102
+     'HOM_OH_O6CBN                    ','HOM_OH_O7CBN                    ','HOM_OH_O8CBN                    ', & ! index 103 - 105
+     'HOM_OH_O9CBN                    ','HOM_OH_O4                       ','HOM_OH_O5                       ', & ! index 106 - 108
+     'HOM_OH_O6                       ','HOM_OH_O7                       ','HOM_OH_O8                       ', & ! index 109 - 111
+     'HOM_OH_O9                       ','HOM_OH_O10                      ','HOM_OH_NO6                      ', & ! index 112 - 114
+     'HOM_OH_NO7                      ','HOM_OH_NO8                      ','HOM_OH_NO9                      ', & ! index 115 - 117
+     'HOM_OH_NO10                     ','HOM_OH_NO11                     ','HOM19_O5                        ', & ! index 118 - 120
+     'HOM19_O6                        ','HOM19_O7                        ','HOM19_O8                        ', & ! index 121 - 123
+     'HOM19_O9                        ','HOM19_O10                       ','HOM19_O11                       ', & ! index 124 - 126
+     'HOM19_O12                       ','HOM19_O13                       ','HOM19_O14                       ', & ! index 127 - 129
+     'HOM19_O15                       ','HOM19_O16                       ','HOM19_O17                       ', & ! index 130 - 132
+     'HOM19_O18                       ','HOM19_NO8                       ','HOM19_NO9                       ', & ! index 133 - 135
+     'HOM19_NO10                      ','HOM19_NO11                      ','HOM19_NO12                      ', & ! index 136 - 138
+     'HOM19_NO13                      ','HOM19_NO14                      ','HOM19_NO15                      ', & ! index 139 - 141
+     'HOM19_NO16                      ','HOM19_NO17                      ','HOM19_NO18                      ', & ! index 142 - 144
+     'HOM19_OH_O6                     ','HOM19_OH_O7                     ','HOM19_OH_O8                     ', & ! index 145 - 147
+     'HOM19_OH_O9                     ','HOM19_OH_O10                    ','HOM19_OH_O11                    ', & ! index 148 - 150
+     'HOM19_OH_O12                    ','HOM19_OH_O13                    ','HOM19_OH_O14                    ', & ! index 151 - 153
+     'HOM19_OH_NO9                    ','HOM19_OH_NO10                   ','HOM19_OH_NO11                   ', & ! index 154 - 156
+     'HOM19_OH_NO12                   ','HOM19_OH_NO13                   ','HOM19_OH_NO14                   ', & ! index 157 - 159
+     'HOM18_O4                        ','HOM18_O5                        ','HOM18_O6                        ', & ! index 160 - 162
+     'HOM18_O7                        ','HOM18_O8                        ','HOM18_O9                        ', & ! index 163 - 165
+     'HOM18_O10                       ','HOM18_O11                       ','HOM18_O12                       ', & ! index 166 - 168
+     'HOM18_O13                       ','HOM18_O14                       ','HOM18_O15                       ', & ! index 169 - 171
+     'HOM18_O16                       ','HOM18_O17                       ','HOM18_O18                       ', & ! index 172 - 174
+     'HOM18_NO9                       ','HOM18_NO10                      ','HOM18_NO11                      ', & ! index 175 - 177
+     'HOM18_NO12                      ','HOM18_NO13                      ','HOM18_NO14                      ' /) ! index up to 180
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_2 = (/ &
-     'HOM18_NO16                      ','HOM18_NO17                      ','HOM18_NO18                      ', & ! index 181 - 183
-     'HOM18_NO19                      ','HOM18_OH_O5                     ','HOM18_OH_O6                     ', & ! index 184 - 186
-     'HOM18_OH_O7                     ','HOM18_OH_O8                     ','HOM18_OH_O9                     ', & ! index 187 - 189
-     'HOM18_OH_O10                    ','HOM18_OH_O11                    ','HOM18_OH_O12                    ', & ! index 190 - 192
-     'HOM18_OH_O13                    ','HOM18_OH_O14                    ','HOM18_OH_NO10                   ', & ! index 193 - 195
-     'HOM18_OH_NO11                   ','HOM18_OH_NO12                   ','HOM18_OH_NO13                   ', & ! index 196 - 198
-     'HOM18_OH_NO14                   ','HOM18_OH_NO15                   ','DiEstC20O7                      ', & ! index 199 - 201
-     'DiEstC20O6                      ','DiEstC19O8                      ','DiEstC19O7                      ', & ! index 202 - 204
-     'DiEstC19O6                      ','DiEstC18NO10                    ','DiEstC18NO8                     ', & ! index 205 - 207
-     'DiEstC18O9                      ','DiEstC18O8_1                    ','DiEstC18O8_2                    ', & ! index 208 - 210
-     'DiEstC18O8_3                    ','DiEstC18O7_1                    ','DiEstC18O7_2                    ', & ! index 211 - 213
-     'DiEstC18O7_3                    ','DiEstC18O6_1                    ','DiEstC18O6_2                    ', & ! index 214 - 216
-     'DiEstC17O8_1                    ','DiEstC17O8_2                    ','DiEstC17O7                      ', & ! index 217 - 219
-     'DiEstC15O9                      ','DiEstC15O7                      ','DiEstC14O8                      ', & ! index 220 - 222
-     'DiEstC14O7                      ','DiEstC13O6                      ','O                               ', & ! index 223 - 225
-     'N2O5                            ','HONO                            ','HSO3                            ', & ! index 226 - 228
-     'CH3O2NO2                        ','RHOM_O4                         ','RHOM_O5                         ', & ! index 229 - 231
-     'RHOM_O6                         ','RHOM_O7                         ','RHOM_O8                         ', & ! index 232 - 234
-     'RHOM_O9                         ','RHOM_O10                        ','RHOM_O11                        ', & ! index 235 - 237
-     'RHOM_O12                        ','RHOM_OH_O4                      ','RHOM_OH_O5                      ', & ! index 238 - 240
-     'RHOM_OH_O6                      ','RHOM_OH_O7                      ','RHOM_OH_O8                      ', & ! index 241 - 243
-     'PROPALO                         ','NC4DCO2                         ','NC4MDCO2                        ', & ! index 244 - 246
-     'C8BC                            ','LIMALOOA                        ','C628OOA                         ', & ! index 247 - 249
-     'C629OOA                         ','C520OOA                         ','C735OOA                         ', & ! index 250 - 252
-     'PGAOOB                          ','PPACLOOA                        ','PACLOOA                         ', & ! index 253 - 255
-     'PPGAOOB                         ','RHOM_O3                         ','CARENE                          ', & ! index 256 - 258
-     'C51OH                           ','CH3CHOO                         ','MGLYOO                          ', & ! index 259 - 261
-     'ACLOO                           ','NOAOOA                          ','NOAOO                           ', & ! index 262 - 264
-     'HO1CO3C4O                       ','MEKBO                           ','MEKCO                           ', & ! index 265 - 267
-     'CHOC3COO                        ','CHOCOCH2O                       ','IPROPOLO                        ' /) ! index up to 270
+     'HOM18_NO15                      ','HOM18_NO16                      ','HOM18_NO17                      ', & ! index 181 - 183
+     'HOM18_NO18                      ','HOM18_NO19                      ','HOM18_OH_O5                     ', & ! index 184 - 186
+     'HOM18_OH_O6                     ','HOM18_OH_O7                     ','HOM18_OH_O8                     ', & ! index 187 - 189
+     'HOM18_OH_O9                     ','HOM18_OH_O10                    ','HOM18_OH_O11                    ', & ! index 190 - 192
+     'HOM18_OH_O12                    ','HOM18_OH_O13                    ','HOM18_OH_O14                    ', & ! index 193 - 195
+     'HOM18_OH_NO10                   ','HOM18_OH_NO11                   ','HOM18_OH_NO12                   ', & ! index 196 - 198
+     'HOM18_OH_NO13                   ','HOM18_OH_NO14                   ','HOM18_OH_NO15                   ', & ! index 199 - 201
+     'DiEstC20O7                      ','DiEstC20O6                      ','DiEstC19O8                      ', & ! index 202 - 204
+     'DiEstC19O7                      ','DiEstC19O6                      ','DiEstC18NO10                    ', & ! index 205 - 207
+     'DiEstC18NO8                     ','DiEstC18O9                      ','DiEstC18O8_1                    ', & ! index 208 - 210
+     'DiEstC18O8_2                    ','DiEstC18O8_3                    ','DiEstC18O7_1                    ', & ! index 211 - 213
+     'DiEstC18O7_2                    ','DiEstC18O7_3                    ','DiEstC18O6_1                    ', & ! index 214 - 216
+     'DiEstC18O6_2                    ','DiEstC17O8_1                    ','DiEstC17O8_2                    ', & ! index 217 - 219
+     'DiEstC17O7                      ','DiEstC15O9                      ','DiEstC15O7                      ', & ! index 220 - 222
+     'DiEstC14O8                      ','DiEstC14O7                      ','DiEstC13O6                      ', & ! index 223 - 225
+     'O                               ','N2O5                            ','HONO                            ', & ! index 226 - 228
+     'HSO3                            ','CH3O2NO2                        ','RHOM_O4                         ', & ! index 229 - 231
+     'RHOM_O5                         ','RHOM_O6                         ','RHOM_O7                         ', & ! index 232 - 234
+     'RHOM_O8                         ','RHOM_O9                         ','RHOM_O10                        ', & ! index 235 - 237
+     'RHOM_O11                        ','RHOM_O12                        ','RHOM_OH_O4                      ', & ! index 238 - 240
+     'RHOM_OH_O5                      ','RHOM_OH_O6                      ','RHOM_OH_O7                      ', & ! index 241 - 243
+     'RHOM_OH_O8                      ','PROPALO                         ','NC4DCO2                         ', & ! index 244 - 246
+     'NC4MDCO2                        ','C8BC                            ','LIMALOOA                        ', & ! index 247 - 249
+     'C628OOA                         ','C629OOA                         ','C520OOA                         ', & ! index 250 - 252
+     'C735OOA                         ','PGAOOB                          ','PPACLOOA                        ', & ! index 253 - 255
+     'PACLOOA                         ','PPGAOOB                         ','RHOM_O3                         ', & ! index 256 - 258
+     'CARENE                          ','C51OH                           ','CH3CHOO                         ', & ! index 259 - 261
+     'MGLYOO                          ','ACLOO                           ','NOAOOA                          ', & ! index 262 - 264
+     'NOAOO                           ','HO1CO3C4O                       ','MEKBO                           ', & ! index 265 - 267
+     'MEKCO                           ','CHOC3COO                        ','CHOCOCH2O                       ' /) ! index up to 270
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_3 = (/ &
-     'IBUTOLBO                        ','TBUTOLO                         ','C6145COO                        ', & ! index 271 - 273
-     'CHOCOMOXO                       ','MCOCOMOXO                       ','MECOACETO                       ', & ! index 274 - 276
-     'H3C25C6O                        ','C85O                            ','C86O                            ', & ! index 277 - 279
-     'CO235C6O                        ','NAPINAO                         ','NC101O                          ', & ! index 280 - 282
-     'NC102O                          ','NC72O                           ','C920O                           ', & ! index 283 - 285
-     'C921O                           ','C922O                           ','H1C23C4O                        ', & ! index 286 - 288
-     'MOCOCH2O                        ','MALANHYO                        ','PBZQO                           ', & ! index 289 - 291
-     'PTLQO                           ','BZFUONOOA                       ','NBZQO                           ', & ! index 292 - 294
-     'NTLFUO                          ','TLFUONOOA                       ','NPTLQO                          ', & ! index 295 - 297
-     'NPXYFUO                         ','C914O                           ','C87O                            ', & ! index 298 - 300
-     'C88O                            ','C618O                           ','C619O                           ', & ! index 301 - 303
-     'NBPINAO                         ','NBPINBO                         ','NOPINDO                         ', & ! index 304 - 306
-     'C515O                           ','C721O                           ','C722O                           ', & ! index 307 - 309
-     'NC2OOA                          ','NC3OOA                          ','NC3OO                           ', & ! index 310 - 312
-     'NC4OOA                          ','NC4OO                           ','INB1HPCO2H                      ', & ! index 313 - 315
-     'LIMALBO                         ','C627O                           ','LMKOOA                          ', & ! index 316 - 318
-     'LMKOOB                          ','LMLKBO                          ','NLIMO                           ', & ! index 319 - 321
-     'NLIMALO                         ','NLMKAO                          ','NC728O                          ', & ! index 322 - 324
-     'NC623O                          ','NC730O                          ','HODMSO2                         ', & ! index 325 - 327
-     'DMSO2                           ','CH3SCH2O                        ','DMSO                            ', & ! index 328 - 330
-     'C630O                           ','C828O                           ','C521O                           ', & ! index 331 - 333
-     'BCALBO                          ','C736O                           ','BCKSZOO                         ', & ! index 334 - 336
-     'BCALOOA                         ','BCALOO                          ','C141OOA                         ', & ! index 337 - 339
-     'C141OO                          ','BCBOOA                          ','BCBOCOO                         ', & ! index 340 - 342
-     'C126OOA                         ','C126OO                          ','BCLKBO                          ', & ! index 343 - 345
-     'C1214O                          ','NBCO                            ','NBCALO                          ', & ! index 346 - 348
-     'NBCKO                           ','NC1313O                         ','HMGLYOOA                        ', & ! index 349 - 351
-     'HMGLYOO                         ','ISOP34O                         ','MVKO                            ', & ! index 352 - 354
-     'NC51O                           ','CO2C3OOB                        ','M3FOOA                          ', & ! index 355 - 357
-     'M3FOO                           ','C531O                           ','NC41OO                          ' /) ! index up to 360
+     'IPROPOLO                        ','IBUTOLBO                        ','TBUTOLO                         ', & ! index 271 - 273
+     'C6145COO                        ','CHOCOMOXO                       ','MCOCOMOXO                       ', & ! index 274 - 276
+     'MECOACETO                       ','H3C25C6O                        ','C85O                            ', & ! index 277 - 279
+     'C86O                            ','CO235C6O                        ','NAPINAO                         ', & ! index 280 - 282
+     'NC101O                          ','NC102O                          ','NC72O                           ', & ! index 283 - 285
+     'C920O                           ','C921O                           ','C922O                           ', & ! index 286 - 288
+     'H1C23C4O                        ','MOCOCH2O                        ','MALANHYO                        ', & ! index 289 - 291
+     'PBZQO                           ','PTLQO                           ','BZFUONOOA                       ', & ! index 292 - 294
+     'NBZQO                           ','NTLFUO                          ','TLFUONOOA                       ', & ! index 295 - 297
+     'NPTLQO                          ','NPXYFUO                         ','C914O                           ', & ! index 298 - 300
+     'C87O                            ','C88O                            ','C618O                           ', & ! index 301 - 303
+     'C619O                           ','NBPINAO                         ','NBPINBO                         ', & ! index 304 - 306
+     'NOPINDO                         ','C515O                           ','C721O                           ', & ! index 307 - 309
+     'C722O                           ','NC2OOA                          ','NC3OOA                          ', & ! index 310 - 312
+     'NC3OO                           ','NC4OOA                          ','NC4OO                           ', & ! index 313 - 315
+     'INB1HPCO2H                      ','LIMALBO                         ','C627O                           ', & ! index 316 - 318
+     'LMKOOA                          ','LMKOOB                          ','LMLKBO                          ', & ! index 319 - 321
+     'NLIMO                           ','NLIMALO                         ','NLMKAO                          ', & ! index 322 - 324
+     'NC728O                          ','NC623O                          ','NC730O                          ', & ! index 325 - 327
+     'HODMSO2                         ','DMSO2                           ','CH3SCH2O                        ', & ! index 328 - 330
+     'DMSO                            ','C630O                           ','C828O                           ', & ! index 331 - 333
+     'C521O                           ','BCALBO                          ','C736O                           ', & ! index 334 - 336
+     'BCKSZOO                         ','BCALOOA                         ','BCALOO                          ', & ! index 337 - 339
+     'C141OOA                         ','C141OO                          ','BCBOOA                          ', & ! index 340 - 342
+     'BCBOCOO                         ','C126OOA                         ','C126OO                          ', & ! index 343 - 345
+     'BCLKBO                          ','C1214O                          ','NBCO                            ', & ! index 346 - 348
+     'NBCALO                          ','NBCKO                           ','NC1313O                         ', & ! index 349 - 351
+     'HMGLYOOA                        ','HMGLYOO                         ','ISOP34O                         ', & ! index 352 - 354
+     'MVKO                            ','NC51O                           ','CO2C3OOB                        ', & ! index 355 - 357
+     'M3FOOA                          ','M3FOO                           ','C531O                           ' /) ! index up to 360
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_4 = (/ &
-     'C55O                            ','BIACETO                         ','HYPROPO                         ', & ! index 361 - 363
-     'PRNO3CO2H                       ','IBUTOLBNO3                      ','MPRNO3CO2H                      ', & ! index 364 - 366
-     'GLYOOB                          ','MVKOHANO3                       ','HMGLOO                          ', & ! index 367 - 369
+     'NC41OO                          ','C55O                            ','BIACETO                         ', & ! index 361 - 363
+     'HYPROPO                         ','PRNO3CO2H                       ','IBUTOLBNO3                      ', & ! index 364 - 366
+     'MPRNO3CO2H                      ','GLYOOB                          ','HMGLOO                          ', & ! index 367 - 369
      'APINCOH                         ','C719NO3                         ','C719OH                          ', & ! index 370 - 372
-     'HO2NO2                          ','MGLOOA                          ','CO2C4DIAL                       ', & ! index 373 - 375
-     'CATECOOA                        ','PHENOH                          ','MMALNHY2OH                      ', & ! index 376 - 378
-     'MMALANHYO                       ','TLFUOH                          ','MCATECOOA                       ', & ! index 379 - 381
-     'CRESOH                          ','NBZFUONE                        ','BZFUONOO                        ', & ! index 382 - 384
-     'CO14O3CO2H                      ','TLFUONOO                        ','C24O3CCO2H                      ', & ! index 385 - 387
-     'PXYFUOH                         ','C9DCO                           ','CO1M22PAN                       ', & ! index 388 - 390
-     'NOPINBO                         ','C617O                           ','NOPINCOH                        ', & ! index 391 - 393
-     'C917OH                          ','BPINCOH                         ','C8BCO                           ', & ! index 394 - 396
-     'C811O                           ','OCCOHCO                         ','IEB1CHO                         ', & ! index 397 - 399
+     'HO2NO2                          ','CO2C4DIAL                       ','CATECOOA                        ', & ! index 373 - 375
+     'PHENOH                          ','MMALNHY2OH                      ','MMALANHYO                       ', & ! index 376 - 378
+     'TLFUOH                          ','MCATECOOA                       ','CRESOH                          ', & ! index 379 - 381
+     'NBZFUONE                        ','BZFUONOO                        ','CO14O3CO2H                      ', & ! index 382 - 384
+     'TLFUONOO                        ','C24O3CCO2H                      ','PXYFUOH                         ', & ! index 385 - 387
+     'C9DCO                           ','CO1M22PAN                       ','NOPINBO                         ', & ! index 388 - 390
+     'C617O                           ','NOPINCOH                        ','C917OH                          ', & ! index 391 - 393
+     'BPINCOH                         ','C8BCO                           ','C811O                           ', & ! index 394 - 396
+     'GAOO                            ','OCCOHCO                         ','IEB1CHO                         ', & ! index 397 - 399
      'IEB4CHO                         ','INANCOCHO                       ','INAHPPAN                        ', & ! index 400 - 402
      'NC2OO                           ','INB2O                           ','MACRNOO                         ', & ! index 403 - 405
      'CO2N3PAN                        ','INB1HPPAN                       ','LIMANO3                         ', & ! index 406 - 408
@@ -172,40 +172,40 @@ MODULE second_Monitor
      'LMKANO3                         ','CH3O                            ','CH3NO3                          ', & ! index 415 - 417
      'C823O                           ','C822O                           ','C729O                           ', & ! index 418 - 420
      'C826NO3                         ','C730NO3                         ','C626O                           ', & ! index 421 - 423
-     'C511CHO                         ','LMKBOO                          ','C732O                           ', & ! index 424 - 426
-     'C731O                           ','C510OH                          ','NLIMALOH                        ', & ! index 427 - 429
-     'NC728OH                         ','IPROPOLPAN                      ','NC623OH                         ', & ! index 430 - 432
-     'NC730OH                         ','GAOO                            ','CH3SOO                          ', & ! index 433 - 435
-     'BCANO3                          ','BCCNO3                          ','BCALNO3                         ', & ! index 436 - 438
-     'C141O                           ','C142OH                          ','C927OH                          ', & ! index 439 - 441
-     'TBUTOLNO3                       ','C145OH                          ','C928O                           ', & ! index 442 - 444
-     'C827O                           ','C827OH                          ','BCKANO3                         ', & ! index 445 - 447
-     'C131O                           ','C132OH                          ','C132O                           ' /) ! index up to 450
+     'C511CHO                         ','C510OH                          ','LMKBOO                          ', & ! index 424 - 426
+     'C732O                           ','C731O                           ','NLIMALOH                        ', & ! index 427 - 429
+     'IPROPOLPAN                      ','NC728OH                         ','NC623OH                         ', & ! index 430 - 432
+     'NC730OH                         ','MGLOOA                          ','TBUTOLNO3                       ', & ! index 433 - 435
+     'CH3SOO                          ','BCANO3                          ','BCCNO3                          ', & ! index 436 - 438
+     'BCALNO3                         ','C141O                           ','C142OH                          ', & ! index 439 - 441
+     'C927OH                          ','C145OH                          ','C928O                           ', & ! index 442 - 444
+     'C827O                           ','C827OH                          ','C3ME3CHOO                       ', & ! index 445 - 447
+     'BCKANO3                         ','C131O                           ','C132OH                          ' /) ! index up to 450
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_5 = (/ &
-     'C3ME3CHOO                       ','BCSOZNO3                        ','C151NO3                         ', & ! index 451 - 453
+     'C132O                           ','BCSOZNO3                        ','C151NO3                         ', & ! index 451 - 453
      'C152NO3                         ','C126O                           ','C127OH                          ', & ! index 454 - 456
      'C137O                           ','C139OH                          ','C136O                           ', & ! index 457 - 459
-     'C1311O                          ','C1010O                          ','C1011O                          ', & ! index 460 - 462
-     'C830O                           ','BCKAOO                          ','BCKBOO                          ', & ! index 463 - 465
-     'C1013O                          ','C1313NO3                        ','C1313OH                         ', & ! index 466 - 468
-     'C116O                           ','C117OH                          ','C1211O                          ', & ! index 469 - 471
-     'C1212OH                         ','C1210O                          ','C930O                           ', & ! index 472 - 474
-     'NBCALOH                         ','NC1313OH                        ','PAN                             ', & ! index 475 - 477
-     'CO2C3CO2H                       ','C45O                            ','C45NO3                          ', & ! index 478 - 480
-     'M3BU3EPAN                       ','HC4PAN                          ','METACETHO                       ', & ! index 481 - 483
-     'PPN                             ','MAE                             ','C2H5NO3                         ', & ! index 484 - 486
+     'C1311O                          ','C1010O                          ','PAN                             ', & ! index 460 - 462
+     'C1011O                          ','C830O                           ','BCKAOO                          ', & ! index 463 - 465
+     'BCKBOO                          ','C1013O                          ','C1313NO3                        ', & ! index 466 - 468
+     'C1313OH                         ','C116O                           ','C117OH                          ', & ! index 469 - 471
+     'C1211O                          ','C1212OH                         ','C1210O                          ', & ! index 472 - 474
+     'C930O                           ','NBCALOH                         ','NC1313OH                        ', & ! index 475 - 477
+     'PPN                             ','CO2C3CO2H                       ','METACETHO                       ', & ! index 478 - 480
+     'C45O                            ','C45NO3                          ','M3BU3EPAN                       ', & ! index 481 - 483
+     'HC4PAN                          ','MAE                             ','C2H5NO3                         ', & ! index 484 - 486
      'C2H5O                           ','C4PAN5                          ','PHAN                            ', & ! index 487 - 489
      'HCOCH2O                         ','NO3CH2PAN                       ','NO3CH2CO2H                      ', & ! index 490 - 492
      'PRNO3PAN                        ','M2PROPAL2O                      ','MPRBNO3PAN                      ', & ! index 493 - 495
-     'ISOPAO                          ','C57OH                           ','ISOPBOH                         ', & ! index 496 - 498
-     'C58OH                           ','ISOPDO                          ','C107O                           ', & ! index 499 - 501
-     'C96O                            ','C97O                            ','NOPINCO                         ', & ! index 502 - 504
-     'C917O                           ','BPINCO                          ','C812O                           ', & ! index 505 - 507
-     'NC826O                          ','DMSO2O                          ','C142O                           ', & ! index 508 - 510
-     'C927O                           ','C127O                           ','C139O                           ', & ! index 511 - 513
-     'BCKOOB                          ','C117O                           ','C1212O                          ', & ! index 514 - 516
-     'CO2C3OOA                        ','APINCO                          ','CH3CHOOA                        ', & ! index 517 - 519
-     'CH3COCH2O                       ','C109O                           ','MEKANO3                         ', & ! index 520 - 522
+     'MVKOHANO3                       ','ISOPAO                          ','C57OH                           ', & ! index 496 - 498
+     'ISOPBOH                         ','C58OH                           ','ISOPDO                          ', & ! index 499 - 501
+     'C107O                           ','C96O                            ','NOPINCO                         ', & ! index 502 - 504
+     'C917O                           ','C97O                            ','BPINCO                          ', & ! index 505 - 507
+     'C812O                           ','NC826O                          ','DMSO2O                          ', & ! index 508 - 510
+     'C142O                           ','C927O                           ','C127O                           ', & ! index 511 - 513
+     'C139O                           ','BCKOOB                          ','C117O                           ', & ! index 514 - 516
+     'C1212O                          ','CO2C3OOA                        ','APINCO                          ', & ! index 517 - 519
+     'CH3CHOOA                        ','CH3COCH2O                       ','C109O                           ', & ! index 520 - 522
      'C621O                           ','H1C23C4PAN                      ','C920PAN                         ', & ! index 523 - 525
      'BZBIPERNO3                      ','BZBIPER2OH                      ','MALDIALO                        ', & ! index 526 - 528
      'MALDIALPAN                      ','HCOCOHPAN                       ','MALANHY2OH                      ', & ! index 529 - 531
@@ -213,69 +213,69 @@ MODULE second_Monitor
      'BZEMUCPAN                       ','EPXDLPAN                        ','PBZQOH                          ', & ! index 535 - 537
      'PBZQCO                          ','PBZQOOH                         ','BZFUO                           ' /) ! index up to 540
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_6 = (/ &
-     'BZFUOH                          ','NNCATECO                        ','C5PAN18                         ', & ! index 541 - 543
-     'DNPHENO                         ','NDNPHENO                        ','HOCH2COCO2H                     ', & ! index 544 - 546
-     'C6H5CH2NO3                      ','C6H5CH2OH                       ','TLBIPERNO3                      ', & ! index 547 - 549
-     'TLBIPER2OH                      ','C5COO2NO2                       ','MC3CODBPAN                      ', & ! index 550 - 552
-     'C3MCODBPAN                      ','C615CO2O                        ','TLEMUCPAN                       ', & ! index 553 - 555
+     'BZFUOH                          ','NNCATECO                        ','DNPHENO                         ', & ! index 541 - 543
+     'NDNPHENO                        ','C6H5CH2NO3                      ','C6H5CH2OH                       ', & ! index 544 - 546
+     'TLBIPERNO3                      ','TLBIPER2OH                      ','C5COO2NO2                       ', & ! index 547 - 549
+     'HOCH2COCO2H                     ','MC3CODBPAN                      ','C3MCODBPAN                      ', & ! index 550 - 552
+     'C615CO2O                        ','TLEMUCPAN                       ','CO2C3PAN                        ', & ! index 553 - 555
      'PTLQOH                          ','PTLQCO                          ','PTLQOOH                         ', & ! index 556 - 558
-     'APINAO                          ','MNNCATECO                       ','DNCRESO                         ', & ! index 559 - 561
-     'NDNCRESO                        ','APINANO3                        ','C6CO2OHPAN                      ', & ! index 562 - 564
-     'CH3COPAN                        ','C5CO2OHPAN                      ','CHOMOHPAN                       ', & ! index 565 - 567
-     'C3MDIALO                        ','CO2C3PAN                        ','C4CO2DBPAN                      ', & ! index 568 - 570
-     'C5CO2DBPAN                      ','C23O3CPAN                       ','C23O3CCO2H                      ', & ! index 571 - 573
-     'BPINAO                          ','BPINANO3                        ','NOPINANO3                       ', & ! index 574 - 576
-     'NOPINAOH                        ','C9DCNO3                         ','C9DCOH                          ', & ! index 577 - 579
-     'C9DCCO                          ','C9DCOOH                         ','C914OH                          ', & ! index 580 - 582
-     'C914CO                          ','C914OOH                         ','C87PAN                          ', & ! index 583 - 585
-     'C87OH                           ','C615PAN                         ','C96NO3                          ', & ! index 586 - 588
-     'NOPINBNO3                       ','C915NO3                         ','C916O                           ', & ! index 589 - 591
-     'C916NO3                         ','NOPINBOH                        ','NOPINBCO                        ', & ! index 592 - 594
-     'NOPINBOOH                       ','C915OH                          ','C916OH                          ', & ! index 595 - 597
-     'C718NO3                         ','C88PAN                          ','C88CO2H                         ', & ! index 598 - 600
-     'C88OH                           ','C718PAN                         ','C617PAN                         ', & ! index 601 - 603
-     'C618PAN                         ','NOPINCNO3                       ','COO2C4O                         ', & ! index 604 - 606
-     'C917NO3                         ','C512NO3                         ','C98O                            ', & ! index 607 - 609
-     'C619OH                          ','C512PAN                         ','BPINBO                          ', & ! index 610 - 612
-     'BPINBNO3                        ','C918PAN                         ','BPINCNO3                        ', & ! index 613 - 615
-     'C98NO3                          ','CHOC3COPAN                      ','NC91PAN                         ', & ! index 616 - 618
-     'C89O                            ','C89NO3                          ','C810O                           ', & ! index 619 - 621
-     'C810NO3                         ','C514NO3                         ','NOPINDOH                        ', & ! index 622 - 624
-     'NOPINDCO                        ','NOPINDOOH                       ','C89PAN                          ', & ! index 625 - 627
-     'C89OH                           ','C810OH                          ','C8BCNO3                         ' /) ! index up to 630
+     'MNNCATECO                       ','DNCRESO                         ','NDNCRESO                        ', & ! index 559 - 561
+     'APINAO                          ','C6CO2OHPAN                      ','CH3COPAN                        ', & ! index 562 - 564
+     'C5CO2OHPAN                      ','CHOMOHPAN                       ','C3MDIALO                        ', & ! index 565 - 567
+     'APINANO3                        ','C4CO2DBPAN                      ','C5CO2DBPAN                      ', & ! index 568 - 570
+     'C23O3CPAN                       ','C23O3CCO2H                      ','BPINAO                          ', & ! index 571 - 573
+     'BPINANO3                        ','NOPINANO3                       ','NOPINAOH                        ', & ! index 574 - 576
+     'C9DCNO3                         ','C9DCOH                          ','C9DCCO                          ', & ! index 577 - 579
+     'C9DCOOH                         ','C914OH                          ','C914CO                          ', & ! index 580 - 582
+     'C914OOH                         ','C87PAN                          ','C87OH                           ', & ! index 583 - 585
+     'C615PAN                         ','C96NO3                          ','NOPINBNO3                       ', & ! index 586 - 588
+     'C915NO3                         ','C916O                           ','C916NO3                         ', & ! index 589 - 591
+     'NOPINBOH                        ','NOPINBCO                        ','NOPINBOOH                       ', & ! index 592 - 594
+     'C915OH                          ','C916OH                          ','C718NO3                         ', & ! index 595 - 597
+     'C88PAN                          ','C88CO2H                         ','C88OH                           ', & ! index 598 - 600
+     'C718PAN                         ','C617PAN                         ','C618PAN                         ', & ! index 601 - 603
+     'NOPINCNO3                       ','COO2C4O                         ','C917NO3                         ', & ! index 604 - 606
+     'CHOC3COPAN                      ','C512NO3                         ','C619OH                          ', & ! index 607 - 609
+     'C512PAN                         ','BPINBO                          ','BPINBNO3                        ', & ! index 610 - 612
+     'C918PAN                         ','BPINCNO3                        ','C98O                            ', & ! index 613 - 615
+     'NC91PAN                         ','C89O                            ','C89NO3                          ', & ! index 616 - 618
+     'C810O                           ','C810NO3                         ','C514NO3                         ', & ! index 619 - 621
+     'NOPINDOH                        ','NOPINDCO                        ','NOPINDOOH                       ', & ! index 622 - 624
+     'C89PAN                          ','C89OH                           ','C810OH                          ', & ! index 625 - 627
+     'C98NO3                          ','C8BCNO3                         ','C8BCOH                          ' /) ! index up to 630
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_7 = (/ &
-     'C8BCOH                          ','C8BCCO                          ','C8BCOOH                         ', & ! index 631 - 633
-     'C918O                           ','C918NO3                         ','C919O                           ', & ! index 634 - 636
-     'C919NO3                         ','C918OH                          ','C919OH                          ', & ! index 637 - 639
-     'C515PAN                         ','C813O                           ','C811PAN                         ', & ! index 640 - 642
-     'C44O                            ','C721PAN                         ','PBZN                            ', & ! index 643 - 645
-     'PHCOOH                          ','IPRHOCO2H                       ','A2PANO                          ', & ! index 646 - 648
-     'C614NO3                         ','OCCOHCOH                        ','A2PAN                           ', & ! index 649 - 651
-     'C2OHOCO2H                       ','CHOCOHCO                        ','MACROHO                         ', & ! index 652 - 654
-     'IEPOXA                          ','IEAPAN                          ','PINALO                          ', & ! index 655 - 657
-     'PINALNO3                        ','IECPAN                          ','INAOH                           ', & ! index 658 - 660
-     'INANPAN                         ','INANCO2H                        ','C106O                           ', & ! index 661 - 663
+     'C8BCCO                          ','C8BCOOH                         ','C918O                           ', & ! index 631 - 633
+     'C918NO3                         ','C919O                           ','C919NO3                         ', & ! index 634 - 636
+     'C918OH                          ','C919OH                          ','C515PAN                         ', & ! index 637 - 639
+     'C813O                           ','C811PAN                         ','C44O                            ', & ! index 640 - 642
+     'C721PAN                         ','PBZN                            ','PHCOOH                          ', & ! index 643 - 645
+     'IPRHOCO2H                       ','A2PANO                          ','C614NO3                         ', & ! index 646 - 648
+     'OCCOHCOH                        ','A2PAN                           ','C2OHOCO2H                       ', & ! index 649 - 651
+     'CHOCOHCO                        ','MACROHO                         ','IEPOXA                          ', & ! index 652 - 654
+     'IEAPAN                          ','PINALO                          ','PINALNO3                        ', & ! index 655 - 657
+     'IECPAN                          ','INAOH                           ','INANPAN                         ', & ! index 658 - 660
+     'INANCO2H                        ','C106O                           ','C312COPAN                       ', & ! index 661 - 663
      'C106NO3                         ','INB1O                           ','C716O                           ', & ! index 664 - 666
      'INCOH                           ','INCNCO2H                        ','MACRNBPAN                       ', & ! index 667 - 669
-     'C312COPAN                       ','INDOH                           ','INB1NAPAN                       ', & ! index 670 - 672
-     'INB1NACO2H                      ','INB1NBPAN                       ','INB1NBCO2H                      ', & ! index 673 - 675
-     'C10PAN2                         ','LIMAO                           ','LIMBO                           ', & ! index 676 - 678
-     'LIMBNO3                         ','LIMCO                           ','LIMCOH                          ', & ! index 679 - 681
-     'LIMALO                          ','LIMALOH                         ','C923PAN                         ', & ! index 682 - 684
-     'LIMONONIC                       ','C923NO3                         ','C923OH                          ', & ! index 685 - 687
-     'C924O                           ','C924OH                          ','NORLIMO                         ', & ! index 688 - 690
-     'C816PAN                         ','C925O                           ','C817PAN                         ', & ! index 691 - 693
-     'C817NO3                         ','C818O                           ','C819O                           ', & ! index 694 - 696
-     'C727PAN                         ','C727O                           ','C820O                           ', & ! index 697 - 699
-     'C622PAN                         ','C622CO2H                        ','C622NO3                         ', & ! index 700 - 702
-     'C622OH                          ','C728O                           ','C728OH                          ', & ! index 703 - 705
-     'C517PAN                         ','C517CO2H                        ','C517NO3                         ', & ! index 706 - 708
-     'C517OH                          ','C518PAN                         ','C518CO2H                        ', & ! index 709 - 711
-     'C623O                           ','C97OH                           ','C623OH                          ', & ! index 712 - 714
-     'HMVKBPAN                        ','HMVKBCO2H                       ','C821O                           ', & ! index 715 - 717
-     'LMKAO                           ','LMKBO                           ','LMKBNO3                         ' /) ! index up to 720
+     'INDOH                           ','INB1NAPAN                       ','INB1NACO2H                      ', & ! index 670 - 672
+     'INB1NBPAN                       ','INB1NBCO2H                      ','C10PAN2                         ', & ! index 673 - 675
+     'LIMAO                           ','LIMBO                           ','LIMBNO3                         ', & ! index 676 - 678
+     'LIMCO                           ','LIMCOH                          ','LIMALO                          ', & ! index 679 - 681
+     'LIMALOH                         ','C923PAN                         ','LIMONONIC                       ', & ! index 682 - 684
+     'C923NO3                         ','C923OH                          ','C924O                           ', & ! index 685 - 687
+     'C924OH                          ','NORLIMO                         ','C816PAN                         ', & ! index 688 - 690
+     'C925O                           ','C817PAN                         ','C817NO3                         ', & ! index 691 - 693
+     'C818O                           ','C819O                           ','C727PAN                         ', & ! index 694 - 696
+     'C727O                           ','C820O                           ','C622PAN                         ', & ! index 697 - 699
+     'C622CO2H                        ','C622NO3                         ','C622OH                          ', & ! index 700 - 702
+     'C728O                           ','C728OH                          ','C517PAN                         ', & ! index 703 - 705
+     'C517CO2H                        ','C517NO3                         ','C517OH                          ', & ! index 706 - 708
+     'C518PAN                         ','C518CO2H                        ','C623O                           ', & ! index 709 - 711
+     'C97OH                           ','C623OH                          ','HMVKBPAN                        ', & ! index 712 - 714
+     'HMVKBCO2H                       ','C821O                           ','LMKAO                           ', & ! index 715 - 717
+     'LMKBO                           ','LMKBNO3                         ','C98OH                           ' /) ! index up to 720
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_8 = (/ &
-     'C98OH                           ','LIMALAO                         ','C822PAN                         ', & ! index 721 - 723
+     'LIMALAO                         ','CHOC2H4O                        ','C822PAN                         ', & ! index 721 - 723
      'C822CO2H                        ','C823PAN                         ','LIMONIC                         ', & ! index 724 - 726
      'C823NO3                         ','C823OH                          ','C825O                           ', & ! index 727 - 729
      'C825OH                          ','C822NO3                         ','C822OH                          ', & ! index 730 - 732
@@ -286,19 +286,19 @@ MODULE second_Monitor
      'C730OH                          ','C626PAN                         ','C106OH                          ', & ! index 745 - 747
      'C626NO3                         ','C519PAN                         ','C519CO2H                        ', & ! index 748 - 750
      'C519O                           ','C511PAN                         ','C627PAN                         ', & ! index 751 - 753
-     'CHOC2H4O                        ','CHOC2PAN                        ','LMLKAO                          ', & ! index 754 - 756
-     'C731PAN                         ','C731CO2H                        ','C732PAN                         ', & ! index 757 - 759
-     'KLIMONIC                        ','C732NO3                         ','C732OH                          ', & ! index 760 - 762
-     'C734O                           ','C734OH                          ','C731NO3                         ', & ! index 763 - 765
-     'C731OH                          ','C733O                           ','C733OH                          ', & ! index 766 - 768
-     'H3C2C4PAN                       ','NC826OH                         ','CH3SCH2OH                       ', & ! index 769 - 771
-     'H3C25C6PAN                      ','CH3SO                           ','CH3SOO2NO2                      ', & ! index 772 - 774
-     'MSIA                            ','CH3SO4NO2                       ','BCAO                            ', & ! index 775 - 777
-     'BCBO                            ','BCBNO3                          ','BCCO                            ', & ! index 778 - 780
-     'BCCOH                           ','BCALO                           ','BCALOH                          ', & ! index 781 - 783
-     'C141PAN                         ','C141NO3                         ','C141OH                          ', & ! index 784 - 786
+     'CHOC2PAN                        ','LMLKAO                          ','C731PAN                         ', & ! index 754 - 756
+     'C731CO2H                        ','C732PAN                         ','KLIMONIC                        ', & ! index 757 - 759
+     'C732NO3                         ','C732OH                          ','C734O                           ', & ! index 760 - 762
+     'C734OH                          ','C731NO3                         ','C731OH                          ', & ! index 763 - 765
+     'C733O                           ','C733OH                          ','H3C2C4PAN                       ', & ! index 766 - 768
+     'NC826OH                         ','CH3SCH2OH                       ','H3C25C6PAN                      ', & ! index 769 - 771
+     'CH3SO                           ','CH3SOO2NO2                      ','MSIA                            ', & ! index 772 - 774
+     'CH3SO4NO2                       ','BCAO                            ','BCBO                            ', & ! index 775 - 777
+     'BCBNO3                          ','BCCO                            ','BCCOH                           ', & ! index 778 - 780
+     'BCALO                           ','BCALOH                          ','C141PAN                         ', & ! index 781 - 783
+     'C141NO3                         ','C141OH                          ','C108O                           ', & ! index 784 - 786
      'C142NO3                         ','C143NO3                         ','C143OH                          ', & ! index 787 - 789
-     'C108O                           ','C927NO3                         ','C630OH                          ', & ! index 790 - 792
+     'C108NO3                         ','C927NO3                         ','C630OH                          ', & ! index 790 - 792
      'C46PAN                          ','C46CO2H                         ','C928PAN                         ', & ! index 793 - 795
      'C928CO2H                        ','C928NO3                         ','C928OH                          ', & ! index 796 - 798
      'C929O                           ','C929OH                          ','C827PAN                         ', & ! index 799 - 801
@@ -306,38 +306,38 @@ MODULE second_Monitor
      'C828PAN                         ','BCKAO                           ','BCKBO                           ', & ! index 805 - 807
      'BCKBNO3                         ','C131PAN                         ','C131NO3                         ' /) ! index up to 810
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_9 = (/ &
-     'C131OH                          ','C133NO3                         ','C829O                           ', & ! index 811 - 813
-     'C829NO3                         ','C9PAN2                          ','C134O                           ', & ! index 814 - 816
+     'C131OH                          ','C9PAN2                          ','C133NO3                         ', & ! index 811 - 813
+     'C829O                           ','C829NO3                         ','C134O                           ', & ! index 814 - 816
      'C135O                           ','APINCNO3                        ','BCSOZ                           ', & ! index 817 - 819
      'BCSOZO                          ','BCSOZOH                         ','C151O                           ', & ! index 820 - 822
      'C151OH                          ','C152O                           ','C152OH                          ', & ! index 823 - 825
      'BCALAO                          ','C126PAN                         ','C126CO2H                        ', & ! index 826 - 828
-     'C126NO3                         ','C126OH                          ','C108NO3                         ', & ! index 829 - 831
-     'C127NO3                         ','C7PAN3                          ','C128NO3                         ', & ! index 832 - 834
-     'C128OH                          ','C136PAN                         ','C136CO2H                        ', & ! index 835 - 837
-     'C137PAN                         ','C137CO2H                        ','C137NO3                         ', & ! index 838 - 840
-     'C137OH                          ','C139NO3                         ','C1310NO3                        ', & ! index 841 - 843
-     'C1310OH                         ','APINBO                          ','C136NO3                         ', & ! index 844 - 846
-     'C136OH                          ','APINBNO3                        ','C1311NO3                        ', & ! index 847 - 849
-     'C1311OH                         ','C1312NO3                        ','C1312OH                         ', & ! index 850 - 852
-     'C1010NO3                        ','C1010OH                         ','C736OH                          ', & ! index 853 - 855
-     'C522CO2H                        ','C146O                           ','C146OH                          ', & ! index 856 - 858
-     'C1011PAN                        ','C1011CO2H                       ','C1011NO3                        ', & ! index 859 - 861
-     'C1011OH                         ','C1012NO3                        ','C1012OH                         ', & ! index 862 - 864
-     'C6TRONOHO                       ','C147O                           ','C147OH                          ', & ! index 865 - 867
-     'C3DIOLO                         ','C129O                           ','C129OH                          ', & ! index 868 - 870
-     'C830PAN                         ','C830CO2H                        ','C830NO3                         ', & ! index 871 - 873
-     'C830OH                          ','C831NO3                         ','C831OH                          ', & ! index 874 - 876
-     'BCKOOA                          ','C148O                           ','C148OH                          ', & ! index 877 - 879
+     'C126NO3                         ','C126OH                          ','C127NO3                         ', & ! index 829 - 831
+     'C7PAN3                          ','C128NO3                         ','C128OH                          ', & ! index 832 - 834
+     'C136PAN                         ','C136CO2H                        ','C137PAN                         ', & ! index 835 - 837
+     'C137CO2H                        ','C137NO3                         ','C137OH                          ', & ! index 838 - 840
+     'C139NO3                         ','C1310NO3                        ','C1310OH                         ', & ! index 841 - 843
+     'APINBO                          ','C136NO3                         ','C136OH                          ', & ! index 844 - 846
+     'APINBNO3                        ','C1311NO3                        ','C1311OH                         ', & ! index 847 - 849
+     'C1312NO3                        ','C1312OH                         ','C1010NO3                        ', & ! index 850 - 852
+     'C1010OH                         ','C736OH                          ','C522CO2H                        ', & ! index 853 - 855
+     'C146O                           ','C146OH                          ','C1011PAN                        ', & ! index 856 - 858
+     'C1011CO2H                       ','C1011NO3                        ','C1011OH                         ', & ! index 859 - 861
+     'C1012NO3                        ','C1012OH                         ','C6TRONOHO                       ', & ! index 862 - 864
+     'C147O                           ','C147OH                          ','C3DIOLO                         ', & ! index 865 - 867
+     'C129O                           ','C129OH                          ','C830PAN                         ', & ! index 868 - 870
+     'C830CO2H                        ','C830NO3                         ','C830OH                          ', & ! index 871 - 873
+     'C831NO3                         ','C831OH                          ','BCKOOA                          ', & ! index 874 - 876
+     'C717NO3                         ','C148O                           ','C148OH                          ', & ! index 877 - 879
      'C1013PAN                        ','C1013CO2H                       ','C1013NO3                        ', & ! index 880 - 882
      'C1013OH                         ','C1014NO3                        ','C1014OH                         ', & ! index 883 - 885
      'COO2C4PAN                       ','COO2C3PAN                       ','BCLKAO                          ', & ! index 886 - 888
      'C116PAN                         ','C116CO2H                        ','C116NO3                         ', & ! index 889 - 891
-     'C116OH                          ','C717NO3                         ','C117NO3                         ', & ! index 892 - 894
-     'C118NO3                         ','C118OH                          ','C1210CO2H                       ', & ! index 895 - 897
-     'C1211PAN                        ','C1211CO2H                       ','C1211NO3                        ' /) ! index up to 900
+     'C116OH                          ','C117NO3                         ','C118NO3                         ', & ! index 892 - 894
+     'C118OH                          ','C1210CO2H                       ','C1211PAN                        ', & ! index 895 - 897
+     'C1211CO2H                       ','C1211NO3                        ','C1211OH                         ' /) ! index up to 900
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_10 = (/ &
-     'C1211OH                         ','C1212NO3                        ','C1213NO3                        ', & ! index 901 - 903
+     'C107OH                          ','C1212NO3                        ','C1213NO3                        ', & ! index 901 - 903
      'C1213OH                         ','C1210NO3                        ','C1210OH                         ', & ! index 904 - 906
      'C1214OH                         ','C1215NO3                        ','C1215OH                         ', & ! index 907 - 909
      'C930NO3                         ','C930OH                          ','MOXCOCH2OH                      ', & ! index 910 - 912
@@ -347,527 +347,528 @@ MODULE second_Monitor
      'HMACO2H                         ','BCALCO                          ','BCLKCO                          ', & ! index 922 - 924
      'C516O                           ','CISOPA                          ','TISOPA                          ', & ! index 925 - 927
      'CISOPC                          ','TISOPC                          ','C526NO3                         ', & ! index 928 - 930
-     'C527NO3                         ','HPC52PAN                        ','C107OH                          ', & ! index 931 - 933
-     'CH2CHCH2NO3                     ','C45OOH                          ','C530NO3                         ', & ! index 934 - 936
+     'C527NO3                         ','HPC52PAN                        ','CH2CHCH2NO3                     ', & ! index 931 - 933
+     'MEKANO3                         ','C45OOH                          ','C530NO3                         ', & ! index 934 - 936
      'NC6PAN1                         ','C531CO                          ','NC41OOA                         ', & ! index 937 - 939
      'C536O                           ','C537O                           ','MACRO                           ', & ! index 940 - 942
-     'MACO2H                          ','NISOPNO3                        ','C3PAN1                          ', & ! index 943 - 945
-     'HOC2H4CO2H                      ','C51NO3                          ','C5PAN2                          ', & ! index 946 - 948
-     'CO2C4CO2H                       ','C5PAN9                          ','C5PAN11                         ', & ! index 949 - 951
-     'C6PAN9                          ','C3PAN2                          ','C5PAN15                         ', & ! index 952 - 954
-     'HM22CO2H                        ','HOCH2CH2O                       ','ETHOHNO3                        ', & ! index 955 - 957
-     'ETHGLY                          ','CH2OOA                          ','ETHENO3O                        ', & ! index 958 - 960
-     'NO3CH2CO3H                      ','ACCOMEPAN                       ','C108OH                          ', & ! index 961 - 963
-     'PRONO3AO                        ','C720NO3                         ','PRNO3CO3H                       ', & ! index 964 - 966
-     'PRONO3BO                        ','PROLNO3                         ','MPRBNO3O                        ', & ! index 967 - 969
-     'C720OH                          ','MPRNO3CO3H                      ','C4PAN10                         ', & ! index 970 - 972
-     'ACO2H                           ','C1210PAN                        ','MVKOHAO                         ', & ! index 973 - 975
-     'MVKOHBO                         ','C522PAN                         ','HMVKBO                          ', & ! index 976 - 978
-     'C4PAN6                          ','BCALBOC                         ','HMGLOOA                         ', & ! index 979 - 981
-     'C514OH                          ','C514O                           ','C620O                           ', & ! index 982 - 984
-     'IEPOXC                          ','INANCHO                         ','INAHPCHO                        ', & ! index 985 - 987
-     'INAHCHO                         ','C6H5CH2O                        ','INAHPAN                         ' /) ! index up to 990
+     'MACO2H                          ','NISOPNO3                        ','C108OH                          ', & ! index 943 - 945
+     'C3PAN1                          ','HOC2H4CO2H                      ','C51NO3                          ', & ! index 946 - 948
+     'C5PAN2                          ','CO2C4CO2H                       ','C5PAN9                          ', & ! index 949 - 951
+     'C5PAN11                         ','C6PAN9                          ','C3PAN2                          ', & ! index 952 - 954
+     'ACCOMEPAN                       ','C5PAN15                         ','HM22CO2H                        ', & ! index 955 - 957
+     'HOCH2CH2O                       ','ETHOHNO3                        ','ETHGLY                          ', & ! index 958 - 960
+     'CH2OOA                          ','ETHENO3O                        ','NO3CH2CO3H                      ', & ! index 961 - 963
+     'PRONO3AO                        ','C5PAN18                         ','C720NO3                         ', & ! index 964 - 966
+     'PRNO3CO3H                       ','PRONO3BO                        ','PROLNO3                         ', & ! index 967 - 969
+     'MPRBNO3O                        ','C720OH                          ','MPRNO3CO3H                      ', & ! index 970 - 972
+     'MVKOHAO                         ','C4PAN10                         ','ACO2H                           ', & ! index 973 - 975
+     'C1210PAN                        ','MVKOHBO                         ','C522PAN                         ', & ! index 976 - 978
+     'HMVKBO                          ','C4PAN6                          ','HMGLOOA                         ', & ! index 979 - 981
+     'BCALBOC                         ','C514OH                          ','C514O                           ', & ! index 982 - 984
+     'C620O                           ','IEPOXC                          ','INANCHO                         ', & ! index 985 - 987
+     'INAHPCHO                        ','INAHCHO                         ','C6H5CH2O                        ' /) ! index up to 990
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_11 = (/ &
-     'INANCOPAN                       ','INB1NACHO                       ','INB1NBCHO                       ', & ! index 991 - 993
-     'MACRNPAN                        ','INB1HPCHO                       ','C57NO3PAN                       ', & ! index 994 - 996
-     'MACRNOOA                        ','INCNPAN                         ','INDHPCHO                        ', & ! index 997 - 999
-     'INDHPPAN                        ','INDHPAN                         ','C58NO3PAN                       ', & ! index 1000 - 1002
-     'C514CO23OH                      ','MGLOOB                          ','C96OH                           ', & ! index 1003 - 1005
-     'MMALANHY                        ','C817OH                          ','C4M2AL2OH                       ', & ! index 1006 - 1008
-     'C622O                           ','C517O                           ','TLEMUCOH                        ', & ! index 1009 - 1011
-     'C615CO2OH                       ','LIMALBOH                        ','C614OH                          ', & ! index 1012 - 1014
-     'C614O                           ','TLFUO                           ','C826O                           ', & ! index 1015 - 1017
-     'C625OH                          ','C926O                           ','C926OH                          ', & ! index 1018 - 1020
-     'C627OH                          ','LMLKBOH                         ','NCRESOH                         ', & ! index 1021 - 1023
-     'NCRESO                          ','C59O                            ','MSA                             ', & ! index 1024 - 1026
-     'DMSO2OH                         ','HOHOC4DIAL                      ','C144O                           ', & ! index 1027 - 1029
-     'C145O                           ','BUT2OLO                         ','C717OH                          ', & ! index 1030 - 1032
+     'INAHPAN                         ','INANCOPAN                       ','INB1NACHO                       ', & ! index 991 - 993
+     'INB1NBCHO                       ','MACRNPAN                        ','INB1HPCHO                       ', & ! index 994 - 996
+     'C57NO3PAN                       ','MACRNOOA                        ','INCNPAN                         ', & ! index 997 - 999
+     'INDHPCHO                        ','INDHPPAN                        ','INDHPAN                         ', & ! index 1000 - 1002
+     'C58NO3PAN                       ','C514CO23OH                      ','C96OH                           ', & ! index 1003 - 1005
+     'MGLOOB                          ','MMALANHY                        ','C817OH                          ', & ! index 1006 - 1008
+     'C4M2AL2OH                       ','C622O                           ','C517O                           ', & ! index 1009 - 1011
+     'TLEMUCOH                        ','C615CO2OH                       ','LIMALBOH                        ', & ! index 1012 - 1014
+     'C614OH                          ','C614O                           ','TLFUO                           ', & ! index 1015 - 1017
+     'C826O                           ','C625OH                          ','C926O                           ', & ! index 1018 - 1020
+     'C926OH                          ','C627OH                          ','LMLKBOH                         ', & ! index 1021 - 1023
+     'NCRESOH                         ','NCRESO                          ','C59O                            ', & ! index 1024 - 1026
+     'MSA                             ','DMSO2OH                         ','HOHOC4DIAL                      ', & ! index 1027 - 1029
+     'C144O                           ','C145O                           ','BUT2OLO                         ', & ! index 1030 - 1032
      'PXYFUO                          ','C133OH                          ','C829OH                          ', & ! index 1033 - 1035
      'C126CO                          ','C126OOH                         ','C128O                           ', & ! index 1036 - 1038
      'BCALBOH                         ','C9DC                            ','C1310O                          ', & ! index 1039 - 1041
-     'MEKCOH                          ','C615O                           ','C1312O                          ', & ! index 1042 - 1044
+     'MEKCOH                          ','C1312O                          ','C615O                           ', & ! index 1042 - 1044
      'MALANHY                         ','C1011CO                         ','C1011OOH                        ', & ! index 1045 - 1047
      'C1012CO                         ','C615OH                          ','C830CO                          ', & ! index 1048 - 1050
-     'C830OOH                         ','C717O                           ','C1013CO                         ', & ! index 1051 - 1053
-     'C1013OOH                        ','BZEMUCOH                        ','C1313O                          ', & ! index 1054 - 1056
-     'C116CO                          ','C116OOH                         ','C616OH                          ', & ! index 1057 - 1059
-     'C118O                           ','BCLKBOH                         ','C1213O                          ', & ! index 1060 - 1062
-     'C1215O                          ','C88CO                           ','C88OOH                          ', & ! index 1063 - 1065
-     'C5DIALOH                        ','C524O                           ','C718OH                          ', & ! index 1066 - 1068
-     'C718O                           ','HPNC524CO                       ','HMPAN                           ', & ! index 1069 - 1071
-     'BCALCOH                         ','BCLKCOH                         ','C617OH                          ', & ! index 1072 - 1074
-     'CISOPAO                         ','HVMK                            ','CH2CHCH2O                       ', & ! index 1075 - 1077
-     'C530O                           ','C532CO                          ','C31PAN                          ' /) ! index up to 1080
+     'C830OOH                         ','C1013CO                         ','C1013OOH                        ', & ! index 1051 - 1053
+     'BZEMUCOH                        ','C1313O                          ','C116CO                          ', & ! index 1054 - 1056
+     'C116OOH                         ','C118O                           ','C616OH                          ', & ! index 1057 - 1059
+     'BCLKBOH                         ','C1213O                          ','C1215O                          ', & ! index 1060 - 1062
+     'C88CO                           ','C88OOH                          ','C524O                           ', & ! index 1063 - 1065
+     'C718OH                          ','C718O                           ','HPNC524CO                       ', & ! index 1066 - 1068
+     'C5DIALOH                        ','HMPAN                           ','BCALCOH                         ', & ! index 1069 - 1071
+     'BCLKCOH                         ','C617OH                          ','CISOPAO                         ', & ! index 1072 - 1074
+     'HVMK                            ','CH2CHCH2O                       ','C530O                           ', & ! index 1075 - 1077
+     'C532CO                          ','C31PAN                          ','C47PAN                          ' /) ! index up to 1080
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_12 = (/ &
-     'C47PAN                          ','C513O                           ','NISOPO                          ', & ! index 1081 - 1083
-     'C51O                            ','C512OH                          ','HOCH2CO2H                       ', & ! index 1084 - 1086
-     'C720O                           ','PROPOLNO3                       ','ACRPAN                          ', & ! index 1087 - 1089
-     'C5PAN19                         ','C719O                           ','HMVKAO                          ', & ! index 1090 - 1092
-     'C5PAN17                         ','C920CO3H                        ','C2OHOCOOH                       ', & ! index 1093 - 1095
-     'PHENOOH                         ','C920OOH                         ','HC23C4CO3H                      ', & ! index 1096 - 1098
-     'IEACO3H                         ','IECCO3H                         ','INAO                            ', & ! index 1099 - 1101
-     'BZFUCO                          ','C921OOH                         ','INANCO3H                        ', & ! index 1102 - 1104
-     'INB1GLYOX                       ','C6H5CH2OOH                      ','INAHPCO2H                       ', & ! index 1105 - 1107
-     'INAHPCO3H                       ','INAHCO2H                        ','C922OOH                         ', & ! index 1108 - 1110
-     'C413COOOH                       ','CONM2PAN                        ','C57NO3CO2H                      ', & ! index 1111 - 1113
-     'INCO                            ','INCGLYOX                        ','C89CO3H                         ', & ! index 1114 - 1116
-     'INCNCO3H                        ','TLBIPEROOH                      ','C312COCO3H                      ', & ! index 1117 - 1119
-     'C89OOH                          ','INDHPCO3H                       ','CO2N3CO3H                       ', & ! index 1120 - 1122
-     'ALCOCH2OOH                      ','C810OOH                         ','C58NO3CO2H                      ', & ! index 1123 - 1125
+     'C513O                           ','NISOPO                          ','C51O                            ', & ! index 1081 - 1083
+     'C512OH                          ','HOCH2CO2H                       ','C720O                           ', & ! index 1084 - 1086
+     'PROPOLNO3                       ','C717OH                          ','C717O                           ', & ! index 1087 - 1089
+     'ACRPAN                          ','C719O                           ','C5PAN19                         ', & ! index 1090 - 1092
+     'HMVKAO                          ','C5PAN17                         ','C920CO3H                        ', & ! index 1093 - 1095
+     'C2OHOCOOH                       ','PHENOOH                         ','IEACO3H                         ', & ! index 1096 - 1098
+     'IECCO3H                         ','INAO                            ','HC23C4CO3H                      ', & ! index 1099 - 1101
+     'BZFUCO                          ','INANCO3H                        ','INB1GLYOX                       ', & ! index 1102 - 1104
+     'INAHPCO2H                       ','INAHPCO3H                       ','INAHCO2H                        ', & ! index 1105 - 1107
+     'C6H5CH2OOH                      ','C920OOH                         ','CONM2PAN                        ', & ! index 1108 - 1110
+     'C57NO3CO2H                      ','C89CO3H                         ','INCO                            ', & ! index 1111 - 1113
+     'C921OOH                         ','INCGLYOX                        ','INCNCO3H                        ', & ! index 1114 - 1116
+     'C312COCO3H                      ','ALCOCH2OOH                      ','TLBIPEROOH                      ', & ! index 1117 - 1119
+     'C89OOH                          ','INDHPCO3H                       ','C810OOH                         ', & ! index 1120 - 1122
+     'CO2N3CO3H                       ','C58NO3CO2H                      ','C922OOH                         ', & ! index 1123 - 1125
      'INB1NACO3H                      ','INB1NBCO3H                      ','INB1HPCO3H                      ', & ! index 1126 - 1128
      'PERPINONIC                      ','LIMAOH                          ','C5CO14OOH                       ', & ! index 1129 - 1131
-     'C5DICARBO                       ','C923CO3H                        ','C514OOH                         ', & ! index 1132 - 1134
-     'NC4CO2H                         ','C923OOH                         ','MMALNHYOOH                      ', & ! index 1135 - 1137
-     'C816CO3H                        ','C816O                           ','C817CO3H                        ', & ! index 1138 - 1140
-     'C817OOH                         ','C727CO3H                        ','C622CO3H                        ', & ! index 1141 - 1143
+     'C5DICARBO                       ','C514OOH                         ','C923CO3H                        ', & ! index 1132 - 1134
+     'C923OOH                         ','MMALNHYOOH                      ','C816CO3H                        ', & ! index 1135 - 1137
+     'C816O                           ','C817CO3H                        ','C817OOH                         ', & ! index 1138 - 1140
+     'C727CO3H                        ','NPHEN1OOH                       ','C622CO3H                        ', & ! index 1141 - 1143
      'C622OOH                         ','C97OOH                          ','C517CO3H                        ', & ! index 1144 - 1146
-     'C517OOH                         ','TLEMUCOOH                       ','NPHEN1OOH                       ', & ! index 1147 - 1149
-     'C518CO3H                        ','TLEMUCCO3H                      ','TLEMUCCO2H                      ', & ! index 1150 - 1152
-     'HMVKBCO3H                       ','C6125CO                         ','C98OOH                          ', & ! index 1153 - 1155
-     'LMKAOH                          ','LIMALBOOH                       ','LIMALBCO                        ', & ! index 1156 - 1158
-     'C822CO3H                        ','C822CO2                         ','C823CO3H                        ', & ! index 1159 - 1161
-     'C823OOH                         ','C825CO                          ','C822OOH                         ', & ! index 1162 - 1164
-     'C824CO                          ','C729CO3H                        ','C729CO2H                        ', & ! index 1165 - 1167
-     'PINALOOH                        ','C729OOH                         ','CATEC1OOH                       ' /) ! index up to 1170
+     'C517OOH                         ','TLEMUCOOH                       ','C518CO3H                        ', & ! index 1147 - 1149
+     'TLEMUCCO3H                      ','HMVKBCO3H                       ','TLEMUCCO2H                      ', & ! index 1150 - 1152
+     'C98OOH                          ','LMKAOH                          ','C6125CO                         ', & ! index 1153 - 1155
+     'LIMALBOOH                       ','LIMALBCO                        ','C822CO3H                        ', & ! index 1156 - 1158
+     'C822CO2                         ','C823CO3H                        ','C823OOH                         ', & ! index 1159 - 1161
+     'C825CO                          ','C822OOH                         ','C824CO                          ', & ! index 1162 - 1164
+     'C729CO3H                        ','C729CO2H                        ','PINALOOH                        ', & ! index 1165 - 1167
+     'C729OOH                         ','C624CO3H                        ','MCATEC1OOH                      ' /) ! index up to 1170
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_13 = (/ &
-     'C624CO3H                        ','MCATEC1OOH                      ','C624OOH                         ', & ! index 1171 - 1173
-     'C106OOH                         ','NCRES1OOH                       ','C626CO3H                        ', & ! index 1174 - 1176
-     'C626CO2H                        ','MNCATECO                        ','C626OOH                         ', & ! index 1177 - 1179
-     'C519CO3H                        ','C511CO3H                        ','C510OOH                         ', & ! index 1180 - 1182
-     'C918OOH                         ','CO25C6CO3H                      ','CO25C6CO2H                      ', & ! index 1183 - 1185
-     'C627OOH                         ','BZBIPEROOH                      ','CHOC2CO3H                       ', & ! index 1186 - 1188
-     'LMLKBOOH                        ','C919OOH                         ','LMLKBCO                         ', & ! index 1189 - 1191
-     'C731CO3H                        ','C731CO2                         ','CRESOOH                         ', & ! index 1192 - 1194
-     'C732CO3H                        ','C732OOH                         ','C734CO                          ', & ! index 1195 - 1197
-     'C731OOH                         ','C733CO                          ','NLIMOOH                         ', & ! index 1198 - 1200
-     'NLIMALOOH                       ','PERPROACID                      ','NLMKAOOH                        ', & ! index 1201 - 1203
-     'NC728OOH                        ','NC623OOH                        ','H3C2C4CO3H                      ', & ! index 1204 - 1206
-     'NC826OOH                        ','IPROPOLPER                      ','NC730OOH                        ', & ! index 1207 - 1209
-     'IBUTOLOHB                       ','CH3SCH2OOH                      ','CH3SCHO                         ', & ! index 1210 - 1212
-     'IBUTOLBO2H                      ','CH3SOOOH                        ','CH3SO2OOH                       ', & ! index 1213 - 1215
-     'CH3SO2CHO                       ','H3C25CCO3H                      ','BCAOH                           ', & ! index 1216 - 1218
-     'NBZFUO                          ','H3C25C6OOH                      ','APINBOH                         ', & ! index 1219 - 1221
-     'C141CO3H                        ','C141OOH                         ','CO2C3CO3H                       ', & ! index 1222 - 1224
-     'C142OOH                         ','NBZQOOH                         ','C143OOH                         ', & ! index 1225 - 1227
-     'C927OOH                         ','C630OOH                         ','C46CO3H                         ', & ! index 1228 - 1230
-     'NTLFUOOH                        ','NCATECO                         ','C928CO3H                        ', & ! index 1231 - 1233
-     'C928OOH                         ','C515CO3H                        ','NPTLQOOH                        ', & ! index 1234 - 1236
-     'C827CO3H                        ','C515OOH                         ','C828CO3H                        ', & ! index 1237 - 1239
-     'C828OOH                         ','BCKAOH                          ','C131CO3H                        ', & ! index 1240 - 1242
-     'C131OOH                         ','IBUTALO2H                       ','C132OOH                         ', & ! index 1243 - 1245
-     'C133OOH                         ','C829OOH                         ','MALDALCO3H                      ', & ! index 1246 - 1248
-     'C521OOH                         ','C23O3CCO3H                      ','CH3OOH                          ', & ! index 1249 - 1251
-     'C85CO3H                         ','BCSOZOOH                        ','NPXYFUOOH                       ', & ! index 1252 - 1254
-     'OXYL1OOH                        ','C151OOH                         ','C86OOH                          ', & ! index 1255 - 1257
-     'C152OOH                         ','C126CO3H                        ','BPINAOH                         ' /) ! index up to 1260
+     'C624OOH                         ','C106OOH                         ','NCRES1OOH                       ', & ! index 1171 - 1173
+     'C626CO3H                        ','C626CO2H                        ','MNCATECO                        ', & ! index 1174 - 1176
+     'C626OOH                         ','C519CO3H                        ','C511CO3H                        ', & ! index 1177 - 1179
+     'C918OOH                         ','CATEC1OOH                       ','CO25C6CO3H                      ', & ! index 1180 - 1182
+     'CO25C6CO2H                      ','C627OOH                         ','C919OOH                         ', & ! index 1183 - 1185
+     'CHOC2CO3H                       ','LMLKBOOH                        ','LMLKBCO                         ', & ! index 1186 - 1188
+     'C731CO3H                        ','C731CO2                         ','BZBIPEROOH                      ', & ! index 1189 - 1191
+     'C732CO3H                        ','CRESOOH                         ','C732OOH                         ', & ! index 1192 - 1194
+     'C734CO                          ','C731OOH                         ','C733CO                          ', & ! index 1195 - 1197
+     'NLIMOOH                         ','NLIMALOOH                       ','NLMKAOOH                        ', & ! index 1198 - 1200
+     'NC728OOH                        ','IPROPOLPER                      ','NC623OOH                        ', & ! index 1201 - 1203
+     'H3C2C4CO3H                      ','NC826OOH                        ','NC730OOH                        ', & ! index 1204 - 1206
+     'IBUTOLBO2H                      ','CH3SCH2OOH                      ','CH3SCHO                         ', & ! index 1207 - 1209
+     'IBUTOLOHB                       ','H3C25CCO3H                      ','CH3SOOOH                        ', & ! index 1210 - 1212
+     'CH3SO2OOH                       ','CH3SO2CHO                       ','BCAOH                           ', & ! index 1213 - 1215
+     'NBZFUO                          ','H3C25C6OOH                      ','CO2C3CO3H                       ', & ! index 1216 - 1218
+     'C141CO3H                        ','C141OOH                         ','C142OOH                         ', & ! index 1219 - 1221
+     'NBZQOOH                         ','C143OOH                         ','C927OOH                         ', & ! index 1222 - 1224
+     'C630OOH                         ','C46CO3H                         ','NTLFUOOH                        ', & ! index 1225 - 1227
+     'C515CO3H                        ','C515OOH                         ','C928CO3H                        ', & ! index 1228 - 1230
+     'APINBOH                         ','IBUTALO2H                       ','C928OOH                         ', & ! index 1231 - 1233
+     'NPTLQOOH                        ','C827CO3H                        ','C828CO3H                        ', & ! index 1234 - 1236
+     'C828OOH                         ','BCKAOH                          ','NC4CO2H                         ', & ! index 1237 - 1239
+     'C131CO3H                        ','C131OOH                         ','C132OOH                         ', & ! index 1240 - 1242
+     'C133OOH                         ','C829OOH                         ','C521OOH                         ', & ! index 1243 - 1245
+     'C23O3CCO3H                      ','MALDALCO3H                      ','CH3OOH                          ', & ! index 1246 - 1248
+     'C510OOH                         ','C85CO3H                         ','BCSOZOOH                        ', & ! index 1249 - 1251
+     'NPXYFUOOH                       ','OXYL1OOH                        ','C151OOH                         ', & ! index 1252 - 1254
+     'C86OOH                          ','C152OOH                         ','C126CO3H                        ', & ! index 1255 - 1257
+     'BPINAOH                         ','C127OOH                         ','BCALBOOH                        ' /) ! index up to 1260
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_14 = (/ &
-     'C127OOH                         ','BCALBOOH                        ','BCALBCO                         ', & ! index 1261 - 1263
-     'C136CO3H                        ','C136CO2                         ','NOPINAOOH                       ', & ! index 1264 - 1266
-     'C137CO3H                        ','C235C6CO3H                      ','C137OOH                         ', & ! index 1267 - 1269
-     'C139OOH                         ','CO235C6OOH                      ','C136OOH                         ', & ! index 1270 - 1272
-     'C1311OOH                        ','C1010OOH                        ','C736OOH                         ', & ! index 1273 - 1275
-     'C522CO3H                        ','C3M3CHOOOH                      ','MALANHYOOH                      ', & ! index 1276 - 1278
-     'C87CO3H                         ','C1011CO3H                       ','C87CO2H                         ', & ! index 1279 - 1281
-     'C87OOH                          ','C1012OOH                        ','C615CO3H                        ', & ! index 1282 - 1284
-     'C615CO2H                        ','C147CO                          ','C147OOH                         ', & ! index 1285 - 1287
-     'C6145COOOH                      ','C830CO3H                        ','CO1M22CO3H                      ', & ! index 1288 - 1290
-     'CO1M22CO2H                      ','C812OH                          ','C831OOH                         ', & ! index 1291 - 1293
-     'C1013CO3H                       ','NAPINAOOH                       ','BZEMUCOOH                       ', & ! index 1294 - 1296
-     'C1014OOH                        ','H1CO23CHO                       ','H14CO23C4                       ', & ! index 1297 - 1299
-     'COO2C4CO3H                      ','COO2C3CO3H                      ','NAPINBO                         ', & ! index 1300 - 1302
-     'C915OOH                         ','C116CO3H                        ','C916OOH                         ', & ! index 1303 - 1305
-     'C616OOH                         ','C117OOH                         ','H1C23C4OOH                      ', & ! index 1306 - 1308
-     'BCLKBOOH                        ','BCLKBCO                         ','C1210CO3H                       ', & ! index 1309 - 1311
-     'C1210CO2                        ','C1211CO3H                       ','C1211OOH                        ', & ! index 1312 - 1314
-     'C107OOH                         ','C1212OOH                        ','BZEMUCCO3H                      ', & ! index 1315 - 1317
-     'C88CO3H                         ','C1210OOH                        ','BZEMUCCO2H                      ', & ! index 1318 - 1320
-     'C1214OOH                        ','C930OOH                         ','C718CO3H                        ', & ! index 1321 - 1323
-     'NBCOOH                          ','C718CO2H                        ','NBCALOOH                        ', & ! index 1324 - 1326
-     'NBCKOOH                         ','NC1313OOH                       ','C718OOH                         ', & ! index 1327 - 1329
-     'C524CO                          ','C6H5CO3H                        ','C5DIALCO                        ', & ! index 1330 - 1332
-     'HIEB1O                          ','HIEB2O                          ','NC101OOH                        ', & ! index 1333 - 1335
-     'C617CO3H                        ','ALCOMOXOOH                      ','C617CO2H                        ', & ! index 1336 - 1338
+     'BCALBCO                         ','C136CO3H                        ','C136CO2                         ', & ! index 1261 - 1263
+     'NCATECO                         ','C137CO3H                        ','NOPINAOOH                       ', & ! index 1264 - 1266
+     'C235C6CO3H                      ','H1CO23CHO                       ','H14CO23C4                       ', & ! index 1267 - 1269
+     'C137OOH                         ','C139OOH                         ','CO235C6OOH                      ', & ! index 1270 - 1272
+     'C136OOH                         ','C1311OOH                        ','C1010OOH                        ', & ! index 1273 - 1275
+     'C3M3CHOOOH                      ','C736OOH                         ','C522CO3H                        ', & ! index 1276 - 1278
+     'MALANHYOOH                      ','C1011CO3H                       ','C87CO3H                         ', & ! index 1279 - 1281
+     'C87CO2H                         ','C87OOH                          ','C1012OOH                        ', & ! index 1282 - 1284
+     'C6145COOOH                      ','C615CO3H                        ','C615CO2H                        ', & ! index 1285 - 1287
+     'C147CO                          ','C147OOH                         ','C830CO3H                        ', & ! index 1288 - 1290
+     'CO1M22CO3H                      ','C812OH                          ','CO1M22CO2H                      ', & ! index 1291 - 1293
+     'C831OOH                         ','NAPINAOOH                       ','C1013CO3H                       ', & ! index 1294 - 1296
+     'NAPINBO                         ','C1014OOH                        ','COO2C4CO3H                      ', & ! index 1297 - 1299
+     'BZEMUCOOH                       ','COO2C3CO3H                      ','C915OOH                         ', & ! index 1300 - 1302
+     'C116CO3H                        ','C916OOH                         ','C107OOH                         ', & ! index 1303 - 1305
+     'C616OOH                         ','C117OOH                         ','BCLKBOOH                        ', & ! index 1306 - 1308
+     'BCLKBCO                         ','C1210CO3H                       ','C1210CO2                        ', & ! index 1309 - 1311
+     'C1211CO3H                       ','C1211OOH                        ','C1212OOH                        ', & ! index 1312 - 1314
+     'H1C23C4OOH                      ','C88CO3H                         ','C1210OOH                        ', & ! index 1315 - 1317
+     'BZEMUCCO3H                      ','C1214OOH                        ','BZEMUCCO2H                      ', & ! index 1318 - 1320
+     'C930OOH                         ','C718CO3H                        ','C718CO2H                        ', & ! index 1321 - 1323
+     'NBCOOH                          ','NBCALOOH                        ','C718OOH                         ', & ! index 1324 - 1326
+     'NBCKOOH                         ','CH3CO3H                         ','NC1313OOH                       ', & ! index 1327 - 1329
+     'NC101OOH                        ','C524CO                          ','HIEB1O                          ', & ! index 1330 - 1332
+     'HIEB2O                          ','ALCOMOXOOH                      ','C6H5CO3H                        ', & ! index 1333 - 1335
+     'C617CO3H                        ','NC102OOH                        ','C617CO2H                        ', & ! index 1336 - 1338
      'BCALCCO                         ','C617OOH                         ','BCLKCCO                         ', & ! index 1339 - 1341
-     'C618CO3H                        ','C618CO2H                        ','C618OOH                         ', & ! index 1342 - 1344
-     'CH3CO3H                         ','ISOP34OOH                       ','C526O                           ', & ! index 1345 - 1347
-     'C527O                           ','C534O                           ','C535O                           ' /) ! index up to 1350
+     'C5DIALCO                        ','C618CO3H                        ','C618CO2H                        ', & ! index 1342 - 1344
+     'C618OOH                         ','ISOP34OOH                       ','C526O                           ', & ! index 1345 - 1347
+     'C527O                           ','C534O                           ','MCOCOMOOOH                      ' /) ! index up to 1350
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_15 = (/ &
-     'HPC52O                          ','EPXDLCO3H                       ','EPXDLCO2H                       ', & ! index 1351 - 1353
-     'CH2CHCH2OOH                     ','MCOCOMOOOH                      ','NC51OOH                         ', & ! index 1354 - 1356
-     'NC102OOH                        ','NC71OOH                         ','M3BU3ECO3H                      ', & ! index 1357 - 1359
-     'NC526O                          ','HC4CO3H                         ','NC72OOH                         ', & ! index 1360 - 1362
-     'C531OOH                         ','C533O                           ','C58AO                           ', & ! index 1363 - 1365
-     'C57AO                           ','HMML                            ','NC61CO3H                        ', & ! index 1366 - 1368
-     'MECOACEOOH                      ','NOPINCOOH                       ','NISOPOOH                        ', & ! index 1369 - 1371
-     'C108OOH                         ','C2H5OOH                         ','C917OOH                         ', & ! index 1372 - 1374
-     'HOC2H4CO3H                      ','C619OOH                         ','CO2C4CO3H                       ', & ! index 1375 - 1377
-     'CO23C4CO3H                      ','C512CO3H                        ','H2M2C3CO3H                      ', & ! index 1378 - 1380
-     'C512CO2H                        ','C67CO3H                         ','C55OOH                          ', & ! index 1381 - 1383
-     'IPRHOCO3H                       ','C512OOH                         ','HCOCH2CO3H                      ', & ! index 1384 - 1386
-     'BIACET                          ','HM22CO3H                        ','APINCOOH                        ', & ! index 1387 - 1389
-     'HOCH2CO3H                       ','ALLYLOH                         ','BPINCOOH                        ', & ! index 1390 - 1392
-     'ACCOMECO3H                      ','C717OOH                         ','CH2OOC                          ', & ! index 1393 - 1395
-     'C720OOH                         ','NBPINAOOH                       ','CHOC3COOOH                      ', & ! index 1396 - 1398
-     'NBPINBOOH                       ','GLYOOA                          ','HC4CCO2H                        ', & ! index 1399 - 1401
-     'C57OOH                          ','NC91CO3H                        ','HC4ACO2H                        ', & ! index 1402 - 1404
-     'ISOPDOH                         ','LMKBCO                          ','LIMALAOH                        ', & ! index 1405 - 1407
-     'NPHENOH                         ','NPHENO                          ','TOL1O                           ', & ! index 1408 - 1410
-     'MCATEC1O                        ','NCRES1O                         ','C89CO2                          ', & ! index 1411 - 1413
-     'C6H5O                           ','LMLKAOH                         ','C628O                           ', & ! index 1414 - 1416
+     'C535O                           ','HPC52O                          ','C108OOH                         ', & ! index 1351 - 1353
+     'CH2CHCH2OOH                     ','NC51OOH                         ','NC71OOH                         ', & ! index 1354 - 1356
+     'EPXDLCO3H                       ','NC72OOH                         ','M3BU3ECO3H                      ', & ! index 1357 - 1359
+     'EPXDLCO2H                       ','NC526O                          ','HC4CO3H                         ', & ! index 1360 - 1362
+     'PERPROACID                      ','MECOACEOOH                      ','C531OOH                         ', & ! index 1363 - 1365
+     'C533O                           ','C58AO                           ','C57AO                           ', & ! index 1366 - 1368
+     'HMML                            ','NC61CO3H                        ','NOPINCOOH                       ', & ! index 1369 - 1371
+     'NISOPOOH                        ','C917OOH                         ','C2H5OOH                         ', & ! index 1372 - 1374
+     'HOC2H4CO3H                      ','C619OOH                         ','ALLYLOH                         ', & ! index 1375 - 1377
+     'CO2C4CO3H                       ','C512CO3H                        ','CO23C4CO3H                      ', & ! index 1378 - 1380
+     'C512CO2H                        ','H2M2C3CO3H                      ','C512OOH                         ', & ! index 1381 - 1383
+     'C67CO3H                         ','C55OOH                          ','IPRHOCO3H                       ', & ! index 1384 - 1386
+     'HCOCH2CO3H                      ','BIACET                          ','HM22CO3H                        ', & ! index 1387 - 1389
+     'APINCOOH                        ','HOCH2CO3H                       ','ACCOMECO3H                      ', & ! index 1390 - 1392
+     'C717OOH                         ','BPINCOOH                        ','CH2OOC                          ', & ! index 1393 - 1395
+     'CHOC3COOOH                      ','C720OOH                         ','NBPINAOOH                       ', & ! index 1396 - 1398
+     'C413COOOH                       ','NBPINBOOH                       ','GLYOOA                          ', & ! index 1399 - 1401
+     'HC4CCO2H                        ','C57OOH                          ','NC91CO3H                        ', & ! index 1402 - 1404
+     'HC4ACO2H                        ','ISOPDOH                         ','LMKBCO                          ', & ! index 1405 - 1407
+     'LIMALAOH                        ','NPHENO                          ','NPHENOH                         ', & ! index 1408 - 1410
+     'TOL1O                           ','MCATEC1O                        ','NCRES1O                         ', & ! index 1411 - 1413
+     'LMLKAOH                         ','C620OH                          ','C628O                           ', & ! index 1414 - 1416
      'C628OH                          ','C735O                           ','C735OH                          ', & ! index 1417 - 1419
-     'C620OH                          ','BCBCO                           ','BCKBCO                          ', & ! index 1420 - 1422
-     'C521OH                          ','C134OH                          ','BCKSOZ                          ', & ! index 1423 - 1425
-     'BCLKBOC                         ','BCALAOH                         ','C3M3CHONO3                      ', & ! index 1426 - 1428
-     'APINBCO                         ','BZEMUCNO3                       ','MEKAOH                          ', & ! index 1429 - 1431
-     'BCLKAOH                         ','LIMBCO                          ','NPHEN1O                         ', & ! index 1432 - 1434
+     'C89CO2                          ','C6H5O                           ','BCBCO                           ', & ! index 1420 - 1422
+     'BCKBCO                          ','C521OH                          ','C134OH                          ', & ! index 1423 - 1425
+     'CH3C2H2O2                       ','BCKSOZ                          ','BCLKBOC                         ', & ! index 1426 - 1428
+     'BCALAOH                         ','C3M3CHONO3                      ','APINBCO                         ', & ! index 1429 - 1431
+     'BZEMUCNO3                       ','BCLKAOH                         ','LIMBCO                          ', & ! index 1432 - 1434
      'HNC524CO                        ','HMACRO                          ','HMACROH                         ', & ! index 1435 - 1437
-     'C818OH                          ','CO2C3OO                         ','C58ANO3                         ' /) ! index up to 1440
+     'NPHEN1O                         ','CO2C3OO                         ','C818OH                          ' /) ! index up to 1440
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_16 = (/ &
-     'C47CHO                          ','CH3C2H2O2                       ','NISOPO2                         ', & ! index 1441 - 1443
-     'CATEC1O                         ','C619CO                          ','HO13CO4C5                       ', & ! index 1444 - 1446
-     'TLEMUCNO3                       ','C513OH                          ','ISOPBO                          ', & ! index 1447 - 1449
-     'C824OOH                         ','PTLQONE                         ','C826OOH                         ', & ! index 1450 - 1452
-     'C624O                           ','LMKBOOH                         ','C625OOH                         ', & ! index 1453 - 1455
-     'C730OOH                         ','C716OOH                         ','C519OOH                         ', & ! index 1456 - 1458
-     'MNNCATCOOH                      ','INANCO                          ','C926OOH                         ', & ! index 1459 - 1461
-     'CO2C4GLYOX                      ','DNCRESOOH                       ','LMLKAOOH                        ', & ! index 1462 - 1464
-     'LMLKACO                         ','CHOC2H4OOH                      ','C109CO                          ', & ! index 1465 - 1467
-     'NDNCRESOOH                      ','BZOBIPEROH                      ','C732CO                          ', & ! index 1468 - 1470
-     'C620OOH                         ','C734OOH                         ','C6COOHCO3H                      ', & ! index 1471 - 1473
-     'INAHCO3H                        ','C733OOH                         ','C628OOH                         ', & ! index 1474 - 1476
-     'C629OH                          ','C520OH                          ','C614OOH                         ', & ! index 1477 - 1479
-     'C735OOH                         ','IPROPOLO2H                      ','INANCOCO2H                      ', & ! index 1480 - 1482
-     'INANCOCO3H                      ','ACLOOA                          ','CH3CHOHCO3                      ', & ! index 1483 - 1485
-     'C5COOHCO3H                      ','INB1OH                          ','CH3SCH2O2                       ', & ! index 1486 - 1488
-     'LIMALAOOH                       ','CH3S                            ','CHOMOHCO3H                      ', & ! index 1489 - 1491
-     'DMSO2OOH                        ','DMSO2O2                         ','BCAOOH                          ', & ! index 1492 - 1494
-     'BCBOOH                          ','BCCOOH                          ','BCCO2                           ', & ! index 1495 - 1497
-     'NBZFUOOH                        ','BCALOOH                         ','APINAOOH                        ', & ! index 1498 - 1500
-     'H3C25C6OH                       ','H3C25C5CHO                      ','C4M2ALOHNO3                     ', & ! index 1501 - 1503
-     'C4CO2DCO3H                      ','C630CO                          ','MGLOO                           ', & ! index 1504 - 1506
-     'C144OOH                         ','C145OOH                         ','MEKBOOH                         ', & ! index 1507 - 1509
-     'C929OOH                         ','MMALNBPAN                       ','C5CO2DCO3H                      ', & ! index 1510 - 1512
-     'C4CO2O                          ','C6H5OOH                         ','TBUTOLOOH                       ', & ! index 1513 - 1515
-     'BCKAOOH                         ','NC4CO3H                         ','BCKBOOH                         ', & ! index 1516 - 1518
-     'LIMALACO                        ','INCNO3                          ','C515CO                          ', & ! index 1519 - 1521
-     'C621OOH                         ','PXYFUOOH                        ','INCNCHO                         ', & ! index 1522 - 1524
+     'C58ANO3                         ','C47CHO                          ','NISOPO2                         ', & ! index 1441 - 1443
+     'C619CO                          ','HO13CO4C5                       ','TLEMUCNO3                       ', & ! index 1444 - 1446
+     'C513OH                          ','MEKAOH                          ','ISOPBO                          ', & ! index 1447 - 1449
+     'CATEC1O                         ','C824OOH                         ','C6H5CH2O2                       ', & ! index 1450 - 1452
+     'LMKBOOH                         ','C826OOH                         ','C624O                           ', & ! index 1453 - 1455
+     'MVKOHAOOH                       ','C625OOH                         ','C730OOH                         ', & ! index 1456 - 1458
+     'C716OOH                         ','C519OOH                         ','MNNCATCOOH                      ', & ! index 1459 - 1461
+     'C926OOH                         ','BZFUOOH                         ','INANCO                          ', & ! index 1462 - 1464
+     'CO2C4GLYOX                      ','CHOC2H4OOH                      ','LMLKAOOH                        ', & ! index 1465 - 1467
+     'LMLKACO                         ','DNCRESOOH                       ','NDNCRESOOH                      ', & ! index 1468 - 1470
+     'C732CO                          ','C109CO                          ','PTLQONE                         ', & ! index 1471 - 1473
+     'C734OOH                         ','C620OOH                         ','BZOBIPEROH                      ', & ! index 1474 - 1476
+     'C6COOHCO3H                      ','C733OOH                         ','C628OOH                         ', & ! index 1477 - 1479
+     'C629OH                          ','C520OH                          ','C614OOH                         ', & ! index 1480 - 1482
+     'C735OOH                         ','IPROPOLO2H                      ','INAHCO3H                        ', & ! index 1483 - 1485
+     'CH3CHOHCO3                      ','LIMALAOOH                       ','INANCOCO2H                      ', & ! index 1486 - 1488
+     'INANCOCO3H                      ','CH3SCH2O2                       ','CH3S                            ', & ! index 1489 - 1491
+     'INB1OH                          ','C5COOHCO3H                      ','CHOMOHCO3H                      ', & ! index 1492 - 1494
+     'LMKAOOH                         ','DMSO2OOH                        ','DMSO2O2                         ', & ! index 1495 - 1497
+     'BCAOOH                          ','BCBOOH                          ','LIMALACO                        ', & ! index 1498 - 1500
+     'BCCOOH                          ','BCCO2                           ','NBZFUOOH                        ', & ! index 1501 - 1503
+     'H3C25C6OH                       ','H3C25C5CHO                      ','BCALOOH                         ', & ! index 1504 - 1506
+     'APINAOOH                        ','C4CO2DCO3H                      ','TBUTOLOOH                       ', & ! index 1507 - 1509
+     'C630CO                          ','MEKBOOH                         ','C4M2ALOHNO3                     ', & ! index 1510 - 1512
+     'C144OOH                         ','C145OOH                         ','C929OOH                         ', & ! index 1513 - 1515
+     'C5CO2DCO3H                      ','C4CO2O                          ','MMALNBPAN                       ', & ! index 1516 - 1518
+     'BCKAOOH                         ','BCKBOOH                         ','C515CO                          ', & ! index 1519 - 1521
+     'PXYFUOOH                        ','INCNO3                          ','INCNCHO                         ', & ! index 1522 - 1524
      'C134OOH                         ','C134CO                          ','C135OOH                         ', & ! index 1525 - 1527
-     'C2H5O2                          ','BCSOZO2                         ','NPHENOOH                        ' /) ! index up to 1530
+     'C2H5O2                          ','BCSOZO2                         ','MEKCOOH                         ' /) ! index up to 1530
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_17 = (/ &
-     'MACRNBCO2H                      ','C85OOH                          ','C152O2                          ', & ! index 1531 - 1533
-     'COHM2PAN                        ','MVKOHAOOH                       ','BCALAOOH                        ', & ! index 1534 - 1536
-     'BCALACO                         ','C511OOH                         ','BPINAOOH                        ', & ! index 1537 - 1539
+     'C85OOH                          ','C152O2                          ','MACRNBCO2H                      ', & ! index 1531 - 1533
+     'C109OH                          ','BCALAOOH                        ','BCALACO                         ', & ! index 1534 - 1536
+     'C511OOH                         ','BPINAOOH                        ','COHM2PAN                        ', & ! index 1537 - 1539
      'C128OOH                         ','INDO                            ','C137CO                          ', & ! index 1540 - 1542
-     'HCOCOHCO3H                      ','C813NO3                         ','C1310OOH                        ', & ! index 1543 - 1545
-     'MEKCOOH                         ','C1310CO                         ','INDHCO3H                        ', & ! index 1546 - 1548
-     'C1312OOH                        ','C1312CO                         ','APINBOOH                        ', & ! index 1549 - 1551
-     'PINIC                           ','C109OH                          ','C736CO                          ', & ! index 1552 - 1554
-     'HOCO3C4OOH                      ','GAOOB                           ','C146OOH                         ', & ! index 1555 - 1557
-     'C146CO                          ','C87CO                           ','C811OH                          ', & ! index 1558 - 1560
-     'TLOBIPEROH                      ','C615OOH                         ','C3MCODBCO2                      ', & ! index 1561 - 1563
-     'C6TONOHOOH                      ','C129OOH                         ','C129CO                          ', & ! index 1564 - 1566
-     'C831CO                          ','C915O                           ','C148OOH                         ', & ! index 1567 - 1569
-     'C148CO                          ','C813OH                          ','C1014CO                         ', & ! index 1570 - 1572
-     'LIMAOOH                         ','BCLKAOOH                        ','BCLKACO                         ', & ! index 1573 - 1575
-     'C1313OOH                        ','NC101CO                         ','C3DIALOOH                       ', & ! index 1576 - 1578
-     'LIMBOOH                         ','C118OOH                         ','LIMCOOH                         ', & ! index 1579 - 1581
-     'NNCATECOOH                      ','C1211CO                         ','C96OOH                          ', & ! index 1582 - 1584
-     'C109OOH                         ','LIMALOOH                        ','C1213OOH                        ', & ! index 1585 - 1587
-     'C1213CO                         ','C3DIOLOOH                       ','NORPINIC                        ', & ! index 1588 - 1590
-     'C5DIALOOH                       ','C1215OOH                        ','C1215CO                         ', & ! index 1591 - 1593
-     'CHOCOMOXO2                      ','C924OOH                         ','C811NO3                         ', & ! index 1594 - 1596
-     'C924CO                          ','C525OOH                         ','NC524O                          ', & ! index 1597 - 1599
-     'HMVKNO3                         ','C823CO                          ','NORLIMOOH                       ', & ! index 1600 - 1602
-     'HIEB2OOH                        ','C817CO                          ','HMACO3H                         ', & ! index 1603 - 1605
-     'HMACROOH                        ','BCALCOOH                        ','C816OOH                         ', & ! index 1606 - 1608
-     'BCLKCOOH                        ','C925OOH                         ','C818CO                          ', & ! index 1609 - 1611
-     'HC4CHO                          ','KLIMONONIC                      ','HMAC                            ', & ! index 1612 - 1614
-     'HPC52CO3H                       ','CH2CHCH2O2                      ','C818OOH                         ', & ! index 1615 - 1617
-     'LMKAOOH                         ','TLFUOOH                         ','MEKAO                           ' /) ! index up to 1620
+     'C813NO3                         ','C1310OOH                        ','C1310CO                         ', & ! index 1543 - 1545
+     'INDHCO3H                        ','C1312OOH                        ','C1312CO                         ', & ! index 1546 - 1548
+     'APINBOOH                        ','PINIC                           ','HCOCOHCO3H                      ', & ! index 1549 - 1551
+     'C736CO                          ','C146OOH                         ','C146CO                          ', & ! index 1552 - 1554
+     'MGLOO                           ','C6H5OOH                         ','C87CO                           ', & ! index 1555 - 1557
+     'C811OH                          ','TLOBIPEROH                      ','C3MCODBCO2                      ', & ! index 1558 - 1560
+     'C6TONOHOOH                      ','C615OOH                         ','C129OOH                         ', & ! index 1561 - 1563
+     'C129CO                          ','C831CO                          ','C915O                           ', & ! index 1564 - 1566
+     'C148OOH                         ','C148CO                          ','C813OH                          ', & ! index 1567 - 1569
+     'C1014CO                         ','LIMAOOH                         ','BCLKAOOH                        ', & ! index 1570 - 1572
+     'BCLKACO                         ','NC101CO                         ','C1313OOH                        ', & ! index 1573 - 1575
+     'C621OOH                         ','MEKAOOH                         ','C3DIALOOH                       ', & ! index 1576 - 1578
+     'LIMBOOH                         ','C118OOH                         ','C3DIOLOOH                       ', & ! index 1579 - 1581
+     'LIMCOOH                         ','C1211CO                         ','C811NO3                         ', & ! index 1582 - 1584
+     'C96OOH                          ','MEKAO                           ','LIMALOOH                        ', & ! index 1585 - 1587
+     'C1213OOH                        ','C1213CO                         ','C1215OOH                        ', & ! index 1588 - 1590
+     'NORPINIC                        ','C1215CO                         ','C5DIALOOH                       ', & ! index 1591 - 1593
+     'CHOCOMOXO2                      ','C924OOH                         ','C924CO                          ', & ! index 1594 - 1596
+     'C525OOH                         ','NC524O                          ','HMVKNO3                         ', & ! index 1597 - 1599
+     'C823CO                          ','ACLOOA                          ','NNCATECOOH                      ', & ! index 1600 - 1602
+     'HIEB2OOH                        ','NORLIMOOH                       ','C817CO                          ', & ! index 1603 - 1605
+     'HMACO3H                         ','HMACROOH                        ','BCALCOOH                        ', & ! index 1606 - 1608
+     'NC4CO3H                         ','C816OOH                         ','BCLKCOOH                        ', & ! index 1609 - 1611
+     'C925OOH                         ','C818CO                          ','HC4CHO                          ', & ! index 1612 - 1614
+     'KLIMONONIC                      ','HMAC                            ','MVKOOH                          ', & ! index 1615 - 1617
+     'HPC52CO3H                       ','CH2CHCH2O2                      ','C818OOH                         ' /) ! index up to 1620
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_18 = (/ &
-     'C530OOH                         ','C819OOH                         ','HC4CO3                          ', & ! index 1621 - 1623
-     'C4M2ALOHO                       ','C531O2                          ','C727OOH                         ', & ! index 1624 - 1626
-     'C31CO3H                         ','CHOOCHO                         ','C31CO3                          ', & ! index 1627 - 1629
-     'C533OOH                         ','C820OOH                         ','C512O                           ', & ! index 1630 - 1632
-     'MVKOOH                          ','C825OOH                         ','MOCOCH2OOH                      ', & ! index 1633 - 1635
-     'DNPHENOOH                       ','PBZQONE                         ','C51OOH                          ', & ! index 1636 - 1638
-     'OCCOHCOOH                       ','C728OOH                         ','C6H5CH2O2                       ', & ! index 1639 - 1641
-     'NDNPHENOOH                      ','C513OOH                         ','HYETHO2H                        ', & ! index 1642 - 1644
-     'BPINBOOH                        ','ETHO2HNO3                       ','HCC7CO                          ', & ! index 1645 - 1647
-     'HYPROPO2H                       ','PROPGLY                         ','C918CO3H                        ', & ! index 1648 - 1650
-     'COO2C4OOH                       ','PR1O2HNO3                       ','C510O                           ', & ! index 1651 - 1653
-     'PRNO3CO3                        ','TLEMUCCO                        ','PR2O2HNO3                       ', & ! index 1654 - 1656
-     'MPRBNO3OOH                      ','C623OOH                         ','MPRBNO3CO3                      ', & ! index 1657 - 1659
-     'HOCHOCOOH                       ','H13CO2CO3H                      ','ACO3H                           ', & ! index 1660 - 1662
-     'C42AOH                          ','C615CO2OOH                      ','C57O                            ', & ! index 1663 - 1665
-     'HC4CCO3H                        ','BZFUOOH                         ','C821OOH                         ', & ! index 1666 - 1668
-     'HMVKAOOH                        ','C58O                            ','HC4ACO3H                        ', & ! index 1669 - 1671
-     'C719OOH                         ','MVKOHBOOH                       ','C131CO2H                        ', & ! index 1672 - 1674
-     'MPAN                            ','CH2OO                           ','ISOP34NO3                       ', & ! index 1675 - 1677
-     'ISOPDNO3                        ','MMALNAPAN                       ','IEC2OOH                         ', & ! index 1678 - 1680
-     'C929CO                          ','INCCO                           ','C23O3CHO                        ', & ! index 1681 - 1683
-     'MACRNBCO3H                      ','NCRESOOH                        ','IEPOXB                          ', & ! index 1684 - 1686
-     'INDHCHO                         ','C58NO3CO3H                      ','NCATECOOH                       ', & ! index 1687 - 1689
-     'NC4DCO2H                        ','CO12C4CHO                       ','BZEMUCCO                        ', & ! index 1690 - 1692
-     'MEKBO2                          ','MEKCO2                          ','C2H5CO3                         ', & ! index 1693 - 1695
-     'EGLYOX                          ','C54CO                           ','CH3SO2                          ', & ! index 1696 - 1698
-     'NBCO2                           ','INB2OOH                         ','HIEB1OOH                        ', & ! index 1699 - 1701
-     'CH3SO3                          ','CH3SOO2                         ','CH3SO2O2                        ', & ! index 1702 - 1704
-     'C515CHO                         ','C527OOH                         ','MACROOH                         ', & ! index 1705 - 1707
-     'C527O2                          ','PXYFUONE                        ','BCAO2                           ' /) ! index up to 1710
+     'TLFUOOH                         ','C819OOH                         ','C530OOH                         ', & ! index 1621 - 1623
+     'HC4CO3                          ','C4M2ALOHO                       ','C531O2                          ', & ! index 1624 - 1626
+     'C727OOH                         ','C31CO3H                         ','CHOOCHO                         ', & ! index 1627 - 1629
+     'C31CO3                          ','C533OOH                         ','C820OOH                         ', & ! index 1630 - 1632
+     'C825OOH                         ','HOCO3C4OOH                      ','C512O                           ', & ! index 1633 - 1635
+     'COO2C4OOH                       ','C510O                           ','C109OOH                         ', & ! index 1636 - 1638
+     'PBZQONE                         ','C51OOH                          ','NPHENOOH                        ', & ! index 1639 - 1641
+     'OCCOHCOOH                       ','C728OOH                         ','DNPHENOOH                       ', & ! index 1642 - 1644
+     'C513OOH                         ','HYETHO2H                        ','BPINBOOH                        ', & ! index 1645 - 1647
+     'ETHO2HNO3                       ','HCC7CO                          ','C918CO3H                        ', & ! index 1648 - 1650
+     'NDNPHENOOH                      ','HYPROPO2H                       ','PROPGLY                         ', & ! index 1651 - 1653
+     'GAOOB                           ','PR1O2HNO3                       ','PRNO3CO3                        ', & ! index 1654 - 1656
+     'TLEMUCCO                        ','PR2O2HNO3                       ','MOCOCH2OOH                      ', & ! index 1657 - 1659
+     'C623OOH                         ','MPRBNO3OOH                      ','MPRBNO3CO3                      ', & ! index 1660 - 1662
+     'HOCHOCOOH                       ','H13CO2CO3H                      ','ACO3H                           ', & ! index 1663 - 1665
+     'C42AOH                          ','C57O                            ','HC4CCO3H                        ', & ! index 1666 - 1668
+     'C615CO2OOH                      ','C821OOH                         ','C719OOH                         ', & ! index 1669 - 1671
+     'HMVKAOOH                        ','C58O                            ','HC4ACO3H                        ', & ! index 1672 - 1674
+     'MVKOHBOOH                       ','C131CO2H                        ','MPAN                            ', & ! index 1675 - 1677
+     'CH2OO                           ','ISOP34NO3                       ','ISOPDNO3                        ', & ! index 1678 - 1680
+     'C57NO3CO3H                      ','MMALNAPAN                       ','GLYOOC                          ', & ! index 1681 - 1683
+     'C929CO                          ','INCCO                           ','C23O3CHO                        ', & ! index 1684 - 1686
+     'IEC2OOH                         ','MACRNBCO3H                      ','IEPOXB                          ', & ! index 1687 - 1689
+     'NCRESOOH                        ','INDHCHO                         ','C515CHO                         ', & ! index 1690 - 1692
+     'C58NO3CO3H                      ','MEKBO2                          ','CO12C4CHO                       ', & ! index 1693 - 1695
+     'BZEMUCCO                        ','MEKCO2                          ','C2H5CO3                         ', & ! index 1696 - 1698
+     'EGLYOX                          ','NCATECOOH                       ','NC4DCO2H                        ', & ! index 1699 - 1701
+     'C54CO                           ','NBCO2                           ','HIEB1OOH                        ', & ! index 1702 - 1704
+     'CH3SO2                          ','MNCATECOOH                      ','NC4MDCO2H                       ', & ! index 1705 - 1707
+     'INB2OOH                         ','CH3SO3                          ','CH3SOO2                         ' /) ! index up to 1710
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_19 = (/ &
-     'BCBO2                           ','C45O2                           ','M3BU3ECO3                       ', & ! index 1711 - 1713
-     'GLYOOC                          ','NC526OOH                        ','MNCATECOOH                      ', & ! index 1714 - 1716
-     'NC4MDCO2H                       ','MACROHOOH                       ','MACRNCO3H                       ', & ! index 1717 - 1719
-     'C58AOOH                         ','C47CO3H                         ','C57AOOH                         ', & ! index 1720 - 1722
-     'HO1CO24C5                       ','IPRHOCO3                        ','C55O2                           ', & ! index 1723 - 1725
-     'C67CHO                          ','C513CO                          ','MEKAOOH                         ', & ! index 1726 - 1728
-     'NMGLYOX                         ','C57NO3CO3H                      ','C58OOH                          ', & ! index 1729 - 1731
-     'C133CO                          ','INCNCO3                         ','MCATEC1O2                       ', & ! index 1732 - 1734
-     'NPXYFUO2                        ','BCALBO2                         ','COHM2CO2H                       ', & ! index 1735 - 1737
-     'PHENO2                          ','C1313O2                         ','C1013O2                         ', & ! index 1738 - 1740
-     'C1013CO3                        ','NOPINAO                         ','C128CO                          ', & ! index 1741 - 1743
-     'INDHPCO3                        ','C830O2                          ','CHOC2CO2H                       ', & ! index 1744 - 1746
-     'C811CO3H                        ','C736O2                          ','CO2N3CO3                        ', & ! index 1747 - 1749
-     'C137O2                          ','C137CO3                         ','C6145COO2                       ', & ! index 1750 - 1752
-     'C629O                           ','NPTLQO2                         ','C811OOH                         ', & ! index 1753 - 1755
-     'INB1NACO3                       ','INB1NBCO3                       ','C520O                           ', & ! index 1756 - 1758
-     'INB1HPCO3                       ','C812OOH                         ','C831O                           ', & ! index 1759 - 1761
-     'NCRES1O2                        ','DNCRES                          ','C813OOH                         ', & ! index 1762 - 1764
-     'C6CO2OHCO3                      ','C830CO3                         ','C1014O                          ', & ! index 1765 - 1767
-     'C514O2                          ','COO2C4CHO                       ','BZBIPERO                        ', & ! index 1768 - 1770
-     'C621O2                          ','IEACO3                          ','IEACHO                          ', & ! index 1771 - 1773
-     'PINONIC                         ','NC728O2                         ','C118CO                          ', & ! index 1774 - 1776
-     'C3DIOLO2                        ','C718O2                          ','NC623O2                         ', & ! index 1777 - 1779
-     'TLFUO2                          ','C721CO3H                        ','C722OOH                         ', & ! index 1780 - 1782
-     'NC730O2                         ','NC71O2                          ','NBCALO2                         ', & ! index 1783 - 1785
-     'MOXYCOCHO                       ','NC1313O2                        ','H3C2C4CO2H                      ', & ! index 1786 - 1788
-     'CHOMOHCO3                       ','CATEC1O2                        ','HMACRO2                         ', & ! index 1789 - 1791
-     'NCATECHOL                       ','C131CO                          ','HPC52CO3                        ', & ! index 1792 - 1794
-     'PXYFUO2                         ','NC51O2                          ','C1211O2                         ', & ! index 1795 - 1797
-     'OXYL1O2                         ','CRESOL                          ','CRESO2                          ' /) ! index up to 1800
+     'CH3SO2O2                        ','MACROHOOH                       ','C527OOH                         ', & ! index 1711 - 1713
+     'MACROOH                         ','C527O2                          ','BCAO2                           ', & ! index 1714 - 1716
+     'BCBO2                           ','PXYFUONE                        ','C45O2                           ', & ! index 1717 - 1719
+     'M3BU3ECO3                       ','NC526OOH                        ','C58AOOH                         ', & ! index 1720 - 1722
+     'C47CO3H                         ','C57AOOH                         ','HO1CO24C5                       ', & ! index 1723 - 1725
+     'MACRNCO3H                       ','IPRHOCO3                        ','C55O2                           ', & ! index 1726 - 1728
+     'C67CHO                          ','C513CO                          ','NMGLYOX                         ', & ! index 1729 - 1731
+     'C58OOH                          ','C133CO                          ','C1211O2                         ', & ! index 1732 - 1734
+     'C6CO2OHCO3                      ','INCNCO3                         ','NPXYFUO2                        ', & ! index 1735 - 1737
+     'BCALBO2                         ','HOPINONIC                       ','NPTLQO2                         ', & ! index 1738 - 1740
+     'C1313O2                         ','COHM2CO2H                       ','C128CO                          ', & ! index 1741 - 1743
+     'NOPINAO                         ','INDHPCO3                        ','C732O2                          ', & ! index 1744 - 1746
+     'C137O2                          ','C137CO3                         ','C514O2                          ', & ! index 1747 - 1749
+     'CHOC2CO2H                       ','C811CO3H                        ','OXYL1O2                         ', & ! index 1750 - 1752
+     'C1011O2                         ','CO2N3CO3                        ','C736O2                          ', & ! index 1753 - 1755
+     'C6145COO2                       ','C811OOH                         ','INB1NACO3                       ', & ! index 1756 - 1758
+     'C629O                           ','NCRES1O2                        ','DNCRES                          ', & ! index 1759 - 1761
+     'INB1NBCO3                       ','C520O                           ','C3DIOLO2                        ', & ! index 1762 - 1764
+     'INB1HPCO3                       ','C812OOH                         ','C831O                           ', & ! index 1765 - 1767
+     'BZBIPERO                        ','C813OOH                         ','C1014O                          ', & ! index 1768 - 1770
+     'COO2C4CHO                       ','C830O2                          ','C830CO3                         ', & ! index 1771 - 1773
+     'TLFUO2                          ','NC728O2                         ','C118CO                          ', & ! index 1774 - 1776
+     'PINONIC                         ','C718O2                          ','NC623O2                         ', & ! index 1777 - 1779
+     'C621O2                          ','NC71O2                          ','C721CO3H                        ', & ! index 1780 - 1782
+     'C730O2                          ','C1013O2                         ','C1013CO3                        ', & ! index 1783 - 1785
+     'NC730O2                         ','NBCALO2                         ','MOXYCOCHO                       ', & ! index 1786 - 1788
+     'NC1313O2                        ','H3C2C4CO2H                      ','C722OOH                         ', & ! index 1789 - 1791
+     'IECCO3                          ','IECCHO                          ','CHOMOHCO3                       ', & ! index 1792 - 1794
+     'CATEC1O2                        ','NCATECHOL                       ','HMACRO2                         ', & ! index 1795 - 1797
+     'MCATEC1O2                       ','IEACO3                          ','IEACHO                          ' /) ! index up to 1800
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_20 = (/ &
-     'MCATECHOL                       ','MNCATECH                        ','MNCATECO2                       ', & ! index 1801 - 1803
-     'MNNCATECO2                      ','C530O2                          ','ME3BU3ECHO                      ', & ! index 1804 - 1806
-     'NC72O2                          ','C619O2                          ','NC61CO3                         ', & ! index 1807 - 1809
-     'C533O2                          ','NBZFUO2                         ','H3C25CCO2H                      ', & ! index 1810 - 1812
-     'C727CO                          ','IECCO3                          ','IECCHO                          ', & ! index 1813 - 1815
-     'C728O2                          ','PBZQO2                          ','PTLQO2                          ', & ! index 1816 - 1818
-     'NC4CO3                          ','MC3ODBCO2H                      ','BCALO2                          ', & ! index 1819 - 1821
-     'MACRNCO2H                       ','C5CO2OHCO3                      ','C67CO3                          ', & ! index 1822 - 1824
-     'HOPINONIC                       ','NPHEN1O2                        ','DNPHEN                          ', & ! index 1825 - 1827
-     'CONM2CO3H                       ','BIACETOOH                       ','IBUTOLBO2                       ', & ! index 1828 - 1830
-     'CO235C6O2                       ','C623O2                          ','C1011O2                         ', & ! index 1831 - 1833
-     'NBZQO2                          ','C6CO4DB                         ','CHOPRNO3                        ', & ! index 1834 - 1836
-     'BZFUO2                          ','C143O                           ','MPRBNO3O2                       ', & ! index 1837 - 1839
-     'MPRBNO3CHO                      ','C4CO2DBCO3                      ','H13CO2CO3                       ', & ! index 1840 - 1842
-     'C732O2                          ','C630O2                          ','NTLFUO2                         ', & ! index 1843 - 1845
-     'INANCO3                         ','C1211CO3                        ','C730O2                          ', & ! index 1846 - 1848
-     'C151O2                          ','C629OOH                         ','C33CO                           ', & ! index 1849 - 1851
-     'C312COCO3                       ','CHOCOCH2O2                      ','C7CO4DB                         ', & ! index 1852 - 1854
-     'C5CO2DBCO3                      ','C520OOH                         ','C129O2                          ', & ! index 1855 - 1857
-     'C615CO                          ','PHENOL                          ','NPHENO2                         ', & ! index 1858 - 1860
-     'CATECHOL                        ','NNCATECO2                       ','NCATECO2                        ', & ! index 1861 - 1863
-     'NAPINBOOH                       ','TLBIPERO2                       ','BENZAL                          ', & ! index 1864 - 1866
-     'C6H5CO3                         ','C6H5O2                          ','C5DICAROOH                      ', & ! index 1867 - 1869
-     'NC524OOH                        ','MALDIALOOH                      ','HOCOC4DIAL                      ', & ! index 1870 - 1872
-     'C534OOH                         ','MVKO2                           ','VGLYOX                          ', & ! index 1873 - 1875
-     'ACO3                            ','HPC52OOH                        ','NC526O2                         ', & ! index 1876 - 1878
-     'INB2O2                          ','C536OOH                         ','C537OOH                         ', & ! index 1879 - 1881
-     'MACO3H                          ','TOL1OHNO2                       ','NDNCRESO2                       ', & ! index 1882 - 1884
-     'DNCRESO2                        ','NCRESO2                         ','H2M2C3CHO                       ', & ! index 1885 - 1887
-     'C141CO2H                        ','C2H4                            ','HOC6H4NO2                       ' /) ! index up to 1890
+     'HPC52CO3                        ','PXYFUO2                         ','NC51O2                          ', & ! index 1801 - 1803
+     'CO235C6O2                       ','C530O2                          ','ME3BU3ECHO                      ', & ! index 1804 - 1806
+     'NC72O2                          ','NC61CO3                         ','C619O2                          ', & ! index 1807 - 1809
+     'H3C25CCO2H                      ','NBZFUO2                         ','C533O2                          ', & ! index 1810 - 1812
+     'C1211CO3                        ','C727CO                          ','C728O2                          ', & ! index 1813 - 1815
+     'BCALO2                          ','PBZQO2                          ','C131CO                          ', & ! index 1816 - 1818
+     'PTLQO2                          ','NC4CO3                          ','MC3ODBCO2H                      ', & ! index 1819 - 1821
+     'PHENO2                          ','C67CO3                          ','NPHEN1O2                        ', & ! index 1822 - 1824
+     'DNPHEN                          ','CRESO2                          ','BIACETOOH                       ', & ! index 1825 - 1827
+     'IBUTOLBO2                       ','C5CO2OHCO3                      ','MACRNCO2H                       ', & ! index 1828 - 1830
+     'NBZQO2                          ','C623O2                          ','C6CO4DB                         ', & ! index 1831 - 1833
+     'CONM2CO3H                       ','CHOPRNO3                        ','C143O                           ', & ! index 1834 - 1836
+     'BZFUO2                          ','C4CO2DBCO3                      ','MPRBNO3O2                       ', & ! index 1837 - 1839
+     'MPRBNO3CHO                      ','H13CO2CO3                       ','C630O2                          ', & ! index 1840 - 1842
+     'INANCO3                         ','NTLFUO2                         ','MNCATECH                        ', & ! index 1843 - 1845
+     'CRESOL                          ','C151O2                          ','C33CO                           ', & ! index 1846 - 1848
+     'C7CO4DB                         ','C5CO2DBCO3                      ','C312COCO3                       ', & ! index 1849 - 1851
+     'CHOCOCH2O2                      ','C629OOH                         ','C129O2                          ', & ! index 1852 - 1854
+     'C520OOH                         ','C615CO                          ','INB2O2                          ', & ! index 1855 - 1857
+     'NAPINBOOH                       ','C5DICAROOH                      ','BENZAL                          ', & ! index 1858 - 1860
+     'C6H5CO3                         ','C6H5O2                          ','PHENOL                          ', & ! index 1861 - 1863
+     'NPHENO2                         ','CATECHOL                        ','NCATECO2                        ', & ! index 1864 - 1866
+     'NNCATECO2                       ','TOL1OHNO2                       ','DNCRESO2                        ', & ! index 1867 - 1869
+     'NDNCRESO2                       ','HOC6H4NO2                       ','DNPHENO2                        ', & ! index 1870 - 1872
+     'NDNPHENO2                       ','NC524OOH                        ','MALDIALOOH                      ', & ! index 1873 - 1875
+     'HOCOC4DIAL                      ','TLBIPERO2                       ','PHENO                           ', & ! index 1876 - 1878
+     'MALDALCO2H                      ','MALDIALCO2                      ','MVKO2                           ', & ! index 1879 - 1881
+     'VGLYOX                          ','ACO3                            ','C534OOH                         ', & ! index 1882 - 1884
+     'HPC52OOH                        ','NC526O2                         ','C536OOH                         ', & ! index 1885 - 1887
+     'C537OOH                         ','MACO3H                          ','C141CO2H                        ' /) ! index up to 1890
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_21 = (/ &
-     'DNPHENO2                        ','NDNPHENO2                       ','PHENO                           ', & ! index 1891 - 1893
-     'MALDALCO2H                      ','MALDIALCO2                      ','HCOCO                           ', & ! index 1894 - 1896
-     'C136O2                          ','C831O2                          ','INAHCO3                         ', & ! index 1897 - 1899
-     'BZEMUCO                         ','BCLKBO2                         ','C616O2                          ', & ! index 1900 - 1902
-     'MGLYOOA                         ','MMALNACO2H                      ','COHM2CO3H                       ', & ! index 1903 - 1905
-     'C928O2                          ','C519CHO                         ','C828CO3                         ', & ! index 1906 - 1908
-     'C828O2                          ','IBUTALCO2                       ','C627O2                          ', & ! index 1909 - 1911
-     'CO25C6CO3                       ','C734O2                          ','C625O2                          ', & ! index 1912 - 1914
-     'C1213O2                         ','C1212O2                         ','HCOC5                           ', & ! index 1915 - 1917
-     'COO2C3CO3                       ','MOCOCH2O2                       ','COO2C3CHO                       ', & ! index 1918 - 1920
-     'COO2C4CO3                       ','COO2C4O2                        ','C1014O2                         ', & ! index 1921 - 1923
-     'C521O2                          ','C1215O2                         ','C1214O2                         ', & ! index 1924 - 1926
-     'C721OOH                         ','C511CO3                         ','C930O2                          ', & ! index 1927 - 1929
-     'C44OOH                          ','MC3CODBCO2                      ','MMALNBCO2H                      ', & ! index 1930 - 1932
-     'NORLIMAL                        ','NBCKO2                          ','MMALANHYO2                      ', & ! index 1933 - 1935
-     'C46CO3                          ','C617O2                          ','C617CO3                         ', & ! index 1936 - 1938
-     'C618CO3                         ','CHOC3COO2                       ','HIEB2O2                         ', & ! index 1939 - 1941
-     'HMACO3                          ','C116O2                          ','C116CO3                         ', & ! index 1942 - 1944
-     'C1012O2                         ','BCALCO2                         ','C1012O                          ', & ! index 1945 - 1947
-     'BCLKCO2                         ','C816CO                          ','C3MDIALO2                       ', & ! index 1948 - 1950
-     'C517O2                          ','C517CO3                         ','C516OOH                         ', & ! index 1951 - 1953
-     'EPXDLCO3                        ','BCKAO2                          ','A2PANOO                         ', & ! index 1954 - 1956
-     'C6TRONOHO2                      ','C614O2                          ','C515O2                          ', & ! index 1957 - 1959
-     'C515CO3                         ','C620O2                          ','C89CO2H                         ', & ! index 1960 - 1962
-     'C126O2                          ','C622O2                          ','MMALNACO3H                      ', & ! index 1963 - 1965
-     'C624O2                          ','C513O2                          ','C144O2                          ', & ! index 1966 - 1968
-     'BCKBO2                          ','ACRO2                           ','C510O2                          ', & ! index 1969 - 1971
-     'C731O2                          ','INDHCO3                         ','C1310O2                         ', & ! index 1972 - 1974
-     'C139O2                          ','BZEMUCCO3                       ','BZEPOXMUC                       ', & ! index 1975 - 1977
-     'C5DIALO2                        ','MACRNB                          ','C135O2                          ' /) ! index up to 1980
+     'H2M2C3CHO                       ','C2H4                            ','MCATECHOL                       ', & ! index 1891 - 1893
+     'MNCATECO2                       ','MNNCATECO2                      ','HCOCO                           ', & ! index 1894 - 1896
+     'NCRESO2                         ','MACRNB                          ','C831O2                          ', & ! index 1897 - 1899
+     'BZEMUCCO3                       ','BZEPOXMUC                       ','C5DIALO2                        ', & ! index 1900 - 1902
+     'C735O2                          ','BCLKBO2                         ','BZEMUCO                         ', & ! index 1903 - 1905
+     'C616O2                          ','MMALNACO3H                      ','MMALNACO2H                      ', & ! index 1906 - 1908
+     'C519CHO                         ','C6TRONOHO2                      ','C928O2                          ', & ! index 1909 - 1911
+     'COHM2CO3H                       ','C1011CO3                        ','C827O2                          ', & ! index 1912 - 1914
+     'C828CO3                         ','C828O2                          ','CHOC3COO2                       ', & ! index 1915 - 1917
+     'MALANHYO2                       ','C734O2                          ','C1213O2                         ', & ! index 1918 - 1920
+     'C1212O2                         ','CO14O3CHO                       ','COO2C3CO3                       ', & ! index 1921 - 1923
+     'MOCOCH2O2                       ','C721OOH                         ','C1215O2                         ', & ! index 1924 - 1926
+     'C1214O2                         ','MGLYOOA                         ','COO2C4CO3                       ', & ! index 1927 - 1929
+     'COO2C4O2                        ','COO2C3CHO                       ','C1014O2                         ', & ! index 1930 - 1932
+     'MC3CODBCO2                      ','NORLIMAL                        ','NBCKO2                          ', & ! index 1933 - 1935
+     'C624CO                          ','C614O2                          ','MMALANHYO2                      ', & ! index 1936 - 1938
+     'HMVKBCO3                        ','C44OOH                          ','C617O2                          ', & ! index 1939 - 1941
+     'C617CO3                         ','C46CO3                          ','C618CO3                         ', & ! index 1942 - 1944
+     'BCKBO2                          ','HIEB2O2                         ','HMACO3                          ', & ! index 1945 - 1947
+     'MMALNBCO3H                      ','BCKAO2                          ','BCALCO2                         ', & ! index 1948 - 1950
+     'MMALNBCO2H                      ','C136O2                          ','C3MDIALO2                       ', & ! index 1951 - 1953
+     'BCLKCO2                         ','C816CO                          ','C1012O                          ', & ! index 1954 - 1956
+     'C516OOH                         ','C515O2                          ','C515CO3                         ', & ! index 1957 - 1959
+     'C517O2                          ','C517CO3                         ','C89CO2H                         ', & ! index 1960 - 1962
+     'EPXDLCO3                        ','C518CO3                         ','INAHCO3                         ', & ! index 1963 - 1965
+     'C126O2                          ','A2PANOO                         ','C622O2                          ', & ! index 1966 - 1968
+     'C620O2                          ','C116O2                          ','CO25C6CO3                       ', & ! index 1969 - 1971
+     'C627O2                          ','INAHPCO3                        ','C513O2                          ', & ! index 1972 - 1974
+     'C628O2                          ','ACRO2                           ','CO25C6CHO                       ', & ! index 1975 - 1977
+     'INDHCO3                         ','C510O2                          ','C521O2                          ' /) ! index up to 1980
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_22 = (/ &
-     'TLEMUCCO3                       ','C615CO2O2                       ','C733O2                          ', & ! index 1981 - 1983
-     'C720O2                          ','TLEMUCO                         ','CONM2CO2H                       ', & ! index 1984 - 1986
-     'ACCOMECO3                       ','MECOACETO2                      ','ACCOMECHO                       ', & ! index 1987 - 1989
-     'HM22CO3                         ','MMALNBCO3H                      ','HMVKBCO3                        ', & ! index 1990 - 1992
-     'H1C23C4O2                       ','H1C23C4CO3                      ','ETHENO3O2                       ', & ! index 1993 - 1995
-     'HYPROPO2                        ','IPROPOLO2                       ','CH3CHOHCHO                      ', & ! index 1996 - 1998
-     'C142O2                          ','PRONO3AO2                       ','PRONO3BO2                       ', & ! index 1999 - 2001
-     'C615O2                          ','C1312O2                         ','C1010O2                         ', & ! index 2002 - 2004
-     'C1311O2                         ','CO23C4NO3                       ','CO25C6CHO                       ', & ! index 2005 - 2007
-     'C143CO                          ','CO14O3CHO                       ','MALANHYO2                       ', & ! index 2008 - 2010
-     'C735O2                          ','C719O2                          ','ISOPAOH                         ', & ! index 2011 - 2013
-     'C827O2                          ','INAHPCO3                        ','C522CO3                         ', & ! index 2014 - 2016
-     'C628O2                          ','C126CO3                         ','INAOOH                          ', & ! index 2017 - 2019
-     'CRESO                           ','C5CO14OH                        ','C526O2                          ', & ! index 2020 - 2022
-     'C535OOH                         ','C536O2                          ','C537O2                          ', & ! index 2023 - 2025
-     'C59OOH                          ','INB1NO3                         ','BZBIPERO2                       ', & ! index 2026 - 2028
-     'PE4E2CO                         ','C4CO2O2                         ','C51O2                           ', & ! index 2029 - 2031
-     'CO24C4CHO                       ','C828CHO                         ','HCOCO2H                         ', & ! index 2032 - 2034
-     'MALDIALCO3                      ','COHM2CO3                        ','HIEB1O2                         ', & ! index 2035 - 2037
-     'C131O2                          ','HO1CO3C4O2                      ','CO1M22CO3                       ', & ! index 2038 - 2040
-     'CO1M22CHO                       ','C3MCODBCO3                      ','TLBIPERO                        ', & ! index 2041 - 2043
-     'H1C23C4CHO                      ','C534O2                          ','HPC52O2                         ', & ! index 2044 - 2046
-     'MCOCOMOXO2                      ','C23O3CCO3                       ','C23O3CCHO                       ', & ! index 2047 - 2049
-     'C128O2                          ','C519O2                          ','C118O2                          ', & ! index 2050 - 2052
-     'BZFUONE                         ','C520O2                          ','INDOOH                          ', & ! index 2053 - 2055
-     'TLEPOXMUC                       ','CONM2CHO                        ','C4CODIAL                        ', & ! index 2056 - 2058
-     'C47CO3                          ','INCOOH                          ','C5CO14O2                        ', & ! index 2059 - 2061
-     'BCALAO2                         ','MACRO2                          ','BZEMUCO2                        ', & ! index 2062 - 2064
-     'EPXC4DIAL                       ','C3DIALO2                        ','C32OH13CO                       ', & ! index 2065 - 2067
-     'MALDIALO2                       ','C5134CO2OH                      ','C618O2                          ' /) ! index up to 2070
+     'C1310O2                         ','C139O2                          ','TLEMUCCO3                       ', & ! index 1981 - 1983
+     'C615CO2O2                       ','C135O2                          ','ACCOMECO3                       ', & ! index 1984 - 1986
+     'MECOACETO2                      ','ACCOMECHO                       ','C720O2                          ', & ! index 1987 - 1989
+     'TLEMUCO                         ','C733O2                          ','HM22CO3                         ', & ! index 1990 - 1992
+     'C126CO3                         ','C145O2                          ','ETHENO3O2                       ', & ! index 1993 - 1995
+     'H1C23C4O2                       ','H1C23C4CO3                      ','C142O2                          ', & ! index 1996 - 1998
+     'HYPROPO2                        ','IPROPOLO2                       ','CH3CHOHCHO                      ', & ! index 1999 - 2001
+     'PRONO3AO2                       ','PRONO3BO2                       ','CONM2CO2H                       ', & ! index 2002 - 2004
+     'C116CO3                         ','C615O2                          ','C1312O2                         ', & ! index 2005 - 2007
+     'C1010O2                         ','C1311O2                         ','CO23C4NO3                       ', & ! index 2008 - 2010
+     'C511CO3                         ','IBUTALCO2                       ','C719O2                          ', & ! index 2011 - 2013
+     'ISOPAOH                         ','C522CO3                         ','C144O2                          ', & ! index 2014 - 2016
+     'INB1NO3                         ','C526O2                          ','C535OOH                         ', & ! index 2017 - 2019
+     'INAOOH                          ','CRESO                           ','C5CO14OH                        ', & ! index 2020 - 2022
+     'C536O2                          ','C537O2                          ','C59OOH                          ', & ! index 2023 - 2025
+     'BZBIPERO2                       ','PE4E2CO                         ','C4CO2O2                         ', & ! index 2026 - 2028
+     'C51O2                           ','CO24C4CHO                       ','C828CHO                         ', & ! index 2029 - 2031
+     'HCOCO2H                         ','COHM2CO3                        ','MALDIALCO3                      ', & ! index 2032 - 2034
+     'C23O3CCO3                       ','MCOCOMOXO2                      ','C23O3CCHO                       ', & ! index 2035 - 2037
+     'HIEB1O2                         ','CO1M22CO3                       ','CO1M22CHO                       ', & ! index 2038 - 2040
+     'C128O2                          ','CHOC2H4O2                       ','C534O2                          ', & ! index 2041 - 2043
+     'C629O2                          ','HPC52O2                         ','C3MCODBCO3                      ', & ! index 2044 - 2046
+     'TLFUONE                         ','C118O2                          ','H1C23C4CHO                      ', & ! index 2047 - 2049
+     'TLEPOXMUC                       ','C131O2                          ','H3C25C6CO3                      ', & ! index 2050 - 2052
+     'INDOOH                          ','C519O2                          ','CONM2CHO                        ', & ! index 2053 - 2055
+     'C47CO3                          ','C88CHO                          ','C58NO3CO3                       ', & ! index 2056 - 2058
+     'NC524O2                         ','C624O2                          ','C625O2                          ', & ! index 2059 - 2061
+     'MACRO2                          ','C5CO14O2                        ','CHOC2CO3                        ', & ! index 2062 - 2064
+     'TBUTOLO2                        ','H2M2C3CO3                       ','MIBKHO4CHO                      ', & ! index 2065 - 2067
+     'TLEMUCO2                        ','EPXC4DIAL                       ','C3DIALO2                        ' /) ! index up to 2070
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_23 = (/ &
-     'TBUTOLO2                        ','H2M2C3CO3                       ','MIBKHO4CHO                      ', & ! index 2071 - 2073
-     'HCOCH2CO2H                      ','C629O2                          ','C88CHO                          ', & ! index 2074 - 2076
-     'TLFUONE                         ','NO3CH2CO3                       ','C5CO14CO2                       ', & ! index 2077 - 2079
-     'C141CO                          ','C58NO3CO3                       ','NOA                             ', & ! index 2080 - 2082
-     'CHOC2H4O2                       ','MVKOHAO2                        ','MVKOHBO2                        ', & ! index 2083 - 2085
-     'MACROHO2                        ','IBUTALOH                        ','C615CO3                         ', & ! index 2086 - 2088
-     'C617CHO                         ','H3C25C6CO3                      ','NC91CHO                         ', & ! index 2089 - 2091
-     'CHOC2CO3                        ','C616O                           ','NC524O2                         ', & ! index 2092 - 2094
-     'ISOPBOOH                        ','NC71O                           ','CO2H3CO3H                       ', & ! index 2095 - 2097
-     'HC4ACO3                         ','MACROH                          ','INB1CO                          ', & ! index 2098 - 2100
-     'C44O2                           ','DHPMPAL                         ','HYPERACET                       ', & ! index 2101 - 2103
-     'HO14CO2C4                       ','C512CO3                         ','C624CO3                         ', & ! index 2104 - 2106
-     'CO235C6CO3                      ','C131CO3                         ','C626CO3                         ', & ! index 2107 - 2109
-     'CO2C3CO3                        ','HO1CO34C5                       ','C928CO3                         ', & ! index 2110 - 2112
-     'C729O2                          ','C516O2                          ','CO13C3CO2H                      ', & ! index 2113 - 2115
-     'MVKOHAOH                        ','CO123C5CHO                      ','C511O2                          ', & ! index 2116 - 2118
-     'C525O2                          ','H13CO2C3                        ','C4MALOHOOH                      ', & ! index 2119 - 2121
-     'MALDIAL                         ','HCOCOHCO3                       ','TLEMUCO2                        ', & ! index 2122 - 2124
-     'ISOPDOOH                        ','OCCOHCO2                        ','C136CO3                         ', & ! index 2125 - 2127
-     'C57AO2                          ','DHPMEK                          ','HCOCH2OOH                       ', & ! index 2128 - 2130
-     'C716O2                          ','MACRNBCO3                       ','C727O2                          ', & ! index 2131 - 2133
-     'HMACR                           ','C133O2                          ','C148O2                          ', & ! index 2134 - 2136
-     'NO3CH2CHO                       ','CH2OOB                          ','MVKOH                           ', & ! index 2137 - 2139
-     'H13CO2CHO                       ','C3H6                            ','C143O2                          ', & ! index 2140 - 2142
-     'C518CO3                         ','INANCOCO3                       ','M3F                             ', & ! index 2143 - 2145
-     'C133O                           ','C134O2                          ','C827CO3                         ', & ! index 2146 - 2148
-     'HC4CCO3                         ','C526OOH                         ','HMVKBOOH                        ', & ! index 2149 - 2151
-     'HMVKANO3                        ','C4CO2OOH                        ','CO235C5CHO                      ', & ! index 2152 - 2154
-     'CHOC3COCO3                      ','BCLKAO2                         ','H3C2C4CO3                       ', & ! index 2155 - 2157
-     'ACR                             ','C524OOH                         ','HOCH2COCHO                      ' /) ! index up to 2160
+     'BZEMUCO2                        ','C32OH13CO                       ','MALDIALO2                       ', & ! index 2071 - 2073
+     'HCOCOHCO3                       ','HCOCH2CO2H                      ','C618O2                          ', & ! index 2074 - 2076
+     'C5134CO2OH                      ','CO13C4OH                        ','C141CO                          ', & ! index 2077 - 2079
+     'NO3CH2CO3                       ','C143O2                          ','C5CO14CO2                       ', & ! index 2080 - 2082
+     'C930O2                          ','NC71O                           ','MVKOHAO2                        ', & ! index 2083 - 2085
+     'C616O                           ','C731O2                          ','MVKOHBO2                        ', & ! index 2086 - 2088
+     'MACROHO2                        ','IBUTALOH                        ','C615CO3                         ', & ! index 2089 - 2091
+     'C617CHO                         ','NC91CHO                         ','BCALAO2                         ', & ! index 2092 - 2094
+     'C520O2                          ','INCOOH                          ','MACRNBCO3                       ', & ! index 2095 - 2097
+     'NOA                             ','HO1CO3C4O2                      ','ISOPBOOH                        ', & ! index 2098 - 2100
+     'CO2H3CO3H                       ','HC4ACO3                         ','MACROH                          ', & ! index 2101 - 2103
+     'ISOPDOOH                        ','HCOC5                           ','DHPMPAL                         ', & ! index 2104 - 2106
+     'HYPERACET                       ','C131CO3                         ','C928CO3                         ', & ! index 2107 - 2109
+     'C512CO3                         ','C626CO3                         ','C525O2                          ', & ! index 2110 - 2112
+     'H13CO2C3                        ','CO2C3CO3                        ','HO14CO2C4                       ', & ! index 2113 - 2115
+     'HO1CO34C5                       ','CO235C6CO3                      ','C511O2                          ', & ! index 2116 - 2118
+     'C516O2                          ','CO13C3CO2H                      ','C729O2                          ', & ! index 2119 - 2121
+     'MVKOHAOH                        ','CHOC3COCO3                      ','C44O2                           ', & ! index 2122 - 2124
+     'CO123C5CHO                      ','INB1CO                          ','C4MALOHOOH                      ', & ! index 2125 - 2127
+     'HCOCH2OOH                       ','C716O2                          ','C136CO3                         ', & ! index 2128 - 2130
+     'OCCOHCO2                        ','C57AO2                          ','HMACR                           ', & ! index 2131 - 2133
+     'C727O2                          ','M3F                             ','C133O2                          ', & ! index 2134 - 2136
+     'C133O                           ','MALDIAL                         ','BZFUONE                         ', & ! index 2137 - 2139
+     'C134O2                          ','C827CO3                         ','NO3CH2CHO                       ', & ! index 2140 - 2142
+     'CH2OOB                          ','MVKOH                           ','H13CO2CHO                       ', & ! index 2143 - 2145
+     'C3H6                            ','C526OOH                         ','HMVKBOOH                        ', & ! index 2146 - 2148
+     'HC4CCO3                         ','HMVKANO3                        ','C148O2                          ', & ! index 2149 - 2151
+     'INANCOCO3                       ','C721O2                          ','C127O2                          ', & ! index 2152 - 2154
+     'C722O2                          ','H3C2C4CO3                       ','ACR                             ', & ! index 2155 - 2157
+     'C614CO                          ','C146O2                          ','BCLKAO2                         ' /) ! index up to 2160
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_24 = (/ &
-     'HO1CO3CHO                       ','NORPINAL                        ','C722O2                          ', & ! index 2161 - 2163
-     'C721O2                          ','INB1OOH                         ','C146O2                          ', & ! index 2164 - 2166
-     'C927O2                          ','ISOPANO3                        ','HCOCO3H                         ', & ! index 2167 - 2169
-     'ISOPBNO3                        ','CO2N3CHO                        ','MMALNACO3                       ', & ! index 2170 - 2172
-     'C829O2                          ','C535O2                          ','MC3CODBCO3                      ', & ! index 2173 - 2175
-     'C141CO3                         ','ISOPAOOH                        ','NC4CHO                          ', & ! index 2176 - 2178
-     'CH3COCO3H                       ','CH3O2                           ','C5DICARB                        ', & ! index 2179 - 2181
-     'C5DICARBO2                      ','CH3COCO2H                       ','MMALNBCO3                       ', & ! index 2182 - 2184
-     'CO23C4CO3                       ','C3MDIALOOH                      ','GLYOO                           ', & ! index 2185 - 2187
-     'C127O2                          ','C624CO                          ','C519CO3                         ', & ! index 2188 - 2190
-     'C918CHO                         ','C141O2                          ','INDO2                           ', & ! index 2191 - 2193
-     'C147O2                          ','HMVKBCHO                        ','C4M2ALOHO2                      ', & ! index 2194 - 2196
-     'C622CO3                         ','C3ME3CHOO2                      ','ISOP34O2                        ', & ! index 2197 - 2199
-     'C58O2                           ','C57NO3CO3                       ','CH3COCO3                        ', & ! index 2200 - 2202
-     'CONM2CO3                        ','CO13C4OH                        ','C827CHO                         ', & ! index 2203 - 2205
-     'HOCH2CH2O2                      ','CO2H3CO3                        ','C5HPALD1                        ', & ! index 2206 - 2208
-     'C5HPALD2                        ','C3MDIALOH                       ','INCO2                           ', & ! index 2209 - 2211
-     'C1210O2                         ','C116CHO                         ','C524O2                          ', & ! index 2212 - 2214
-     'C929O2                          ','INAO2                           ','H3C25C6O2                       ', & ! index 2215 - 2217
-     'HMVKAO2                         ','C512O2                          ','CH2OOF                          ', & ! index 2218 - 2220
-     'C626O2                          ','C5PACALD1                       ','C58AO2                          ', & ! index 2221 - 2223
-     'MACRNCO3                        ','C721CHO                         ','C5PACALD2                       ', & ! index 2224 - 2226
-     'C57O2                           ','LIMKET                          ','MVK                             ', & ! index 2227 - 2229
-     'ISOPCOOH                        ','C1210CO3                        ','C117O2                          ', & ! index 2230 - 2232
-     'NOPINONE                        ','HCOCO3                          ','H2O2                            ', & ! index 2233 - 2235
-     'C126CHO                         ','C624CHO                         ','MACO3                           ', & ! index 2236 - 2238
-     'BIACETO2                        ','BCKET                           ','HOC2H4CHO                       ', & ! index 2239 - 2241
-     'C132O2                          ','HOC2H4CO3                       ','CO2C3CHO                        ', & ! index 2242 - 2244
-     'C145O2                          ','CO2C4CHO                        ','INB1O2                          ', & ! index 2245 - 2247
-     'C517CHO                         ','CISOPCO                         ','C58NO3                          ' /) ! index up to 2250
+     'C829O2                          ','CO2N3CHO                        ','HO1CO3CHO                       ', & ! index 2161 - 2163
+     'MMALNACO3                       ','C524OOH                         ','HOCH2COCHO                      ', & ! index 2164 - 2166
+     'C4CO2OOH                        ','ISOPANO3                        ','HCOCO3H                         ', & ! index 2167 - 2169
+     'INB1OOH                         ','ISOPBNO3                        ','NORPINAL                        ', & ! index 2170 - 2172
+     'DHPMEK                          ','HOCH2CH2O2                      ','MC3CODBCO3                      ', & ! index 2173 - 2175
+     'C535O2                          ','C141CO3                         ','C141O2                          ', & ! index 2176 - 2178
+     'C927O2                          ','ISOPAOOH                        ','NC4CHO                          ', & ! index 2179 - 2181
+     'CH3COCO3H                       ','CH3O2                           ','HCOCO3                          ', & ! index 2182 - 2184
+     'C4CODIAL                        ','CO2H3CO3                        ','CO23C4CO3                       ', & ! index 2185 - 2187
+     'C624CO3                         ','C519CO3                         ','C3MDIALOOH                      ', & ! index 2188 - 2190
+     'C57NO3                          ','C827CHO                         ','C147O2                          ', & ! index 2191 - 2193
+     'INDO2                           ','C5DICARBO2                      ','C918CHO                         ', & ! index 2194 - 2196
+     'HMVKBCHO                        ','C4M2ALOHO2                      ','ISOP34O2                        ', & ! index 2197 - 2199
+     'C58O2                           ','TLBIPERO                        ','C5DICARB                        ', & ! index 2200 - 2202
+     'CH3COCO2H                       ','GLYOO                           ','C3ME3CHOO2                      ', & ! index 2203 - 2205
+     'C622CO3                         ','C5HPALD1                        ','C5HPALD2                        ', & ! index 2206 - 2208
+     'INAO2                           ','C626O2                          ','INCO2                           ', & ! index 2209 - 2211
+     'C524O2                          ','C1210O2                         ','C116CHO                         ', & ! index 2212 - 2214
+     'C929O2                          ','C3MDIALOH                       ','C5PACALD2                       ', & ! index 2215 - 2217
+     'CH3COCO3                        ','MMALNBCO3                       ','CONM2CO3                        ', & ! index 2218 - 2220
+     'HO12CO3C4                       ','MVK                             ','CH2OOF                          ', & ! index 2221 - 2223
+     'C512O2                          ','C5PACALD1                       ','C58AO2                          ', & ! index 2224 - 2226
+     'C721CHO                         ','MACRNCO3                        ','LIMKET                          ', & ! index 2227 - 2229
+     'ISOPCOOH                        ','NOPINONE                        ','H3C25C6O2                       ', & ! index 2230 - 2232
+     'C1210CO3                        ','C117O2                          ','C57NO3CO3                       ', & ! index 2233 - 2235
+     'H2O2                            ','C126CHO                         ','C624CHO                         ', & ! index 2236 - 2238
+     'MACO3                           ','CO2C4CHO                        ','INB1O2                          ', & ! index 2239 - 2241
+     'C517CHO                         ','BCKET                           ','C132O2                          ', & ! index 2242 - 2244
+     'HOC2H4CHO                       ','HOC2H4CO3                       ','C143CO                          ', & ! index 2245 - 2247
+     'CO2C4CO3                        ','HMVKAO2                         ','CISOPCO                         ' /) ! index up to 2250
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_25 = (/ &
-     'CO13C4CHO                       ','HO12CO3C4                       ','HCOCH2O2                        ', & ! index 2251 - 2253
-     'BCAL                            ','BCLKET                          ','C1011CO3                        ', & ! index 2254 - 2256
-     'CO2C4CO3                        ','HOCH2CO3                        ','C59O2                           ', & ! index 2257 - 2259
-     'C614CO                          ','ISOPCNO3                        ','PINAL                           ', & ! index 2260 - 2262
-     'MVKNO3                          ','C57NO3                          ','MACRNO3                         ', & ! index 2263 - 2265
-     'INANO3                          ','LIMAL                           ','C4MDIAL                         ', & ! index 2266 - 2268
-     'HC4ACHO                         ','ACETOL                          ','CISOPAO2                        ', & ! index 2269 - 2271
-     'ISOPAO2                         ','ISOPBO2                         ','HC4CCHO                         ', & ! index 2272 - 2274
-     'CO2H3CHO                        ','ISOPCO2                         ','CISOPCO2                        ', & ! index 2275 - 2277
-     'ISOPDO2                         ','GLYOX                           ','CO23C3CHO                       ', & ! index 2278 - 2280
-     'CO23C4CHO                       ','C716OH                          ','CH3COCH2O2                      ', & ! index 2281 - 2283
-     'MEKAO2                          ','CO235C6CHO                      ','C729CHO                         ', & ! index 2284 - 2286
-     'HMVKBO2                         ','HCOCH2CHO                       ','LMLKET                          ', & ! index 2287 - 2289
-     'C622CHO                         ','C518CHO                         ','C626CHO                         ', & ! index 2290 - 2292
-     'CH3CO3                          ','MGLYOX                          ','BIACETOH                        ', & ! index 2293 - 2295
-     'C717O2                          ','HOCH2CHO                        ','HNO3                            ', & ! index 2296 - 2298
-     'HCOCH2CO3                       ','LIMALBO2                        ','C732CO3                         ', & ! index 2299 - 2301
-     'BPINCO2                         ','APINCO2                         ','C8BCO2                          ', & ! index 2302 - 2304
-     'C821O2                          ','C87O2                           ','C87CO3                          ', & ! index 2305 - 2307
-     'C914O2                          ','C9DCO2                          ','C107O2                          ', & ! index 2308 - 2310
-     'C108O2                          ','C109O2                          ','C820O2                          ', & ! index 2311 - 2313
-     'C925O2                          ','C818O2                          ','C819O2                          ', & ! index 2314 - 2316
-     'C917O2                          ','C97O2                           ','NC101O2                         ', & ! index 2317 - 2319
-     'C916O2                          ','LMLKAO2                         ','C924O2                          ', & ! index 2320 - 2322
-     'C824O2                          ','C106O2                          ','C810O2                          ', & ! index 2323 - 2325
-     'C731CO3                         ','C823O2                          ','C825O2                          ', & ! index 2326 - 2328
-     'C823CO3                         ','C98O2                           ','C919O2                          ', & ! index 2329 - 2331
-     'C918O2                          ','NC102O2                         ','LMLKBO2                         ', & ! index 2332 - 2334
-     'C922O2                          ','C921O2                          ','LIMALAO2                        ', & ! index 2335 - 2337
-     'APINAO2                         ','NAPINAO2                        ','C727CO3                         ' /) ! index up to 2340
+     'C58NO3                          ','CO13C4CHO                       ','CO235C5CHO                      ', & ! index 2251 - 2253
+     'HCOCH2O2                        ','BCAL                            ','BCLKET                          ', & ! index 2254 - 2256
+     'C1012O2                         ','CH3COCH2O2                      ','ISOPCNO3                        ', & ! index 2257 - 2259
+     'C59O2                           ','PINAL                           ','CO2C3CHO                        ', & ! index 2260 - 2262
+     'MVKNO3                          ','HOCH2CO3                        ','LIMAL                           ', & ! index 2263 - 2265
+     'C57O2                           ','MACRNO3                         ','INANO3                          ', & ! index 2266 - 2268
+     'CISOPCO2                        ','ISOPCO2                         ','C4MDIAL                         ', & ! index 2269 - 2271
+     'HC4ACHO                         ','ISOPDO2                         ','CO2H3CHO                        ', & ! index 2272 - 2274
+     'HC4CCHO                         ','ACETOL                          ','CISOPAO2                        ', & ! index 2275 - 2277
+     'ISOPAO2                         ','ISOPBO2                         ','GLYOX                           ', & ! index 2278 - 2280
+     'MEKAO2                          ','BIACETO2                        ','CO23C3CHO                       ', & ! index 2281 - 2283
+     'CO23C4CHO                       ','C716OH                          ','CO235C6CHO                      ', & ! index 2284 - 2286
+     'C729CHO                         ','HMVKBO2                         ','HCOCH2CHO                       ', & ! index 2287 - 2289
+     'LMLKET                          ','C622CHO                         ','C518CHO                         ', & ! index 2290 - 2292
+     'C626CHO                         ','CH3CO3                          ','MGLYOX                          ', & ! index 2293 - 2295
+     'BIACETOH                        ','C717O2                          ','HOCH2CHO                        ', & ! index 2296 - 2298
+     'HNO3                            ','HCOCH2CO3                       ','LIMALBO2                        ', & ! index 2299 - 2301
+     'APINCO2                         ','C732CO3                         ','BPINCO2                         ', & ! index 2302 - 2304
+     'C821O2                          ','C8BCO2                          ','C107O2                          ', & ! index 2305 - 2307
+     'C108O2                          ','C87O2                           ','C87CO3                          ', & ! index 2308 - 2310
+     'C914O2                          ','C9DCO2                          ','C109O2                          ', & ! index 2311 - 2313
+     'C819O2                          ','C820O2                          ','C818O2                          ', & ! index 2314 - 2316
+     'C925O2                          ','C810O2                          ','NC102O2                         ', & ! index 2317 - 2319
+     'C919O2                          ','C98O2                           ','C97O2                           ', & ! index 2320 - 2322
+     'C731CO3                         ','C824O2                          ','C916O2                          ', & ! index 2323 - 2325
+     'C924O2                          ','C921O2                          ','C106O2                          ', & ! index 2326 - 2328
+     'C918O2                          ','C823O2                          ','C825O2                          ', & ! index 2329 - 2331
+     'C922O2                          ','C823CO3                         ','NC101O2                         ', & ! index 2332 - 2334
+     'C917O2                          ','LMLKAO2                         ','LMLKBO2                         ', & ! index 2335 - 2337
+     'LIMALAO2                        ','APINBO2                         ','C920CO3                         ' /) ! index up to 2340
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_26 = (/ &
-     'NORLIMO2                        ','APINBO2                         ','C816O2                          ', & ! index 2341 - 2343
-     'C816CO3                         ','C920CO3                         ','C920O2                          ', & ! index 2344 - 2346
-     'C826O2                          ','C86O2                           ','PINALO2                         ', & ! index 2347 - 2349
-     'NAPINBO2                        ','NC826O2                         ','C822CO3                         ', & ! index 2350 - 2352
-     'C822O2                          ','C729CO3                         ','C718CO3                         ', & ! index 2353 - 2355
-     'C89O2                           ','C88CO3                          ','C88O2                           ', & ! index 2356 - 2358
-     'C915O2                          ','C89CO3                          ','C813O2                          ', & ! index 2359 - 2361
-     'C812O2                          ','NBPINBO2                        ','NC91CO3                         ', & ! index 2362 - 2364
-     'C923CO3                         ','C721CO3                         ','C811O2                          ', & ! index 2365 - 2367
-     'C811CO3                         ','C923O2                          ','NLMKAO2                         ', & ! index 2368 - 2370
-     'C85O2                           ','C85CO3                          ','C96O2                           ', & ! index 2371 - 2373
-     'C96CO3                          ','LMKAO2                          ','LMKBO2                          ', & ! index 2374 - 2376
-     'LIMCO2                          ','NBPINAO2                        ','NOPINAO2                        ', & ! index 2377 - 2379
-     'NOPINBO2                        ','BPINBO2                         ','NOPINCO2                        ', & ! index 2380 - 2382
-     'BPINAO2                         ','C918CO3                         ','NOPINDO2                        ', & ! index 2383 - 2385
-     'APINBOO                         ','NLIMO2                          ','C926O2                          ', & ! index 2386 - 2388
-     'LIMBO2                          ','NLIMALO2                        ','C817O2                          ', & ! index 2389 - 2391
-     'C817CO3                         ','LIMALO2                         ','R_HOM_OH_O8                     ', & ! index 2392 - 2394
-     'R_HOM_O7                        ','R_HOM_O5                        ','R_HOM_O6                        ', & ! index 2395 - 2397
-     'R_HOM_OH_O10                    ','R_HOM_O14                       ','R_HOM_OH_O9                     ', & ! index 2398 - 2400
-     'NO3                             ','R_HOM_O12                       ','R_HOM_O8                        ', & ! index 2401 - 2403
-     'R_HOM_O11                       ','R_HOM_O13                       ','R_HOM_O9                        ', & ! index 2404 - 2406
-     'OH                              ','HO2                             ','R_HOM_OH_O5                     ', & ! index 2407 - 2409
-     'R_HOM_O4                        ','R_HOM_O10                       ','R_HOM_OH_O6                     ', & ! index 2410 - 2412
-     'LIMAO2                          ','R_HOM_OH_O7                     ','SO2                             ', & ! index 2413 - 2415
-     'NO                              ','NO2                             ','CO                              ', & ! index 2416 - 2418
-     'H2                              ','O3                              ','APINENE                         ', & ! index 2419 - 2421
-     'BCARY                           ','BENZENE                         ','BPINENE                         ', & ! index 2422 - 2424
-     'C2H5OH                          ','C5H8                            ','CH3CHO                          ', & ! index 2425 - 2427
-     'CH3CO2H                         ','CH3COCH3                        ','CH3OH                           ' /) ! index up to 2430
-  CHARACTER(LEN=32), PARAMETER, DIMENSION(9) :: SPC_NAMES_27 = (/ &
-     'CH4                             ','DMS                             ','HCHO                            ', & ! index 2431 - 2433
-     'HCOOH                           ','LIMONENE                        ','MACR                            ', & ! index 2434 - 2436
-     'MEK                             ','PROPACID                        ','TOLUENE                         ' /) ! index up to 2439
-  CHARACTER(LEN=32), PARAMETER, DIMENSION(2439) :: SPC_NAMES = (/&
+     'C920O2                          ','C816O2                          ','C816CO3                         ', & ! index 2341 - 2343
+     'NAPINAO2                        ','APINAO2                         ','C727CO3                         ', & ! index 2344 - 2346
+     'NORLIMO2                        ','C813O2                          ','C812O2                          ', & ! index 2347 - 2349
+     'C729CO3                         ','C86O2                           ','C89O2                           ', & ! index 2350 - 2352
+     'C88O2                           ','C88CO3                          ','C718CO3                         ', & ! index 2353 - 2355
+     'C915O2                          ','PINALO2                         ','NAPINBO2                        ', & ! index 2356 - 2358
+     'C89CO3                          ','C826O2                          ','C822CO3                         ', & ! index 2359 - 2361
+     'C822O2                          ','NC826O2                         ','NBPINBO2                        ', & ! index 2362 - 2364
+     'NC91CO3                         ','LMKAO2                          ','C85O2                           ', & ! index 2365 - 2367
+     'C85CO3                          ','C96CO3                          ','C96O2                           ', & ! index 2368 - 2370
+     'NLMKAO2                         ','C721CO3                         ','C811O2                          ', & ! index 2371 - 2373
+     'C811CO3                         ','C923CO3                         ','LMKBO2                          ', & ! index 2374 - 2376
+     'LIMCO2                          ','C923O2                          ','BPINAO2                         ', & ! index 2377 - 2379
+     'NOPINAO2                        ','NOPINDO2                        ','NBPINAO2                        ', & ! index 2380 - 2382
+     'NOPINCO2                        ','BPINBO2                         ','C918CO3                         ', & ! index 2383 - 2385
+     'NOPINBO2                        ','APINBOO                         ','LIMAO2                          ', & ! index 2386 - 2388
+     'C926O2                          ','LIMBO2                          ','LIMALO2                         ', & ! index 2389 - 2391
+     'NLIMO2                          ','NLIMALO2                        ','C817CO3                         ', & ! index 2392 - 2394
+     'R_HOM_OH_O10                    ','R_HOM_O8                        ','R_HOM_OH_O5                     ', & ! index 2395 - 2397
+     'R_HOM_O5                        ','R_HOM_OH_O8                     ','R_HOM_O13                       ', & ! index 2398 - 2400
+     'R_HOM_O7                        ','R_HOM_OH_O6                     ','R_HOM_O4                        ', & ! index 2401 - 2403
+     'R_HOM_OH_O7                     ','R_HOM_O12                       ','R_HOM_O14                       ', & ! index 2404 - 2406
+     'R_HOM_O9                        ','R_HOM_O10                       ','OH                              ', & ! index 2407 - 2409
+     'R_HOM_OH_O9                     ','C817O2                          ','R_HOM_O6                        ', & ! index 2410 - 2412
+     'NO3                             ','HO2                             ','R_HOM_O11                       ', & ! index 2413 - 2415
+     'SO2                             ','NO                              ','NO2                             ', & ! index 2416 - 2418
+     'CO                              ','H2                              ','O3                              ', & ! index 2419 - 2421
+     'APINENE                         ','BCARY                           ','BENZENE                         ', & ! index 2422 - 2424
+     'BPINENE                         ','C2H5OH                          ','C5H8                            ', & ! index 2425 - 2427
+     'CH3CHO                          ','CH3CO2H                         ','CH3COCH3                        ' /) ! index up to 2430
+  CHARACTER(LEN=32), PARAMETER, DIMENSION(12) :: SPC_NAMES_27 = (/ &
+     'CH3OH                           ','CH4                             ','DMS                             ', & ! index 2431 - 2433
+     'HCHO                            ','HCOOH                           ','LIMONENE                        ', & ! index 2434 - 2436
+     'MACR                            ','MEK                             ','PROPACID                        ', & ! index 2437 - 2439
+     'TOLUENE                         ','NH3                             ','DMA                             ' /) ! index up to 2442
+  CHARACTER(LEN=32), PARAMETER, DIMENSION(2442) :: SPC_NAMES = (/&
     SPC_NAMES_0, SPC_NAMES_1, SPC_NAMES_2, SPC_NAMES_3, SPC_NAMES_4, &
     SPC_NAMES_5, SPC_NAMES_6, SPC_NAMES_7, SPC_NAMES_8, SPC_NAMES_9, &
     SPC_NAMES_10, SPC_NAMES_11, SPC_NAMES_12, SPC_NAMES_13, SPC_NAMES_14, &
@@ -901,7 +902,7 @@ MODULE second_Monitor
      '                  2 HO2 --> H2O2                                                                    ', & ! index 20
      '                OH + NO --> HONO                                                                    ', & ! index 21
      '               OH + NO2 --> HNO3                                                                    ', & ! index 22
-     '               NO3 + OH --> HO2 + NO2                                                               ', & ! index 23
+     '               OH + NO3 --> HO2 + NO2                                                               ', & ! index 23
      '               HO2 + NO --> OH + NO2                                                                ', & ! index 24
      '              HO2 + NO2 --> HO2NO2                                                                  ', & ! index 25
      '            HO2NO2 + OH --> NO2                                                                     ', & ! index 26
@@ -984,7 +985,7 @@ MODULE second_Monitor
      '            C51OOH + OH --> HO1CO24C5 + OH                                                          ', & ! index 100
      '                 C51OOH --> C51O + OH                                                               ', & ! index 101
      '             C51OH + OH --> HO1CO24C5 + OH                                                          ', & ! index 102
-     '              HO1CO24C5 --> HOCH2CO3 + CH3COCH2O2                                                   ', & ! index 103
+     '              HO1CO24C5 --> CH3COCH2O2 + HOCH2CO3                                                   ', & ! index 103
      '         HO1CO24C5 + OH --> CO24C4CHO + HO2                                                         ', & ! index 104
      '         CO24C4CHO + OH --> CO2C3CO3 + CO                                                           ', & ! index 105
      '        CO24C4CHO + NO3 --> CO2C3CO3 + HNO3 + CO                                                    ', & ! index 106
@@ -2227,7 +2228,7 @@ MODULE second_Monitor
      '                   C86O --> C511O2 + CH3COCH3                                                       ', & ! index 1303
      '            C511O2 + NO --> C511O + NO2                                                             ', & ! index 1304
      '                  C511O --> HCOCH2CHO + CH3CO3                                                      ', & ! index 1305
-     '                 C614CO --> BIACETO2 + HOCH2CO3                                                     ', & ! index 1306
+     '                 C614CO --> HOCH2CO3 + BIACETO2                                                     ', & ! index 1306
      '            C614CO + OH --> CO235C5CHO + HO2                                                        ', & ! index 1307
      '             CO235C5CHO --> CO23C4CO3 + HO2 + CO                                                    ', & ! index 1308
      '        CO235C5CHO + OH --> CO23C4CO3 + CO                                                          ', & ! index 1309
@@ -4094,7 +4095,7 @@ MODULE second_Monitor
      '          C729CO3 + HO2 --> C729O2 + OH                                                             ', & ! index 3110
      '          C731CO3 + HO2 --> C731CO2 + OH                                                            ', & ! index 3111
      '          C732CO3 + HO2 --> C732O2 + OH                                                             ', & ! index 3112
-     '          C817CO3 + HO2 --> C817O2 + OH                                                             ', & ! index 3113
+     '          C817CO3 + HO2 --> OH + C817O2                                                             ', & ! index 3113
      '          C822CO3 + HO2 --> C822CO2 + OH                                                            ', & ! index 3114
      '          C823CO3 + HO2 --> C823O2 + OH                                                             ', & ! index 3115
      '          C923CO3 + HO2 --> C923O2 + OH                                                             ', & ! index 3116
@@ -4678,8 +4679,8 @@ MODULE second_Monitor
      '          OH + LIMONENE --> LIMCO2                                                                  ', & ! index 3675
      '            LIMAO2 + NO --> LIMAO + NO2                                                             ', & ! index 3676
      '            LIMAO2 + NO --> LIMANO3                                                                 ', & ! index 3677
-     '           NO3 + LIMAO2 --> LIMAO + NO2                                                             ', & ! index 3678
-     '           HO2 + LIMAO2 --> LIMAOOH                                                                 ', & ! index 3679
+     '           LIMAO2 + NO3 --> LIMAO + NO2                                                             ', & ! index 3678
+     '           LIMAO2 + HO2 --> LIMAOOH                                                                 ', & ! index 3679
      '                 LIMAO2 --> LIMAO                                                                   ', & ! index 3680
      '                 LIMAO2 --> LIMAOH                                                                  ', & ! index 3681
      '                  LIMAO --> LIMAL + HO2                                                             ', & ! index 3682
@@ -4828,7 +4829,7 @@ MODULE second_Monitor
      '                  C818O --> C517CHO + CH3CO3                                                        ', & ! index 3820
      '           C817PAN + OH --> C817CO + NO2 + CO                                                       ', & ! index 3821
      '          C817CO3H + OH --> C817CO3                                                                 ', & ! index 3822
-     '               C817CO3H --> C817O2 + OH                                                             ', & ! index 3823
+     '               C817CO3H --> OH + C817O2                                                             ', & ! index 3823
      '        KLIMONONIC + OH --> C817O2                                                                  ', & ! index 3824
      '             KLIMONONIC --> C817O2 + HO2                                                            ', & ! index 3825
      '           C817NO3 + OH --> C817CO + NO2                                                            ', & ! index 3826
@@ -5348,7 +5349,7 @@ MODULE second_Monitor
      '                 LMKOOA --> LMLKAO2 + OH                                                            ', & ! index 4323
      '                 LMKOOA --> LMLKBO2 + OH                                                            ', & ! index 4324
      '                 LMKOOB --> LMKBOO                                                                  ', & ! index 4325
-     '                 LMKOOB --> C817O2 + OH + CO                                                        ', & ! index 4326
+     '                 LMKOOB --> OH + C817O2 + CO                                                        ', & ! index 4326
      '            LMKBOO + CO --> LMLKET                                                                  ', & ! index 4327
      '            LMKBOO + NO --> LMLKET + NO2                                                            ', & ! index 4328
      '           LMKBOO + NO2 --> LMLKET + NO3                                                            ', & ! index 4329
@@ -5848,7 +5849,7 @@ MODULE second_Monitor
      '           C145O2 + HO2 --> C145OOH                                                                 ', & ! index 4807
      '                 C145O2 --> C145O                                                                   ', & ! index 4808
      '                 C145O2 --> C145OH                                                                  ', & ! index 4809
-     '                  C145O --> HO14CO2C4 + C928CO3                                                     ', & ! index 4810
+     '                  C145O --> C928CO3 + HO14CO2C4                                                     ', & ! index 4810
      '           C928CO3 + NO --> C928O2 + NO2                                                            ', & ! index 4811
      '          C928CO3 + NO3 --> C928O2 + NO2                                                            ', & ! index 4812
      '          C928CO3 + NO2 --> C928PAN                                                                 ', & ! index 4813
@@ -6433,11 +6434,11 @@ MODULE second_Monitor
      '                 C147O2 --> C147O                                                                   ', & ! index 5373
      '                 C147O2 --> C147OH                                                                  ', & ! index 5374
      '                 C147O2 --> C147CO                                                                  ', & ! index 5375
-     '                  C147O --> HCOCH2CO2H + C1011CO3                                                   ', & ! index 5376
+     '                  C147O --> C1011CO3 + HCOCH2CO2H                                                   ', & ! index 5376
      '                C147OOH --> C147O + OH                                                              ', & ! index 5377
      '           C147OOH + OH --> C147CO + OH                                                             ', & ! index 5378
      '            C147OH + OH --> C147CO + HO2                                                            ', & ! index 5379
-     '            C147CO + OH --> HCOCH2CO2H + C1011CO3                                                   ', & ! index 5380
+     '            C147CO + OH --> C1011CO3 + HCOCH2CO2H                                                   ', & ! index 5380
      '           BCALBOC + O3 --> BCBOOA + HCHO                                                           ', & ! index 5381
      '           BCALBOC + O3 --> BCLKBOC + CH2OOF                                                        ', & ! index 5382
      '                 BCBOOA --> C148O2 + OH                                                             ', & ! index 5383
@@ -7440,8 +7441,8 @@ MODULE second_Monitor
      '              HMML + OH --> MGLYOX + OH                                                             ', & ! index 6348
      '                 NC4CHO --> HMAC + OH + NO2 + CO                                                    ', & ! index 6349
      '                  H2SO4 --> dummy                                                                   ', & ! index 6350
-     '                APINOOA --> OH + R_HOM_O4                                                           ', & ! index 6351
-     '                 LIMOOA --> OH + R_HOM_O4                                                           ', & ! index 6352
+     '                APINOOA --> R_HOM_O4 + OH                                                           ', & ! index 6351
+     '                 LIMOOA --> R_HOM_O4 + OH                                                           ', & ! index 6352
      '           OH + APINENE --> R_HOM_OH_O5                                                             ', & ! index 6353
      '           OH + BPINENE --> R_HOM_OH_O5                                                             ', & ! index 6354
      '          OH + LIMONENE --> R_HOM_OH_O5                                                             ', & ! index 6355
@@ -7511,15 +7512,15 @@ MODULE second_Monitor
      '         R_HOM_O12 + NO --> HOM_NO13                                                                ', & ! index 6417
      '         R_HOM_O13 + NO --> HOM_NO14                                                                ', & ! index 6418
      '         R_HOM_O14 + NO --> HOM_NO15                                                                ', & ! index 6419
-     '         HO2 + R_HOM_O4 --> HOM_O4                                                                  ' /) ! index up to 6420
+     '         R_HOM_O4 + HO2 --> HOM_O4                                                                  ' /) ! index up to 6420
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_214 = (/ &
      '         R_HOM_O5 + HO2 --> HOM_O5                                                                  ', & ! index 6421
      '         R_HOM_O6 + HO2 --> HOM_O6                                                                  ', & ! index 6422
      '         R_HOM_O7 + HO2 --> HOM_O7                                                                  ', & ! index 6423
      '         R_HOM_O8 + HO2 --> HOM_O8                                                                  ', & ! index 6424
      '         R_HOM_O9 + HO2 --> HOM_O9                                                                  ', & ! index 6425
-     '        HO2 + R_HOM_O10 --> HOM_O10                                                                 ', & ! index 6426
-     '        R_HOM_O11 + HO2 --> HOM_O11                                                                 ', & ! index 6427
+     '        R_HOM_O10 + HO2 --> HOM_O10                                                                 ', & ! index 6426
+     '        HO2 + R_HOM_O11 --> HOM_O11                                                                 ', & ! index 6427
      '        R_HOM_O12 + HO2 --> HOM_O12                                                                 ', & ! index 6428
      '        R_HOM_O13 + HO2 --> HOM_O13                                                                 ', & ! index 6429
      '        R_HOM_O14 + HO2 --> HOM_O14                                                                 ', & ! index 6430
@@ -7534,7 +7535,7 @@ MODULE second_Monitor
      '     PINALO2 + R_HOM_O4 --> HOM20_O6                                                                ', & ! index 6439
      '      C96CO3 + R_HOM_O4 --> HOM20_O6                                                                ', & ! index 6440
      '     C923CO3 + R_HOM_O4 --> HOM20_O6                                                                ', & ! index 6441
-     '      R_HOM_O4 + LIMAO2 --> HOM20_O5                                                                ', & ! index 6442
+     '      LIMAO2 + R_HOM_O4 --> HOM20_O5                                                                ', & ! index 6442
      '    LIMALBO2 + R_HOM_O4 --> HOM20_O6                                                                ', & ! index 6443
      '      LIMCO2 + R_HOM_O4 --> HOM20_O5                                                                ', & ! index 6444
      '     LIMALO2 + R_HOM_O4 --> HOM20_O6                                                                ', & ! index 6445
@@ -7600,7 +7601,7 @@ MODULE second_Monitor
      '      C813O2 + R_HOM_O4 --> HOM18_O5                                                                ', & ! index 6503
      '     C729CO3 + R_HOM_O4 --> HOM18_O6                                                                ', & ! index 6504
      '      C816O2 + R_HOM_O4 --> HOM18_O5                                                                ', & ! index 6505
-     '      C817O2 + R_HOM_O4 --> HOM18_O6                                                                ', & ! index 6506
+     '      R_HOM_O4 + C817O2 --> HOM18_O6                                                                ', & ! index 6506
      '      C826O2 + R_HOM_O4 --> HOM18_O7                                                                ', & ! index 6507
      '      C822O2 + R_HOM_O4 --> HOM18_O5                                                                ', & ! index 6508
      '      C818O2 + R_HOM_O4 --> HOM18_O7                                                                ', & ! index 6509
@@ -7631,7 +7632,7 @@ MODULE second_Monitor
      '     PINALO2 + R_HOM_O5 --> HOM20_O7                                                                ', & ! index 6533
      '      C96CO3 + R_HOM_O5 --> HOM20_O7                                                                ', & ! index 6534
      '     C923CO3 + R_HOM_O5 --> HOM20_O7                                                                ', & ! index 6535
-     '      R_HOM_O5 + LIMAO2 --> HOM20_O6                                                                ', & ! index 6536
+     '      LIMAO2 + R_HOM_O5 --> HOM20_O6                                                                ', & ! index 6536
      '    LIMALBO2 + R_HOM_O5 --> HOM20_O7                                                                ', & ! index 6537
      '      LIMCO2 + R_HOM_O5 --> HOM20_O6                                                                ', & ! index 6538
      '     LIMALO2 + R_HOM_O5 --> HOM20_O7                                                                ', & ! index 6539
@@ -7697,7 +7698,7 @@ MODULE second_Monitor
      '      C813O2 + R_HOM_O5 --> HOM18_O6                                                                ', & ! index 6597
      '     C729CO3 + R_HOM_O5 --> HOM18_O7                                                                ', & ! index 6598
      '      C816O2 + R_HOM_O5 --> HOM18_O6                                                                ', & ! index 6599
-     '      C817O2 + R_HOM_O5 --> HOM18_O7                                                                ' /) ! index up to 6600
+     '      R_HOM_O5 + C817O2 --> HOM18_O7                                                                ' /) ! index up to 6600
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_220 = (/ &
      '      C826O2 + R_HOM_O5 --> HOM18_O8                                                                ', & ! index 6601
      '      C822O2 + R_HOM_O5 --> HOM18_O6                                                                ', & ! index 6602
@@ -7728,7 +7729,7 @@ MODULE second_Monitor
      '     PINALO2 + R_HOM_O6 --> HOM20_O8                                                                ', & ! index 6627
      '      C96CO3 + R_HOM_O6 --> HOM20_O8                                                                ', & ! index 6628
      '     C923CO3 + R_HOM_O6 --> HOM20_O8                                                                ', & ! index 6629
-     '      R_HOM_O6 + LIMAO2 --> HOM20_O7                                                                ' /) ! index up to 6630
+     '      LIMAO2 + R_HOM_O6 --> HOM20_O7                                                                ' /) ! index up to 6630
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_221 = (/ &
      '    LIMALBO2 + R_HOM_O6 --> HOM20_O8                                                                ', & ! index 6631
      '      LIMCO2 + R_HOM_O6 --> HOM20_O7                                                                ', & ! index 6632
@@ -7826,7 +7827,7 @@ MODULE second_Monitor
      '     PINALO2 + R_HOM_O7 --> HOM20_O9                                                                ', & ! index 6721
      '      C96CO3 + R_HOM_O7 --> HOM20_O9                                                                ', & ! index 6722
      '     C923CO3 + R_HOM_O7 --> HOM20_O9                                                                ', & ! index 6723
-     '      R_HOM_O7 + LIMAO2 --> HOM20_O8                                                                ', & ! index 6724
+     '      LIMAO2 + R_HOM_O7 --> HOM20_O8                                                                ', & ! index 6724
      '    LIMALBO2 + R_HOM_O7 --> HOM20_O9                                                                ', & ! index 6725
      '      LIMCO2 + R_HOM_O7 --> HOM20_O8                                                                ', & ! index 6726
      '     LIMALO2 + R_HOM_O7 --> HOM20_O9                                                                ', & ! index 6727
@@ -7892,7 +7893,7 @@ MODULE second_Monitor
      '      C813O2 + R_HOM_O7 --> HOM18_O8                                                                ', & ! index 6785
      '     C729CO3 + R_HOM_O7 --> HOM18_O9                                                                ', & ! index 6786
      '      C816O2 + R_HOM_O7 --> HOM18_O8                                                                ', & ! index 6787
-     '      C817O2 + R_HOM_O7 --> HOM18_O9                                                                ', & ! index 6788
+     '      R_HOM_O7 + C817O2 --> HOM18_O9                                                                ', & ! index 6788
      '      C826O2 + R_HOM_O7 --> HOM18_O10                                                               ', & ! index 6789
      '      C822O2 + R_HOM_O7 --> HOM18_O8                                                                ', & ! index 6790
      '      C818O2 + R_HOM_O7 --> HOM18_O10                                                               ', & ! index 6791
@@ -7923,7 +7924,7 @@ MODULE second_Monitor
      '     PINALO2 + R_HOM_O8 --> HOM20_O10                                                               ', & ! index 6815
      '      C96CO3 + R_HOM_O8 --> HOM20_O10                                                               ', & ! index 6816
      '     C923CO3 + R_HOM_O8 --> HOM20_O10                                                               ', & ! index 6817
-     '      R_HOM_O8 + LIMAO2 --> HOM20_O9                                                                ', & ! index 6818
+     '      LIMAO2 + R_HOM_O8 --> HOM20_O9                                                                ', & ! index 6818
      '    LIMALBO2 + R_HOM_O8 --> HOM20_O10                                                               ', & ! index 6819
      '      LIMCO2 + R_HOM_O8 --> HOM20_O9                                                                ', & ! index 6820
      '     LIMALO2 + R_HOM_O8 --> HOM20_O10                                                               ', & ! index 6821
@@ -7989,7 +7990,7 @@ MODULE second_Monitor
      '      C813O2 + R_HOM_O8 --> HOM18_O9                                                                ', & ! index 6879
      '     C729CO3 + R_HOM_O8 --> HOM18_O10                                                               ', & ! index 6880
      '      C816O2 + R_HOM_O8 --> HOM18_O9                                                                ', & ! index 6881
-     '      C817O2 + R_HOM_O8 --> HOM18_O10                                                               ', & ! index 6882
+     '      R_HOM_O8 + C817O2 --> HOM18_O10                                                               ', & ! index 6882
      '      C826O2 + R_HOM_O8 --> HOM18_O11                                                               ', & ! index 6883
      '      C822O2 + R_HOM_O8 --> HOM18_O9                                                                ', & ! index 6884
      '      C818O2 + R_HOM_O8 --> HOM18_O11                                                               ', & ! index 6885
@@ -8020,7 +8021,7 @@ MODULE second_Monitor
      '     PINALO2 + R_HOM_O9 --> HOM20_O11                                                               ', & ! index 6909
      '      C96CO3 + R_HOM_O9 --> HOM20_O11                                                               ', & ! index 6910
      '     C923CO3 + R_HOM_O9 --> HOM20_O11                                                               ', & ! index 6911
-     '      R_HOM_O9 + LIMAO2 --> HOM20_O10                                                               ', & ! index 6912
+     '      LIMAO2 + R_HOM_O9 --> HOM20_O10                                                               ', & ! index 6912
      '    LIMALBO2 + R_HOM_O9 --> HOM20_O11                                                               ', & ! index 6913
      '      LIMCO2 + R_HOM_O9 --> HOM20_O10                                                               ', & ! index 6914
      '     LIMALO2 + R_HOM_O9 --> HOM20_O11                                                               ', & ! index 6915
@@ -8086,7 +8087,7 @@ MODULE second_Monitor
      '      C813O2 + R_HOM_O9 --> HOM18_O10                                                               ', & ! index 6973
      '     C729CO3 + R_HOM_O9 --> HOM18_O11                                                               ', & ! index 6974
      '      C816O2 + R_HOM_O9 --> HOM18_O10                                                               ', & ! index 6975
-     '      C817O2 + R_HOM_O9 --> HOM18_O11                                                               ', & ! index 6976
+     '      R_HOM_O9 + C817O2 --> HOM18_O11                                                               ', & ! index 6976
      '      C826O2 + R_HOM_O9 --> HOM18_O12                                                               ', & ! index 6977
      '      C822O2 + R_HOM_O9 --> HOM18_O10                                                               ', & ! index 6978
      '      C818O2 + R_HOM_O9 --> HOM18_O12                                                               ', & ! index 6979
@@ -8117,7 +8118,7 @@ MODULE second_Monitor
      '    PINALO2 + R_HOM_O10 --> HOM20_O12                                                               ', & ! index 7003
      '     C96CO3 + R_HOM_O10 --> HOM20_O12                                                               ', & ! index 7004
      '    C923CO3 + R_HOM_O10 --> HOM20_O12                                                               ', & ! index 7005
-     '     R_HOM_O10 + LIMAO2 --> HOM20_O11                                                               ', & ! index 7006
+     '     LIMAO2 + R_HOM_O10 --> HOM20_O11                                                               ', & ! index 7006
      '   LIMALBO2 + R_HOM_O10 --> HOM20_O12                                                               ', & ! index 7007
      '     LIMCO2 + R_HOM_O10 --> HOM20_O11                                                               ', & ! index 7008
      '    LIMALO2 + R_HOM_O10 --> HOM20_O12                                                               ', & ! index 7009
@@ -8183,7 +8184,7 @@ MODULE second_Monitor
      '     C813O2 + R_HOM_O10 --> HOM18_O11                                                               ', & ! index 7067
      '    C729CO3 + R_HOM_O10 --> HOM18_O12                                                               ', & ! index 7068
      '     C816O2 + R_HOM_O10 --> HOM18_O11                                                               ', & ! index 7069
-     '     C817O2 + R_HOM_O10 --> HOM18_O12                                                               ', & ! index 7070
+     '     R_HOM_O10 + C817O2 --> HOM18_O12                                                               ', & ! index 7070
      '     C826O2 + R_HOM_O10 --> HOM18_O13                                                               ', & ! index 7071
      '     C822O2 + R_HOM_O10 --> HOM18_O11                                                               ', & ! index 7072
      '     C818O2 + R_HOM_O10 --> HOM18_O13                                                               ', & ! index 7073
@@ -8214,7 +8215,7 @@ MODULE second_Monitor
      '    PINALO2 + R_HOM_O11 --> HOM20_O13                                                               ', & ! index 7097
      '     C96CO3 + R_HOM_O11 --> HOM20_O13                                                               ', & ! index 7098
      '    C923CO3 + R_HOM_O11 --> HOM20_O13                                                               ', & ! index 7099
-     '     R_HOM_O11 + LIMAO2 --> HOM20_O12                                                               ', & ! index 7100
+     '     LIMAO2 + R_HOM_O11 --> HOM20_O12                                                               ', & ! index 7100
      '   LIMALBO2 + R_HOM_O11 --> HOM20_O13                                                               ', & ! index 7101
      '     LIMCO2 + R_HOM_O11 --> HOM20_O12                                                               ', & ! index 7102
      '    LIMALO2 + R_HOM_O11 --> HOM20_O13                                                               ', & ! index 7103
@@ -8311,7 +8312,7 @@ MODULE second_Monitor
      '    PINALO2 + R_HOM_O12 --> HOM20_O14                                                               ', & ! index 7191
      '     C96CO3 + R_HOM_O12 --> HOM20_O14                                                               ', & ! index 7192
      '    C923CO3 + R_HOM_O12 --> HOM20_O14                                                               ', & ! index 7193
-     '     R_HOM_O12 + LIMAO2 --> HOM20_O13                                                               ', & ! index 7194
+     '     LIMAO2 + R_HOM_O12 --> HOM20_O13                                                               ', & ! index 7194
      '   LIMALBO2 + R_HOM_O12 --> HOM20_O14                                                               ', & ! index 7195
      '     LIMCO2 + R_HOM_O12 --> HOM20_O13                                                               ', & ! index 7196
      '    LIMALO2 + R_HOM_O12 --> HOM20_O14                                                               ', & ! index 7197
@@ -8377,7 +8378,7 @@ MODULE second_Monitor
      '     C813O2 + R_HOM_O12 --> HOM18_O13                                                               ', & ! index 7255
      '    C729CO3 + R_HOM_O12 --> HOM18_O14                                                               ', & ! index 7256
      '     C816O2 + R_HOM_O12 --> HOM18_O13                                                               ', & ! index 7257
-     '     C817O2 + R_HOM_O12 --> HOM18_O14                                                               ', & ! index 7258
+     '     R_HOM_O12 + C817O2 --> HOM18_O14                                                               ', & ! index 7258
      '     C826O2 + R_HOM_O12 --> HOM18_O15                                                               ', & ! index 7259
      '     C822O2 + R_HOM_O12 --> HOM18_O13                                                               ' /) ! index up to 7260
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_242 = (/ &
@@ -8408,7 +8409,7 @@ MODULE second_Monitor
      '    PINALO2 + R_HOM_O13 --> HOM20_O15                                                               ', & ! index 7285
      '     C96CO3 + R_HOM_O13 --> HOM20_O15                                                               ', & ! index 7286
      '    C923CO3 + R_HOM_O13 --> HOM20_O15                                                               ', & ! index 7287
-     '     R_HOM_O13 + LIMAO2 --> HOM20_O14                                                               ', & ! index 7288
+     '     LIMAO2 + R_HOM_O13 --> HOM20_O14                                                               ', & ! index 7288
      '   LIMALBO2 + R_HOM_O13 --> HOM20_O15                                                               ', & ! index 7289
      '     LIMCO2 + R_HOM_O13 --> HOM20_O14                                                               ' /) ! index up to 7290
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_243 = (/ &
@@ -8475,7 +8476,7 @@ MODULE second_Monitor
      '    C729CO3 + R_HOM_O13 --> HOM18_O15                                                               ' /) ! index up to 7350
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_245 = (/ &
      '     C816O2 + R_HOM_O13 --> HOM18_O14                                                               ', & ! index 7351
-     '     C817O2 + R_HOM_O13 --> HOM18_O15                                                               ', & ! index 7352
+     '     R_HOM_O13 + C817O2 --> HOM18_O15                                                               ', & ! index 7352
      '     C826O2 + R_HOM_O13 --> HOM18_O16                                                               ', & ! index 7353
      '     C822O2 + R_HOM_O13 --> HOM18_O14                                                               ', & ! index 7354
      '     C818O2 + R_HOM_O13 --> HOM18_O16                                                               ', & ! index 7355
@@ -8506,7 +8507,7 @@ MODULE second_Monitor
      '     C96CO3 + R_HOM_O14 --> HOM20_O16                                                               ' /) ! index up to 7380
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_246 = (/ &
      '    C923CO3 + R_HOM_O14 --> HOM20_O16                                                               ', & ! index 7381
-     '     R_HOM_O14 + LIMAO2 --> HOM20_O15                                                               ', & ! index 7382
+     '     LIMAO2 + R_HOM_O14 --> HOM20_O15                                                               ', & ! index 7382
      '   LIMALBO2 + R_HOM_O14 --> HOM20_O16                                                               ', & ! index 7383
      '     LIMCO2 + R_HOM_O14 --> HOM20_O15                                                               ', & ! index 7384
      '    LIMALO2 + R_HOM_O14 --> HOM20_O16                                                               ', & ! index 7385
@@ -8572,7 +8573,7 @@ MODULE second_Monitor
      '     C813O2 + R_HOM_O14 --> HOM18_O15                                                               ', & ! index 7443
      '    C729CO3 + R_HOM_O14 --> HOM18_O16                                                               ', & ! index 7444
      '     C816O2 + R_HOM_O14 --> HOM18_O15                                                               ', & ! index 7445
-     '     C817O2 + R_HOM_O14 --> HOM18_O16                                                               ', & ! index 7446
+     '     R_HOM_O14 + C817O2 --> HOM18_O16                                                               ', & ! index 7446
      '     C826O2 + R_HOM_O14 --> HOM18_O17                                                               ', & ! index 7447
      '     C822O2 + R_HOM_O14 --> HOM18_O15                                                               ', & ! index 7448
      '     C818O2 + R_HOM_O14 --> HOM18_O17                                                               ', & ! index 7449
@@ -8660,9 +8661,9 @@ MODULE second_Monitor
      '       R_HOM_OH_O9 + NO --> HOM_OH_NO10                                                             ', & ! index 7529
      '      R_HOM_OH_O10 + NO --> HOM_OH_NO11                                                             ' /) ! index up to 7530
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_251 = (/ &
-     '      HO2 + R_HOM_OH_O5 --> HOM_OH_O5                                                               ', & ! index 7531
-     '      HO2 + R_HOM_OH_O6 --> HOM_OH_O6                                                               ', & ! index 7532
-     '      HO2 + R_HOM_OH_O7 --> HOM_OH_O7                                                               ', & ! index 7533
+     '      R_HOM_OH_O5 + HO2 --> HOM_OH_O5                                                               ', & ! index 7531
+     '      R_HOM_OH_O6 + HO2 --> HOM_OH_O6                                                               ', & ! index 7532
+     '      R_HOM_OH_O7 + HO2 --> HOM_OH_O7                                                               ', & ! index 7533
      '      R_HOM_OH_O8 + HO2 --> HOM_OH_O8                                                               ', & ! index 7534
      '      R_HOM_OH_O9 + HO2 --> HOM_OH_O9                                                               ', & ! index 7535
      '     R_HOM_OH_O10 + HO2 --> HOM_OH_O10                                                              ', & ! index 7536
@@ -8677,7 +8678,7 @@ MODULE second_Monitor
      '  PINALO2 + R_HOM_OH_O5 --> HOM20_OH_O7                                                             ', & ! index 7545
      '   C96CO3 + R_HOM_OH_O5 --> HOM20_OH_O7                                                             ', & ! index 7546
      '  C923CO3 + R_HOM_OH_O5 --> HOM20_OH_O7                                                             ', & ! index 7547
-     '   R_HOM_OH_O5 + LIMAO2 --> HOM20_OH_O6                                                             ', & ! index 7548
+     '   LIMAO2 + R_HOM_OH_O5 --> HOM20_OH_O6                                                             ', & ! index 7548
      ' LIMALBO2 + R_HOM_OH_O5 --> HOM20_OH_O7                                                             ', & ! index 7549
      '   LIMCO2 + R_HOM_OH_O5 --> HOM20_OH_O6                                                             ', & ! index 7550
      '  LIMALO2 + R_HOM_OH_O5 --> HOM20_OH_O7                                                             ', & ! index 7551
@@ -8743,7 +8744,7 @@ MODULE second_Monitor
      '   C813O2 + R_HOM_OH_O5 --> HOM18_OH_O6                                                             ', & ! index 7609
      '  C729CO3 + R_HOM_OH_O5 --> HOM18_OH_O7                                                             ', & ! index 7610
      '   C816O2 + R_HOM_OH_O5 --> HOM18_OH_O6                                                             ', & ! index 7611
-     '   C817O2 + R_HOM_OH_O5 --> HOM18_OH_O7                                                             ', & ! index 7612
+     '   R_HOM_OH_O5 + C817O2 --> HOM18_OH_O7                                                             ', & ! index 7612
      '   C826O2 + R_HOM_OH_O5 --> HOM18_OH_O8                                                             ', & ! index 7613
      '   C822O2 + R_HOM_OH_O5 --> HOM18_OH_O6                                                             ', & ! index 7614
      '   C818O2 + R_HOM_OH_O5 --> HOM18_OH_O8                                                             ', & ! index 7615
@@ -8774,7 +8775,7 @@ MODULE second_Monitor
      '  PINALO2 + R_HOM_OH_O6 --> HOM20_OH_O8                                                             ', & ! index 7639
      '   C96CO3 + R_HOM_OH_O6 --> HOM20_OH_O8                                                             ', & ! index 7640
      '  C923CO3 + R_HOM_OH_O6 --> HOM20_OH_O8                                                             ', & ! index 7641
-     '   R_HOM_OH_O6 + LIMAO2 --> HOM20_OH_O7                                                             ', & ! index 7642
+     '   LIMAO2 + R_HOM_OH_O6 --> HOM20_OH_O7                                                             ', & ! index 7642
      ' LIMALBO2 + R_HOM_OH_O6 --> HOM20_OH_O8                                                             ', & ! index 7643
      '   LIMCO2 + R_HOM_OH_O6 --> HOM20_OH_O7                                                             ', & ! index 7644
      '  LIMALO2 + R_HOM_OH_O6 --> HOM20_OH_O8                                                             ', & ! index 7645
@@ -8840,7 +8841,7 @@ MODULE second_Monitor
      '   C813O2 + R_HOM_OH_O6 --> HOM18_OH_O7                                                             ', & ! index 7703
      '  C729CO3 + R_HOM_OH_O6 --> HOM18_OH_O8                                                             ', & ! index 7704
      '   C816O2 + R_HOM_OH_O6 --> HOM18_OH_O7                                                             ', & ! index 7705
-     '   C817O2 + R_HOM_OH_O6 --> HOM18_OH_O8                                                             ', & ! index 7706
+     '   R_HOM_OH_O6 + C817O2 --> HOM18_OH_O8                                                             ', & ! index 7706
      '   C826O2 + R_HOM_OH_O6 --> HOM18_OH_O9                                                             ', & ! index 7707
      '   C822O2 + R_HOM_OH_O6 --> HOM18_OH_O7                                                             ', & ! index 7708
      '   C818O2 + R_HOM_OH_O6 --> HOM18_OH_O9                                                             ', & ! index 7709
@@ -8937,7 +8938,7 @@ MODULE second_Monitor
      '   C813O2 + R_HOM_OH_O7 --> HOM18_OH_O8                                                             ', & ! index 7797
      '  C729CO3 + R_HOM_OH_O7 --> HOM18_OH_O9                                                             ', & ! index 7798
      '   C816O2 + R_HOM_OH_O7 --> HOM18_OH_O8                                                             ', & ! index 7799
-     '   C817O2 + R_HOM_OH_O7 --> HOM18_OH_O9                                                             ' /) ! index up to 7800
+     '   R_HOM_OH_O7 + C817O2 --> HOM18_OH_O9                                                             ' /) ! index up to 7800
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_260 = (/ &
      '   C826O2 + R_HOM_OH_O7 --> HOM18_OH_O10                                                            ', & ! index 7801
      '   C822O2 + R_HOM_OH_O7 --> HOM18_OH_O8                                                             ', & ! index 7802
@@ -8968,7 +8969,7 @@ MODULE second_Monitor
      '  PINALO2 + R_HOM_OH_O8 --> HOM20_OH_O10                                                            ', & ! index 7827
      '   C96CO3 + R_HOM_OH_O8 --> HOM20_OH_O10                                                            ', & ! index 7828
      '  C923CO3 + R_HOM_OH_O8 --> HOM20_OH_O10                                                            ', & ! index 7829
-     '   R_HOM_OH_O8 + LIMAO2 --> HOM20_OH_O9                                                             ' /) ! index up to 7830
+     '   LIMAO2 + R_HOM_OH_O8 --> HOM20_OH_O9                                                             ' /) ! index up to 7830
   CHARACTER(LEN=100), PARAMETER, DIMENSION(30) :: EQN_NAMES_261 = (/ &
      ' LIMALBO2 + R_HOM_OH_O8 --> HOM20_OH_O10                                                            ', & ! index 7831
      '   LIMCO2 + R_HOM_OH_O8 --> HOM20_OH_O9                                                             ', & ! index 7832
@@ -9035,7 +9036,7 @@ MODULE second_Monitor
      '   C813O2 + R_HOM_OH_O8 --> HOM18_OH_O9                                                             ', & ! index 7891
      '  C729CO3 + R_HOM_OH_O8 --> HOM18_OH_O10                                                            ', & ! index 7892
      '   C816O2 + R_HOM_OH_O8 --> HOM18_OH_O9                                                             ', & ! index 7893
-     '   C817O2 + R_HOM_OH_O8 --> HOM18_OH_O10                                                            ', & ! index 7894
+     '   R_HOM_OH_O8 + C817O2 --> HOM18_OH_O10                                                            ', & ! index 7894
      '   C826O2 + R_HOM_OH_O8 --> HOM18_OH_O11                                                            ', & ! index 7895
      '   C822O2 + R_HOM_OH_O8 --> HOM18_OH_O9                                                             ', & ! index 7896
      '   C818O2 + R_HOM_OH_O8 --> HOM18_OH_O11                                                            ', & ! index 7897
@@ -9066,7 +9067,7 @@ MODULE second_Monitor
      '  PINALO2 + R_HOM_OH_O9 --> HOM20_OH_O11                                                            ', & ! index 7921
      '   C96CO3 + R_HOM_OH_O9 --> HOM20_OH_O11                                                            ', & ! index 7922
      '  C923CO3 + R_HOM_OH_O9 --> HOM20_OH_O11                                                            ', & ! index 7923
-     '   R_HOM_OH_O9 + LIMAO2 --> HOM20_OH_O10                                                            ', & ! index 7924
+     '   LIMAO2 + R_HOM_OH_O9 --> HOM20_OH_O10                                                            ', & ! index 7924
      ' LIMALBO2 + R_HOM_OH_O9 --> HOM20_OH_O11                                                            ', & ! index 7925
      '   LIMCO2 + R_HOM_OH_O9 --> HOM20_OH_O10                                                            ', & ! index 7926
      '  LIMALO2 + R_HOM_OH_O9 --> HOM20_OH_O11                                                            ', & ! index 7927
@@ -9132,7 +9133,7 @@ MODULE second_Monitor
      '   C813O2 + R_HOM_OH_O9 --> HOM18_OH_O10                                                            ', & ! index 7985
      '  C729CO3 + R_HOM_OH_O9 --> HOM18_OH_O11                                                            ', & ! index 7986
      '   C816O2 + R_HOM_OH_O9 --> HOM18_OH_O10                                                            ', & ! index 7987
-     '   C817O2 + R_HOM_OH_O9 --> HOM18_OH_O11                                                            ', & ! index 7988
+     '   R_HOM_OH_O9 + C817O2 --> HOM18_OH_O11                                                            ', & ! index 7988
      '   C826O2 + R_HOM_OH_O9 --> HOM18_OH_O12                                                            ', & ! index 7989
      '   C822O2 + R_HOM_OH_O9 --> HOM18_OH_O10                                                            ', & ! index 7990
      '   C818O2 + R_HOM_OH_O9 --> HOM18_OH_O12                                                            ', & ! index 7991
@@ -9163,7 +9164,7 @@ MODULE second_Monitor
      ' PINALO2 + R_HOM_OH_O10 --> HOM20_OH_O12                                                            ', & ! index 8015
      '  C96CO3 + R_HOM_OH_O10 --> HOM20_OH_O12                                                            ', & ! index 8016
      ' C923CO3 + R_HOM_OH_O10 --> HOM20_OH_O12                                                            ', & ! index 8017
-     '  R_HOM_OH_O10 + LIMAO2 --> HOM20_OH_O11                                                            ', & ! index 8018
+     '  LIMAO2 + R_HOM_OH_O10 --> HOM20_OH_O11                                                            ', & ! index 8018
      'LIMALBO2 + R_HOM_OH_O10 --> HOM20_OH_O12                                                            ', & ! index 8019
      '  LIMCO2 + R_HOM_OH_O10 --> HOM20_OH_O11                                                            ', & ! index 8020
      ' LIMALO2 + R_HOM_OH_O10 --> HOM20_OH_O12                                                            ', & ! index 8021
@@ -9229,7 +9230,7 @@ MODULE second_Monitor
      '  C813O2 + R_HOM_OH_O10 --> HOM18_OH_O11                                                            ', & ! index 8079
      ' C729CO3 + R_HOM_OH_O10 --> HOM18_OH_O12                                                            ', & ! index 8080
      '  C816O2 + R_HOM_OH_O10 --> HOM18_OH_O11                                                            ', & ! index 8081
-     '  C817O2 + R_HOM_OH_O10 --> HOM18_OH_O12                                                            ', & ! index 8082
+     '  R_HOM_OH_O10 + C817O2 --> HOM18_OH_O12                                                            ', & ! index 8082
      '  C826O2 + R_HOM_OH_O10 --> HOM18_OH_O13                                                            ', & ! index 8083
      '  C822O2 + R_HOM_OH_O10 --> HOM18_OH_O11                                                            ', & ! index 8084
      '  C818O2 + R_HOM_OH_O10 --> HOM18_OH_O13                                                            ', & ! index 8085
@@ -9279,7 +9280,7 @@ MODULE second_Monitor
      '     C721CO3H + APINBOO --> DiEstC18O8_3                                                            ', & ! index 8128
      '      C811OOH + APINBOO --> DiEstC18O7_1                                                            ', & ! index 8129
      '       C812OH + APINBOO --> DiEstC18O7_2                                                            ' /) ! index up to 8130
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(11) :: EQN_NAMES_271 = (/ &
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(14) :: EQN_NAMES_271 = (/ &
      '     NORPINIC + APINBOO --> DiEstC18O7_3                                                            ', & ! index 8131
      '       C811OH + APINBOO --> DiEstC18O6_1                                                            ', & ! index 8132
      '      C721CHO + APINBOO --> DiEstC18O6_2                                                            ', & ! index 8133
@@ -9290,8 +9291,11 @@ MODULE second_Monitor
      '   H3C2C4CO2H + APINBOO --> DiEstC15O7                                                              ', & ! index 8138
      '       C44OOH + APINBOO --> DiEstC14O8                                                              ', & ! index 8139
      '   CO13C3CO2H + APINBOO --> DiEstC14O7                                                              ', & ! index 8140
-     '   HCOCH2CO2H + APINBOO --> DiEstC13O6                                                              ' /) ! index up to 8141
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(8141) :: EQN_NAMES = (/&
+     '   HCOCH2CO2H + APINBOO --> DiEstC13O6                                                              ', & ! index 8141
+     '                    NH3 --> dummy                                                                   ', & ! index 8142
+     '                    DMA --> dummy                                                                   ', & ! index 8143
+     '                    RO2 --> dummy                                                                   ' /) ! index up to 8144
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(8144) :: EQN_NAMES = (/&
     EQN_NAMES_0, EQN_NAMES_1, EQN_NAMES_2, EQN_NAMES_3, EQN_NAMES_4, &
     EQN_NAMES_5, EQN_NAMES_6, EQN_NAMES_7, EQN_NAMES_8, EQN_NAMES_9, &
     EQN_NAMES_10, EQN_NAMES_11, EQN_NAMES_12, EQN_NAMES_13, EQN_NAMES_14, &
