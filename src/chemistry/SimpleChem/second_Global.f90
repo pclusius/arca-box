@@ -86,14 +86,14 @@ MODULE second_Global
   REAL(kind=dp) :: CFACTOR
 
 ! Begin inlined code from F90_GLOBAL
- 
-  REAL(dp)::M, N2, O2, RO2, H2O 
+
+  REAL(dp)::M, N2, O2, RO2, H2O
 
   INTEGER, PARAMETER :: NPHOT=71
   REAL(dp) :: J(NPHOT)
 
   REAL(dp) :: RES1, RES2
-  ! Enables changing reactions rates from the outside of chemistry 
+  ! Enables changing reactions rates from the outside of chemistry
   REAL(DP), SAVE :: R_F(NREACT) = 1d0
 
 ! End inlined code from F90_GLOBAL
