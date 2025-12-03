@@ -35,21 +35,21 @@ implicit NONE
 ! ------------------------------------------------------------------------------------------------
 ! 'TEMPK'         = inm_TempK
 ! 'PRESSURE'      = inm_pres
-! 'REL_HUMIDITY'  = inm_RH
-! 'CONDENS_SINK'  = inm_CS
-! 'CON_SIN_NITR'  = inm_CS_NA
-! 'SW_RADIATION'  = inm_swr
-! 'ION_PROD_RATE' = inm_IPR
-! 'H2SO4'         = inm_H2SO4
-! 'NH3'           = inm_NH3
-! 'DMA'           = inm_DMA
-! 'SO2'           = inm_SO2
-! 'NO'            = inm_NO
-! 'NO2'           = inm_NO2
-! 'CO'            = inm_CO
-! 'H2'            = inm_H2
-! 'O3'            = inm_O3
-! 'NUC_RATE_IN '  = inm_JIN
+! 'REL_HUMIDITY'  = inm_RH     ! These are non-zero only if privided as input
+! 'CONDENS_SINK'  = inm_CS     ! These are non-zero only if privided as input
+! 'CON_SIN_NITR'  = inm_CS_NA  ! These are non-zero only if privided as input
+! 'SW_RADIATION'  = inm_swr    ! These are non-zero only if privided as input
+! 'ION_PROD_RATE' = inm_IPR    ! These are non-zero only if privided as input
+! 'H2SO4'         = inm_H2SO4  ! These are non-zero only if privided as input
+! 'NH3'           = inm_NH3    ! These are non-zero only if privided as input
+! 'DMA'           = inm_DMA    ! These are non-zero only if privided as input
+! 'SO2'           = inm_SO2    ! These are non-zero only if privided as input
+! 'NO'            = inm_NO     ! These are non-zero only if privided as input
+! 'NO2'           = inm_NO2    ! These are non-zero only if privided as input
+! 'CO'            = inm_CO     ! These are non-zero only if privided as input
+! 'H2'            = inm_H2     ! These are non-zero only if privided as input
+! 'O3'            = inm_O3     ! These are non-zero only if privided as input
+! 'NUC_RATE_IN '  = inm_JIN    ! These are non-zero only if privided as input
 !
 ! For other variables in TSTEP_CON, use the function IndexFromName(NAME) where NAME is
 ! the name as a string as it appears in the GUI (e.g. "APINENE").
