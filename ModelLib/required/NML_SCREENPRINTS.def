@@ -1,3 +1,6 @@
+! ------------------------------------------------------------------------
+! THIS FEATURE HAS NOT YET BEEN IMPLEMENTED TO THE MODEL, UNFORTUNATELY...
+! ------------------------------------------------------------------------
 &NML_SCREENPRINTS
  clusterfractions = .TRUE.
  jions = .TRUE.
@@ -6,3 +9,6 @@
  Jorganic = .TRUE.
  GR = .TRUE.
 /
+! ------------------------------------------------------------------------
+! THIS FEATURE HAS NOT YET BEEN IMPLEMENTED TO THE MODEL, UNFORTUNATELY...
+! ------------------------------------------------------------------------
