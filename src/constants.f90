@@ -116,6 +116,7 @@ type timetype
     logical       :: printnow       = .true.    ! this flag is true when prints are wanted
     logical       :: savenow        = .true.    ! this flag is true when saves are wanted
     logical       :: PRINTACDC      = .false.   ! this flag is true when cluster information is printed
+    logical       :: First_loop     = .true.    ! this flag is set to false after first loop
 end type timetype
 
 
@@ -159,8 +160,11 @@ TYPE particle_grid
     REAL(dp), ALLOCATABLE :: options(:)         ! Additional information, like molar mass, density etc.
     REAL(dp), ALLOCATABLE :: time(:)            ! Time vector of the particles
     REAL(dp), ALLOCATABLE :: sections(:)        ! diameters for the centers of the sections
+    INTEGER,  ALLOCATABLE :: indices(:)         ! Indices for something
     REAL(dp), ALLOCATABLE :: conc_modelbins(:)  ! current concentration fitted to model bins
     CHARACTER(20) :: name                       ! Name for the stuff
+    INTEGER :: len_t                            ! dimensions
+    INTEGER :: len_c                            ! dimensions
 END TYPE particle_grid
 
 

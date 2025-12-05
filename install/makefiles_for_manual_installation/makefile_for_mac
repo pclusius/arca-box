@@ -47,7 +47,7 @@ $(shell mkdir -p $(OD)/$(BACDC))
 # When compiling, search for files in these directories:
 VPATH = $(OD):src:Aerosol:$(OD)/$(CHMDIR):$(foreach n,$(n_acdc),src/ACDC/ACDC_0$(n):)
 FILE = ModelLib/required/version.txt
-VERSION := $(shell head -1 ${FILE})
+VERSION := $(shell head -1 ${FILE} |sed 's/#//g' |sed 's/ //g')
 HASH := $(shell git rev-parse HEAD)
 
 BOX_OPTS = -Wno-unused $(BOPTI) -ffree-line-length-none -cpp -DLINUX -DCHEM=\"$(CHMDIR)\" -DVERSION=\"$(VERSION)\" \

@@ -238,7 +238,7 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
   I=1 ! GENERAL FILE
   do j = 1,size(MODS)
     IF (TRIM(MODS(j)%name) /= '#') THEN
-      IF (j<LENV .or. INDRELAY_CH(j)>0 .or. MODS(j)%ISPROVIDED) THEN
+      IF (j<=LENV .or. INDRELAY_CH(j)>0 .or. MODS(j)%ISPROVIDED) THEN
         call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(MODS(j)%name), NF90_DOUBLE, dtime_id, mods_ind(j)) )
         call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), mods_ind(j), shuff, compress, compression) )
         call handler(__LINE__, nf90_put_att(ncfile_ids(I), mods_ind(j), 'unit' , TRIM(UNITS(MODS(I)%UNIT))))
@@ -386,7 +386,7 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours, VAPOURS,
 
   do j = 1,size(MODS)
     IF ((TRIM(MODS(j)%name) /= '#')) THEN
-      IF (j<LENV .or. INDRELAY_CH(j)>0 .or. MODS(j)%ISPROVIDED) THEN
+      IF (j<=LENV .or. INDRELAY_CH(j)>0 .or. MODS(j)%ISPROVIDED) THEN
         call handler(__LINE__, nf90_put_var(ncfile_ids(I), mods_ind(j), TSTEP_CONC(j), (/GTIME%ind_netcdf/)) )
       END IF
       IF ((ABS(MODS(j)%shift-0d0) > 1d-100) .or. (ABS(MODS(j)%multi-1d0) > 1d-100)) THEN

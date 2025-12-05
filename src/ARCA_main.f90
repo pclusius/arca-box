@@ -21,7 +21,7 @@
 PROGRAM ARCA_main
 
 USE second_MAIN                            ! Main second file
-USE second_PARAMETERS                      ! CH_NSPEC (originally NSPEC) and chemical indices, ind_xxxx, come from here
+USE second_PARAMETERS                      ! NSPEC and chemical indices, ind_xxxx, come from here
 USE second_Precision,  ONLY : dp           ! KPP Numerical type
 USE second_Monitor,    ONLY : SPC_NAMES    ! Names of chemicals from KPP
 USE SECOND_REACTIVITY, ONLY : NREACTIVITY  !
@@ -97,7 +97,7 @@ REAL(dp) :: A_vert                              ! chamber vertical wall area [m�
 REAL(dp) :: Vol_chamber                         ! chamber volume [m³]
 REAL(dp) :: E_field = 0d0                       ! chamber Electric field (not implemented yet) [V/m]
 ! REAL(dp) :: wl_rates(2)                         ! Transient vector for storing reversible chemical loss rates for chamber [1/s]
-CHARACTER(len=64) :: CurrentChem, CurrentVers,SHA ! Name of the chemistry module and current compiled version and its hash
+CHARACTER(len=64) :: CurrentChem, CurrentVers,SHA,cmdlnargs ! Name of the chemistry module and current compiled version and its hash
 
 ! This block is handled by C preprocessor --------------------------!
 #ifdef CHEM
@@ -113,11 +113,16 @@ CurrentVers = VERSION
 SHA = HASH
 #endif
 ! end of C preprocessor commands -----------------------------------!
-
+CALL GETARG(1,cmdlnargs)
 ! Welcome message
-print'(a,t35,a)', achar(10),  '--~:| ARCA BOX MODEL '//TRIM(CurrentVers)//' |:~--'//achar(10)
-print FMT_HDR, 'Compiled with "'//TRIM(CurrentChem)//'" chemistry module'
-print*, ''
+if (TRIM(cmdlnargs) == '') THEN
+  print '(2(a))', TRIM(CurrentChem), '  No INITFILE Defined. Send the relative path to proper INITFILE as command line option.'
+  STOP
+else
+  print'(a,t35,a)', achar(10),  '--~:| ARCA BOX MODEL '//TRIM(CurrentVers)//' |:~--'//achar(10)
+  print FMT_HDR, 'Compiled with "'//TRIM(CurrentChem)//'" chemistry module'
+  print*, ''
+end if
 ! ==================================================================================================================
 
 ! Declare most variables and read user input and options in input.f90
@@ -145,7 +150,9 @@ ENDIF
 ! Considering the simplicity of the parametrization, this is good enough. ==========================================
 A_vert = 4d0*SQRT(CHAMBER_FLOOR_AREA)*CHAMBER_HEIGHT
 Vol_chamber = CHAMBER_FLOOR_AREA*CHAMBER_HEIGHT
-if (((Deposition.and.LOSSES_FILE=='').or.Chem_Deposition).and.(EQUAL(Vol_chamber, 0d0))) &
+if (&
+  ((Deposition).or.(Chem_Deposition)) &
+  .and.(EQUAL(Vol_chamber, 0d0))) &
 STOP '   ----------- CHAMBER VOLUME IS ZERO! -------------'
 ! ==================================================================================================================
 
@@ -218,7 +225,7 @@ INIT_AEROSOL: IF (Aerosol_flag) THEN
     ALLOCATE(d_vap(max(VAPOUR_PROP%n_cond_tot,1)))
     d_vap = 0d0
 
-    if (Deposition) THEN
+    if (Deposition.or.LOSSES_FILE/='') THEN
         ALLOCATE(Depos_composition(max(VAPOUR_PROP%n_cond_tot,1)))
         Depos_composition = 0d0
     END if
@@ -452,7 +459,11 @@ MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the
 
 if (PRC%in_turn(4)) THEN
     DO I = 1, N_VARS
-        IF (MODS(i)%ISPROVIDED) TSTEP_CONC(I) = interp(timevec, CONC_MAT(:,I),unit=FILE_TIME_UNIT) .mod. MODS(I)
+        IF (MODS(i)%ISPROVIDED.and.I<=LENV) then
+          TSTEP_CONC(I) = interp(timevec_ENV, CONC_MAT_ENV(:,I),unit=ENVFILE_TIME_UNIT) .mod. MODS(I)
+        ELSE IF (MODS(i)%ISPROVIDED.and.I>LENV) then
+          TSTEP_CONC(I) = interp(timevec_CHM, CONC_MAT_CHM(:,I),unit=MCMFILE_TIME_UNIT) .mod. MODS(I)
+        end if
         IF (I == 2) THEN
             GTEMPK     = TSTEP_CONC(inm_TempK)
             GPRES      = TSTEP_CONC(inm_pres)
@@ -468,11 +479,11 @@ if (PRC%in_turn(4)) THEN
         END IF
     END DO
 
-    GRH = TSTEP_CONC(inm_RH)
-    H2SO4 = TSTEP_CONC(inm_H2SO4)
+    GRH = GET_TS_CONC(inm_RH)
+    H2SO4 = GET_TS_CONC(inm_H2SO4)
 
-    IF (MODS(inm_CS)%ISPROVIDED) THEN
-        GCS = TSTEP_CONC(inm_CS)
+    IF (inm_CS/=0.and..not.AEROSOL_FLAG) THEN
+        GCS = GET_TS_CONC(inm_CS)
     ELSE
         IF (equal(GTIME%sec, 0d0)) THEN
             GCS = 0d-3
@@ -539,9 +550,14 @@ END IF
         ! if (.not. OPTIMIZE_DT) CH_GAS_old = CH_GAS
         IF (Chemistry_flag .and. GTIME%sec>=START_CHEM.and.GTIME%sec<=STOP_CHEM) THEN
           !! NOTE Condensation sink of Sulfuric acid not anymore applied in chemistry but aerosol module !!!
-          Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRC%cch)), GTEMPK, max(0d0,TSTEP_CONC(inm_swr)),&
-                    CH_Beta,CH_H2O, GC_AIR_NOW, 0d0, TSTEP_CONC(inm_CS_NA), CH_Albedo, CH_RO2, reactivities, swr_spectrum, SWR_IS_ACTINICFLUX)
+          if (AEROSOL_FLAG) THEN
+            Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRC%cch)), GTEMPK, max(0d0,GET_TS_CONC(inm_swr)),&
+                    CH_Beta,CH_H2O, GC_AIR_NOW, 0d0, GET_TS_CONC(inm_CS_NA), CH_Albedo, CH_RO2, reactivities, swr_spectrum, SWR_IS_ACTINICFLUX)
+          ELSE
+            Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRC%cch)), GTEMPK, max(0d0,GET_TS_CONC(inm_swr)),&
+                    CH_Beta,CH_H2O, GC_AIR_NOW, GCS, GET_TS_CONC(inm_CS_NA), CH_Albedo, CH_RO2, reactivities, swr_spectrum, SWR_IS_ACTINICFLUX)
           END IF
+        END IF
 
 
         if ( ( minval(CH_GAS)<-1d2 ).and.GTIME%sec>100d0) print FMT_WARN0,&
@@ -554,7 +570,7 @@ END IF
               j = MINLOC(ABS(init_only_these(i)-INDRELAY_CH),1)
               print FMT_NOTE0, TRIM(MODS(j)%NAME)//' CONCENTRATION: '//TRIM(f2chr(CH_GAS(INDRELAY_CH(J)))) &
                     //' cm⁻¹. FROM NOW ON '//TRIM(MODS(j)%NAME)//' WILL FLOAT '
-              INDRELAY_CH(j) = 0
+              INDRELAY_CH(j) = INDRELAY_CH(j)*(-1)
               MODS(i)%isprovided = .false.
             END IF
           end do
@@ -603,10 +619,10 @@ END IF
         if (ACDC) THEN
             CALL ACDC_J(TSTEP_CONC, GTIME%dt*minval(pack(speed_up, speed_up > 0)))
             J_TOTAL_M3 = sum(G_ACDC(:)%J_OUT_M3(1)) ! [particles/s/m^3]
-            J_TOTAL_M3 = J_TOTAL_M3 + TSTEP_CONC(inm_JIN) * 1d6 ! [particles/s/m^3]
+            J_TOTAL_M3 = J_TOTAL_M3 + GET_TS_CONC(inm_JIN) * 1d6 ! [particles/s/m^3]
         else
           ! Only use input formation rate
-          J_TOTAL_M3 = TSTEP_CONC(inm_JIN) * 1d6
+          J_TOTAL_M3 = GET_TS_CONC(inm_JIN) * 1d6
         END if
 
         IF (ORG_NUCL) CALL ORGANIC_NUCL(J_TOTAL_M3)
@@ -706,6 +722,11 @@ END IF
             ! Next time next line from measurement etc. is read
             dmps_ln = dmps_ln + 1
         END IF PARTICLE_INIT
+        ! These are initial values, we need to save them to output at time 0. Later this is not necessary
+        if (GTIME%first_loop) THEN
+          old_PSD = current_PSD
+          GTIME%first_loop = .false.
+        end if
 
     add_particles: if (PRC%in_turn(4).and.J_TOTAL_M3>0d0) THEN
         ! ..........................................................................................................
@@ -912,37 +933,33 @@ END IF
     in_turn_dep: if (PRC%in_turn(PRC%dep)) THEN
         ! ..........................................................................................................
         ! Deposition
-        OnlyIfDepoIsUsed: if ((Deposition) .and.(.not. PRC%err)) then
-            ! Solve particle coagulation
+        OnlyIfDepoIsUsed: if ((Deposition.or.LOSSES_FILE/='') .and.(.not. PRC%err)) then
+
             dconc_dep_mix = 0.d0
+
+            if (Deposition) THEN
+              call deposition_velocity(get_dp(),ustar,A_vert,CHAMBER_FLOOR_AREA,CHAMBER_FLOOR_AREA,&
+              Vol_chamber,GTEMPK,GPRES,E_field,dconc_dep_mix,GTIME%dt*speed_up(PRC%dep),losses_fit)
+            END IF
 
             IF (LOSSES_FILE /= '') THEN
                 if (CONSTANT_PAR_LOSS_RATE>=0d0.and..not.Gaussian_plume) THEN
-                    losses_fit=CONSTANT_PAR_LOSS_RATE
+                  losses_fit=CONSTANT_PAR_LOSS_RATE
                 ELSEIF (Gaussian_plume) THEN
                   losses_fit = MIN( 0.1/GTIME%dt*speed_up(PRC%dep), &
                   & (2.0*GTIME%sec+GTIME%dt*speed_up(PRC%dep))/(GTIME%sec+GTIME%dt*speed_up(PRC%dep))**2)
-
                 ELSE
-                    ! The losses file is interpolated spatially and temporally to fit the current bin structure and time
-                    losses_fit = [ ((INTERP( PAR_LOSSES%sections,                                                             &
-                                 [((INTERP(PAR_LOSSES%time, PAR_LOSSES%conc_matrix(:,i),unit=LOSSFILE_TIME_UNIT)), i=1,size(PAR_LOSSES%sections, 1))], &
-                                  timein=nominal_dp(j)) ), j=1,n_bins_par)]
+                  ! The losses file is interpolated spatially and temporally to fit the current bin structure and time
+                  losses_fit = [ ((INTERP( PAR_LOSSES%sections, &
+                               [((INTERP(PAR_LOSSES%time, PAR_LOSSES%conc_matrix(:,i),unit=LOSSFILE_TIME_UNIT)), &
+                                i=1,size(PAR_LOSSES%sections, 1))], timein=nominal_dp(j)) ), j=1,n_bins_par)]
                 end if
-
                 ! Deposited concentratios calculated here
                 IF (Gaussian_plume) THEN
-                  dconc_dep_mix = get_conc() * losses_fit * GTIME%dt*speed_up(PRC%dep)
+                  dconc_dep_mix = dconc_dep_mix + get_conc() * losses_fit * GTIME%dt*speed_up(PRC%dep)
                 else
-                  dconc_dep_mix = get_conc() * (1 - EXP(-losses_fit*GTIME%dt*speed_up(PRC%dep)))
+                  dconc_dep_mix = dconc_dep_mix + get_conc() * (1 - EXP(-losses_fit*GTIME%dt*speed_up(PRC%dep)))
                 end if
-                ! do ii=1,n_bins_par
-                !   print*, CURRENT_PSD%conc_fs(ii), dconc_dep_mix(ii)
-                ! end do
-
-            ELSE
-                call deposition_velocity(get_dp(),ustar,A_vert,CHAMBER_FLOOR_AREA,CHAMBER_FLOOR_AREA,&
-                                        Vol_chamber,GTEMPK,GPRES,E_field,dconc_dep_mix,GTIME%dt*speed_up(PRC%dep),losses_fit)
             END IF
 
             ! ERROR HANDLING; Check whether changes are within limits:
@@ -978,6 +995,9 @@ END IF
     END IF in_turn_dep
         ! end of Deposition
     end if AEROSOL_ROUTINES
+
+    ! dilute the all the rest of the gases
+    IF (chemistry_flag.and.LOSSES_FILE_GAS/='') call gas_losses_dilution()
 
 END IF in_turn_any
     ! End Aerosol =====================================================================================
@@ -1518,10 +1538,12 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
     else
         print FMT10_CVU, 'H2SO4: ', H2SO4, ' [1/cm3]'
     end if
-    IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', C(inm_NH3), ' [1/cm3]','J_NH3:', G_ACDC(1)%J_OUT_M3(1)*1d-6, ' [1/s/cm3]'!,'sum(Nn)/N1',clusterbase,' []'
-    IF (inm_DMA   /= 0) print FMT10_3CVU, 'DMA C:', C(inm_DMA) , ' [1/cm3]','J_DMA:', G_ACDC(2)%J_OUT_M3(1)*1d-6, ' [1/s/cm3]', 'J-total', J_TOTAL_M3*1e-6,' [1/s/cm3]'
+    if (chemistry_flag) THEN
+      IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', CH_GAS(ABS(INDRELAY_CH(inm_NH3))), ' [1/cm3]','J_NH3:', G_ACDC(1)%J_OUT_M3(1)*1d-6, ' [1/s/cm3]'!,'sum(Nn)/N1',clusterbase,' []'
+      IF (inm_DMA   /= 0) print FMT10_3CVU, 'DMA C:', CH_GAS(ABS(INDRELAY_CH(inm_DMA))) , ' [1/cm3]','J_DMA:', G_ACDC(2)%J_OUT_M3(1)*1d-6, ' [1/s/cm3]', 'J-total', J_TOTAL_M3*1e-6,' [1/s/cm3]'
+    end if
     print FMT10_3CVU, 'Jion neut:', sum(G_ACDC(1:2)%J_OUT_CM3(2)) , ' [/s/cm3]','Jion pos:', SUM(G_ACDC(1:2)%J_OUT_CM3(3)) , ' [/s/cm3]','Jion neg:', SUM(G_ACDC(1:2)%J_OUT_CM3(4)) , ' [/s/cm3]'
-    print FMT10_2CVU, 'C-sink:', GCS , ' [1/s]','IPR:', C(inm_IPR) , ' [1/s/cm3]'
+    print FMT10_2CVU, 'C-sink:', GCS , ' [1/s]','IPR:', GET_TS_CONC(inm_IPR) , ' [1/s/cm3]'
     if ((GTIME%sec)>0 .and. (cpu2 - cpu1 > 0d0)) print '("| ",a,i0,a,i0.2,a,i0,a,i0.2,t65,a,f7.2,t100,"|")', 'Elapsed time (m:s) ',int(cpu2 - cpu1)/60,':',modulo(int(cpu2 - cpu1),60) ,' Est. time to finish (m:s) ',&
                             int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec))/60,':', MODULO(int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec)),60),&
                             'Realtime/Modeltime: ', (GTIME%sec-start_time_s)/(cpu2 - cpu1)
@@ -1553,7 +1575,7 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
             save_measured = conc_fit/1d6
         END IF
         IF (NETCDF_OUT) &
-        CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapour*1d-6, VAPOUR_PROP, save_measured,&
+        CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS_old,reactivities,conc_vapour*1d-6,VAPOUR_PROP,save_measured,&
                         1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar,losses_fit)
 
     END IF
@@ -1576,23 +1598,22 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
             DO j=1,size(SPC_NAMES)
                 IF (MODS(i)%NAME == TRIM(SPC_NAMES(j))) THEN
                     check = 1
-                    print FMT_MSG, 'Found '//TRIM(SPC_NAMES(j))//' from chemistry'
+                    print FMT_MSG, 'Found '//TRIM(SPC_NAMES(j))//' from chemistry: '//i2chr(j)
                     ! store the 'key->value map' for input and chemistry
                     INDRELAY_CH(I) = J
                     exit
                 end if
             END DO
             IF (Chemistry_flag.and.check == 0 .and. I>LENV) THEN
-                print FMT_FAT0, 'You are using an (organic?) compound which does not exist in chemistry: '//TRIM(MODS(i)%NAME)//' '
+                print FMT_FAT0, 'You are using a compound which does not exist in chemistry: '//TRIM(MODS(i)%NAME)//' '
                 IF (MODS(I)%COL > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (col) <- input from file.'
                 IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS - a function for input in use.'
                 IF (ABS(MODS(I)%SHIFT) > 0d0) print FMT_SUB, 'In INITFILE; &NML_MODS (shift) <- modification of value.'
                 print FMT_MSG, 'Good bye.'
                 STOP
             END IF
-            IF (Chemistry_flag.and.check == 0 .and. I<LENV .and. &
-                ((I==inm_H2SO4) .or. (I==inm_NH3) .or. (I==inm_DMA) .or. (I==inm_SO2) &
-                .or. (I==inm_NO) .or. (I==inm_NO2) .or. (I==inm_CO) .or. (I==inm_H2) .or. (I==inm_O3))  ) THEN
+            IF (Chemistry_flag.and.check == 0 .and. I<=LENV .and. &
+                ((I==inm_H2SO4) .or. (I==inm_NH3) .or. (I==inm_DMA))) THEN
                 print FMT_WARN0, 'A compound which does not exist in chemistry but could be used elsewhere: '//TRIM(MODS(i)%NAME)//' '
                 IF (MODS(I)%COL > 0) print FMT_SUB, 'In INITFILE; &NML_MODS (col) <- input from file.'
                 IF (MODS(I)%MODE > 0) print FMT_SUB, 'In INITFILE; &NML_MODS - a function for input in use.'
@@ -1819,5 +1840,39 @@ SUBROUTINE CHECK_IF_END_CMD_GIVEN
     END IF
 
 END SUBROUTINE CHECK_IF_END_CMD_GIVEN
+
+real(dp) Function GET_TS_CONC(ind)
+integer :: ind
+if (ind /= 0) THEN
+  GET_TS_CONC = TSTEP_CONC(ind)
+else
+  GET_TS_CONC = 0d0
+end if
+
+end function
+
+subroutine gas_losses_dilution()
+  implicit none
+  real(dp) :: c(10)
+  real(dp) :: uniform_rate
+  real(dp),save :: component_rates(NSPEC) = 0d0
+  integer :: ic,i
+
+  if (CONSTANT_GAS_LOSS_RATE>=0d0.and..not.Gaussian_plume_chm) THEN
+    uniform_rate = CONSTANT_GAS_LOSS_RATE
+    CH_GAS       = CH_GAS * EXP(-uniform_rate*GTIME%dt*speed_up(PRC%dep))
+  ELSEIF (Gaussian_plume_chm) THEN
+    uniform_rate = MIN( 0.1/GTIME%dt*speed_up(PRC%dep), &
+                  & (2.0*GTIME%sec+GTIME%dt*speed_up(PRC%dep))/(GTIME%sec+GTIME%dt*speed_up(PRC%dep))**2)
+                  CH_GAS = CH_GAS * (1d0 - uniform_rate * GTIME%dt*speed_up(PRC%dep))
+  ELSE
+    component_rates(GAS_LOSSES%indices) = [(interp(GAS_LOSSES%time, GAS_LOSSES%conc_matrix(:,ic), unit=LOSSFILE_GAS_TIME_UNIT), ic=1,GAS_LOSSES%len_c)]
+    CH_GAS = CH_GAS * EXP(-component_rates*GTIME%dt*speed_up(PRC%dep))
+
+  end if
+
+end Subroutine gas_losses_dilution
+
+
 
 END PROGRAM ARCA_main

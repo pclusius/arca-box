@@ -29,9 +29,9 @@ USE auxillaries
 
 Implicit none
 
-INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
+! INTEGER :: N_VARS ! This will store the number of variables in NAMES.DAT
 INTEGER :: N_XTRS ! This will store the number of variables in AEMS.DAT
-INTEGER :: LENV   ! This will store the number of named indices in this code
+INTEGER :: LENV   ! This will storeMODS the number of named indices in this code
 
 ! INDICES TO PROPERLY COMBINE INPUT TO CORRECT VALUES IN THE MODEL
 ! ALL VARIABLES THAT ARE TIME DEPENDENT MUST BE HERE
@@ -65,15 +65,18 @@ INTEGER, ALLOCATABLE :: index_cond(:)
 
 REAL(dp), allocatable, private :: INPUT_ENV(:,:)  ! will be of same shape as the files
 REAL(dp), allocatable, private :: INPUT_MCM(:,:)  ! will be of same shape as the files
-REAL(dp), allocatable :: timevec(:)     ! Whatever the times were for (currently) ALL measurements
-REAL(dp), allocatable :: CONC_MAT(:,:)  ! will be of shape ( len(timevec) : N_VARS )
+REAL(dp), allocatable :: timevec_ENV(:)     ! Whatever the times were for ENV measurements
+REAL(dp), allocatable :: timevec_CHM(:)     ! Whatever the times were for CHM measurements
+REAL(dp), allocatable :: CONC_MAT_ENV(:,:)  ! will be of shape ( len(timevec) : LENV )
+REAL(dp), allocatable :: CONC_MAT_CHM(:,:)  ! will be of shape ( len(timevec) : N_VARS-LENV )
 real(dp), allocatable :: par_data(:,:)
 real(dp), allocatable :: GGR(:)
 INTEGER               :: H2SO4_ind_in_chemistry = 0 ! Will be checked later and set to correct if H2SO4 is found
-INTEGER               :: OH_ind_in_chemistry    = 0 ! Will be checked later and set to correct if H2SO4 is found
+INTEGER               :: OH_ind_in_chemistry    = 0 ! Will be checked later and set to correct if OH is found
 REAL(dp)              :: swr_spectrum(84) = 0d0     ! Vector for holding SWR spectral data, read in once from file or the interpolated values from swr_temporal_data
 LOGICAL               :: swr_is_time_dependent = .false.
 LOGICAL               :: Gaussian_plume = .false.
+LOGICAL               :: Gaussian_plume_chm = .false.
 REAL(dp), ALLOCATABLE :: swr_times(:)               ! Vectors for holding SWR spectral data time stamps, used if SWR spectrum time dependent
 REAL(dp), ALLOCATABLE :: swr_temporal_data(:,:)     ! Vectors for holding SWR spectral data, used if SWR spectrum time dependent
 INTEGER, ALLOCATABLE  :: init_only_these(:)         ! Indices of the variables in MODS that will only be read in the first loop
@@ -113,12 +116,16 @@ Logical :: OPTIMIZE_DT         = .false. ! Will be deprecated after 1.2
 Logical :: USE_SPEED           = .false. ! Replacing OPTIMIZE_DT
 Logical :: AFTER_CHEM_ON       = .false.
 Logical :: AFTER_NUCL_ON       = .false.
-CHARACTER(len=3) :: FILE_TIME_UNIT  = 'day'
+CHARACTER(len=3) :: ENVFILE_TIME_UNIT  = '---'
+CHARACTER(len=3) :: FILE_TIME_UNIT  = '---'
+CHARACTER(len=3) :: MCMFILE_TIME_UNIT  = '---'
 CHARACTER(len=3) :: LOSSFILE_TIME_UNIT  = 'day'
+CHARACTER(len=3) :: LOSSFILE_GAS_TIME_UNIT  = 'day'
 
 NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, ACDC, & !NUCLEATION,
          Condensation, Coagulation, Deposition, Chem_Deposition, model_H2SO4, RESOLVE_BASE, &
-         PRINT_ACDC, USE_SPEED,OPTIMIZE_DT, ORG_NUCL, AFTER_CHEM_ON, AFTER_NUCL_ON, FILE_TIME_UNIT,LOSSFILE_TIME_UNIT !,INIT_W_MODAL, Extra_data
+         PRINT_ACDC, USE_SPEED,OPTIMIZE_DT, ORG_NUCL, AFTER_CHEM_ON, AFTER_NUCL_ON, &
+         FILE_TIME_UNIT,ENVFILE_TIME_UNIT,MCMFILE_TIME_UNIT,LOSSFILE_TIME_UNIT,LOSSFILE_GAS_TIME_UNIT !,INIT_W_MODAL, Extra_data
 
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0
@@ -127,7 +134,8 @@ real(dp)  :: PRINT_INTERVAL = 15*60d0
 INTEGER   :: FSAVE_DIVISION = 0
 real(dp)  :: dt = -1d0
 CHARACTER(len=10)  :: DATE = '1800-01-01', NUMBER = ''
-NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, DATE, NUMBER
+CHARACTER(len=3)   :: RUNTIME_TIME_UNIT  = 'hrs'
+NAMELIST /NML_TIME/ runtime, dt, FSAVE_INTERVAL, PRINT_INTERVAL, FSAVE_DIVISION, DATE, NUMBER,RUNTIME_TIME_UNIT
 
 ! MODIFIER OPTIONS
 ! MODS is declared in CONSTANTS.f90, in order to be more widely available
@@ -182,12 +190,16 @@ type(particle_grid), ALLOCATABLE :: xtras(:)
 type(particle_grid) :: BG_PAR       ! Var to store the particle size distribution. This might become redundant
 type(particle_grid) :: PAR_LOSSES   ! Var to store losses file, which could be either one row or a matrix, but has time
                                     ! and size dependency
+type(particle_grid) :: GAS_LOSSES   ! Var to store losses file, which could be either one row or a matrix, but has time
+                                    ! and size dependency
 
 
 ! ENVIRONMENTAL INPUT
 CHARACTER(len=256)  :: ENV_FILE = ''
 CHARACTER(len=256)  :: LOSSES_FILE = ''
+CHARACTER(len=256)  :: LOSSES_FILE_GAS = ''
 REAL(dp)            :: CONSTANT_PAR_LOSS_RATE = -1d0
+REAL(dp)            :: CONSTANT_GAS_LOSS_RATE = -1d0
 ! Chamber properties
 REAL(dp)            :: CHAMBER_FLOOR_AREA     = 0d0
 REAL(dp)            :: CHAMBER_HEIGHT = 0d0
@@ -205,7 +217,7 @@ Logical             :: SWR_IS_ACTINICFLUX  = .false.
 REAL(dp)            :: SWR_IN_LOWER = 300d0  ! [nm] wavelength range of the Global SW Irradiation measurements
 REAL(dp)            :: SWR_IN_UPPER = 4000d0 ! [nm] wavelength range of the Global SW Irradiation measurements
 
-NAMELIST /NML_ENV/  ENV_file, LOSSES_FILE, CHAMBER_FLOOR_AREA, CHAMBER_CIRCUMFENCE, CHAMBER_HEIGHT, &
+NAMELIST /NML_ENV/  ENV_file, LOSSES_FILE, LOSSES_FILE_GAS, CHAMBER_FLOOR_AREA, CHAMBER_CIRCUMFENCE, CHAMBER_HEIGHT, &
                     EDDYK,ustar,ALPHAWALL,Cw_eqv, spectrumfile,SWR_IS_ACTINICFLUX,&
                     SWR_IN_LOWER,SWR_IN_UPPER
 
@@ -340,8 +352,10 @@ NAMELIST /NML_ACDC/ ACDC_SYSTEMS, ACDC_links
 CHARACTER(200) :: NAMESDAT = 'ModelLib/required/NAMES.dat'
 CHARACTER(200) :: INORGANIC = 'ModelLib/required/INORGANIC.dat'
 CHARACTER(200) :: XTRASDAT = 'ModelLib/required/AEMS.dat'
+INTEGER        :: N_VARS = 0
 
-NAMELIST /NML_NAMES/ NAMESDAT,INORGANIC,XTRASDAT
+NAMELIST /NML_NAMES/ INORGANIC,XTRASDAT,N_VARS,NAMESDAT
+
 ! ==================================================================================================================
 
 contains
@@ -394,7 +408,7 @@ subroutine READ_INPUT_DATA()
     default_vap%st       = SURFACE_TENSION
     default_vap%alpha_w  = ALPHAWALL
     default_vap%density  = ORGANIC_DENSITY
-
+    vap_in               = default_vap
 ! This block is handled by C preprocessor --------------------------!
 #ifdef NMACDC
     noacd = NMACDC
@@ -416,24 +430,7 @@ subroutine READ_INPUT_DATA()
         ACDC_links(2)       = 'A H2SO4 D DMA'
     End IF
 
-    CALL READ_NAMESDAT
-
-    ! CHECK HOW MANY POSSIBLE INPUT VARIABLES (METEOROLOGICAL, MCM ETC.) THERE ARE IN THE MODEL
-    OPEN(800, file=TRIM(NAMESDAT), ACTION='READ', status='OLD', iostat=ioi)
-    write(*,FMT_HDR) 'READING COMPOUND NAMES AND ORDER FROM '
-    write(*,FMT_SUB) TRIM(NAMESDAT)
-    write(*,FMT_HDR) ''
-    call handle_file_io(ioi, TRIM(NAMESDAT), 'This file is essential.')
-
-    ! Check the number of rows in NAMESDAT and close file
-    N_VARS = rowcount(800)
-    CLOSE(800)
-
-    OPEN(800, file=TRIM(XTRASDAT), ACTION='READ', status='OLD', iostat=ioi)
-    N_XTRS = rowcount(800)
-    CLOSE(800)
-
-    N_VARS = N_VARS + N_XTRS
+    CALL CHECK_INPUT_FILE
 
     ! BASED ON N_VARS, ALLOCATE AND INITIALIZE VECTORS
     ALLOCATE(MODS(N_VARS))
@@ -458,43 +455,64 @@ subroutine READ_INPUT_DATA()
     CALL SW_PP
 
     ! Here we turn submodules on or off based on other options
-    If (USE_SPEED)         OPTIMIZE_DT  = .true. ! for backward compatibility
-    if (Kelvin_taylor)     Kelvin_exp   = .false.
-    if (.not.Kelvin_taylor)Kelvin_exp   = .true.
-    if (LOSSES_FILE /= '') Deposition   = .true.
-    If (.not.Aerosol_flag) Condensation = .false.
-    If (.not.Aerosol_flag) Coagulation  = .false.
-    If (.not.Aerosol_flag) Deposition   = .false.
-    if (.not.Condensation) CALC_GR = .false.
+    If (USE_SPEED)             OPTIMIZE_DT       = .true. ! for backward compatibility
+    if (Kelvin_taylor)         Kelvin_exp        = .false.
+    if (.not.Kelvin_taylor)    Kelvin_exp        = .true.
+    ! if (LOSSES_FILE /= '')     Deposition        = .true.
+    ! if (LOSSES_FILE_GAS /= '') Chem_Deposition   = .true.
+    If (.not.Aerosol_flag)     Condensation      = .false.
+    If (.not.Aerosol_flag)     Coagulation       = .false.
+    If (.not.Aerosol_flag)     Deposition        = .false.
+    if (.not.Condensation)     CALC_GR           = .false.
+    if (Chem_Deposition.and..not.condensation) THEN
+      print FMT_FAT0, 'Chemical deposition only works if aerosol module and condensation is turned on.'
+      stop 'Turn on "aerosols" and "condensation", use clean air if desired (without particles).'
+    END IF
     H2SO4_ind_in_chemistry = IndexFromName( 'H2SO4', SPC_NAMES )
     OH_ind_in_chemistry = IndexFromName( 'OH', SPC_NAMES )
 
     ! dmps_tres_min is being phazed out and replaced/overridden by dmps_interval
     if (dmps_interval>0d0) dmps_tres_min = dmps_interval
 
-    ! ALLOCATE CONC_MAT Currently both files need to have same time resolution FIX THIS SOME DAY!
+    ! ALLOCATE CONC_MAT_ENV & CHM
     ! The idea here is to count the rows to get time and allocate CONCMAT and TIMEVEC
-    IF ((ENV_file /= '') .or. (MCM_file /= '')) THEN
-        IF (ENV_file /= '') THEN
-            OPEN(unit=801, File=TRIM(ENV_file), ACTION='READ', STATUS='OLD', iostat=ioi)
-            CALL handle_file_io(ioi, ENV_file, 'stop')
-        ELSE
-            OPEN(unit=801, File=TRIM(MCM_file), ACTION='READ', STATUS='OLD',iostat=ioi)
-            CALL handle_file_io(ioi, MCM_file, 'stop')
-        END IF
-        ! Now we can allocate CONC_MAT and TIMEVEC and close the input file for now
-        ALLOCATE(CONC_MAT(ROWCOUNT(801,'#'),N_VARS))
-        ALLOCATE(TIMEVEC(ROWCOUNT(801,'#')))
-        CLOSE(801)
-
-    ! Deal with a situation where we have no input. We still need conc_mat and timevec.
+    IF (ENV_file /= '') THEN
+      OPEN(unit=801, File=TRIM(ENV_file), ACTION='READ', STATUS='OLD', iostat=ioi)
+      CALL handle_file_io(ioi, ENV_file, 'stop')
+      ALLOCATE(CONC_MAT_ENV(ROWCOUNT(801,'#'),LENV))
+      ALLOCATE(TIMEVEC_ENV(ROWCOUNT(801,'#')))
+      IF ((ENVFILE_TIME_UNIT=='---').and.(FILE_TIME_UNIT /= '---')) THEN
+        ENVFILE_TIME_UNIT = FILE_TIME_UNIT
+      ELSE IF (ENVFILE_TIME_UNIT=='---') THEN
+        ENVFILE_TIME_UNIT = 'day'
+      end if
     ELSE
-        ALLOCATE(CONC_MAT(2,N_VARS))
-        ALLOCATE(TIMEVEC(2))
-        TIMEVEC = (/0d0, GTIME%SIM_TIME_H/)
+      ALLOCATE(CONC_MAT_ENV(2,LENV))
+      ALLOCATE(TIMEVEC_ENV(2))
+      TIMEVEC_ENV = (/0d0, GTIME%SIM_TIME_H/)
     END IF
+    CLOSE(801)
+
+    IF (MCM_file /= '') THEN
+      OPEN(unit=801, File=TRIM(MCM_file), ACTION='READ', STATUS='OLD',iostat=ioi)
+      CALL handle_file_io(ioi, MCM_file, 'stop')
+      ALLOCATE(CONC_MAT_CHM(ROWCOUNT(801,'#'),LENV+1:N_VARS))
+      ALLOCATE(TIMEVEC_CHM(ROWCOUNT(801,'#')))
+      IF ((MCMFILE_TIME_UNIT=='---').and.(FILE_TIME_UNIT /= '---')) THEN
+        MCMFILE_TIME_UNIT = FILE_TIME_UNIT
+      ELSE IF (MCMFILE_TIME_UNIT=='---') THEN
+        MCMFILE_TIME_UNIT = 'day'
+      end if
+
+    ELSE
+      ALLOCATE(CONC_MAT_CHM(2,LENV+1:N_VARS))
+      ALLOCATE(TIMEVEC_CHM(2))
+      TIMEVEC_CHM = (/0d0, GTIME%SIM_TIME_H/)
+    END IF
+    CLOSE(801)
     ! Initialize concentrations before reading them from input files
-    CONC_MAT = 0d0
+    CONC_MAT_ENV = 0d0
+    CONC_MAT_CHM = 0d0
 
     ! READ ENV INPUT
     if (ENV_file /= '') THEN
@@ -509,7 +527,7 @@ subroutine READ_INPUT_DATA()
         ALLOCATE(INPUT_ENV(rows,cols))
         INPUT_ENV = 0
         call FILL_INPUT_BUFF(801,cols,INPUT_ENV,ENV_file)
-        timevec = INPUT_ENV(:,1)
+        timevec_ENV = INPUT_ENV(:,1)
         CLOSE(801)
     END IF
 
@@ -525,11 +543,14 @@ subroutine READ_INPUT_DATA()
         allocate(INPUT_MCM(rows,cols))
         INPUT_MCM = 0
         call FILL_INPUT_BUFF(801,cols,INPUT_MCM,MCM_file)
-        timevec = INPUT_MCM(:,1)
+        timevec_CHM = INPUT_MCM(:,1)
         CLOSE(801)
     END IF
 
-    CALL PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
+    CALL PUT_INPUT_IN_THEIR_PLACES
+
+    if (ALLOCATED(INPUT_ENV)) DEALLOCATE(INPUT_ENV)
+    if (ALLOCATED(INPUT_MCM)) DEALLOCATE(INPUT_MCM)
 
     ! check IF dmps data is used or not. If no then do nothing.
     IF (USE_DMPS .and. Aerosol_flag) then
@@ -545,6 +566,16 @@ IF ((TRIM(LOSSES_FILE) /= '') .and. Aerosol_flag) THEN
         Gaussian_plume = .true.
     ELSE
         CALL PARSE_PARTICLE_GRID(LOSSES_FILE, PAR_LOSSES)
+    END IF
+END IF
+
+IF ((TRIM(LOSSES_FILE_GAS) /= '') .and. Chemistry_flag) THEN
+    if (LOSSES_FILE_GAS(1:1) == '#') THEN
+        READ(LOSSES_FILE_GAS(2:), *) CONSTANT_GAS_LOSS_RATE
+    ELSEIF (LOSSES_FILE_GAS(1:5) == 'PLUME') THEN
+        Gaussian_plume_chm = .true.
+    ELSE
+        CALL PARSE_GAS_GRID(LOSSES_FILE_GAS, GAS_LOSSES)
     END IF
 END IF
 
@@ -583,7 +614,7 @@ END IF
 
 print FMT_LEND,
 
-CALL PARSE_ACDC_SYSTEMS
+IF (ACDC) CALL PARSE_ACDC_SYSTEMS
 
 IF (Aerosol_flag) then
 
@@ -630,7 +661,7 @@ IF (Aerosol_flag) then
     VAPOUR_PROP%n_cond_org = VAPOUR_PROP%n_cond_org + 1
 
     write(*,FMT_MSG) 'Reading list of particle phase inorganics '// TRIM(INORGANIC)
-    OPEN(unit=803, File= TRIM(INORGANIC) , STATUS='OLD', iostat=ioi)
+    OPEN(unit=803, File= TRIM(INORGANIC), STATUS='OLD', ACTION='READ', iostat=ioi)
     call handle_file_io(ioi, TRIM(INORGANIC), &
         'Could not access list of inorganics '//TRIM(INORGANIC))
     rows = ROWCOUNT(803)
@@ -838,7 +869,7 @@ IF (Aerosol_flag) then
     END IF
 
     if (Use_atoms) THEN
-        OPEN(unit=804, File=TRIM(Vap_atoms) , STATUS='OLD', iostat=ioi)
+        OPEN(unit=804, File=TRIM(Vap_atoms), STATUS='OLD', ACTION='READ', iostat=ioi)
         call handle_file_io(ioi, Vap_atoms, 'Terminating the program.')
         write(*,FMT_MSG) 'Reading the list of elemental composition: '// TRIM(Vap_atoms)
 
@@ -902,19 +933,10 @@ end subroutine READ_INPUT_DATA
 !-------------------------------------------------------------------------------
 ! Reads the path to NAMESDAT
 !-------------------------------------------------------------------------------
-subroutine READ_NAMESDAT
+subroutine CHECK_INPUT_FILE
   implicit none
   integer :: IOS(20)=0, i=1, k
   CALL GETARG(1,Fname_init)
-  ! Advice user if no INITFILE was provided
-  IF (Fname_init == '') THEN
-    write(*,FMT_LEND)
-    write(*,FMT_MSG) 'No INITFILE Defined. Send the relative path to proper INITFILE as command line option.'
-    CALL GETARG(0,Fname_init)
-    write(*,FMT_MSG) 'For example: $ '//TRIM(Fname_init)//' model_init'
-    write(*,FMT_LEND)
-    STOP
-  END IF
 
   CALL GETARG(2,gui)
   if (gui == '--gui') ingui = .true.
@@ -939,45 +961,16 @@ subroutine READ_NAMESDAT
   ! IF (IOS(i) == 0) EXIT;
   REWIND(888)
   i=i+1
+
   CLOSE(888)
 
-end subroutine READ_NAMESDAT
+end subroutine CHECK_INPUT_FILE
 
 subroutine READ_INIT_FILE
   implicit none
   integer :: IOS(20)=0, i=1, k
-  ! CALL GETARG(1,Fname_init)
-  ! ! Advice user if no INITFILE was provided
-  ! IF (Fname_init == '') THEN
-  !   write(*,FMT_LEND)
-  !   write(*,FMT_MSG) 'No INITFILE Defined. Send the relative path to proper INITFILE as command line option.'
-  !   CALL GETARG(0,Fname_init)
-  !   write(*,FMT_MSG) 'For example: $ '//TRIM(Fname_init)//' model_init'
-  !   write(*,FMT_LEND)
-  !   STOP
-  ! END IF
-  !
-  ! CALL GETARG(2,gui)
-  ! if (gui == '--gui') ingui = .true.
-  !
-  OPEN(UNIT=888, FILE=TRIM(ADJUSTL(Fname_init)), STATUS='OLD', ACTION='READ', iostat=IOS(1))
-  ! ! Handle file not found error
-  ! IF (IOS(1) /= 0) THEN
-  !   write(*,FMT_FAT0) 'There is no INITFILE '//TRIM(ADJUSTL(Fname_init))//', exiting. Good bye.'
-  !   write(*,FMT_LEND)
-  !   STOP
-  ! END IF
 
-  ! ! if INITFILE was found, we read it. In case there is a problem in namelist filling, give en error.
-  ! write(*,FMT_HDR) 'READING USER DEFINED INTIAL VALUES FROM:'
-  ! write(*,FMT_HDR) TRIM(ADJUSTL(Fname_init))
-  !
-  ! if (.not. ingui) &
-  !   CALL EXECUTE_COMMAND_LINE('sh ModelLib/gui/modules/compatibility_layer.sh '//TRIM(ADJUSTL(Fname_init)))
-  !
-  !
-  ! READ(888,NML = NML_NAMES, IOSTAT=IOS(i)) ! #1
-  ! REWIND(888)
+  OPEN(UNIT=888, FILE=TRIM(ADJUSTL(Fname_init)), STATUS='OLD', ACTION='READ', iostat=IOS(1))
 
   READ(888,NML = NML_TIME, IOSTAT=IOS(i)) ! #2
   REWIND(888)
@@ -1073,6 +1066,10 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
     INTEGER :: leap_year(12) = ([31,29,31,30,31,30,31,31,30,31,30,31])
     INTEGER :: y,m,d,ioi
 
+    if (RUNTIME_TIME_UNIT == 'day') runtime = runtime * 24d0
+    if (RUNTIME_TIME_UNIT == 'min') runtime = runtime / 60d0
+    if (RUNTIME_TIME_UNIT == 'sec') runtime = runtime / 3600d0
+
     GTIME%SIM_TIME_H = runtime
     GTIME%SIM_TIME_S = runtime*3600d0
     GTIME%dt = DT
@@ -1122,7 +1119,8 @@ end subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
 subroutine NAME_MODS_SORT_NAMED_INDICES
   implicit none
   INTEGER :: i, j
-
+  type(input_mod) :: DDD
+  LOGICAL :: xtrasFound = .False.
   DO i=1, N_VARS
     IF (TRIM(MODS(i)%UNIT) == 'X') THEN
         MODS(i)%UNIT = '#'
@@ -1131,36 +1129,31 @@ subroutine NAME_MODS_SORT_NAMED_INDICES
     END IF
   END DO
 
-  OPEN(800, file=TRIM(NAMESDAT), ACTION='READ', status='OLD')
-  DO i = 1,N_VARS - N_XTRS
-    READ(800, *) MODS(I)%NAME
-    IF (TRIM(MODS(I)%NAME) == 'TEMPK'        ) inm_TempK = i
-    IF (TRIM(MODS(I)%NAME) == 'PRESSURE'     ) inm_pres = i
-    IF (TRIM(MODS(I)%NAME) == 'REL_HUMIDITY' ) inm_RH = i
-    IF (TRIM(MODS(I)%NAME) == 'CONDENS_SINK' ) inm_CS = i
-    IF (TRIM(MODS(I)%NAME) == 'CON_SIN_NITR' ) inm_CS_NA = i
-    IF (TRIM(MODS(I)%NAME) == 'SW_RADIATION' ) inm_swr = i
-    IF (TRIM(MODS(I)%NAME) == 'ION_PROD_RATE') inm_IPR = i
-    IF (TRIM(MODS(I)%NAME) == 'H2SO4'        ) inm_H2SO4 = i
-    IF (TRIM(MODS(I)%NAME) == 'NH3'          ) inm_NH3 = i
-    IF (TRIM(MODS(I)%NAME) == 'DMA'          ) inm_DMA = i
-    IF (TRIM(MODS(I)%NAME) == 'SO2'          ) inm_SO2 = i
-    IF (TRIM(MODS(I)%NAME) == 'NO'           ) inm_NO = i
-    IF (TRIM(MODS(I)%NAME) == 'NO2'          ) inm_NO2 = i
-    IF (TRIM(MODS(I)%NAME) == 'CO'           ) inm_CO = i
-    IF (TRIM(MODS(I)%NAME) == 'H2'           ) inm_H2 = i
-    IF (TRIM(MODS(I)%NAME) == 'O3'           ) inm_O3 = i
-    IF (TRIM(MODS(I)%NAME) == 'NUC_RATE_IN ' ) inm_JIN = i
-    IF (TRIM(MODS(I)%NAME) == '#'            ) LENV = i
-    IF (.not.TRIM(UCASE(MODS(I)%NAME(1:3))) == 'EMI') N_CONCENTRATIONS = i
+  DO i = 1,N_VARS ! - N_XTRS
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'TEMPK'        ) inm_TempK = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'PRESSURE'     ) inm_pres = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'REL_HUMIDITY' ) inm_RH = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'CONDENS_SINK' ) inm_CS = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'CON_SIN_NITR' ) inm_CS_NA = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'SW_RADIATION' ) inm_swr = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'ION_PROD_RATE') inm_IPR = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'H2SO4'        ) inm_H2SO4 = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'NH3'          ) inm_NH3 = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'DMA'          ) inm_DMA = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'SO2'          ) inm_SO2 = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'NO'           ) inm_NO = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'NO2'          ) inm_NO2 = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'CO'           ) inm_CO = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'H2'           ) inm_H2 = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'O3'           ) inm_O3 = i
+    IF (TRIM(UCASE(MODS(I)%NAME)) == 'NUC_RATE_IN ' ) inm_JIN = i
+    IF ((.not.xtrasFound).and.(.not.TRIM(UCASE(MODS(I)%NAME(1:3))) == 'EMI')) N_CONCENTRATIONS = i
+    IF ((.not.xtrasFound).and.(TRIM(UCASE(MODS(I)%NAME(4:7))) == '_GMD')) then
+      xtrasFound = .true.
+      N_XTRS = N_VARS - i + 1
+    END IF
   END DO
-  close(800)
-
-  OPEN(800, file=TRIM(XTRASDAT), ACTION='READ', status='OLD')
-  DO j = 1, N_XTRS
-    READ(800, *) MODS(i+j-1)%NAME
-  END DO
-  close(800)
+  LENV = MAX(inm_TempK,inm_pres,inm_RH,inm_CS,inm_CS_NA,inm_swr,inm_IPR,inm_JIN)
 
 end subroutine NAME_MODS_SORT_NAMED_INDICES
 
@@ -1171,16 +1164,16 @@ subroutine REPORT_INPUT_COLUMNS_TO_USER
 
     DO i=1,N_VARS
         IF (I==1) print FMT_MSG, 'ENV values from '//TRIM(ENV_file)//':'
-        IF ((I==LENV) .and. (maxval(MODS(LENV:)%col)>-1)) print FMT_MSG, 'MCM values from '//TRIM(MCM_file)//':'
+        IF ((I==LENV+1) .and. (maxval(MODS(LENV+1:)%col)>-1)) print FMT_MSG, 'MCM values from '//TRIM(MCM_file)//':'
 
         IF (MODS(I)%col > -1) THEN
-            IF ((TRIM(ENV_file) == '') .and. (I<LENV) .and. MODS(I)%mode==0) THEN
+            IF ((TRIM(ENV_file) == '') .and. (I<=LENV) .and. MODS(I)%mode==0) THEN
                 print FMT_SUB, TRIM(MODS(I)%NAME)//' should be read from column: '//TRIM(i2chr(MODS(I)%col))//' but no ENV_FILE'
-                print FMT_SUB, 'To avoid accidental error, if referring to file it must exist.'
+                print FMT_SUB, 'To avoid accidental error, if referring to file, it must exist.'
                 STOP  'Change column number to -1, link to another variable, or use parametric input'
             ELSE IF ((TRIM(MCM_file) == '') .and. (I>LENV) .and. MODS(I)%mode==0) THEN
                 print FMT_SUB, TRIM(MODS(I)%NAME)//' should be read from column: '//TRIM(i2chr(MODS(I)%col))//' but no MCM_FILE'
-                print FMT_SUB, 'To avoid accidental error, if referring to file it must exist.'
+                print FMT_SUB, 'To avoid accidental error, if referring to file, it must exist.'
                 STOP  'Change column number to -1, link to another variable, or use parametric input'
             ELSE
                 print FMT_SUB, TRIM(MODS(I)%NAME)//' will be read from column: '//TRIM(i2chr(MODS(I)%col))
@@ -1189,25 +1182,28 @@ subroutine REPORT_INPUT_COLUMNS_TO_USER
     END DO
 end subroutine REPORT_INPUT_COLUMNS_TO_USER
 
-SUBROUTINE PUT_INPUT_IN_THEIR_PLACES(INPUT_ENV,INPUT_MCM,CONC_MAT)
+SUBROUTINE PUT_INPUT_IN_THEIR_PLACES()
     implicit none
-    REAL(DP), intent(in)    :: INPUT_ENV(:,:)
-    REAL(DP), intent(in)    :: INPUT_MCM(:,:)
-    REAL(DP), intent(inout) :: CONC_MAT(:,:)
+    ! REAL(DP), intent(in)    :: INPUT_ENV(:,:)
+    ! REAL(DP), intent(in)    :: INPUT_MCM(:,:)
+    ! REAL(DP), intent(inout) :: CONC_MAT_ENV(:,:)
+    ! REAL(DP), intent(inout) :: CONC_MAT_CHM(:,:)
     integer                 :: i
 
     DO i=1,N_VARS
-        IF ((I < lenv) .and. (ENV_file /= '') .and. (MODS(I)%col > -1)) THEN
-            CONC_MAT(:,I) = input_ENV(:,MODS(I)%col)
+        IF ((I <= lenv) .and. (ENV_file /= '') .and. (MODS(I)%col > -1)) THEN
+            CONC_MAT_ENV(:,I) = input_ENV(:,MODS(I)%col)
         END IF
 
         IF ((I>lenv) .and. (MCM_file /= '') .and. (MODS(I)%col > -1)) THEN
-            CONC_MAT(:,I) = input_MCM(:,MODS(I)%col)
+            CONC_MAT_CHM(:,I) = input_MCM(:,MODS(I)%col)
         END IF
     END DO
 
-    if (NO2_IS_NOX) CONC_MAT(:,inm_NO2) =  CONC_MAT(:,inm_NO2)- CONC_MAT(:,inm_NO)
-
+    if (NO2_IS_NOX) then
+      if ((inm_NO == 0).or.(inm_NO2==0)) STOP 'NO and NO2 MUST BE IN THE CHEMISTRY TO DISTRIBUTE NOX'
+      CONC_MAT_CHM(:,inm_NO2) =  CONC_MAT_CHM(:,inm_NO2)- CONC_MAT_CHM(:,inm_NO)
+    end if
 END SUBROUTINE PUT_INPUT_IN_THEIR_PLACES
 
 
@@ -1301,7 +1297,7 @@ SUBROUTINE CONVERT_TEMPS_TO_KELVINS
         print FMT_MSG, '- Converting temperature from degrees C -> K.'
         MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
         MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
-        CONC_MAT(:,inm_TempK) = CONC_MAT(:,inm_TempK) + 273.15d0
+        CONC_MAT_ENV(:,inm_TempK) = CONC_MAT_ENV(:,inm_TempK) + 273.15d0
     ELSE
         print FMT_WARN0, "Could not recognize temperature unit. Use either 'K' or 'C'. Now assuming Kelvins."
     END IF
@@ -1373,7 +1369,7 @@ SUBROUTINE PARSE_PARTICLE_GRID(file, parvar)
 
     ALLOCATE(parvar%conc_modelbins(n_bins_par))
 
-    open(8889, file=TRIM(file), IOSTAT=ioi)
+    open(8889, file=TRIM(file), STATUS='OLD', ACTION='READ', IOSTAT=ioi)
     call handle_file_io(ioi, file, 'Exiting the program')
 
     rows = rowcount(8889)
@@ -1412,6 +1408,69 @@ SUBROUTINE PARSE_PARTICLE_GRID(file, parvar)
     CLOSE(8889)
 
 END SUBROUTINE PARSE_PARTICLE_GRID
+
+
+SUBROUTINE PARSE_GAS_GRID(file, gasvar)
+    IMPLICIT NONE
+    CHARACTER(len=*), INTENT(IN)        :: file   ! 1. row is name, 1. column is time
+    TYPE(particle_grid), INTENT(INOUT)  :: gasvar ! The particle grid to be allocated and filled with data in file
+    integer                             :: rows, cols, ioi, I,K
+    CHARACTER(len=32), allocatable      :: tmpnames(:),names(:)
+    integer, allocatable                :: filter(:)
+    real(dp), allocatable               :: X(:,:)
+
+    open(8889, file=TRIM(file), STATUS='OLD', ACTION='READ', IOSTAT=ioi)
+    call handle_file_io(ioi, file, 'While parsing the Gas loss rates, exiting the program')
+
+    rows = rowcount(8889)
+    IF ('.CSV' == UCASE(file(len(TRIM(file))-3:len(TRIM(file))))) THEN
+      cols = colcount(8889, separator=',')
+    ELSE
+      cols = colcount(8889)
+    END IF
+
+    ALLOCATE(tmpnames(cols))
+    ALLOCATE(filter(cols-1))
+    ALLOCATE(X(rows-1,cols-1))
+    filter = 0
+
+    read(8889,*) tmpnames(:)
+    do i=2,cols
+      K=IndexFromName(tmpnames(i),SPC_NAMES)
+      if (k>0) filter(i-1) = k
+    end do
+
+    gasvar%len_t = rows-1
+    gasvar%len_c = size(pack(filter,filter>0))
+    allocate(gasvar%conc_matrix(gasvar%len_t,gasvar%len_c))
+    ALLOCATE(gasvar%conc_modelbins(gasvar%len_c))
+    ALLOCATE(gasvar%indices(gasvar%len_c))
+    ALLOCATE(names(gasvar%len_c))
+    ALLOCATE(gasvar%time(gasvar%len_t))
+    gasvar%indices(:) = -1
+
+    DO I=1,rows-1
+      read(8889,*) gasvar%time(I), X(i,:)
+    END DO
+
+    CLOSE(8889)
+
+    k=1
+    do i=1,cols-1
+      if (filter(i)>0) then
+        gasvar%indices(k) = filter(i)
+        names(k) = tmpnames(1+i)
+        gasvar%conc_matrix(:,k) = X(:,i)
+        k = k+1
+      end if
+    end do
+
+    DEALLOCATE(tmpnames)
+    DEALLOCATE(names)
+    DEALLOCATE(filter)
+    DEALLOCATE(X)
+
+END SUBROUTINE PARSE_GAS_GRID
 
 
 SUBROUTINE PARSE_MULTIMODAL()
@@ -1615,12 +1674,10 @@ SUBROUTINE PARSE_ACDC_SYSTEMS
     print *, ''
     print FMT_HDR, 'Allocating ACDC systems to the selected input'
 
-
     do jj=1,size(G_ACDC)
 
         name = '----------------'
         read(ACDC_links(jj),*, iostat=ioi) name(:)
-
         counter = 0
         do ii=0,11
             if (name((ii*2)+1)/= '----------------') THEN

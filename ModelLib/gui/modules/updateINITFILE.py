@@ -7,7 +7,7 @@ def updateINITFILE(file,updt=None):
         os.chdir(os.path.dirname(os.path.realpath(__file__)))
         with open("../../required/version.txt", encoding="utf-8") as f:
             for line in f: break
-        updt = 'ARCA Box Model v.'+line.strip('\n\r').strip('\n')
+        updt = 'ARCA Box Model v.'+line.replace('#','').strip('\n\r').strip('\n')
 
     # print(f'Checking that file {file} is compatible with current version')
     isOld = False

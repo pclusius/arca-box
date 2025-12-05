@@ -67,10 +67,11 @@ class INITFILE:
     class _NAMES:
         def __init__(self):
             self.NAMESDAT=0
-
+            self.N_VARS=0
         def printall(self,cmd,f,eol):
             exec("%s('&NML_NAMES%s')"%(cmd, eol))
             exec("%s(' NAMESDAT = \\'%s\\'%s')"%(cmd,self.NAMESDAT,eol))
+            exec("%s(' N_VARS = %s%s')"%(cmd,self.N_VARS,eol))
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _PATH:
@@ -102,8 +103,10 @@ class INITFILE:
             self.OPTIMIZE_DT=0
             self.AFTER_CHEM_ON=0
             self.AFTER_NUCL_ON=0
-            self.FILE_TIME_UNIT=0
+            self.ENVFILE_TIME_UNIT=0
+            self.MCMFILE_TIME_UNIT=0
             self.LOSSFILE_TIME_UNIT=0
+            self.LOSSFILE_GAS_TIME_UNIT=0
 
         def printall(self,cmd,f,eol):
             exec("%s('&NML_FLAG%s')"%(cmd, eol))
@@ -121,14 +124,17 @@ class INITFILE:
             exec("%s(' OPTIMIZE_DT = %s%s')"%(cmd,self.OPTIMIZE_DT,eol))
             exec("%s(' AFTER_CHEM_ON = %s%s')"%(cmd,self.AFTER_CHEM_ON,eol))
             exec("%s(' AFTER_NUCL_ON = %s%s')"%(cmd,self.AFTER_NUCL_ON,eol))
-            exec("%s(' FILE_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.FILE_TIME_UNIT,eol))
+            exec("%s(' ENVFILE_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.ENVFILE_TIME_UNIT,eol))
+            exec("%s(' MCMFILE_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.MCMFILE_TIME_UNIT,eol))
             exec("%s(' LOSSFILE_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.LOSSFILE_TIME_UNIT,eol))
+            exec("%s(' LOSSFILE_GAS_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.LOSSFILE_GAS_TIME_UNIT,eol))
 
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _TIME:
         def __init__(self):
             self.RUNTIME=0
+            self.RUNTIME_TIME_UNIT=0
             self.DT=0
             self.FSAVE_INTERVAL=0
             self.PRINT_INTERVAL=0
@@ -139,6 +145,7 @@ class INITFILE:
         def printall(self,cmd,f,eol):
             exec("%s('&NML_TIME%s')"%(cmd, eol))
             exec("%s(' RUNTIME = %s%s')"%(cmd,self.RUNTIME,eol))
+            exec("%s(' RUNTIME_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.RUNTIME_TIME_UNIT,eol))
             exec("%s(' DT = %s%s')"%(cmd,self.DT,eol))
             exec("%s(' FSAVE_INTERVAL = %s%s')"%(cmd,self.FSAVE_INTERVAL,eol))
             exec("%s(' PRINT_INTERVAL = %s%s')"%(cmd,self.PRINT_INTERVAL,eol))
@@ -192,6 +199,7 @@ class INITFILE:
             self.SWR_IN_UPPER=0
             self.SWR_IN_LOWER=0
             self.LOSSES_FILE=0
+            self.LOSSES_FILE_GAS=0
             self.CHAMBER_FLOOR_AREA=0
             self.CHAMBER_HEIGHT=0
             self.EDDYK=0
@@ -207,6 +215,7 @@ class INITFILE:
             exec("%s(' SWR_IN_UPPER = %s%s')"%(cmd,self.SWR_IN_UPPER,eol))
             exec("%s(' SWR_IS_ACTINICFLUX = %s%s')"%(cmd,self.SWR_IS_ACTINICFLUX,eol))
             exec("%s(' LOSSES_FILE = \\'%s\\'%s')"%(cmd,self.LOSSES_FILE,eol))
+            exec("%s(' LOSSES_FILE_GAS = \\'%s\\'%s')"%(cmd,self.LOSSES_FILE_GAS,eol))
             exec("%s(' CHAMBER_FLOOR_AREA = %s%s')"%(cmd,self.CHAMBER_FLOOR_AREA,eol))
             exec("%s(' CHAMBER_HEIGHT = %s%s')"%(cmd,self.CHAMBER_HEIGHT,eol))
             exec("%s(' EDDYK = %s%s')"%(cmd,self.EDDYK,eol))
@@ -230,8 +239,10 @@ class INITFILE:
             pass
         def printall(self,cmd,f,eol, mods=None):
             units =['C','K','Pa','hPa','bar','kPa','mbar','#','ppm','ppb','ppt','ppq']
-
+            counter = 1
             exec("%s('&NML_MODS%s')"%(cmd, eol))
+            exec("%s(' !                   <------ CONSTANT ------>  <------------------------------- PARAMETRIC INPUT (PI)------------------------->%s')"%(cmd, eol))
+            exec("%s(' !     PI/CONST LINK SCALE        OFFSET       MIN          MAX         SIGMA      MEAN        FREQ       PHASE      AMPL%s')"%(cmd, eol))
             if mods != None:
                 for v in self.names:
                     if v in mods:
@@ -254,9 +265,10 @@ class INITFILE:
                         else: mode = abs(m.mode) * -1
                         if 'str' in str(type(m.col)) :
                             m.col = -1
-                        strr = "MODS(%d)%s= %2d %3d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 %s%s%s %s%s%s ! %s"%(
-                        m.Find,' '*(4-len(str(m.Find))),mode,m.col, multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, "\\'", unit,"\\'", "\\'", m.tied,"\\'", m.name)
+                        strr = "MODS(%d)%s= %2d %3d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 %s%s%s %s%s%s %s%s%s"%(
+                        counter,' '*(4-len(str(counter))),mode,m.col, multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, "\\'", unit,"\\'", "\\'", m.tied,"\\'","\\'", m.name,"\\'")
                         exec("%s(' %s%s')"%(cmd,strr,eol))
+                        counter += 1
             exec("%s('/ \\n%s')"%(cmd, eol))
 
     class _MISC:

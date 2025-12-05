@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -23,7 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-from layouts import varWin,gui10,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor
+from layouts import varWin,gui14,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor
 from modules import variations,vars,batch,GetVapourPressures as gvp
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
@@ -42,7 +43,8 @@ import pickle
 from urllib.parse import urljoin
 import csv
 from modules.config import get_config, set_config, remove_config
-
+from modules.namevarholder_class import namevarholder
+from modules.updateINITFILE import updateINITFILE,parse_chamistry_NAMES
 try:
     from scipy.ndimage import gaussian_filter
     from scipy.signal import savgol_filter
@@ -87,9 +89,11 @@ if dark_mode:
     icondir = 'dark'
     darken_by = float(get_config("style", "darkness", fallback=0.35))
     set_config("style", "darkness", str(darken_by))
-
 else:
     icondir = 'light'
+
+showUpdates = get_config("options", "showUpdates", fallback='true')
+set_config("options", "showUpdates", 'false')
 
 if len(sys.argv)>1:
     for ia,a in enumerate(sys.argv):
@@ -127,7 +131,7 @@ if '-NS' in args: print('Overriding scaling from cmdline')
 
 ## Some constants --------------------------------------------
 # widths of the columns in "Input variables" tab
-column_widths = [150,80,70,70,55,80,50,3]
+column_widths = [150,100,70,70,20,70,70,50,3]
 
 # available units for variables, used to fill the tables and graphs with appropriate units
 units = {
@@ -158,11 +162,7 @@ units = {
 }
 # Name of the executable -------------------------------------------
 exe_name = 'arcabox.exe'
-# Path to variable names -------------------------------------------
-if NAMES_override != '':
-    path_to_names = NAMES_override
-else:
-    path_to_names = 'ModelLib/required/NAMES.dat'
+
 # Path to extra variables ------------------------------------------
 path_to_xtras = 'ModelLib/required/AEMS.dat'
 # GUI root
@@ -189,6 +189,7 @@ slMxs = (200,190,220,100,200)
 # 10 colors for plots
 colors = [(120,0,0),(180,0,0),(220,0,0),(255,10,0),(255,85,0),
 (255,85,140),(255,85,255),(180,0,255),(110,0,255),(0,0,255)]
+sixcolors = ['#e50000','#008121','#ff8d00','#004cff','#760188','#ffee00']
 # linetypes
 linetypes = [QtCore.Qt.SolidLine, QtCore.Qt.DashLine]
 # BG colour for ENV vars
@@ -224,9 +225,28 @@ currentdir   = currentdir.replace('/ModelLib/gui', '')
 currentdir_l = len(currentdir)
 chdir(currentdir)
 
+# Path to variable names -------------------------------------------
+try:
+    compiled_chemistry = Popen(f'./{exe_name}', stdout=PIPE).stdout.readline().decode("utf-8").strip().split()[0]
+except:
+    print('Excutable not found, getting current chemistry from Makefile')
+    compiled_chemistry = Popen(['grep','-m','1','CHMDIR','makefile'], stdout=PIPE).stdout.readline().decode("utf-8").strip().split()[2]
+
+if NAMES_override != '':
+    path_to_names = NAMES_override
+else:
+    path_to_names = f'src/chemistry/{compiled_chemistry}/NAMES.dat'
+    if not exists(path_to_names):
+        if exists(ossplit(osjoin(currentdir,path_to_names))[0]):
+            print(parse_chamistry_NAMES(osjoin(currentdir,path_to_names)))
+        else:
+            print('Using generic NAMES.dat. "arcabox.exe" is compiled with chemistry which is not found in the')
+            print('"src/chemistry". Please select an existing chemistry from tab "Chemistry" and recompile.')
+            path_to_names = 'ModelLib/required/NAMES.dat'
+
 with open("ModelLib/required/version.txt", encoding="utf-8") as f:
     for line in f: break
-CurrentVersion += line.strip('\n\r').strip('\n')
+CurrentVersion += 'v.'+line.replace('#','').strip('\n\r').strip('\n')
 
 helpd = {}
 with open(osjoin(gui_path,'conf','helplinks.txt'), 'r', encoding="utf-8") as b:
@@ -256,9 +276,6 @@ try:
 except:
     pass
 
-NAMES = []
-namesPyInds = {}
-namesFoInds = {}
 bold = QtGui.QFont()
 bold.setBold(True)
 bold.setWeight(75)
@@ -266,42 +283,10 @@ roman = QtGui.QFont()
 roman.setBold(False)
 roman.setWeight(50)
 
+class Startup():
+    def __init__(self):
+        self.startup = True
 
-## Create lists and dictionaries related to NAMES -------------
-i = 0
-j = 0
-with open(path_to_names) as f:
-    for line in f:
-        j += 1
-        name = line[:-1]
-        if name == '':
-            continue
-        if i+1!=j:
-            print('\n\nEmpty line in the middle of NAMES.DAT, it will not work!\n\n')
-            exit('ARCA will not start, check out '+path_to_names+' and remove empty lines.')
-        if '#' in line:
-            divider_i=i
-            name = 'MCM compounds start here'
-        NAMES.append(name)
-        namesPyInds[name] = i
-        namesFoInds[name] = i+1
-        i += 1
-
-divider_xtr_i = i
-with open(path_to_xtras) as f:
-    for line in f:
-        j += 1
-        name = line.strip()
-        if name == '':
-            print('\n\nEmpty line in the middle of AEMS.dat, it will not work!\n\n')
-            exit('ARCA will not start, check out '+path_to_xtras+' and remove empty lines.')
-        NAMES.append(name)
-        namesPyInds[name] = i
-        namesFoInds[name] = i+1
-        i += 1
-
-## -----------------------------------------------------------
-nml = vars.INITFILE(NAMES)
 mmc = {'True': 'k', 'False': 0.95}
 # The popup window for batch file preview
 class batchW(QtWidgets.QDialog):
@@ -327,6 +312,9 @@ class batchW(QtWidgets.QDialog):
                 exec('self.ui.tb_%d.appendPlainText(\'\'.join(a[2][%d]))'%(c,i))
                 c +=1
 
+tdinp = namevarholder(path_to_names,path_to_xtras)
+nml = vars.INITFILE(tdinp.NAMES)
+
 # The popup window for About ARCA
 class About(QtWidgets.QDialog):
     def __init__(self, parent = None):
@@ -335,6 +323,8 @@ class About(QtWidgets.QDialog):
         self.ab.setupUi(self)
         self.ab.okgreat.clicked.connect(self.reject)
         self.ab.logo.setPixmap(QtGui.QPixmap(modellogo.replace('.png', 'HR.png')))
+    def settext(self, t):
+        self.ab.credits.setHtml(t)
 
 # The popup window for Create KPP files
 class CCWin(QtWidgets.QDialog):
@@ -346,7 +336,7 @@ class CCWin(QtWidgets.QDialog):
         self.ccw.ccClose.clicked.connect(self.reject)
         self.ccw.createKPPsettings.clicked.connect(self.kpp)
         self.ccw.openOutput.clicked.connect(lambda: qt_box.openOutputDir(None, self.outDir))
-        # self.ccw.browseOut.clicked.connect(lambda: qt_box.browse_path(self.ccw.outDir, 'dir')) XXX
+        # self.ccw.browseOut.clicked.connect(lambda: qt_box.browse_path(self.ccw.outDir, 'dir'))
         self.ccw.browseSourceFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.sourceFile, 'file'))
         self.ccw.browseReactFile.clicked.connect(lambda: qt_box.browse_path(self.ccw.react_file, 'file'))
         self.ccw.browseIncludes.clicked.connect(lambda: qt_box.browse_path(self.ccw.includedFiles, 'append'))
@@ -757,7 +747,7 @@ class NcPlot:
             self.nc_cm3 = ncs.variables['NUMBER_CONCENTRATION'][:] #
             self.composition_ng = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_cm3[:,:,newaxis], 1)*1e18 # kg->grams,g->ng cm3->m3=1e18
             self.totalmass_ng_m = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_cm3[:,:,newaxis], 2)*1e18
-            self.growth_rates = ncs.variables['GROWTH_RATE'][:,:]
+            self.growth_rates   = ncs.variables['GROWTH_RATE'][:,:]
             self.diameter       = ncs.variables['DIAMETER'][0,:]
             self.lognorm_nc_cm3 = self.nc_cm3/log10(self.diameter[1]/self.diameter[0]) #
             for i,word in enumerate(names):
@@ -796,10 +786,10 @@ class NcPlot:
             timevars = [checker(i.dimensions[0], i.name) for i in ncs.get_variables_by_attributes(ndim=1)]
         self.varnames = cache[timevars]
 
-        # Unfortunately these early version files are still somewhere out there
         try:
             self.time = ncs.variables['TIME_IN_SEC'][:]/3600
         except:
+            # Unfortunately these early version files are still somewhere out there
             try:
                 self.time = ncs.variables['time_in_sec'][:]/3600
             except:
@@ -807,7 +797,7 @@ class NcPlot:
 
         if ma.is_masked(self.time):
             self.is_masked = True
-            self.mask = ~self.time.mask
+            self.mask = not self.time.mask
         else:
             self.is_masked = False
             self.mask = self.time == self.time
@@ -839,18 +829,6 @@ class NcPlot:
             sss += a+': '+getattr(v,a)+'\n'
         qt_box.popup('Variable info',sss,0)
 
-
-    def getconc(self,n, return_unit=False):
-        if n in self.convars:
-            y = self.nc.variables[n][self.mask]
-            if len(shape(y))>1:
-                y = y[:,0]
-            if return_unit:
-                return y, '['+units.get(grepunit(n),units['REST'])[0]+']'
-            else:
-                return y
-        else: return
-
     def getloc(self,i, return_unit=False):
         if i in self.invvars:
             if return_unit:
@@ -859,40 +837,32 @@ class NcPlot:
                 return self.nc.variables[self.invvars[i]][self.mask]
         else: return
 
-    def getcom(self,n, return_unit=False):
-        if self.par and n in self.parvars:
+    def getconc(self,n, return_unit=False,par=False):
+        test = (self.par and n in self.parvars) if par else (n in self.convars)
+        if test:
+            y = self.composition_ng[:,self.parvars[n]][self.mask] if par else self.nc.variables[n][self.mask]
+            if not par and len(shape(y))>1:
+                y = y[:,0]
             if return_unit:
-                return self.composition_ng[:,self.parvars[n]][self.mask], '['+units.get(grepunit(n),units['REST'])[0]+']'
+                return y, '['+units.get(grepunit(n),units['REST'])[0]+']'
             else:
-                return self.composition_ng[:,self.parvars[n]][self.mask]
+                return y
         else: return
 
-    def getcomsum(self,names, return_unit=False):
+    def getconcsum(self,names, return_unit=False, par=False):
         retarr = zeros(len(self.mask))
         for i,n in enumerate(names):
             if i==0: u = units.get(grepunit(n),units['REST'])[0]
-            if self.par and n in self.parvars:
+            test = (self.par and n in self.parvars) if par else (n in self.convars)
+            if test:
                 if u == units.get(grepunit(n),units['REST'])[0]:
                     unit = True
                 else:
                     unit = False
-                retarr += self.composition_ng[:,self.parvars[n]][self.mask]
-        if not unit: u='[-]'
-        if return_unit:
-            return retarr, u
-        else:
-            return retarr
-
-    def getconcsum(self,names, return_unit=False):
-        retarr = zeros(len(self.mask))
-        for i,n in enumerate(names):
-            if i==0: u = units.get(grepunit(n),units['REST'])[0]
-            if n in self.convars:
-                if u == units.get(grepunit(n),units['REST'])[0]:
-                    unit = True
+                if par:
+                    retarr += self.composition_ng[:,self.parvars[n]][self.mask]
                 else:
-                    unit = False
-                retarr += self.getconc(n)
+                    retarr += self.getconc(n)
         if not unit: u='[-]'
         if return_unit:
             return retarr, u
@@ -916,7 +886,7 @@ class NcPlot:
             self.have_aircc = False
 
 
-class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
+class QtBoxGui(gui14.Ui_MainWindow,QtWidgets.QMainWindow):
     """Main program window."""
     def __init__(self):
         super(QtBoxGui,self).__init__()
@@ -932,6 +902,10 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
             self.saveDefaults.setStyleSheet("background-image: url(\'ModelLib/gui/icons/dark/defaults.png\'); background-repeat: no-repeat;")
             self.recompile.setStyleSheet("background-image: url(\'ModelLib/gui/icons/dark/recompile.png\'); background-repeat: no-repeat;")
 
+        self.customboolflags  = [1,0,0,1,0,0,0,-1,-1,-1]
+        self.oldCustomOptions = ['VBS_CSAT','LIMIT_VAPOURS','VP_MULTI','NO2_IS_NOX','NPF_DIST',
+                                        'FLOAT_CONC_AFTER_HRS','FLOAT_EMIS_AFTER_HRS','INIT_ONLY',
+                                        'NETCDF_OUT', 'BINARY_FILE']
         self.setAcceptDrops(True)
         self.setWindowTitle(CurrentVersion)
         self.setWindowIcon(QtGui.QIcon(boxicon))
@@ -969,6 +943,7 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionSave_as_defaults.triggered.connect(lambda: self.save_file(file=defaults_file_path))
         self.label_10.setPixmap(QtGui.QPixmap(modellogo))
         self.actionPrint_input_headers.triggered.connect(self.printHeaders)
+        self.actionLoad_input_from_ENV_and_CHM.triggered.connect(self.loadHeaders)
         self.actionOpen_output_directory.triggered.connect(lambda: self.openOutputDir(None, self.currentAddressTb.text()))
         self.actionPrint_Custom_commands_cheat_sheet.triggered.connect(lambda: CustomCommandsCheatSheet())
         self.actionPlt_changes_from_current_dir.triggered.connect(self.plotChanges)
@@ -978,33 +953,15 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionRunARCA.triggered.connect(self.StartboxShortcut)
         self.actionStopCurrentRunAndIgnoreOutput.triggered.connect(self.QuitShortcut)
         self.actionStopCurrentRunClean.triggered.connect(self.QuitGracefullyShortcut)
+        self.actionWhat_s_new.triggered.connect(self.createWN)
     # -----------------------
     # tab General options
     # -----------------------
-        self.namesdat.clear()
-        self.namesdat.addItems(NAMES)
-        for i in range(len(NAMES)):
-            item = self.namesdat.item(i)
-            if i<divider_i:
-                # item.setForeground(QtGui.QColor(0, 70, 0))
-                # item.setBackground(QtGui.QColor(200, 230, 200))
-                item.setBackground(QtGui.QColor(*env_no))
-            elif i>divider_xtr_i:
-                # item.setForeground(QtGui.QColor(0, 70, 0))
-                # item.setBackground(QtGui.QColor(200, 230, 200))
-                item.setBackground(QtGui.QColor(*xtr_no))
-            elif i==divider_i or i==divider_xtr_i:
-                item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
-                item.setBackground(QtGui.QColor(*org_yes))
-                item.setForeground(QtGui.QColor(250, 250, 250))
-            else:
-                # item.setBackground(QtGui.QColor(200, 200, 230))
-                item.setBackground(QtGui.QColor(*org_no))
-                # item.setForeground(QtGui.QColor(0, 0, 70))
+
+        self.update_input_variables()
 
         self.runtime.valueChanged.connect(lambda: self.updteGraph())
-        self.runtime.valueChanged.connect(lambda: self.runtime_s.setValue(int(self.runtime.value()*3600)))
-        self.runtime_s.editingFinished.connect(lambda: self.runtime.setValue(self.runtime_s.value()/3600))
+        self.runTimeUnit.currentIndexChanged.connect(lambda: self.updteGraph())
 
         # Prepare the variable table
         for i in range(len(column_widths)):
@@ -1014,7 +971,6 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.add_new_line('TEMPK', 0)
         self.add_new_line('PRESSURE', 1)
         self.dateEdit.dateChanged.connect(lambda: self.indexRadioDate.setChecked(True))
-
         self.indexRadioDate.toggled.connect(lambda: self.lat.setEnabled(True))
         self.indexRadioIndex.toggled.connect(lambda: self.lat.setEnabled(False))
         self.indexRadioDate.toggled.connect(lambda: self.lon.setEnabled(True))
@@ -1030,10 +986,13 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.browseMcm.clicked.connect(lambda: self.browse_path(self.mcm_file, 'file'))
         self.browsePar.clicked.connect(lambda: self.browse_path(self.dmps_file, 'file'))
         self.browseXtr.clicked.connect(lambda: self.browse_path(self.extra_particles, 'file'))
-        self.checkBox_aer.toggled.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,None, 4))
-        self.checkBox_che.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_che,None, 2))
+        self.checkBox_aer.toggled.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.aeroStructFrame))
+        self.checkBox_aer.toggled.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.vapourFrame))
+        self.checkBox_aer.toggled.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.psdInitFrame))
+        self.checkBox_che.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_che,self.photochemFrame))
+        self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,self.acdcFrame))
+        self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,self.clusterOtherFrame))
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
-        self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,None, hide=3))
         self.dateEdit.dateChanged.connect(self.updatePath)
         self.indexEdit.valueChanged.connect(self.updatePath)
         self.case_name.textChanged.connect(self.updatePath)
@@ -1062,8 +1021,22 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.min_particle_diam.textChanged.connect(self.seeInAction)
         self.max_particle_diam.textChanged.connect(self.seeInAction)
         self.n_bins_particle.valueChanged.connect(self.seeInAction)
-        self.fileTimeUnit_a.currentIndexChanged.connect(lambda: self.fileTimeUnit_b.setCurrentIndex(self.fileTimeUnit_a.currentIndex()))
-        self.fileTimeUnit_b.currentIndexChanged.connect(lambda: self.fileTimeUnit_a.setCurrentIndex(self.fileTimeUnit_b.currentIndex()))
+
+        self.chemAdvanced.setEnabled(False)
+        self.clusterAdvanced.setEnabled(False)
+        self.psatScalingAndLimitVapors.setEnabled(False)
+        self.use_dmps_partial.setEnabled(False)
+        self.outputFormats.setEnabled(False)
+        self.tab_16.setEnabled(False)
+
+        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.chemAdvanced))
+        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.clusterAdvanced))
+        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.psatScalingAndLimitVapors))
+        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.use_dmps_partial))
+        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.outputFormats))
+        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.tab_16))
+        # self.fileTimeUnit_a.currentIndexChanged.connect(lambda: self.fileTimeUnit_b.setCurrentIndex(self.fileTimeUnit_a.currentIndex()))
+        # self.fileTimeUnit_b.currentIndexChanged.connect(lambda: self.fileTimeUnit_a.setCurrentIndex(self.fileTimeUnit_b.currentIndex()))
     # -----------------------
     # tab Input variables
     # -----------------------
@@ -1071,7 +1044,7 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.markAll.clicked.connect(lambda: self.markReverseSelection('all'))
         self.invertMarks.clicked.connect(lambda: self.markReverseSelection('inv'))
         self.butRemoveSelVars.clicked.connect(self.remv_item)
-        self.selected_vars.setColumnHidden(7, True)
+        self.selected_vars.setColumnHidden(8, True)
         self.selected_vars.verticalHeader().setVisible(False);
         # self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed', ftype="MCM mass subset file (*.txt)"))
         self.loadFixedChemistry.clicked.connect(self.loadFixedFromChemistry)
@@ -1114,7 +1087,7 @@ class QtBoxGui(gui10.Ui_MainWindow,QtWidgets.QMainWindow):
         self.fFreq.valueChanged.connect(lambda: self.updteGraph())
         self.fPhase.valueChanged.connect(lambda: self.updteGraph())
         self.fAmp.valueChanged.connect(lambda: self.updteGraph())
-        self.PLOT.showGrid(x=True,y=True)
+        self.PLOT.showGrid(x=True,y=True,alpha=0.1)
         self.PLOT.showButtons()
         self.legend = self.PLOT.addLegend()
         self.skene = self.legend.scene()
@@ -1147,6 +1120,11 @@ Please provide valid spectral function.') \
 
         self.SW_is_AF.toggled.connect(lambda: self.grayIfChecked(self.SW_is_AF,self.groupBox_23))
 
+
+    # -----------------------
+    # tab Clusters
+    # -----------------------
+        pass
     # -----------------------
     # tab Aerosols
     # -----------------------
@@ -1200,9 +1178,13 @@ Please provide valid spectral function.') \
         self.floorArea.valueChanged.connect(self.update_title)
         self.chamberHeight.valueChanged.connect(self.update_title)
         self.browseLosses.clicked.connect(lambda: self.browse_path(self.losses_file, 'file'))
-        self.losses_file.textChanged.connect(lambda: \
-                                        self.grayIfChecked(True,self.deposition) if self.losses_file.text()!='' \
-                                        else self.grayIfChecked(False,self.deposition))
+        # self.losses_file.textChanged.connect(lambda: \
+        #                                 self.grayIfChecked(True,self.deposition) if self.losses_file.text()!='' \
+        #                                 else self.grayIfChecked(False,self.deposition))
+        self.browseLossesGas.clicked.connect(lambda: self.browse_path(self.losses_file_gas, 'file'))
+        # self.losses_file_gas.textChanged.connect(lambda: \
+        #                                 self.grayIfChecked(True,self.chemDeposition) if self.losses_file_gas.text()!='' \
+        #                                 else self.grayIfChecked(False,self.chemDeposition))
 
     # -----------------------
     # tab Process Monitor
@@ -1246,8 +1228,8 @@ Please provide valid spectral function.') \
         if netcdf:
             self.show_netcdf.hide()
             self.show_netcdf_2.hide()
-            self.fLog_2.clicked.connect(lambda: self.showOutputUpdate(info=False))
-            self.fLin_2.clicked.connect(lambda: self.showOutputUpdate(info=False))
+            self.fLog_2.clicked.connect(self.showOutputUpdate)
+            self.fLin_2.clicked.connect(self.showOutputUpdate)
             self.findComp.textChanged.connect(self.filterListOfComp)
             self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'addplot', ftype="NetCDF (*.nc)"))
             self.addSimilar.clicked.connect(self.addAnotherNC)
@@ -1277,9 +1259,10 @@ Please provide valid spectral function.') \
             self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="sum (*.sum *.dat)",plWind=0))
             self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="sum (*.sum *.dat)",plWind=1))
 
+        self.compareplot = None
         pen = pg.mkPen(color=(0,0,0), width=1)
         for wnd in [self.plotResultWindow, self.plotResultWindow_2, self.plotResultWindow_3]:
-            wnd.showGrid(x=True,y=True)
+            wnd.showGrid(x=True,y=True,alpha=0.1)
             wnd.setBackground('w')
             wnd.getAxis('left').setPen(pen)
             wnd.getAxis('bottom').setPen(pen)
@@ -1288,12 +1271,12 @@ Please provide valid spectral function.') \
         self.actionShow_variable_attributes.setEnabled(False)
         self.CloseLinePlotsButton.setEnabled(False)
         self.findComp.setEnabled(False)
-        self.ppm.toggled.connect(lambda: self.showOutputUpdate(info=False))
-        self.ppb.toggled.connect(lambda: self.showOutputUpdate(info=False))
-        self.ppt.toggled.connect(lambda: self.showOutputUpdate(info=False))
+        self.ppm.toggled.connect(self.showOutputUpdate)
+        self.ppb.toggled.connect(self.showOutputUpdate)
+        self.ppt.toggled.connect(self.showOutputUpdate)
         self.toggleppm('off')
         self.ShowPPC.setEnabled(False)
-        self.sumSelection.stateChanged.connect(self.selectionMode)
+        self.sumSelection.toggled.connect(self.selectionMode)
         self.loadCurrentBg.clicked.connect(lambda: self.showParOutput('load current',1))
         self.oneDayFwd.clicked.connect(lambda: self.moveOneDay(1))
         self.oneDayBack.clicked.connect(lambda: self.moveOneDay(-1))
@@ -1304,6 +1287,12 @@ Please provide valid spectral function.') \
         self.liveUpdate.setEnabled(False)
         self.lastModTime = 0
         self.firstParPlot = [0,0]
+        self.linePlotLegends = [self.legend1,self.legend2,self.legend3,self.legend4,self.legend5,self.legend6]
+        [l.setText('') for l in self.linePlotLegends]
+        self.radioCompare.toggled.connect(lambda: self.addSimilar.setEnabled(False))
+        self.sumSelection.toggled.connect(lambda: self.addSimilar.setEnabled(True))
+
+        ######
         self.resize(980, 840)
 
     # -----------------------
@@ -1334,6 +1323,10 @@ Please provide valid spectral function.') \
         self.actionOnline_manual.triggered.connect(lambda: self.helplink('manual'))
         self.actionFileHelp.triggered.connect(lambda: self.helplink('filehelp'))
         self.helpRadiation.clicked.connect(lambda: self.helplink('radiation'))
+        self.availableVars.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+
+        if showUpdates=='true': self.createWN()
+
     # -----------------------
     # Load preferences, or create preferences if not found
     # -----------------------
@@ -1358,6 +1351,35 @@ Please provide valid spectral function.') \
     # -----------------------
     # Class methods
     # -----------------------
+    def getRuntime(self):
+        rt = self.runtime.value()
+        unit = self.runTimeUnit.currentText().strip()
+        if unit == 'day': return rt*24
+        if unit == 'hrs': return rt
+        elif unit == 'min': return rt/60
+        elif unit == 'sec': return rt/3600.0
+
+    def update_input_variables(self):
+        self.namesdat.clear()
+        self.namesdat.addItems(tdinp.NAMES)
+        for i in range(len(tdinp.NAMES)):
+            item = self.namesdat.item(i)
+            if i<tdinp.divider_i:
+                # item.setForeground(QtGui.QColor(0, 70, 0))
+                # item.setBackground(QtGui.QColor(200, 230, 200))
+                item.setBackground(QtGui.QColor(*env_no))
+            elif i>tdinp.divider_xtr_i:
+                # item.setForeground(QtGui.QColor(0, 70, 0))
+                # item.setBackground(QtGui.QColor(200, 230, 200))
+                item.setBackground(QtGui.QColor(*xtr_no))
+            elif i==tdinp.divider_i or i==tdinp.divider_xtr_i:
+                item.setFlags(item.flags() &  ~QtCore.Qt.ItemIsEnabled &  ~QtCore.Qt.ItemIsSelectable)
+                item.setBackground(QtGui.QColor(*org_yes))
+                item.setForeground(QtGui.QColor(250, 250, 250))
+            else:
+                # item.setBackground(QtGui.QColor(200, 200, 230))
+                item.setBackground(QtGui.QColor(*org_no))
+                # item.setForeground(QtGui.QColor(0, 0, 70))
 
     def dragEnterEvent(self, e):
         if e.mimeData().hasText(): e.accept()
@@ -1471,6 +1493,7 @@ Please provide valid spectral function.') \
 
     def splot(self,vals,N, nb, x0,x1):
         """Harry Plotter"""
+        from modules.cs import collision_rate
         def gaussian(x, mu, sig, A=1):
             return A*exp(-(x-mu)**2/(2*sig**2))/sqrt(2*pi*sig**2)
         try:
@@ -1490,7 +1513,7 @@ Please provide valid spectral function.') \
         acl = zeros(len(x))
         k = log10(x[1]/x[0])
         for i in range(len(luvut)//3):
-            if abs(luvut[3*i+1])>0:
+            if abs(luvut[3*i+1])>0 and abs(luvut[3*i]):
                 acl = acl + luvut[3*i+2]*(gaussian(log10(x), log10(luvut[3*i+0]),luvut[3*i+1]))
                 # will change to this form asap
                 # acl = acl + luvut[3*i+2]*(gaussian(log(x), log(luvut[3*i+0]),luvut[3*i+1]))
@@ -1500,9 +1523,10 @@ Please provide valid spectral function.') \
             Z[ndel:] = where(Z[ndel:]>1e-12, 0,Z[ndel:])
             self.massLabel.setText('Total mass: %9.2e µg/m3 (Density: 1.4g/cm³)'%(npsum(Z*(pi*x**3)/6)*1.4e3*1e15))
             self.areaLabel.setText('Total Area: %9.2e µm2/cm3 '%(npsum(Z*(pi*x**2))*1e12))
+            self.csLabel.setText(f'CS: {sum(1e6*Z*collision_rate(x,None,298,1e5)):9.2e} s⁻¹')
             self.HPLotter.plot(x,Z/k,pen=pg.mkPen('w', width=4), clear=True, name='PSD')
             self.HPLotter.setLogMode(x=True)
-            self.HPLotter.showGrid(x=True,y=True)
+            self.HPLotter.showGrid(x=True,y=True,alpha=0.3)
 
 
     def darkMode(self):
@@ -1548,7 +1572,8 @@ adjusted for MODE mode. The settings are applied after the next application laun
             self.stripRoot_env.isChecked(), 1,self.env_file,
             self.stripRoot_mcm.isChecked(), 1,self.mcm_file,
             self.stripRoot_par.isChecked(), 1,self.dmps_file,
-            False,                          1,self.losses_file
+            False,                          1,self.losses_file,
+            False,                          1,self.losses_file_gas
         ]
         original_names = []
         for i,f in enumerate(paths):
@@ -1653,7 +1678,7 @@ the numerical model or chemistry scheme differs from the current, results may va
         kwargs = self.get_case_kwargs(r)
         casedir = batch.batch(**kwargs)
         if len(casedir) == 8:
-            # print(osjoin(casedir[-2]), osjoin(casedir[-1])) # xxx
+            # print(osjoin(casedir[-2]), osjoin(casedir[-1]))
             self.currentAddressTb.setText(casedir[-2]+'/')
             self.indir = casedir[-1]+'/'
         else:
@@ -1756,6 +1781,7 @@ the numerical model or chemistry scheme differs from the current, results may va
             nml.ENV.ENV_FILE = self.pars(self.env_file.text(), file, self.stripRoot_env.isChecked())
             nml.MCM.MCM_FILE = self.pars(self.mcm_file.text(), file, self.stripRoot_mcm.isChecked())
             nml.ENV.LOSSES_FILE = self.pars(self.losses_file.text(), file, False)
+            nml.ENV.LOSSES_FILE_GAS = self.pars(self.losses_file_gas.text(), file, False)
             nml.PARTICLE.DMPS_FILE = self.pars(self.dmps_file.text(), file, self.stripRoot_par.isChecked())
             nml.PARTICLE.EXTRA_PARTICLES = self.pars(self.extra_particles.text(), file, self.stripRoot_xtr.isChecked())
             # nml.VAP.VAP_PROPS = self.pars(self.vap_props.text(), file, False)
@@ -1793,7 +1819,7 @@ the numerical model or chemistry scheme differs from the current, results may va
 
     def scales(self):
         xf=1
-        rt = self.runtime.value()
+        rt = self.getRuntime()
         scf = 24
         wScale = scf/2/200.0*xf
         pScale = scf*1.1905/200.0*xf
@@ -2073,31 +2099,29 @@ the numerical model or chemistry scheme differs from the current, results may va
             if file != defaults_file_path and changeTitle:
                 self.show_currentInit(file)
 
-
     def markReverseSelection(self, op):
         """marks all variables or inverts selection"""
         for i in range(self.selected_vars.rowCount()):
             if i>1:
                 if op == 'inv':
-                    status = self.selected_vars.cellWidget(i,6).isChecked()
-                    self.selected_vars.cellWidget(i,6).setChecked(not status)
+                    status = self.selected_vars.cellWidget(i,7).isChecked()
+                    self.selected_vars.cellWidget(i,7).setChecked(not status)
                 if op == 'all':
-                    self.selected_vars.cellWidget(i,6).setChecked(True)
-
+                    self.selected_vars.cellWidget(i,7).setChecked(True)
 
     def remv_item(self):
         """removes items from variable table"""
         # self.selected_vars.setSortingEnabled(False)
         for i in reversed(range(self.selected_vars.rowCount())):
-            if self.selected_vars.cellWidget(i,6).isChecked():
+            if self.selected_vars.cellWidget(i,7).isChecked():
                 name = self.selected_vars.item(i,0).text()
-                item = self.namesdat.item(namesPyInds[name])
+                item = self.namesdat.item(tdinp.namesPyInds[name])
                 item.setFlags(item.flags() | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
                 item.setSelected(False)
                 self.selected_vars.removeRow(i)
                 vars.mods.pop(name)
-                namesPyInds['PRESSURE']
-        self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)
+                tdinp.namesPyInds['PRESSURE']
+        self.selected_vars.sortItems(8, QtCore.Qt.AscendingOrder)
         # self.selected_vars.setSortingEnabled(False)
         self.updateOtherTabs()
 
@@ -2167,14 +2191,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
                     # if cc: return comps
                     # for comp in comps:
                     #     if comp not in vars.mods:
-                    #         self.namesdat.item(namesPyInds[comp]).setSelected(True)
+                    #         self.namesdat.item(tdinp.namesPyInds[comp]).setSelected(True)
                     #         count = count +1
                     # break
                 elif 'SELECTED VOCS:' in line.upper():
                     comps += ' '.join(re.findall(r'\b\S+\b', line.upper().replace('SELECTED VOCS:','')))
                     parsethis = True
 
-        self.popup('File parsed', 'Selected %d variables'%count, icon=1)
+        self.popup('File parsed', f'Selected {count} variables. Click the left arrow button to include them in to the model.', icon=1)
 
     def vapours(self):
         """Envoke script to create new vapor file."""
@@ -2206,6 +2230,25 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if response == 0:
             return
 
+    def createWN(self):
+        """Envoke script to show what's new."""
+        import markdown
+        f = open("ModelLib/required/version.txt",'r', encoding="utf-8")
+        text = f.read()
+        f.close()
+        if showUpdates=='true':
+            text = "## Hi!\n\n#### Looks like this is your first time with this ARCA installation, " + \
+            "so you might want to take a look at some changes and updates in the current version. "+\
+            "You get this window later from the menu \"Help->What's new?\" \n\n" + text
+        texhthtml = markdown.markdown(text)
+        # text = text.replace('\n\n','<br><br>')
+        # text = text.replace('\n',' ')
+        self.abwin = About()
+        self.abwin.settext(texhthtml)
+        response = self.abwin.exec()
+        if response == 0:
+            return
+
     def editTxtFile(self, file):
         """Envoke script to edit some plain text file."""
         self.edwin = Editor(file=file,cursorToStart=True)
@@ -2228,14 +2271,27 @@ a chemistry module in tab "Chemistry"''', icon=2)
                     if ind > 0 and not '!' in line:
                         ind2 = line.find('=')
                         comp = line[ind+5:ind2].strip()
-                        if comp not in vars.mods and comp in namesPyInds.keys():
-                            self.namesdat.item(namesPyInds[comp]).setSelected(True)
+                        if comp not in vars.mods and comp in tdinp.namesPyInds.keys():
+                            self.namesdat.item(tdinp.namesPyInds[comp]).setSelected(True)
                             count += 1
                 self.popup('File parsed', 'Selected %d variables'%count, icon=1)
         except:
             self.popup('Error','No \'second_Parameters.f90\' file\nin current chemistry.',icon=2)
         pass
 
+    def moveToInit(self,n,read=False):
+        for i in range(self.selected_vars.rowCount()):
+            if self.selected_vars.item(i,0).text() == n:
+                if read:
+                    self.selected_vars.cellWidget(i,4).setChecked(True)
+                    self.selected_vars.cellWidget(i,4).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
+                    return
+                # print(self.selected_vars.cellWidget(i,4))
+                if self.selected_vars.cellWidget(i,4).isChecked():
+                    self.selected_vars.cellWidget(i,4).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
+                else:
+                    self.selected_vars.cellWidget(i,4).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey.png\'); background-repeat: no-repeat;")
+                return
 
     def highlightModifications(self, i):
         """For Multiply and Shift (in input variables tab), set font to bold if default values are changed"""
@@ -2263,12 +2319,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
         """adds items to variable table"""
         if createNew:
             vars.mods[name] = Comp()
-            vars.mods[name].Find = namesFoInds[name]
+            vars.mods[name].Find = tdinp.namesFoInds[name]
             vars.mods[name].name = name # Human readable name for modified variable
         # self.selected_vars.setSortingEnabled(False);
         row = self.selected_vars.rowCount()
         self.selected_vars.insertRow(row)
-        item = self.namesdat.item(namesPyInds[name])
+        item = self.namesdat.item(tdinp.namesPyInds[name])
         item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
 
         pmInUse = QtWidgets.QComboBox()
@@ -2276,6 +2332,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
         unit = QtWidgets.QComboBox()
         unit.addItems(units.get(grepunit(name),units['REST']))
         unit.setCurrentIndex(unt)
+        initBut = QtWidgets.QToolButton()
+        initBut.setCheckable(True)
         markBut = QtWidgets.QPushButton()
         markBut.setCheckable(True)
         if name == 'TEMPK' or name == 'PRESSURE' :
@@ -2287,39 +2345,48 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
         markBut.setText('mark')
         if cols==[]:
-            cols = [name, '-1','1.0', '0.0',0]
+            cols = [name, '-1','1.0', '0.0',0,0]
         self.selected_vars.horizontalHeader().setStretchLastSection(True)
         self.selected_vars.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        if cols[4]:
+            initBut.setChecked(cols[4])
+            initBut.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
+        else:
+            initBut.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey.png\'); background-repeat: no-repeat;")
+        initBut.toggled.connect(lambda: self.moveToInit(name))
 
         for i in range(4):
             tag = QtWidgets.QTableWidgetItem(cols[i])
             if i==0: tag.setFlags(tag.flags() & ~QtCore.Qt.ItemIsEditable)
             self.selected_vars.setItem(row, i, tag)
-            if namesPyInds[name]<divider_i:
+            if tdinp.namesPyInds[name]<tdinp.divider_i:
+                initBut.setEnabled(False)
+                initBut.setStyleSheet("background-image: none; background-repeat: no-repeat;")
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*env_no))
-            elif namesPyInds[name]>divider_xtr_i:
+            elif tdinp.namesPyInds[name]>tdinp.divider_xtr_i:
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*xtr_no))
+                initBut.setEnabled(False)
             else:
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*org_no))
         if name == 'PRESSURE' :
             self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem('1e3'))
-        self.selected_vars.setCellWidget(row, i+1, pmInUse )
+        self.selected_vars.setCellWidget(row, i+1, initBut )
+        self.selected_vars.setCellWidget(row, i+2, pmInUse )
         pmInUse.currentIndexChanged.connect(lambda: self.toggleColorPre(name))
         self.selected_vars.itemChanged.connect(self.highlightModifications)
-        pmInUse.setCurrentIndex(cols[4])
-        self.selected_vars.setCellWidget(row, i+2, unit )
-        self.selected_vars.setCellWidget(row, i+3, markBut )
-
-        self.selected_vars.setItem(row, i+4, QtWidgets.QTableWidgetItem('%03d'%(namesFoInds[name])))
-        self.selected_vars.sortItems(7, QtCore.Qt.AscendingOrder)
+        pmInUse.setCurrentIndex(cols[5])
+        self.selected_vars.setCellWidget(row, i+3, unit )
+        self.selected_vars.setCellWidget(row, i+4, markBut )
+        self.selected_vars.setItem(row, i+5, QtWidgets.QTableWidgetItem('%04d'%(tdinp.namesFoInds[name])))
+        self.selected_vars.sortItems(8, QtCore.Qt.AscendingOrder)
         # self.selected_vars.setSortingEnabled(False)
         self.updateOtherTabs()
 
 
     def toggleColorPre(self, n):
-        if namesPyInds[n]<divider_i:
+        if tdinp.namesPyInds[n]<tdinp.divider_i:
             c = (env_yes,env_no)
-        elif namesPyInds[n]>divider_xtr_i:
+        elif tdinp.namesPyInds[n]>tdinp.divider_xtr_i:
             c = (xtr_yes,xtr_no)
         else:
             c = (org_yes,org_no)
@@ -2329,7 +2396,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def toggleColor(self,r,c):
-        if self.selected_vars.cellWidget(r,4).currentText() == 'Yes':
+        if self.selected_vars.cellWidget(r,5).currentText() == 'Yes':
             for z in range(4):
                 self.selected_vars.item(r, z).setBackground(QtGui.QColor(*c[0]))
         else:
@@ -2378,6 +2445,13 @@ a chemistry module in tab "Chemistry"''', icon=2)
         else:
             frame.setEnabled(True)
 
+    def grayIfCheckedSimple(self, guard, frame):
+        if guard.isChecked():
+            guard.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/hideAdv_yes.png\'); background-repeat: no-repeat;")
+            frame.setEnabled(False)
+        else:
+            guard.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/hideAdv_not.png\'); background-repeat: no-repeat;")
+            frame.setEnabled(True)
 
     def toggle_printtime(self):
         if self.fsave_division.value() != 0 :
@@ -2394,8 +2468,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if (file):
             f = open(file, 'w')
             f.write('#'+('-')*50+'\n')
-            f.write('#      ARCA box setting file: %s\n'%(file))
-            f.write('#         Created at: '+( time.strftime("%b %d %Y, %H:%M:%S", time.localtime()))+'\n')
+            f.write(f'# {CurrentVersion}\n')
+            f.write(f'# {file}\n')
+            f.write(f'# Created on {( time.strftime("%Y/%m/%d, %H:%M:%S", time.localtime()))}\n')
             f.write('#'+('-')*50+'\n\n')
             nml.printall(vars.mods, target='f',f=f)
             f.close()
@@ -2412,8 +2487,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
         else:
             print(('\n')*10, )
             print('#',('-')*50)
-            print('#              ARCA box setting file #%d'%(self.prints))
-            print('#         Created at:', ( time.strftime("%b %d %Y, %H:%M:%S", time.localtime())))
+            print(f'# {CurrentVersion}')
+            print(f'# Created on {( time.strftime("%Y/%m/%d, %H:%M:%S", time.localtime()))}')
             print('#',('-')*50, '\n')
             nml.printall(vars.mods, target='p')
 
@@ -2822,21 +2897,24 @@ a chemistry module in tab "Chemistry"''', icon=2)
                                 'batchRangeDay', self.checkboxToFOR(self.batchRangeDay),
                                 'batchRangeInd', self.checkboxToFOR(self.batchRangeInd),
         )
-        nml.SETTINGS.INPUT = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s' %(
+        nml.SETTINGS.INPUT = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s' %(
                                 'env_file', self.env_file.text(),
                                 'mcm_file', self.mcm_file.text(),
                                 'dmps_file', self.dmps_file.text(),
                                 'extra_particles', self.extra_particles.text(),
                                 'losses_file', self.losses_file.text(),
+                                'losses_file_gas', self.losses_file_gas.text(),
                                 'spectralFunctions', self.spectralFunctions.text(),
                                 'stripRoot_env', self.checkboxToFOR(self.stripRoot_env),
                                 'stripRoot_mcm', self.checkboxToFOR(self.stripRoot_mcm),
                                 'stripRoot_par', self.checkboxToFOR(self.stripRoot_par),
                                 'stripRoot_xtr', self.checkboxToFOR(self.stripRoot_xtr),
+                                'hideAdvancedOptions', self.checkboxToFOR(self.hideAdvancedOptions),
         )
 
         # class NAMES:
-        nml.NAMES.NAMESDAT=path_to_names
+        nml.NAMES.NAMESDAT=tdinp.path_to_names
+        nml.NAMES.N_VARS=len(vars.mods)
         # class _PATH:
         nml.PATH.INOUT_DIR=self.inout_dir.text()
         if nml.PATH.INOUT_DIR == '': nml.PATH.INOUT_DIR = default_inout
@@ -2860,11 +2938,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.FLAG.OPTIMIZE_DT=self.checkboxToFOR(self.useSpeed)
         nml.FLAG.AFTER_CHEM_ON=self.checkboxToFOR(self.after_chem_on)
         nml.FLAG.AFTER_NUCL_ON=self.checkboxToFOR(self.after_nucl_on)
-        nml.FLAG.FILE_TIME_UNIT=self.fileTimeUnit_a.currentText()
+        nml.FLAG.ENVFILE_TIME_UNIT=self.fileTimeUnit_a.currentText()
+        nml.FLAG.MCMFILE_TIME_UNIT=self.fileTimeUnit_b.currentText()
         nml.FLAG.LOSSFILE_TIME_UNIT=self.lossfileTimeUnit.currentText()
+        nml.FLAG.LOSSFILE_GAS_TIME_UNIT=self.lossfileTimeUnitGas.currentText()
 
         # class _TIME:
         nml.TIME.RUNTIME=self.runtime.value()
+        nml.TIME.RUNTIME_TIME_UNIT=self.runTimeUnit.currentText()
         nml.TIME.DT=self.dt.value()
         nml.TIME.FSAVE_INTERVAL=self.fsave_interval.value()
         nml.TIME.PRINT_INTERVAL=self.print_interval.value()
@@ -2905,6 +2986,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.ENV.ENV_FILE=self.pars(self.env_file.text(), file=self.indir, stripRoot=self.stripRoot_env.isChecked())
         nml.ENV.SPECTRUMFILE=self.pars(self.spectralFunctions.text(), file=self.indir, stripRoot=False)
         nml.ENV.LOSSES_FILE=self.pars(self.losses_file.text(), file=self.indir, stripRoot=False)
+        nml.ENV.LOSSES_FILE_GAS=self.pars(self.losses_file_gas.text(), file=self.indir, stripRoot=False)
         nml.ENV.CHAMBER_FLOOR_AREA=self.floorArea.value()
         nml.ENV.SWR_IS_ACTINICFLUX=self.checkboxToFOR(self.SW_is_AF)
         # nml.ENV.CHAMBER_CIRCUMFENCE=self.chamberCircumfence.value()
@@ -2937,24 +3019,52 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.PRECISION.DPNUM_RANGE="%f,%f"%(self.prec_low_2.value(), self.prec_high_2.value())
         nml.PRECISION.DVAPO_RANGE="%f,%f"%(self.prec_low_3.value(), self.prec_high_3.value())
 
+        nml.CUSTOM.CUSTOMS = []
+
         for i in range(self.selected_vars.rowCount()):
             name = self.selected_vars.item(i,0).text()
+            init = self.selected_vars.cellWidget(i,4).isChecked()
+            if init: nml.CUSTOM.CUSTOMS.append(name)
             if vars.mods[name].tied != '':
                 vars.mods[name].col = (self.selected_vars.item(i,1).text())
             else:
                 vars.mods[name].col = int(self.selected_vars.item(i,1).text())
             vars.mods[name].multi = float(self.selected_vars.item(i,2).text())
             vars.mods[name].shift = float(self.selected_vars.item(i,3).text())
-            vars.mods[name].pmInUse = self.selected_vars.cellWidget(i,4).currentText()
-            vars.mods[name].unit = self.selected_vars.cellWidget(i,5).currentText()
+            vars.mods[name].pmInUse = self.selected_vars.cellWidget(i,5).currentText()
+            vars.mods[name].unit = self.selected_vars.cellWidget(i,6).currentText()
 
         nml.RAW.RAW = self.rawEdit.toPlainText()
         nml.RAW.POST = self.postProcCmd.toPlainText()
-        nml.CUSTOM.CUSTOMS = []
+
+        if len(nml.CUSTOM.CUSTOMS)>0:
+            nml.CUSTOM.CUSTOMS = [['INIT_ONLY',','.join(nml.CUSTOM.CUSTOMS)]]
+        choices = [
+            [['NETCDF_OUT','.TRUE.'],['BINARY_FILE',0]],
+            [['NETCDF_OUT','.FALSE.'],['BINARY_FILE',2]],
+            [['NETCDF_OUT','.FALSE.'],['BINARY_FILE',1]],
+            [['NETCDF_OUT','.TRUE.'],['BINARY_FILE',2]],
+            [['NETCDF_OUT','.TRUE.'],['BINARY_FILE',1]],
+            [['NETCDF_OUT','.FALSE.'],['BINARY_FILE',0]],
+        ]
+        nml.CUSTOM.CUSTOMS.append(choices[self.outputFormats.currentIndex()][0])
+        nml.CUSTOM.CUSTOMS.append(choices[self.outputFormats.currentIndex()][1])
+
+        for boo,cstmFlg in zip(self.customboolflags,self.oldCustomOptions):
+            if boo<0:
+                pass
+            elif boo==1:
+                if eval(f'self.{cstmFlg}.isChecked()'):
+                    exec(f'nml.CUSTOM.CUSTOMS.append(["{cstmFlg}",self.checkboxToFOR(self.{cstmFlg})])')
+            else:
+                if eval(f'self.{cstmFlg}.text()') != '':
+                    exec(f'nml.CUSTOM.CUSTOMS.append(["{cstmFlg}",self.{cstmFlg}.text()])')
+
         for i in range(1,25):
             key = 'customKey_%d'%i
             value = 'customVal_%d'%i
-            exec('nml.CUSTOM.CUSTOMS.append([self.%s.text(),self.%s.text()])'%(key,value))
+            if not eval(f'self.customKey_{i}.text()') in self.oldCustomOptions:
+                exec('nml.CUSTOM.CUSTOMS.append([self.%s.text(),self.%s.text()])'%(key,value))
 
         nml.ACDC.ACDC_SYSTEMS = ','.join([str(i) for i in self.acdc_systems_flags])
         nml.ACDC.LINKS = [' '] * self.ACDC_n_systems
@@ -2974,12 +3084,25 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def load_initfile(self,file):
+        try:
+            f = open(file, 'r')
+            for line in f:
+                break
+            f.close()
+        except:
+            self.popup('Not a valid file', 'You are trying to open a file which does not appear to be a valid ARCA configuration file')
+            return
+        if os.system(f'grep "ARCA Box Model v." {file} 1>/dev/null') != 0:
+            print(updateINITFILE(file,CurrentVersion))
+
         INC_COMP = False
         timeunits = {'day':0,'hrs':1,'min':2,'sec':3}
         self.fileTimeUnit_a.setCurrentIndex( timeunits['day'] )
         self.fileTimeUnit_b.setCurrentIndex( timeunits['day'] )
         self.lossfileTimeUnit.setCurrentIndex( timeunits['day'] )
-
+        INIT_ONLY = []
+        netcdf_flag = 1
+        binary_flag = 0
         if not exists(file):
             if file != defaults_file_path:
                 self.popup('Ooops', 'File "%s" not found'%file, icon=3)
@@ -3008,17 +3131,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 return QtCore.QDate(2000, 1, 1)
 
 
-        try:
-            f = open(file, 'r')
-            for line in f:
-                break
-            f.close()
-        except:
-            self.popup('Not a valid file', 'You are trying to open a file which does not appear to be a valid ARCA configuration file')
-            return
-
         f = open(file, 'r')
         in_custom = False
+        excluded_compounds = []
 
         for line in f:
             i = line.find('=')
@@ -3038,7 +3153,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                     strng = strng.strip()
 
                 # change fortran boolean to python boolean
-                if not in_custom:
+                if not in_custom or key.upper() in self.oldCustomOptions:
                     if strng == "T" or strng.upper() == ".TRUE.": strng = True
                     elif strng == "F" or strng.upper() == ".FALSE.": strng = False
                 # Check if srtng is a number
@@ -3049,45 +3164,52 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
                 if key[:5]=='MODS(':
                     y = key.find(')')
-                    index = int(key[5:y])
-                    if index>len(NAMES): continue
-                    if index-1 == divider_i or index-1 == divider_xtr_i:
-                        continue
-                    name = NAMES[index-1]
-                    if not name in vars.mods:
-                        vars.mods[name] = Comp()
-                        vars.mods[name].Find = namesFoInds[name]
-                        vars.mods[name].name = name
+                    # index = int(key[5:y])
+                    # if index>len(tdinp.NAMES): continue
+                    # if index-1 == tdinp.divider_i or index-1 == tdinp.divider_xtr_i:
+                    #     continue
+                    # name = tdinp.NAMES[index-1]
 
                     if len(key)>y+1:
-                        prop = key[y+2:].lower()
-                        cmd = 'vars.mods[\'%s\'].%s'%(NAMES[index-1],prop)
-                        if isFl:
-                            exec("%s = %s"%(cmd, strng))
-                        else:
-                            exec("%s = \'%s\'"%(cmd, strng))
+                        print(f"Can not read MODS property {key[y+1:]}. Define all component properties as one-line entry" )
+                        continue
+                        # prop = key[y+2:].lower()
+                        # cmd = 'vars.mods[\'%s\'].%s'%(tdinp.NAMES[index-1],prop)
+                        # if isFl:
+                        #     exec("%s = %s"%(cmd, strng))
+                        # else:
+                        #     exec("%s = \'%s\'"%(cmd, strng))
                     else:
-                        props = strng.replace('d','e').split()
+                        props = strng.split()
                         i = 0
                         n=len(props)
+                        name = props[-1].strip('\'\"')
+                        if name not in tdinp.namesFoInds.keys():
+                            # print(f'{name} is not included in current chemistry, excluding from input.')
+                            excluded_compounds.append(name)
+                            continue
+                        if not name in vars.mods:
+                            vars.mods[name] = Comp()
+                            vars.mods[name].Find = tdinp.namesFoInds[name]
+                            vars.mods[name].name = name
                         if i< n: vars.mods[name].mode   = int(props[i])   ; i=i+1
                         if i< n: vars.mods[name].col    = int(props[i])   ; i=i+1
-                        if i< n: vars.mods[name].multi  = float(props[i]) ; i=i+1
-                        if i< n: vars.mods[name].shift  = float(props[i]) ; i=i+1
-                        if i< n: vars.mods[name].min    = float(props[i]) ; i=i+1
-                        if i< n: vars.mods[name].max    = float(props[i]) ; i=i+1
-                        if i< n: vars.mods[name].sig    = float(props[i]) ; i=i+1
-                        if i< n: vars.mods[name].mju    = float(props[i]) ; i=i+1
-                        if i< n: vars.mods[name].fv     = float(props[i]) ; i=i+1
-                        if i< n: vars.mods[name].ph     = float(props[i]) ; i=i+1
-                        if i< n: vars.mods[name].am     = float(props[i]) ; i=i+1
+                        if i< n: vars.mods[name].multi  = float(props[i].replace('d','e')) ; i=i+1
+                        if i< n: vars.mods[name].shift  = float(props[i].replace('d','e')) ; i=i+1
+                        if i< n: vars.mods[name].min    = float(props[i].replace('d','e')) ; i=i+1
+                        if i< n: vars.mods[name].max    = float(props[i].replace('d','e')) ; i=i+1
+                        if i< n: vars.mods[name].sig    = float(props[i].replace('d','e')) ; i=i+1
+                        if i< n: vars.mods[name].mju    = float(props[i].replace('d','e')) ; i=i+1
+                        if i< n: vars.mods[name].fv     = float(props[i].replace('d','e')) ; i=i+1
+                        if i< n: vars.mods[name].ph     = float(props[i].replace('d','e')) ; i=i+1
+                        if i< n: vars.mods[name].am     = float(props[i].replace('d','e')) ; i=i+1
                         if i< n:
                             unt = props[i].strip('\'\"').replace('#','#/cm3')
                             vars.mods[name].unit = unt
                             i=i+1
                         if i< n:
                             vars.mods[name].tied = (props[i].strip('\'\"'))
-                            if vars.mods[name].tied in NAMES:
+                            if vars.mods[name].tied in tdinp.NAMES:
                                 vars.mods[name].col  = vars.mods[name].tied
 
             else:
@@ -3095,6 +3217,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
                     in_custom = False
                     n = len(nml.CUSTOM.CUSTOMS)
                     ii = 0
+                    mapping = {1:0,4:1,2:2,5:3,3:4,0:5}
+                    self.outputFormats.setCurrentIndex(mapping[int(f'{binary_flag:02b}{netcdf_flag}',2)])
                     for i in range(1,n+1):
                         ii += 1
                         keyW = 'customKey_%d'%ii
@@ -3131,9 +3255,21 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 iii = timeunits.get(strng, 0)
                 self.fileTimeUnit_a.setCurrentIndex( iii )
                 self.fileTimeUnit_b.setCurrentIndex( iii )
+            elif 'ENVFILE_TIME_UNIT' == key:
+                iii = timeunits.get(strng, 0)
+                self.fileTimeUnit_a.setCurrentIndex( iii )
+            elif 'MCMFILE_TIME_UNIT' == key:
+                iii = timeunits.get(strng, 0)
+                self.fileTimeUnit_b.setCurrentIndex( iii )
             elif 'LOSSFILE_TIME_UNIT' == key:
                 iii = timeunits.get(strng, 0)
                 self.lossfileTimeUnit.setCurrentIndex( iii )
+            elif 'LOSSFILE_GAS_TIME_UNIT' == key:
+                iii = timeunits.get(strng, 0)
+                self.lossfileTimeUnitGas.setCurrentIndex( iii )
+            elif 'RUNTIME_TIME_UNIT' == key:
+                iii = timeunits.get(strng, 0)
+                self.runTimeUnit.setCurrentIndex( iii )
             elif 'PRINT_ACDC' == key: self.print_acdc.setChecked(strng)
             elif 'OPTIMIZE_DT' == key: self.useSpeed.setChecked(strng)
             elif 'AFTER_CHEM_ON' == key: self.after_chem_on.setChecked(strng)
@@ -3171,6 +3307,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'CW_EQV' == key and isFl: self.Cw_eqv.setText(strng)#  0.050000000000000001     ,
             elif 'MCM_FILE' == key: self.mcm_file.setText(strng)# "
             elif 'LOSSES_FILE' == key: self.losses_file.setText(strng)# "
+            elif 'LOSSES_FILE_GAS' == key: self.losses_file_gas.setText(strng)# "
             elif 'LAT' == key and isFl: self.lat.setValue(float(strng))
             elif 'LON' == key and isFl: self.lon.setValue(float(strng))
             elif 'WAIT_FOR' == key and isFl: self.wait_for = (int(float(strng)))
@@ -3182,11 +3319,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'VAP_NAMES' == key: self.vap_names.setText(strng)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
             elif 'GR_SIZES' == key: self.GR_sizes.setText(strng)
-            elif 'NAMESDAT' == key:
-                if strng != path_to_names:
-                    self.popup('Hazard', """These settings need different set of input compounds, you should restart the GUI \n
-                    and use -o flag in the bash command, or --names flag in the python command to define the correct path \n"""
-                    +strng, 3)
+            elif 'NAMESDAT' == key: NAMESDAT=strng
+                # if strng != tdinp.path_to_names:
+                    # self.popup('Hazard', """These settings need different set of input compounds, you should restart the GUI \n
+                    # and use -o flag in the bash command, or --names flag in the python command to define the correct path \n"""
+                    # +strng, 3)
 
             elif 'DDIAM_RANGE' == key:
                 self.prec_low_1.setValue(float(strng.split(',')[0]))
@@ -3218,16 +3355,26 @@ In the ACDC system: %s
 In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-1][1].keys()),', '.join(self.ACDC_current_links[num-1][1].keys()))
                         self.popup('Incompatible definitions', msg)
 
-
             elif in_custom:
+                # At this point Fortran boolean strng should anyway be python True or False
                 if strng == 'T': strng = '.TRUE.'
                 if strng == 'F': strng = '.FALSE.'
-                if key=='DMPS_TRES_MIN':
-                    print('Moving obsoleted DMPS_TRES_MIN to dmpsIntvl')
-                    self.dmpsIntvl.setValue(float(strng))
+                if key=='DMPS_TRES_MIN': self.dmpsIntvl.setValue(float(strng))
+                elif key in self.oldCustomOptions:
+                    if key=='VBS_CSAT': self.VBS_CSAT.setChecked(strng)
+                    if key=='LIMIT_VAPOURS': self.LIMIT_VAPOURS.setText(strng)
+                    if key=='VP_MULTI': self.VP_MULTI.setText(strng)
+                    if key=='NO2_IS_NOX': self.NO2_IS_NOX.setChecked(strng)
+                    if key=='NPF_DIST': self.NPF_DIST.setText(strng)
+                    if key=='FLOAT_CONC_AFTER_HRS': self.FLOAT_CONC_AFTER_HRS.setText(strng)
+                    if key=='FLOAT_EMIS_AFTER_HRS': self.FLOAT_EMIS_AFTER_HRS.setText(strng)
+                    if key=='INIT_ONLY' : INIT_ONLY = [c for c in strng.split(',')]
+                    if key=='NETCDF_OUT' : netcdf_flag = int(strng)
+                    if key=='BINARY_FILE' : binary_flag = int(strng)
+
                 else:
                     nml.CUSTOM.CUSTOMS.append([key, strng])
-
+                # xxxx
             elif '# RAW_INPUT' == key:
                 self.rawEdit.clear()
                 self.rawEdit.insertPlainText(rawline.replace('<br>', '\n'))
@@ -3265,6 +3412,18 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 continue
 
         f.close()
+        if len(excluded_compounds)>0:
+            initChem = ossplit(ossplit(NAMESDAT)[0])[1]
+            extratext = ''
+            if FT.startup:
+                extratext = '\n\nIf you are happy with the current chemistry, you can omit this warning '+\
+                'on startup by saving the current model setup as default ("File->Save as defaults)"'
+                FT.startup = False
+            self.popup('Some input components were omitted',f'The current chemistry "{FT.compiled_chemistry}" does not contain all defined input components in'+
+                f' the current settings, written for "{initChem}" chemistry, and are removed from selected input. The removed compounds are: \n\n'+
+                f'{",".join(excluded_compounds)}'+'\n\n'+
+                'If these compounds are necessary for your simulation, a) switch to another chemistry and load the setting file again, '+
+                f'or b) modify the current chemistry by adding the compound(s). {extratext}',1)
         # manage different units
         for key in vars.mods:
             pmInUse = 0
@@ -3283,18 +3442,19 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 self.selected_vars.setItem(row, 1, QtWidgets.QTableWidgetItem(str(vars.mods[key].col)))
                 self.selected_vars.setItem(row, 2, QtWidgets.QTableWidgetItem(str(vars.mods[key].multi)))
                 self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem(str(vars.mods[key].shift)))
-                self.selected_vars.cellWidget(row,4).setCurrentIndex(pmInUse)
-                self.selected_vars.cellWidget(row,5).setCurrentIndex(unitIndex)
+                self.selected_vars.cellWidget(row,5).setCurrentIndex(pmInUse)
+                self.selected_vars.cellWidget(row,6).setCurrentIndex(unitIndex)
                 for z in range(4):
-                    if namesPyInds[key]<divider_i:
+                    if tdinp.namesPyInds[key]<tdinp.divider_i:
                         self.selected_vars.item(row, z).setBackground(QtGui.QColor(*env_no))
-                    elif namesPyInds[key]>divider_xtr_i:
+                    elif tdinp.namesPyInds[key]>tdinp.divider_xtr_i:
                         self.selected_vars.item(row, z).setBackground(QtGui.QColor(*xtr_no))
                     else:
                         self.selected_vars.item(row, z).setBackground(QtGui.QColor(*org_no))
 
             else:
-                cols = [key,str(vars.mods[key].col),str(vars.mods[key].multi),str(vars.mods[key].shift),pmInUse]
+                init = 1 if key in INIT_ONLY else 0
+                cols = [key,str(vars.mods[key].col),str(vars.mods[key].multi),str(vars.mods[key].shift),init,pmInUse]
                 self.add_new_line(key,2,cols=cols,createNew=False, unt=unitIndex)
 
             wScale,pScale,aScale,phScale,ampScale,_ = self.scales()
@@ -3395,33 +3555,15 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 self.plotResultWindow_2.setLabel('left', 'Mass', units='g')
                 self.plotResultWindow_3.setLabel('bottom', 'Diameter', units='m')
                 self.plotResultWindow_3.setLabel('left', '# normalized')
-            # NUMBER_CONCENTRATION = self.ncs_mass.variables['NUMBER_CONCENTRATION'][:]
-            # self.mass_in_bin     = self.ncs_mass.variables['MASS'][:]*NUMBER_CONCENTRATION*1e3 # from kg to g
-            # self.lognormconc     = NUMBER_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
                 self.times.addItems(['%7.2f'%(i) for i in self.mp_time])
                 self.times.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-                # self.massPlotTitle.setText(self.MPD[0].legend.replace(': Particles.nc',''))
                 self.times.item(0).setSelected(True)
                 self.diams.selectAll()
                 self.diams.itemSelectionChanged.connect(self.updateMass)
                 self.showGrowthRates.toggled.connect(self.updateMass)
                 self.times.itemSelectionChanged.connect(self.updateNumbers)
-            # try:
-            #     DMPS_CONCENTRATION = self.ncs_mass.variables['INPUT_CONCENTRATION'][:]
-            #     self.massdmps = self.ncs_mass.variables['MASS'][:]*DMPS_CONCENTRATION
-            #     self.lognormdmps = DMPS_CONCENTRATION/log10(self.DIAMETER[0,1]/self.DIAMETER[0,0])
-            #     self.measdmps = True
-            # except:
-            #     print('File does not contain measured PSD')
 
-            # self.ncs_mass.close()
-
-        # self.NC_lines[j].setData(TT[j],Y)
-        # Update figures, start with cleaning
-        # else:
-        #     if target=='mass':
         self.plotResultWindow_2.clear()
-            # if target=='numb':
         self.plotResultWindow_3.clear()
 
         indstime = [i.row() for i in self.times.selectedIndexes()]
@@ -3531,6 +3673,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         else:
             ftype = self.LPD[-1].masterfile
         self.browse_path(None, 'addplot_more', ftype=ftype)
+        self.radioCompare.setEnabled(False)
+
 
 
 
@@ -3588,18 +3732,17 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             Y = self.LPD[-1].getconc(comp)
 
         self.NC_lines.append( self.plotResultWindow.plot(
-        self.LPD[-1].time,
-        Y,
-        pen={'color':colors[(len(self.LPD)-1)],'width': 2.0},
-        name=self.LPD[-1].legend
-        ) )
+            self.LPD[-1].time,Y,
+            pen={'color':sixcolors[(len(self.LPD)-1)],'width': 3.0},
+            name=self.LPD[-1].legend,antialias=True
+            ) )
         if new:
             self.availableVars.clear()
             self.availableVars.addItems(self.LPD[-1].names)
             self.availableVars.item(0).setSelected(True)
             self.availableVars.setCurrentItem(self.availableVars.item(0))
             self.availableVars.itemSelectionChanged.connect(self.showOutputUpdate)
-            self.ShowPPC.toggled.connect(lambda: self.showOutputUpdate(info=False))
+            self.ShowPPC.toggled.connect(self.showOutputUpdate)
         # If fails, give information and return
         # except:
         #     self.popup('Bummer...', "Output file does not contain any plottable data",icon=3)
@@ -3610,29 +3753,32 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.plotTitle = file + ': ' + list(self.LPD[-1].convars.keys())[0]
             self.plotResultTitle.setText(self.plotTitle+' '+unit)
         else:
-            self.fLin_2.setChecked(~putBackLog)
+            self.fLin_2.setChecked( not putBackLog)
             self.fLog_2.setChecked(putBackLog)
             self.showOutputUpdate()
 
 
     def selectionMode(self):
-        if self.sumSelection.isChecked():
-            self.availableVars.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        if self.sumSelection.isChecked(): # XXX
+            self.showOutputUpdate()
         else:
-            self.availableVars.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+            self.showOutputUpdate()
             if self.availableVars.currentItem() != None:
                 self.availableVars.currentItem().setSelected(True)
 
 
-    # def loadsecondFile(self):
-    #     newfile = self.browse_path(target=None,mode='fixed_cc', ftype=self.plotMasterFile)
-    #     self.listOfplottedFiles.append(newfile)
-    #     print(self.listOfplottedFiles)
-
-
-    def showOutputUpdate(self,info=False):
+    def showOutputUpdate(self):
         """This function is called when lin/log radio button or any variable in the list is changed"""
+
+        # buttonstate = [int(s) for s in [self.n_conc.isChecked(),self.ppm.isChecked(),self.ppb.isChecked(),self.ppt.isChecked()]]
+        # self.ppm.toggled.disconnect(lambda: self.showOutputUpdate(info=False))
+        # self.ppb.toggled.disconnect(lambda: self.showOutputUpdate(info=False))
+        # self.ppt.toggled.disconnect(lambda: self.showOutputUpdate(info=False))
+        # self.n_conc.setChecked(True)
+
         # find out which y-scale should be used
+        self.compare = True if self.radioCompare.isChecked() else False
+
         if self.ShowPPC.isChecked():
             self.toggleppm('off')
             PPconc = True
@@ -3642,9 +3788,11 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             PPconc = False
             self.plotResultWindow.setBackground('w')
         scale = self.radio(self.fLin_2, self.fLog_2, action=False)
-        if scale == 'log':loga = True
-        else: loga = False
-
+        loga = True if scale == 'log' else False
+        if self.compareplot is not None:
+            [x.clear() for x in self.compareplot]
+            [l.setText('') for l in self.linePlotLegends]
+            self.compareplot = None
         # find out which variable should be plotted
         if self.availableVars.currentItem() is None:
             return
@@ -3655,9 +3803,15 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             else:
                 csat = ''
         if not PPconc:
-            if self.sumSelection.isChecked():
+            if len(self.availableVars.selectedItems())>1:
                 if any(c.text() in units for c in self.availableVars.selectedItems()):
+                    self.ppm.toggled.disconnect(self.showOutputUpdate)
+                    self.ppb.toggled.disconnect(self.showOutputUpdate)
+                    self.ppt.toggled.disconnect(self.showOutputUpdate)
                     self.n_conc.setChecked(True)
+                    self.ppm.toggled.connect(self.showOutputUpdate)
+                    self.ppb.toggled.connect(self.showOutputUpdate)
+                    self.ppt.toggled.connect(self.showOutputUpdate)
                     self.toggleppm('off')
                 else:
                     self.toggleppm('on')
@@ -3667,43 +3821,35 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 else:
                     self.n_conc.setChecked(True)
                     self.toggleppm('off')
-        if info:
-            self.LPD[-1].getinfo(comp)
-            return
+        # if info:
+        #     self.LPD[-1].getinfo(comp)
+        #     return
         # Exctract that variable from netCDF-dataset and save to Y
         YY = []
         TT = []
         if not self.sumSelection.isChecked():
-            if PPconc:
-                for z in self.LPD:
-                    YY.append(z.getcom(comp))
-                    TT.append(z.time)
+            if len(self.availableVars.selectedItems())>1:
+                self.compare=True
+                z = self.LPD[-1]
+                YY = [z.getconc(comp.text(), par=PPconc) for comp in self.availableVars.selectedItems()]
+                NMS = [comp.text() for comp in self.availableVars.selectedItems()]
+                TT.append(z.time)
             else:
+                self.compare=False
                 for z in self.LPD:
-                    YY.append(z.getconc(comp))
+                    YY.append(z.getconc(comp, par=PPconc))
                     TT.append(z.time)
-
             self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
         else:
             if self.availableVars.selectedItems() != []:
-                if PPconc:
-                    for z in self.LPD:
-                        YY.append(z.getcomsum([c.text() for c in self.availableVars.selectedItems()]))
-                        TT.append(z.time)
-                else:
-                    for z in self.LPD:
-                        YY.append(z.getconcsum([c.text() for c in self.availableVars.selectedItems()]))
-                        TT.append(z.time)
+                for z in self.LPD:
+                    YY.append(z.getconcsum([c.text() for c in self.availableVars.selectedItems()],par=PPconc))
+                    TT.append(z.time)
                 self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + self.availableVars.selectedItems()[0].text()+' etc. '
             else:
-                if PPconc:
-                    for z in self.LPD:
-                        YY.append(z.getcom(comp))
-                        TT.append(z.time)
-                else:
-                    for z in self.LPD:
-                        YY.append(z.getconc(comp))
-                        TT.append(z.time)
+                for z in self.LPD:
+                    YY.append(z.getconc(comp,par=PPconc))
+                    TT.append(z.time)
                 self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
 
         for j,Y in enumerate(YY):
@@ -3711,20 +3857,20 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 # if the variable is PRACTICALLY nonvariant, set the value to constant
                 if (max(Y)-min(Y))/max(Y)<1e-5: YY[j][:]=mean(Y)
 
-        have_aircc = False
-        if all([z.have_aircc for z in self.LPD]): have_aircc = True
+        have_aircc = True if all([z.have_aircc for z in self.LPD]) else False
 
         un = ''
         if have_aircc:
             for j,Y in enumerate(YY):
+                k = 0 if self.compare else 1
                 if self.ppm.isChecked():
-                    YY[j] = Y/self.LPD[j].aircc * 1e6
+                    YY[j] = Y/self.LPD[j*k].aircc * 1e6
                     un = '[ppm]'
                 elif self.ppb.isChecked():
-                    YY[j] = Y/self.LPD[j].aircc * 1e9
+                    YY[j] = Y/self.LPD[j*k].aircc * 1e9
                     un = '[ppb]'
                 elif self.ppt.isChecked():
-                    YY[j] = Y/self.LPD[j].aircc * 1e12
+                    YY[j] = Y/self.LPD[j*k].aircc * 1e12
                     un = '[ppt]'
                 elif PPconc:
                     un = '[ng/m3]'
@@ -3738,23 +3884,43 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                         un = '[#/cm3]'
                 else : un = '['+units.get(grepunit(comp),units['REST'])[0]+']'
 
+        if self.radioCompare.isChecked() and self.compare:
+            self.compareplot = []
+            for ixy,y,n in zip(range(len(YY)),YY,NMS):
+                if ixy>5:
+                    return
+                self.linePlotLegends[ixy].setStyleSheet(f"color: {sixcolors[ixy]};")
+                self.linePlotLegends[ixy].setText(n)
+                if ixy == 0:
+                    self.NC_lines[0].setData(TT[0],y)
+                else:
+                    self.compareplot.append( self.plotResultWindow.plot(
+                        TT[0],y,
+                        pen={'color':sixcolors[ixy],'width': 3.0},
+                        antialias=True))
+
+            # self.plotResultWindow.setLimits(yMin=c)
+            self.plotResultWindow.setLogMode(y=loga)
+            self.plotResultTitle.setText('')
+            return
+
 
         # Are the values non-negative?
         positive = all([all(Y>=0) for Y in YY])
         # Are all the values zeros?
         zeros = all([all(Y==0) for Y in YY])
-        thickness = 2.0
-        if PPconc: thickness = 2.5
+        thickness = 3.0
+        if PPconc: thickness = 3.5
         # if non-negative and not all zeros, and log-scale is possible without any fixes
         if not zeros and not positive and scale=='log':
             for j,Y in enumerate(YY):
                 YY[j] = where(Y<=0, 1e-20, Y)
             # Mark plot with red to warn that negative values have been deleted
-                self.NC_lines[j].setPen({'style':QtCore.Qt.DashLine,'color':colors[j],'width': thickness})
+                self.NC_lines[j].setPen({'style':QtCore.Qt.DashLine,'color':sixcolors[j],'width': thickness})
             positive = True
         else:
             for j,p in enumerate(self.NC_lines):
-                p.setPen({'style':QtCore.Qt.SolidLine,'color':colors[j],'width': thickness})
+                p.setPen({'style':QtCore.Qt.SolidLine,'color':sixcolors[j],'width': thickness})
 
         if scale=='log' and positive and not zeros:
             # To avoid very small exponentials, zeros are changed to nearest small number
@@ -3775,15 +3941,15 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             loga = False
         # update data
         for j,Y in enumerate(YY):
-        # time = self.ncs.variables[self.hnames[0]][:]/3600
-        # if ma.is_masked(time):
             self.NC_lines[j].setData(TT[j],Y)
-        # else:
-        #     self.outplot.setData(time,Y)
+
         self.plotResultWindow.setLogMode(y=loga)
         # update title
         self.plotResultTitle.setText(self.plotTitle+un+csat)
 
+
+    # def addLineTOPlot(self,win,x,y,label):
+    #     return plot
 
 
     ## Popup message function -icon sets the icon:----------------------------------------------------------------------
@@ -3808,12 +3974,15 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
     def closenetcdf(self):
         # try: self.ncs.close()
         # except: pass
+        self.plotResultWindow.setBackground('w')
+        [l.setText('') for l in self.linePlotLegends]
         self.findComp.clear()
         for z in self.LPD:
             z.closenc()
         self.LPD = []
         self.NC_lines = []
         self.addSimilar.setEnabled(False)
+        self.radioCompare.setEnabled(True)
         self.actionShow_variable_attributes.setEnabled(False)
         self.CloseLinePlotsButton.setEnabled(False)
         self.findComp.setEnabled(False)
@@ -3824,7 +3993,6 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 self.ncleg = self.plotResultWindow.addLegend()
                 if self.ncleg not in self.ncleg_skene.items():
                     self.ncleg_skene.addItem(self.ncleg)
-
 
         try:
             while True:
@@ -3848,6 +4016,16 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.massleg = self.plotResultWindow_2.addLegend()
             if self.massleg not in self.massleg_skene.items():
                 self.massleg_skene.addItem(self.massleg)
+
+    def clearLegendTrick(self):
+        for item in self.ncleg_skene.items():
+            if item != self.ncleg:
+                self.ncleg_skene.removeItem(item)
+        # if self.ncleg in self.ncleg_skene.items():
+        #     self.ncleg_skene.removeItem(self.ncleg)
+        #     self.ncleg = self.plotResultWindow.addLegend()
+        #     if self.ncleg not in self.ncleg_skene.items():
+        #         self.ncleg_skene.addItem(self.ncleg)
 
     def closenetcdf_mass(self):
         self.MPD = []
@@ -3899,7 +4077,17 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
     def remake(self, syst=0):
         if self.running != None:
             if self.ReplChem.isChecked():
+                FT.compiled_chemistry = self.chemistryModules.currentText()
+                print('Updating chemistry list')
+                if not exists(gui_path+'tmp'):
+                    mkdir(gui_path+'tmp')
+                st = self.print_values(tempfile)
+                self.load_initfile(minimal_settings_path)
+                tdinp.load_names(osjoin('src/chemistry',self.chemistryModules.currentText(),'NAMES.dat'),path_to_xtras)
+                nml.MODS.names = tdinp.NAMES
+                self.update_input_variables()
                 self.editMakefile(mod=self.chemistryModules.currentText())
+                self.load_initfile(tempfile)
                 writeRATESdat(self.chemistryModules.currentText())
                 if self.makeClean.isChecked():
                     target = "clean_current_chemistry"
@@ -3921,7 +4109,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.chemistryModules.setCurrentIndex(self.chemistryModules.findText(self.get_available_chemistry(checkonly=True)))
             self.currentAddressTb.deselect()
 
-    def filterListOfComp(self):
+    def filterListOfComp(self):   # filter for output components
         text = self.findComp.text().upper()
         strict = False
         nonzeros = False
@@ -3973,15 +4161,18 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         if text == '':
             self.namesdat.scrollToItem(self.namesdat.item(0), QtWidgets.QAbstractItemView.PositionAtTop)
         else:
-            for c in NAMES:
+            for c in tdinp.NAMES:
                 if strict:
                     if text == c.upper():
-                        if (not namesPyInds[c] == divider_i) and (not namesPyInds[c] == divider_xtr_i):
-                            self.namesdat.item(namesPyInds[c]).setSelected(True)
+                        self.namesdat.scrollToItem(self.namesdat.item(tdinp.namesPyInds[c]),QtWidgets.QAbstractItemView.PositionAtTop)
+                        if (not tdinp.namesPyInds[c] == tdinp.divider_i) and \
+                            (not tdinp.namesPyInds[c] == tdinp.divider_xtr_i):
+                            self.namesdat.item(tdinp.namesPyInds[c]).setSelected(True)
                 else:
                     if text in c.upper():
-                        if(not namesPyInds[c] == divider_i) and (not namesPyInds[c] == divider_xtr_i):
-                            item = self.namesdat.item(namesPyInds[c])
+                        if(not tdinp.namesPyInds[c] == tdinp.divider_i) and \
+                            (not tdinp.namesPyInds[c] == tdinp.divider_xtr_i):
+                            item = self.namesdat.item(tdinp.namesPyInds[c])
                             item.setSelected(True)
                             self.namesdat.scrollToItem(item, QtWidgets.QAbstractItemView.PositionAtTop)
 
@@ -3989,10 +4180,31 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         self.chamberLossBox.setTitle("Chamber properties (assuming square floor, volume: %0.2f m³)"
             %(self.floorArea.value()*self.chamberHeight.value()))
 
+    def loadHeaders(self):
+        match,i_match = self.printHeaders(True)
+        fmatch = {}
+        for var,ivar in zip(match,i_match):
+            if var in tdinp.namesPyInds.keys():
+                fmatch[var] = ivar
+                if var not in vars.mods:
+                    self.namesdat.item(tdinp.namesPyInds[var]).setSelected(True)
+        self.select_compounds()
+        # assign columns
+        for ic in range(self.selected_vars.rowCount()):
+            cand = self.selected_vars.item(ic,0).text()
+            if cand in fmatch.keys():
+                vars.mods[cand].col = fmatch[cand]
+                self.selected_vars.item(ic,1).setText(str(fmatch[cand]))
+        return
 
-    def printHeaders(self):
-        print('\n+----------------- Print input headers with column numbers -----------------+')
-        for type, ff in zip(['ENV input', 'MCM input'], [nml.ENV.ENV_FILE, nml.MCM.MCM_FILE]):
+    def printHeaders(self, load=False):
+        if load:
+            collection = []
+            i_collection = []
+            print('\n+------- Matching input files to current set of Time dependent input -------+')
+        else:
+            print('\n+----------------- Print input headers with column numbers -----------------+')
+        for type, ff in zip(['ENV input', 'CHM input'], [nml.ENV.ENV_FILE, nml.MCM.MCM_FILE]):
             if exists(ff):
                 f = open(ff)
             else:
@@ -4004,23 +4216,24 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             print()
             print('Header from '+ff+':')
             print()
+            delimiter = ',' if ff[-4:].lower() == '.csv' else None
             for line in f:
-                for i,val in enumerate(line.split()):
-                    if i==0 and '#' in val:
-                        if val != '#':
-                            print('   There appears to be some junk attached to the "#", maybe a column name? \n   Make sure there is space after the hashtag.')
-                            break
-                    elif i==0 and '#' not in val:
-                        print('   < No header in file: '+ff+'>')
-                        break
-                    if i==0:
-                        print('+-col-+-----column name-------')
-                        continue
-                    print(' %3d     %s'%(i, val))
                 break
             f.close()
+            if line[0] != '#':
+                print('   < No header in file: '+ff+'>')
+                break
+            for i,val in enumerate(line.replace('#','').split(delimiter)):
+                if i==0:
+                    print('+-col-+-----column name-------')
+                    # continue
+                print(' %3d     %s'%(i+1, val))
+                if load:
+                    collection.append(val.strip().upper())
+                    i_collection.append(i+1)
             print()
             print()
+        if load: return collection,i_collection
 
 dummy = Comp()
 defCompound = Comp()
@@ -4064,7 +4277,9 @@ TYPE UNIT  NAME                       Options, (default), DESCRIPTION
         # print(' %04s  %04s %32s %s'%(line.split(',')[0],line.split(',')[1],line.split(',')[2],line.split(',')[3]))
 
 if __name__ == '__main__':
-    print(CurrentVersion+' started at:', ( time.strftime("%B %d %Y, %H:%M:%S", time.localtime())))
+    FT = Startup()
+    FT.compiled_chemistry = compiled_chemistry
+    print(f'{CurrentVersion}, compiled with: {compiled_chemistry}')
     app = QtWidgets.QApplication([sys.argv])
     qt_box = QtBoxGui()
     qt_box.setGeometry(30, 30, 900, 700)
