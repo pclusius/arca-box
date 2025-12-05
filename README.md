@@ -120,83 +120,103 @@ and then run the setup.py again.
 
 Version history
 ---------------
+## 1.4.0
+#### New features:
+- The model is now more flexible regarding the input variables. The NAMES.dat is now by default
+  chemistry-specific, and is switched in the GUI when changing chemistries.
+- The variables in the FORTRAN model are not anymore assigned according to their order (or index) in the NAMES-file, but solely based on
+  their actual names. This means that old INITFILES are not compatible with the new version, but the GUI converts the
+  old type to new type automatically. Outside the GUI, user can use the same tool to convert the INITFILE by giving the
+  absolute path to the python script: "python ModelLib/gui/modules/updateINITFILE.py <absolute path to initfile>"
+- When switching between chemistries or on startup, if the input contains components not found in the
+  chemistry, they are removed from the input list to avoid the FORTRAN model to halt on startup. A message specifying
+  which compounds were removed from the input list is given to user.
+- ENV and CHM input files can have independent time resolution and length (but internally, they all share
+  same structure, i.e. they can not be ragged arrays).
+- Tools-> Load input from ENV and CHM. This selects all variables from the input files and assigned the
+  corresponding columns to the Time dependent input
+- Now losses of both gases and aerosols can be consistently calculated with time (previously only aerosols),
+  size and component-wise method (with .csv input) or uniform and constant over time loss rate.
+  In addition, wall loss parametrizations can be used, previously these were excluding each other. This allows for more flexible handling of losses.
 
-1.3.3
-Updates:
+#### Changes
+- Some inorganic compounds such as SO2, H2, NOx etc. were always available as input, now any chemical component
+  (or pseudo-component, such as RO2 sum) must be defined in the chemistry. These have to have at least one reaction, which
+  can be a "non-reaction", e.g. "NH3 = dummy : 0d0 ;"
+- Some options previously in the more under-the-counter type have been made more visible, particularly the option to initialize
+  any chemical concentration only on startup. individual components can be set as C(0) in the Time dependent input.
+  The whole chemistry, separately for emissions and concentrations, can be let to "float" - i.e. that the input values are
+  not forced - after a set time. Keep in mind that the compound must have some losses to show non-constant concentrations,
+  for example it should not be in set to fixed in the chemistry scheme (should be under DEFVAR, not DEFFIX in KPP).
+- To remove clutter, a button in the GUI main frame disables some advanced options, which can be left to their defaults if
+  unsure about their function.
+
+#### Bugfixes:
+- Fixed bug where ACDC modules were initialized even when "Form new particles" was unchecked, giving error if
+  some nucleating compunds were not found in any of the 5 ACDC chemistries that were checked to be in use. These are now
+  ignored if "Form new particles" is unchecked.
+- Bugfix: loading an incopatible INITFILE (say, a random textfile) resulted in cleared list of input. Now the validity
+  of the input is checked (on a most basic level) before clearing the list.
+- Other minor bugfixes.
+
+## 1.3.3
+#### Updates:
 - New custom option of writing a binary file of chemical componenst at eadch timestep
 - fixes in regular expressions, accommodating python 3.10 ->
 - GUI has a post-processing slot for custom code (in a bash call). This is a convenience tool only.
 - Create Chemistry tool: One can define a master file that will override other duplicate equations
 - KPP 2.x not provided with ARCA anymore, as the current version is preferred https://kpp.readthedocs.io/en/stable/
 
-
-1.3.2
-
-Updates:
-
+## 1.3.2
+#### Updates:
 - GUI: Compatible with new MCM web interface and the files it provides
 - GUI: As UManSysProp website was terminated, the user can now install the offline version and use it through the GUI's
   "Create Vapour file" -tool. Clone UManSysProp from github: https://github.com/loftytopping/UManSysProp_public.git,
   and take note of the path of "UManSysProp_public" and save it in the "Create Vapour file" -tool. The tool relies on
   Python and needs the openbabel and Flask-WTF packages.
 
-Changes:
-
+#### Changes:
 - Sulfuric acid is now treated as other condensables, and removed from gas phase in the aerosol module, not in chemistry
   as previously (mainly for historic reasons).
 - removed the strange Ignore Input H2SO4 and always use modelled -option. If H2SO4 is sent in as time dependent variable,
   it will override modelled H2SO4. To initialize, use the custom option "INIT_ONLY"
 - KPP 2 support will be faded out, the user is incouraged to install KPP 3
 
-1.3.1
-
-Updates:
-
+## 1.3.1
+#### Updates:
 - GUI: option to accomodate the gui for dark mode. Note, the gui still uses system theme, but the colours
 and logos in the GUI are tuned for fdark background.
 - GUI: gui_config.ini file for global options
 
-1.3.0
-
-Updates:
-
+## 1.3.0
+#### Updates:
 - aerosol emissions can be added as time-dependent modes (maximum number of modes is 99 but this will be very slow).
   Each mode consists of GMD [m], ln(sigma) [-] and emissions [s⁻¹]. Same input methods apply as for other inputs.
 - As a first step to particle phase chemistry, version 1.3 will be used to deliver parametric aging of particles.
 
-Fixes:
-
+#### Fixes:
 - Fixed a problem when condensation was not used but vapour file still needed to be properly defined.
 - GUI: Added troubleshooting options for high dpi scaling
 - Other minor fixes in GUI
 - Fixed further bugs in elemental composition of PRAM HOMs compounds
 
-
-1.2.2
-
-Updates:
-
+## 1.2.2
+#### Updates:
 - added MTChamberEms2 chemistry which was used in the ARCA GMD paper.
 - time units in the ENV and MCM files as well as loss rate files are explicitly defined in the gui
 - Surface tension and Wall accommodation coefficient can optionally be set in the Vapour file
 - chemical reaction rate constants can be modified dynamically (experimental feature)
-
-Fixes:
-
+#### Fixes:
 - increased the buffer size of input to accommodate huge input files.
 - minor bug fixes in the GUI
 
-1.2.1
-
-Fixes:
-
+## 1.2.1
+#### Fixes:
 - Fixed bug in GetVapourPressures.py which saved the wrong elemental composition of filtered sets
 
+## 1.2.0
 
-1.2.0
-
-What's new:
-
+#### What's new:
 - 5 ACDC systems that are dynamically used so that their monomer names and system size can be changed without hard
   coding, needs recompiling though
 - ACDC systems have proper recording of the inut data files and system names
@@ -213,82 +233,64 @@ What's new:
 - (multi)modal distribution shows mass and total area
 - ARCA paper submission version
 
-Fixes:
-
+#### Fixes:
 - Fixed SMEAR II short wave radiation spectrum
 - Windows installer now prefers pyqtgraph 0.12.0
 - Minor bug fixes in GUI and Fortran model
 
 
-1.1.2
-
-Hotfix:
-
+## 1.1.2
+#### Hotfix:
 - fixed error in calculation of Koehler factor for particles of size 1 nm (in aerosol_dynamics.f90)
 
 
-1.1.1
-
-Fixes:
-
+## 1.1.1
+#### Fixes:
 - Fixed empty array problem in second_reactivity.90 and add_reactivity.py (producing error with some fortran compilers).
 - Fixed makefile (version control gave problems on some Win systems)
 
 
-1.1.0
+## 1.1.0
 
 ARCA is now licenced under GNU GPL
 
 
-1.0.6
+## 1.0.6
 
-Fixes:
-
+#### Fixes:
 - Kelvin term was approximated using Taylor series. This is a bad approximation with very small particles.
   Now Kelvin term is calculated using exponential form. To use the old Kelvin term (used by many other models and the
   ACP scheme), set custom option (in NML_CUSTOM or in the GUI Run ARCA -> Custom model options) Kelvin_taylor = .true.
 
-(Further additions in current version, will be put to next release)
-  What's new:
-  Fixes:
+## 1.0.5
 
-
-1.0.5
-
-What's new:
-
+#### What's new:
 - makefile supplemented with Puhti configurations
 - Output directories are now created automatically
 
-Fixes:
-
+#### Fixes:
 - makefile improved; compiling chemistry module for the first time should not lead to error
 - On mac, the setup.py creates run_arca.command instead of run_arca.sh; is also be double-clickable
 - gui: replaced some deprecated Pyqtgraph methods giving errors on pyqtgraph 0.12
 - gui: fixed duplicating legend in mass plot
 
 
-1.0.4
+## 1.0.4
 
-What's new:
-
+#### What's new:
 - added GPL licence to KPP and ACDC directories.
 - added coag_sink to Particles.nc
 - added CS_calc to General.nc
 
-Fixes:
-
+#### Fixes:
 - Added new Hyde chemistry to accommodate reactivity calculations
 - fixed color issues in mass plotting
 - fix for how losses file was interpolated
 
 
-1.0.3
+## 1.0.3
 
-What's new:
-
+#### What's new:
 - Create second_reactivity.f90
-
-Fixes:
-
-  - minor fixes in the mass plotting
+#### Fixes:
+- minor fixes in the mass plotting
