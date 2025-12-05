@@ -1,31 +1,36 @@
 ## 1.4.0
-#### Updates:
-- New feature: The model is now more flexible regarding the input variables. The NAMES.dat is now by default
-  chemistry-specific, and is switched in the GUI when changing chemistries. More importantly, the variables in the
-  FORTRAN model are not anymore assigned according to their order (or index) in the NAMES-file, but solely based on
+#### New features:
+- The model is now more flexible regarding the input variables. The NAMES.dat is now by default
+  chemistry-specific, and is switched in the GUI when changing chemistries.
+- The variables in the FORTRAN model are not anymore assigned according to their order (or index) in the NAMES-file, but solely based on
   their actual names. This means that old INITFILES are not compatible with the new version, but the GUI converts the
   old type to new type automatically. Outside the GUI, user can use the same tool to convert the INITFILE by giving the
   absolute path to the python script: "python ModelLib/gui/modules/updateINITFILE.py <absolute path to initfile>"
-- New feature: When switching between chemistries or on startup, if the input contains components not found in the
+- When switching between chemistries or on startup, if the input contains components not found in the
   chemistry, they are removed from the input list to avoid the FORTRAN model to halt on startup. A message specifying
   which compounds were removed from the input list is given to user.
-- Changed behaviour. Some inorganic compounds such as SO2, H2, NOx etc. were always available as input, now any chemical component
+- ENV and CHM input files can have independent time resolution and length (but internally, they all share
+  same structure, i.e. they can not be ragged arrays).
+- Tools-> Load input from ENV and CHM. This selects all variables from the input files and assigned the
+  corresponding columns to the Time dependent input
+- Now losses of both gases and aerosols can be consistently calculated with time (previously only aerosols),
+  size and component-wise method (with .csv input) or uniform and constant over time loss rate.
+  In addition, wall loss parametrizations can be used, previously these were excluding each other. This allows for more flexible handling of losses.
+
+#### Changes
+- Some inorganic compounds such as SO2, H2, NOx etc. were always available as input, now any chemical component
   (or pseudo-component, such as RO2 sum) must be defined in the chemistry. These have to have at least one reaction, which
   can be a "non-reaction", e.g. "NH3 = dummy : 0d0 ;"
-- New feature: ENV and CHM input files can have independent time resolution and length (but internally, they all share
-  same structure, i.e. they are not ragged arrays).
-- New feature: Tools-> Load input from ENV and CHM. This selects all variables from the input files and assigned the
-  corresponding columns to the Time dependent input
-- New feature: Now losses of gases and aerosols can be consistently calculated with time, size and component-wise method
-  (with .csv input) or uniform and constant over time loss rate. In addition, wall loss parametrizations can be used,
-  previously these were excluding each other. This allows for more flexible handling of losses.
 - Some options previously in the more under-the-counter type have been made more visible, particularly the option to initialize
   any chemical concentration only on startup. individual components can be set as C(0) in the Time dependent input.
   The whole chemistry, separately for emissions and concentrations, can be let to "float" - i.e. that the input values are
-  not forced - after a set time. These and other options are brought to GUI.
+  not forced - after a set time. Keep in mind that the compound must have some losses to show non-constant concentrations,
+  for example it should not be in set to fixed in the chemistry scheme (should be under DEFVAR, not DEFFIX in KPP).
 - To remove clutter, a button in the GUI main frame disables some advanced options, which can be left to their defaults if
   unsure about their function.
-- Bugfix: Fixed bug where ACDC modules were initialized even when "Form new particles" was unchecked, giving error if
+
+#### Bugfixes:
+- Fixed bug where ACDC modules were initialized even when "Form new particles" was unchecked, giving error if
   some nucleating compunds were not found in any of the 5 ACDC chemistries that were checked to be in use. These are now
   ignored if "Form new particles" is unchecked.
 - Bugfix: loading an incopatible INITFILE (say, a random textfile) resulted in cleared list of input. Now the validity

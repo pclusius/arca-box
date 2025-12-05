@@ -131,7 +131,7 @@ if '-NS' in args: print('Overriding scaling from cmdline')
 
 ## Some constants --------------------------------------------
 # widths of the columns in "Input variables" tab
-column_widths = [150,100,70,70,20,70,70,50,3]
+column_widths = [180,60,70,70,20,50,70,30,1]
 
 # available units for variables, used to fill the tables and graphs with appropriate units
 units = {
@@ -1474,6 +1474,8 @@ Please provide valid spectral function.') \
             if ok:
                 wdgt.setFont(font)
                 self.savefonts(font, name)
+            else:
+                print('Hmm...')
         else:
             font = QtGui.QFont()
             font.setBold(False)
