@@ -21,9 +21,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 How to Install ARCA and the necessary software for it
 -----------------------------------------------------
-You will need C and Fortran compilers (we recommend gfortran) to compile the model. Model relies on
-NetCDF4 to save files, so you'll need that too. Before using the python installer, make sure you have a working
-netCDF4. On Linux libnetcdf-dev and libnetcdff-dev are needed. The user interface is written in Python 3.
+You will need C and Fortran compilers (we recommend gfortran) to compile the model.
+Model relies on NetCDF4 to save files, so you'll need that too. Before using the
+python installer, make sure you have a working netCDF4. On Linux libnetcdf-dev and
+libnetcdff-dev are needed. The user interface is written in Python 3.
 
 How to install on Linux Mint / Ubuntu:
 ---------------------------------------
@@ -31,7 +32,7 @@ How to install on Linux Mint / Ubuntu:
 https://www.helsinki.fi/fi/unitube/video/80d7a662-f60d-4cd1-b648-31dd0cbe9bd2
 
 
-How to install on Puhti/CSC:
+## How to install on Puhti/CSC:
 ----------------------------
 1) Go to directory install/
 2) run install_on_csc.sh (`sh install_on_csc.sh <cluster>`, where `<cluster>` can be one of `puhti, mahti, lumi`)
@@ -40,27 +41,36 @@ How to install on Puhti/CSC:
    In the "makefile", you might want to change the code optimization to O2 or even O3 (default is O1).
 
 
-How to install on Windows 10:
+## How to install on Windows:
 -----------------------------
 
-The best way install the necessary packages is with Cygwin. See this tutorial video:
-https://www.helsinki.fi/fi/unitube/video/7419bbe3-3fc8-493a-b076-7307d2e8191c
+Starting 2025 onwards we are now recommending you to install ARCA via Windows Linux sybsystem. This will give you a
+proper linux system on your Windows, giving the best of both worlds (if there is anything good in Windows, that is).
+Once you have WSL set up, use "install/wsl_install.sh.
 
-To use the graphical user interface, you need Python 3. We strongly encourage to use the native Python on Windows
-instead of Linux Subsystem (although this may work also, please report if you find a good solution).
+Set up WSL and install Ubuntu (recommended) on windows by running this command in cmd.exe or PowerShell:
 
+> wsl --update \
 
-How to install on MacOS:
+Most likely restart is necessary
+
+> wsl --install -d Ubuntu
+
+Then open a Ubuntu terminal, copy the install script to where you want the arca-box
+directory to appear and run it (or open the file in text editor and copy-paste the commands one after another) .
+
+## How to install on MacOS:
 -------------------------
 
 Mac has changed there processor type from Intel to M1/2, and this has created some extra complications for some users.
 There seems to be a problem getting PyQt5 installed using the native python, but Miniconda seems to work well.
 Additionally, Macs do not have natively the necessary terminal tools, and Xcode is needed before installation of ARCA
-specific packages can begin. On the online manual, there is a link where the necessary steps are explained. Following
+specific packages can begin. On the online manual (https://github.com/pclusius/arca-box/wiki/How-to-install-ARCA#MacOS),
+there is a link where the necessary steps are explained. Following
 those instructions the installations have so far always worked out.
 
 
-For all systems (except Puhti/CSC), when Fortran and Python 3 is available:
+## For all systems (except Puhti/CSC), when Fortran and Python 3 is available:
 ---------------------------------------------------------------------------
 
 After Python 3 is available, there is a script to set up the model. Go to directory install/, start the terminal and run
@@ -78,7 +88,7 @@ this case open the makefile, and comment the line which starts "NETLIBS" and unc
 using some other Fortran compiler than gfortran, you need to define this in the beginning of the makefile (F90 = gfortran)
 
 
-The necessary Python modules are:
+#### The necessary Python modules are:
 ---------------------------------
 
 - PyQt5
@@ -101,7 +111,7 @@ the call for the user's Python 3.
 
 
 
-How to use ARCA box?
+## How to use ARCA box?
 --------------------
 Learn more of using ARCA from this video: https://www.helsinki.fi/fi/unitube/video/b2c6775e-ad5f-4cee-9fd5-e502af2fb256
 
@@ -109,7 +119,7 @@ Note that the program is constantly developed and the look and functionality may
 
 
 
-Installation troubleshooting
+## Installation troubleshooting
 ----------------------------
 If you get errors when installing the Python modules, try upgrading pip:
 
@@ -137,7 +147,10 @@ Version history
   corresponding columns to the Time dependent input
 - Now losses of both gases and aerosols can be consistently calculated with time (previously only aerosols),
   size and component-wise method (with .csv input) or uniform and constant over time loss rate.
-  In addition, wall loss parametrizations can be used, previously these were excluding each other. This allows for more flexible handling of losses.
+  In addition, wall loss parametrizations can be used, previously these were excluding each other. This allows for more
+  flexible handling of losses.
+- Plotting tool in "View output -> Line Plots" can now compare up to 6 different variables within one opened file
+  (only when a single file is loaded).
 
 #### Changes
 - Some inorganic compounds such as SO2, H2, NOx etc. were always available as input, now any chemical component

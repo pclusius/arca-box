@@ -47,6 +47,7 @@ if csc:
     else:
         print("Please specify cluster among [puhti, mahti, lumi]")
 
+yes = '--yes' in sys.argv
 
 out = 0
 curr_path = os.path.split(os.getcwd())[0]
@@ -72,9 +73,11 @@ if not os.path.exists('makefile'):
     mfile.close()
 
 if csc:
-    pyt = input('Install necessary Python packages? (y/n)?: ')
+    pyt = 'n'
+    if not yes:
+        pyt = input('Install necessary Python packages? (y/n)?: ')
 
-    if pyt == 'y' or pyt == 'Y':
+    if yes or pyt == 'y' or pyt == 'Y':
         print()
         print("Ok, let's see  what we need...")
         print()
@@ -98,9 +101,11 @@ if csc:
             if outpyt != 0:
                 print('Unfortunately still some Python modules failed to install.')
 
-comp = input('Compile the Fortran module (y/n)?: ')
+comp = 'n'
+if not yes:
+    comp = input('Compile the Fortran module (y/n)?: ')
 
-if comp == 'y' or comp == 'Y':
+if yes or comp == 'y' or comp == 'Y':
     print()
     print("This will take a while, have patience...")
     print()
