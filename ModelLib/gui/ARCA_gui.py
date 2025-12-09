@@ -44,7 +44,7 @@ from urllib.parse import urljoin
 import csv
 from modules.config import get_config, set_config, remove_config
 from modules.namevarholder_class import namevarholder
-from modules.updateINITFILE import updateINITFILE,parse_chamistry_NAMES
+from modules.updateINITFILE import updateINITFILE,parse_chamistry_NAMES,convertMD
 try:
     from scipy.ndimage import gaussian_filter
     from scipy.signal import savgol_filter
@@ -1208,17 +1208,11 @@ Please provide valid spectral function.') \
         # self.pollTimer.timeout.connect(self.updateOutput)
         self.pauseScroll.clicked.connect(lambda: self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum()))
         self.mfont = self.MonitorWindow.font()
-        self.mfont.setFamily(    get_config("fonts", "monitorfont",  fallback='Ubuntu Mono'   ) )
-        self.mfont.setPointSize( int (get_config("fonts", "monitorsize",  fallback=11 ) ) )
-        self.mfont.setBold(   eval("%s"%(get_config("fonts", "monitorbold",  fallback=True )  ) ))
-        self.mfont.setItalic( eval("%s"%(get_config("fonts", "monitoritalic",fallback=False )  ) ))
+        self.mfont.fromString(    get_config("fonts", "monitorfull",  fallback='Monotype'   ) )
         self.MonitorWindow.setFont(self.mfont)
         self.savefonts(self.mfont, 'monitor')
         self.font = self.centralwidget.font()
-        self.font.setFamily(    get_config("fonts", "globalfont",  fallback=str(self.font.family())   ) )
-        self.font.setPointSize( int (get_config("fonts", "globalsize",  fallback=self.font.pointSize()) ) )
-        self.font.setBold(   eval("%s"%(get_config("fonts", "globalbold",  fallback=str(self.font.bold()) ).capitalize()  ) ))
-        self.font.setItalic( eval("%s"%(get_config("fonts", "globalitalic",fallback=str(self.font.italic()) ).capitalize()  ) ))
+        self.font.fromString(       get_config("fonts", "globalfull",  fallback=str(self.font.family())   ) )
         self.centralwidget.setFont(self.font)
         self.savefonts(self.font, 'global')
         self.viewPrintNML.clicked.connect(lambda: self.editTxtFile(SCREENPRINT_NML))
@@ -1462,10 +1456,7 @@ Please provide valid spectral function.') \
             self.dt.setValue(10.0)
 
     def savefonts(self, font, name):
-        set_config("fonts", "%sfont"%name,   str(font.family())   )
-        set_config("fonts", "%ssize"%name,   str(font.pointSize()))
-        set_config("fonts", "%sbold"%name,   str(font.bold())     )
-        set_config("fonts", "%sitalic"%name, str(font.italic())   )
+        set_config("fonts", "%sfull"%name,font.toString())
 
     def guiSetFont(self, wdgt, name, reset=False):
         if not reset:
@@ -1475,7 +1466,7 @@ Please provide valid spectral function.') \
                 wdgt.setFont(font)
                 self.savefonts(font, name)
             else:
-                print('Hmm...')
+                print('Hmm... Did you select a font? Could you select again?')
         else:
             font = QtGui.QFont()
             font.setBold(False)
@@ -1544,7 +1535,7 @@ adjusted for MODE mode. The settings are applied after the next application laun
 
     def resetFont(self):
         self.guiSetFont(self.MonitorWindow, 'monitor', reset=True)
-        print(self.MonitorWindow.font().family())
+        # print(self.MonitorWindow.font().family())
         self.guiSetFont(self.centralwidget, 'global', reset=True)
 
     def allcaps(self, tbox):
@@ -2048,11 +2039,14 @@ the numerical model or chemistry scheme differs from the current, results may va
                 path = dialog.selectedFiles()[0]
             else: path=''
         if path != '':
+            if re.search('[ !#%&$¤4]', path):
+                self.popup("Don't use spaces in pathnames", "Please, don't use special characters or spaces in parthnames like files and directories",3)
+                return
             if osrelpath(path, currentdir)[0] != '.':
             # if path[:currentdir_l] == currentdir and path[currentdir_l] == '/':
                 path = osrelpath(path, currentdir)
             if mode == 'load':
-                self.load_initfile(path)
+                out = self.load_initfile(path)
                 self.show_currentInit(path)
             # elif mode == 'fixed':
             #     self.loadFixedFile(path)
@@ -2233,18 +2227,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
             return
 
     def createWN(self):
+
         """Envoke script to show what's new."""
-        import markdown
-        f = open("ModelLib/required/version.txt",'r', encoding="utf-8")
-        text = f.read()
-        f.close()
+        f = "ModelLib/required/version.txt"
+        texhthtml = convertMD(f)
         if showUpdates=='true':
-            text = "## Hi!\n\n#### Looks like this is your first time with this ARCA installation, " + \
+            texhthtml = "<h2>Hi!</h2><h4>Looks like this is your first time with this ARCA installation, " + \
             "so you might want to take a look at some changes and updates in the current version. "+\
-            "You get this window later from the menu \"Help->What's new?\" \n\n" + text
-        texhthtml = markdown.markdown(text)
-        # text = text.replace('\n\n','<br><br>')
-        # text = text.replace('\n',' ')
+            "You get this window later from the menu \"Help->What's new?\" </h4>" + texhthtml
         self.abwin = About()
         self.abwin.settext(texhthtml)
         response = self.abwin.exec()
@@ -3086,6 +3076,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def load_initfile(self,file):
+        if re.search('[ !#%&$¤?]', file):
+            self.popup("Funky characters", "Please, don't use spaces or special characters in parthnames (files and directories).",3)
+            return 0
         try:
             f = open(file, 'r')
             for line in f:
@@ -3093,7 +3086,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             f.close()
         except:
             self.popup('Not a valid file', 'You are trying to open a file which does not appear to be a valid ARCA configuration file')
-            return
+            return 0
         if os.system(f'grep "ARCA Box Model v." {file} 1>/dev/null') != 0:
             print(updateINITFILE(file,CurrentVersion))
 
@@ -3421,11 +3414,23 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 extratext = '\n\nIf you are happy with the current chemistry, you can omit this warning '+\
                 'on startup by saving the current model setup as default ("File->Save as defaults)"'
                 FT.startup = False
-            self.popup('Some input components were omitted',f'The current chemistry "{FT.compiled_chemistry}" does not contain all defined input components in'+
+            strtup = file==defaults_file_path
+            chemex = exists(osjoin('src','chemistry',initChem))
+            msgicon = 5 if chemex and strtup else 1
+            msgicch = initChem if chemex and strtup else None
+            switchOnFLy = f'If you would like to switch to {initChem}, then choose "Apply". Otherwise, you can choose "Ignore"'+\
+                                ' (you can always switch chemistry later and reload the settings).'
+            notFound = f'However, the chemistry {initChem} was not found in src/chemistry. Maybe you can find another replacement and use that.'
+            if chemex and strtup:
+                msgchce = switchOnFLy
+            elif strtup:
+                msgchce = notFound
+            else:
+                msgchce = ''
+            whatnext = self.popup('Some input components were omitted',f'The current chemistry "{FT.compiled_chemistry}" does not contain all defined input components in'+
                 f' the current settings, written for "{initChem}" chemistry, and are removed from selected input. The removed compounds are: \n\n'+
-                f'{",".join(excluded_compounds)}'+'\n\n'+
-                'If these compounds are necessary for your simulation, a) switch to another chemistry and load the setting file again, '+
-                f'or b) modify the current chemistry by adding the compound(s). {extratext}',1)
+                f'{",".join(excluded_compounds)}\n\n{msgchce}',msgicon, msgicch)
+            if whatnext=='cancel': return
         # manage different units
         for key in vars.mods:
             pmInUse = 0
@@ -3960,12 +3965,19 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
     #              Warning     2   an icon indicating that the message is a warning, but can be dealt with.
     #              Critical    3   an icon indicating that the message represents a critical problem.
     #              Question	   4   an icon indicating that the message is asking a question.
-    def popup(self,title,message,icon=2):
+    def popup(self,title,message,icon=2, extras=None):
         """Handle for giving popup messages"""
         msg = QtWidgets.QMessageBox()
         if icon==4:
             ok = msg.question(self,title, message, msg.Yes|msg.No)
             return ok == msg.Yes
+        elif icon==5 and extras:
+            ok = msg.question(self,title, message, msg.Apply|msg.Ignore)
+            if ok == msg.Apply:
+                self.chemistryModules.setCurrentText(extras)
+                self.ReplChem.setChecked(True)
+                self.remake(reload=True)
+                return 'cancel'
         else:
             msg.setIcon(icon)
             msg.setWindowTitle(title)
@@ -4076,20 +4088,23 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             if self.makeClean.isChecked(): self.makeClean.setChecked(False)
 
 
-    def remake(self, syst=0):
+    def remake(self, syst=0,reload=None):
         if self.running != None:
             if self.ReplChem.isChecked():
                 FT.compiled_chemistry = self.chemistryModules.currentText()
-                print('Updating chemistry list')
+                if not exists(osjoin('src/chemistry',FT.compiled_chemistry,'NAMES.dat')):
+                    # if exists(ossplit(osjoin(currentdir,path_to_names))[0]):
+                    print(parse_chamistry_NAMES(osjoin('src/chemistry',FT.compiled_chemistry,'NAMES.dat')))
+
                 if not exists(gui_path+'tmp'):
                     mkdir(gui_path+'tmp')
                 st = self.print_values(tempfile)
-                self.load_initfile(minimal_settings_path)
+                out = self.load_initfile(minimal_settings_path)
                 tdinp.load_names(osjoin('src/chemistry',self.chemistryModules.currentText(),'NAMES.dat'),path_to_xtras)
                 nml.MODS.names = tdinp.NAMES
                 self.update_input_variables()
                 self.editMakefile(mod=self.chemistryModules.currentText())
-                self.load_initfile(tempfile)
+                out = self.load_initfile(tempfile)
                 writeRATESdat(self.chemistryModules.currentText())
                 if self.makeClean.isChecked():
                     target = "clean_current_chemistry"
@@ -4110,6 +4125,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.chemLabel.setText('Current chemistry scheme in makefile: '+self.get_available_chemistry(checkonly=True))
             self.chemistryModules.setCurrentIndex(self.chemistryModules.findText(self.get_available_chemistry(checkonly=True)))
             self.currentAddressTb.deselect()
+            if reload:
+                out = self.load_initfile(defaults_file_path)
 
     def filterListOfComp(self):   # filter for output components
         text = self.findComp.text().upper()

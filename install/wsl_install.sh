@@ -42,6 +42,7 @@ sudo apt-get --yes install hdf5-tools
 sudo apt-get --yes install libnetcdff-dev
 sudo apt-get --yes install libnetcdf-mpi-dev
 sudo apt-get --yes install netcdf-bin
+sudo apt-get --yes install markdown
 sudo apt-get --yes install python3-matplotlib
 sudo apt-get --yes install python3-pyqt5
 sudo apt-get --yes install python3-pyqtgraph

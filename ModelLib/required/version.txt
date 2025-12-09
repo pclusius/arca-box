@@ -16,7 +16,7 @@
 - Now losses of both gases and aerosols can be consistently calculated with time (previously only aerosols),
   size and component-wise method (with .csv input) or uniform and constant over time loss rate.
   In addition, wall loss parametrizations can be used, previously these were excluding each other. This allows for more flexible handling of losses.
-- Plotting tool in "View output -> Line Plots" can now compare up to 6 different variables within one opened file
+* Plotting tool in "View output -> Line Plots" can now compare up to 6 different variables within one opened file
   (only when a single file is loaded).
 
 #### Changes
