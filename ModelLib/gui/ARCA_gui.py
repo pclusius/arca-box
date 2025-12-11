@@ -24,7 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-from layouts import varWin,gui14,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor,plotwin
+from layouts import varWin,gui20,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor,plotwin
 from modules import variations,vars,batch,GetVapourPressures as gvp
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
@@ -726,8 +726,13 @@ class plotWin(QtWidgets.QDialog):
         self.pw = plotwin.Ui_Dialog()
         self.pw.setupUi(self)
         self.pw.buttonBox.clicked.connect(self.reject)
-    def setplot(self,name,x,y,unit,mtu):
-        pl = self.pw.plotSomething.plot(x,y,pen=pg.mkPen('black', width=3))
+    def setplot(self,name,x,y,unit,mtu,init=False):
+        style = QtCore.Qt.DashLine if init else QtCore.Qt.SolidLine
+        pl = self.pw.plotSomething.plot(x,y,pen=pg.mkPen('k', width=3,style=style))
+        if init:
+            scatter = pg.ScatterPlotItem(pen=pg.mkPen(width=5, color='r'), symbol='o', size=5)
+            self.pw.plotSomething.addItem(scatter)
+            scatter.setData([{'pos': [x[0],y[0]]}])
         self.pw.plotSomething.setLabel('bottom','time',units=mtu)
         self.pw.plotSomething.setBackground('w')
         self.pw.plotSomething.getAxis('left').setStyle(autoExpandTextSpace=False)
@@ -894,7 +899,7 @@ class NcPlot:
             self.have_aircc = False
 
 
-class QtBoxGui(gui14.Ui_MainWindow,QtWidgets.QMainWindow):
+class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
     """Main program window."""
     def __init__(self):
         super(QtBoxGui,self).__init__()
@@ -1649,6 +1654,7 @@ the numerical model or chemistry scheme differs from the current, results may va
             return
         else:
             PI = self.selected_vars.cellWidget(row,4).isChecked()
+            init = self.selected_vars.cellWidget(row,5).isChecked()
             name = self.selected_vars.item(row,0).text()
             self.updateMods(row)
             plotthis = vars.mods[name]
@@ -1683,7 +1689,7 @@ the numerical model or chemistry scheme differs from the current, results may va
                 y = array([plotthis.shift]*2)
                 mtu = self.runTimeUnit.currentText()
             self.plwin = plotWin()
-            self.plwin.setplot(name+comments,x,y,plotthis.unit,mtu)
+            self.plwin.setplot(name+comments,x,y,plotthis.unit,mtu,init)
             response = self.plwin.exec()
         return
 
