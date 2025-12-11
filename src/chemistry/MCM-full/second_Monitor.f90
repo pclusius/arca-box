@@ -2064,59 +2064,60 @@ MODULE second_Monitor
      'R_HOM_O11                       ','R_HOM_O4                        ','R_HOM_O6                        ', & ! index 5908 - 5910
      'R_HOM_O7                        ','R_HOM_O5                        ','OH                              ', & ! index 5911 - 5913
      'R_HOM_O14                       ','R_HOM_OH_O6                     ','NLIMO2                          ', & ! index 5914 - 5916
-     'NO3                             ','SO2                             ','NO                              ', & ! index 5917 - 5919
-     'NO2                             ','CO                              ','H2                              ', & ! index 5920 - 5922
-     'O3                              ','ACR                             ','APINENE                         ', & ! index 5923 - 5925
-     'BCARY                           ','BENZAL                          ','BENZENE                         ', & ! index 5926 - 5928
-     'BOX2PROL                        ','BPINENE                         ','BUOX2ETOH                       ', & ! index 5929 - 5931
-     'BUT1ENE                         ','BUT2OL                          ','C2H2                            ', & ! index 5932 - 5934
-     'C2H4                            ','C2H5CHO                         ','C2H5OH                          ', & ! index 5935 - 5937
-     'C2H6                            ','C3H6                            ','C3H7CHO                         ' /) ! index up to 5940
+     'NO3                             ','NH3                             ','DMA                             ', & ! index 5917 - 5919
+     'SO2                             ','NO                              ','NO2                             ', & ! index 5920 - 5922
+     'CO                              ','H2                              ','O3                              ', & ! index 5923 - 5925
+     'ACR                             ','APINENE                         ','BCARY                           ', & ! index 5926 - 5928
+     'BENZAL                          ','BENZENE                         ','BOX2PROL                        ', & ! index 5929 - 5931
+     'BPINENE                         ','BUOX2ETOH                       ','BUT1ENE                         ', & ! index 5932 - 5934
+     'BUT2OL                          ','C2H2                            ','C2H4                            ', & ! index 5935 - 5937
+     'C2H5CHO                         ','C2H5OH                          ','C2H6                            ' /) ! index up to 5940
   CHARACTER(LEN=32), PARAMETER, DIMENSION(90) :: SPC_NAMES_66 = (/ &
-     'C3H8                            ','C4ALDB                          ','C4H6                            ', & ! index 5941 - 5943
-     'C4H9CHO                         ','C5H8                            ','CBUT2ENE                        ', & ! index 5944 - 5946
-     'CCL2CH2                         ','CDICLETH                        ','CH2CL2                          ', & ! index 5947 - 5949
-     'CH2CLCH2CL                      ','CH2CLCHCL2                      ','CH3BR                           ', & ! index 5950 - 5952
-     'CH3CCL3                         ','CH3CH2CL                        ','CH3CHO                          ', & ! index 5953 - 5955
-     'CH3CL                           ','CH3CO2H                         ','CH3COCH3                        ', & ! index 5956 - 5958
-     'CH3OCH3                         ','CH3OCHO                         ','CH3OH                           ', & ! index 5959 - 5961
-     'CH4                             ','CHCL2CH3                        ','CHCL2CHCL2                      ', & ! index 5962 - 5964
-     'CHCL3                           ','CHEX                            ','CHEX2ENE                        ', & ! index 5965 - 5967
-     'CL12PROP                        ','CPENT2ENE                       ','CYHEXOL                         ', & ! index 5968 - 5970
-     'CYHEXONE                        ','DIBRET                          ','DIEK                            ', & ! index 5971 - 5973
-     'DIET35TOL                       ','DIETETHER                       ','DIIPRETHER                      ', & ! index 5974 - 5976
-     'DIME35EB                        ','DM23BU2ENE                      ','DMC                             ', & ! index 5977 - 5979
-     'DMM                             ','DMS                             ','EBENZ                           ', & ! index 5980 - 5982
-     'EOX2EOL                         ','ETBE                            ','ETHACET                         ', & ! index 5983 - 5985
-     'ETHGLY                          ','ETHOX                           ','HCHO                            ', & ! index 5986 - 5988
-     'HCOOH                           ','HEX1ENE                         ','HEX2ONE                         ', & ! index 5989 - 5991
-     'HEX3ONE                         ','IBUTOL                          ','IC4H10                          ', & ! index 5992 - 5994
-     'IC5H12                          ','IPBENZ                          ','IPEAOH                          ', & ! index 5995 - 5997
-     'IPEBOH                          ','IPECOH                          ','IPRCHO                          ', & ! index 5998 - 6000
-     'IPROACET                        ','IPROPOL                         ','LIMONENE                        ', & ! index 6001 - 6003
-     'M22C4                           ','M23C4                           ','M2HEX                           ', & ! index 6004 - 6006
-     'M2PE                            ','M3HEX                           ','M3PE                            ', & ! index 6007 - 6009
-     'MACR                            ','MBO                             ','ME2BUT1ENE                      ', & ! index 6010 - 6012
-     'ME2BUT2ENE                      ','ME3BUOL                         ','ME3BUT1ENE                      ', & ! index 6013 - 6015
-     'MEK                             ','MEPROPENE                       ','METHACET                        ', & ! index 6016 - 6018
-     'METHTOL                         ','MIBK                            ','MIBKAOH                         ', & ! index 6019 - 6021
-     'MIPK                            ','MO2EOL                          ','MPRK                            ', & ! index 6022 - 6024
-     'MTBE                            ','MTBK                            ','MXYL                            ', & ! index 6025 - 6027
-     'NBUTACET                        ','NBUTOL                          ','NC10H22                         ' /) ! index up to 6030
-  CHARACTER(LEN=32), PARAMETER, DIMENSION(36) :: SPC_NAMES_67 = (/ &
-     'NC11H24                         ','NC12H26                         ','NC4H10                          ', & ! index 6031 - 6033
-     'NC5H12                          ','NC6H14                          ','NC7H16                          ', & ! index 6034 - 6036
-     'NC8H18                          ','NC9H20                          ','NEOP                            ', & ! index 6037 - 6039
-     'NPROACET                        ','NPROPOL                         ','OETHTOL                         ', & ! index 6040 - 6042
-     'OXYL                            ','PBENZ                           ','PECOH                           ', & ! index 6043 - 6045
-     'PENT1ENE                        ','PETHTOL                         ','PR2OHMOX                        ', & ! index 6046 - 6048
-     'PROPACID                        ','PROPGLY                         ','PXYL                            ', & ! index 6049 - 6051
-     'SBUTACET                        ','STYRENE                         ','TBUACET                         ', & ! index 6052 - 6054
-     'TBUT2ENE                        ','TBUTOL                          ','TCE                             ', & ! index 6055 - 6057
-     'TDICLETH                        ','THEX2ENE                        ','TM123B                          ', & ! index 6058 - 6060
-     'TM124B                          ','TM135B                          ','TOLUENE                         ', & ! index 6061 - 6063
-     'TPENT2ENE                       ','TRICLETH                        ','VINCL                           ' /) ! index up to 6066
-  CHARACTER(LEN=32), PARAMETER, DIMENSION(6066) :: SPC_NAMES = (/&
+     'C3H6                            ','C3H7CHO                         ','C3H8                            ', & ! index 5941 - 5943
+     'C4ALDB                          ','C4H6                            ','C4H9CHO                         ', & ! index 5944 - 5946
+     'C5H8                            ','CBUT2ENE                        ','CCL2CH2                         ', & ! index 5947 - 5949
+     'CDICLETH                        ','CH2CL2                          ','CH2CLCH2CL                      ', & ! index 5950 - 5952
+     'CH2CLCHCL2                      ','CH3BR                           ','CH3CCL3                         ', & ! index 5953 - 5955
+     'CH3CH2CL                        ','CH3CHO                          ','CH3CL                           ', & ! index 5956 - 5958
+     'CH3CO2H                         ','CH3COCH3                        ','CH3OCH3                         ', & ! index 5959 - 5961
+     'CH3OCHO                         ','CH3OH                           ','CH4                             ', & ! index 5962 - 5964
+     'CHCL2CH3                        ','CHCL2CHCL2                      ','CHCL3                           ', & ! index 5965 - 5967
+     'CHEX                            ','CHEX2ENE                        ','CL12PROP                        ', & ! index 5968 - 5970
+     'CPENT2ENE                       ','CYHEXOL                         ','CYHEXONE                        ', & ! index 5971 - 5973
+     'DIBRET                          ','DIEK                            ','DIET35TOL                       ', & ! index 5974 - 5976
+     'DIETETHER                       ','DIIPRETHER                      ','DIME35EB                        ', & ! index 5977 - 5979
+     'DM23BU2ENE                      ','DMC                             ','DMM                             ', & ! index 5980 - 5982
+     'DMS                             ','EBENZ                           ','EOX2EOL                         ', & ! index 5983 - 5985
+     'ETBE                            ','ETHACET                         ','ETHGLY                          ', & ! index 5986 - 5988
+     'ETHOX                           ','HCHO                            ','HCOOH                           ', & ! index 5989 - 5991
+     'HEX1ENE                         ','HEX2ONE                         ','HEX3ONE                         ', & ! index 5992 - 5994
+     'IBUTOL                          ','IC4H10                          ','IC5H12                          ', & ! index 5995 - 5997
+     'IPBENZ                          ','IPEAOH                          ','IPEBOH                          ', & ! index 5998 - 6000
+     'IPECOH                          ','IPRCHO                          ','IPROACET                        ', & ! index 6001 - 6003
+     'IPROPOL                         ','LIMONENE                        ','M22C4                           ', & ! index 6004 - 6006
+     'M23C4                           ','M2HEX                           ','M2PE                            ', & ! index 6007 - 6009
+     'M3HEX                           ','M3PE                            ','MACR                            ', & ! index 6010 - 6012
+     'MBO                             ','ME2BUT1ENE                      ','ME2BUT2ENE                      ', & ! index 6013 - 6015
+     'ME3BUOL                         ','ME3BUT1ENE                      ','MEK                             ', & ! index 6016 - 6018
+     'MEPROPENE                       ','METHACET                        ','METHTOL                         ', & ! index 6019 - 6021
+     'MIBK                            ','MIBKAOH                         ','MIPK                            ', & ! index 6022 - 6024
+     'MO2EOL                          ','MPRK                            ','MTBE                            ', & ! index 6025 - 6027
+     'MTBK                            ','MXYL                            ','NBUTACET                        ' /) ! index up to 6030
+  CHARACTER(LEN=32), PARAMETER, DIMENSION(38) :: SPC_NAMES_67 = (/ &
+     'NBUTOL                          ','NC10H22                         ','NC11H24                         ', & ! index 6031 - 6033
+     'NC12H26                         ','NC4H10                          ','NC5H12                          ', & ! index 6034 - 6036
+     'NC6H14                          ','NC7H16                          ','NC8H18                          ', & ! index 6037 - 6039
+     'NC9H20                          ','NEOP                            ','NPROACET                        ', & ! index 6040 - 6042
+     'NPROPOL                         ','OETHTOL                         ','OXYL                            ', & ! index 6043 - 6045
+     'PBENZ                           ','PECOH                           ','PENT1ENE                        ', & ! index 6046 - 6048
+     'PETHTOL                         ','PR2OHMOX                        ','PROPACID                        ', & ! index 6049 - 6051
+     'PROPGLY                         ','PXYL                            ','SBUTACET                        ', & ! index 6052 - 6054
+     'STYRENE                         ','TBUACET                         ','TBUT2ENE                        ', & ! index 6055 - 6057
+     'TBUTOL                          ','TCE                             ','TDICLETH                        ', & ! index 6058 - 6060
+     'THEX2ENE                        ','TM123B                          ','TM124B                          ', & ! index 6061 - 6063
+     'TM135B                          ','TOLUENE                         ','TPENT2ENE                       ', & ! index 6064 - 6066
+     'TRICLETH                        ','VINCL                           ' /) ! index up to 6068
+  CHARACTER(LEN=32), PARAMETER, DIMENSION(6068) :: SPC_NAMES = (/&
     SPC_NAMES_0, SPC_NAMES_1, SPC_NAMES_2, SPC_NAMES_3, SPC_NAMES_4, &
     SPC_NAMES_5, SPC_NAMES_6, SPC_NAMES_7, SPC_NAMES_8, SPC_NAMES_9, &
     SPC_NAMES_10, SPC_NAMES_11, SPC_NAMES_12, SPC_NAMES_13, SPC_NAMES_14, &
@@ -21231,7 +21232,7 @@ MODULE second_Monitor
      '      C811OOH + APINBOO --> DiEstC18O7_1                                                            ', & ! index 18478
      '       C812OH + APINBOO --> DiEstC18O7_2                                                            ', & ! index 18479
      '     NORPINIC + APINBOO --> DiEstC18O7_3                                                            ' /) ! index up to 18480
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(10) :: EQN_NAMES_616 = (/ &
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(12) :: EQN_NAMES_616 = (/ &
      '       C811OH + APINBOO --> DiEstC18O6_1                                                            ', & ! index 18481
      '      C721CHO + APINBOO --> DiEstC18O6_2                                                            ', & ! index 18482
      '      C722OOH + APINBOO --> DiEstC17O8_1                                                            ', & ! index 18483
@@ -21241,8 +21242,10 @@ MODULE second_Monitor
      '   H3C2C4CO2H + APINBOO --> DiEstC15O7                                                              ', & ! index 18487
      '       C44OOH + APINBOO --> DiEstC14O8                                                              ', & ! index 18488
      '   CO13C3CO2H + APINBOO --> DiEstC14O7                                                              ', & ! index 18489
-     '   HCOCH2CO2H + APINBOO --> DiEstC13O6                                                              ' /) ! index up to 18490
-  CHARACTER(LEN=100), PARAMETER, DIMENSION(18490) :: EQN_NAMES = (/&
+     '   HCOCH2CO2H + APINBOO --> DiEstC13O6                                                              ', & ! index 18490
+     '                    NH3 --> dummy                                                                   ', & ! index 18491
+     '                    DMA --> dummy                                                                   ' /) ! index up to 18492
+  CHARACTER(LEN=100), PARAMETER, DIMENSION(18492) :: EQN_NAMES = (/&
     EQN_NAMES_0, EQN_NAMES_1, EQN_NAMES_2, EQN_NAMES_3, EQN_NAMES_4, &
     EQN_NAMES_5, EQN_NAMES_6, EQN_NAMES_7, EQN_NAMES_8, EQN_NAMES_9, &
     EQN_NAMES_10, EQN_NAMES_11, EQN_NAMES_12, EQN_NAMES_13, EQN_NAMES_14, &

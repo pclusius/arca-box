@@ -45,15 +45,15 @@
 ### Parameters ----------------------------------------
 
 ! NSPEC - Number of chemical species
-  INTEGER, PARAMETER :: NSPEC = 6066 
+  INTEGER, PARAMETER :: NSPEC = 6068 
 ! NVAR - Number of Variable species
   INTEGER, PARAMETER :: NVAR = 5917 
 ! NVARACT - Number of Active species
   INTEGER, PARAMETER :: NVARACT = 5713 
 ! NFIX - Number of Fixed species
-  INTEGER, PARAMETER :: NFIX = 149 
+  INTEGER, PARAMETER :: NFIX = 151 
 ! NREACT - Number of reactions
-  INTEGER, PARAMETER :: NREACT = 18490 
+  INTEGER, PARAMETER :: NREACT = 18492 
 ! NVARST - Starting of variables in conc. vect.
   INTEGER, PARAMETER :: NVARST = 1 
 ! NFIXST - Starting of fixed in conc. vect.
@@ -2037,56 +2037,57 @@ Variable species
 1973 = NC41OOA (r)            3946 = HO1C6OOH (r)           
 
 Fixed species
-   1 = SO2 (r)                  51 = CL12PROP (r)            101 = METHACET (r)           
-   2 = NO (r)                   52 = CPENT2ENE (r)           102 = METHTOL (r)            
-   3 = NO2 (r)                  53 = CYHEXOL (r)             103 = MIBK (r)               
-   4 = CO (r)                   54 = CYHEXONE (r)            104 = MIBKAOH (r)            
-   5 = H2 (r)                   55 = DIBRET (r)              105 = MIPK (r)               
-   6 = O3 (r)                   56 = DIEK (r)                106 = MO2EOL (r)             
-   7 = ACR (r)                  57 = DIET35TOL (r)           107 = MPRK (r)               
-   8 = APINENE (r)              58 = DIETETHER (r)           108 = MTBE (r)               
-   9 = BCARY (r)                59 = DIIPRETHER (r)          109 = MTBK (r)               
-  10 = BENZAL (r)               60 = DIME35EB (r)            110 = MXYL (r)               
-  11 = BENZENE (r)              61 = DM23BU2ENE (r)          111 = NBUTACET (r)           
-  12 = BOX2PROL (r)             62 = DMC (r)                 112 = NBUTOL (r)             
-  13 = BPINENE (r)              63 = DMM (r)                 113 = NC10H22 (r)            
-  14 = BUOX2ETOH (r)            64 = DMS (r)                 114 = NC11H24 (r)            
-  15 = BUT1ENE (r)              65 = EBENZ (r)               115 = NC12H26 (r)            
-  16 = BUT2OL (r)               66 = EOX2EOL (r)             116 = NC4H10 (r)             
-  17 = C2H2 (r)                 67 = ETBE (r)                117 = NC5H12 (r)             
-  18 = C2H4 (r)                 68 = ETHACET (r)             118 = NC6H14 (r)             
-  19 = C2H5CHO (r)              69 = ETHGLY (r)              119 = NC7H16 (r)             
-  20 = C2H5OH (r)               70 = ETHOX (r)               120 = NC8H18 (r)             
-  21 = C2H6 (r)                 71 = HCHO (r)                121 = NC9H20 (r)             
-  22 = C3H6 (r)                 72 = HCOOH (r)               122 = NEOP (r)               
-  23 = C3H7CHO (r)              73 = HEX1ENE (r)             123 = NPROACET (r)           
-  24 = C3H8 (r)                 74 = HEX2ONE (r)             124 = NPROPOL (r)            
-  25 = C4ALDB (r)               75 = HEX3ONE (r)             125 = OETHTOL (r)            
-  26 = C4H6 (r)                 76 = IBUTOL (r)              126 = OXYL (r)               
-  27 = C4H9CHO (r)              77 = IC4H10 (r)              127 = PBENZ (r)              
-  28 = C5H8 (r)                 78 = IC5H12 (r)              128 = PECOH (r)              
-  29 = CBUT2ENE (r)             79 = IPBENZ (r)              129 = PENT1ENE (r)           
-  30 = CCL2CH2 (r)              80 = IPEAOH (r)              130 = PETHTOL (r)            
-  31 = CDICLETH (r)             81 = IPEBOH (r)              131 = PR2OHMOX (r)           
-  32 = CH2CL2 (r)               82 = IPECOH (r)              132 = PROPACID (r)           
-  33 = CH2CLCH2CL (r)           83 = IPRCHO (r)              133 = PROPGLY (r)            
-  34 = CH2CLCHCL2 (r)           84 = IPROACET (r)            134 = PXYL (r)               
-  35 = CH3BR (r)                85 = IPROPOL (r)             135 = SBUTACET (r)           
-  36 = CH3CCL3 (r)              86 = LIMONENE (r)            136 = STYRENE (r)            
-  37 = CH3CH2CL (r)             87 = M22C4 (r)               137 = TBUACET (r)            
-  38 = CH3CHO (r)               88 = M23C4 (r)               138 = TBUT2ENE (r)           
-  39 = CH3CL (r)                89 = M2HEX (r)               139 = TBUTOL (r)             
-  40 = CH3CO2H (r)              90 = M2PE (r)                140 = TCE (r)                
-  41 = CH3COCH3 (r)             91 = M3HEX (r)               141 = TDICLETH (r)           
-  42 = CH3OCH3 (r)              92 = M3PE (r)                142 = THEX2ENE (r)           
-  43 = CH3OCHO (r)              93 = MACR (r)                143 = TM123B (r)             
-  44 = CH3OH (r)                94 = MBO (r)                 144 = TM124B (r)             
-  45 = CH4 (r)                  95 = ME2BUT1ENE (r)          145 = TM135B (r)             
-  46 = CHCL2CH3 (r)             96 = ME2BUT2ENE (r)          146 = TOLUENE (r)            
-  47 = CHCL2CHCL2 (r)           97 = ME3BUOL (r)             147 = TPENT2ENE (r)          
-  48 = CHCL3 (r)                98 = ME3BUT1ENE (r)          148 = TRICLETH (r)           
-  49 = CHEX (r)                 99 = MEK (r)                 149 = VINCL (r)              
-  50 = CHEX2ENE (r)            100 = MEPROPENE (r)          
+   1 = NH3 (r)                  52 = CHEX2ENE (r)            103 = METHACET (r)           
+   2 = DMA (r)                  53 = CL12PROP (r)            104 = METHTOL (r)            
+   3 = SO2 (r)                  54 = CPENT2ENE (r)           105 = MIBK (r)               
+   4 = NO (r)                   55 = CYHEXOL (r)             106 = MIBKAOH (r)            
+   5 = NO2 (r)                  56 = CYHEXONE (r)            107 = MIPK (r)               
+   6 = CO (r)                   57 = DIBRET (r)              108 = MO2EOL (r)             
+   7 = H2 (r)                   58 = DIEK (r)                109 = MPRK (r)               
+   8 = O3 (r)                   59 = DIET35TOL (r)           110 = MTBE (r)               
+   9 = ACR (r)                  60 = DIETETHER (r)           111 = MTBK (r)               
+  10 = APINENE (r)              61 = DIIPRETHER (r)          112 = MXYL (r)               
+  11 = BCARY (r)                62 = DIME35EB (r)            113 = NBUTACET (r)           
+  12 = BENZAL (r)               63 = DM23BU2ENE (r)          114 = NBUTOL (r)             
+  13 = BENZENE (r)              64 = DMC (r)                 115 = NC10H22 (r)            
+  14 = BOX2PROL (r)             65 = DMM (r)                 116 = NC11H24 (r)            
+  15 = BPINENE (r)              66 = DMS (r)                 117 = NC12H26 (r)            
+  16 = BUOX2ETOH (r)            67 = EBENZ (r)               118 = NC4H10 (r)             
+  17 = BUT1ENE (r)              68 = EOX2EOL (r)             119 = NC5H12 (r)             
+  18 = BUT2OL (r)               69 = ETBE (r)                120 = NC6H14 (r)             
+  19 = C2H2 (r)                 70 = ETHACET (r)             121 = NC7H16 (r)             
+  20 = C2H4 (r)                 71 = ETHGLY (r)              122 = NC8H18 (r)             
+  21 = C2H5CHO (r)              72 = ETHOX (r)               123 = NC9H20 (r)             
+  22 = C2H5OH (r)               73 = HCHO (r)                124 = NEOP (r)               
+  23 = C2H6 (r)                 74 = HCOOH (r)               125 = NPROACET (r)           
+  24 = C3H6 (r)                 75 = HEX1ENE (r)             126 = NPROPOL (r)            
+  25 = C3H7CHO (r)              76 = HEX2ONE (r)             127 = OETHTOL (r)            
+  26 = C3H8 (r)                 77 = HEX3ONE (r)             128 = OXYL (r)               
+  27 = C4ALDB (r)               78 = IBUTOL (r)              129 = PBENZ (r)              
+  28 = C4H6 (r)                 79 = IC4H10 (r)              130 = PECOH (r)              
+  29 = C4H9CHO (r)              80 = IC5H12 (r)              131 = PENT1ENE (r)           
+  30 = C5H8 (r)                 81 = IPBENZ (r)              132 = PETHTOL (r)            
+  31 = CBUT2ENE (r)             82 = IPEAOH (r)              133 = PR2OHMOX (r)           
+  32 = CCL2CH2 (r)              83 = IPEBOH (r)              134 = PROPACID (r)           
+  33 = CDICLETH (r)             84 = IPECOH (r)              135 = PROPGLY (r)            
+  34 = CH2CL2 (r)               85 = IPRCHO (r)              136 = PXYL (r)               
+  35 = CH2CLCH2CL (r)           86 = IPROACET (r)            137 = SBUTACET (r)           
+  36 = CH2CLCHCL2 (r)           87 = IPROPOL (r)             138 = STYRENE (r)            
+  37 = CH3BR (r)                88 = LIMONENE (r)            139 = TBUACET (r)            
+  38 = CH3CCL3 (r)              89 = M22C4 (r)               140 = TBUT2ENE (r)           
+  39 = CH3CH2CL (r)             90 = M23C4 (r)               141 = TBUTOL (r)             
+  40 = CH3CHO (r)               91 = M2HEX (r)               142 = TCE (r)                
+  41 = CH3CL (r)                92 = M2PE (r)                143 = TDICLETH (r)           
+  42 = CH3CO2H (r)              93 = M3HEX (r)               144 = THEX2ENE (r)           
+  43 = CH3COCH3 (r)             94 = M3PE (r)                145 = TM123B (r)             
+  44 = CH3OCH3 (r)              95 = MACR (r)                146 = TM124B (r)             
+  45 = CH3OCHO (r)              96 = MBO (r)                 147 = TM135B (r)             
+  46 = CH3OH (r)                97 = ME2BUT1ENE (r)          148 = TOLUENE (r)            
+  47 = CH4 (r)                  98 = ME2BUT2ENE (r)          149 = TPENT2ENE (r)          
+  48 = CHCL2CH3 (r)             99 = ME3BUOL (r)             150 = TRICLETH (r)           
+  49 = CHCL2CHCL2 (r)          100 = ME3BUT1ENE (r)          151 = VINCL (r)              
+  50 = CHCL3 (r)               101 = MEK (r)                
+  51 = CHEX (r)                102 = MEPROPENE (r)          
 
 ### Subroutines ---------------------------------------
 

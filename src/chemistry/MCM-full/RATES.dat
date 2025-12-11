@@ -18489,6 +18489,8 @@
   RCONST(18488) = 1d0 ! * (1D-13*EXP(0./TEMP))
   RCONST(18489) = 1d0 ! * (1D-13*EXP(0./TEMP))
   RCONST(18490) = 1d0 ! * (1D-13*EXP(0./TEMP))
+  RCONST(18491) = 1d0 ! * (1.0*0.0)
+  RCONST(18492) = 1d0 ! * (1.0*0.0)
   RCONST(36) = 1d0 ! * (J(J_O3_O1D))
   RCONST(37) = 1d0 ! * (J(J_O3_O3P))
   RCONST(38) = 1d0 ! * (J(J_H2O2))
