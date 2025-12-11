@@ -25,7 +25,7 @@ USE CONSTANTS
 IMPLICIT NONE
 PUBLIC
 
-CHARACTER(56) :: FMT_TIME    = '("+.",t18,82("."),t3,"Time: ",a,t100, "+")'
+CHARACTER(56) :: FMT_TIME    = '("+.",t20,80("."),t3,"Time: ",a,t100, "+")'
 CHARACTER(56) :: FMT_CVU     = '("| ",t3, a,es10.3,t100, "|")'
 CHARACTER(56) :: FMT10_CVU   = '("| ",t3, a,t13, es10.3,a,t100, "|")'
 CHARACTER(56) :: FMT30_CVU   = '("| ",t3, a,t33, es10.3,a,t100, "|")'

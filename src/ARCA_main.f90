@@ -482,7 +482,7 @@ if (PRC%in_turn(4)) THEN
     GRH = GET_TS_CONC(inm_RH)
     H2SO4 = GET_TS_CONC(inm_H2SO4)
 
-    IF (inm_CS/=0.and..not.AEROSOL_FLAG) THEN
+    IF (inm_CS/=0.and..not.CONDENSATION) THEN
         GCS = GET_TS_CONC(inm_CS)
     ELSE
         IF (equal(GTIME%sec, 0d0)) THEN
@@ -550,7 +550,7 @@ END IF
         ! if (.not. OPTIMIZE_DT) CH_GAS_old = CH_GAS
         IF (Chemistry_flag .and. GTIME%sec>=START_CHEM.and.GTIME%sec<=STOP_CHEM) THEN
           !! NOTE Condensation sink of Sulfuric acid not anymore applied in chemistry but aerosol module !!!
-          if (AEROSOL_FLAG) THEN
+          if (CONDENSATION) THEN
             Call CHEMCALC(CH_GAS, GTIME%sec, (GTIME%sec + GTIME%dt*speed_up(PRC%cch)), GTEMPK, max(0d0,GET_TS_CONC(inm_swr)),&
                     CH_Beta,CH_H2O, GC_AIR_NOW, 0d0, GET_TS_CONC(inm_CS_NA), CH_Albedo, CH_RO2, reactivities, swr_spectrum, SWR_IS_ACTINICFLUX)
           ELSE

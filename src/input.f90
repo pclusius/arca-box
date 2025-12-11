@@ -1213,18 +1213,21 @@ subroutine FILL_INPUT_BUFF(unit,cols,INPUT_BF,Input_file)
     real(dp), intent(inout) :: INPUT_BF(:,:)
     integer, intent(in)     :: cols
     CHARACTER(*)            :: Input_file
-    integer                 :: i,j,k,ioi,unit
-    CHARACTER(len=6000)     :: dump
+    integer                 :: i,j,k,l,ioi,unit
+    CHARACTER(len=32)       :: dump(cols+1)
 
     i = 1
     print FMT_MSG, 'Filling input matrices...'
     DO k = 1, ROWCOUNT(unit)
         READ(unit,*, iostat=ioi) (INPUT_BF(i,j),j=1,cols)
-        IF ((ioi /= 0) .and. (k==1)) THEN
+        IF ((ioi /= 0) .and. (k<=2)) THEN
             REWIND(unit)
-            READ(unit,*, iostat=ioi) dump
-            print FMT_SUB, 'First row omitted from file "'// TRIM(Input_file) //'".'
-        ELSE IF ((ioi /= 0) .and. (k>1)) THEN
+            do l=1,k
+              READ(unit,*, iostat=ioi) dump
+            end do
+            print FMT_SUB, i2chr(k)//'. row omitted from file "'// TRIM(Input_file) //'".'
+            ! if (k==2) print*, dump
+        ELSE IF ((ioi /= 0) .and. (k>2)) THEN
             print FMT_WARN1, 'Bad value in file '// TRIM(Input_file) //'". Maybe a non-numeric on line '//i2chr(k)
         ELSE
             i=i+1

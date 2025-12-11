@@ -112,7 +112,7 @@ type timetype
     integer       :: prevPrint_i    = 0         ! index for output file
     integer       :: prevSave_i     = 0         ! index for output file
     integer       :: JD             = 0         ! Julian day of the year, calculated if date is provided
-    character(8)  :: hms            = "00:00:00"! Pretty print of time
+    character(10) :: hms            = "  00:00:00" ! Pretty print of time
     logical       :: printnow       = .true.    ! this flag is true when prints are wanted
     logical       :: savenow        = .true.    ! this flag is true when saves are wanted
     logical       :: PRINTACDC      = .false.   ! this flag is true when cluster information is printed
@@ -323,7 +323,7 @@ PURE type(timetype) function ADD(time, sec)
     ADD%min = ADD%sec/60d0
     ADD%hrs = ADD%sec/3600d0
     ADD%day = ADD%sec/3600d0/24d0
-    write(ADD%hms, '(i2.2, ":" i2.2, ":" i2.2)') nint(ADD%sec)/3600, &
+    write(ADD%hms, '(i4.2, ":" i2.2, ":" i2.2)') nint(ADD%sec)/3600, &
     int(MODULO(nint(ADD%sec),3600)/60d0), MODULO(MODULO(nint(ADD%sec),3600), 60)
     IF (ADD%sec >= (ADD%PRINT_INTERVAL*(1+ADD%prevPrint_i))) THEN
         ADD%printnow = .true.

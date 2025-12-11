@@ -260,9 +260,7 @@ class INITFILE:
                         minstr = minstr.replace('e', 'd', 1)
                         maxstr = '%12.5e'%(m.max)
                         maxstr = maxstr.replace('e', 'd', 1)
-                        if m.pmInUse == 'Yes' or m.pmInUse == 'yes':
-                            mode = max(1,abs(m.mode))
-                        else: mode = abs(m.mode) * -1
+                        mode = max(1,abs(m.mode)) if m.pmInUse == 1 else abs(m.mode) * -1
                         if 'str' in str(type(m.col)) :
                             m.col = -1
                         strr = "MODS(%d)%s= %2d %3d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 %s%s%s %s%s%s %s%s%s"%(
@@ -355,12 +353,16 @@ class INITFILE:
     class _RAW:
         def __init__(self):
             self.RAW=''
+            self.RAW_PRE=''
+            self.RAW_POST=''
 
         def printall(self,cmd,f,eol):
             exec("%s('%s%s')"%(cmd,self.RAW.replace('\n','\\n').replace("'", "\\'").replace('"', '\\"'),eol))
             exec("%s('\\n%s')"%(cmd, eol))
             exec("%s('# Following settings are for the GUI and not directly used by the model ----- %s')"%(cmd, eol))
             exec("%s('# RAW_INPUT = %s%s')"%(cmd,self.RAW.replace('\n','<br>').replace("'", "\\'").replace('"', '\\"'),eol))
+            exec("%s('# RAW_PRE = %s%s')"%(cmd,self.RAW_PRE.replace('\n','<br>').replace("'", "\\'").replace('"', '\\"'),eol))
+            exec("%s('# RAW_POST = %s%s')"%(cmd,self.RAW_POST.replace('\n','<br>').replace("'", "\\'").replace('"', '\\"'),eol))
 
 
     class _SETTINGS:

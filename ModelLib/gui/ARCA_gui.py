@@ -24,11 +24,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-from layouts import varWin,gui14,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor
+from layouts import varWin,gui14,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor,plotwin
 from modules import variations,vars,batch,GetVapourPressures as gvp
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
-from numpy import linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, ravel, mean, round as npround
+from numpy import linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround
 from numpy import argsort
 import numpy.ma as ma
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname, remove as osremove, rename as osrename
@@ -131,7 +131,7 @@ if '-NS' in args: print('Overriding scaling from cmdline')
 
 ## Some constants --------------------------------------------
 # widths of the columns in "Input variables" tab
-column_widths = [180,60,70,70,20,50,70,30,1]
+column_widths = [180,60,70,70,20,20,70,30,1]
 
 # available units for variables, used to fill the tables and graphs with appropriate units
 units = {
@@ -715,9 +715,27 @@ class Comp:
         self.name   = 'NONAME' # Human readable name for modified variable
         self.unit   = '#/cm3'  # unit name
         self.Find   = 1
-        self.pmInUse = 'No'
+        self.pmInUse = 0
         self.sliderVls = [39,84,0,0,20]
         self.sl_x = [1,1,1,1,1]
+
+# The popup window for About ARCA
+class plotWin(QtWidgets.QDialog):
+    def __init__(self, parent = None):
+        super(plotWin, self).__init__(parent)
+        self.pw = plotwin.Ui_Dialog()
+        self.pw.setupUi(self)
+        self.pw.buttonBox.clicked.connect(self.reject)
+    def setplot(self,name,x,y,unit,mtu):
+        pl = self.pw.plotSomething.plot(x,y,pen=pg.mkPen('black', width=3))
+        self.pw.plotSomething.setLabel('bottom','time',units=mtu)
+        self.pw.plotSomething.setBackground('w')
+        self.pw.plotSomething.getAxis('left').setStyle(autoExpandTextSpace=False)
+        self.pw.plotSomething.getAxis('left').setWidth(w=60)
+        self.pw.plotSomething.setYRange(min(0,y.min()*1.1), y.max()*1.1, padding=0)
+        self.pw.label.setText(f'{name} ({unit})')
+        self.pw.plotSomething.showGrid(x=True,y=True,alpha=0.2)
+        return
 
 class NcPlot:
     """Class for plot file contents"""
@@ -735,28 +753,21 @@ class NcPlot:
         self.measdmps = False
         if self.masterfile == 'Particles.nc':
             self.par = True
-            try:
-                # Better way to read netCDF4 strings:
-                # netCDF4.chartostring(nc.variables['VAPOURS'][:])
-                # Simplify this when time
-                b = ravel(ncs.variables['VAPOURS'][:,:].astype(str),'C')
-                names=b.reshape(ncs.variables['VAPOURS'].shape)
-            except:
-                b = ravel(ncs.variables['CONDENSABLES'][:,:].astype(str),'C') # the variable was renamed in v1.2
-                names=b.reshape(ncs.variables['CONDENSABLES'].shape)
+            # Better way to read netCDF4 strings:
+            names = netCDF4.chartostring(ncs.variables['VAPOURS'][:])
             self.nc_cm3 = ncs.variables['NUMBER_CONCENTRATION'][:] #
             self.composition_ng = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_cm3[:,:,newaxis], 1)*1e18 # kg->grams,g->ng cm3->m3=1e18
             self.totalmass_ng_m = npsum(ncs.variables['PARTICLE_COMPOSITION'][:,:,:]*self.nc_cm3[:,:,newaxis], 2)*1e18
             self.growth_rates   = ncs.variables['GROWTH_RATE'][:,:]
             self.diameter       = ncs.variables['DIAMETER'][0,:]
             self.lognorm_nc_cm3 = self.nc_cm3/log10(self.diameter[1]/self.diameter[0]) #
-            for i,word in enumerate(names):
-                comp = (''.join(list(word))).strip()
+            for i,comp in enumerate(names):
+                comp = comp.strip()
                 self.parvars[comp] = i
                 try:
-                        self.csat[comp] = ncs.variables[comp].Psat_A - ncs.variables[comp].Psat_B/300
-                        self.csat[comp] = 10**self.csat[comp] * (1e-6 * 101325 / 300 /1.38064852e-23)
-                        self.csat_unit = 'cm⁻³'
+                    self.csat[comp] = ncs.variables[comp].Psat_A - ncs.variables[comp].Psat_B/300
+                    self.csat[comp] = 10**self.csat[comp] * (1e-6 * 101325 / 300 /1.38064852e-23)
+                    self.csat_unit = 'cm⁻³'
                 except:
                     try:
                         self.csat[comp] = 10** ncs.variables[comp].Csat_300
@@ -807,12 +818,9 @@ class NcPlot:
             self.timeint = float(getattr(ncs, 'Nominal_save_interval_s'))
         except:
             self.timeint = int(3600*(self.time[-2]-self.time[0])/len(self.time[:-2]))
-        # self.conc_matrix = zeros((len(self.time),len(self.varnames[self.mask])))
         for i,n in enumerate(cache[timevars]):
             self.convars[n] = i
             self.invvars[i] = n
-            # self.conc_matrix[:,i] = ncs.variables[n][self.mask]
-
         self.nc = ncs
         self.names = list(self.convars.keys())
 
@@ -906,6 +914,16 @@ class QtBoxGui(gui14.Ui_MainWindow,QtWidgets.QMainWindow):
         self.oldCustomOptions = ['VBS_CSAT','LIMIT_VAPOURS','VP_MULTI','NO2_IS_NOX','NPF_DIST',
                                         'FLOAT_CONC_AFTER_HRS','FLOAT_EMIS_AFTER_HRS','INIT_ONLY',
                                         'NETCDF_OUT', 'BINARY_FILE']
+        self.VBS_CSAT_default = False
+        self.LIMIT_VAPOURS_default = '' # 999999 in the Fortran model
+        self.VP_MULTI_default = '' # 1.0 in the Fortran model
+        self.NO2_IS_NOX_default = False
+        self.NPF_DIST_default = '' # 1.15 in the Fortran model
+        self.FLOAT_CONC_AFTER_HRS_default = '' # 1d100 in the Fortran model
+        self.FLOAT_EMIS_AFTER_HRS_default = '' # 1d100 in the Fortran model
+        self.NETCDF_OUT_default = '.TRUE.'
+        self.BINARY_FILE_default = 0
+
         self.setAcceptDrops(True)
         self.setWindowTitle(CurrentVersion)
         self.setWindowIcon(QtGui.QIcon(boxicon))
@@ -989,7 +1007,7 @@ class QtBoxGui(gui14.Ui_MainWindow,QtWidgets.QMainWindow):
         self.checkBox_aer.toggled.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.aeroStructFrame))
         self.checkBox_aer.toggled.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.vapourFrame))
         self.checkBox_aer.toggled.connect(lambda: self.grayIfNotChecked(self.checkBox_aer,self.psdInitFrame))
-        self.checkBox_che.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_che,self.photochemFrame))
+        self.checkBox_che.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_che,self.spectralData))
         self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,self.acdcFrame))
         self.checkBox_acd.stateChanged.connect(lambda: self.grayIfNotChecked(self.checkBox_acd,self.clusterOtherFrame))
         self.fsave_division.valueChanged.connect(self.toggle_printtime)
@@ -1017,26 +1035,10 @@ class QtBoxGui(gui14.Ui_MainWindow,QtWidgets.QMainWindow):
         self.saveCurrentButton.setEnabled(False)
         self.actionSave_to_current.setEnabled(False)
         self.currentInitFile.setText('None loaded/saved')
-
         self.min_particle_diam.textChanged.connect(self.seeInAction)
         self.max_particle_diam.textChanged.connect(self.seeInAction)
         self.n_bins_particle.valueChanged.connect(self.seeInAction)
 
-        self.chemAdvanced.setEnabled(False)
-        self.clusterAdvanced.setEnabled(False)
-        self.psatScalingAndLimitVapors.setEnabled(False)
-        self.use_dmps_partial.setEnabled(False)
-        self.outputFormats.setEnabled(False)
-        self.tab_16.setEnabled(False)
-
-        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.chemAdvanced))
-        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.clusterAdvanced))
-        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.psatScalingAndLimitVapors))
-        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.use_dmps_partial))
-        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.outputFormats))
-        self.hideAdvancedOptions.toggled.connect(lambda: self.grayIfCheckedSimple(self.hideAdvancedOptions,self.tab_16))
-        # self.fileTimeUnit_a.currentIndexChanged.connect(lambda: self.fileTimeUnit_b.setCurrentIndex(self.fileTimeUnit_a.currentIndex()))
-        # self.fileTimeUnit_b.currentIndexChanged.connect(lambda: self.fileTimeUnit_a.setCurrentIndex(self.fileTimeUnit_b.currentIndex()))
     # -----------------------
     # tab Input variables
     # -----------------------
@@ -1046,9 +1048,9 @@ class QtBoxGui(gui14.Ui_MainWindow,QtWidgets.QMainWindow):
         self.butRemoveSelVars.clicked.connect(self.remv_item)
         self.selected_vars.setColumnHidden(8, True)
         self.selected_vars.verticalHeader().setVisible(False);
-        # self.loadFixed.clicked.connect(lambda: self.browse_path(None, 'fixed', ftype="MCM mass subset file (*.txt)"))
         self.loadFixedChemistry.clicked.connect(self.loadFixedFromChemistry)
         self.findInput.textChanged.connect(self.filterListOfInput)
+        self.selected_vars.doubleClicked.connect(self.plotInput)
 
     # -----------------------
     # tab Function creator
@@ -1099,15 +1101,15 @@ class QtBoxGui(gui14.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
         self.ReplChem.setChecked(False)
         self.butSpectralData.clicked.connect(lambda: self.browse_path(self.spectralFunctions, 'file'))
-        self.kppTool.clicked.connect(self.createCC)
-        self.vapTool.clicked.connect(self.vapours)
+        # self.kppTool.clicked.connect(self.createCC)
+        # self.vapTool.clicked.connect(self.vapours)
         self.recompile.clicked.connect(self.remake)
         self.TimerCompile = QtCore.QTimer(self);
         self.TimerCompile.timeout.connect(self.progress)
         self.compileProgressBar.hide()
         self.running = 0
         self.get_available_chemistry(checkonly=False)
-        self.chemLabel.setText('Current chemistry scheme in makefile: '+self.get_available_chemistry(checkonly=True))
+        self.chemLabel.setText('Current chemistry scheme: '+self.get_available_chemistry(checkonly=True))
         self.spectralFunctions.textChanged.connect(lambda: \
                                         self.frame_27.setEnabled(False) if (self.spectralFunctions.text()!='' \
                                         and ossplit(self.spectralFunctions.text())[1]!=defaultSpectrum) \
@@ -1140,6 +1142,8 @@ Please provide valid spectral function.') \
         self.batchRangeDayEnd.dateChanged.connect(lambda: self.batchRangeDay.setChecked(True))
         self.batchRangeIndBegin.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
         self.batchRangeIndEnd.valueChanged.connect(lambda: self.batchRangeInd.setChecked(True))
+        self.variationsBut.clicked.connect(self.createVAR)
+
         # self.chemistryModules.setEnabled(False)
         self.ReplChem.clicked.connect(lambda: self.get_available_chemistry(checkonly=False))
         self.mmodal_input.textChanged.connect(self.seeInAction)
@@ -1148,7 +1152,6 @@ Please provide valid spectral function.') \
         self.mmodal_input.textChanged.connect(lambda: self.HPLotter.setBackground(mmc[str(self.multiModalBox.isChecked())]))
         self.OrgNuclVapFile.clicked.connect(lambda: self.editTxtFile(nucl_homs))
         self.viewCustomNucl.clicked.connect(lambda: self.editTxtFile(custom_functions))
-        self.viewCustomChem.clicked.connect(lambda: self.editTxtFile(custom_functions))
         self.use_dmps.toggled.connect(lambda: self.grayIfChecked(self.use_dmps,self.multiModalBox))
         self.multiModalBox.toggled.connect(lambda: self.grayIfChecked(self.multiModalBox,self.use_dmps))
         self.EditAcdcGen.clicked.connect(lambda: self.editTxtFile('src/ACDC/'+self.CurrentAcdcSystem+"/settings.conf"))
@@ -1196,6 +1199,7 @@ Please provide valid spectral function.') \
         self.MonitorWindow.setFont(fixedFont)
         self.frameStop.setEnabled(False)
         self.startButton.clicked.connect(self.startBox)
+        self.runPreProc.clicked.connect(self.preProcessing)
         self.runPostProc.clicked.connect(self.postProcessing)
         self.stopButton.clicked.connect(self.stopBox)
         self.softStopButton.clicked.connect(self.softStop)
@@ -1300,8 +1304,8 @@ Please provide valid spectral function.') \
         self.helpVariables.clicked.connect(lambda: self.helplink(     'variables'))
         self.helpParametric.clicked.connect(lambda: self.helplink(    'parametric'))
         self.helpSwitchChem.clicked.connect(lambda: self.helplink(    'switchChem'))
-        self.helpCc.clicked.connect(lambda: self.helplink(            'ccmanual'))
-        self.helpCustomf.clicked.connect(lambda: self.helplink(       'customFunc'))
+        # self.helpCc.clicked.connect(lambda: self.helplink(            'ccmanual'))
+        # self.helpCustomf.clicked.connect(lambda: self.helplink(       'customFunc'))
         # self.helpACDC.clicked.connect(lambda: self.helplink(          'acdc1'))
         self.helpACDCAdv.clicked.connect(lambda: self.helplink(       'acdc2'))
         self.helpOrgNucl.clicked.connect(lambda: self.helplink(       'orgnucl'))
@@ -1319,7 +1323,8 @@ Please provide valid spectral function.') \
         self.helpRadiation.clicked.connect(lambda: self.helplink('radiation'))
         self.availableVars.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
-        if showUpdates=='true': self.createWN()
+        if showUpdates=='true':
+            self.createWN()
 
     # -----------------------
     # Load preferences, or create preferences if not found
@@ -1328,7 +1333,7 @@ Please provide valid spectral function.') \
         #     # if defaults exist, use them
         if startupInitfile is not None and exists(startupInitfile):
             out = self.load_initfile(startupInitfile)
-            self.show_currentInit(startupInitfile)
+            if out>0: self.show_currentInit(startupInitfile)
         else:
             if exists(defaults_file_path):
                 out = self.load_initfile(defaults_file_path)
@@ -1354,26 +1359,21 @@ Please provide valid spectral function.') \
         elif unit == 'sec': return rt/3600.0
 
     def update_input_variables(self):
+        self.avaInpLabel.setText('Variables in: '+self.get_available_chemistry(checkonly=True))
         self.namesdat.clear()
         self.namesdat.addItems(tdinp.NAMES)
         for i in range(len(tdinp.NAMES)):
             item = self.namesdat.item(i)
             if i<tdinp.divider_i:
-                # item.setForeground(QtGui.QColor(0, 70, 0))
-                # item.setBackground(QtGui.QColor(200, 230, 200))
                 item.setBackground(QtGui.QColor(*env_no))
             elif i>tdinp.divider_xtr_i:
-                # item.setForeground(QtGui.QColor(0, 70, 0))
-                # item.setBackground(QtGui.QColor(200, 230, 200))
                 item.setBackground(QtGui.QColor(*xtr_no))
             elif i==tdinp.divider_i or i==tdinp.divider_xtr_i:
                 item.setFlags(item.flags() &  ~QtCore.Qt.ItemIsEnabled &  ~QtCore.Qt.ItemIsSelectable)
                 item.setBackground(QtGui.QColor(*org_yes))
                 item.setForeground(QtGui.QColor(250, 250, 250))
             else:
-                # item.setBackground(QtGui.QColor(200, 200, 230))
                 item.setBackground(QtGui.QColor(*org_no))
-                # item.setForeground(QtGui.QColor(0, 0, 70))
 
     def dragEnterEvent(self, e):
         if e.mimeData().hasText(): e.accept()
@@ -1508,8 +1508,6 @@ Please provide valid spectral function.') \
         for i in range(len(luvut)//3):
             if abs(luvut[3*i+1])>0 and abs(luvut[3*i]):
                 acl = acl + luvut[3*i+2]*(gaussian(log10(x), log10(luvut[3*i+0]),luvut[3*i+1]))
-                # will change to this form asap
-                # acl = acl + luvut[3*i+2]*(gaussian(log(x), log(luvut[3*i+0]),luvut[3*i+1]))
         if sum( acl )>0:
             Z = N * acl / (sum( acl ))
             ndel = -min(nb-1, 8)
@@ -1644,6 +1642,51 @@ the numerical model or chemistry scheme differs from the current, results may va
         if response != 0:
             exec("%s = %d" %(v,self.inwin.inp.input.value()))
 
+    def plotInput(self):
+        col = self.selected_vars.currentItem().column()
+        row = self.selected_vars.currentItem().row()
+        if col>0:
+            return
+        else:
+            PI = self.selected_vars.cellWidget(row,4).isChecked()
+            name = self.selected_vars.item(row,0).text()
+            self.updateMods(row)
+            plotthis = vars.mods[name]
+            comments = ''
+            if PI:
+                self.tabWidget_3.setCurrentIndex(1)
+                self.names_sel_2.item(row).setSelected(True)
+                self.loadParamValues()
+                return
+            elif plotthis.col>0:
+                if tdinp.namesPyInds[name]<tdinp.divider_i:
+                    filen = self.env_file.text()
+                    mtu = self.fileTimeUnit_a.currentText()
+                else:
+                    filen = self.mcm_file.text()
+                    mtu = self.fileTimeUnit_b.currentText()
+                x,y = [],[]
+                with open(filen, 'r') as file:
+                    for line in file:
+                        if line[0] == '#':
+                            fullrow = re.split(r'[\s,]+', line.replace('#','').strip())
+                            comments += fullrow[plotthis.col-1]+' '
+                            continue
+                        fullrow = re.split(r'[\s,]+', line.strip())
+                        x.append(float(fullrow[0]))
+                        y.append(float(fullrow[plotthis.col-1]))
+                x = array(x) - x[0]
+                y = array(y)*plotthis.multi + plotthis.shift
+                comments = f' ("{comments}" in "{ossplit(filen)[1]}")'
+            else:
+                x = array([0,self.runtime.value()])
+                y = array([plotthis.shift]*2)
+                mtu = self.runTimeUnit.currentText()
+            self.plwin = plotWin()
+            self.plwin.setplot(name+comments,x,y,plotthis.unit,mtu)
+            response = self.plwin.exec()
+        return
+
 
     def updateEnvPath(self):
         if self.fileLoadOngoing:
@@ -1761,6 +1804,8 @@ the numerical model or chemistry scheme differs from the current, results may va
         for date,file in zip(dates,files_to_create):
             self.index_for_parser = date
             if self.createBashFile.isChecked():
+                for cmd in self.preProcCmd.toPlainText().split('\n'):
+                    if cmd != '': bf.write(cmd.replace('<outputdir>', dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME)+' # preProcessing'+'\n')
                 bf.write('./'+exe_name+' '+file+' |tee '+dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME+'/runReport.txt'+'\n' )
                 for cmd in self.postProcCmd.toPlainText().split('\n'):
                     if cmd != '': bf.write(cmd.replace('<outputdir>', dirname(dirname(file)[:-1])+'/'+nml.PATH.RUN_NAME)+' # postProcessing'+'\n')
@@ -1902,7 +1947,7 @@ the numerical model or chemistry scheme differs from the current, results may va
             vars.mods[target].mode = dummy.mode
             for jj in range(len(vars.mods[target].sliderVls)):
                 vars.mods[target].sliderVls[jj] = dummy.sliderVls[jj]
-            vars.mods[target].pmInUse = 'Yes'
+            vars.mods[target].pmInUse = 1
             confirmText = 'Saved to ' + target
             self.confirm.setText(confirmText)
             self.confirm.show()
@@ -1910,7 +1955,7 @@ the numerical model or chemistry scheme differs from the current, results may va
             self.updteGraph(label=target, first=True)
             for i in range(self.selected_vars.rowCount()):
                 if self.selected_vars.item(i,0).text() == target:
-                    self.selected_vars.cellWidget(i, 4).setCurrentIndex(1)
+                    self.selected_vars.cellWidget(i, 4).setChecked(1)
                     break
 
 
@@ -1962,17 +2007,6 @@ the numerical model or chemistry scheme differs from the current, results may va
             f = (log10(maxi-mini+1))/f
             norm = 10**(norm*f)-1 + mini
         return norm
-        # D = peak + sin((x-peak)*freq)*amp + phase
-        # norm = exp(-(x-D)**2/(2*sigma**2))
-        #
-        # if ysc == 'lin':
-        #     h = (maxi-mini)
-        #     norm = (norm-norm.min())/max(norm-norm.min())*h+mini
-        # else:
-        #     h = (log10(maxi-mini+1))
-        #     norm = 10**((norm-norm.min())/max(norm-norm.min())*h)-1 + mini
-        #
-        # return norm
 
 
     def radio(self,*buts, action=True):
@@ -2047,7 +2081,7 @@ the numerical model or chemistry scheme differs from the current, results may va
                 path = osrelpath(path, currentdir)
             if mode == 'load':
                 out = self.load_initfile(path)
-                self.show_currentInit(path)
+                if out == None: self.show_currentInit(path)
             # elif mode == 'fixed':
             #     self.loadFixedFile(path)
             elif mode == 'fixed_cc':
@@ -2275,14 +2309,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
         for i in range(self.selected_vars.rowCount()):
             if self.selected_vars.item(i,0).text() == n:
                 if read:
-                    self.selected_vars.cellWidget(i,4).setChecked(True)
-                    self.selected_vars.cellWidget(i,4).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
+                    self.selected_vars.cellWidget(i,5).setChecked(True)
+                    self.selected_vars.cellWidget(i,5).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
                     return
                 # print(self.selected_vars.cellWidget(i,4))
-                if self.selected_vars.cellWidget(i,4).isChecked():
-                    self.selected_vars.cellWidget(i,4).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
+                if self.selected_vars.cellWidget(i,5).isChecked():
+                    self.selected_vars.cellWidget(i,5).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
                 else:
-                    self.selected_vars.cellWidget(i,4).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey.png\'); background-repeat: no-repeat;")
+                    self.selected_vars.cellWidget(i,5).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey.png\'); background-repeat: no-repeat;")
                 return
 
     def highlightModifications(self, i):
@@ -2318,9 +2352,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.selected_vars.insertRow(row)
         item = self.namesdat.item(tdinp.namesPyInds[name])
         item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
-
-        pmInUse = QtWidgets.QComboBox()
-        pmInUse.addItems(['No','Yes'])
+        # pmInUse = QtWidgets.QComboBox()
+        # pmInUse.addItems(['No','Yes'])
+        pmInUse = QtWidgets.QPushButton()
+        pmInUse.setCheckable(True)
         unit = QtWidgets.QComboBox()
         unit.addItems(units.get(grepunit(name),units['REST']))
         unit.setCurrentIndex(unt)
@@ -2340,8 +2375,13 @@ a chemistry module in tab "Chemistry"''', icon=2)
             cols = [name, '-1','1.0', '0.0',0,0]
         self.selected_vars.horizontalHeader().setStretchLastSection(True)
         self.selected_vars.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        if cols[4]:
-            initBut.setChecked(cols[4])
+        if cols[4] == 1:
+            pmInUse.setChecked(cols[4])
+            pmInUse.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/PI_inuse.png\'); background-repeat: no-repeat;")
+        else:
+            pmInUse.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/PI_grey.png\'); background-repeat: no-repeat;")
+        if cols[5] == 1:
+            initBut.setChecked(cols[5])
             initBut.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
         else:
             initBut.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey.png\'); background-repeat: no-repeat;")
@@ -2362,11 +2402,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*org_no))
         if name == 'PRESSURE' :
             self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem('1e3'))
-        self.selected_vars.setCellWidget(row, i+1, initBut )
-        self.selected_vars.setCellWidget(row, i+2, pmInUse )
-        pmInUse.currentIndexChanged.connect(lambda: self.toggleColorPre(name))
+        self.selected_vars.setCellWidget(row, i+1, pmInUse )
+        self.selected_vars.setCellWidget(row, i+2, initBut )
+        pmInUse.toggled.connect(lambda: self.toggleColorPre(name))
         self.selected_vars.itemChanged.connect(self.highlightModifications)
-        pmInUse.setCurrentIndex(cols[5])
+        # pmInUse.setCurrentIndex(cols[5])
         self.selected_vars.setCellWidget(row, i+3, unit )
         self.selected_vars.setCellWidget(row, i+4, markBut )
         self.selected_vars.setItem(row, i+5, QtWidgets.QTableWidgetItem('%04d'%(tdinp.namesFoInds[name])))
@@ -2388,12 +2428,20 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
     def toggleColor(self,r,c):
-        if self.selected_vars.cellWidget(r,5).currentText() == 'Yes':
-            for z in range(4):
-                self.selected_vars.item(r, z).setBackground(QtGui.QColor(*c[0]))
+        if self.selected_vars.cellWidget(r,4).isChecked():
+            self.selected_vars.cellWidget(r,4).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/PI_inuse.png\'); background-repeat: no-repeat;")
+            # for z in range(4):
+            #     self.selected_vars.item(r, z).setBackground(QtGui.QColor(*c[0]))
+            for z in range(1,4):
+                item = self.selected_vars.item(r, z)
+                item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled)
         else:
-            for z in range(4):
-                self.selected_vars.item(r, z).setBackground(QtGui.QColor(*c[1]))
+            self.selected_vars.cellWidget(r,4).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/PI_grey.png\'); background-repeat: no-repeat;")
+            # for z in range(4):
+            #     self.selected_vars.item(r, z).setBackground(QtGui.QColor(*c[1]))
+            for z in range(1,4):
+                item = self.selected_vars.item(r, z)
+                item.setFlags(item.flags() | QtCore.Qt.ItemIsEnabled)
 
 
     def toggle_frame(self, frame):
@@ -2528,11 +2576,16 @@ a chemistry module in tab "Chemistry"''', icon=2)
             return
         self.postProcessing()
 
+    def preProcessing(self):
+        commands = self.preProcCmd.toPlainText().split('\n')
+        for cmd in commands:
+            cmdprocessed = cmd.replace('<outputdir>', self.currentAddressTb.text()  )
+            os.system(cmdprocessed)
+        return
+
     def postProcessing(self):
-        self.postprocess = []
         commands = self.postProcCmd.toPlainText().split('\n')
         for cmd in commands:
-            # self.postprocess.append(Popen(cmd.split()))
             cmdprocessed = cmd.replace('<outputdir>', self.currentAddressTb.text()  )
             os.system(cmdprocessed)
         return
@@ -2797,18 +2850,18 @@ a chemistry module in tab "Chemistry"''', icon=2)
     def StartboxShortcut(self):
         if self.frameStop.isEnabled():
             self.stopBox()
-        self.tabWidget.setCurrentIndex(6)
+        self.tabWidget.setCurrentIndex(5)
         self.startBox()
 
     def QuitShortcut(self):
         if self.frameStop.isEnabled():
             self.stopBox()
-        self.tabWidget.setCurrentIndex(6)
+        self.tabWidget.setCurrentIndex(5)
 
     def QuitGracefullyShortcut(self):
         if self.frameStop.isEnabled():
             self.softStop()
-        self.tabWidget.setCurrentIndex(6)
+        self.tabWidget.setCurrentIndex(5)
 
     def startBox(self):
         self.closenetcdf()
@@ -2824,6 +2877,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
         st = self.print_values(tempfile)
         if st != 0: return
         self.wait_for = currentWait
+
+        self.preProcessing()
 
         try:
             self.boxProcess = Popen(["./"+exe_name, "%s"%tempfile, '--gui'], stdout=PIPE,stderr=STDOUT,stdin=None)
@@ -2853,11 +2908,6 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.fulltext = self.boxProcess.stdout.readline().decode("utf-8")
         if self.fulltext != '.\r\n' and self.fulltext != '.\n' and self.fulltext != '':
             self.MonitorWindow.appendPlainText(self.fulltext.strip('\n'))
-        # if self.pauseScroll.isChecked() == False:
-        #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
-        # if 'SIMULATION HAS ENDED' in str(self.fulltext)[-50:]:
-        #     # self.MonitorWindow.setPlainText(self.MonitorWindow.toPlainText())
-        #     self.MonitorWindow.verticalScrollBar().setSliderPosition(self.MonitorWindow.verticalScrollBar().maximum())
 
 
     def checkboxToFOR(self, widget):
@@ -2873,6 +2923,18 @@ a chemistry module in tab "Chemistry"''', icon=2)
         else:
             return 0
 
+    def updateMods(self,i):
+        name = self.selected_vars.item(i,0).text()
+        init = self.selected_vars.cellWidget(i,5).isChecked()
+        if init: nml.CUSTOM.CUSTOMS.append(name)
+        if vars.mods[name].tied != '':
+            vars.mods[name].col = (self.selected_vars.item(i,1).text())
+        else:
+            vars.mods[name].col = int(self.selected_vars.item(i,1).text())
+        vars.mods[name].multi = float(self.selected_vars.item(i,2).text())
+        vars.mods[name].shift = float(self.selected_vars.item(i,3).text())
+        vars.mods[name].pmInUse = 1 if self.selected_vars.cellWidget(i,4).isChecked() else 0
+        vars.mods[name].unit = self.selected_vars.cellWidget(i,6).currentText()
 
     def update_nml(self):
         status = 0
@@ -2889,7 +2951,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                                 'batchRangeDay', self.checkboxToFOR(self.batchRangeDay),
                                 'batchRangeInd', self.checkboxToFOR(self.batchRangeInd),
         )
-        nml.SETTINGS.INPUT = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s' %(
+        nml.SETTINGS.INPUT = '%s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s %s:%s' %(
                                 'env_file', self.env_file.text(),
                                 'mcm_file', self.mcm_file.text(),
                                 'dmps_file', self.dmps_file.text(),
@@ -2901,7 +2963,6 @@ a chemistry module in tab "Chemistry"''', icon=2)
                                 'stripRoot_mcm', self.checkboxToFOR(self.stripRoot_mcm),
                                 'stripRoot_par', self.checkboxToFOR(self.stripRoot_par),
                                 'stripRoot_xtr', self.checkboxToFOR(self.stripRoot_xtr),
-                                'hideAdvancedOptions', self.checkboxToFOR(self.hideAdvancedOptions),
         )
 
         # class NAMES:
@@ -3014,20 +3075,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.CUSTOM.CUSTOMS = []
 
         for i in range(self.selected_vars.rowCount()):
-            name = self.selected_vars.item(i,0).text()
-            init = self.selected_vars.cellWidget(i,4).isChecked()
-            if init: nml.CUSTOM.CUSTOMS.append(name)
-            if vars.mods[name].tied != '':
-                vars.mods[name].col = (self.selected_vars.item(i,1).text())
-            else:
-                vars.mods[name].col = int(self.selected_vars.item(i,1).text())
-            vars.mods[name].multi = float(self.selected_vars.item(i,2).text())
-            vars.mods[name].shift = float(self.selected_vars.item(i,3).text())
-            vars.mods[name].pmInUse = self.selected_vars.cellWidget(i,5).currentText()
-            vars.mods[name].unit = self.selected_vars.cellWidget(i,6).currentText()
+            self.updateMods(i)
 
         nml.RAW.RAW = self.rawEdit.toPlainText()
-        nml.RAW.POST = self.postProcCmd.toPlainText()
+        nml.RAW.RAW_PRE = self.preProcCmd.toPlainText()
+        nml.RAW.RAW_POST = self.postProcCmd.toPlainText()
 
         if len(nml.CUSTOM.CUSTOMS)>0:
             nml.CUSTOM.CUSTOMS = [['INIT_ONLY',','.join(nml.CUSTOM.CUSTOMS)]]
@@ -3039,17 +3091,19 @@ a chemistry module in tab "Chemistry"''', icon=2)
             [['NETCDF_OUT','.TRUE.'],['BINARY_FILE',1]],
             [['NETCDF_OUT','.FALSE.'],['BINARY_FILE',0]],
         ]
-        nml.CUSTOM.CUSTOMS.append(choices[self.outputFormats.currentIndex()][0])
-        nml.CUSTOM.CUSTOMS.append(choices[self.outputFormats.currentIndex()][1])
+        t1 = choices[self.outputFormats.currentIndex()][0]
+        t2 = choices[self.outputFormats.currentIndex()][1]
+        if t1[1] != self.NETCDF_OUT_default: nml.CUSTOM.CUSTOMS.append( t1 )
+        if t2[1] != self.BINARY_FILE_default: nml.CUSTOM.CUSTOMS.append( t2 )
 
         for boo,cstmFlg in zip(self.customboolflags,self.oldCustomOptions):
             if boo<0:
                 pass
             elif boo==1:
-                if eval(f'self.{cstmFlg}.isChecked()'):
+                if eval(f'self.{cstmFlg}.isChecked() != self.{cstmFlg}_default'):
                     exec(f'nml.CUSTOM.CUSTOMS.append(["{cstmFlg}",self.checkboxToFOR(self.{cstmFlg})])')
             else:
-                if eval(f'self.{cstmFlg}.text()') != '':
+                if eval(f'self.{cstmFlg}.text() != self.{cstmFlg}_default'):
                     exec(f'nml.CUSTOM.CUSTOMS.append(["{cstmFlg}",self.{cstmFlg}.text()])')
 
         for i in range(1,25):
@@ -3074,10 +3128,23 @@ a chemistry module in tab "Chemistry"''', icon=2)
         elif 'DMA' in text:
             return 'DMA'
 
+    def setCustomDefaults(self):
+        self.VBS_CSAT.setChecked(self.VBS_CSAT_default)
+        self.LIMIT_VAPOURS.setText('')
+        self.VP_MULTI.setText('')
+        self.NO2_IS_NOX.setChecked(self.NO2_IS_NOX_default)
+        self.NPF_DIST.setText('')
+        self.FLOAT_CONC_AFTER_HRS.setText('')
+        self.FLOAT_EMIS_AFTER_HRS.setText('')
 
     def load_initfile(self,file):
         if re.search('[ !#%&$¤?]', file):
             self.popup("Funky characters", "Please, don't use spaces or special characters in parthnames (files and directories).",3)
+            return 0
+        if re.search('NMLS.conf', file):
+            self.popup("Fortran backup of Namelist", "This file is a Namelist dump from the FORTRAN model, and can not directly "+
+                "be downloaded to the GUI. However, it can be used to repeat a simulation - provided the input is the same, and the "+
+                "model version is the same as in the NMLS.init.",3)
             return 0
         try:
             f = open(file, 'r')
@@ -3127,6 +3194,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
 
         f = open(file, 'r')
+
+        self.setCustomDefaults()
         in_custom = False
         excluded_compounds = []
 
@@ -3135,7 +3204,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             x = line.find('!')
             if i<x or (x==-1 and i!=-1):
                 key = line[:i].upper().strip()
-                if key == '# RAW_INPUT' or key == '# RAW_POST':
+                if key == '# RAW_INPUT' or key == '# RAW_POST' or key == '# RAW_PRE':
                     rawline = line[i+1:].lstrip().rstrip()
                 # remove comma and excess whitespace
                 strng = line[i+1:x].strip(' ,')
@@ -3159,21 +3228,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
                 if key[:5]=='MODS(':
                     y = key.find(')')
-                    # index = int(key[5:y])
-                    # if index>len(tdinp.NAMES): continue
-                    # if index-1 == tdinp.divider_i or index-1 == tdinp.divider_xtr_i:
-                    #     continue
-                    # name = tdinp.NAMES[index-1]
 
                     if len(key)>y+1:
                         print(f"Can not read MODS property {key[y+1:]}. Define all component properties as one-line entry" )
                         continue
-                        # prop = key[y+2:].lower()
-                        # cmd = 'vars.mods[\'%s\'].%s'%(tdinp.NAMES[index-1],prop)
-                        # if isFl:
-                        #     exec("%s = %s"%(cmd, strng))
-                        # else:
-                        #     exec("%s = \'%s\'"%(cmd, strng))
                     else:
                         props = strng.split()
                         i = 0
@@ -3189,15 +3247,15 @@ a chemistry module in tab "Chemistry"''', icon=2)
                             vars.mods[name].name = name
                         if i< n: vars.mods[name].mode   = int(props[i])   ; i=i+1
                         if i< n: vars.mods[name].col    = int(props[i])   ; i=i+1
-                        if i< n: vars.mods[name].multi  = float(props[i].replace('d','e')) ; i=i+1
-                        if i< n: vars.mods[name].shift  = float(props[i].replace('d','e')) ; i=i+1
-                        if i< n: vars.mods[name].min    = float(props[i].replace('d','e')) ; i=i+1
-                        if i< n: vars.mods[name].max    = float(props[i].replace('d','e')) ; i=i+1
-                        if i< n: vars.mods[name].sig    = float(props[i].replace('d','e')) ; i=i+1
-                        if i< n: vars.mods[name].mju    = float(props[i].replace('d','e')) ; i=i+1
-                        if i< n: vars.mods[name].fv     = float(props[i].replace('d','e')) ; i=i+1
-                        if i< n: vars.mods[name].ph     = float(props[i].replace('d','e')) ; i=i+1
-                        if i< n: vars.mods[name].am     = float(props[i].replace('d','e')) ; i=i+1
+                        if i< n: vars.mods[name].multi  = float( re.sub('[dD]','e', props[i] )) ; i=i+1
+                        if i< n: vars.mods[name].shift  = float( re.sub('[dD]','e', props[i] )) ; i=i+1
+                        if i< n: vars.mods[name].min    = float( re.sub('[dD]','e', props[i] )) ; i=i+1
+                        if i< n: vars.mods[name].max    = float( re.sub('[dD]','e', props[i] )) ; i=i+1
+                        if i< n: vars.mods[name].sig    = float( re.sub('[dD]','e', props[i] )) ; i=i+1
+                        if i< n: vars.mods[name].mju    = float( re.sub('[dD]','e', props[i] )) ; i=i+1
+                        if i< n: vars.mods[name].fv     = float( re.sub('[dD]','e', props[i] )) ; i=i+1
+                        if i< n: vars.mods[name].ph     = float( re.sub('[dD]','e', props[i] )) ; i=i+1
+                        if i< n: vars.mods[name].am     = float( re.sub('[dD]','e', props[i] )) ; i=i+1
                         if i< n:
                             unt = props[i].strip('\'\"').replace('#','#/cm3')
                             vars.mods[name].unit = unt
@@ -3210,7 +3268,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
             else:
                 if line.strip() == '/' and in_custom:
                     in_custom = False
-                    n = len(nml.CUSTOM.CUSTOMS)
+                    n = min(24,len(nml.CUSTOM.CUSTOMS))
+                    if len(nml.CUSTOM.CUSTOMS)>n:
+                        self.popup('Too many custom options', 'Custom options are meant for semi-temporary model '+\
+                            'development phase, and the GUI can only handle max 24 options. Sorry about this.',3)
                     ii = 0
                     mapping = {1:0,4:1,2:2,5:3,3:4,0:5}
                     self.outputFormats.setCurrentIndex(mapping[int(f'{binary_flag:02b}{netcdf_flag}',2)])
@@ -3315,10 +3376,6 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'VAP_ATOMS' == key: self.vap_atoms.setText(strng)
             elif 'GR_SIZES' == key: self.GR_sizes.setText(strng)
             elif 'NAMESDAT' == key: NAMESDAT=strng
-                # if strng != tdinp.path_to_names:
-                    # self.popup('Hazard', """These settings need different set of input compounds, you should restart the GUI \n
-                    # and use -o flag in the bash command, or --names flag in the python command to define the correct path \n"""
-                    # +strng, 3)
 
             elif 'DDIAM_RANGE' == key:
                 self.prec_low_1.setValue(float(strng.split(',')[0]))
@@ -3357,22 +3414,24 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 if key=='DMPS_TRES_MIN': self.dmpsIntvl.setValue(float(strng))
                 elif key in self.oldCustomOptions:
                     if key=='VBS_CSAT': self.VBS_CSAT.setChecked(strng)
-                    if key=='LIMIT_VAPOURS': self.LIMIT_VAPOURS.setText(strng)
-                    if key=='VP_MULTI': self.VP_MULTI.setText(strng)
-                    if key=='NO2_IS_NOX': self.NO2_IS_NOX.setChecked(strng)
-                    if key=='NPF_DIST': self.NPF_DIST.setText(strng)
-                    if key=='FLOAT_CONC_AFTER_HRS': self.FLOAT_CONC_AFTER_HRS.setText(strng)
-                    if key=='FLOAT_EMIS_AFTER_HRS': self.FLOAT_EMIS_AFTER_HRS.setText(strng)
-                    if key=='INIT_ONLY' : INIT_ONLY = [c for c in strng.split(',')]
-                    if key=='NETCDF_OUT' : netcdf_flag = int(strng)
-                    if key=='BINARY_FILE' : binary_flag = int(strng)
+                    elif key=='LIMIT_VAPOURS': self.LIMIT_VAPOURS.setText(strng)
+                    elif key=='VP_MULTI': self.VP_MULTI.setText(strng)
+                    elif key=='NO2_IS_NOX': self.NO2_IS_NOX.setChecked(strng)
+                    elif key=='NPF_DIST': self.NPF_DIST.setText(strng)
+                    elif key=='FLOAT_CONC_AFTER_HRS': self.FLOAT_CONC_AFTER_HRS.setText(strng)
+                    elif key=='FLOAT_EMIS_AFTER_HRS': self.FLOAT_EMIS_AFTER_HRS.setText(strng)
+                    elif key=='INIT_ONLY' : INIT_ONLY = [c for c in strng.split(',')]
+                    elif key=='NETCDF_OUT' : netcdf_flag = int(strng)
+                    elif key=='BINARY_FILE' : binary_flag = int(strng)
 
                 else:
                     nml.CUSTOM.CUSTOMS.append([key, strng])
-                # xxxx
             elif '# RAW_INPUT' == key:
                 self.rawEdit.clear()
                 self.rawEdit.insertPlainText(rawline.replace('<br>', '\n'))
+            elif '# RAW_PRE' == key:
+                self.preProcCmd.clear()
+                self.preProcCmd.insertPlainText(rawline.replace('<br>', '\n'))
             elif '# RAW_POST' == key:
                 self.postProcCmd.clear()
                 self.postProcCmd.insertPlainText(rawline.replace('<br>', '\n'))
@@ -3383,9 +3442,15 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                     kk, val = kv[:sp_i], kv[sp_i+1:]
                     if 'FALSE' in val or 'TRUE' in val:
                         if 'TRUE' in val:
-                            exec('self.'+kk+'.setChecked(True)')
+                            try:
+                                exec('self.'+kk+'.setChecked(True)')
+                            except:
+                                print(f'Incompatible option {kk}')
                         else:
-                            exec('self.'+kk+'.setChecked(False)')
+                            try:
+                                exec('self.'+kk+'.setChecked(False)')
+                            except:
+                                print(f'Incompatible option {kk}')
                     else:
                         exec('self.'+kk+'.setText(\''+val+'\')')
 
@@ -3433,14 +3498,14 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             if whatnext=='cancel': return
         # manage different units
         for key in vars.mods:
-            pmInUse = 0
-            if vars.mods[key].mode > 0:
-                pmInUse = 1
+            pmInUse = 1 if vars.mods[key].mode > 0 else 0
             unts = units.get(grepunit(key),units['REST'])
             unitIndex = 0
             for unit in unts:
-                if unit.upper() == vars.mods[key].unit.upper(): break
-                else: unitIndex += 1
+                if unit.upper() == vars.mods[key].unit.upper():
+                    break
+                else:
+                    unitIndex += 1
             if unitIndex==len(unts): unitIndex=0
 
             if key == 'TEMPK' or key == 'PRESSURE':
@@ -3449,7 +3514,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 self.selected_vars.setItem(row, 1, QtWidgets.QTableWidgetItem(str(vars.mods[key].col)))
                 self.selected_vars.setItem(row, 2, QtWidgets.QTableWidgetItem(str(vars.mods[key].multi)))
                 self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem(str(vars.mods[key].shift)))
-                self.selected_vars.cellWidget(row,5).setCurrentIndex(pmInUse)
+                self.selected_vars.cellWidget(row,4).setChecked(pmInUse)
                 self.selected_vars.cellWidget(row,6).setCurrentIndex(unitIndex)
                 for z in range(4):
                     if tdinp.namesPyInds[key]<tdinp.divider_i:
@@ -3461,7 +3526,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
             else:
                 init = 1 if key in INIT_ONLY else 0
-                cols = [key,str(vars.mods[key].col),str(vars.mods[key].multi),str(vars.mods[key].shift),init,pmInUse]
+                cols = [key,str(vars.mods[key].col),str(vars.mods[key].multi),str(vars.mods[key].shift),pmInUse,init]
                 self.add_new_line(key,2,cols=cols,createNew=False, unt=unitIndex)
 
             wScale,pScale,aScale,phScale,ampScale,_ = self.scales()
@@ -3486,7 +3551,6 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         self.updateEnvPath()
 
 
-
     def updateMass(self):
         if self.MPD != []:
             self.showMass(first=False, target='mass')
@@ -3496,6 +3560,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         if self.MPD != []:
             self.showMass(first=False, target='numb')
 
+
     def testNC(self,file):
         try:
             self.ncs = netCDF4.Dataset(file, 'r')
@@ -3503,6 +3568,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             return 0
         except:
             return 1
+
 
     def showMass(self, file=None, first=True, target=None, add=False):
         symbols = ['x','+','t1','t','star']
@@ -3681,8 +3747,6 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             ftype = self.LPD[-1].masterfile
         self.browse_path(None, 'addplot_more', ftype=ftype)
         self.radioCompare.setEnabled(False)
-
-
 
 
     def linePlotMulti(self, file, new=True):
@@ -3955,9 +4019,6 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         self.plotResultTitle.setText(self.plotTitle+un+csat)
 
 
-    # def addLineTOPlot(self,win,x,y,label):
-    #     return plot
-
 
     ## Popup message function -icon sets the icon:----------------------------------------------------------------------
     # QMessageBox::NoIcon      0   the message box does not have any icon.
@@ -3986,8 +4047,6 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
 
     def closenetcdf(self):
-        # try: self.ncs.close()
-        # except: pass
         self.plotResultWindow.setBackground('w')
         [l.setText('') for l in self.linePlotLegends]
         self.findComp.clear()
@@ -4015,7 +4074,6 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.availableVars.clear()
             self.plotResultWindow.clear()
             self.ShowPPC.toggled.disconnect(self.showOutputUpdate)
-            # self.ShowPPC.toggled.disconnect(self.toggleTimeInavailableVars)
 
         except:
             pass
@@ -4122,7 +4180,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.inv = 1
             self.compileProgressBar.setValue(0)
             self.TimerCompile.start(10)
-            self.chemLabel.setText('Current chemistry scheme in makefile: '+self.get_available_chemistry(checkonly=True))
+            self.chemLabel.setText('Current chemistry: '+self.get_available_chemistry(checkonly=True))
             self.chemistryModules.setCurrentIndex(self.chemistryModules.findText(self.get_available_chemistry(checkonly=True)))
             self.currentAddressTb.deselect()
             if reload:
@@ -4200,13 +4258,20 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             %(self.floorArea.value()*self.chamberHeight.value()))
 
     def loadHeaders(self):
-        match,i_match = self.printHeaders(True)
+        e_match,e_i_match,c_match,c_i_match = self.printHeaders(True)
         fmatch = {}
-        for var,ivar in zip(match,i_match):
+        for var,ivar in zip(e_match,e_i_match):
             if var in tdinp.namesPyInds.keys():
-                fmatch[var] = ivar
-                if var not in vars.mods:
-                    self.namesdat.item(tdinp.namesPyInds[var]).setSelected(True)
+                if tdinp.namesPyInds[var]<tdinp.divider_i:
+                    fmatch[var] = ivar
+                    if var not in vars.mods:
+                        self.namesdat.item(tdinp.namesPyInds[var]).setSelected(True)
+        for var,ivar in zip(c_match,c_i_match):
+            if var in tdinp.namesPyInds.keys():
+                if tdinp.namesPyInds[var]>=tdinp.divider_i:
+                    fmatch[var] = ivar
+                    if var not in vars.mods:
+                        self.namesdat.item(tdinp.namesPyInds[var]).setSelected(True)
         self.select_compounds()
         # assign columns
         for ic in range(self.selected_vars.rowCount()):
@@ -4218,8 +4283,10 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
     def printHeaders(self, load=False):
         if load:
-            collection = []
-            i_collection = []
+            envcollection = []
+            envi_collection = []
+            chmcollection = []
+            chmi_collection = []
             print('\n+------- Matching input files to current set of Time dependent input -------+')
         else:
             print('\n+----------------- Print input headers with column numbers -----------------+')
@@ -4248,11 +4315,15 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                     # continue
                 print(' %3d     %s'%(i+1, val))
                 if load:
-                    collection.append(val.strip().upper())
-                    i_collection.append(i+1)
+                    if type == 'ENV input':
+                        envcollection.append(val.strip().upper())
+                        envi_collection.append(i+1)
+                    else:
+                        chmcollection.append(val.strip().upper())
+                        chmi_collection.append(i+1)
             print()
             print()
-        if load: return collection,i_collection
+        if load: return envcollection,envi_collection,chmcollection,chmi_collection
 
 dummy = Comp()
 defCompound = Comp()
@@ -4290,10 +4361,6 @@ TYPE UNIT  NAME                       Options, (default), DESCRIPTION
                     j=len(words[i]) + 1
     print('')
 
-# with open("ModelLib/gui/conf/Custom_description.txt.csv") as f:
-#     for line in f:
-#         print(o,line.split(','))
-        # print(' %04s  %04s %32s %s'%(line.split(',')[0],line.split(',')[1],line.split(',')[2],line.split(',')[3]))
 
 if __name__ == '__main__':
     FT = Startup()

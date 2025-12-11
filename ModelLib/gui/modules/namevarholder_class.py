@@ -42,7 +42,7 @@ class namevarholder():
             #     exit('ARCA will not start, check out '+path_to_names+' and remove empty lines.')
             if '#' in line:
                 self.divider_i=i
-                name = 'Components in current chemistry'
+                name = 'Components in chemistry'
             self.NAMES.append(name)
             namesPyInds[name] = i
             namesFoInds[name] = i+1
