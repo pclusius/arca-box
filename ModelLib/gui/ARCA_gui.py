@@ -2381,11 +2381,6 @@ a chemistry module in tab "Chemistry"''', icon=2)
             cols = [name, '-1','1.0', '0.0',0,0]
         self.selected_vars.horizontalHeader().setStretchLastSection(True)
         self.selected_vars.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        if cols[4] == 1:
-            pmInUse.setChecked(cols[4])
-            pmInUse.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/PI_inuse.png\'); background-repeat: no-repeat;")
-        else:
-            pmInUse.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/PI_grey.png\'); background-repeat: no-repeat;")
         if cols[5] == 1:
             initBut.setChecked(cols[5])
             initBut.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
@@ -2408,9 +2403,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*org_no))
         if name == 'PRESSURE' :
             self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem('1e3'))
-        self.selected_vars.setCellWidget(row, i+1, pmInUse )
-        self.selected_vars.setCellWidget(row, i+2, initBut )
+        self.selected_vars.setCellWidget(row, 4, pmInUse )
         pmInUse.toggled.connect(lambda: self.toggleColorPre(name))
+        if cols[4] == 1:
+            pmInUse.setChecked(cols[4])
+            pmInUse.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/PI_inuse.png\'); background-repeat: no-repeat;")
+        else:
+            pmInUse.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/PI_grey.png\'); background-repeat: no-repeat;")
+        self.selected_vars.setCellWidget(row, i+2, initBut )
         self.selected_vars.itemChanged.connect(self.highlightModifications)
         # pmInUse.setCurrentIndex(cols[5])
         self.selected_vars.setCellWidget(row, i+3, unit )
