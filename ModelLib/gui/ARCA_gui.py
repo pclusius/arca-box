@@ -2361,12 +2361,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
         # pmInUse = QtWidgets.QComboBox()
         # pmInUse.addItems(['No','Yes'])
         pmInUse = QtWidgets.QPushButton()
+        self.fixedButtonSize(pmInUse,24,24)
         pmInUse.setCheckable(True)
         unit = QtWidgets.QComboBox()
         unit.addItems(units.get(grepunit(name),units['REST']))
         unit.setCurrentIndex(unt)
         initBut = QtWidgets.QToolButton()
         initBut.setCheckable(True)
+        self.fixedButtonSize(initBut,24,24)
         markBut = QtWidgets.QPushButton()
         markBut.setCheckable(True)
         if name == 'TEMPK' or name == 'PRESSURE' :
@@ -4024,6 +4026,14 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         # update title
         self.plotResultTitle.setText(self.plotTitle+un+csat)
 
+    def fixedButtonSize(self,button,wi,he):
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(button.sizePolicy().hasHeightForWidth())
+        button.setSizePolicy(sizePolicy)
+        button.setMinimumSize(QtCore.QSize(wi, he))
+        button.setMaximumSize(QtCore.QSize(wi*2, he*2))
 
 
     ## Popup message function -icon sets the icon:----------------------------------------------------------------------
