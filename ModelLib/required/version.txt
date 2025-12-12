@@ -1,14 +1,17 @@
 ## 1.4.0
-#### New features:
-- Updated, more compact GUI. Tab "chemistry" has been removed, photochemistry was moved in time dependent
+#### Changes and New features:
+- Updated, more compact GUI (but still scalable), suitable for smaller screens. Tab "chemistry" has been removed, photochemistry was moved in time dependent
   input in a separate tab. The reason for this is that photochemistry is often not changed and does not
   need fast access. Miscellanious options are moved to Run ARCA -> Miscellanious options.
 - Changing chemistry scheme is now under Time dependent input, since the list of input is completely defined by
   the current chemistry.
-- option to include pre- and post-processing commands that are executed before and after the FORTRAN model.
+- Option to include pre- and post-processing commands that are executed before and after the FORTRAN model.
   These are also saved in setting files. Find them in Run ARCA -> Miscellanious options.
 - The model is now more flexible regarding the input variables. The NAMES.dat is now by default
   chemistry-specific, and is switched in the GUI when changing chemistries.
+- Some inorganic compounds such as SO2, H2, NOx etc. were always available as input, now any chemical component
+  (or pseudo-component, such as RO2 sum) must be defined in the chemistry. These have to have at least one reaction, which
+  can be a "non-reaction", e.g. "NH3 = dummy : 0d0 ;"
 - The variables in the FORTRAN model are not anymore assigned according to their order (or index) in the NAMES-file, but solely based on
   their actual names. This means that old INITFILES are not compatible with the new version, but the GUI converts the
   old type to new type automatically. Outside the GUI, user can use the same tool to convert the INITFILE by giving the
@@ -28,11 +31,6 @@
 * Plotting tool in "View output -> Line Plots" can now compare up to 6 different variables within one opened file
   (only when a single file is loaded).
 * Plotting tool showing aerosol initialization also calculates CS.
-
-#### Changes
-- Some inorganic compounds such as SO2, H2, NOx etc. were always available as input, now any chemical component
-  (or pseudo-component, such as RO2 sum) must be defined in the chemistry. These have to have at least one reaction, which
-  can be a "non-reaction", e.g. "NH3 = dummy : 0d0 ;"
 - Some options previously in the more under-the-counter type have been made more visible, particularly the option to initialize
   any chemical concentration only on startup. individual components can be set as C(0) in the Time dependent input.
   The whole chemistry, separately for emissions and concentrations, can be let to "float" - i.e. that the input values are
