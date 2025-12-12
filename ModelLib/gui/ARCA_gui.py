@@ -131,7 +131,7 @@ if '-NS' in args: print('Overriding scaling from cmdline')
 
 ## Some constants --------------------------------------------
 # widths of the columns in "Input variables" tab
-column_widths = [180,60,70,70,20,20,70,30,1]
+column_widths = [180,60,70,70,26,26,70,30,1]
 
 # available units for variables, used to fill the tables and graphs with appropriate units
 units = {
@@ -2360,15 +2360,15 @@ a chemistry module in tab "Chemistry"''', icon=2)
         item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
         # pmInUse = QtWidgets.QComboBox()
         # pmInUse.addItems(['No','Yes'])
-        pmInUse = QtWidgets.QPushButton()
-        self.fixedButtonSize(pmInUse,24,24)
+        pmInUse = QtWidgets.QToolButton()
+        self.fixedButtonSize(pmInUse,29,29)
         pmInUse.setCheckable(True)
         unit = QtWidgets.QComboBox()
         unit.addItems(units.get(grepunit(name),units['REST']))
         unit.setCurrentIndex(unt)
         initBut = QtWidgets.QToolButton()
         initBut.setCheckable(True)
-        self.fixedButtonSize(initBut,24,24)
+        self.fixedButtonSize(initBut,29,29)
         markBut = QtWidgets.QPushButton()
         markBut.setCheckable(True)
         if name == 'TEMPK' or name == 'PRESSURE' :
@@ -2396,7 +2396,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.selected_vars.setItem(row, i, tag)
             if tdinp.namesPyInds[name]<tdinp.divider_i:
                 initBut.setEnabled(False)
-                initBut.setStyleSheet("background-image: none; background-repeat: no-repeat;")
+                initBut.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey.png\'); background-repeat: no-repeat;")
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*env_no))
             elif tdinp.namesPyInds[name]>tdinp.divider_xtr_i:
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*xtr_no))
@@ -4034,6 +4034,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         button.setSizePolicy(sizePolicy)
         button.setMinimumSize(QtCore.QSize(wi, he))
         button.setMaximumSize(QtCore.QSize(wi*2, he*2))
+        button.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        button.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
 
 
     ## Popup message function -icon sets the icon:----------------------------------------------------------------------
