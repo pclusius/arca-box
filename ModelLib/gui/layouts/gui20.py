@@ -4543,8 +4543,6 @@ class Ui_MainWindow(object):
         self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionVariations)
         self.menuTools.addSeparator()
-        self.menuTools.addAction(self.actionSetDelay)
-        self.menuTools.addSeparator()
         self.menuTools.addAction(self.actionRecompile_model)
         self.menuTools.addAction(self.actionCleanAndRecompile)
         self.menuTools.addSeparator()

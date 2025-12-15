@@ -1001,7 +1001,7 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
         self.fileLoadOngoing = False
         self.prints = 1
         self.plots  = 0
-        self.wait_for = 0
+        # self.wait_for = 0
         self.show_extra_plots = ''
         self.saveButton.clicked.connect(lambda: self.save_file())
         self.saveCurrentButton.clicked.connect(lambda: self.save_file(file=self.currentInitFileToSave, mode='noteOnTer'))
@@ -1021,7 +1021,7 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionCreateNewChemistry.triggered.connect(self.createCC)
         self.actionVariations.triggered.connect(self.createVAR)
         self.actionRecompile_model.triggered.connect(self.remake)
-        self.actionSetDelay.triggered.connect(lambda: self.inputPopup("self.wait_for"))
+        # self.actionSetDelay.triggered.connect(lambda: self.inputPopup("self.wait_for"))
         self.actionAbout_ARCA.triggered.connect(self.createAb)
         self.saveDefaults.clicked.connect(lambda: self.save_file(file=defaults_file_path))
         self.actionSave_as_defaults.triggered.connect(lambda: self.save_file(file=defaults_file_path))
@@ -2970,13 +2970,13 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.MonitorWindow.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.pauseScroll.setChecked(False)
 
-        currentWait = self.wait_for
-        self.wait_for = 0
+        # currentWait = self.wait_for
+        # self.wait_for = 0
         if not exists(gui_path+'tmp'):
             mkdir(gui_path+'tmp')
         st = self.print_values(tempfile)
         if st != 0: return
-        self.wait_for = currentWait
+        # self.wait_for = currentWait
 
         self.preProcessing()
 
@@ -3160,7 +3160,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         # class _MISC:
         nml.MISC.LAT=self.lat.value()
         nml.MISC.LON=self.lon.value()
-        nml.MISC.WAIT_FOR=self.wait_for
+        # nml.MISC.WAIT_FOR=self.wait_for
         nml.MISC.DESCRIPTION=self.description.toPlainText().replace('\n','<br>')
         nml.MISC.CH_ALBEDO=self.ch_albedo.value()
         nml.MISC.GR_SIZES=self.GR_sizes.text()
@@ -3470,7 +3470,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'LOSSES_FILE_GAS' == key: self.losses_file_gas.setText(strng)# "
             elif 'LAT' == key and isFl: self.lat.setValue(float(strng))
             elif 'LON' == key and isFl: self.lon.setValue(float(strng))
-            elif 'WAIT_FOR' == key and isFl: self.wait_for = (int(float(strng)))
+            # elif 'WAIT_FOR' == key and isFl: self.wait_for = (int(float(strng)))
             elif 'DESCRIPTION' == key: self.description.setPlainText(strng.replace('<br>','\n'))# "Just some keying
             elif 'CH_ALBEDO' == key and isFl: self.ch_albedo.setValue(float(strng))#  0.20000000000000001     ,
             elif 'SWR_IN_LOWER' == key and isFl: self.swr_in_lower.setValue(int(float(strng)))#  0.20000000000000001     ,
