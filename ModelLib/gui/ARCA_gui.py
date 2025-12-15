@@ -483,10 +483,10 @@ class Variation(QtWidgets.QDialog):
         self.vary.Close.clicked.connect(self.reject)
         self.vary.runVariations.clicked.connect(self.vars)
         self.vary.Browse.clicked.connect(self.br)
+        self.vary.lineEdit.editingFinished.connect(self.brCont)
         self.vary.opsFromFile.clicked.connect(self.loadOps)
-        self.vary.table.setColumnWidth(0, 90)
-        for i in range(1,6):
-            self.vary.table.setColumnWidth(i, 70)
+        cw = [150,40]+[90]*5
+        [self.vary.table.setColumnWidth(i, cw[i]) for i in range( 7)]
         # self.vary.table.horizontalHeader().setStretchLastSection(True)
         self.vary.table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         self.vary.manualVar.clicked.connect(lambda: qt_box.helplink('variations'))
@@ -516,7 +516,6 @@ class Variation(QtWidgets.QDialog):
                                     else:
                                         print('Check the input, compound '+zz.upper()+' was not found.')
                                         return
-                            print(grouped)
                             ops[i,j] = grouped
                         elif self.vary.table.item(i,j).text().upper() in self.indices:
                             ops[i,j] = self.indices[self.vary.table.item(i,j).text().upper()]
@@ -527,7 +526,7 @@ class Variation(QtWidgets.QDialog):
                     ops[i,j] = float(self.vary.table.item(i,j).text())
         print(variations.zzzz(p, ossplit(p)[0], ops, dryrun=False, nopause=True,
                 replace_current=self.vary.replace_current.isChecked(),
-                postprocess=qt_box.postProcCmd.toPlainText()))
+                postprocess=qt_box.postProcCmd.toPlainText(),preprocess=qt_box.preProcCmd.toPlainText()))
 
     def loadOps(self):
         path = self.pickF(None)
@@ -558,15 +557,48 @@ class Variation(QtWidgets.QDialog):
         if path != '':
             target.clear()
             target.insert(path)
-            self.indices = variations.zzzz(path, ossplit(path)[0],variations.ops, dryrun=True)
+        self.brCont()
+
+    def brCont(self):
+        path = self.vary.lineEdit.text()
+        if exists(path):
+            self.indices, self.piInUse = variations.zzzz(path, ossplit(path)[0],variations.ops, dryrun=True)
             jjj = 0
+            os.system('clear')
             print('\nFollowing variables and their indices are picked from chosen bash file\'s')
             print('first run. Use the indices to define the variables that are to be varied:')
             for k in self.indices.keys():
-                if jjj%5==0: print('-'*35)
-                print('%-16s: %-3d' %(k, self.indices[k]))
+                if jjj%5==0: print('-'*46)
+                print('%-16s: %-3d  Parametric input: %s' %(k, self.indices[k], self.piInUse[k]))
                 jjj += 1
-            print('-'*35)
+            print('-'*46)
+            if any(self.piInUse.values()):
+                print()
+                print('NOTE: Variables that use parametric input will be varied differently from other variables:')
+                print('"Offset" defines the Minimum and "Scale" defines the distance between Maximum and Minimum.')
+                print('When "Replace current values" is checked Scale and Offset as used as follows:')
+                print('')
+                print('      Minimum = Offset, Maximum = Offset+Scale')
+                print('')
+                print('When "Replace current values" is unchecked, Scale and Offset are applied as follows:')
+                print()
+                print('      [Minimum|Maximum] = [Minimum|Maximum] * Scale + Offset')
+                print(r"""
+      ^
+      |
+      |  Maximum .........__
+      |                  /  \
+      |                 /    \
+      |                /      \
+    0 |.....................................>
+      |              /          \
+      |  Minimum ___/            \______
+      |
+  """)
+                print('Please refer to manual for examples, or better yet, experiment yourself!')
+                print()
+                qt_box.popup('Careful, parametric input in use', 'Variables that use parametric input will be varied differently from other variables. '+
+                    'Please see the terminal window for further information', 1)
 
     def addL(self, cols = ['1','1','1','1','0','0','0']):
         self.vary.table.insertRow(self.vary.table.rowCount())
@@ -726,21 +758,49 @@ class plotWin(QtWidgets.QDialog):
         self.pw = plotwin.Ui_Dialog()
         self.pw.setupUi(self)
         self.pw.buttonBox.clicked.connect(self.reject)
-    def setplot(self,name,x,y,unit,mtu,init=False):
+    def setplot(self,name,x,Y,unit,mtu,init,sc,off):
+        x0 = x[0]
+        x = x-x0
+        self.pw.plotSomething.addLegend()
         style = QtCore.Qt.DashLine if init else QtCore.Qt.SolidLine
-        pl = self.pw.plotSomething.plot(x,y,pen=pg.mkPen('k', width=3,style=style))
+        edited = True if sc != 1.0 or off != 0.0 else False
+        if Y is None:
+            Y = array([0.0]*2)
+            y = Y + off
+            edited = False
+        else:
+            y = Y*sc+off
+        legend = 'Modified Data' if edited else 'Data'
+        pl = self.pw.plotSomething.plot(x,y,pen=pg.mkPen('k', width=3,style=style),name=legend)
+        if edited:
+            pl2 = self.pw.plotSomething.plot(x,Y,pen=pg.mkPen('k', width=1,style=QtCore.Qt.DashLine),name='Original Data')
         if init:
             scatter = pg.ScatterPlotItem(pen=pg.mkPen(width=5, color='r'), symbol='o', size=5)
             self.pw.plotSomething.addItem(scatter)
             scatter.setData([{'pos': [x[0],y[0]]}])
-        self.pw.plotSomething.setLabel('bottom','time',units=mtu)
+        tunit = f'{mtu}s'.replace('ss','s')
+        self.pw.plotSomething.setLabel('bottom',f'time in {tunit} (+{x0:0.2f})')
         self.pw.plotSomething.setBackground('w')
         self.pw.plotSomething.getAxis('left').setStyle(autoExpandTextSpace=False)
         self.pw.plotSomething.getAxis('left').setWidth(w=60)
         self.pw.plotSomething.setYRange(min(0,y.min()*1.1), y.max()*1.1, padding=0)
         self.pw.label.setText(f'{name} ({unit})')
         self.pw.plotSomething.showGrid(x=True,y=True,alpha=0.2)
+        self.setPlotDataTable(x+x0,Y,y)
         return
+
+    def setPlotDataTable(self,x,Y,y):
+        self.pw.dataTable.setColumnWidth(0, 300)
+        for row,xx,yo,ym in zip(range(len(x)),x,Y,y):
+            self.pw.dataTable.insertRow(row)
+            tr = QtWidgets.QTableWidgetItem(str(xx))
+            dr = QtWidgets.QTableWidgetItem(str(ym))
+            dm = QtWidgets.QTableWidgetItem(str(yo))
+            self.pw.dataTable.setItem(row, 0, tr)
+            self.pw.dataTable.setItem(row, 1, dr)
+            self.pw.dataTable.setItem(row, 2, dm)
+        return
+
 
 class NcPlot:
     """Class for plot file contents"""
@@ -915,14 +975,15 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
             self.saveDefaults.setStyleSheet("background-image: url(\'ModelLib/gui/icons/dark/defaults.png\'); background-repeat: no-repeat;")
             self.recompile.setStyleSheet("background-image: url(\'ModelLib/gui/icons/dark/recompile.png\'); background-repeat: no-repeat;")
 
-        self.customboolflags  = [1,0,0,1,0,0,0,-1,-1,-1]
+        self.customboolflags  = [1,0,0,1,0,0,0,-1,-1,-1,1]
         self.oldCustomOptions = ['VBS_CSAT','LIMIT_VAPOURS','VP_MULTI','NO2_IS_NOX','NPF_DIST',
                                         'FLOAT_CONC_AFTER_HRS','FLOAT_EMIS_AFTER_HRS','INIT_ONLY',
-                                        'NETCDF_OUT', 'BINARY_FILE']
+                                        'NETCDF_OUT', 'BINARY_FILE','KELVIN_TAYLOR']
         self.VBS_CSAT_default = False
         self.LIMIT_VAPOURS_default = '' # 999999 in the Fortran model
         self.VP_MULTI_default = '' # 1.0 in the Fortran model
         self.NO2_IS_NOX_default = False
+        self.KELVIN_TAYLOR_default = False
         self.NPF_DIST_default = '' # 1.15 in the Fortran model
         self.FLOAT_CONC_AFTER_HRS_default = '' # 1d100 in the Fortran model
         self.FLOAT_EMIS_AFTER_HRS_default = '' # 1d100 in the Fortran model
@@ -982,7 +1043,8 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
 
         self.update_input_variables()
-
+        self.defUnit.setCurrentIndex( int(get_config("options", "inputUnit",  fallback='1' )) )
+        self.defUnit.currentIndexChanged.connect(lambda: set_config("options", "inputUnit", str(self.defUnit.currentIndex())))
         self.runtime.valueChanged.connect(lambda: self.updteGraph())
         self.runTimeUnit.currentIndexChanged.connect(lambda: self.updteGraph())
 
@@ -991,8 +1053,11 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
             self.selected_vars.setColumnWidth(i, column_widths[i])
 
         # add minimum requirements
+        self.selected_vars.itemChanged.connect(self.highlightModifications)
         self.add_new_line('TEMPK', 0)
         self.add_new_line('PRESSURE', 1)
+        vars.mods['TEMPK'].index = 0
+        vars.mods['TEMPK'].index = 1
         self.dateEdit.dateChanged.connect(lambda: self.indexRadioDate.setChecked(True))
         self.indexRadioDate.toggled.connect(lambda: self.lat.setEnabled(True))
         self.indexRadioIndex.toggled.connect(lambda: self.lat.setEnabled(False))
@@ -1002,7 +1067,6 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
         self.indexRadioIndex.toggled.connect(lambda: self.label_9.setEnabled(False))
         self.indexRadioDate.toggled.connect(lambda: self.label_25.setEnabled(True))
         self.indexRadioIndex.toggled.connect(lambda: self.label_25.setEnabled(False))
-
         self.indexEdit.valueChanged.connect(lambda: self.indexRadioIndex.setChecked(True))
         self.browseCommonIn.clicked.connect(lambda: self.browse_path(self.inout_dir, 'dir'))
         self.browseEnv.clicked.connect(lambda: self.browse_path(self.env_file, 'file'))
@@ -1647,10 +1711,10 @@ the numerical model or chemistry scheme differs from the current, results may va
         if response != 0:
             exec("%s = %d" %(v,self.inwin.inp.input.value()))
 
-    def plotInput(self):
-        col = self.selected_vars.currentItem().column()
-        row = self.selected_vars.currentItem().row()
-        if col>0:
+    def plotInput(self,itm):
+        col = itm.column()
+        row = itm.row()
+        if col!=0 and col != 6:
             return
         else:
             PI = self.selected_vars.cellWidget(row,4).isChecked()
@@ -1659,12 +1723,26 @@ the numerical model or chemistry scheme differs from the current, results may va
             self.updateMods(row)
             plotthis = vars.mods[name]
             comments = ''
+            f1 = 1
+            d1 = 0
+            if 'str' in str(type(plotthis.col)):
+                for masterrow in range(len(vars.mods)):
+                    if plotthis.col.strip() == self.selected_vars.item(masterrow,0).text().strip(): break
+                self.updateMods(masterrow)
+                plotcolumn = vars.mods[plotthis.col].col
+                unit = vars.mods[plotthis.col].unit
+                f1 = vars.mods[plotthis.col].multi
+                d1 = vars.mods[plotthis.col].shift
+            else:
+                masterrow = row
+                plotcolumn = plotthis.col
+                unit = plotthis.unit
             if PI:
                 self.tabWidget_3.setCurrentIndex(1)
                 self.names_sel_2.item(row).setSelected(True)
                 self.loadParamValues()
                 return
-            elif plotthis.col>0:
+            elif plotcolumn>0:
                 if tdinp.namesPyInds[name]<tdinp.divider_i:
                     filen = self.env_file.text()
                     mtu = self.fileTimeUnit_a.currentText()
@@ -1676,20 +1754,20 @@ the numerical model or chemistry scheme differs from the current, results may va
                     for line in file:
                         if line[0] == '#':
                             fullrow = re.split(r'[\s,]+', line.replace('#','').strip())
-                            comments += fullrow[plotthis.col-1]+' '
+                            comments += fullrow[plotcolumn-1]+' '
                             continue
                         fullrow = re.split(r'[\s,]+', line.strip())
                         x.append(float(fullrow[0]))
-                        y.append(float(fullrow[plotthis.col-1]))
-                x = array(x) - x[0]
-                y = array(y)*plotthis.multi + plotthis.shift
+                        y.append(float(fullrow[plotcolumn-1]))
+                x = array(x) #- x[0]
+                y = array(y)
                 comments = f' ("{comments}" in "{ossplit(filen)[1]}")'
             else:
                 x = array([0,self.runtime.value()])
-                y = array([plotthis.shift]*2)
+                y = None
                 mtu = self.runTimeUnit.currentText()
             self.plwin = plotWin()
-            self.plwin.setplot(name+comments,x,y,plotthis.unit,mtu,init)
+            self.plwin.setplot(name+comments,x,y,unit,mtu,init,f1*plotthis.multi,d1*plotthis.multi + plotthis.shift)
             response = self.plwin.exec()
         return
 
@@ -1959,10 +2037,11 @@ the numerical model or chemistry scheme differs from the current, results may va
             self.confirm.show()
             QtCore.QTimer.singleShot(2000, lambda : self.confirm.hide())
             self.updteGraph(label=target, first=True)
-            for i in range(self.selected_vars.rowCount()):
-                if self.selected_vars.item(i,0).text() == target:
-                    self.selected_vars.cellWidget(i, 4).setChecked(1)
-                    break
+            self.selected_vars.cellWidget(vars.mods[target].index, 4).setChecked(1)
+            # for i in range(self.selected_vars.rowCount()):
+            #     if self.selected_vars.item(i,0).text() == target:
+            #         self.selected_vars.cellWidget(i, 4).setChecked(1)
+            #         break
 
 
     def loadParamValues(self):
@@ -2079,7 +2158,7 @@ the numerical model or chemistry scheme differs from the current, results may va
                 path = dialog.selectedFiles()[0]
             else: path=''
         if path != '':
-            if re.search('[ !#%&$¤4]', path):
+            if re.search('[ !#%&$¤?]', path):
                 self.popup("Don't use spaces in pathnames", "Please, don't use special characters or spaces in parthnames like files and directories",3)
                 return
             if osrelpath(path, currentdir)[0] != '.':
@@ -2167,6 +2246,7 @@ the numerical model or chemistry scheme differs from the current, results may va
         self.names_sel_2.clear()
         for i in range(self.selected_vars.rowCount()):
             self.names_sel_2.addItem(self.selected_vars.item(i,0).text())
+            vars.mods[self.selected_vars.item(i,0).text()].index = i
 
 
     def get_available_chemistry(self, checkonly=False):
@@ -2312,18 +2392,19 @@ a chemistry module in tab "Chemistry"''', icon=2)
         pass
 
     def moveToInit(self,n,read=False):
-        for i in range(self.selected_vars.rowCount()):
-            if self.selected_vars.item(i,0).text() == n:
-                if read:
-                    self.selected_vars.cellWidget(i,5).setChecked(True)
-                    self.selected_vars.cellWidget(i,5).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
-                    return
-                # print(self.selected_vars.cellWidget(i,4))
-                if self.selected_vars.cellWidget(i,5).isChecked():
-                    self.selected_vars.cellWidget(i,5).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
-                else:
-                    self.selected_vars.cellWidget(i,5).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey.png\'); background-repeat: no-repeat;")
-                return
+        # for i in range(self.selected_vars.rowCount()):
+        #     if self.selected_vars.item(i,0).text() == n:
+        i = vars.mods[n].index
+        if read:
+            self.selected_vars.cellWidget(i,5).setChecked(True)
+            self.selected_vars.cellWidget(i,5).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
+            return
+        # print(self.selected_vars.cellWidget(i,4))
+        if self.selected_vars.cellWidget(i,5).isChecked():
+            self.selected_vars.cellWidget(i,5).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_sel.png\'); background-repeat: no-repeat;")
+        else:
+            self.selected_vars.cellWidget(i,5).setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey.png\'); background-repeat: no-repeat;")
+        return
 
     def highlightModifications(self, i):
         """For Multiply and Shift (in input variables tab), set font to bold if default values are changed"""
@@ -2346,9 +2427,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 xx=self.selected_vars.item(row,1).text()
                 vars.mods[self.selected_vars.item(row,0).text()].tied = xx
                 self.selected_vars.item(row,c).setFont(bold)
+            self.updateMods(row)
 
     def add_new_line(self, name, unit_ind, cols=[],createNew=True, unt=0):
         """adds items to variable table"""
+        self.selected_vars.itemChanged.disconnect(self.highlightModifications)
+
         if createNew:
             vars.mods[name] = Comp()
             vars.mods[name].Find = tdinp.namesFoInds[name]
@@ -2356,10 +2440,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
         # self.selected_vars.setSortingEnabled(False);
         row = self.selected_vars.rowCount()
         self.selected_vars.insertRow(row)
+        cols = [name, '-1','1.0', '0.0',0,0] if cols==[] else cols
+        [self.selected_vars.setItem(row, i, QtWidgets.QTableWidgetItem(cols[i])) for i in range(4)]
+        vars.mods[name].index = row
         item = self.namesdat.item(tdinp.namesPyInds[name])
         item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEnabled & ~QtCore.Qt.ItemIsSelectable)
-        # pmInUse = QtWidgets.QComboBox()
-        # pmInUse.addItems(['No','Yes'])
         pmInUse = QtWidgets.QToolButton()
         self.fixedButtonSize(pmInUse,29,29)
         pmInUse.setCheckable(True)
@@ -2379,8 +2464,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             markBut.setToolTip("Mark variable for removal")
 
         markBut.setText('mark')
-        if cols==[]:
-            cols = [name, '-1','1.0', '0.0',0,0]
+
         self.selected_vars.horizontalHeader().setStretchLastSection(True)
         self.selected_vars.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         if cols[5] == 1:
@@ -2389,6 +2473,11 @@ a chemistry module in tab "Chemistry"''', icon=2)
         else:
             initBut.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey.png\'); background-repeat: no-repeat;")
         initBut.toggled.connect(lambda: self.moveToInit(name))
+        self.selected_vars.setCellWidget(row, 5, initBut )
+        self.selected_vars.setCellWidget(row, 6, unit )
+        self.selected_vars.setCellWidget(row, 7, markBut )
+        self.selected_vars.setCellWidget(row, 4, pmInUse )
+        self.selected_vars.itemChanged.connect(self.highlightModifications)
 
         for i in range(4):
             tag = QtWidgets.QTableWidgetItem(cols[i])
@@ -2396,7 +2485,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             self.selected_vars.setItem(row, i, tag)
             if tdinp.namesPyInds[name]<tdinp.divider_i:
                 initBut.setEnabled(False)
-                initBut.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey.png\'); background-repeat: no-repeat;")
+                initBut.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/Init_t0_grey_lock.png\'); background-repeat: no-repeat;")
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*env_no))
             elif tdinp.namesPyInds[name]>tdinp.divider_xtr_i:
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*xtr_no))
@@ -2405,19 +2494,18 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.selected_vars.item(row, i).setBackground(QtGui.QColor(*org_no))
         if name == 'PRESSURE' :
             self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem('1e3'))
-        self.selected_vars.setCellWidget(row, 4, pmInUse )
+        # self.selected_vars.setCellWidget(row, 4, pmInUse )
         pmInUse.toggled.connect(lambda: self.toggleColorPre(name))
         if cols[4] == 1:
             pmInUse.setChecked(cols[4])
             pmInUse.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/PI_inuse.png\'); background-repeat: no-repeat;")
         else:
             pmInUse.setStyleSheet("background-image: url(\'ModelLib/gui/icons/light/PI_grey.png\'); background-repeat: no-repeat;")
-        self.selected_vars.setCellWidget(row, i+2, initBut )
-        self.selected_vars.itemChanged.connect(self.highlightModifications)
         # pmInUse.setCurrentIndex(cols[5])
-        self.selected_vars.setCellWidget(row, i+3, unit )
-        self.selected_vars.setCellWidget(row, i+4, markBut )
-        self.selected_vars.setItem(row, i+5, QtWidgets.QTableWidgetItem('%04d'%(tdinp.namesFoInds[name])))
+        # self.selected_vars.setCellWidget(row, 5, initBut )
+        # self.selected_vars.setCellWidget(row, 6, unit )
+        # self.selected_vars.setCellWidget(row, 7, markBut )
+        self.selected_vars.setItem(row, 8, QtWidgets.QTableWidgetItem('%04d'%(tdinp.namesFoInds[name])))
         self.selected_vars.sortItems(8, QtCore.Qt.AscendingOrder)
         # self.selected_vars.setSortingEnabled(False)
         self.updateOtherTabs()
@@ -2430,9 +2518,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
             c = (xtr_yes,xtr_no)
         else:
             c = (org_yes,org_no)
-        for i in range(self.selected_vars.rowCount()):
-            if self.selected_vars.item(i,0).text() == n: break
-        self.toggleColor(i,c)
+        # print(n, vars.mods[n].index)
+        # for i in range(self.selected_vars.rowCount()):
+        #     if self.selected_vars.item(i,0).text() == n: break
+        self.toggleColor(vars.mods[n].index,c)
 
 
     def toggleColor(self,r,c):
@@ -2544,9 +2633,9 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
     def select_compounds(self):
         compounds = self.namesdat.selectedItems()
+        du = self.defUnit.currentIndex()
         for c in compounds:
-            self.add_new_line(c.text(), 2)
-
+            self.add_new_line(c.text(), 2, unt=du if tdinp.namesPyInds[c.text()]>tdinp.divider_i else 0)
 
     def select_compounds_for_plot(self):
         if self.plotTo.isChecked() == True:
@@ -2859,17 +2948,20 @@ a chemistry module in tab "Chemistry"''', icon=2)
         if self.frameStop.isEnabled():
             self.stopBox()
         self.tabWidget.setCurrentIndex(5)
+        self.tabWidget_4.setCurrentIndex(0)
         self.startBox()
 
     def QuitShortcut(self):
         if self.frameStop.isEnabled():
             self.stopBox()
         self.tabWidget.setCurrentIndex(5)
+        self.tabWidget_4.setCurrentIndex(0)
 
     def QuitGracefullyShortcut(self):
         if self.frameStop.isEnabled():
             self.softStop()
         self.tabWidget.setCurrentIndex(5)
+        self.tabWidget_4.setCurrentIndex(0)
 
     def startBox(self):
         self.closenetcdf()
@@ -2931,13 +3023,16 @@ a chemistry module in tab "Chemistry"''', icon=2)
         else:
             return 0
 
-    def updateMods(self,i):
+    def updateMods(self,i,makeNML=False):
         name = self.selected_vars.item(i,0).text()
         init = self.selected_vars.cellWidget(i,5).isChecked()
-        if init: nml.CUSTOM.CUSTOMS.append(name)
+        if init and makeNML:
+            nml.CUSTOM.CUSTOMS.append(name)
         if vars.mods[name].tied != '':
             vars.mods[name].col = (self.selected_vars.item(i,1).text())
+            self.selected_vars.cellWidget(i,6).setEnabled(False)
         else:
+            self.selected_vars.cellWidget(i,6).setEnabled(True)
             vars.mods[name].col = int(self.selected_vars.item(i,1).text())
         vars.mods[name].multi = float(self.selected_vars.item(i,2).text())
         vars.mods[name].shift = float(self.selected_vars.item(i,3).text())
@@ -3083,7 +3178,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.CUSTOM.CUSTOMS = []
 
         for i in range(self.selected_vars.rowCount()):
-            self.updateMods(i)
+            self.updateMods(i,makeNML=True)
 
         nml.RAW.RAW = self.rawEdit.toPlainText()
         nml.RAW.RAW_PRE = self.preProcCmd.toPlainText()
@@ -3141,6 +3236,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         self.LIMIT_VAPOURS.setText('')
         self.VP_MULTI.setText('')
         self.NO2_IS_NOX.setChecked(self.NO2_IS_NOX_default)
+        self.KELVIN_TAYLOR.setChecked(self.KELVIN_TAYLOR_default)
         self.NPF_DIST.setText('')
         self.FLOAT_CONC_AFTER_HRS.setText('')
         self.FLOAT_EMIS_AFTER_HRS.setText('')
@@ -3425,6 +3521,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                     elif key=='LIMIT_VAPOURS': self.LIMIT_VAPOURS.setText(strng)
                     elif key=='VP_MULTI': self.VP_MULTI.setText(strng)
                     elif key=='NO2_IS_NOX': self.NO2_IS_NOX.setChecked(strng)
+                    elif key=='KELVIN_TAYLOR': self.KELVIN_TAYLOR.setChecked(strng)
                     elif key=='NPF_DIST': self.NPF_DIST.setText(strng)
                     elif key=='FLOAT_CONC_AFTER_HRS': self.FLOAT_CONC_AFTER_HRS.setText(strng)
                     elif key=='FLOAT_EMIS_AFTER_HRS': self.FLOAT_EMIS_AFTER_HRS.setText(strng)
@@ -3635,7 +3732,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 self.plotResultWindow_2.setLabel('bottom', 'Time', units='h')
                 self.plotResultWindow_2.setLabel('left', 'Mass', units='g')
                 self.plotResultWindow_3.setLabel('bottom', 'Diameter', units='m')
-                self.plotResultWindow_3.setLabel('left', '# normalized')
+                self.plotResultWindow_3.setLabel('left', r'Δlog<sub>10</sub>(D<sub>P</sub>)')
                 self.times.addItems(['%7.2f'%(i) for i in self.mp_time])
                 self.times.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
                 self.times.item(0).setSelected(True)

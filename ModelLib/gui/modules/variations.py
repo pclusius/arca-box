@@ -55,12 +55,13 @@ ops = np.array([
 # ----------- USER OPTIONS END HERE -----------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-def readfile(init,multi,shift,mod,dir=None,replace_current=False):
+def readfile(init,multi,shift,mod,dir=None,replace_current=False,verbose=True):
     with open(init) as f:
         modified_file = []
         found = False
         rundirs = ''
         indices = {}
+        PiInUse = {}
         group=False
         if 'list' in str(type(mod)):
             n = [r'MODS\(0*%d\)'%m for m in mod]
@@ -77,26 +78,44 @@ def readfile(init,multi,shift,mod,dir=None,replace_current=False):
                     if dir != None: vars[2] = "'"+dir+"'"
                 if re.findall(r'MODS\((\d+)\)', vars[0]):
                     iii = (int(re.findall(r'MODS\((\d+)\)', vars[0])[0]))
-                    indices[vars[-1]] = iii
+                    indices[vars[-1].replace("'", "").replace('"', '')] = iii
+                    PiInUse[vars[-1].replace("'", "").replace('"', '')] = True if int(vars[2])>0 else False
                 if any (re.findall(nn,vars[0]) for nn in n):
                     # bp()
                     found = True
-                    if replace_current:
-                        vars[4] = ('%12.8e'%( multi )).replace('e','d')
-                        vars[5] = ('%12.8e'%( shift )).replace('e','d')
-                    else:
-                        vars[4] = ('%12.8e'%(multi*float(vars[4].replace('d','e')))).replace('e','d')
-                        vars[5] = ('%12.8e'%(shift+float(vars[5].replace('d','e')))).replace('e','d')
+                    if int(vars[2]) > 0:
+                        piMin = float(vars[6].replace('d','e'))
+                        piMax = float(vars[7].replace('d','e'))
+                        if replace_current:
+                            piMin = shift
+                            piMax = shift + multi
+                        #     # vars[6] is min, vars[7] is max, both need to be modified!
+                        #     piMin, piMax = multi + shift, multi + shift
+                        else:
+                            piMin, piMax = piMin*multi+shift, piMax*multi+shift
 
-                    print('Found %s from file '%vars[0]+init)
+                        vars[6] = ('%12.8e'%( piMin )).replace('e','d')
+                        vars[7] = ('%12.8e'%( piMax )).replace('e','d')
+                        #
+                        #     vars[4] = ('%12.8e'%(multi*float(vars[4].replace('d','e')))).replace('e','d')
+                        #     vars[5] = ('%12.8e'%(shift+float(vars[5].replace('d','e')))).replace('e','d')
+                    else:
+                        if replace_current:
+                            vars[4] = ('%12.8e'%( multi )).replace('e','d')
+                            vars[5] = ('%12.8e'%( shift )).replace('e','d')
+                        else:
+                            vars[4] = ('%12.8e'%(multi*float(vars[4].replace('d','e')))).replace('e','d')
+                            vars[5] = ('%12.8e'%(shift+float(vars[5].replace('d','e')))).replace('e','d')
+                    if verbose:
+                        print('Found %s from file '%vars[0]+init)
                 if vars[0][0] != '&' and vars[0][0] != '#' and vars[0][0] != '/':
                     vars[0] = ' '+vars[0]
             modified_file.append(' '.join(vars)+'\n')
 
-    return modified_file, rundirs, found, indices
+    return modified_file, rundirs, found, indices,PiInUse
 
 
-def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False, postprocess=''):
+def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False, postprocess='', preprocess=''):
     if batch == None:
         return 'No input'
     if not os.path.exists(batch):
@@ -113,6 +132,8 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False
                 if 'arcabox.exe' in vars[0]:
                     initfile.append (os.path.join(batchdir,cd,vars[1]))
                     batchfile.append (vars)
+                elif "preProcessing" in vars[-1]:
+                    pass
                 elif "postProcessing" in vars[-1]:
                     pass
                 else:
@@ -151,8 +172,11 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False
                 print('\nNow working with ',init,'\n')
 
                 # Here the "old" bash file row is appended to the new bash file text
-                newfiles.append(' '.join(batchfile[i_init]))
                 workdir = os.path.split(batchfile[i_init][-1])[0]
+                for cmd in preprocess.split('\n'):
+                    if cmd != '':
+                        newfiles.append(cmd.replace('<outputdir>', workdir ))
+                newfiles.append(' '.join(batchfile[i_init]))
                 for cmd in postprocess.split('\n'):
                     if cmd != '':
                         newfiles.append(cmd.replace('<outputdir>', workdir ))
@@ -179,6 +203,11 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False
                         +' '+ batchfile[i_init][2] # the tee command
                         +' '+ os.path.join(os.path.split(os.path.split(batchfile[i_init][3])[0])[0],workdir,'runReport.txt')  # the runReport path
                         )
+
+                    for cmd in preprocess.split('\n'):
+                        if cmd != '':
+                            to_bashfile = cmd.replace('<outputdir>', os.path.join(os.path.split(os.path.split(batchfile[i_init][3])[0])[0],workdir) ) \
+                            + '\n' + to_bashfile
                     for cmd in postprocess.split('\n'):
                         if cmd != '':
                             to_bashfile += '\n'+cmd.replace('<outputdir>', os.path.join(os.path.split(os.path.split(batchfile[i_init][3])[0])[0],workdir) )
@@ -192,7 +221,7 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False
 
                     # Now the silly part, open and write the files N times. Inefficient but won't be the bottleneck in your work...
                     for dd in range(dim):
-                        a,_,_,_ = readfile(newfile, mout[fn,dd],sout[fn,dd],ops[dd,0],workdir,replace_current)
+                        a,_,_,_,_ = readfile(newfile, mout[fn,dd],sout[fn,dd],ops[dd,0],workdir,replace_current)
                         fff = open(newfile,'w')
                         fff.write(''.join(a))
                         fff.close()
@@ -200,9 +229,9 @@ def zzzz(batch, batchdir, ops, dryrun=False, nopause=False,replace_current=False
             else:
                 for i_c,mod in enumerate(ops[:,0]):
                     # bp()
-                    modified_file, rd, found, indices = readfile(init,1.0,0.0,mod,replace_current=replace_current)
+                    modified_file, rd, found, indices,PiInUse = readfile(init,1.0,0.0,mod,replace_current=replace_current,verbose=False)
                     if dryrun:
-                        return indices
+                        return indices,PiInUse
                     rundirs.append(rd)
                     if not found:
                         return 'index %d was not found from file '%mod+init
