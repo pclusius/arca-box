@@ -165,3 +165,6 @@ clean_current_chemistry:
 	-@cd $(OD)/$(CHMDIR) ; rm *.mod *.o    2>/dev/null || true
 	-@cd $(OD) ; rm arcabox.o    					 2>/dev/null || true
 	-@rm arcabox.exe                					 2>/dev/null || true
+
+chem:
+        -@echo $(CHMDIR)

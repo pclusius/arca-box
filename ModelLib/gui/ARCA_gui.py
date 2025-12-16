@@ -227,11 +227,38 @@ currentdir_l = len(currentdir)
 chdir(currentdir)
 
 # Path to variable names -------------------------------------------
-try:
-    compiled_chemistry = Popen(f'./{exe_name}', stdout=PIPE).stdout.readline().decode("utf-8").strip().split()[0]
-except:
+class Chem():
+    def __init__(self):
+        self.inMake = ''
+        self.inExe = ''
+        self.inMakePath = ''
+        self.inExePath = ''
+        self.isCompiled = False
+        self.getChem()
+    def getChem(self):
+        if exists(exe_name):
+            self.isCompiled = True
+            try:
+                x = Popen(f'./{exe_name}', stdout=PIPE)
+                self.inExe = x.stdout.readline().decode("utf-8").strip().split()[0]
+                x.poll()
+                self.inExePath = osjoin('src','chemistry',self.inExe)
+            except:
+                pass
+        else:
+            self.isCompiled = False
+            self.inExe = ''
+        x = Popen(['make','chem'], stdout=PIPE)
+        self.inMake = x.stdout.readline().decode("utf-8").strip()
+        x.poll()
+        self.inMakePath = osjoin('src','chemistry',self.inMake)
+
+
+if Chem().isCompiled:
+    compiled_chemistry = Chem().inExe
+else:
     print('Excutable not found, getting current chemistry from Makefile')
-    compiled_chemistry = Popen(['grep','-m','1','CHMDIR','makefile'], stdout=PIPE).stdout.readline().decode("utf-8").strip().split()[2]
+    compiled_chemistry = Chem().inMake
 
 if NAMES_override != '':
     path_to_names = NAMES_override
@@ -315,6 +342,7 @@ class batchW(QtWidgets.QDialog):
 
 tdinp = namevarholder(path_to_names,path_to_xtras)
 nml = vars.INITFILE(tdinp.NAMES)
+
 
 # The popup window for About ARCA
 class About(QtWidgets.QDialog):
@@ -1044,7 +1072,7 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
     # -----------------------
 
         self.update_input_variables()
-        self.defUnit.setCurrentIndex( int(get_config("options", "inputUnit",  fallback='1' )) )
+        self.defUnit.setCurrentIndex( int(get_config("options", "inputUnit",  fallback='2' )) )
         self.defUnit.currentIndexChanged.connect(lambda: set_config("options", "inputUnit", str(self.defUnit.currentIndex())))
         self.runtime.valueChanged.connect(lambda: self.updteGraph())
         self.runTimeUnit.currentIndexChanged.connect(lambda: self.updteGraph())
@@ -1431,7 +1459,6 @@ Please provide valid spectral function.') \
         elif unit == 'sec': return rt/3600.0
 
     def update_input_variables(self):
-        self.avaInpLabel.setText('Variables in: '+self.get_available_chemistry(checkonly=True))
         self.namesdat.clear()
         self.namesdat.addItems(tdinp.NAMES)
         for i in range(len(tdinp.NAMES)):
@@ -4299,6 +4326,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.currentAddressTb.deselect()
             if reload:
                 out = self.load_initfile(defaults_file_path)
+            self.avaInpLabel.setText('Variables in: '+self.get_available_chemistry(checkonly=True))
 
     def filterListOfComp(self):   # filter for output components
         text = self.findComp.text().upper()
