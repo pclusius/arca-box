@@ -242,7 +242,7 @@ class INITFILE:
             counter = 1
             exec("%s('&NML_MODS%s')"%(cmd, eol))
             exec("%s(' !                   <------ CONSTANT ------>  <------------------------------- PARAMETRIC INPUT (PI)------------------------->%s')"%(cmd, eol))
-            exec("%s(' !     PI/CONST LINK SCALE        OFFSET       MIN          MAX         SIGMA      MEAN        FREQ       PHASE      AMPL%s')"%(cmd, eol))
+            exec("%s(' !     PI/CONST LINK SCALE        OFFSET       MIN          MAX          SIGMA        MEAN         FREQ         PHASE        AMPL%s')"%(cmd, eol))
             if mods != None:
                 for v in self.names:
                     if v in mods:
@@ -260,11 +260,16 @@ class INITFILE:
                         minstr = minstr.replace('e', 'd', 1)
                         maxstr = '%12.5e'%(m.max)
                         maxstr = maxstr.replace('e', 'd', 1)
+                        sig    = f'{m.sig:12.5e}'.replace('e', 'd', 1)
+                        mju    = f'{m.mju:12.5e}'.replace('e', 'd', 1)
+                        fv     = f'{m.fv:12.5e}'.replace('e', 'd', 1)
+                        ph     = f'{m.ph:12.5e}'.replace('e', 'd', 1)
+                        am     = f'{m.am:12.5e}'.replace('e', 'd', 1)
                         mode = max(1,abs(m.mode)) if m.pmInUse == 1 else abs(m.mode) * -1
                         if 'str' in str(type(m.col)) :
                             m.col = -1
-                        strr = "MODS(%d)%s= %2d %3d %s %s %s %s %fd0 %0fd0 %fd0 %fd0 %fd0 %s%s%s %s%s%s %s%s%s"%(
-                        counter,' '*(4-len(str(counter))),mode,m.col, multistr,shiftstr,minstr, maxstr, m.sig,m.mju, m.fv,m.ph,m.am, "\\'", unit,"\\'", "\\'", m.tied,"\\'","\\'", m.name,"\\'")
+                        strr = "MODS(%d)%s= %2d %3d %s %s %s %s %s %s %s %s %s %s%s%s %s%s%s %s%s%s"%(
+                        counter,' '*(4-len(str(counter))),mode,m.col, multistr,shiftstr,minstr, maxstr, sig,mju,fv,ph,am, "\\'", unit,"\\'", "\\'", m.tied,"\\'","\\'", m.name,"\\'")
                         exec("%s(' %s%s')"%(cmd,strr,eol))
                         counter += 1
             exec("%s('/ \\n%s')"%(cmd, eol))

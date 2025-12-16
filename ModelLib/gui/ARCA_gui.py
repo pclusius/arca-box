@@ -28,7 +28,7 @@ from layouts import varWin,gui20,batchDialog1,batchDialog2,batchDialog3,vdialog,
 from modules import variations,vars,batch,GetVapourPressures as gvp
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
-from numpy import linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround
+from numpy import argmin,argmax,linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround
 from numpy import argsort
 import numpy.ma as ma
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname, remove as osremove, rename as osrename
@@ -186,6 +186,7 @@ default_run  = 'DEFAULTRUN'.upper()
 tempfile = gui_path+'tmp/GUI_INIT.tmp'
 # initial maximum for function creator tab sliders
 slMxs = (200,190,220,100,200)
+slMxs = [1000]*5
 # 10 colors for plots
 colors = [(120,0,0),(180,0,0),(220,0,0),(255,10,0),(255,85,0),
 (255,85,140),(255,85,255),(180,0,255),(110,0,255),(0,0,255)]
@@ -748,8 +749,8 @@ class Comp:
         self.unit   = '#/cm3'  # unit name
         self.Find   = 1
         self.pmInUse = 0
-        self.sliderVls = [39,84,0,0,20]
-        self.sl_x = [1,1,1,1,1]
+        self.sliderVls = [500,0,0,0,500]
+        self.sl_x = [-2,-1,-1,-1,-1]
 
 # The popup window for About ARCA
 class plotWin(QtWidgets.QDialog):
@@ -1125,6 +1126,8 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
     # tab Function creator
     # -----------------------
 
+        self.second = False
+        self.sliderind = {'fWidth':0,'fPeak':1,'fFreq':2,'fPhase':3,'fAmp':4}
         self.PLOT.setMenuEnabled(False)
         self.PLOT.setBackground('w')
         self.PLOT.setLabel('bottom','time',units='h')
@@ -1134,37 +1137,37 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
         self.plotTo.clicked.connect(self.select_compounds_for_plot)
         self.saveParams.clicked.connect(self.saveParamValues)
         self.loadParams.clicked.connect(self.loadParamValues)
+        self.scaleFs = [self.wScalei,self.peScale,self.anScale,self.phScale,self.amScale]
+        self.sliders = [self.fWidth,self.fPeak,self.fFreq,self.fPhase,self.fAmp]
+        for i,f in zip(range(5),[defCompound.sig,defCompound.mju,defCompound.fv,defCompound.ph,defCompound.am]):
+            self.setSlider(i, f)
+
+        self.resW.clicked.connect(lambda: self.setSlider(0, defCompound.sig))
+        self.resP.clicked.connect(lambda: self.setSlider(1,  defCompound.mju))
+        self.resA.clicked.connect(lambda: self.setSlider(2,  defCompound.fv))
+        self.resPh.clicked.connect(lambda: self.setSlider(3,defCompound.ph))
+        self.resAm.clicked.connect(lambda: self.setSlider(4,  defCompound.am))
+
+        self.wScalei.valueChanged.connect(self.updteGraph)
+        self.peScale.valueChanged.connect(self.updteGraph)
+        self.anScale.valueChanged.connect(self.updteGraph)
+        self.phScale.valueChanged.connect(self.updteGraph)
+        self.amScale.valueChanged.connect(self.updteGraph)
+        self.PLOT.showGrid(x=True,y=True,alpha=0.1)
+        self.PLOT.showButtons()
+        self.legend = self.PLOT.addLegend()
+        self.skene = self.legend.scene()
+        self.updteGraph(first=True)
+
         self.fMin.editingFinished.connect(lambda: self.updteGraph())
         self.fMax.editingFinished.connect(lambda: self.updteGraph())
         self.fLog.clicked.connect(lambda: self.updteGraph())
         self.fLin.clicked.connect(lambda: self.updteGraph())
         self.fWidth.valueChanged.connect(lambda: self.updteGraph())
-        self.scaleFs = [self.wScalei,self.peScale,self.anScale,self.phScale,self.amScale]
-        self.sliders = [self.fWidth,self.fPeak,self.fFreq,self.fPhase,self.fAmp]
-        for i in range(5):
-            self.resetSlider(self.sliders[i], defCompound.sliderVls[i])
-
-        self.wScalei.valueChanged.connect(lambda: self.fWidth.setMaximum(int(max(self.wScalei.value(), 0.5)*slMxs[0])))
-        self.peScale.valueChanged.connect(lambda: self.fPeak.setMaximum(int(max(self.peScale.value(), 0.5)*slMxs[1])))
-        self.anScale.valueChanged.connect(lambda: self.fFreq.setMaximum(int(max(self.anScale.value(), 0.5)*slMxs[2])))
-        self.phScale.valueChanged.connect(lambda: self.fPhase.setMaximum(int(max(self.phScale.value(), 0.5)*slMxs[3])))
-        self.amScale.valueChanged.connect(lambda: self.fAmp.setMaximum(int(max(self.amScale.value(), 0.5)*slMxs[4])))
-        self.resW.clicked.connect(lambda: self.resetSlider(self.fWidth, defCompound.sliderVls[0]))
-        self.resP.clicked.connect(lambda: self.resetSlider(self.fPeak,  defCompound.sliderVls[1]))
-        self.resA.clicked.connect(lambda: self.resetSlider(self.fFreq,  defCompound.sliderVls[2]))
-        self.resPh.clicked.connect(lambda: self.resetSlider(self.fPhase,defCompound.sliderVls[3]))
-        self.resAm.clicked.connect(lambda: self.resetSlider(self.fAmp,  defCompound.sliderVls[4]))
         self.fPeak.valueChanged.connect(lambda: self.updteGraph())
         self.fFreq.valueChanged.connect(lambda: self.updteGraph())
         self.fPhase.valueChanged.connect(lambda: self.updteGraph())
         self.fAmp.valueChanged.connect(lambda: self.updteGraph())
-        self.PLOT.showGrid(x=True,y=True,alpha=0.1)
-        self.PLOT.showButtons()
-        self.legend = self.PLOT.addLegend()
-        self.skene = self.legend.scene()
-        self.second = False
-        self.updteGraph(first=True)
-
     # -----------------------
     # tab Chemistry
     # -----------------------
@@ -1935,30 +1938,25 @@ the numerical model or chemistry scheme differs from the current, results may va
             return ''
 
 
-    def resetSlider(self, slider, pos):
-        slider.setProperty("value", pos)
+    # def resetSlider(self, slider, pos):
+    #     slider.setProperty("value", pos)
+
+    def setSlider(self, i_slider, f):
+        a,b = self.sliderVls(f, i_slider)
+        self.sliders[i_slider].setProperty("value",a)
+        self.scaleFs[i_slider].setValue(b)
 
 
-    def scales(self):
-        xf=1
-        rt = self.getRuntime()
-        scf = 24
-        wScale = scf/2/200.0*xf
-        pScale = scf*1.1905/200.0*xf
-        aScale = 0.02*xf
-        phScale = scf/0.4/200.0*xf
-        ampScale = 1/20.0*xf
-        return wScale,pScale,aScale,phScale,ampScale,rt
-
+    def getSliderValue(self, i_slider):
+        return 10**self.scaleFs[i_slider].value() * self.sliders[i_slider].value()
 
     def updteGraph(self, label='None', first=False):
-        wScale,pScale,aScale,phScale,ampScale,rt = self.scales()
 
-        x = linspace(0,rt,500)
+        x = linspace(0,self.getRuntime(),500)
         yscale = self.radio(self.fLin, self.fLog)
 
-        dummy.sig = self.fWidth.value()*wScale
-        if abs(dummy.sig)<0.001: dummy.sig = 0.001
+        dummy.sig = self.getSliderValue(self.sliderind['fWidth'])
+        if abs(dummy.sig)<0.0001: dummy.sig = 0.0001
         try:
             dummy.min = float(self.fMin.text())
         except:
@@ -1967,10 +1965,10 @@ the numerical model or chemistry scheme differs from the current, results may va
             dummy.max = float(self.fMax.text())
         except:
             dummy.max=0
-        dummy.mju = self.fPeak.value()*pScale
-        dummy.fv = self.fFreq.value()*aScale
-        dummy.ph = self.fPhase.value()*phScale
-        dummy.am = self.fAmp.value()*ampScale
+        dummy.mju = self.getSliderValue(self.sliderind['fPeak'])
+        dummy.fv = self.getSliderValue(self.sliderind['fFreq'])
+        dummy.ph = self.getSliderValue(self.sliderind['fPhase'])
+        dummy.am = self.getSliderValue(self.sliderind['fAmp'])
         dummy.sliderVls[0] = self.fWidth.value()
         dummy.sliderVls[1] = self.fPeak.value()
         dummy.sliderVls[2] = self.fFreq.value()
@@ -1988,7 +1986,7 @@ the numerical model or chemistry scheme differs from the current, results may va
         self.monPh.setValue(dummy.ph)
         self.monAm.setValue(dummy.am)
 
-        norm = self.gauss(dummy,yscale,rt)
+        norm = self.gauss(dummy,yscale,self.getRuntime())
         if float('.'.join(pg.__version__.split('.')[0:2]))<0.13:
             if (first or self.second) and self.legend in self.skene.items():
                 self.skene.removeItem(self.legend)
@@ -2007,7 +2005,7 @@ the numerical model or chemistry scheme differs from the current, results may va
             self.editableselfPI.setData(x,norm)
 
         if self.show_extra_plots != '':
-            y=self.gauss(vars.mods[self.show_extra_plots], yscale,rt)
+            y=self.gauss(vars.mods[self.show_extra_plots], yscale,self.getRuntime())
             if first or self.second:
                 self.editableselfPI2 = self.PLOT.plot(x,y,pen=pg.mkPen(color='k', width=3,style=QtCore.Qt.DotLine), name=self.show_extra_plots)
             else:
@@ -3039,6 +3037,13 @@ a chemistry module in tab "Chemistry"''', icon=2)
         vars.mods[name].pmInUse = 1 if self.selected_vars.cellWidget(i,4).isChecked() else 0
         vars.mods[name].unit = self.selected_vars.cellWidget(i,6).currentText()
 
+    def sliderVls(self,f,i):
+        m = array([0.0001,0.001,0.01,0.1,1,10])
+        i_potenssi = argmax(m*(defCompound.sliderVls[i]+500)>abs(2*f))
+        potenssi = int(log10(m[i_potenssi]))
+        slidervalue = int(f/m[i_potenssi])
+        return slidervalue,potenssi
+
     def update_nml(self):
         status = 0
         self.ACDC_current_links = self.get_ACDC_links()
@@ -3222,14 +3227,14 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
         return status
 
-    def resolveHelper(self):
-        text = self.fill_formation_with.currentText()
-        if text == 'Fixed ratio':
-            return ''
-        elif 'NH3' in text:
-            return 'NH3'
-        elif 'DMA' in text:
-            return 'DMA'
+    # def resolveHelper(self):
+    #     text = self.fill_formation_with.currentText()
+    #     if text == 'Fixed ratio':
+    #         return ''
+    #     elif 'NH3' in text:
+    #         return 'NH3'
+    #     elif 'DMA' in text:
+    #         return 'DMA'
 
     def setCustomDefaults(self):
         self.VBS_CSAT.setChecked(self.VBS_CSAT_default)
@@ -3262,6 +3267,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             print(updateINITFILE(file,CurrentVersion))
 
         INC_COMP = False
+        NAMESDAT = 'ModelLib/required/NAMES.dat' # only the default in case it was not in the initfile, for backwards compatibility
         timeunits = {'day':0,'hrs':1,'min':2,'sec':3}
         self.fileTimeUnit_a.setCurrentIndex( timeunits['day'] )
         self.fileTimeUnit_b.setCurrentIndex( timeunits['day'] )
@@ -3634,18 +3640,11 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 cols = [key,str(vars.mods[key].col),str(vars.mods[key].multi),str(vars.mods[key].shift),pmInUse,init]
                 self.add_new_line(key,2,cols=cols,createNew=False, unt=unitIndex)
 
-            wScale,pScale,aScale,phScale,ampScale,_ = self.scales()
-            vars.mods[key].sliderVls[0] = int(round(vars.mods[key].sig /wScale))
-            vars.mods[key].sliderVls[1] = int(round(vars.mods[key].mju /pScale))
-            vars.mods[key].sliderVls[2] = int(round(vars.mods[key].fv  /aScale))
-            vars.mods[key].sliderVls[3] = int(round(vars.mods[key].ph  /phScale))
-            vars.mods[key].sliderVls[4] = int(round(vars.mods[key].am  /ampScale))
-            for i in range(5):
-                trgt = vars.mods[key].sliderVls[i]
-                for j in range(0,11):
-                    if max(j, 0.5)*slMxs[i] > trgt:
-                        vars.mods[key].sl_x[i] = j
-                        break
+            vars.mods[key].sliderVls[0], vars.mods[key].sl_x[0] = self.sliderVls(vars.mods[key].sig, 0)
+            vars.mods[key].sliderVls[1], vars.mods[key].sl_x[1] = self.sliderVls(vars.mods[key].mju, 1)
+            vars.mods[key].sliderVls[2], vars.mods[key].sl_x[2] = self.sliderVls(vars.mods[key].fv, 2)
+            vars.mods[key].sliderVls[3], vars.mods[key].sl_x[3] = self.sliderVls(vars.mods[key].ph, 3)
+            vars.mods[key].sliderVls[4], vars.mods[key].sl_x[4] = self.sliderVls(vars.mods[key].am, 4)
 
         self.fileLoadOngoing = False
         if INC_COMP:
@@ -3935,7 +3934,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
 
     def selectionMode(self):
-        if self.sumSelection.isChecked(): # XXX
+        if self.sumSelection.isChecked():
             self.showOutputUpdate()
         else:
             self.showOutputUpdate()
