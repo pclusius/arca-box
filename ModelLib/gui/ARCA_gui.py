@@ -24,8 +24,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import pyqtgraph as pg
-from layouts import varWin,gui20,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor,plotwin
-from modules import variations,vars,batch,GetVapourPressures as gvp
+from layouts import varWin,gui20,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor,plotwin,reactivityWin
+from modules import variations,vars,batch,GetVapourPressures as gvp,proc_reactivity,Stoichio
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
 from numpy import argmin,argmax,linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround
@@ -252,7 +252,6 @@ class Chem():
         self.inMake = x.stdout.readline().decode("utf-8").strip()
         x.poll()
         self.inMakePath = osjoin('src','chemistry',self.inMake)
-
 
 if Chem().isCompiled:
     compiled_chemistry = Chem().inExe
@@ -521,8 +520,6 @@ class Variation(QtWidgets.QDialog):
         self.vary.manualVar.clicked.connect(lambda: qt_box.helplink('variations'))
         self.vary.mainFrame.setFont(qt_box.font)
 
-
-
     def vars(self):
         p=self.vary.lineEdit.text()
         if self.vary.table.rowCount() == 0: return
@@ -780,6 +777,186 @@ class Comp:
         self.sliderVls = [500,0,0,0,500]
         self.sl_x = [-2,-1,-1,-1,-1]
 
+class React(QtWidgets.QDialog):
+    def __init__(self,ncobj,parent = None):
+        super(React, self).__init__(parent)
+        self.pw = reactivityWin.Ui_Dialog()
+        self.pw.setupUi(self)
+        # self.pw.buttonClose.clicked.connect(self.reject)
+        self.setWindowTitle(self.windowTitle() + ' in: ' + ncobj.path)
+        self.pw.plotProd.setBackground('w')
+        self.pw.plotReact.setBackground('w')
+        self.pw.rTable.setColumnWidth(0, 40)
+        self.pw.rTable.setColumnWidth(1, 20)
+        case = ncobj.path.replace('Chemistry.nc','')
+        self.chem=osjoin(currentdir, Chem().inExePath)
+        self.case=osjoin(currentdir, case)
+        self.mainGuy=qt_box.availableVars.currentItem().text()
+        self.currentFilter = 'all'
+
+        # self.gasC = None
+        # self.allCInd = None
+        self.includeNull = qt_box.actionReactivity_includes_null_cycles.isChecked()
+        self.pw.pLabel.setText(f'{self.mainGuy} production (cm⁻³ s⁻¹)')
+        self.pw.rLabel.setText(f'{self.mainGuy} reactivity (s⁻¹)')
+        self.maxReact = self.pw.maxReact.value()
+
+        self.ncobj = ncobj
+        ncobj.getAllGases()
+        if not exists(f'{Chem().inExePath}/Sto.zip'):
+            proc_reactivity.process_reactions(Chem().inExePath)
+        self.Robj = Stoichio.getSto(
+            self.ncobj.nconc,self.ncobj.time,self.mainGuy,
+            self.includeNull,self.chem,self.case
+        )
+        self.reactions = self.Robj.s_reactions
+        if exists(f'{Chem().inExePath}/RATES.dat'):
+            self.rates = []
+            with open(f'{Chem().inExePath}/RATES.dat', 'r') as rfile:
+                for l in rfile:
+                    # print(l)
+                    if 'RCONST' in l: self.rates.append(l.split('=')[1].split('! *')[1].strip())
+        # print(rates)
+        # self.pw.rTable.setRowCount(len(self.reactions))
+        self.pw.pushButtonRefresh.clicked.connect(self.updatePlot)
+        self.pw.totalP.stateChanged.connect(self.updatePlot)
+        self.pw.totalR.stateChanged.connect(self.updatePlot)
+        self.pw.maxProd.valueChanged.connect(self.updatePlot)
+        self.pw.maxReact.valueChanged.connect(self.updatePlot)
+        self.pw.rTable.itemClicked.connect(self.updatePlot)
+        self.pw.reactionListSources.toggled.connect(self.filterReactionList)
+        self.pw.reactionListSinks.toggled.connect(self.filterReactionList)
+        self.pw.reactionListBoth.toggled.connect(self.filterReactionList)
+        self.pw.clearChecked.clicked.connect(self.clearCheckedReactions)
+        self.pw.sinkComp.textChanged.connect(self.toggleMaxframes)
+        self.fillTable()
+
+    def fillTable(self,sel=[]):
+        counter = 0
+        for i,r in enumerate(self.reactions):
+            enabledL = True if r in self.reactions[self.Robj.mySinks] else False
+            enabledR = True if r in self.reactions[self.Robj.mySources] else False
+            if self.currentFilter=='both' and (not enabledL and not enabledR):
+                continue
+            if self.currentFilter=='sources' and not enabledR:
+                continue
+            if self.currentFilter=='sinks' and not enabledL:
+                continue
+            self.pw.rTable.insertRow(counter)
+            itemI = QtWidgets.QTableWidgetItem()
+            itemI.setFlags(QtCore.Qt.ItemIsEnabled)
+            itemI.setText((str(i+1)))
+            itemI.setToolTip(self.rates[i])
+            item = QtWidgets.QTableWidgetItem()
+            if enabledR:
+                item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
+                if i in sel:
+                    item.setCheckState(QtCore.Qt.Checked)
+                else:
+                    item.setCheckState(QtCore.Qt.Unchecked)
+            else:
+                 item.setFlags(QtCore.Qt.NoItemFlags)
+            self.pw.rTable.setItem(counter, 1, item)
+            item = QtWidgets.QTableWidgetItem()
+            if enabledL or enabledR:
+                item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsEnabled)
+                itemI.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsEnabled)
+            else:
+                item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsDragEnabled)
+                itemI.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsDragEnabled)
+            self.pw.rTable.setItem(counter, 0, itemI)
+            self.pw.rTable.setItem(counter, 2, item)
+            item.setText(r)
+            counter += 1
+
+    def setplot(self,init=False):
+        self.Robj.lines()
+        sources,sinks,sourceLabels,sinkLabels = self.Robj.sources,self.Robj.sinks,self.Robj.sourceLabels,self.Robj.sinkLabels
+        self.L1 = self.pw.plotProd.addLegend()
+        self.L2 = self.pw.plotReact.addLegend()
+        self.pw.plotProd.showGrid(x=True,y=True,alpha=0.2)
+        self.pw.plotReact.showGrid(x=True,y=True,alpha=0.2)
+        for i_s, sou, soulabel in zip(range(len(sources)),sources,sourceLabels):
+            line = QtCore.Qt.SolidLine if i_s<6 else QtCore.Qt.DashLine
+            w=5 if i_s==0 and self.pw.totalP.isChecked() else 2
+            pl = self.pw.plotProd.plot(self.ncobj.time,sou,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=soulabel)
+        for i_s, sin, sinlabel in zip(range(len(sinks)),sinks,sinkLabels):
+            line = QtCore.Qt.SolidLine if i_s<6 else QtCore.Qt.DashLine
+            w=5 if i_s==0 and self.pw.totalR.isChecked() else 2
+            pl = self.pw.plotReact.plot(self.ncobj.time,sin,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=sinlabel)
+
+    def updatePlot(self):
+        self.Robj.groupsP = ['TOTAL'] if self.pw.totalP.isChecked() else []
+        self.Robj.groupsR = ['TOTAL'] if self.pw.totalR.isChecked() else []
+        if self.pw.sinkComp.toPlainText() != '':
+            lines = self.pw.sinkComp.toPlainText().split('\n')
+            for cgr in lines:
+                bfr = []
+                for c in cgr.split(','):
+                    if c in self.ncobj.names:
+                        bfr.append(c)
+                if bfr != []: self.Robj.groupsR.append(','.join(bfr))
+        self.L1.clear()
+        self.L2.clear()
+        self.pw.plotProd.clear()
+        self.pw.plotReact.clear()
+        self.pw.maxPframe.setEnabled(True)
+        for row in range(self.pw.rTable.rowCount()):
+            if self.pw.rTable.item(row,1).checkState():
+                self.pw.maxPframe.setEnabled(False)
+                self.Robj.groupsP.append(f"{int(self.pw.rTable.item(row,0).text())-1:d}")
+        self.Robj.nMaxR = self.pw.maxReact.value()
+        self.Robj.nMaxP = self.pw.maxProd.value()
+        # print(self.Robj.groupsP)
+        # print(self.Robj.groupsR)
+        self.setplot()
+        return
+
+    def filterReactionList(self):
+        b1 = 1 if self.pw.reactionListSources.isChecked() else 0
+        b2 = 1 if self.pw.reactionListSinks.isChecked() else 0
+        b3 = 1 if self.pw.reactionListBoth.isChecked() else 0
+        show = int(f'{b3}{b2}{b1}', 2) # show will be 0,1,2 or 4
+        if show == 4: # show Sinks
+            if self.currentFilter=='both':
+                return
+            # print('show both')
+            self.currentFilter = 'both'
+        elif show == 2: # show Sinks
+            if self.currentFilter=='sinks':
+                return
+            # print('show Sinks')
+            self.currentFilter = 'sinks'
+        elif show == 1: # show shources
+            if self.currentFilter=='sources':
+                return
+            # print('show shources')
+            self.currentFilter = 'sources'
+        else: # default, show all
+            if self.currentFilter=='all':
+                return
+            # print('show all')
+            self.currentFilter = 'all'
+        sel = []
+        for row in range(self.pw.rTable.rowCount()):
+            if self.pw.rTable.item(row,1).checkState():
+                sel.append(int(self.pw.rTable.item(row,0).text())-1)
+        self.pw.rTable.setRowCount(0)
+        self.fillTable(sel)
+
+    def clearCheckedReactions(self):
+        for row in range(self.pw.rTable.rowCount()):
+            if self.pw.rTable.item(row,1).checkState():
+                self.pw.rTable.item(row,1).setCheckState(False)
+        self.updatePlot()
+        return
+    def toggleMaxframes(self):
+        if self.pw.sinkComp.toPlainText() != '':
+            self.pw.maxRframe.setEnabled(False)
+        else:
+            self.pw.maxRframe.setEnabled(True)
+        self.updatePlot()
+
 # The popup window for About ARCA
 class plotWin(QtWidgets.QDialog):
     def __init__(self, parent = None):
@@ -843,6 +1020,7 @@ class NcPlot:
         self.csat = {}
         self.convars = {}
         self.invvars = {}
+        self.nconc = None
         self.par = False
         self.measdmps = False
         if self.masterfile == 'Particles.nc':
@@ -950,6 +1128,13 @@ class NcPlot:
             else:
                 return y
         else: return
+
+    def getAllGases(self):
+        if self.nconc is None:
+            self.nconc = self.nc.variables['CH_GAS'][:,:].data
+            return
+        else:
+            return
 
     def getconcsum(self,names, return_unit=False, par=False):
         retarr = zeros(len(self.mask))
@@ -1067,6 +1252,10 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionStopCurrentRunAndIgnoreOutput.triggered.connect(self.QuitShortcut)
         self.actionStopCurrentRunClean.triggered.connect(self.QuitGracefullyShortcut)
         self.actionWhat_s_new.triggered.connect(self.createWN)
+        self.actionReactivity_includes_null_cycles.setChecked( True if int(get_config("options", "nullCycles",  fallback='0' ))==1 else False )
+        self.actionReactivity_includes_null_cycles.triggered.connect(lambda:
+            set_config('options', 'nullCycles',('1' if self.actionReactivity_includes_null_cycles.isChecked() else '0' )))
+
     # -----------------------
     # tab General options
     # -----------------------
@@ -1210,6 +1399,7 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
         self.running = 0
         self.get_available_chemistry(checkonly=False)
         self.chemLabel.setText('Current chemistry scheme: '+self.get_available_chemistry(checkonly=True))
+        self.avaInpLabel.setText('Variables in: '+self.get_available_chemistry(checkonly=True))
         self.spectralFunctions.textChanged.connect(lambda: \
                                         self.frame_27.setEnabled(False) if (self.spectralFunctions.text()!='' \
                                         and ossplit(self.spectralFunctions.text())[1]!=defaultSpectrum) \
@@ -1346,7 +1536,7 @@ Please provide valid spectral function.') \
             self.ncleg_skene = self.ncleg.scene()
             self.massleg = self.plotResultWindow_2.addLegend()
             self.massleg_skene = self.massleg.scene()
-
+            self.plottedFile = []
         else:
             self.sumSelection.setEnabled(False)
             self.show_netcdf.show()
@@ -1389,6 +1579,7 @@ Please provide valid spectral function.') \
         [l.setText('') for l in self.linePlotLegends]
         self.radioCompare.toggled.connect(lambda: self.addSimilar.setEnabled(False))
         self.sumSelection.toggled.connect(lambda: self.addSimilar.setEnabled(True))
+        self.availableVars.doubleClicked.connect(self.showReactivityAnalysis)
 
         ######
         self.resize(980, 840)
@@ -1450,6 +1641,17 @@ Please provide valid spectral function.') \
     # -----------------------
     # Class methods
     # -----------------------
+    def showReactivityAnalysis(self):
+        # if len(qt_box.plottedFile) != 1 :
+        #     return
+        if ossplit(qt_box.plottedFile[0])[1] != 'Chemistry.nc':
+            return
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        self.reWin = React(self.LPD[self.ReactComboBox.currentIndex()-1])
+        self.reWin.setplot(init=True)
+        QtWidgets.QApplication.restoreOverrideCursor()
+        response = self.reWin.exec()
+
     def getRuntime(self):
         rt = self.runtime.value()
         unit = self.runTimeUnit.currentText().strip()
@@ -1773,6 +1975,7 @@ the numerical model or chemistry scheme differs from the current, results may va
                 self.loadParamValues()
                 return
             elif plotcolumn>0:
+                QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
                 if tdinp.namesPyInds[name]<tdinp.divider_i:
                     filen = self.env_file.text()
                     mtu = self.fileTimeUnit_a.currentText()
@@ -1798,7 +2001,10 @@ the numerical model or chemistry scheme differs from the current, results may va
                 mtu = self.runTimeUnit.currentText()
             self.plwin = plotWin()
             self.plwin.setplot(name+comments,x,y,unit,mtu,init,f1*plotthis.multi,d1*plotthis.multi + plotthis.shift)
+            QtWidgets.QApplication.restoreOverrideCursor()
             response = self.plwin.exec()
+
+
         return
 
 
@@ -2200,6 +2406,8 @@ the numerical model or chemistry scheme differs from the current, results may va
                 self.showOutput(path)
             elif mode == 'addplot':
                 self.linePlotMulti(path)
+                if len(self.LPD)>0 and self.LPD[-1].masterfile == 'Chemistry.nc':
+                    self.LPD[-1].getAllGases() #XXX
             elif mode == 'addplot_more':
                 self.linePlotMulti(path, new=False)
             elif mode == 'plot_mass':
@@ -2275,10 +2483,9 @@ the numerical model or chemistry scheme differs from the current, results may va
 
 
     def get_available_chemistry(self, checkonly=False):
-        with open('makefile','r') as mk:
-            for line in mk:
-                if 'CHMDIR' in line and not '$' in line:
-                    a,dir = line.replace('=','').split()
+        x = Popen(['make','chem'], stdout=PIPE)
+        dir = x.stdout.readline().decode("utf-8").strip()
+        x.poll()
         if checkonly:
             return dir
         self.chemistryModules.clear()
@@ -2289,10 +2496,7 @@ the numerical model or chemistry scheme differs from the current, results may va
         for i,d in enumerate(dirnames):
             self.chemistryModules.addItem(d)
             if d == dir:
-                if checkonly:
-                    return dir
-                else:
-                    ii=i
+                ii=i
         self.chemistryModules.setCurrentIndex(ii)
         if ii==-1:
             self.popup('Possible problems with makefile', '''
@@ -3065,6 +3269,8 @@ a chemistry module in tab "Chemistry"''', icon=2)
         vars.mods[name].unit = self.selected_vars.cellWidget(i,6).currentText()
 
     def sliderVls(self,f,i):
+        if i>1 and f == 0:
+            return 0,-2
         m = array([0.0001,0.001,0.01,0.1,1,10])
         i_potenssi = argmax(m*(defCompound.sliderVls[i]+500)>abs(2*f))
         potenssi = int(log10(m[i_potenssi]))
@@ -3113,6 +3319,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
 
         # class _FLAG:
         nml.FLAG.CHEMISTRY_FLAG=self.checkboxToFOR(self.checkBox_che)
+        nml.FLAG.USE_RATES=self.checkboxToFOR(self.f_nml_rates)
         nml.FLAG.AEROSOL_FLAG=self.checkboxToFOR(self.checkBox_aer)
         nml.FLAG.ACDC_SOLVE_SS=self.checkboxToFOR(self.acdc_solve_ss)
         nml.FLAG.ACDC=self.checkboxToFOR(self.checkBox_acd)
@@ -3433,6 +3640,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'CASE_NAME' == key: self.case_name.setText(strng)
             elif 'RUN_NAME' == key: self.run_name.setText(strng)
             elif 'CHEMISTRY_FLAG' == key: self.checkBox_che.setChecked(strng)
+            elif 'USE_RATES' == key: self.f_nml_rates.setChecked(strng)
             elif 'AEROSOL_FLAG' == key: self.checkBox_aer.setChecked(strng)
             elif 'ACDC_SOLVE_SS' == key: self.acdc_solve_ss.setChecked(strng)
             elif 'ACDC' == key: self.checkBox_acd.setChecked(strng)
@@ -3881,6 +4089,15 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
 
     def linePlotMulti(self, file, new=True):
+        # Try to open netCDF-file
+        if exists(file):
+            if self.testNC(file)>0:
+                self.popup('Bummer...', 'Not a valid output file',icon=3)
+                return
+        else:
+            return
+        # the file checks, move on
+
         self.findComp.clear()
         if new or self.fLin_2.isChecked():
             putBackLog = False
@@ -3897,17 +4114,15 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.addSimilar.setEnabled(True)
             self.actionShow_variable_attributes.setEnabled(True)
             self.CloseLinePlotsButton.setEnabled(True)
+            if 'Chemistry.nc' in file:
+                self.ReactComboBox.setEnabled(True)
+                self.ReactComboBox.addItem(file)
             self.findComp.setEnabled(True)
-
         else:
             comp = self.availableVars.currentItem().text()
-        # Try to open netCDF-file
-        if exists(file):
-            if self.testNC(file)>0:
-                self.popup('Bummer...', 'Not a valid output file',icon=3)
-                return
-        else: return
-        # the file checks, move on
+            if 'Chemistry.nc' in file:
+                self.ReactComboBox.addItem(file)
+                self.ReactComboBox.setCurrentIndex(self.ReactComboBox.count()-1)
         if new:
             if 'General.nc' in file:
                 mdim = True
@@ -3959,6 +4174,10 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.fLog_2.setChecked(putBackLog)
             self.showOutputUpdate()
 
+        if new:
+            self.plottedFile = [file]
+        else:
+            self.plottedFile.append(file)
 
     def selectionMode(self):
         if self.sumSelection.isChecked():
@@ -4199,6 +4418,9 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         self.radioCompare.setEnabled(True)
         self.actionShow_variable_attributes.setEnabled(False)
         self.CloseLinePlotsButton.setEnabled(False)
+        self.ReactComboBox.clear()
+        self.ReactComboBox.addItem('Reactivity in (double click the component name)')
+        self.ReactComboBox.setEnabled(False)
         self.findComp.setEnabled(False)
 
         if float('.'.join(pg.__version__.split('.')[0:2]))<0.13:
@@ -4222,6 +4444,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         self.ShowPPC.setEnabled(False)
         self.toggleppm('off')
         self.listOfplottedFiles = []
+        self.plottedFile = []
 
     def unnecessaryLegendTrick(self):
         if self.massleg in self.massleg_skene.items():
