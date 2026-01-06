@@ -96,6 +96,7 @@ class INITFILE:
             self.CONDENSATION=0
             self.COAGULATION=0
             self.DEPOSITION=0
+            self.USE_RATES=0
             self.CHEM_DEPOSITION=0
             # self.MODEL_H2SO4=0
             self.ORG_NUCL=0
@@ -128,6 +129,7 @@ class INITFILE:
             exec("%s(' MCMFILE_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.MCMFILE_TIME_UNIT,eol))
             exec("%s(' LOSSFILE_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.LOSSFILE_TIME_UNIT,eol))
             exec("%s(' LOSSFILE_GAS_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.LOSSFILE_GAS_TIME_UNIT,eol))
+            exec("%s(' USE_RATES = %s%s')"%(cmd,self.USE_RATES,eol))
 
             exec("%s('/ \\n%s')"%(cmd, eol))
 

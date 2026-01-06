@@ -40,16 +40,55 @@ elif not os.path.exists(os.path.join(path, 'second_Rates.f90')):
 
 
 rates = open(os.path.join(path, 'RATES.dat'), 'w+')
-rates.write('&NML_RATES\n')
-
+ratesList = []
+# rates.write('&NML_RATES\n')
+# ratesList.append('&NML_RATES\n')
+inrates = False
 with open(os.path.join(path, 'second_Rates.f90')) as file:
     for ln in file:
-        if re.search('RCONST\(\d+\) = \(.*\)', ln.strip('\n')) != None:
+        if re.search('SUBROUTINE Update_RCONST',ln) != None and inrates == False:
+            inrates=True
+        if re.search('END SUBROUTINE',ln) != None and inrates == True:
+            break
+        if re.search(r'RCONST\(\d+\) = \(.*\)', ln.strip('\n')) != None:
             a, b = ln.strip('\n').split(' = ')
-            rates.write(a + ' = ' + fact_str + ' ! * '+ b + '\n')
-        elif re.search('\!( *)RCONST\(\d+\) = ', ln.strip('\n')) != None:
-            rates.write(ln)
-rates.write('/\n')
+            # rates.write(a + ' = ' + fact_str + ' ! * '+ b + '\n')
+            ratesList.append(a + ' = ' + fact_str + ' ! * '+ b + '\n')
+        elif re.search(r'\!( *)RCONST\(\d+\) = ', ln.strip('\n')) != None:
+            # rates.write(ln)
+            ratesList.append(ln)
+# rates.write('/\n')
+# ratesList.append('/\n')
+ratesList = list(set(ratesList))
+sortedRates = ['\n']*len(ratesList)
+for s in ratesList:
+    m = re.search(r'RCONST\((\d+)\)',s)
+    if m:
+        sortedRates[int(m.group(1))-1] = s
+
+ratesList = []
+inrates = False
+with open(os.path.join(path, 'second_Initialize.f90')) as file:
+    for ln in file:
+        if re.search('SUBROUTINE Initialize',ln) != None and inrates == False:
+            inrates=True
+        if re.search('END SUBROUTINE',ln) != None and inrates == True:
+            break
+        if re.search(r'RCONST\(\d+\) = .*', ln.strip('\n')) != None:
+            a, b = ln.strip('\n').split(' = ')
+            # rates.write(a + ' = ' + fact_str + ' ! * '+ b + '\n')
+            ratesList.append('! '+a.strip() + ' = ' + fact_str + ' ! * '+ b + '\n')
+        elif re.search(r'\!( *)RCONST\(\d+\) = ', ln.strip('\n')) != None:
+            # rates.write(ln)
+            ratesList.append(ln)
+
+ratesList = list(set(ratesList))
+for s in ratesList:
+    m = re.search(r'RCONST\((\d+)\)',s)
+    if m:
+        sortedRates[int(m.group(1))-1] = s
+
+rates.write('&NML_RATES\n'+''.join(sortedRates)+'/\n')
 rates.close()
 
 print('Saved RATES.dat in ' + path)
