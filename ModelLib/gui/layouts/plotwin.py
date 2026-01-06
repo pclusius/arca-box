@@ -114,14 +114,14 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Input time series"))
         self.label.setText(_translate("Dialog", "TextLabel"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Dialog", "Plot"))
         item = self.dataTable.horizontalHeaderItem(0)
         item.setText(_translate("Dialog", "Time (x-axis)"))
         item = self.dataTable.horizontalHeaderItem(1)
-        item.setText(_translate("Dialog", "Modified Data (y-axis)"))
+        item.setText(_translate("Dialog", "Data used in model (y-axis)"))
         item = self.dataTable.horizontalHeaderItem(2)
-        item.setText(_translate("Dialog", "Original Data"))
+        item.setText(_translate("Dialog", "Unmodified Data"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Dialog", "Data"))
 from pyqtgraph import PlotWidget

@@ -29,7 +29,7 @@ from modules import variations,vars,batch,GetVapourPressures as gvp,proc_reactiv
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
 from numpy import argmin,argmax,linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround
-from numpy import argsort
+from numpy import argsort,genfromtxt
 import numpy.ma as ma
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname, remove as osremove, rename as osrename
 from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin, relpath as osrelpath
@@ -814,9 +814,7 @@ class React(QtWidgets.QDialog):
             self.rates = []
             with open(f'{Chem().inExePath}/RATES.dat', 'r') as rfile:
                 for l in rfile:
-                    # print(l)
                     if 'RCONST' in l: self.rates.append(l.split('=')[1].split('! *')[1].strip())
-        # print(rates)
         # self.pw.rTable.setRowCount(len(self.reactions))
         self.pw.pushButtonRefresh.clicked.connect(self.updatePlot)
         self.pw.totalP.stateChanged.connect(self.updatePlot)
@@ -824,6 +822,7 @@ class React(QtWidgets.QDialog):
         self.pw.maxProd.valueChanged.connect(self.updatePlot)
         self.pw.maxReact.valueChanged.connect(self.updatePlot)
         self.pw.rTable.itemClicked.connect(self.updatePlot)
+        self.pw.rTable.itemDoubleClicked.connect(self.RRateTS)
         self.pw.reactionListSources.toggled.connect(self.filterReactionList)
         self.pw.reactionListSinks.toggled.connect(self.filterReactionList)
         self.pw.reactionListBoth.toggled.connect(self.filterReactionList)
@@ -956,15 +955,25 @@ class React(QtWidgets.QDialog):
         else:
             self.pw.maxRframe.setEnabled(True)
         self.updatePlot()
+    def RRateTS(self,item):
+        if item.column()==1:
+            return
+        indx = int(self.pw.rTable.item(item.row(),0).text())-1
+        self.plwin = plotWin()
+        pp = self.ncobj.path.replace('Chemistry.nc','')+'Reaction_rates.txt'
+        unit = 's^-1' if abs(self.Robj.order[indx])==1 else 'molec^-1 s^-1'
+        self.plwin.setplot(f'k_{indx+1}',self.ncobj.time,genfromtxt(pp,usecols=indx),unit,'hrs',
+            False,1,0,legend=item.toolTip(), title='Reaction rate coefficient time series',twoCol=False)
+        response = self.plwin.exec()
 
-# The popup window for About ARCA
+# The popup window for input time series
 class plotWin(QtWidgets.QDialog):
     def __init__(self, parent = None):
         super(plotWin, self).__init__(parent)
         self.pw = plotwin.Ui_Dialog()
         self.pw.setupUi(self)
         self.pw.buttonBox.clicked.connect(self.reject)
-    def setplot(self,name,x,Y,unit,mtu,init,sc,off):
+    def setplot(self,name,x,Y,unit,mtu,init,sc,off,legend=None,title=None,twoCol=True):
         x0 = x[0]
         x = x-x0
         self.pw.plotSomething.addLegend()
@@ -976,7 +985,8 @@ class plotWin(QtWidgets.QDialog):
             edited = False
         else:
             y = Y*sc+off
-        legend = 'Modified Data' if edited else 'Data'
+        if legend is None:
+            legend = 'Modified Data' if edited else 'Data'
         pl = self.pw.plotSomething.plot(x,y,pen=pg.mkPen('k', width=3,style=style),name=legend)
         if edited:
             pl2 = self.pw.plotSomething.plot(x,Y,pen=pg.mkPen('k', width=1,style=QtCore.Qt.DashLine),name='Original Data')
@@ -992,10 +1002,12 @@ class plotWin(QtWidgets.QDialog):
         self.pw.plotSomething.setYRange(min(0,y.min()*1.1), y.max()*1.1, padding=0)
         self.pw.label.setText(f'{name} ({unit})')
         self.pw.plotSomething.showGrid(x=True,y=True,alpha=0.2)
-        self.setPlotDataTable(x+x0,Y,y)
+        if title is not None:
+            self.setWindowTitle(title)
+        self.setPlotDataTable(x+x0,Y,y,twoCol)
         return
 
-    def setPlotDataTable(self,x,Y,y):
+    def setPlotDataTable(self,x,Y,y,twoCol):
         self.pw.dataTable.setColumnWidth(0, 300)
         for row,xx,yo,ym in zip(range(len(x)),x,Y,y):
             self.pw.dataTable.insertRow(row)
@@ -1004,7 +1016,8 @@ class plotWin(QtWidgets.QDialog):
             dm = QtWidgets.QTableWidgetItem(str(yo))
             self.pw.dataTable.setItem(row, 0, tr)
             self.pw.dataTable.setItem(row, 1, dr)
-            self.pw.dataTable.setItem(row, 2, dm)
+            if twoCol:
+                self.pw.dataTable.setItem(row, 2, dm)
         return
 
 
@@ -1577,8 +1590,8 @@ Please provide valid spectral function.') \
         self.firstParPlot = [0,0]
         self.linePlotLegends = [self.legend1,self.legend2,self.legend3,self.legend4,self.legend5,self.legend6]
         [l.setText('') for l in self.linePlotLegends]
-        self.radioCompare.toggled.connect(lambda: self.addSimilar.setEnabled(False))
-        self.sumSelection.toggled.connect(lambda: self.addSimilar.setEnabled(True))
+        # self.radioCompare.toggled.connect(lambda: self.addSimilar.setEnabled(False))
+        # self.sumSelection.toggled.connect(lambda: self.addSimilar.setEnabled(True))
         self.availableVars.doubleClicked.connect(self.showReactivityAnalysis)
 
         ######
@@ -1647,7 +1660,7 @@ Please provide valid spectral function.') \
         if ossplit(qt_box.plottedFile[0])[1] != 'Chemistry.nc':
             return
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
-        self.reWin = React(self.LPD[self.ReactComboBox.currentIndex()-1])
+        self.reWin = React(self.LPD[self.ReactComboBox.currentIndex()])
         self.reWin.setplot(init=True)
         QtWidgets.QApplication.restoreOverrideCursor()
         response = self.reWin.exec()
@@ -4084,6 +4097,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             return
         else:
             ftype = self.LPD[-1].masterfile
+        self.radioCompare.setChecked(False)
+        self.sumSelection.setChecked(True)
         self.browse_path(None, 'addplot_more', ftype=ftype)
         self.radioCompare.setEnabled(False)
 
@@ -4115,7 +4130,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.actionShow_variable_attributes.setEnabled(True)
             self.CloseLinePlotsButton.setEnabled(True)
             if 'Chemistry.nc' in file:
-                self.ReactComboBox.setEnabled(True)
+                self.ReactFrame.setEnabled(True)
+                self.ReactComboBox.clear()
                 self.ReactComboBox.addItem(file)
             self.findComp.setEnabled(True)
         else:
@@ -4167,7 +4183,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         if new:
             # All's well, finish plot
             self.plotResultWindow.setLabel('bottom', 'Time', units='h')
-            self.plotTitle = file + ': ' + list(self.LPD[-1].convars.keys())[0]
+            # self.plotTitle = file + ': ' + list(self.LPD[-1].convars.keys())[0]
+            self.plotTitle = list(self.LPD[-1].convars.keys())[0]
             self.plotResultTitle.setText(self.plotTitle+' '+unit)
         else:
             self.fLin_2.setChecked( not putBackLog)
@@ -4260,18 +4277,22 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 for z in self.LPD:
                     YY.append(z.getconc(comp, par=PPconc))
                     TT.append(z.time)
-            self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
+            # self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
+            self.plotTitle = comp+' '
         else:
             if self.availableVars.selectedItems() != []:
                 for z in self.LPD:
                     YY.append(z.getconcsum([c.text() for c in self.availableVars.selectedItems()],par=PPconc))
                     TT.append(z.time)
-                self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + self.availableVars.selectedItems()[0].text()+' etc. '
+                # self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + self.availableVars.selectedItems()[0].text()+' etc. '
+                etc = ' etc. ' if len(self.availableVars.selectedItems())>1 else ' '
+                self.plotTitle = self.availableVars.selectedItems()[0].text()+etc
             else:
                 for z in self.LPD:
                     YY.append(z.getconc(comp,par=PPconc))
                     TT.append(z.time)
-                self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
+                # self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
+                self.plotTitle = comp+' '
 
         for j,Y in enumerate(YY):
             if max(Y)!=0:
@@ -4322,7 +4343,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
             # self.plotResultWindow.setLimits(yMin=c)
             self.plotResultWindow.setLogMode(y=loga)
-            self.plotResultTitle.setText('')
+            self.plotResultTitle.setText(un)
             return
 
 
@@ -4419,8 +4440,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         self.actionShow_variable_attributes.setEnabled(False)
         self.CloseLinePlotsButton.setEnabled(False)
         self.ReactComboBox.clear()
-        self.ReactComboBox.addItem('Reactivity in (double click the component name)')
-        self.ReactComboBox.setEnabled(False)
+        self.ReactFrame.setEnabled(False)
         self.findComp.setEnabled(False)
 
         if float('.'.join(pg.__version__.split('.')[0:2]))<0.13:

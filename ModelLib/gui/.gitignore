@@ -4,3 +4,4 @@ dev
 tmp/*
 defaults
 *.pickle
+modules/*.zip
