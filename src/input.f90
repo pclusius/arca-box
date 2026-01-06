@@ -290,6 +290,7 @@ Logical  :: VBS_CSAT                = .false.
 Logical  :: PP_H2SO4_TO_AMM_SULFATE = .false.
 INTEGER  :: BINARY_FILE             = 0
 Logical  :: Constant_vapour_conc    = .false. ! Only for special cases where vapour concentrations should be kept constants (dC/dt=0 over dt) during condensation, overriding APC method
+Logical  :: Minimal_nc              = .false. ! Applies to Chemistry. If true, saves gas concentrations in one 2-D array instead of individual arrays. MUCH and Faster, smaller
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
 real(dp) :: DT_UPPER_LIMIT(3)       = [150d0,150d0,150d0]
