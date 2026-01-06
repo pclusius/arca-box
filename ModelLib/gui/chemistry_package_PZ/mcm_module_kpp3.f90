@@ -21,7 +21,12 @@ CONTAINS
 
   SUBROUTINE KPP_SetUp(R_F_in)
     REAL(DP), OPTIONAL :: R_F_in(NREACT)
-    IF (PRESENT(R_F_in)) R_F = R_F_in
+
+    IF (PRESENT(R_F_in)) THEN
+      ALLOCATE(R_F(NREACT))
+      R_F = 1d0
+      R_F = R_F_in
+    end if
 
     STEPMIN = 0.0d0
     STEPMAX = 0.0d0
