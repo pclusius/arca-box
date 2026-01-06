@@ -25,6 +25,7 @@ USE second_PARAMETERS                      ! NSPEC and chemical indices, ind_xxx
 USE second_Precision,  ONLY : dp           ! KPP Numerical type
 USE second_Monitor,    ONLY : SPC_NAMES    ! Names of chemicals from KPP
 USE SECOND_REACTIVITY, ONLY : NREACTIVITY  !
+USE SECOND_GLOBAL, ONLY : RCONST  !
 USE Chemistry
 USE constants
 USE AUXILLARIES
@@ -139,8 +140,15 @@ IF (Chemistry_flag.or.Condensation) THEN
     ! Check that the input exists in chemistry, or if not, print warning
     CALL CHECK_INPUT_AGAINST_KPP
     ! This only called once for KPP in the beginning
-    call READ_rates(CurrentChem)
-    IF (Chemistry_flag) CALL KPP_SetUp(factorsForReactionRates)
+    IF (Chemistry_flag) THEN
+      if (USE_RATES) THEN
+        call READ_rates(CurrentChem)
+        CALL KPP_SetUp(factorsForReactionRates)
+        DEALLOCATE(factorsForReactionRates)
+      ELSE
+        CALL KPP_SetUp()
+      ENDIF
+    ENDIF
 
 ENDIF
 ! ==================================================================================================================
@@ -397,6 +405,8 @@ if (EQUAL(Cw_eqv,0d0)) STOP 'Effective wall concentration should not be zero.'
 
 call cpu_time(cpu1) ! For efficiency calculation
 
+if (save_Rrates) OPEN(602,file=RUN_OUTPUT_DIR//"/Reaction_rates.txt",status='replace',action='write')
+
 !@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 !@@@@@@@@@@@@        @@@@@@@@@@@@@@                ,@@@@@@@@@@@@@@@@@@,            @@@@@@@@@@@@@@@@.       ,@@@@@@@@@@@@
 !@@@@@@@@@@@          @@@@@@@@@@@@@                     @@@@@@@@@@.                    @@@@@@@@@@@/         *@@@@@@@@@@@
@@ -559,6 +569,9 @@ END IF
           END IF
         END IF
 
+        if (GTIME%savenow.and.save_Rrates) then
+            WRITE(602,*) RCONST
+        end if
 
         if ( ( minval(CH_GAS)<-1d2 ).and.GTIME%sec>100d0) print FMT_WARN0,&
         'Negative values from chemistry, setting to zero: '//SPC_NAMES(MINLOC(CH_GAS))//', '//TRIM(f2chr(MINVAL(CH_GAS)))
@@ -1733,6 +1746,8 @@ SUBROUTINE FINISH
                    VAPOUR_PROP%molar_mass(1:VAPOUR_PROP%n_cond_org-1)*1d9, VAPOUR_PROP%VBS_BINS(:,:))
       CLOSE(600)
     end if
+
+    if (save_Rrates) CLOSE(602)
 
 
 END SUBROUTINE FINISH
