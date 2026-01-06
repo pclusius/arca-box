@@ -121,11 +121,13 @@ CHARACTER(len=3) :: FILE_TIME_UNIT  = '---'
 CHARACTER(len=3) :: MCMFILE_TIME_UNIT  = '---'
 CHARACTER(len=3) :: LOSSFILE_TIME_UNIT  = 'day'
 CHARACTER(len=3) :: LOSSFILE_GAS_TIME_UNIT  = 'day'
+Logical :: USE_RATES           = .false.
 
 NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, ACDC, & !NUCLEATION,
          Condensation, Coagulation, Deposition, Chem_Deposition, model_H2SO4, RESOLVE_BASE, &
          PRINT_ACDC, USE_SPEED,OPTIMIZE_DT, ORG_NUCL, AFTER_CHEM_ON, AFTER_NUCL_ON, &
-         FILE_TIME_UNIT,ENVFILE_TIME_UNIT,MCMFILE_TIME_UNIT,LOSSFILE_TIME_UNIT,LOSSFILE_GAS_TIME_UNIT !,INIT_W_MODAL, Extra_data
+         FILE_TIME_UNIT,ENVFILE_TIME_UNIT,MCMFILE_TIME_UNIT,LOSSFILE_TIME_UNIT,LOSSFILE_GAS_TIME_UNIT, &
+         USE_RATES !,INIT_W_MODAL, Extra_data
 
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0
@@ -290,7 +292,7 @@ Logical  :: VBS_CSAT                = .false.
 Logical  :: PP_H2SO4_TO_AMM_SULFATE = .false.
 INTEGER  :: BINARY_FILE             = 0
 Logical  :: Constant_vapour_conc    = .false. ! Only for special cases where vapour concentrations should be kept constants (dC/dt=0 over dt) during condensation, overriding APC method
-Logical  :: Minimal_nc              = .false. ! Applies to Chemistry. If true, saves gas concentrations in one 2-D array instead of individual arrays. MUCH and Faster, smaller
+Logical  :: Minimal_nc              = .false. ! Applies to Chemistry. If true, saves gas concentrations in one 2-D array instead of individual arrays. MUCH faster writing and smaller file
 
 ! First one is the Global timestep lower limit, three four are upper limits for individual processes
 real(dp) :: DT_UPPER_LIMIT(3)       = [150d0,150d0,150d0]
@@ -307,11 +309,12 @@ real(dp) :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! [#/cm3] lower threshold of concentra
 ! CHARACTER(4)  :: homspara = 'stol'
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .true.
-REAL(dp) :: factorsForReactionRates(NREACT) = 1d0   ! factors to modify chemical reaction rates (optionally)
+REAL(dp),allocatable :: factorsForReactionRates(:) ! = 1d0   ! factors to modify chemical reaction rates (optionally)
 REAL(dp) :: START_CHEM = -9.9d10 ! Start and stop times in seconds for chem and aero
 REAL(dp) :: STOP_CHEM  =  9.9d10 ! Start and stop times in seconds for chem and aero
 REAL(dp) :: START_AER  = -9.9d10 ! Start and stop times in seconds for chem and aero
 REAL(dp) :: STOP_AER   =  9.9d10 ! Start and stop times in seconds for chem and aero
+LOGICAL  :: save_Rrates = .true. ! Save reaction constants time series needed for reactivity analysis
 
 INTEGER,PARAMETER :: NVBS = 6
 !                                ULVOC   |  ELVOC   |   LVOC   |  SVOC   |  IVOC   |   REST
@@ -329,7 +332,8 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       SURFACE_TENSION, HARD_CORE,ORGANIC_DENSITY,HARD_CORE_DENSITY,FLOAT_CONC_AFTER_HRS,INIT_ONLY, &
                       FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS,FINAL_CHEM_TXT,NETCDF_OUT,VBS_LIMITS,VBS_NAMES,&
                       VBS_ONLY,PP_H2SO4_TO_AMM_SULFATE,VBS_CSAT, BINARY_FILE, &
-                      LAST_VBS_BINNING_S,Aging_exponent,AGING_K, START_CHEM, STOP_CHEM, START_AER, STOP_AER, Constant_vapour_conc
+                      LAST_VBS_BINNING_S,Aging_exponent,AGING_K, START_CHEM, STOP_CHEM, START_AER, STOP_AER, &
+                      Constant_vapour_conc,Minimal_nc,save_Rrates
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -371,10 +375,11 @@ subroutine READ_rates(Chem)
 
     OPEN(UNIT=888, FILE='src/chemistry/'//TRIM(ADJUSTL(Chem))//'/RATES.dat', STATUS='OLD', ACTION='READ', iostat=iii)
     if (iii==0) THEN
-
+        ALLOCATE(factorsForReactionRates(NREACT))
+        factorsForReactionRates = 1d0
         READ(888,NML = NML_RATES, IOSTAT=iii)
 
-        print FMT_MSG, 'Reaction rates are complimented from RATES.dat'
+        print FMT_MSG, 'Reaction rates are multiplied with RATES.dat'
         factorsForReactionRates = RCONST
     else
         print FMT_MSG, 'Using hardcoded reaction rates'

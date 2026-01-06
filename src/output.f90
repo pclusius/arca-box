@@ -63,6 +63,7 @@ INTEGER :: dcond_id
 INTEGER :: dorg_id
 INTEGER :: dvbs_id
 INTEGER :: dchrg_id
+INTEGER :: dgases_id
 INTEGER :: dstring_id
 INTEGER :: dconstant_id
 INTEGER :: timearr_id
@@ -106,6 +107,7 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
   INTEGER                         :: i,j,jj,ioi,lenD
   INTEGER, PARAMETER              :: textdim = len(SPC_NAMES(1))
   CHARACTER(textdim), ALLOCATABLE :: COND_NAMES(:)
+  CHARACTER((textdim+1)*size(CH_GAS)) :: NAMES_longstring
   CHARACTER(len=256)              :: realdate, realtime
   CHARACTER(len=16)               :: compounds,cache
 
@@ -114,8 +116,8 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
 
   ! ---------------------------
   ! ------dimension bits-------
-  ! time | bins | condensibles | name  | VBS | n_cond_org
-  !   1  |   2  |      4       |   8   | 16  |    32
+  ! time | bins | condensibles | name  | VBS | n_cond_org  | SPC_NAMES  |
+  !   1  |   2  |      4       |   8   | 16  |    32       |     64
   ! eg. number concentration:
   ! time | bins | condensibles
   !  1      1          0         => 011 => parbuf(i)%d = 3
@@ -163,7 +165,15 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
   print FMT_SUB, 'NetCDF version: '//trim(nf90_inq_libvers())
   print FMT_SUB, 'Create files to: '//TRIM(filename)
 
+  NAMES_longstring = ''
+  do i=1,size(ch_gas)
+    NAMES_longstring = trim(NAMES_longstring)//TRIM(SPC_NAMES(i))//','
+  end do
+  i = len(TRIM(NAMES_longstring))
+  NAMES_longstring = NAMES_longstring(1:i-1)
+
   DO I=1, N_FILES
+    if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
 
     ncfile_names(I) = trim(filename)//'/'//TRIM(ncfile_names(I))
@@ -178,8 +188,9 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
     ! Defining dimensions: time(unlimited), size sections, vapor_species
     call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "time",NF90_UNLIMITED, dtime_id) )
     IF (I==1) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "formation_rates",4, dchrg_id) )
+    IF (I==2) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "nspec",size(CH_GAS), dgases_id) )
+    IF (I>2)  call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "bins",n_bins_par, dbins_id) )
     IF (I==3) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "string",textdim, dstring_id) )
-    IF (I>1)  call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "bins",n_bins_par, dbins_id) )
     IF ((I == 3) .and. Aerosol_flag) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "vapours",vapours%n_cond_tot, dcond_id) )
 
     IF ((I == 3) .and. vapours%n_cond_org>1) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "org vapours",vapours%n_cond_org-1, dorg_id) )
@@ -219,7 +230,7 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
   ALLOCATE(multipl_ind(size(MODS)))
   ALLOCATE(shifter_ind(size(MODS)))
   ALLOCATE(mods_ind(size(MODS)))
-  ALLOCATE(chem_ind(size(CH_GAS)+NREACTIVITY))
+  ALLOCATE(chem_ind(size(CH_GAS)+NREACTIVITY+1))
   if (Aerosol_flag) ALLOCATE(par_ind(size(vapours%vapour_names)))
   ALLOCATE(acdc_ind(size(G_ACDC)))
   if (size(G_ACDC)>0) THEN
@@ -286,23 +297,31 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
   call handler(__LINE__, nf90_put_att(ncfile_ids(I), gCS_calc_id, 'unit' , '[1/s]'))
 
   I=2 ! Chemical file
-  do j = 1,size(CH_GAS)
-    call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(SPC_NAMES(j)), NF90_DOUBLE, dtime_id, chem_ind(j)) )
-    call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), chem_ind(j), shuff, compress, compression) )
-    call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'unit' , '1/cm^3'))
-    call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'type' , 'gas'))
-    call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'index' , j))
-  end do
-
-  if (NREACTIVITY>0) THEN
-    do j = 1,NREACTIVITY
-      call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(reactivity_name(j)), NF90_DOUBLE, dtime_id, chem_ind(size(CH_GAS)+j)) )
-      call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), chem_ind(size(CH_GAS)+j), shuff, compress, compression) )
-      call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(size(CH_GAS)+j), 'unit' , '1/s'))
-      call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(size(CH_GAS)+j), 'type' , 'reactivity'))
+  if (Chemistry_flag) THEN! Chemical file
+  if (.not.Minimal_nc) THEN
+    do j = 1,size(CH_GAS)
+      call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(SPC_NAMES(j)), NF90_DOUBLE, dtime_id, chem_ind(j)) )
+      call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), chem_ind(j), shuff, compress, compression) )
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'unit' , '1/cm^3'))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'type' , 'gas'))
+      call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(j), 'index' , j))
     end do
-  end if
 
+    if (NREACTIVITY>0) THEN
+      do j = 1,NREACTIVITY
+        call handler(__LINE__, nf90_def_var(ncfile_ids(I), TRIM(reactivity_name(j)), NF90_DOUBLE, dtime_id, chem_ind(size(CH_GAS)+j)) )
+        call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), chem_ind(size(CH_GAS)+j), shuff, compress, compression) )
+        call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(size(CH_GAS)+j), 'unit' , '1/s'))
+        call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(size(CH_GAS)+j), 'type' , 'reactivity'))
+      end do
+    end if
+  END IF
+  call handler(__LINE__, nf90_def_var(ncfile_ids(I), 'CH_GAS', NF90_DOUBLE, ([dgases_id,dtime_id]), chem_ind(size(CH_GAS)+NREACTIVITY+1)) )
+  call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), chem_ind(size(CH_GAS)+NREACTIVITY+1), shuff, compress, compression) )
+  call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(size(CH_GAS)+NREACTIVITY+1), 'unit' , 'cm^-3'))
+  call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(size(CH_GAS)+NREACTIVITY+1), 'type' , 'gas_matrix'))
+  call handler(__LINE__, nf90_put_att(ncfile_ids(I), chem_ind(size(CH_GAS)+NREACTIVITY+1), 'names' , NAMES_longstring))
+  end if
 
   I=3 ! Particle file.
   if (Aerosol_flag) THEN
@@ -345,6 +364,7 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
 
   ! End definition mode
   DO I=1,N_FILES
+    if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
     call handler(__LINE__, nf90_enddef(ncfile_ids(I)))
   END DO
@@ -377,6 +397,7 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours, VAPOURS,
   INTEGER                         :: i,j,jj
 
   DO I = 1,N_FILES
+    if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
     call handler(__LINE__, nf90_put_var(ncfile_ids(I), timearr_id, GTIME%sec, (/GTIME%ind_netcdf/) ))
     call handler(__LINE__, nf90_put_var(ncfile_ids(I), hrsarr_id, GTIME%hrs, (/GTIME%ind_netcdf/) ))
@@ -406,17 +427,24 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours, VAPOURS,
   call handler(__LINE__, nf90_put_var(ncfile_ids(I), gJ_out_TOT_id, 1d-6*(J_TOTAL_M3), (/GTIME%ind_netcdf/)) )
   call handler(__LINE__, nf90_put_var(ncfile_ids(I), gCS_calc_id, GCS, (/GTIME%ind_netcdf/)) )
 
-  I=2 ! Chemical file
-  do j = 1,size(CH_GAS)
-    call handler(__LINE__, nf90_put_var(ncfile_ids(I), chem_ind(j), CH_GAS(j), (/GTIME%ind_netcdf/)) )
-  end do
-
-  if (NREACTIVITY>0) THEN
-    do j = 1,NREACTIVITY
-      call handler(__LINE__, nf90_put_var(ncfile_ids(I), chem_ind(size(CH_GAS)+j), reactivities(j), (/GTIME%ind_netcdf/)) )
+  I=2
+  if (Chemistry_flag) THEN! Chemical file
+  if (.not.Minimal_nc) THEN
+    do j = 1,size(CH_GAS)
+      call handler(__LINE__, nf90_put_var(ncfile_ids(I), chem_ind(j), CH_GAS(j), (/GTIME%ind_netcdf/)) )
     end do
+
+    if (NREACTIVITY>0) THEN
+      do j = 1,NREACTIVITY
+        call handler(__LINE__, nf90_put_var(ncfile_ids(I), chem_ind(size(CH_GAS)+j), reactivities(j), (/GTIME%ind_netcdf/)) )
+      end do
+    end if
   end if
 
+
+  call handler(__LINE__, nf90_put_var(ncfile_ids(I), chem_ind(size(CH_GAS)+NREACTIVITY+1), CH_GAS, &
+          start=(/1,GTIME%ind_netcdf/), count=(/size(CH_GAS)/) ))
+  end if
 
   I=3 ! Particle file
 
@@ -488,10 +516,12 @@ subroutine CLOSE_FILES(filename)
   CHARACTER(LEN=*), INTENT(IN) :: filename
   INTEGER :: I,ioi
   DO I=1,N_FILES
+    if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
     call handler(__LINE__, nf90_close(ncfile_ids(I)))
   END DO
   DO I=1,N_FILES
+    if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
     ioi = RENAME(TRIM(ncfile_names(I))//'.tmp', TRIM(ncfile_names(I))//'.nc')
     if (ioi /= 0) print*, 'Error while copying final file.'
