@@ -78,6 +78,8 @@ def find_reactions(kppdef_file, species):
     if re.search(r'^\s*$',line): continue  # empty line
     if re.search(r'^//',line): continue    # comment line
 
+    line = re.sub(r'\+ ?+ ?hv ?=','=',line)
+
     equation_str = r'(^|\s|\+){0}(\s|\+|(?==)).*='.format(species)
     if re.search(equation_str,line):
       if re.search(r'\+.*\+.*=',line):
@@ -90,6 +92,10 @@ def find_reactions(kppdef_file, species):
     # Find the reactants with species
     if re.search(r'\{', line):  # with {tag} in the beginning
       equation_str = r'^\s*\{{.*?\}}\s*(?:{0}\s*\+\s*(\S+)|(\S+)\s*\+\s*{0})\s*=.*?:\s*?(.*)\s*?;'.format(species)
+      m = re.search(equation_str, line)
+
+    elif re.search(r'\<', line):  # with <tag> in the beginning
+      equation_str = r'^\s*\<.*?\>\s*(?:{0}\s*\+\s*(\S+)|(\S+)\s*\+\s*{0})\s*=.*?:\s*?(.*)\s*?;'.format(species)
       m = re.search(equation_str, line)
     else:
       equation_str = r'^\s*(?:{0}\s*\+\s*(\S+)|(\S+)\s*\+\s*{0})\s*=.*?:\s*?(.*)\s*?;'.format(species)

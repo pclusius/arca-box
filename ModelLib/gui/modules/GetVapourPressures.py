@@ -24,7 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from pdb import set_trace as bp
 # try:
 import numpy as np
-import sys
+import sys, csv
 import os
 # import json
 # import requests
@@ -109,14 +109,19 @@ def getVaps(runforever=False, args={}):
         i = 0
         Calculate_mass = False
         if args['mcm_type'] == 'csv':
-            tmp_A = np.genfromtxt(args['smilesfile'], delimiter=',',dtype=None, encoding='UTF-8', unpack=True,comments='//')
-            if len(tmp_A)==3:
-                names, smiles, mass = tmp_A
-            if len(tmp_A)==2:
-                names, smiles = tmp_A
-                Calculate_mass = True
-                mass = np.zeros(len(names))
-            smiles = np.array(smiles)
+            with open(args['smilesfile'],'r') as smf:
+                data_bfr = csv.reader(smf,delimiter=',',quotechar = '"')
+                data = [data for data in data_bfr]
+            data = np.array(data)
+            for col in range(data.shape[1]):
+                try:
+                    float(data[0,col])
+                    break
+                except:
+                    pass
+            names = data[:,0]
+            smiles = data[:,1]
+            mass = np.array([float(d) for d in data[:,col]])
             mask = smiles != ''
             smiles = smiles[mask]
             names = np.array(names)[mask]
@@ -219,12 +224,12 @@ def getVaps(runforever=False, args={}):
         # np.savetxt('Vapour_names.dat', selected_vapournames, fmt='%s')
 
         # Determine elemental composition from SMILES
-        elements    = np.array(['Br','Cl','C','O','N','H','S'], dtype=str)
+        elements    = np.array(['Br','Cl','C','O','N','H','S','F'], dtype=str)
         atoms       = np.zeros((len(smiles)+n_homs,len(elements)), dtype=int)
         if save_atoms:
             #                        0    1    2   3   4   5   6
-            mass_number = np.array([80,35,12,16,14,1,32])
-            sort_ats    = [2,3,4,5,6,1,0]
+            mass_number = np.array([80,35,12,16,14,1,32,19])
+            sort_ats    = [2,3,4,5,6,1,0,7]
 
             for j,s in enumerate(smiles):
                 # print(names[j],s)
@@ -239,7 +244,7 @@ def getVaps(runforever=False, args={}):
             atoms   = atoms[:,sort_ats]
 
             atomlib = {}
-            atomlib['GENERIC'] = [22,30,0,2,0,0,0]
+            atomlib['GENERIC'] = [22,30,0,2,0,0,0,0]
             for i in range(len(smiles)):
                 atomlib[names[i]] = atoms[i,:]
             if args['pram']:
@@ -280,7 +285,7 @@ def getVaps(runforever=False, args={}):
         prefix,suffix = os.path.splitext(file)
         print('Saving elemental content to %s ...' %(os.path.join(path,prefix+'_elements'+suffix)))
         fa = open(os.path.join(path,prefix+'_elements'+suffix), 'w+')
-        fa.write('#Compound                    Mass               C   O   N   H   S  Cl  Br\n')
+        fa.write('#Compound                    Mass               C   O   N   H   S  Cl  Br  F\n')
 
     count = 0
     f = open(args['saveto'], 'w')
@@ -293,7 +298,7 @@ def getVaps(runforever=False, args={}):
             f.write('%-18s   %24.12f   %24.12f   %24.12f\n' %(name,m,A,B))
             count += 1
             if save_atoms:
-                fa.write('%-18s   %24.12f %3d %3d %3d %3d %3d %3d %3d\n' %(name,m,*atomlib[name]))
+                fa.write('%-18s   %24.12f %3d %3d %3d %3d %3d %3d %3d %3d\n' %(name,m,*atomlib[name]))
     f.close()
     if save_atoms:
         fa.close()
