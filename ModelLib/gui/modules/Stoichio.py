@@ -56,7 +56,7 @@ class Reactions():
                 if all([is_number(n) for n in group.split(',')]):
                     indices = [int(n) for n in group.split(',')]
                     indicesRed = reduceindices(indices, self.mySinks)
-                    label = ' & '.join([self.s_reactions[i] for i in indices])
+                    label = ' & '.join([f'R({i+1}): '+self.s_reactions[i] for i in indices])
                 else:
                     indicesRed = np.concatenate([np.where(myGuysBuddies == c)[0] for c in group.split(',')])
                     label = group
@@ -66,7 +66,7 @@ class Reactions():
 
             if len(groupsR)==0:
                 sorter = np.argsort(self.Re.sum(0))[::-1]
-                label = self.s_reactions[self.mySinks][sorter][:nMaxR]
+                label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxR],self.s_reactions[self.mySinks][sorter][:nMaxR])]
                 label = list(label) if nMaxR>1 else [label[0]]
                 self.sinkLabels += label
                 if nMaxR>1:
@@ -90,14 +90,14 @@ class Reactions():
                 if all([is_number(n) for n in group.split(',')]):
                     indices = [int(n) for n in group.split(',')]
                     indicesRed = reduceindices(indices,self.mySources)
-                    label = ' & '.join([self.s_reactions[i] for i in indices])
+                    label = ' & '.join([f'R({i+1}): '+self.s_reactions[i] for i in indices])
                     if len(indicesRed)>0:
                         self.sources.append(self.So[:,indicesRed].sum(1).flatten())
                         self.sourceLabels.append(label)
 
             if len(groupsP)==0:
                 sorter = np.argsort(self.So.sum(0))[::-1]
-                label = self.s_reactions[self.mySources][sorter][:nMaxP]
+                label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxR],self.s_reactions[self.mySources][sorter][:nMaxP])]
                 label = list(label) if nMaxP>1 else [label[0]]
                 self.sourceLabels += label
                 if nMaxP>1:
@@ -173,6 +173,7 @@ def getSto(Cin,time,myGuy,includeNull,chem,case,Dump=False):
         process_reactions(chem=chem)
 
     nReact,nComp,Sto,dindices,s_reactants,s_reactions,areactants,StoR,StoP,RHS = loadZip(f'{chem}/Sto.zip')
+
     try:
         RC = netCDF4.Dataset(f'{case}/Rates.nc').variables['Reaction_rates'][:].data
     except:
@@ -205,7 +206,7 @@ if __name__ == "__main__":
     myGuy = 'HO2'
     nMaxR,nMaxP = 5,5
     Dump = False
-    includeNull=True
+    includeNull=False
     C = loadZip('C.zip')
     nt = C.shape[0]
     time = np.linspace(0,12,nt)
@@ -262,7 +263,7 @@ if __name__ == "__main__":
         if all([is_number(n) for n in group.split(',')]):
             indices = [int(n) for n in group.split(',')]
             indicesRed = reduceindices(indices, ROBJ.mySinks)
-            label = ' & '.join([ROBJ.s_reactions[i] for i in indices])
+            label = ' & '.join([f'R({i+1}): '+ROBJ.s_reactions[i] for i in indices])
         else:
             indicesRed = np.concatenate([np.where(myGuysBuddies == c)[0] for c in group.split(',')])
             label = group
@@ -271,7 +272,7 @@ if __name__ == "__main__":
 
     if len(groupsR)==0:
         sorter = np.argsort(ROBJ.Re.sum(0))[::-1]
-        label = ROBJ.s_reactions[ROBJ.mySinks][sorter][:nMaxR]
+        label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxR],ROBJ.s_reactions[ROBJ.mySinks][sorter][:nMaxR])]
         label = label if nMaxR>1 else label[0]
         a1.plot(time,ROBJ.Re[:,sorter][:,:nMaxR], label=label, lw=3)
 
@@ -292,12 +293,12 @@ if __name__ == "__main__":
             if all([is_number(n) for n in group.split(',')]):
                 indices = [int(n) for n in group.split(',')]
                 indicesRed = reduceindices(indices,ROBJ.mySources)
-                label = ' & '.join([ROBJ.s_reactions[i] for i in indices])
+                label = ' & '.join([f'R({i+1}): '+ROBJ.s_reactions[i] for i in indices])
                 if len(indicesRed)>0:
                     a2.plot(time,ROBJ.So[:,indicesRed].sum(1), label=label, lw=3)
         if len(groupsP)==0:
             sorter = np.argsort(ROBJ.So.sum(0))[::-1]
-            label = ROBJ.s_reactions[ROBJ.mySources][sorter][:nMaxP]
+            label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxR],ROBJ.s_reactions[ROBJ.mySources][sorter][:nMaxP])]
             label = label if nMaxP>1 else label[0]
             a2.plot(time,ROBJ.So[:,sorter][:,:nMaxP], label=label, lw=3)
 
