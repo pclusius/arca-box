@@ -28,14 +28,25 @@
 - Now losses of both gases and aerosols can be consistently calculated with time (previously only aerosols),
   size and component-wise method (with .csv input) or uniform and constant over time loss rate.
   In addition, wall loss parametrizations can be used, previously these were excluding each other. This allows for more flexible handling of losses.
-* Plotting tool in "View output -> Line Plots" can now compare up to 6 different variables within one opened file
-  (only when a single file is loaded).
-* Plotting tool showing aerosol initialization also calculates CS.
 - Some options previously in the more under-the-counter type have been made more visible, particularly the option to initialize
   any chemical concentration only on startup. individual components can be set as C(0) in the Time dependent input.
   The whole chemistry, separately for emissions and concentrations, can be let to "float" - i.e. that the input values are
   not forced - after a set time. Keep in mind that the compound must have some losses to show non-constant concentrations,
   for example it should not be in set to fixed in the chemistry scheme (should be under DEFVAR, not DEFFIX in KPP).
+- Reaction rates are saved in Rates.nc if 'save_Rrates' flag is on (default).
+- Gas concentrations are saved in the netCDF file also as 2D-variable, in addition to single column variables. The single
+  column variables will be faded out in the future as it is very inefficient way to save data. At the moment, Custom option
+  "minimal_nc=.true." can be used to turn off single column variables.
+- Output file cleanup. For clarity of output, old netCDF files which have been produced by earlier runs, but would not be written from the latest simulation,
+  are now removed in the end.
+
+#### Improved plotting
+- Plotting tool in "View output -> Line Plots" can now compare up to 6 different variables within one opened file
+  (only when a single file is loaded).
+- Reactivity plots using the calculated reaction rates and concentrations at saved time stamps. This gives an interesting
+  insight to the chemistry scheme and sources and sinks of chemicals.
+- Option to close files from plotting tool (instead of closing all)
+- Plotting tool showing aerosol initialization also calculates CS.
 
 #### Bugfixes:
 - Fixed bug where ACDC modules were initialized even when "Form new particles" was unchecked, giving error if
