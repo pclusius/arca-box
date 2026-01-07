@@ -461,7 +461,7 @@ subroutine READ_INPUT_DATA()
     CALL SW_PP
 
     ! Here we turn submodules on or off based on other options
-    if (.not.Chemistry)        save_Rrates       = .false.
+    if (.not.Chemistry_flag)   save_Rrates       = .false.
     If (USE_SPEED)             OPTIMIZE_DT       = .true. ! for backward compatibility
     if (Kelvin_taylor)         Kelvin_exp        = .false.
     if (.not.Kelvin_taylor)    Kelvin_exp        = .true.

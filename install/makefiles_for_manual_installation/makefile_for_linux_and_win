@@ -145,7 +145,7 @@ ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
 	@python3 ModelLib/required/editRateSource.py $(SRCDIR)/chemistry/$(CHMDIR)
 
 ${OD}/${CHMDIR}/reactions_reactants.o: ModelLib/required/reactions_reactants.f90
-	$(F90) -c $< -o $@ -J build/Hyde_v1.4/
+	$(F90) -c $< -o $@ -J ${OD}/${CHMDIR}/
 
 $(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.exe: ${OD}/${CHMDIR}/reactions_reactants.o
 	$(F90) ${OD}/${CHMDIR}/second_Precision.o ${OD}/${CHMDIR}/second_Monitor.o ${OD}/${CHMDIR}/second_Parameters.o $< -o $@
