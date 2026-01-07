@@ -789,11 +789,12 @@ class React(QtWidgets.QDialog):
         self.pw.rTable.setColumnWidth(0, 40)
         self.pw.rTable.setColumnWidth(1, 20)
         case = ncobj.path.replace('Chemistry.nc','')
+        self.RRates = ncobj.path.replace('Chemistry.nc','Rates.nc')
+        self.RRates_nc = netCDF4.Dataset(self.RRates)
         self.chem=osjoin(currentdir, Chem().inExePath)
         self.case=osjoin(currentdir, case)
         self.mainGuy=qt_box.availableVars.currentItem().text()
         self.currentFilter = 'all'
-
         # self.gasC = None
         # self.allCInd = None
         self.includeNull = qt_box.actionReactivity_includes_null_cycles.isChecked()
@@ -961,10 +962,10 @@ class React(QtWidgets.QDialog):
         indx = int(self.pw.rTable.item(item.row(),0).text())-1
         self.plwin = plotWin()
         tt = self.pw.rTable.item(item.row(),0).toolTip()
-        pp = self.ncobj.path.replace('Chemistry.nc','')+'Reaction_rates.txt'
+
         unit = 's^-1' if abs(self.Robj.order[indx])==1 else 'molec^-1 s^-1'
         self.plwin.setplot(f'{self.pw.rTable.item(item.row(),2).text()}: k_({indx+1})',
-            self.ncobj.time,genfromtxt(pp,usecols=indx),unit,'hrs',
+            self.ncobj.time,self.RRates_nc.variables['Reaction_rates'][:,indx],unit,'hrs',
             False,1,0,legend=tt, title='Reaction rate coefficient time series',twoCol=False)
         response = self.plwin.exec()
 
@@ -4115,7 +4116,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         if len(self.LPD)>0:
             self.addAnotherNC()
         else:
-            self.browse_path(None, 'addplot', ftype="NetCDF (*.nc)")
+            self.browse_path(None, 'addplot', ftype="NetCDF (General.nc Chemistry.nc Particles.nc)")
 
     def addAnotherNC(self):
         if self.LPD == []:

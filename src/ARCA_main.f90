@@ -405,8 +405,6 @@ if (EQUAL(Cw_eqv,0d0)) STOP 'Effective wall concentration should not be zero.'
 
 call cpu_time(cpu1) ! For efficiency calculation
 
-if (save_Rrates) OPEN(602,file=RUN_OUTPUT_DIR//"/Reaction_rates.txt",status='replace',action='write')
-
 !@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 !@@@@@@@@@@@@        @@@@@@@@@@@@@@                ,@@@@@@@@@@@@@@@@@@,            @@@@@@@@@@@@@@@@.       ,@@@@@@@@@@@@
 !@@@@@@@@@@@          @@@@@@@@@@@@@                     @@@@@@@@@@.                    @@@@@@@@@@@/         *@@@@@@@@@@@
@@ -569,9 +567,6 @@ END IF
           END IF
         END IF
 
-        if (GTIME%savenow.and.save_Rrates) then
-            WRITE(602,*) RCONST
-        end if
 
         if ( ( minval(CH_GAS)<-1d2 ).and.GTIME%sec>100d0) print FMT_WARN0,&
         'Negative values from chemistry, setting to zero: '//SPC_NAMES(MINLOC(CH_GAS))//', '//TRIM(f2chr(MINVAL(CH_GAS)))
@@ -1076,7 +1071,7 @@ END IF in_turn_any
 
             if (NETCDF_OUT) &
               CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS_old,reactivities,conc_vapour*1d-6,VAPOUR_PROP, save_measured,&
-                            1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar,losses_fit)
+                            1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar,losses_fit,RCONST)
             ! At this point the simulation can be stopped if desired
             if (ENABLE_END_FROM_OUTSIDE) CALL CHECK_IF_END_CMD_GIVEN
         END IF
@@ -1589,7 +1584,7 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
         END IF
         IF (NETCDF_OUT) &
         CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS_old,reactivities,conc_vapour*1d-6,VAPOUR_PROP,save_measured,&
-                        1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar,losses_fit)
+                        1d9*3600/(GTIME%dt*speed_up(PRC%cch))*get_dp()*d_dpar,losses_fit,RCONST)
 
     END IF
 END SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
@@ -1746,8 +1741,6 @@ SUBROUTINE FINISH
                    VAPOUR_PROP%molar_mass(1:VAPOUR_PROP%n_cond_org-1)*1d9, VAPOUR_PROP%VBS_BINS(:,:))
       CLOSE(600)
     end if
-
-    if (save_Rrates) CLOSE(602)
 
 
 END SUBROUTINE FINISH

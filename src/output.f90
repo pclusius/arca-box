@@ -25,6 +25,7 @@ use CONSTANTS
 use INPUT
 use second_Monitor
 USE SECOND_REACTIVITY, ONLY : reactivity_name, NREACTIVITY
+USE SECOND_GLOBAL, ONLY : NREACT
 use AUXILLARIES
 USE PSD_scheme, ONLY: old_PSD,get_composition, get_dp, get_volume, get_mass, get_conc,G_COAG_SINK
 
@@ -40,11 +41,11 @@ type parsave
 end type parsave
 
 ! Storing of indices of files
-INTEGER, PARAMETER :: N_FILES = 3
+INTEGER, PARAMETER :: N_FILES = 4
 INTEGER, PARAMETER :: shuff=1, compress=1, compression=9
 
 INTEGER       :: ncfile_ids(N_FILES)
-CHARACTER(200) :: ncfile_names(N_FILES) = (['General  ', 'Chemistry', 'Particles'])
+CHARACTER(200) :: ncfile_names(N_FILES) = (['General  ', 'Chemistry', 'Particles', 'Rates    '])
 
 real(dp),allocatable :: TIMESERIES(:,:)
 integer              :: i_TIMESERIES = 1
@@ -56,6 +57,7 @@ INTEGER, allocatable :: mods_ind(:)
 INTEGER, allocatable :: chem_ind(:)
 INTEGER, allocatable :: acdc_ind(:)
 INTEGER, allocatable :: par_ind(:)
+INTEGER :: react_ind
 
 INTEGER :: dtime_id
 INTEGER :: dbins_id
@@ -64,6 +66,7 @@ INTEGER :: dorg_id
 INTEGER :: dvbs_id
 INTEGER :: dchrg_id
 INTEGER :: dgases_id
+INTEGER :: dreactions_id
 INTEGER :: dstring_id
 INTEGER :: dconstant_id
 INTEGER :: timearr_id
@@ -116,10 +119,10 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
 
   ! ---------------------------
   ! ------dimension bits-------
-  ! time | bins | condensibles | name  | VBS | n_cond_org  | SPC_NAMES  |
-  !   1  |   2  |      4       |   8   | 16  |    32       |     64
+  ! time | bins | condensables | name  | VBS | n_cond_org  | SPC_NAMES  |   NREACT  |
+  !   1  |   2  |      4       |   8   | 16  |    32       |     64     |    128    |
   ! eg. number concentration:
-  ! time | bins | condensibles
+  ! time | bins | condensables
   !  1      1          0         => 011 => parbuf(i)%d = 3
   i=1
   parbuf(i)%name = 'VAPOURS'               ; parbuf(i)%u = '[]'         ; parbuf(i)%d = -12 ; parbuf(i)%type = NF90_CHAR   ; i=i+1
@@ -175,6 +178,7 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
   DO I=1, N_FILES
     if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
+    if (I == 4.and..not.save_Rrates) cycle
 
     ncfile_names(I) = trim(filename)//'/'//TRIM(ncfile_names(I))
     ! Clearing file; Opening file. Overwrites
@@ -189,15 +193,16 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
     call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "time",NF90_UNLIMITED, dtime_id) )
     IF (I==1) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "formation_rates",4, dchrg_id) )
     IF (I==2) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "nspec",size(CH_GAS), dgases_id) )
-    IF (I>2)  call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "bins",n_bins_par, dbins_id) )
+    IF (I==3) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "bins",n_bins_par, dbins_id) )
     IF (I==3) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "string",textdim, dstring_id) )
     IF ((I == 3) .and. Aerosol_flag) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "vapours",vapours%n_cond_tot, dcond_id) )
-
     IF ((I == 3) .and. vapours%n_cond_org>1) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "org vapours",vapours%n_cond_org-1, dorg_id) )
-
     IF ((I == 3) .and. Aerosol_flag) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "vbs_bins",NVBS, dvbs_id) )
-    call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "Constant",1, dconstant_id) )
 
+    IF ((I == 4).and..true.) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "reactions",NREACT, dreactions_id) )
+
+
+    IF (I <= 3) call handler(__LINE__, nf90_def_dim(ncfile_ids(I), "Constant",1, dconstant_id) )
     ! Create attributes for general stuff
     CALL get_command_argument(0, PROGRAM_NAME)
     call handler(__LINE__, nf90_put_att(ncfile_ids(I), NF90_GLOBAL, 'Information', '(c) Multiscale Modelling Group and (c) Computational Aerosol Physics Group (ACDC)'))
@@ -362,10 +367,20 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
 
   end if
 
+  I = 4 ! Reaction_rates
+  if (save_Rrates) THEN
+    call handler(__LINE__, nf90_def_var(ncfile_ids(I), 'Reaction_rates', NF90_DOUBLE, ([dreactions_id,dtime_id]), react_ind ) )
+    call handler(__LINE__, nf90_def_var_deflate(ncfile_ids(I), react_ind, shuff, compress, compression) )
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), react_ind, 'unit' , 'varied'))
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), react_ind, 'type' , 'rate_constants'))
+    call handler(__LINE__, nf90_put_att(ncfile_ids(I), react_ind, 'info' , 'Order follows that of second_Monitor.f90 and EQN_NAMES.txt'))
+  end if
+
   ! End definition mode
   DO I=1,N_FILES
     if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
+    if (I == 4.and..not.save_Rrates) cycle
     call handler(__LINE__, nf90_enddef(ncfile_ids(I)))
   END DO
 
@@ -383,7 +398,7 @@ END SUBROUTINE OPEN_FILES
 ! ====================================================================================================================
 ! Here the input is written to netcdf-files.
 ! --------------------------------------------------------------------------------------------------------------------
-SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours, VAPOURS, save_measured, GR, Lossrate)
+SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours, VAPOURS, save_measured, GR, Lossrate,RCONST)
   IMPLICIT NONE
   type(input_mod), INTENT(in)     :: MODS(:)
   real(dp), INTENT(in)            :: TSTEP_CONC(:)
@@ -394,11 +409,13 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours, VAPOURS,
   TYPE(vapour_ambient),INTENT(IN) :: vapours
   real(dp), INTENT(in)            :: save_measured(:)
   real(dp), INTENT(in)            :: GR(:)
+  real(dp), INTENT(in)            :: RCONST(:)
   INTEGER                         :: i,j,jj
 
   DO I = 1,N_FILES
     if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
+    if (I == 4.and..not.save_Rrates) cycle
     call handler(__LINE__, nf90_put_var(ncfile_ids(I), timearr_id, GTIME%sec, (/GTIME%ind_netcdf/) ))
     call handler(__LINE__, nf90_put_var(ncfile_ids(I), hrsarr_id, GTIME%hrs, (/GTIME%ind_netcdf/) ))
   END DO
@@ -505,6 +522,11 @@ SUBROUTINE SAVE_GASES(TSTEP_CONC,MODS,CH_GAS,reactivities,conc_vapours, VAPOURS,
     if (Chem_Deposition) VAP_DEP_MASS_WALLS = 0d0
   end if
 
+  i=4
+  if (save_Rrates) &
+    call handler(__LINE__, nf90_put_var(ncfile_ids(I), react_ind, RCONST, &
+          start=(/1,GTIME%ind_netcdf/), count=(/NREACT/) ))
+
   ! Advance netcdf index by one
   GTIME%ind_netcdf = GTIME%ind_netcdf + 1
 
@@ -518,11 +540,13 @@ subroutine CLOSE_FILES(filename)
   DO I=1,N_FILES
     if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
+    if (I == 4.and..not.save_Rrates) cycle
     call handler(__LINE__, nf90_close(ncfile_ids(I)))
   END DO
   DO I=1,N_FILES
     if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
+    if (I == 4.and..not.save_Rrates) cycle
     ioi = RENAME(TRIM(ncfile_names(I))//'.tmp', TRIM(ncfile_names(I))//'.nc')
     if (ioi /= 0) print*, 'Error while copying final file.'
   END DO

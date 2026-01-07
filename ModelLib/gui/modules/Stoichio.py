@@ -173,7 +173,10 @@ def getSto(Cin,time,myGuy,includeNull,chem,case,Dump=False):
         process_reactions(chem=chem)
 
     nReact,nComp,Sto,dindices,s_reactants,s_reactions,areactants,StoR,StoP,RHS = loadZip(f'{chem}/Sto.zip')
-    RC = np.genfromtxt(f'{case}/Reaction_rates.txt')
+    try:
+        RC = netCDF4.Dataset(f'{case}/Rates.nc').variables['Reaction_rates'][:].data
+    except:
+        RC = np.genfromtxt(f'{case}/Reaction_rates.txt')
     nP, nR = sum(sourceR(myGuy)),sum(sinkR(myGuy))
     cMyGuy = np.ones(C.shape[0])*(C[:,dindices[myGuy]])
 
