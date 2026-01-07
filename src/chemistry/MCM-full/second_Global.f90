@@ -94,7 +94,7 @@ MODULE second_Global
 
   REAL(dp) :: RES1, RES2
   ! Enables changing reactions rates from the outside of chemistry
-  REAL(DP), ALLOCATABLE, SAVE :: R_F(NREACT) = 1d0
+  REAL(DP), ALLOCATABLE, SAVE :: R_F(:)
 
 ! End inlined code from F90_GLOBAL
 
