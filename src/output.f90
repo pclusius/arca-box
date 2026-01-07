@@ -176,11 +176,12 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
   NAMES_longstring = NAMES_longstring(1:i-1)
 
   DO I=1, N_FILES
+    ncfile_names(I) = trim(filename)//'/'//TRIM(ncfile_names(I))
+
     if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
     if (I == 4.and..not.save_Rrates) cycle
 
-    ncfile_names(I) = trim(filename)//'/'//TRIM(ncfile_names(I))
     ! Clearing file; Opening file. Overwrites
     open(720+I, FILE=TRIM(ncfile_names(I))//'.tmp', iostat = ioi)
     CALL handle_file_io(ioi, TRIM(ncfile_names(I))//'.tmp', 'Terminating when trying to open netCDF-file, does the CASE and RUN directory exist')
@@ -544,6 +545,10 @@ subroutine CLOSE_FILES(filename)
     call handler(__LINE__, nf90_close(ncfile_ids(I)))
   END DO
   DO I=1,N_FILES
+    ! Clean up older files not related to current simulation
+    open(unit=760, iostat=ioi, file=TRIM(ncfile_names(I))//'.nc', status='old')
+    if (ioi == 0) close(760, status='delete')
+
     if (I == 2.and..not.Chemistry_flag) cycle
     if (I == 3.and..not.Aerosol_flag) cycle
     if (I == 4.and..not.save_Rrates) cycle
