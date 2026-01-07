@@ -74,7 +74,7 @@ ACDC_OBJECTS = $(addprefix $(OD)/$(BACDC)/, dvode.o solution_settings_new.o $(fo
 acdc_simulation_setup_0x$(n).o acdc_equations_0x$(n).o driver_0x$(n).o get_acdc_J_0x$(n).o))
 
 # Main target ==========================================================================================================
-all: fixratesFile eqc_names arcabox.exe
+all: fixratesFile arcabox.exe eqc_names
 
 # Version information ==================================================================================================
 version:
