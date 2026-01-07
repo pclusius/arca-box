@@ -80,7 +80,7 @@ ACDC_OBJECTS = $(addprefix $(OD)/$(BACDC)/, dvode.o solution_settings_new.o $(fo
 acdc_simulation_setup_0x$(n).o acdc_equations_0x$(n).o driver_0x$(n).o get_acdc_J_0x$(n).o))
 
 # Main target ==========================================================================================================
-all: fixratesFile arcabox.exe
+all: fixratesFile eqc_names arcabox.exe
 
 # Version information ==================================================================================================
 version:
@@ -144,6 +144,15 @@ ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
 .PHONY fixratesFile:
 	@python3 ModelLib/required/editRateSource.py $(SRCDIR)/chemistry/$(CHMDIR)
 
+${OD}/${CHMDIR}/reactions_reactants.o: ModelLib/required/reactions_reactants.f90
+	$(F90) -c $< -o $@ -J build/Hyde_v1.4/
+
+$(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.exe: ${OD}/${CHMDIR}/reactions_reactants.o
+	$(F90) ${OD}/${CHMDIR}/second_Precision.o ${OD}/${CHMDIR}/second_Monitor.o ${OD}/${CHMDIR}/second_Parameters.o $< -o $@
+
+eqc_names: $(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.exe
+	-@$(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.exe $(SRCDIR)/chemistry/$(CHMDIR)
+
 # Cleaning =============================================================================================================
 # 'clean' doesn't remove chemistry and acdc object files, since it takes very long time to compile them.
 # 'cleanmain' cleans all but chemistry modules
@@ -174,4 +183,4 @@ clean_current_chemistry:
 	-@rm arcabox.exe                					 2>/dev/null || true
 
 chem:
-        -@echo $(CHMDIR)
+	-@echo $(CHMDIR)

@@ -9,16 +9,20 @@ hits = 0
 ratesfile = ''
 with open(os.path.join(f,'second_Rates.f90'), 'r') as file:
     for line in file:
-        if re.search(r"RCONST\s*=\s*RCONST\s*\*\s*R_F",line.strip('\n').upper()):
-            hits +=1
+        line = line.strip('\n')
         if re.search(r'^\s*END\s*SUBROUTINE\s*UPDATE_RCONST', line.upper()) and hits == 0:
-            ratesfile += '  RCONST = RCONST * R_F\n'
-        ratesfile += line
+            ratesfile += '  if (ALLOCATED(R_F)) RCONST = RCONST * R_F \n\n'
+            ratesfile += line+'\n'
+        elif re.search(r"RCONST\s*=\s*RCONST\s*\*\s*R_F",line.upper()) and not 'ALLOCATED' in line.upper():
+            continue #hits +=1
+        elif re.search(r"IF\s*\(ALLOCATED\(R_F\)\)\s*RCONST\s*=\s*RCONST\s*\*\s*R_F",line.upper()):
+            hits +=1
+        else:
+            ratesfile += line+'\n'
     if hits>1:
         shutil.move(os.path.join(f,'second_Rates.f90'),os.path.join(f,'second_Rates_CHECK.f90'))
         print(''.join(['\n']*10)+'    second_Rates.f90 is messed up, check manually and remove unnecessary RCONST manipulations')
         exit('    second_Rates.f90 is renamed to second_Rates_CHECK.f90 in %s'%f+''.join(['\n']*10))
-
 if hits==0:
     mod_Rfile = open(os.path.join(f,'second_Rates.f90'), "w")
     mod_Rfile.write(ratesfile)
@@ -56,12 +60,12 @@ mainfile = ''
 search_on = True
 with open(os.path.join(f,'second_Global.f90'), 'r') as file:
     for line in file:
-        if re.search(r"REAL\(DP\),\s*SAVE\s*::\s*R_F\(NREACT\)\s*=\s*1D0",line.strip('\n').upper()):
+        if re.search(r"REAL\(DP\),\s*ALLOCATABLE,\s*SAVE\s*::\s*R_F\(:\)",line.strip('\n').upper()):
             hits +=1
 
         if re.search(r'!\s*INLINED\s*GLOBAL\s*VARIABLE\s*DECLARATIONS', line.upper()) and hits == 0 and search_on:
             mainfile += '  ! Enables changing reactions rates from the outside of chemistry\n'
-            mainfile += '  REAL(DP), SAVE :: R_F(NREACT) = 1D0\n'
+            mainfile += '  REAL(DP), ALLOCATABLE, SAVE :: R_F(:)\n'
             search_on = False
 
         mainfile += line
@@ -73,10 +77,10 @@ if hits==0:
     unchanged = False
     print(' Edited second_Global.f90 to accommodate manipulation of reaction constants from outside')
 
-if hits>1:
+elif hits>1:
     shutil.move(os.path.join(f,'second_Global.f90'),os.path.join(f,'second_Global_CHECK.f90'))
     print(''.join(['\n']*10)+'    second_Global.f90 is messed up, check manually and remove unnecessary R_F declarations')
     exit('    second_Global.f90 is renamed to second_Global_CHECK.f90 in %s'%f+''.join(['\n']*10))
 
-if unchanged:
-    print('  ---')
+# if unchanged:
+#     print(' ')

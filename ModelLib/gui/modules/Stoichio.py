@@ -1,5 +1,7 @@
 import numpy as np
 import os, re, pickle, gzip,netCDF4
+from pdb import set_trace as bp
+
 # from time import time as timer
 # strt = timer()
 class Reactions():
@@ -118,7 +120,9 @@ def reduceindices(iL,L,boolean=False):
     else:
         return np.flatnonzero(a)
 
-def getSto(C,time,myGuy,includeNull,chem,case,Dump=False):
+def getSto(Cin,time,myGuy,includeNull,chem,case,Dump=False):
+
+    C = Cin.copy()
 
     def sourceR(name):
         i = dindices[name]
@@ -171,17 +175,23 @@ def getSto(C,time,myGuy,includeNull,chem,case,Dump=False):
     nReact,nComp,Sto,dindices,s_reactants,s_reactions,areactants,StoR,StoP,RHS = loadZip(f'{chem}/Sto.zip')
     RC = np.genfromtxt(f'{case}/Reaction_rates.txt')
     nP, nR = sum(sourceR(myGuy)),sum(sinkR(myGuy))
-    if includeNull:
-        Cr = C.copy()
+    cMyGuy = np.ones(C.shape[0])*(C[:,dindices[myGuy]])
 
-    C[:,dindices[myGuy]] = 1.0
+    homomolSecondOrder = np.arange(nReact)[[all([a==myGuy for a in ar]) for ar in areactants]]
+    # bp()
+    if len(homomolSecondOrder)>0:
+        RC[:,homomolSecondOrder] = (RC[:,homomolSecondOrder].T*cMyGuy).T
+
     # Re = np.prod(np.transpose(np.tile(C[None,:,:] , (nR,1,1)), (1,2,0)),1, where=sinkSM(myGuy).T>0)*RC[:,sinkR(myGuy)]
-    Re = np.prod(np.transpose(np.tile(C[None,:,:] , (nR,1,1)), (1,2,0)),1, where=sinkSM(myGuy).T>0)*RC[:,sinkR(myGuy)]*sinkMu(myGuy)
 
     if includeNull:
-        So = np.prod(np.transpose(np.tile(Cr[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR(myGuy)]*sourceMu(myGuy)
-    else:
         So = np.prod(np.transpose(np.tile(C[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR(myGuy)]*sourceMu(myGuy)
+        C[:,dindices[myGuy]] = 1.0
+    else:
+        C[:,dindices[myGuy]] = 1.0
+        So = np.prod(np.transpose(np.tile(C[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR(myGuy)]*sourceMu(myGuy)
+
+    Re = np.prod(np.transpose(np.tile(C[None,:,:] , (nR,1,1)), (1,2,0)),1, where=sinkSM(myGuy).T>0)*RC[:,sinkR(myGuy)]*sinkMu(myGuy)
 
     return Reactions( myGuy, Re,So,nReact,nComp,s_reactions,sinkR(myGuy),sourceR(myGuy),areactants,RHS,np.sum(StoR,1) )
 

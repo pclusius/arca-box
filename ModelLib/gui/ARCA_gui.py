@@ -960,10 +960,12 @@ class React(QtWidgets.QDialog):
             return
         indx = int(self.pw.rTable.item(item.row(),0).text())-1
         self.plwin = plotWin()
+        tt = self.pw.rTable.item(item.row(),0).toolTip()
         pp = self.ncobj.path.replace('Chemistry.nc','')+'Reaction_rates.txt'
         unit = 's^-1' if abs(self.Robj.order[indx])==1 else 'molec^-1 s^-1'
-        self.plwin.setplot(f'k_{indx+1}',self.ncobj.time,genfromtxt(pp,usecols=indx),unit,'hrs',
-            False,1,0,legend=item.toolTip(), title='Reaction rate coefficient time series',twoCol=False)
+        self.plwin.setplot(f'{self.pw.rTable.item(item.row(),2).text()}: k_({indx+1})',
+            self.ncobj.time,genfromtxt(pp,usecols=indx),unit,'hrs',
+            False,1,0,legend=tt, title='Reaction rate coefficient time series',twoCol=False)
         response = self.plwin.exec()
 
 # The popup window for input time series
@@ -1532,15 +1534,17 @@ Please provide valid spectral function.') \
             self.fLog_2.clicked.connect(self.showOutputUpdate)
             self.fLin_2.clicked.connect(self.showOutputUpdate)
             self.findComp.textChanged.connect(self.filterListOfComp)
-            self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'addplot', ftype="NetCDF (*.nc)"))
-            self.addSimilar.clicked.connect(self.addAnotherNC)
+            self.loadNetcdf.clicked.connect(self.selectNcFile)
+            # self.loadNetcdf.clicked.connect(lambda: self.browse_path(None, 'addplot', ftype="NetCDF (*.nc)"))
+            # self.addSimilar.clicked.connect(self.addAnotherNC)
             self.loadNetcdf_mass.clicked.connect(lambda: self.browse_path(None, 'plot_mass', ftype="ARCA particle file (Particles.nc)"))
             self.loadNetcdf_massAdd.clicked.connect(lambda: self.browse_path(None, 'plot_mass_add', ftype="ARCA particle file (Particles.nc)"))
             self.loadNetcdf_massAdd.setEnabled(False)
             self.loadNetcdfPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=0))
             self.loadSumPar.clicked.connect(lambda: self.browse_path(None, 'plotPar', ftype="NetCDF, sum (*.nc *.sum *.dat)",plWind=1))
             # --------------------------------------------------------
-            self.CloseLinePlotsButton.clicked.connect(self.closenetcdf)
+            self.CloseLinePlotsButton.clicked.connect(self.closeOneFile)
+            self.closeAll.clicked.connect(self.closenetcdf)
             # self.CloseLinePlotsButton.clicked.connect(lambda: self.browse_path(None, 'addplot', ftype="NetCDF (*.nc)"))
             self.listOfplottedFiles = []
             self.LPD = []
@@ -1568,7 +1572,7 @@ Please provide valid spectral function.') \
             wnd.getAxis('left').setPen(pen)
             wnd.getAxis('bottom').setPen(pen)
 
-        self.addSimilar.setEnabled(False)
+        # self.addSimilar.setEnabled(False)
         self.actionShow_variable_attributes.setEnabled(False)
         self.CloseLinePlotsButton.setEnabled(False)
         self.findComp.setEnabled(False)
@@ -1590,11 +1594,9 @@ Please provide valid spectral function.') \
         self.firstParPlot = [0,0]
         self.linePlotLegends = [self.legend1,self.legend2,self.legend3,self.legend4,self.legend5,self.legend6]
         [l.setText('') for l in self.linePlotLegends]
-        # self.radioCompare.toggled.connect(lambda: self.addSimilar.setEnabled(False))
-        # self.sumSelection.toggled.connect(lambda: self.addSimilar.setEnabled(True))
         self.availableVars.doubleClicked.connect(self.showReactivityAnalysis)
 
-        ######
+    ######
         self.resize(980, 840)
 
     # -----------------------
@@ -1654,6 +1656,17 @@ Please provide valid spectral function.') \
     # -----------------------
     # Class methods
     # -----------------------
+    def closeOneFile(self):
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        paths = [l.path for l in self.LPD]
+        paths.pop(self.loadedFiles.currentIndex())
+        self.closenetcdf()
+        # self.closenetcdf_mass()
+        for ip,pp in enumerate(paths):
+            new = True if ip==0 else False
+            self.linePlotMulti(pp,new)
+        QtWidgets.QApplication.restoreOverrideCursor()
+
     def showReactivityAnalysis(self):
         # if len(qt_box.plottedFile) != 1 :
         #     return
@@ -2418,9 +2431,12 @@ the numerical model or chemistry scheme differs from the current, results may va
             elif mode == 'plot':
                 self.showOutput(path)
             elif mode == 'addplot':
-                self.linePlotMulti(path)
-                if len(self.LPD)>0 and self.LPD[-1].masterfile == 'Chemistry.nc':
-                    self.LPD[-1].getAllGases() #XXX
+                if len(self.LPD)>0:
+                    self.addAnotherNC()
+                    return
+                else:
+                    self.linePlotMulti(path)
+                #     self.LPD[-1].getAllGases() #XXX
             elif mode == 'addplot_more':
                 self.linePlotMulti(path, new=False)
             elif mode == 'plot_mass':
@@ -4092,6 +4108,15 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.ppb.setEnabled(True)
             self.ppt.setEnabled(True)
 
+    def selectNcFile(self):
+        if len(self.LPD)==6:
+            self.popup('No more files', 'You can have maximum 6 files open in this tool')
+            return
+        if len(self.LPD)>0:
+            self.addAnotherNC()
+        else:
+            self.browse_path(None, 'addplot', ftype="NetCDF (*.nc)")
+
     def addAnotherNC(self):
         if self.LPD == []:
             return
@@ -4126,7 +4151,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             self.findComp.clear()
             # Close all previus netcdf-files and clear plot
             self.closenetcdf()
-            self.addSimilar.setEnabled(True)
+            # self.addSimilar.setEnabled(True)
             self.actionShow_variable_attributes.setEnabled(True)
             self.CloseLinePlotsButton.setEnabled(True)
             if 'Chemistry.nc' in file:
@@ -4193,8 +4218,11 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
 
         if new:
             self.plottedFile = [file]
+            self.loadedFiles.setEnabled(True)
         else:
             self.plottedFile.append(file)
+        self.loadedFiles.addItem(file)
+        self.loadedFiles.setCurrentIndex(self.loadedFiles.count()-1)
 
     def selectionMode(self):
         if self.sumSelection.isChecked():
@@ -4265,21 +4293,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         # Exctract that variable from netCDF-dataset and save to Y
         YY = []
         TT = []
-        if not self.sumSelection.isChecked():
-            if len(self.availableVars.selectedItems())>1:
-                self.compare=True
-                z = self.LPD[-1]
-                YY = [z.getconc(comp.text(), par=PPconc) for comp in self.availableVars.selectedItems()]
-                NMS = [comp.text() for comp in self.availableVars.selectedItems()]
-                TT.append(z.time)
-            else:
-                self.compare=False
-                for z in self.LPD:
-                    YY.append(z.getconc(comp, par=PPconc))
-                    TT.append(z.time)
-            # self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
-            self.plotTitle = comp+' '
-        else:
+        if self.sumSelection.isChecked():
             if self.availableVars.selectedItems() != []:
                 for z in self.LPD:
                     YY.append(z.getconcsum([c.text() for c in self.availableVars.selectedItems()],par=PPconc))
@@ -4293,6 +4307,20 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                     TT.append(z.time)
                 # self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
                 self.plotTitle = comp+' '
+        else:
+            if len(self.availableVars.selectedItems())>1:
+                self.compare=True
+                z = self.LPD[-1]
+                YY = [z.getconc(comp.text(), par=PPconc) for comp in self.availableVars.selectedItems()]
+                NMS = [comp.text() for comp in self.availableVars.selectedItems()]
+                TT.append(z.time)
+            else:
+                self.compare=False
+                for z in self.LPD:
+                    YY.append(z.getconc(comp, par=PPconc))
+                    TT.append(z.time)
+            # self.plotTitle = self.plotTitle[:self.plotTitle.rfind(':')+2] + comp+' '
+            self.plotTitle = comp+' '
 
         for j,Y in enumerate(YY):
             if max(Y)!=0:
@@ -4435,7 +4463,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             z.closenc()
         self.LPD = []
         self.NC_lines = []
-        self.addSimilar.setEnabled(False)
+        # self.addSimilar.setEnabled(False)
         self.radioCompare.setEnabled(True)
         self.actionShow_variable_attributes.setEnabled(False)
         self.CloseLinePlotsButton.setEnabled(False)
@@ -4465,6 +4493,11 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         self.toggleppm('off')
         self.listOfplottedFiles = []
         self.plottedFile = []
+        self.loadedFiles.setEnabled(False)
+        self.loadedFiles.clear()
+        self.plotResultTitle.setText('')
+
+
 
     def unnecessaryLegendTrick(self):
         if self.massleg in self.massleg_skene.items():

@@ -5,14 +5,20 @@ use second_Parameters
 
 implicit none
 integer :: i
+character(len=512) :: path
+path = ''
 
-OPEN(600,file="SPC_NAMES.txt",status='replace',action='write')
+CALL GETARG(1,path)
+if (TRIM(path) == '') STOP 'Give the path to chemistry directory as cmdline option'
+
+
+OPEN(600,file=TRIM(path)//"/SPC_NAMES.txt",status='replace',action='write')
 do i=1,size(SPC_NAMES,1)
   WRITE(600,*) TRIM(SPC_NAMES(i))
 end do
 CLOSE(600)
 
-OPEN(600,file="EQN_NAMES.txt",status='replace',action='write')
+OPEN(600,file=TRIM(path)//"/EQN_NAMES.txt",status='replace',action='write')
 do i=1,size(EQN_NAMES,1)
   WRITE(600,*) TRIM(EQN_NAMES(i))
 end do
