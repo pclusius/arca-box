@@ -97,7 +97,7 @@ class Reactions():
 
             if len(groupsP)==0:
                 sorter = np.argsort(self.So.sum(0))[::-1]
-                label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxR],self.s_reactions[self.mySources][sorter][:nMaxP])]
+                label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxP],self.s_reactions[self.mySources][sorter][:nMaxP])]
                 label = list(label) if nMaxP>1 else [label[0]]
                 self.sourceLabels += label
                 if nMaxP>1:
@@ -120,7 +120,7 @@ def reduceindices(iL,L,boolean=False):
     else:
         return np.flatnonzero(a)
 
-def getSto(Cin,time,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder=True):
+def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder=True):
 
     C = Cin.copy()
 
@@ -202,30 +202,34 @@ def getSto(Cin,time,myGuy,includeNull,chem,case,Dump=False,include_homomolSecond
 if __name__ == "__main__":
     from proc_reactivity import process_reactions,is_number
     chroot = '../../../src/chemistry/'
-    ch = chroot+netCDF4.Dataset('/home/pecl/05-ARCA/ARCA-box/INOUT/STARTUP_0001/RKTV/Chemistry.nc').Chemistry_module
-    myGuy = 'HO2'
-    nMaxR,nMaxP = 5,5
+    nc = netCDF4.Dataset('/home/pecl/05-ARCA/ARCA-box/INOUT/STARTUP_0001/INTTEST/Chemistry.nc')
+    ch = chroot+nc.Chemistry_module
+    myGuy = 'HOM19_O12'
+    myGuy = 'OH'
+    nMaxR,nMaxP = 3,3
     Dump = False
     includeNull=False
-    C = loadZip('C.zip')
+    # C = loadZip('C.zip')
+    C = nc.variables['CH_GAS'][:,:].data
+    time = nc.variables['TIME_IN_HRS'][:]
+    # time = np.linspace(0,12,nt)
     nt = C.shape[0]
-    time = np.linspace(0,12,nt)
-    cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/STARTUP_0001/RKTV'
+    cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/STARTUP_0001/INTTEST'
 
     # Re,So,nReact,nComp,s_reactions,mySinks,mySources,areactants,RHS
-    ROBJ = getSto(C,time, myGuy,includeNull,ch,cs,Dump)
+    ROBJ = getSto(C,myGuy,includeNull,ch,cs,Dump)
 
-    nMaxR = min(nMaxR,sum(ROBJ.mySinks))
-    nMaxP = min(nMaxP,sum(ROBJ.mySources))
+    ROBJ.nMaxR = min(nMaxR,sum(ROBJ.mySinks))
+    ROBJ.nMaxP = min(nMaxP,sum(ROBJ.mySources))
     # ProdReacFilter = [ True if i in ROBJ.RHS[myGuy] else False for i in range(ROBJ.nReact)]
 
     # groupsR = ['CO,CH4,SDD','O3','NO']
-    groupsR = ['CO,CH4,O3','HO2','18']
+    ROBJ.groupsR = ['CO,CH4,O3','HO2','18']
     # groupsP = [1365, 'TOTAL']
-    groupsP = ['35','TOTAL']
+    ROBJ.groupsP = ['35','TOTAL']
 
-    groupsR = ['HO2']
-    groupsP = ['TOTAL']
+    ROBJ.groupsR = ['13']
+    ROBJ.groupsP = ['TOTAL','60']
 
     import matplotlib.pyplot as plt
     plt.ion()
@@ -233,76 +237,96 @@ if __name__ == "__main__":
     f,(a1,a2) = plt.subplots(2)
     a1.set_title('Reactivity')
     a2.set_title('Production')
-    # if myGuy in groupsR: groupsR.pop(groupsR.index(myGuy))
+    ROBJ.lines()
+    for lab,lin in zip(ROBJ.sinkLabels,ROBJ.sinks):
+        a1.plot(time, lin, label=lab)
+    for lab,lin in zip(ROBJ.sourceLabels,ROBJ.sources):
+        a2.plot(time, lin, label=lab)
+    [a.legend() for a in [a1,a2]]
 
-    myGuysBuddies = []
-    for r in ROBJ.areactants[ROBJ.mySinks]:
-        if all([x==myGuy for x in r]):
-            myGuysBuddies.append(myGuy)
-        else:
-            for rr in r:
-                if rr != myGuy:
-                    myGuysBuddies.append(rr)
+    ROBJ.lines()
+    iMyGuy = nc.variables['CH_GAS'].names.split(',').index(myGuy)
+    cc = C[:,iMyGuy]
+    import scipy as sc
+    f,(a1,a2) = plt.subplots(2)
+    for lab,lin in zip(ROBJ.sinkLabels,ROBJ.sinks):
+        a1.plot(time[1:], sc.integrate.cumtrapz(lin*cc,time*3600), label=lab)
+    for lab,lin in zip(ROBJ.sourceLabels,ROBJ.sources):
+        a2.plot(time[1:], sc.integrate.cumtrapz(lin,time*3600), label=lab)
+    [a.legend() for a in [a1,a2]]
+    # sc.integrate.cumtrapz(y,x))
 
-    myGuysBuddies = np.array(myGuysBuddies)
-
-    ###########################################################################################
-    ###########################################################################################
-    ###########################################################################################
-    # Sinks / Reactivity
-    ###########################################################################################
-    ###########################################################################################
-    ###########################################################################################
-    if 'TOTAL' in groupsR:
-        a1.plot(time, ROBJ.Re.sum(1), c='k', lw=1, ls='--', zorder=10,label='Total React')
-        groupsR.pop(groupsR.index('TOTAL'))
-
-    for group in groupsR:
-        indices = []
-        print(group.split(','))
-        if all([is_number(n) for n in group.split(',')]):
-            indices = [int(n) for n in group.split(',')]
-            indicesRed = reduceindices(indices, ROBJ.mySinks)
-            label = ' & '.join([f'R({i+1}): '+ROBJ.s_reactions[i] for i in indices])
-        else:
-            indicesRed = np.concatenate([np.where(myGuysBuddies == c)[0] for c in group.split(',')])
-            label = group
-        if len(indicesRed)>0:
-            a1.plot(time, ROBJ.Re[:,indicesRed].sum(1),label=label, lw=3)
-
-    if len(groupsR)==0:
-        sorter = np.argsort(ROBJ.Re.sum(0))[::-1]
-        label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxR],ROBJ.s_reactions[ROBJ.mySinks][sorter][:nMaxR])]
-        label = label if nMaxR>1 else label[0]
-        a1.plot(time,ROBJ.Re[:,sorter][:,:nMaxR], label=label, lw=3)
-
-    ###########################################################################################
-    ###########################################################################################
-    ###########################################################################################
-    # Sources / Production
-    ###########################################################################################
-    ###########################################################################################
-    ###########################################################################################
-    if len(ROBJ.rhs[myGuy])>0:
-        if 'TOTAL' in groupsP:
-            a2.plot(time, ROBJ.So.sum(1), c='k', lw=1, ls='--', zorder=10,label='Total Source')
-            groupsP.pop(groupsP.index('TOTAL'))
-
-        for group in groupsP:
-            # if any([True if 'int' in str(type(g)) else False for g in groupsP]):
-            if all([is_number(n) for n in group.split(',')]):
-                indices = [int(n) for n in group.split(',')]
-                indicesRed = reduceindices(indices,ROBJ.mySources)
-                label = ' & '.join([f'R({i+1}): '+ROBJ.s_reactions[i] for i in indices])
-                if len(indicesRed)>0:
-                    a2.plot(time,ROBJ.So[:,indicesRed].sum(1), label=label, lw=3)
-        if len(groupsP)==0:
-            sorter = np.argsort(ROBJ.So.sum(0))[::-1]
-            label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxR],ROBJ.s_reactions[ROBJ.mySources][sorter][:nMaxP])]
-            label = label if nMaxP>1 else label[0]
-            a2.plot(time,ROBJ.So[:,sorter][:,:nMaxP], label=label, lw=3)
-
-        a1.legend()
-        a2.legend()
+    # # if myGuy in groupsR: groupsR.pop(groupsR.index(myGuy))
+    #
+    # myGuysBuddies = []
+    # for r in ROBJ.areactants[ROBJ.mySinks]:
+    #     if all([x==myGuy for x in r]):
+    #         myGuysBuddies.append(myGuy)
+    #     else:
+    #         for rr in r:
+    #             if rr != myGuy:
+    #                 myGuysBuddies.append(rr)
+    #
+    # myGuysBuddies = np.array(myGuysBuddies)
+    #
+    # ###########################################################################################
+    # ###########################################################################################
+    # ###########################################################################################
+    # # Sinks / Reactivity
+    # ###########################################################################################
+    # ###########################################################################################
+    # ###########################################################################################
+    # if 'TOTAL' in groupsR:
+    #     a1.plot(time, ROBJ.Re.sum(1), c='k', lw=1, ls='--', zorder=10,label='Total React')
+    #     groupsR.pop(groupsR.index('TOTAL'))
+    #
+    # for group in groupsR:
+    #     indices = []
+    #     print(group.split(','))
+    #     if all([is_number(n) for n in group.split(',')]):
+    #         indices = [int(n) for n in group.split(',')]
+    #         indicesRed = reduceindices(indices, ROBJ.mySinks)
+    #         label = ' & '.join([f'R({i+1}): '+ROBJ.s_reactions[i] for i in indices])
+    #     else:
+    #         indicesRed = np.concatenate([np.where(myGuysBuddies == c)[0] for c in group.split(',')])
+    #         label = group
+    #     if len(indicesRed)>0:
+    #         a1.plot(time, ROBJ.Re[:,indicesRed].sum(1),label=label, lw=3)
+    #
+    # if len(groupsR)==0:
+    #     sorter = np.argsort(ROBJ.Re.sum(0))[::-1]
+    #     label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxR],ROBJ.s_reactions[ROBJ.mySinks][sorter][:nMaxR])]
+    #     label = label if nMaxR>1 else label[0]
+    #     a1.plot(time,ROBJ.Re[:,sorter][:,:nMaxR], label=label, lw=3)
+    #
+    # ###########################################################################################
+    # ###########################################################################################
+    # ###########################################################################################
+    # # Sources / Production
+    # ###########################################################################################
+    # ###########################################################################################
+    # ###########################################################################################
+    # if len(ROBJ.rhs[myGuy])>0:
+    #     if 'TOTAL' in groupsP:
+    #         a2.plot(time, ROBJ.So.sum(1), c='k', lw=1, ls='--', zorder=10,label='Total Source')
+    #         groupsP.pop(groupsP.index('TOTAL'))
+    #
+    #     for group in groupsP:
+    #         # if any([True if 'int' in str(type(g)) else False for g in groupsP]):
+    #         if all([is_number(n) for n in group.split(',')]):
+    #             indices = [int(n) for n in group.split(',')]
+    #             indicesRed = reduceindices(indices,ROBJ.mySources)
+    #             label = ' & '.join([f'R({i+1}): '+ROBJ.s_reactions[i] for i in indices])
+    #             if len(indicesRed)>0:
+    #                 a2.plot(time,ROBJ.So[:,indicesRed].sum(1), label=label, lw=3)
+    #     if len(groupsP)==0:
+    #         sorter = np.argsort(ROBJ.So.sum(0))[::-1]
+    #         label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxP],ROBJ.s_reactions[ROBJ.mySources][sorter][:nMaxP])]
+    #         label = label if nMaxP>1 else label[0]
+    #         a2.plot(time,ROBJ.So[:,sorter][:,:nMaxP], label=label, lw=3)
+    #
+    #     a1.legend()
+    #     a2.legend()
+    # sc.integrate.cumtrapz(y,x))
 else:
     from modules.proc_reactivity import process_reactions,is_number

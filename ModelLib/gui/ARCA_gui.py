@@ -29,7 +29,7 @@ from modules import variations,vars,batch,GetVapourPressures as gvp,proc_reactiv
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
 from numpy import argmin,argmax,linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround
-from numpy import argsort,genfromtxt
+from numpy import argsort,trapz,interp,genfromtxt,abs as npabs
 import numpy.ma as ma
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname, remove as osremove, rename as osrename
 from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin, relpath as osrelpath
@@ -48,6 +48,7 @@ from modules.updateINITFILE import updateINITFILE,parse_chamistry_NAMES,convertM
 try:
     from scipy.ndimage import gaussian_filter
     from scipy.signal import savgol_filter
+    from scipy.integrate import cumtrapz
     scipyIs = True
 except:
     print('Consider adding SciPy to your Python')
@@ -802,13 +803,21 @@ class React(QtWidgets.QDialog):
         self.pw.pLabel.setText(f'{self.mainGuy} production (cm⁻³ s⁻¹)')
         self.pw.rLabel.setText(f'{self.mainGuy} reactivity (s⁻¹)')
         self.maxReact = self.pw.maxReact.value()
-
         self.ncobj = ncobj
         ncobj.getAllGases()
+        self.iMainGuy = self.ncobj.names.index(self.mainGuy)
+        self.pw.cumIntSinkLeft.setText(f'{self.ncobj.time[0]*3600:g}')
+        self.pw.cumIntSinkRight.setText(f'{self.ncobj.time[-1]*3600:g}')
+        # self.pw.intSink.text()
+        self.pw.cumIntProdLeft.setText(f'{self.ncobj.time[0]*3600:g}')
+        self.pw.cumIntProdRight.setText(f'{self.ncobj.time[-1]*3600:g}')
+        # self.pw.intProd.text()
+
         if not exists(f'{Chem().inExePath}/Sto.zip'):
             proc_reactivity.process_reactions(Chem().inExePath)
+        # self.ncobj.time
         self.Robj = Stoichio.getSto(
-            self.ncobj.nconc,self.ncobj.time,self.mainGuy,
+            self.ncobj.nconc,self.mainGuy,
             self.includeNull,self.chem,self.case,False,self.homomolSecondOrder
         )
         self.reactions = self.Robj.s_reactions
@@ -821,6 +830,8 @@ class React(QtWidgets.QDialog):
         self.pw.pushButtonRefresh.clicked.connect(self.updatePlot)
         self.pw.totalP.stateChanged.connect(self.updatePlot)
         self.pw.totalR.stateChanged.connect(self.updatePlot)
+        self.pw.cumIntProd.stateChanged.connect(self.updatePlot)
+        self.pw.cumIntSink.stateChanged.connect(self.updatePlot)
         self.pw.maxProd.valueChanged.connect(self.updatePlot)
         self.pw.maxReact.valueChanged.connect(self.updatePlot)
         self.pw.rTable.itemClicked.connect(self.updatePlot)
@@ -831,6 +842,12 @@ class React(QtWidgets.QDialog):
         self.pw.clearChecked.clicked.connect(self.clearCheckedReactions)
         self.pw.sinkComp.textChanged.connect(self.toggleMaxframes)
         self.fillTable()
+        self.pw.cumIntSinkLeft.textChanged.connect(self.updatePlot)
+        self.pw.cumIntSinkRight.textChanged.connect(self.updatePlot)
+        # RTot = self.pw.intSink.text()
+        self.pw.cumIntProdLeft.textChanged.connect(self.updatePlot)
+        self.pw.cumIntProdRight.textChanged.connect(self.updatePlot)
+        # PTot = self.p:*360012.4e}'w.intProd.text()
 
     def fillTable(self,sel=[]):
         counter = 0
@@ -849,7 +866,7 @@ class React(QtWidgets.QDialog):
             itemI.setText((str(i+1)))
             itemI.setToolTip(self.rates[i])
             item = QtWidgets.QTableWidgetItem()
-            if enabledR:
+            if enabledL or enabledR:
                 item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
                 if i in sel:
                     item.setCheckState(QtCore.Qt.Checked)
@@ -870,21 +887,69 @@ class React(QtWidgets.QDialog):
             item.setText(r)
             counter += 1
 
+    def countIntegrals(self,PR,ln,sum=False):
+        if PR=='sou':
+            try: PtL  = max(0,float(self.pw.cumIntProdLeft.text()))
+            except: return
+            try: PtR  = min(self.ncobj.time[-1]*3600,float(self.pw.cumIntProdRight.text()))
+            except: return
+            try: PTot  = float(self.pw.intProd.text())
+            except: PTot = 0
+            timeInt = linspace(PtL,PtR,100)
+            y = interp(timeInt,self.ncobj.time*3600,ln)
+            # iPtL = argmin(npabs(PtL-self.ncobj.time*3600))
+            # iPtR = argmin(npabs(PtR-self.ncobj.time*3600))
+            # total = trapz(ln[iPtL:iPtR+1], self.ncobj.time[iPtL:iPtR+1])
+            total = trapz(y,timeInt)
+            if sum: total += PTot
+            self.pw.intProd.setText(f'{total:g}')
+        if PR=='sin':
+            try: RtL  = max(0,float(self.pw.cumIntSinkLeft.text()))
+            except: return
+            try: RtR  = min(self.ncobj.time[-1]*3600,float(self.pw.cumIntSinkRight.text()))
+            except: return
+            try: RTot  = float(self.pw.intSink.text())
+            except: RTot = 0
+            timeInt = linspace(RtL,RtR,100)
+            y = interp(timeInt,self.ncobj.time*3600,ln)
+            # iRtL = argmin(npabs(RtL-self.ncobj.time*3600))
+            # iRtR = argmin(npabs(RtR-self.ncobj.time*3600))
+            total = trapz(y,timeInt)
+            # total = trapz(ln[iRtL:iRtR+1], self.ncobj.time[iRtL:iRtR+1])
+            if sum: total += RTot
+            self.pw.intSink.setText(f'{total:g}')
+
+
+
     def setplot(self,init=False):
         self.Robj.lines()
+        Pint = self.pw.cumIntProd.isChecked()
+        Rint = self.pw.cumIntSink.isChecked()
+        cc = self.ncobj.nconc[:,self.iMainGuy] if Rint else 1
         sources,sinks,sourceLabels,sinkLabels = self.Robj.sources,self.Robj.sinks,self.Robj.sourceLabels,self.Robj.sinkLabels
+        # if self.pw.totalP.isChecked():
+        #     self.countIntegrals(sou)
+        # if self.pw.totalR.isChecked():
+        #     self.countIntegrals(sin)
+
         self.L1 = self.pw.plotProd.addLegend()
         self.L2 = self.pw.plotReact.addLegend()
         self.pw.plotProd.showGrid(x=True,y=True,alpha=0.2)
         self.pw.plotReact.showGrid(x=True,y=True,alpha=0.2)
         for i_s, sou, soulabel in zip(range(len(sources)),sources,sourceLabels):
+            self.countIntegrals('sou',sou,False if i_s==0 else True)
+            sou = cumtrapz(sou,self.ncobj.time*3600) if Pint else sou
+            time = self.ncobj.time[1:] if Pint else self.ncobj.time
             line = QtCore.Qt.SolidLine if i_s<6 else QtCore.Qt.DashLine
             w=5 if i_s==0 and self.pw.totalP.isChecked() else 2
-            pl = self.pw.plotProd.plot(self.ncobj.time,sou,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=soulabel)
+            pl = self.pw.plotProd.plot(time,sou,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=soulabel)
         for i_s, sin, sinlabel in zip(range(len(sinks)),sinks,sinkLabels):
+            self.countIntegrals('sin',sin*self.ncobj.nconc[:,self.iMainGuy],False if i_s==0 else True)
+            sin = cumtrapz(sin*self.ncobj.nconc[:,self.iMainGuy],self.ncobj.time*3600) if Rint else sin
+            time = self.ncobj.time[1:] if Rint else self.ncobj.time
             line = QtCore.Qt.SolidLine if i_s<6 else QtCore.Qt.DashLine
             w=5 if i_s==0 and self.pw.totalR.isChecked() else 2
-            pl = self.pw.plotReact.plot(self.ncobj.time,sin,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=sinlabel)
+            pl = self.pw.plotReact.plot(time,sin,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=sinlabel)
 
     def updatePlot(self):
         self.Robj.groupsP = ['TOTAL'] if self.pw.totalP.isChecked() else []
@@ -904,12 +969,14 @@ class React(QtWidgets.QDialog):
         self.pw.maxPframe.setEnabled(True)
         for row in range(self.pw.rTable.rowCount()):
             if self.pw.rTable.item(row,1).checkState():
-                self.pw.maxPframe.setEnabled(False)
-                self.Robj.groupsP.append(f"{int(self.pw.rTable.item(row,0).text())-1:d}")
+                if self.Robj.mySources[row]:
+                    self.pw.maxPframe.setEnabled(False)
+                    self.Robj.groupsP.append(f"{int(self.pw.rTable.item(row,0).text())-1:d}")
+                if self.Robj.mySinks[row]:
+                    self.pw.maxRframe.setEnabled(False)
+                    self.Robj.groupsR.append(f"{int(self.pw.rTable.item(row,0).text())-1:d}")
         self.Robj.nMaxR = self.pw.maxReact.value()
         self.Robj.nMaxP = self.pw.maxProd.value()
-        # print(self.Robj.groupsP)
-        # print(self.Robj.groupsR)
         self.setplot()
         return
 
@@ -1149,6 +1216,7 @@ class NcPlot:
     def getAllGases(self):
         if self.nconc is None:
             self.nconc = self.nc.variables['CH_GAS'][:,:].data
+            self.names = self.nc.variables['CH_GAS'].names.split(',')
             return
         else:
             return
@@ -1674,9 +1742,11 @@ Please provide valid spectral function.') \
         QtWidgets.QApplication.restoreOverrideCursor()
 
     def showReactivityAnalysis(self):
-        # if len(qt_box.plottedFile) != 1 :
-        #     return
         if ossplit(qt_box.plottedFile[0])[1] != 'Chemistry.nc':
+            return
+        RRates = self.LPD[self.ReactComboBox.currentIndex()].path.replace('Chemistry.nc','Rates.nc')
+        if not exists(RRates):
+            self.popup('Rates were not saved', 'Reactivity analysis depends on the reaction rates, which were not saved for this simulation', 1)
             return
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         self.reWin = React(self.LPD[self.ReactComboBox.currentIndex()])
