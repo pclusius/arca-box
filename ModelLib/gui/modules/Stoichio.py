@@ -120,7 +120,7 @@ def reduceindices(iL,L,boolean=False):
     else:
         return np.flatnonzero(a)
 
-def getSto(Cin,time,myGuy,includeNull,chem,case,Dump=False):
+def getSto(Cin,time,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder=True):
 
     C = Cin.copy()
 
@@ -181,10 +181,10 @@ def getSto(Cin,time,myGuy,includeNull,chem,case,Dump=False):
     nP, nR = sum(sourceR(myGuy)),sum(sinkR(myGuy))
     cMyGuy = np.ones(C.shape[0])*(C[:,dindices[myGuy]])
 
-    homomolSecondOrder = np.arange(nReact)[[all([a==myGuy for a in ar]) for ar in areactants]]
-    # bp()
-    if len(homomolSecondOrder)>0:
-        RC[:,homomolSecondOrder] = (RC[:,homomolSecondOrder].T*cMyGuy).T
+    if include_homomolSecondOrder:
+        homomolSecondOrder = np.arange(nReact)[[all([a==myGuy for a in ar]) for ar in areactants]]
+        if len(homomolSecondOrder)>0:
+            RC[:,homomolSecondOrder] = (RC[:,homomolSecondOrder].T*cMyGuy).T
 
     # Re = np.prod(np.transpose(np.tile(C[None,:,:] , (nR,1,1)), (1,2,0)),1, where=sinkSM(myGuy).T>0)*RC[:,sinkR(myGuy)]
 

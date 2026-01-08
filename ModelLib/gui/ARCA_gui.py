@@ -798,6 +798,7 @@ class React(QtWidgets.QDialog):
         # self.gasC = None
         # self.allCInd = None
         self.includeNull = qt_box.actionReactivity_includes_null_cycles.isChecked()
+        self.homomolSecondOrder = qt_box.actionmultiply_2_X_reactivity_with_C_x.isChecked()
         self.pw.pLabel.setText(f'{self.mainGuy} production (cm⁻³ s⁻¹)')
         self.pw.rLabel.setText(f'{self.mainGuy} reactivity (s⁻¹)')
         self.maxReact = self.pw.maxReact.value()
@@ -808,7 +809,7 @@ class React(QtWidgets.QDialog):
             proc_reactivity.process_reactions(Chem().inExePath)
         self.Robj = Stoichio.getSto(
             self.ncobj.nconc,self.ncobj.time,self.mainGuy,
-            self.includeNull,self.chem,self.case
+            self.includeNull,self.chem,self.case,False,self.homomolSecondOrder
         )
         self.reactions = self.Robj.s_reactions
         if exists(f'{Chem().inExePath}/RATES.dat'):
@@ -1271,6 +1272,10 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionReactivity_includes_null_cycles.setChecked( True if int(get_config("options", "nullCycles",  fallback='0' ))==1 else False )
         self.actionReactivity_includes_null_cycles.triggered.connect(lambda:
             set_config('options', 'nullCycles',('1' if self.actionReactivity_includes_null_cycles.isChecked() else '0' )))
+
+        self.actionmultiply_2_X_reactivity_with_C_x.setChecked( True if int(get_config("options", "homoMolecular",  fallback='0' ))==1 else False )
+        self.actionmultiply_2_X_reactivity_with_C_x.triggered.connect(lambda:
+            set_config('options', 'homoMolecular',('1' if self.actionmultiply_2_X_reactivity_with_C_x.isChecked() else '0' )))
 
     # -----------------------
     # tab General options
@@ -4581,7 +4586,8 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 self.update_input_variables()
                 self.editMakefile(mod=self.chemistryModules.currentText())
                 out = self.load_initfile(tempfile)
-                writeRATESdat(self.chemistryModules.currentText())
+                os.system('make rates')
+                # writeRATESdat(self.chemistryModules.currentText())
                 if self.makeClean.isChecked():
                     target = "clean_current_chemistry"
                 else:

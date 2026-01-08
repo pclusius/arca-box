@@ -3,6 +3,7 @@
 # If you get errors related to LIBNET, this is the place to start troubleshooting
 
 # This seems to be default on Linux Mint/Ubuntu laptop and Windows with Cygwin
+
 # NETLIBS =  -I/usr/include -L/usr/lib/x86_64-linux-gnu/ -lnetcdf  -lnetcdff -lcurl
 
 # On Mac, this might work ---------------------------------------
@@ -28,6 +29,7 @@ endif
 
 # compiler
 F90 ?= gfortran
+PYTHON3 = python3
 
 COPTI = -O2
 BOPTI = -O2
@@ -84,7 +86,7 @@ ACDC_OBJECTS = $(addprefix $(OD)/$(BACDC)/, dvode.o solution_settings_new.o $(fo
 acdc_simulation_setup_0x$(n).o acdc_equations_0x$(n).o driver_0x$(n).o get_acdc_J_0x$(n).o))
 
 # Main target ==========================================================================================================
-all: fixratesFile arcabox.exe eqc_names
+all: fixratesFile arcabox.exe eqc_names rates
 
 # Version information ==================================================================================================
 version:
@@ -146,7 +148,7 @@ BOX_MODS = $(BOX_OBJECTS:.o=.mod)
 ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
 
 .PHONY fixratesFile:
-	@python3 ModelLib/required/editRateSource.py $(SRCDIR)/chemistry/$(CHMDIR)
+	@$(PYTHON3) ModelLib/required/editRateSource.py $(SRCDIR)/chemistry/$(CHMDIR)
 
 ${OD}/${CHMDIR}/reactions_reactants.o: ModelLib/required/reactions_reactants.f90
 	$(F90) -c $< -o $@ -J ${OD}/${CHMDIR}/
@@ -157,6 +159,10 @@ $(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.exe: ${OD}/${CHMDIR}/reactions_rea
 eqc_names: $(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.exe
 	-@$(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.exe $(SRCDIR)/chemistry/$(CHMDIR)
 
+rates: $(SRCDIR)/chemistry/$(CHMDIR)/RATES.dat
+
+$(SRCDIR)/chemistry/$(CHMDIR)/RATES.dat:
+	-@$(PYTHON3) ModelLib/gui/modules/parseRates.py $(SRCDIR)/chemistry/$(CHMDIR)
 
 # Cleaning =============================================================================================================
 # 'clean' doesn't remove chemistry and acdc object files, since it takes very long time to compile them.

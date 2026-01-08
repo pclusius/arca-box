@@ -25,6 +25,7 @@ NETLIBS =  -I/usr/include -L/usr/lib/x86_64-linux-gnu/ -lnetcdf  -lnetcdff -lcur
 
 # compiler
 F90 = gfortran
+PYTHON3 = python3
 
 COPTI = -O2
 BOPTI = -O2
@@ -37,7 +38,8 @@ BACDC = ACDC
 SRCDIR = src
 CHMDIR = SimpleChem
 
-# USER OPTIONS FINISH HERE ==============================================================================================
+# USER OTIONS FINISH HERE ==============================================================================================
+
 ifeq ($(wildcard ${SRCDIR}/chemistry/${CHMDIR}/second_Constants.f90),)
 	CHM_CNST =
 else
@@ -80,25 +82,25 @@ ACDC_OBJECTS = $(addprefix $(OD)/$(BACDC)/, dvode.o solution_settings_new.o $(fo
 acdc_simulation_setup_0x$(n).o acdc_equations_0x$(n).o driver_0x$(n).o get_acdc_J_0x$(n).o))
 
 # Main target ==========================================================================================================
-all: fixratesFile arcabox.exe eqc_names
+all: fixratesFile arcabox.exe eqc_names rates
 
 # Version information ==================================================================================================
 version:
 	@echo \'$(VERSION)\'
-
-#
-reactions:
-	-@cp ModelLib/required/write_reactions.sh $(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.sh
-	-@cp ModelLib/required/save_reactions.f90 $(SRCDIR)/chemistry/$(CHMDIR)/tmp.f90
-	-@cd $(SRCDIR)/chemistry/$(CHMDIR); sh write_reactions.sh; rm write_reactions.sh
-
 
 # Linking ==============================================================================================================
 arcabox.exe: $(OD)/arcabox.o $(BOX_OBJECTS) $(CHEM_OBJECTS) $(ACDC_OBJECTS) $(PSD_OBJECTS)
 	$(F90) $(BOX_OPTS) $^ -o $@ $(NETLIBS)
 
 test:
-		@echo ${BOX_OPTS}
+	@echo $(BOX_OPTS)
+	@echo $(NETLIBS)
+
+#
+reactions:
+	-@cp ModelLib/required/write_reactions.sh $(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.sh
+	-@cp ModelLib/required/save_reactions.f90 $(SRCDIR)/chemistry/$(CHMDIR)/tmp.f90
+	-@cd $(SRCDIR)/chemistry/$(CHMDIR); sh write_reactions.sh; rm write_reactions.sh
 
 # Compiling ============================================================================================================
 
@@ -142,7 +144,7 @@ BOX_MODS = $(BOX_OBJECTS:.o=.mod)
 ACDC_MODS = $(ACDC_OBJECTS:.o=.mod)
 
 .PHONY fixratesFile:
-	@python3 ModelLib/required/editRateSource.py $(SRCDIR)/chemistry/$(CHMDIR)
+	@$(PYTHON3) ModelLib/required/editRateSource.py $(SRCDIR)/chemistry/$(CHMDIR)
 
 ${OD}/${CHMDIR}/reactions_reactants.o: ModelLib/required/reactions_reactants.f90
 	$(F90) -c $< -o $@ -J ${OD}/${CHMDIR}/
@@ -152,6 +154,11 @@ $(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.exe: ${OD}/${CHMDIR}/reactions_rea
 
 eqc_names: $(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.exe
 	-@$(SRCDIR)/chemistry/$(CHMDIR)/write_reactions.exe $(SRCDIR)/chemistry/$(CHMDIR)
+
+rates: $(SRCDIR)/chemistry/$(CHMDIR)/RATES.dat
+
+$(SRCDIR)/chemistry/$(CHMDIR)/RATES.dat:
+	-@$(PYTHON3) ModelLib/gui/modules/parseRates.py $(SRCDIR)/chemistry/$(CHMDIR)
 
 # Cleaning =============================================================================================================
 # 'clean' doesn't remove chemistry and acdc object files, since it takes very long time to compile them.
