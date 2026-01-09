@@ -66,7 +66,7 @@ class Reactions():
 
             if len(groupsR)==0:
                 sorter = np.argsort(self.Re.sum(0))[::-1]
-                label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxR],self.s_reactions[self.mySinks][sorter][:nMaxR])]
+                label = [f'R({i+1}): '+s for i,s in zip(np.arange(self.nReact)[self.mySinks][sorter][:nMaxR],self.s_reactions[self.mySinks][sorter][:nMaxR])]
                 label = list(label) if nMaxR>1 else [label[0]]
                 self.sinkLabels += label
                 if nMaxR>1:
@@ -97,7 +97,7 @@ class Reactions():
 
             if len(groupsP)==0:
                 sorter = np.argsort(self.So.sum(0))[::-1]
-                label = [f'R({i+1}): '+s for i,s in zip(sorter[:nMaxP],self.s_reactions[self.mySources][sorter][:nMaxP])]
+                label = [f'R({i+1}): '+s for i,s in zip(np.arange(self.nReact)[self.mySources][sorter][:nMaxP],self.s_reactions[self.mySources][sorter][:nMaxP])]
                 label = list(label) if nMaxP>1 else [label[0]]
                 self.sourceLabels += label
                 if nMaxP>1:

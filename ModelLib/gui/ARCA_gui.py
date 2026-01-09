@@ -967,14 +967,16 @@ class React(QtWidgets.QDialog):
         self.pw.plotProd.clear()
         self.pw.plotReact.clear()
         self.pw.maxPframe.setEnabled(True)
+        self.pw.maxRframe.setEnabled(True)
         for row in range(self.pw.rTable.rowCount()):
             if self.pw.rTable.item(row,1).checkState():
-                if self.Robj.mySources[row]:
+                Rindex = int(self.pw.rTable.item(row,0).text())-1
+                if self.Robj.mySources[Rindex]:
                     self.pw.maxPframe.setEnabled(False)
-                    self.Robj.groupsP.append(f"{int(self.pw.rTable.item(row,0).text())-1:d}")
-                if self.Robj.mySinks[row]:
+                    self.Robj.groupsP.append(f"{Rindex:d}")
+                if self.Robj.mySinks[Rindex]:
                     self.pw.maxRframe.setEnabled(False)
-                    self.Robj.groupsR.append(f"{int(self.pw.rTable.item(row,0).text())-1:d}")
+                    self.Robj.groupsR.append(f"{Rindex:d}")
         self.Robj.nMaxR = self.pw.maxReact.value()
         self.Robj.nMaxP = self.pw.maxProd.value()
         self.setplot()
