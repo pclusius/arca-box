@@ -792,7 +792,7 @@ class React(QtWidgets.QDialog):
         case = ncobj.path.replace('Chemistry.nc','')
         self.RRates = ncobj.path.replace('Chemistry.nc','Rates.nc')
         self.RRates_nc = netCDF4.Dataset(self.RRates)
-        self.chem=osjoin(currentdir, Chem().inExePath)
+        self.chem=osjoin('src','chemistry',netCDF4.Dataset(ncobj.path).Chemistry_module)
         self.case=osjoin(currentdir, case)
         self.mainGuy=qt_box.availableVars.currentItem().text()
         self.currentFilter = 'all'
@@ -813,17 +813,17 @@ class React(QtWidgets.QDialog):
         self.pw.cumIntProdRight.setText(f'{self.ncobj.time[-1]*3600:g}')
         # self.pw.intProd.text()
 
-        if not exists(f'{Chem().inExePath}/Sto.zip'):
-            proc_reactivity.process_reactions(Chem().inExePath)
+        if not exists(f'{self.chem}/Sto.zip'):
+            proc_reactivity.process_reactions(self.chem)
         # self.ncobj.time
         self.Robj = Stoichio.getSto(
             self.ncobj.nconc,self.mainGuy,
             self.includeNull,self.chem,self.case,False,self.homomolSecondOrder
         )
         self.reactions = self.Robj.s_reactions
-        if exists(f'{Chem().inExePath}/RATES.dat'):
+        if exists(f'{self.chem}/RATES.dat'):
             self.rates = []
-            with open(f'{Chem().inExePath}/RATES.dat', 'r') as rfile:
+            with open(f'{self.chem}/RATES.dat', 'r') as rfile:
                 for l in rfile:
                     if 'RCONST' in l: self.rates.append(l.split('=')[1].split('! *')[1].strip())
         # self.pw.rTable.setRowCount(len(self.reactions))
