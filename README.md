@@ -130,39 +130,54 @@ and then run the setup.py again.
 
 Version history
 ---------------
-## 1.4.0
-#### New features:
+#### Changes and New features:
+- Updated, more compact GUI (but still scalable), suitable for smaller screens. Tab "chemistry" has been removed, photochemistry was moved in time dependent
+  input in a separate tab. The reason for this is that photochemistry is often not changed and does not
+  need fast access. Miscellanious options are moved to Run ARCA -> Miscellanious options.
+- Changing chemistry scheme is now under Time dependent input, since the list of input is completely defined by
+  the current chemistry.
+- Option to include pre- and post-processing commands that are executed before and after the FORTRAN model.
+  These are also saved in setting files. Find them in Run ARCA -> Miscellanious options.
 - The model is now more flexible regarding the input variables. The NAMES.dat is now by default
   chemistry-specific, and is switched in the GUI when changing chemistries.
+- Some inorganic compounds such as SO2, H2, NOx etc. were always available as input, now any chemical component
+  (or pseudo-component, such as RO2 sum) must be defined in the chemistry. These have to have at least one reaction, which
+  can be a "non-reaction", e.g. "NH3 = dummy : 0d0 ;"
 - The variables in the FORTRAN model are not anymore assigned according to their order (or index) in the NAMES-file, but solely based on
   their actual names. This means that old INITFILES are not compatible with the new version, but the GUI converts the
   old type to new type automatically. Outside the GUI, user can use the same tool to convert the INITFILE by giving the
   absolute path to the python script: "python ModelLib/gui/modules/updateINITFILE.py <absolute path to initfile>"
 - When switching between chemistries or on startup, if the input contains components not found in the
   chemistry, they are removed from the input list to avoid the FORTRAN model to halt on startup. A message specifying
-  which compounds were removed from the input list is given to user.
+  which compounds were removed from the input list is given to user. Alternatively, the user can opt to recompile
+  with the correct chemistry.
 - ENV and CHM input files can have independent time resolution and length (but internally, they all share
   same structure, i.e. they can not be ragged arrays).
 - Tools-> Load input from ENV and CHM. This selects all variables from the input files and assigned the
-  corresponding columns to the Time dependent input
+  corresponding columns to the Time dependent input.
+- Double clicking the variable name in Time Dependent input brings up a plot showing the time series.
 - Now losses of both gases and aerosols can be consistently calculated with time (previously only aerosols),
   size and component-wise method (with .csv input) or uniform and constant over time loss rate.
-  In addition, wall loss parametrizations can be used, previously these were excluding each other. This allows for more
-  flexible handling of losses.
-- Plotting tool in "View output -> Line Plots" can now compare up to 6 different variables within one opened file
-  (only when a single file is loaded).
-
-#### Changes
-- Some inorganic compounds such as SO2, H2, NOx etc. were always available as input, now any chemical component
-  (or pseudo-component, such as RO2 sum) must be defined in the chemistry. These have to have at least one reaction, which
-  can be a "non-reaction", e.g. "NH3 = dummy : 0d0 ;"
+  In addition, wall loss parametrizations can be used, previously these were excluding each other. This allows for more flexible handling of losses.
 - Some options previously in the more under-the-counter type have been made more visible, particularly the option to initialize
   any chemical concentration only on startup. individual components can be set as C(0) in the Time dependent input.
   The whole chemistry, separately for emissions and concentrations, can be let to "float" - i.e. that the input values are
   not forced - after a set time. Keep in mind that the compound must have some losses to show non-constant concentrations,
   for example it should not be in set to fixed in the chemistry scheme (should be under DEFVAR, not DEFFIX in KPP).
-- To remove clutter, a button in the GUI main frame disables some advanced options, which can be left to their defaults if
-  unsure about their function.
+- Reaction rates are saved in Rates.nc if 'save_Rrates' flag is on (default).
+- Gas concentrations are saved in the netCDF file also as 2D-variable, in addition to single column variables. The single
+  column variables will be faded out in the future as it is very inefficient way to save data. At the moment, Custom option
+  "minimal_nc=.true." can be used to turn off single column variables.
+- Output file cleanup. For clarity of output, old netCDF files which have been produced by earlier runs, but would not be written from the latest simulation,
+  are now removed in the end.
+
+#### Improved plotting
+- Plotting tool in "View output -> Line Plots" can now compare up to 6 different variables within one opened file
+  (only when a single file is loaded).
+- Reactivity plots using the calculated reaction rates and concentrations at saved time stamps. This gives an interesting
+  insight to the chemistry scheme and sources and sinks of chemicals.
+- Option to close files from plotting tool (instead of closing all)
+- Plotting tool showing aerosol initialization also calculates CS.
 
 #### Bugfixes:
 - Fixed bug where ACDC modules were initialized even when "Form new particles" was unchecked, giving error if
@@ -170,6 +185,7 @@ Version history
   ignored if "Form new particles" is unchecked.
 - Bugfix: loading an incopatible INITFILE (say, a random textfile) resulted in cleared list of input. Now the validity
   of the input is checked (on a most basic level) before clearing the list.
+- Global and Monitor fonts are now properly saved even when using styles like Condensed etc.
 - Other minor bugfixes.
 
 ## 1.3.3

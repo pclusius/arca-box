@@ -69,7 +69,7 @@ if not os.path.exists('makefile'):
     mfile = open('makefile', 'w+')
     with open('install/makefiles_for_manual_installation/'+filename, 'r') as mfsource:
         for line in mfsource:
-            mfile.write(line.replace('@python3','@%s'%python))
+            mfile.write(line.replace('PYTHON3 = python3',f'PYTHON3 = {python}'))
     mfile.close()
 
 if csc:
