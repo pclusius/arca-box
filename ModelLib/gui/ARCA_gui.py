@@ -29,7 +29,7 @@ from modules import variations,vars,batch,GetVapourPressures as gvp,proc_reactiv
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT
 from numpy import argmin,argmax,linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround
-from numpy import argsort,trapz,interp,genfromtxt,abs as npabs
+from numpy import argsort,trapz,ones,interp,genfromtxt,abs as npabs
 import numpy.ma as ma
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname, remove as osremove, rename as osrename
 from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin, relpath as osrelpath
@@ -924,7 +924,8 @@ class React(QtWidgets.QDialog):
         self.Robj.lines()
         Pint = self.pw.cumIntProd.isChecked()
         Rint = self.pw.cumIntSink.isChecked()
-        cc = self.ncobj.nconc[:,self.iMainGuy] if Rint else 1
+        cc = ones(self.ncobj.time.shape) * self.ncobj.nconc[:,self.iMainGuy]
+        cc = where(cc>1,cc,1)
         sources,sinks,sourceLabels,sinkLabels = self.Robj.sources,self.Robj.sinks,self.Robj.sourceLabels,self.Robj.sinkLabels
         # if self.pw.totalP.isChecked():
         #     self.countIntegrals(sou)
@@ -937,18 +938,18 @@ class React(QtWidgets.QDialog):
         self.pw.plotReact.showGrid(x=True,y=True,alpha=0.2)
         for i_s, sou, soulabel in zip(range(len(sources)),sources,sourceLabels):
             self.countIntegrals('sou',sou,False if i_s==0 else True)
-            sou = cumtrapz(sou,self.ncobj.time*3600) if Pint else sou
+            souPlot = cumtrapz(sou,self.ncobj.time*3600) if Pint else sou
             time = self.ncobj.time[1:] if Pint else self.ncobj.time
             line = QtCore.Qt.SolidLine if i_s<6 else QtCore.Qt.DashLine
             w=5 if i_s==0 and self.pw.totalP.isChecked() else 2
-            pl = self.pw.plotProd.plot(time,sou,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=soulabel)
+            pl = self.pw.plotProd.plot(time,souPlot,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=soulabel)
         for i_s, sin, sinlabel in zip(range(len(sinks)),sinks,sinkLabels):
-            self.countIntegrals('sin',sin*self.ncobj.nconc[:,self.iMainGuy],False if i_s==0 else True)
-            sin = cumtrapz(sin*self.ncobj.nconc[:,self.iMainGuy],self.ncobj.time*3600) if Rint else sin
+            # self.countIntegrals('sin',sin*cc,False if i_s==0 else True)
+            sinPlot = cumtrapz(sin*cc,self.ncobj.time*3600) if Rint else sin
             time = self.ncobj.time[1:] if Rint else self.ncobj.time
             line = QtCore.Qt.SolidLine if i_s<6 else QtCore.Qt.DashLine
             w=5 if i_s==0 and self.pw.totalR.isChecked() else 2
-            pl = self.pw.plotReact.plot(time,sin,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=sinlabel)
+            pl = self.pw.plotReact.plot(time,sinPlot,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=sinlabel)
 
     def updatePlot(self):
         self.Robj.groupsP = ['TOTAL'] if self.pw.totalP.isChecked() else []
