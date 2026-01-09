@@ -1754,9 +1754,9 @@ Please provide valid spectral function.') \
         filechem = osjoin('src','chemistry',netCDF4.Dataset(objInFocus.path).Chemistry_module)
         if not exists(filechem):
             qt_box.popup('Reactivity analysis can not be done', f'The current file {objInFocus.path} has been created with '+\
-                f'a chemistry system that was not found in the src/chemistry: {filechem}. \n\n'+\
-                'Therefore necessary information about the stoichiometry is missing. You can a) recreate the simulation with a similar chemistry,'+\
-                ' or b) copy the original chemistry code in src/chemistry.',3)
+                f'a chemistry system that was not found in the src/chemistry: {filechem},'+\
+                ' and therefore necessary information about the stoichiometry is missing. \n\nYou can \na) recreate the simulation with a similar chemistry,'+\
+                ' or \nb) copy the original chemistry code in src/chemistry.',3)
             return
         #
         self.reWin = React(self.LPD[self.ReactComboBox.currentIndex()])
