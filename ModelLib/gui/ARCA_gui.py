@@ -1749,7 +1749,6 @@ Please provide valid spectral function.') \
         if not exists(RRates):
             self.popup('Rates were not saved', 'Reactivity analysis depends on the reaction rates, which were not saved for this simulation', 3)
             return
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         objInFocus = self.LPD[self.ReactComboBox.currentIndex()]
         filechem = osjoin('src','chemistry',netCDF4.Dataset(objInFocus.path).Chemistry_module)
         if not exists(filechem):
@@ -1759,9 +1758,10 @@ Please provide valid spectral function.') \
                 ' or \nb) copy the original chemistry code in src/chemistry.',3)
             return
         #
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         self.reWin = React(self.LPD[self.ReactComboBox.currentIndex()])
-        self.reWin.setplot(init=True)
         QtWidgets.QApplication.restoreOverrideCursor()
+        self.reWin.setplot(init=True)
         response = self.reWin.exec()
 
     def getRuntime(self):
