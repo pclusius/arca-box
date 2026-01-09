@@ -2,6 +2,11 @@ import numpy as np
 import pickle, gzip,netCDF4
 
 def is_number(s):
+    try:
+        s = int(s)
+        return True
+    except: return False
+def to_number(s):
     try: return int(s)
     except: return None
 def saveZip(o,f):
