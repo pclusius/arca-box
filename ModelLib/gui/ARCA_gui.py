@@ -1367,14 +1367,14 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
         vars.mods['TEMPK'].index = 0
         vars.mods['TEMPK'].index = 1
         self.dateEdit.dateChanged.connect(lambda: self.indexRadioDate.setChecked(True))
-        self.indexRadioDate.toggled.connect(lambda: self.lat.setEnabled(True))
-        self.indexRadioIndex.toggled.connect(lambda: self.lat.setEnabled(False))
-        self.indexRadioDate.toggled.connect(lambda: self.lon.setEnabled(True))
-        self.indexRadioIndex.toggled.connect(lambda: self.lon.setEnabled(False))
-        self.indexRadioDate.toggled.connect(lambda: self.label_9.setEnabled(True))
-        self.indexRadioIndex.toggled.connect(lambda: self.label_9.setEnabled(False))
-        self.indexRadioDate.toggled.connect(lambda: self.label_25.setEnabled(True))
-        self.indexRadioIndex.toggled.connect(lambda: self.label_25.setEnabled(False))
+        self.indexRadioDate.toggled.connect(self.albFrameRules)
+        self.indexRadioIndex.toggled.connect(self.albFrameRules)
+        # self.indexRadioDate.toggled.connect(lambda: self.lon.setEnabled(True))
+        # self.indexRadioIndex.toggled.connect(lambda: self.lon.setEnabled(False))
+        # self.indexRadioDate.toggled.connect(lambda: self.albLab.setEnabled(True))
+        # self.indexRadioIndex.toggled.connect(lambda: self.albLab.setEnabled(False))
+        # self.indexRadioDate.toggled.connect(lambda: self.label_25.setEnabled(True))
+        # self.indexRadioIndex.toggled.connect(lambda: self.label_25.setEnabled(False))
         self.indexEdit.valueChanged.connect(lambda: self.indexRadioIndex.setChecked(True))
         self.browseCommonIn.clicked.connect(lambda: self.browse_path(self.inout_dir, 'dir'))
         self.browseEnv.clicked.connect(lambda: self.browse_path(self.env_file, 'file'))
@@ -1500,7 +1500,7 @@ Please provide valid spectral function.') \
                     if ((self.spectralFunctions.text()=='' or ossplit(self.spectralFunctions.text())[1]==defaultSpectrum) \
                     and self.SW_is_AF.isChecked()) else False)
 
-        self.SW_is_AF.toggled.connect(lambda: self.grayIfChecked(self.SW_is_AF,self.groupBox_23))
+        self.SW_is_AF.toggled.connect(self.albFrameRules)
 
 
     # -----------------------
@@ -2087,12 +2087,12 @@ the numerical model or chemistry scheme differs from the current, results may va
                 self.loadParamValues()
                 return
             elif plotcolumn>0:
-                QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+                # QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
                 if tdinp.namesPyInds[name]<tdinp.divider_i:
-                    filen = self.env_file.text()
+                    filen = nml.ENV.ENV_FILE
                     mtu = self.fileTimeUnit_a.currentText()
                 else:
-                    filen = self.mcm_file.text()
+                    filen = nml.MCM.MCM_FILE
                     mtu = self.fileTimeUnit_b.currentText()
                 x,y = [],[]
                 with open(filen, 'r') as file:
@@ -2113,7 +2113,7 @@ the numerical model or chemistry scheme differs from the current, results may va
                 mtu = self.runTimeUnit.currentText()
             self.plwin = plotWin()
             self.plwin.setplot(name+comments,x,y,unit,mtu,init,f1*plotthis.multi,d1*plotthis.multi + plotthis.shift)
-            QtWidgets.QApplication.restoreOverrideCursor()
+            # QtWidgets.QApplication.restoreOverrideCursor()
             response = self.plwin.exec()
 
 
@@ -2921,7 +2921,10 @@ a chemistry module in tab "Chemistry"''', icon=2)
         else:
             tester=guard.isChecked()
         if tester == True:
-            frame.setChecked(0)
+            try:
+                frame.setChecked(0)
+            except:
+                pass
             frame.setEnabled(False)
         else:
             frame.setEnabled(True)
@@ -4213,6 +4216,14 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
         self.browse_path(None, 'addplot_more', ftype=ftype)
         self.radioCompare.setEnabled(False)
 
+    def albFrameRules(self):
+        if self.SW_is_AF.isChecked() or self.indexRadioIndex.isChecked():
+            self.albFrame.setEnabled(False)
+            self.albFrame.setToolTip('These options are disabled because either (or both) "SW_radiation is actinic flux"'+\
+                ' option is on, or date indexing (in tab "General") is not used')
+        else:
+            self.albFrame.setEnabled(True)
+            self.albFrame.setToolTip('These options affect actinic flux calculations')
 
     def linePlotMulti(self, file, new=True):
         # Try to open netCDF-file
