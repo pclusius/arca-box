@@ -1747,16 +1747,16 @@ Please provide valid spectral function.') \
             return
         RRates = self.LPD[self.ReactComboBox.currentIndex()].path.replace('Chemistry.nc','Rates.nc')
         if not exists(RRates):
-            self.popup('Rates were not saved', 'Reactivity analysis depends on the reaction rates, which were not saved for this simulation', 1)
+            self.popup('Rates were not saved', 'Reactivity analysis depends on the reaction rates, which were not saved for this simulation', 3)
             return
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         objInFocus = self.LPD[self.ReactComboBox.currentIndex()]
         filechem = osjoin('src','chemistry',netCDF4.Dataset(objInFocus.path).Chemistry_module)
         if not exists(filechem):
-            qt_box.popup('Reactivity analysis can not be done', f'The current file {objInFocus.path} has been created with'+\
-                f'a chemistry system that was not found in the src/chemistry: {filechem}'+\
-                '. Vital information about the stoichiometry is missing. You can recreate the simulation with a similar chemistry,'+\
-                ' or copy the original chemistry code in src/chemistry.',1)
+            qt_box.popup('Reactivity analysis can not be done', f'The current file {objInFocus.path} has been created with '+\
+                f'a chemistry system that was not found in the src/chemistry: {filechem}. \n\n'+\
+                'Therefore necessary information about the stoichiometry is missing. You can a) recreate the simulation with a similar chemistry,'+\
+                ' or b) copy the original chemistry code in src/chemistry.',3)
             return
         #
         self.reWin = React(self.LPD[self.ReactComboBox.currentIndex()])
