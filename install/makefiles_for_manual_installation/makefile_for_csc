@@ -44,11 +44,11 @@ CHMDIR = SimpleChem
 
 # USER OTIONS FINISH HERE ==============================================================================================
 
-ifeq ($(wildcard ${SRCDIR}/chemistry/${CHMDIR}/second_Constants.f90),)
-	CHM_CNST =
-else
-	CHM_CNST = second_Constants.o
-endif
+# ifeq ($(wildcard ${SRCDIR}/chemistry/${CHMDIR}/second_Constants.f90),)
+# 	CHM_CNST =
+# else
+# 	CHM_CNST = second_Constants.o
+# endif
 
 NAC := $(shell find ${SRCDIR}/ACDC/ACDC_* -maxdepth 0 -type d |wc -l|sed 's/ //g')
 n_acdc := $(shell seq $(NAC))
@@ -72,7 +72,7 @@ CHEM_OPTS = -w -cpp $(PROF) $(COPTI) -ffree-line-length-none -fcheck=all -ffpe-t
 ACDC_OPTS = -ffree-line-length-none -cpp -J$(OD)/$(BACDC) -I$(OD)/$(BACDC) -fcheck=all -ffpe-trap=invalid,zero,overflow -O2
 
 CHEM_OBJECTS = $(addprefix $(OD)/$(CHMDIR)/, second_Precision.o second_Parameters.o second_Function.o second_Global.o \
-								$(CHM_CNST) second_Initialize.o second_reactivity.o second_Monitor.o second_Util.o second_JacobianSP.o \
+								second_Constants.o second_Initialize.o second_reactivity.o second_Monitor.o second_Util.o second_JacobianSP.o \
 								second_LinearAlgebra.o second_Jacobian.o second_Rates.o second_Integrator.o second_Model.o second_Main.o)
 
 BOX_OBJECTS = $(addprefix $(OD)/, constants.o auxillaries.o input.o chemistry.o \
@@ -86,7 +86,7 @@ ACDC_OBJECTS = $(addprefix $(OD)/$(BACDC)/, dvode.o solution_settings_new.o $(fo
 acdc_simulation_setup_0x$(n).o acdc_equations_0x$(n).o driver_0x$(n).o get_acdc_J_0x$(n).o))
 
 # Main target ==========================================================================================================
-all: fixratesFile arcabox.exe eqc_names rates
+all: fixratesFile mcm_constants arcabox.exe eqc_names rates
 
 # Version information ==================================================================================================
 version:
@@ -163,6 +163,11 @@ rates: $(SRCDIR)/chemistry/$(CHMDIR)/RATES.dat
 
 $(SRCDIR)/chemistry/$(CHMDIR)/RATES.dat:
 	-@$(PYTHON3) ModelLib/gui/modules/parseRates.py $(SRCDIR)/chemistry/$(CHMDIR)
+
+mcm_constants: $(SRCDIR)/chemistry/$(CHMDIR)/second_Constants.f90
+
+$(SRCDIR)/chemistry/$(CHMDIR)/second_Constants.f90:
+	-@cp ModelLib/gui/chemistry_package_PZ/second_Constants.f90 $@
 
 # Cleaning =============================================================================================================
 # 'clean' doesn't remove chemistry and acdc object files, since it takes very long time to compile them.
