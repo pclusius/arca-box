@@ -27,7 +27,7 @@ import pyqtgraph as pg
 from layouts import varWin,gui20,batchDialog1,batchDialog2,batchDialog3,vdialog,cc,about,input,t_editor,plotwin,reactivityWin
 from modules import variations,vars,batch,GetVapourPressures as gvp,proc_reactivity,Stoichio
 from modules.grepunit import grepunit
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE, STDOUT,check_output,CalledProcessError
 from numpy import argmin,argmax,linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround
 from numpy import argsort,trapz,ones,interp,genfromtxt,abs as npabs
 import numpy.ma as ma
@@ -4692,6 +4692,14 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 self.update_input_variables()
                 self.editMakefile(mod=self.chemistryModules.currentText())
                 out = self.load_initfile(tempfile)
+                ratesfile = f"src/chemistry/{self.chemistryModules.currentText()}/RATES.dat"
+                cmd = ["grep","-c","constant rate coefficient",ratesfile]
+                try:
+                    Nconst = check_output(cmd)
+                except CalledProcessError as e:
+                    Nconst = e.output
+                if int(Nconst.decode('utf-8').strip())>0:
+                    osremove(ratesfile)
                 os.system('make rates')
                 # writeRATESdat(self.chemistryModules.currentText())
                 if self.makeClean.isChecked():

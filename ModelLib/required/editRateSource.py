@@ -60,15 +60,21 @@ mainfile = ''
 search_on = True
 with open(os.path.join(f,'second_Global.f90'), 'r') as file:
     for line in file:
+
         if re.search(r"REAL\(DP\),\s*ALLOCATABLE,\s*SAVE\s*::\s*R_F\(:\)",line.strip('\n').upper()):
             hits +=1
-
-        if re.search(r'!\s*INLINED\s*GLOBAL\s*VARIABLE\s*DECLARATIONS', line.upper()) and hits == 0 and search_on:
-            mainfile += '  ! Enables changing reactions rates from the outside of chemistry\n'
+            search_on = False
+        elif re.search(r'REAL\(DP\),\s*SAVE\s*::\s*R_F\(NREACT\)\s*=\s*1D0',line.upper()):
             mainfile += '  REAL(DP), ALLOCATABLE, SAVE :: R_F(:)\n'
             search_on = False
-
-        mainfile += line
+        if re.search(r'!\s*END MODULE/s*SECOND_GLOBAL', line.upper()) and hits == 0 and search_on:
+            # mainfile += '  ! Enables changing reactions rates from the outside of chemistry\n'
+            mainfile += '  REAL(DP), ALLOCATABLE, SAVE :: R_F(:)\n'
+            search_on = False
+        if re.search(r'REAL\(DP\),\s*SAVE\s*::\s*R_F\(NREACT\)\s*=\s*1D0',line.upper()):
+            pass
+        else:
+            mainfile += line
 
 if hits==0:
     mod_Rfile = open(os.path.join(f,'second_Global.f90'), "w")

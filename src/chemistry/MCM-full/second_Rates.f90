@@ -19338,7 +19338,8 @@ SUBROUTINE Update_RCONST ( YIN )
   RCONST(18491) = (1.0*0.0)
   RCONST(18492) = (1.0*0.0)
 
-  RCONST = RCONST * R_F
+  if (ALLOCATED(R_F)) RCONST = RCONST * R_F 
+
 END SUBROUTINE UPDATE_RCONST
 ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! 
