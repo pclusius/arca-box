@@ -4915,3 +4915,4 @@ if __name__ == '__main__':
     else:
         print('Available styles: ',styles)
     app.exec_()
+
