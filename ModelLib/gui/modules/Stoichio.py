@@ -1,8 +1,8 @@
 import numpy as np
 import os, re, pickle, gzip,netCDF4
 # from pdb import set_trace as bp
+import psutil
 # from memory_profiler import profile
-
 # from time import time as timer
 # strt = timer()
 class Reactions():
@@ -122,9 +122,9 @@ def reduceindices(iL,L,boolean=False):
         return np.flatnonzero(a)
 
 # @profile
-def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder=True,jumpTime=1):
+def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder=True,jumpTime=1,loop=False):
 
-    C = Cin.copy()
+    C = Cin.copy().astype(np.float32)
 
     def sourceR(name):
         i = dindices[name]
@@ -142,34 +142,34 @@ def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder
         i = dindices[name]
         if includeNull:
             m = StoP[:,i]>0 # [sic!]
-            return np.abs(np.where(StoR[m,:]<0,StoR[m,:],0))
+            return np.abs(np.where(StoR[m,:]<0,StoR[m,:],0)).astype(np.float32)
         else:
             m = Sto[:,i]>0
-            return np.abs(np.where(Sto[m,:]<0,Sto[m,:],0))
+            return np.abs(np.where(Sto[m,:]<0,Sto[m,:],0)).astype(np.float32)
     def sinkSM(name):
         i = dindices[name]
         if includeNull:
             m = StoR[:,i]<0
-            return np.abs(np.where(StoR[m,:]<0,StoR[m,:],0))
+            return np.abs(np.where(StoR[m,:]<0,StoR[m,:],0)).astype(np.float32)
         else:
             m = Sto[:,i]<0
-            return np.abs(np.where(Sto[m,:]<0,Sto[m,:],0))
+            return np.abs(np.where(Sto[m,:]<0,Sto[m,:],0)).astype(np.float32)
     def sourceMu(name):
         i = dindices[name]
         if includeNull:
             m = StoP[:,i]>0
-            return StoP[m,i]
+            return StoP[m,i].astype(np.float32)
         else:
             m = Sto[:,i]>0
-            return Sto[m,i]
+            return Sto[m,i].astype(np.float32)
     def sinkMu(name):
         i = dindices[name]
         if includeNull:
             m = StoR[:,i]<0
-            return np.abs(StoR[m,i])
+            return np.abs(StoR[m,i]).astype(np.float32)
         else:
             m = Sto[:,i]<0
-            return np.abs(Sto[m,i])
+            return np.abs(Sto[m,i]).astype(np.float32)
 
     if Dump:
         process_reactions(chem=chem)
@@ -181,7 +181,12 @@ def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder
 
     sourceR_MG,sinkR_MG = sourceR(myGuy),sinkR(myGuy)
     nP, nR = sum(sourceR_MG),sum(sinkR_MG)
-
+    GiB = C.shape[0]*C.shape[1]*max(nP,nR)*8 /2**30
+    freeMem = psutil.virtual_memory().free /2**30
+    if GiB / freeMem > 0.75:
+    # if GiB>3:
+        loop = True
+        print(f'This requires too much memory ({GiB:0.2f} GiB > 75% of {freeMem:0.2f} GiB available), looping over time')
     if include_homomolSecondOrder:
         # cMyGuy = np.ones(C.shape[0])*(C[:,dindices[myGuy]])
         homomolSecondOrder = np.arange(nReact)[ [ar.count(myGuy)>1 for ar in areactants] ]
@@ -189,14 +194,31 @@ def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder
             RC[:,homomolSecondOrder] = (RC[:,homomolSecondOrder].T*C[:,dindices[myGuy]]).T
     # bp()
     RB = Reactions( myGuy, None,None,nReact,nComp,s_reactions,sinkR_MG,sourceR_MG,areactants,np.sum(StoR,1) )
-    if includeNull:
-        RB.So = np.prod(np.transpose(np.tile(C[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR_MG]*sourceMu(myGuy)
-        C[:,dindices[myGuy]] = 1.0
-    else:
-        C[:,dindices[myGuy]] = 1.0
-        RB.So = np.prod(np.transpose(np.tile(C[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR_MG]*sourceMu(myGuy)
+    if not loop:
+        if includeNull:
+            RB.So = np.prod(np.transpose(np.tile(C[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR_MG]*sourceMu(myGuy)
+            C[:,dindices[myGuy]] = 1.0
+        else:
+            C[:,dindices[myGuy]] = 1.0
+            RB.So = np.prod(np.transpose(np.tile(C[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR_MG]*sourceMu(myGuy)
 
-    RB.Re = np.prod(np.transpose(np.tile(C[None,:,:] , (nR,1,1)), (1,2,0)),1, where=sinkSM(myGuy).T>0)*RC[:,sinkR_MG]*sinkMu(myGuy)
+        RB.Re = np.prod(np.transpose(np.tile(C[None,:,:] , (nR,1,1)), (1,2,0)),1, where=sinkSM(myGuy).T>0)*RC[:,sinkR_MG]*sinkMu(myGuy)
+    else:
+        # print('Not enough memory, looping through time, this will take time')
+        RB.So = np.zeros((C.shape[0],sourceR_MG.sum()))
+        RB.Re = np.zeros((C.shape[0],sinkR_MG.sum()))
+        print(f'Processing time indexes ({C.shape[0]} in total):')
+        for it in range(C.shape[0]):
+            if it%10==0:
+                print(it, end='...',flush=True)
+            if includeNull:
+                RB.So[it,:] = np.sum(((C[it,:]* sourceSM(myGuy)).T * RC[it,sourceR_MG]) ,0)* sourceMu(myGuy)
+                C[it,dindices[myGuy]] = 1.0
+            else:
+                C[it,dindices[myGuy]] = 1.0
+                RB.So[it,:] = np.sum(((C[it,:]* sourceSM(myGuy)).T * RC[it,sourceR_MG]) ,0)* sourceMu(myGuy)
+            RB.Re[it,:] = np.sum(((C[it,:]* sinkSM(myGuy)).T * RC[it,sinkR_MG]),0)*sinkMu(myGuy)
+        print()
     # del C
     # del RC
     # del Sto,StoP
@@ -204,66 +226,69 @@ def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder
 
 if __name__ == "__main__":
     pass
-    # from proc_reactivity import process_reactions,is_number, to_number
-    #
-    # chroot = '../../../src/chemistry/'
-    # nc = netCDF4.Dataset('/home/pecl/05-ARCA/ARCA-box/INOUT/HYDEAPRIL/PC_2018-04-11/NEWARCA2/Chemistry.nc')
-    # dimt = nc.dimensions['time'].size
-    # if dimt>100:
-    #     jumpTime = int(dimt/100)+1
-    #
-    # ch = chroot+nc.Chemistry_module
-    # myGuy = 'OH'
-    # nMaxR,nMaxP = 3,3
-    # Dump = False
-    # includeNull = True
-    # # C = loadZip('C.zip')
-    # C = nc.variables['CH_GAS'][::jumpTime,:].data
-    # time = nc.variables['TIME_IN_HRS'][::jumpTime]
-    # # time = np.linspace(0,12,nt)
-    # nt = C.shape[0]
-    # cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/HYDEAPRIL/PC_2018-04-11/NEWARCA2/'
-    #
-    # # Re,So,nReact,nComp,s_reactions,mySinks,mySources,areactants,RHS
-    # ROBJ = getSto(C,myGuy,includeNull,ch,cs,Dump)
-    #
-    # # ROBJ.nMaxR = min(nMaxR,sum(ROBJ.mySinks))
-    # # ROBJ.nMaxP = min(nMaxP,sum(ROBJ.mySources))
-    # # ProdReacFilter = [ True if i in ROBJ.RHS[myGuy] else False for i in range(ROBJ.nReact)]
-    #
-    # # groupsR = ['CO,CH4,SDD','O3','NO']
-    # ROBJ.groupsR = ['CO,CH4,O3','HO2','18']
-    # # groupsP = [1365, 'TOTAL']
-    # ROBJ.groupsP = ['35','TOTAL']
-    #
-    # ROBJ.groupsR = ['TOTAL']
-    # ROBJ.groupsP = ['TOTAL']
-    #
-    # import matplotlib.pyplot as plt
-    # plt.ion()
-    #
-    # f,(a1,a2) = plt.subplots(2)
-    # a1.set_title('Reactivity')
-    # a2.set_title('Production')
-    # ROBJ.lines()
-    # for lab,lin in zip(ROBJ.sinkLabels,ROBJ.sinks):
-    #     a1.plot(time, lin, label=lab)
-    # for lab,lin in zip(ROBJ.sourceLabels,ROBJ.sources):
-    #     a2.plot(time, lin, label=lab)
-    # [a.legend() for a in [a1,a2]]
+    from proc_reactivity import process_reactions,is_number, to_number
 
-    # ROBJ.groupsR = ['TOTAL']
-    # ROBJ.groupsP = ['TOTAL']
-    # ROBJ.lines()
-    # iMyGuy = nc.variables['CH_GAS'].names.split(',').index(myGuy)
-    # cc = C[:,iMyGuy]
-    # import scipy as sc
-    # f,(a1,a2) = plt.subplots(2)
-    # for lab,lin in zip(ROBJ.sinkLabels,ROBJ.sinks):
-    #     a1.plot(time[1:], sc.integrate.cumtrapz(lin*ROBJ.sources[0],time*3600), label=lab)
-    # for lab,lin in zip(ROBJ.sourceLabels,ROBJ.sources):
-    #     a2.plot(time[1:], sc.integrate.cumtrapz(lin,time*3600), label=lab)
-    # [a.legend() for a in [a1,a2]]
+    chroot = '../../../src/chemistry/'
+    cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/STARTUP_0001/INTTEST/'
+    cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/HYDEAPRIL/PC_2018-04-11/NEWARCA2/'
+    nc = netCDF4.Dataset(f'{cs}/Chemistry.nc')
+    dimt = nc.dimensions['time'].size
+    if dimt>100:
+        jumpTime = int(dimt/100)+1
+
+    ch = chroot+nc.Chemistry_module
+    myGuy = 'OH'
+    nMaxR,nMaxP = 5,5
+    Dump = False
+    includeNull = True
+    saveMem = True
+    saveMem = False
+    # C = loadZip('C.zip')
+    C = nc.variables['CH_GAS'][::jumpTime,:].data
+    time = nc.variables['TIME_IN_HRS'][::jumpTime]
+    # time = np.linspace(0,12,nt)
+    nt = C.shape[0]
+
+    # Re,So,nReact,nComp,s_reactions,mySinks,mySources,areactants,RHS
+    ROBJ = getSto(C,myGuy,includeNull,ch,cs,Dump=Dump,jumpTime=jumpTime,loop=saveMem)
+
+    # ROBJ.nMaxR = min(nMaxR,sum(ROBJ.mySinks))
+    # ROBJ.nMaxP = min(nMaxP,sum(ROBJ.mySources))
+    # ProdReacFilter = [ True if i in ROBJ.RHS[myGuy] else False for i in range(ROBJ.nReact)]
+
+    # groupsR = ['CO,CH4,SDD','O3','NO']
+    ROBJ.groupsR = ['CO,CH4,O3','HO2','18']
+    # groupsP = [1365, 'TOTAL']
+    ROBJ.groupsP = ['35','TOTAL']
+
+    ROBJ.groupsR = ['TOTAL']
+    ROBJ.groupsP = ['TOTAL']
+
+    import matplotlib.pyplot as plt
+    plt.ion()
+
+    f,(a1,a2) = plt.subplots(2)
+    a1.set_title('Reactivity')
+    a2.set_title('Production')
+    ROBJ.lines()
+    for lab,lin in zip(ROBJ.sinkLabels,ROBJ.sinks):
+        a1.plot(time, lin, label=lab)
+    for lab,lin in zip(ROBJ.sourceLabels,ROBJ.sources):
+        a2.plot(time, lin, label=lab)
+    [a.legend() for a in [a1,a2]]
+
+    ROBJ.groupsR = ['TOTAL']
+    ROBJ.groupsP = ['TOTAL']
+    ROBJ.lines()
+    iMyGuy = nc.variables['CH_GAS'].names.split(',').index(myGuy)
+    cc = C[:,iMyGuy]
+    import scipy as sc
+    f,(a1,a2) = plt.subplots(2)
+    for lab,lin in zip(ROBJ.sinkLabels,ROBJ.sinks):
+        a1.plot(time[1:], sc.integrate.cumtrapz(lin*ROBJ.sources[0],time*3600), label=lab)
+    for lab,lin in zip(ROBJ.sourceLabels,ROBJ.sources):
+        a2.plot(time[1:], sc.integrate.cumtrapz(lin,time*3600), label=lab)
+    [a.legend() for a in [a1,a2]]
 
 
     # sc.integrate.cumtrapz(y,x))
