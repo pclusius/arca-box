@@ -809,7 +809,7 @@ class React(QtWidgets.QDialog):
         self.ncobj = ncobj
         ncobj.getAllGases()
         dimt = len(self.ncobj.time)
-        if dimt>100 and self.actionSave_memory_in_R.isChecked():
+        if dimt>100 and qt_box.actionSave_memory_in_R.isChecked():
             self.jumpTime = dimt//101+1
         else:
             self.jumpTime = 1
@@ -4915,4 +4915,3 @@ if __name__ == '__main__':
     else:
         print('Available styles: ',styles)
     app.exec_()
-
