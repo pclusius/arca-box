@@ -218,7 +218,7 @@ def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder
                 C[it,dindices[myGuy]] = 1.0
                 RB.So[it,:] = np.sum(((C[it,:]* sourceSM(myGuy)).T * RC[it,sourceR_MG]) ,0)* sourceMu(myGuy)
             RB.Re[it,:] = np.sum(((C[it,:]* sinkSM(myGuy)).T * RC[it,sinkR_MG]),0)*sinkMu(myGuy)
-        print()
+        print(' done.')
     # del C
     # del RC
     # del Sto,StoP
