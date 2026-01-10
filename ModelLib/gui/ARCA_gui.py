@@ -1044,7 +1044,7 @@ class React(QtWidgets.QDialog):
 
         unit = 's^-1' if abs(self.Robj.order[indx])==1 else 'molec^-1 s^-1'
         self.plwin.setplot(f'{self.pw.rTable.item(item.row(),2).text()}: k_({indx+1})',
-            self.locTime,self.RRates_nc.variables['Reaction_rates'][:,indx],unit,'hrs',
+            self.locTime,self.RRates_nc.variables['Reaction_rates'][::self.jumpTime,indx],unit,'hrs',
             False,1,0,legend=tt, title='Reaction rate coefficient time series',twoCol=False)
         response = self.plwin.exec()
 
