@@ -61,9 +61,9 @@ def process_reactions(chem,ncfile=None):
     s_reactants = np.array(s_reactants)
     s_products = np.array(s_products)
 
-    Sto = np.zeros((nReact,nComp))
-    StoR = np.zeros((nReact,nComp))
-    StoP = np.zeros((nReact,nComp))
+    Sto = np.zeros((nReact,nComp), dtype=int)
+    StoR = np.zeros((nReact,nComp), dtype=int)
+    StoP = np.zeros((nReact,nComp), dtype=int)
 
     for r in range(nReact):
         for c in dreactants[r]:
@@ -84,17 +84,17 @@ def process_reactions(chem,ncfile=None):
     areactants = np.array([v for v in dreactants.values()], dtype=object)
     aproducts = np.array([v for v in dproducts.values()], dtype=object)
 
-    RHS = {n:[] for n in dindices.keys() }
-    for k in dproducts.keys():
-        for n in list(set(dproducts[k])):
-            RHS[n].append(k)
+    # RHS = {n:[] for n in dindices.keys() }
+    # for k in dproducts.keys():
+    #     for n in list(set(dproducts[k])):
+    #         RHS[n].append(k)
 
     # LHS = {n:[] for n in dindices.keys() }
     # for k in dproducts.keys():
     #     for n in list(set(dreactants[k])):
     #         LHS[n].append(k)
 
-    saveZip([nReact,nComp,Sto,dindices,s_reactants,s_reactions,areactants,StoR,StoP,RHS],f'{chem}/Sto.zip')
+    saveZip([nReact,nComp,Sto,dindices,s_reactions,areactants,StoR,StoP],f'{chem}/Sto.zip')
 
     if ncfile is not None:
         saveZip(C,'C.zip')

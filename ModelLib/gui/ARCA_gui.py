@@ -200,7 +200,10 @@ env_yes = array((128,179,255))
 # BG colour for ORG vars
 org_no  = array((243,240,239))
 org_yes = array((172,147,147))
-
+# BG colour for Reactivity
+colRP = '#ff0000'
+colRN = '#b7c8c4'
+colRS = '#0044aa'
 # BG colour for XTR vars
 xtr_no  = array((255, 230, 128))
 xtr_yes = array((212, 170, 0))
@@ -805,19 +808,25 @@ class React(QtWidgets.QDialog):
         self.maxReact = self.pw.maxReact.value()
         self.ncobj = ncobj
         ncobj.getAllGases()
+        dimt = len(self.ncobj.time)
+        if dimt>100 and self.actionSave_memory_in_R.isChecked():
+            self.jumpTime = dimt//101+1
+        else:
+            self.jumpTime = 1
+        self.locTime = self.ncobj.time[::self.jumpTime]
         self.iMainGuy = self.ncobj.names.index(self.mainGuy)
-        self.pw.cumIntSinkLeft.setText(f'{self.ncobj.time[0]*3600:g}')
-        self.pw.cumIntSinkRight.setText(f'{self.ncobj.time[-1]*3600:g}')
+        self.pw.cumIntSinkLeft.setText(f'{self.locTime[0]*3600:g}')
+        self.pw.cumIntSinkRight.setText(f'{self.locTime[-1]*3600:g}')
         # self.pw.intSink.text()
-        self.pw.cumIntProdLeft.setText(f'{self.ncobj.time[0]*3600:g}')
-        self.pw.cumIntProdRight.setText(f'{self.ncobj.time[-1]*3600:g}')
+        self.pw.cumIntProdLeft.setText(f'{self.locTime[0]*3600:g}')
+        self.pw.cumIntProdRight.setText(f'{self.locTime[-1]*3600:g}')
         # self.pw.intProd.text()
         if not exists(osjoin(self.chem,'Sto.zip')):
             proc_reactivity.process_reactions(self.chem)
         # self.ncobj.time
         self.Robj = Stoichio.getSto(
-            self.ncobj.nconc,self.mainGuy,
-            self.includeNull,self.chem,self.case,False,self.homomolSecondOrder
+            self.ncobj.nconc[::self.jumpTime],self.mainGuy,
+            self.includeNull,self.chem,self.case,False,self.homomolSecondOrder,self.jumpTime
         )
         self.reactions = self.Robj.s_reactions
         if exists(f'{self.chem}/RATES.dat'):
@@ -872,7 +881,14 @@ class React(QtWidgets.QDialog):
                 else:
                     item.setCheckState(QtCore.Qt.Unchecked)
             else:
-                 item.setFlags(QtCore.Qt.NoItemFlags)
+                item.setFlags(QtCore.Qt.NoItemFlags)
+
+            if enabledL and enabledR:
+                item.setBackground(QtGui.QColor(colRN))
+            elif enabledL:
+                item.setBackground(QtGui.QColor(colRS))
+            elif enabledR:
+                item.setBackground(QtGui.QColor(colRP))
             self.pw.rTable.setItem(counter, 1, item)
             item = QtWidgets.QTableWidgetItem()
             if enabledL or enabledR:
@@ -890,12 +906,12 @@ class React(QtWidgets.QDialog):
         if PR=='sou':
             try: PtL  = max(0,float(self.pw.cumIntProdLeft.text()))
             except: return
-            try: PtR  = min(self.ncobj.time[-1]*3600,float(self.pw.cumIntProdRight.text()))
+            try: PtR  = min(self.locTime[-1]*3600,float(self.pw.cumIntProdRight.text()))
             except: return
             try: PTot  = float(self.pw.intProd.text())
             except: PTot = 0
             timeInt = linspace(PtL,PtR,100)
-            y = interp(timeInt,self.ncobj.time*3600,ln)
+            y = interp(timeInt,self.locTime*3600,ln)
             # iPtL = argmin(npabs(PtL-self.ncobj.time*3600))
             # iPtR = argmin(npabs(PtR-self.ncobj.time*3600))
             # total = trapz(ln[iPtL:iPtR+1], self.ncobj.time[iPtL:iPtR+1])
@@ -905,12 +921,12 @@ class React(QtWidgets.QDialog):
         if PR=='sin':
             try: RtL  = max(0,float(self.pw.cumIntSinkLeft.text()))
             except: return
-            try: RtR  = min(self.ncobj.time[-1]*3600,float(self.pw.cumIntSinkRight.text()))
+            try: RtR  = min(self.locTime[-1]*3600,float(self.pw.cumIntSinkRight.text()))
             except: return
             try: RTot  = float(self.pw.intSink.text())
             except: RTot = 0
             timeInt = linspace(RtL,RtR,100)
-            y = interp(timeInt,self.ncobj.time*3600,ln)
+            y = interp(timeInt,self.locTime*3600,ln)
             # iRtL = argmin(npabs(RtL-self.ncobj.time*3600))
             # iRtR = argmin(npabs(RtR-self.ncobj.time*3600))
             total = trapz(y,timeInt)
@@ -918,35 +934,28 @@ class React(QtWidgets.QDialog):
             if sum: total += RTot
             self.pw.intSink.setText(f'{total:g}')
 
-
-
     def setplot(self,init=False):
         self.Robj.lines()
         Pint = self.pw.cumIntProd.isChecked()
         Rint = self.pw.cumIntSink.isChecked()
-        cc = ones(self.ncobj.time.shape) * self.ncobj.nconc[:,self.iMainGuy]
-        cc = where(cc>1,cc,1)
+        cc = ones(self.locTime.shape) * self.ncobj.nconc[::self.jumpTime,self.iMainGuy]
+        # cc = where(cc>1,cc,1)
         sources,sinks,sourceLabels,sinkLabels = self.Robj.sources,self.Robj.sinks,self.Robj.sourceLabels,self.Robj.sinkLabels
-        # if self.pw.totalP.isChecked():
-        #     self.countIntegrals(sou)
-        # if self.pw.totalR.isChecked():
-        #     self.countIntegrals(sin)
-
         self.L1 = self.pw.plotProd.addLegend()
         self.L2 = self.pw.plotReact.addLegend()
         self.pw.plotProd.showGrid(x=True,y=True,alpha=0.2)
         self.pw.plotReact.showGrid(x=True,y=True,alpha=0.2)
         for i_s, sou, soulabel in zip(range(len(sources)),sources,sourceLabels):
             self.countIntegrals('sou',sou,False if i_s==0 else True)
-            souPlot = cumtrapz(sou,self.ncobj.time*3600) if Pint else sou
-            time = self.ncobj.time[1:] if Pint else self.ncobj.time
+            souPlot = cumtrapz(sou,self.locTime*3600) if Pint else sou
+            time = self.locTime[1:] if Pint else self.locTime
             line = QtCore.Qt.SolidLine if i_s<6 else QtCore.Qt.DashLine
             w=5 if i_s==0 and self.pw.totalP.isChecked() else 2
             pl = self.pw.plotProd.plot(time,souPlot,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=soulabel)
         for i_s, sin, sinlabel in zip(range(len(sinks)),sinks,sinkLabels):
-            # self.countIntegrals('sin',sin*cc,False if i_s==0 else True)
-            sinPlot = cumtrapz(sin*cc,self.ncobj.time*3600) if Rint else sin
-            time = self.ncobj.time[1:] if Rint else self.ncobj.time
+            self.countIntegrals('sin',sin*cc,False if i_s==0 else True)
+            sinPlot = cumtrapz(sin*cc,self.locTime*3600) if Rint else sin
+            time = self.locTime[1:] if Rint else self.locTime
             line = QtCore.Qt.SolidLine if i_s<6 else QtCore.Qt.DashLine
             w=5 if i_s==0 and self.pw.totalR.isChecked() else 2
             pl = self.pw.plotReact.plot(time,sinPlot,pen=pg.mkPen({'style':line,'color':sixcolors[i_s%6],'width': w}),name=sinlabel)
@@ -1035,7 +1044,7 @@ class React(QtWidgets.QDialog):
 
         unit = 's^-1' if abs(self.Robj.order[indx])==1 else 'molec^-1 s^-1'
         self.plwin.setplot(f'{self.pw.rTable.item(item.row(),2).text()}: k_({indx+1})',
-            self.ncobj.time,self.RRates_nc.variables['Reaction_rates'][:,indx],unit,'hrs',
+            self.locTime,self.RRates_nc.variables['Reaction_rates'][:,indx],unit,'hrs',
             False,1,0,legend=tt, title='Reaction rate coefficient time series',twoCol=False)
         response = self.plwin.exec()
 
@@ -1339,11 +1348,16 @@ class QtBoxGui(gui20.Ui_MainWindow,QtWidgets.QMainWindow):
         self.actionStopCurrentRunAndIgnoreOutput.triggered.connect(self.QuitShortcut)
         self.actionStopCurrentRunClean.triggered.connect(self.QuitGracefullyShortcut)
         self.actionWhat_s_new.triggered.connect(self.createWN)
-        self.actionReactivity_includes_null_cycles.setChecked( True if int(get_config("options", "nullCycles",  fallback='0' ))==1 else False )
+        self.actionReactivity_includes_null_cycles.setChecked( True if
+            int(get_config("options", "nullCycles",  fallback='0' ))==1 else False )
         self.actionReactivity_includes_null_cycles.triggered.connect(lambda:
             set_config('options', 'nullCycles',('1' if self.actionReactivity_includes_null_cycles.isChecked() else '0' )))
-
-        self.actionmultiply_2_X_reactivity_with_C_x.setChecked( True if int(get_config("options", "homoMolecular",  fallback='0' ))==1 else False )
+        self.actionSave_memory_in_R.setChecked( True if
+            int(get_config("options", "saveMemInReactPlot",  fallback='0' ))==1 else False )
+        self.actionSave_memory_in_R.triggered.connect(lambda:
+            set_config('options', 'saveMemInReactPlot',('1' if self.actionSave_memory_in_R.isChecked() else '0' )))
+        self.actionmultiply_2_X_reactivity_with_C_x.setChecked( True if
+            int(get_config("options", "homoMolecular",  fallback='0' ))==1 else False )
         self.actionmultiply_2_X_reactivity_with_C_x.triggered.connect(lambda:
             set_config('options', 'homoMolecular',('1' if self.actionmultiply_2_X_reactivity_with_C_x.isChecked() else '0' )))
 

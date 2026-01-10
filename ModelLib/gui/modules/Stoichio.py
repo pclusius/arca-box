@@ -1,11 +1,12 @@
 import numpy as np
 import os, re, pickle, gzip,netCDF4
-from pdb import set_trace as bp
+# from pdb import set_trace as bp
+# from memory_profiler import profile
 
 # from time import time as timer
 # strt = timer()
 class Reactions():
-    def __init__(self,myGuy,Re,So,nReact,nComp,s_reactions,mySinks,mySources,areactants,RHS,order):
+    def __init__(self,myGuy,Re,So,nReact,nComp,s_reactions,mySinks,mySources,areactants,order):
         self.myGuy = myGuy
         self.Re = Re
         self.So = So
@@ -15,7 +16,7 @@ class Reactions():
         self.mySinks = mySinks
         self.mySources = mySources
         self.areactants = areactants
-        self.rhs = RHS
+        # self.rhs = RHS
         self.nMaxR = 3
         self.nMaxP = 3
         self.groupsR = ['TOTAL']
@@ -77,7 +78,7 @@ class Reactions():
         ###########################################################################################
         # Sources / Production
         ###########################################################################################
-        if len(self.rhs[self.myGuy])==0:
+        if self.mySources.sum()==0:
             return
         if 'TOTAL' in groupsP:
             self.sources.append(self.So.sum(1))
@@ -120,7 +121,8 @@ def reduceindices(iL,L,boolean=False):
     else:
         return np.flatnonzero(a)
 
-def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder=True):
+# @profile
+def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder=True,jumpTime=1):
 
     C = Cin.copy()
 
@@ -172,47 +174,52 @@ def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder
     if Dump:
         process_reactions(chem=chem)
 
-    nReact,nComp,Sto,dindices,s_reactants,s_reactions,areactants,StoR,StoP,RHS = loadZip(f'{chem}/Sto.zip')
+    nReact,nComp,Sto,dindices,s_reactions,areactants,StoR,StoP = loadZip(f'{chem}/Sto.zip')
+    # del s_reactants
 
-    try:
-        RC = netCDF4.Dataset(f'{case}/Rates.nc').variables['Reaction_rates'][:].data
-    except:
-        RC = np.genfromtxt(f'{case}/Reaction_rates.txt')
-    nP, nR = sum(sourceR(myGuy)),sum(sinkR(myGuy))
-    cMyGuy = np.ones(C.shape[0])*(C[:,dindices[myGuy]])
+    RC = netCDF4.Dataset(f'{case}/Rates.nc').variables['Reaction_rates'][::jumpTime,:].data.astype(np.float32)
+
+    sourceR_MG,sinkR_MG = sourceR(myGuy),sinkR(myGuy)
+    nP, nR = sum(sourceR_MG),sum(sinkR_MG)
 
     if include_homomolSecondOrder:
+        # cMyGuy = np.ones(C.shape[0])*(C[:,dindices[myGuy]])
         homomolSecondOrder = np.arange(nReact)[ [ar.count(myGuy)>1 for ar in areactants] ]
         if len(homomolSecondOrder)>0:
-            RC[:,homomolSecondOrder] = (RC[:,homomolSecondOrder].T*cMyGuy).T
-
-    # Re = np.prod(np.transpose(np.tile(C[None,:,:] , (nR,1,1)), (1,2,0)),1, where=sinkSM(myGuy).T>0)*RC[:,sinkR(myGuy)]
-
+            RC[:,homomolSecondOrder] = (RC[:,homomolSecondOrder].T*C[:,dindices[myGuy]]).T
+    # bp()
+    RB = Reactions( myGuy, None,None,nReact,nComp,s_reactions,sinkR_MG,sourceR_MG,areactants,np.sum(StoR,1) )
     if includeNull:
-        So = np.prod(np.transpose(np.tile(C[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR(myGuy)]*sourceMu(myGuy)
+        RB.So = np.prod(np.transpose(np.tile(C[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR_MG]*sourceMu(myGuy)
         C[:,dindices[myGuy]] = 1.0
     else:
         C[:,dindices[myGuy]] = 1.0
-        So = np.prod(np.transpose(np.tile(C[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR(myGuy)]*sourceMu(myGuy)
+        RB.So = np.prod(np.transpose(np.tile(C[None,:,:] , (nP,1,1)), (1,2,0)),1, where=sourceSM(myGuy).T>0)*RC[:,sourceR_MG]*sourceMu(myGuy)
 
-    Re = np.prod(np.transpose(np.tile(C[None,:,:] , (nR,1,1)), (1,2,0)),1, where=sinkSM(myGuy).T>0)*RC[:,sinkR(myGuy)]*sinkMu(myGuy)
-
-    return Reactions( myGuy, Re,So,nReact,nComp,s_reactions,sinkR(myGuy),sourceR(myGuy),areactants,RHS,np.sum(StoR,1) )
+    RB.Re = np.prod(np.transpose(np.tile(C[None,:,:] , (nR,1,1)), (1,2,0)),1, where=sinkSM(myGuy).T>0)*RC[:,sinkR_MG]*sinkMu(myGuy)
+    # del C
+    # del RC
+    # del Sto,StoP
+    return RB # Reactions( myGuy, Re,So,nReact,nComp,s_reactions,sinkR_MG,sourceR_MG,areactants,np.sum(StoR,1) )
 
 if __name__ == "__main__":
     pass
     # from proc_reactivity import process_reactions,is_number, to_number
+    #
     # chroot = '../../../src/chemistry/'
     # nc = netCDF4.Dataset('/home/pecl/05-ARCA/ARCA-box/INOUT/HYDEAPRIL/PC_2018-04-11/NEWARCA2/Chemistry.nc')
-    # ch = chroot+nc.Chemistry_module
+    # dimt = nc.dimensions['time'].size
+    # if dimt>100:
+    #     jumpTime = int(dimt/100)+1
     #
-    # myGuy = 'O3'
+    # ch = chroot+nc.Chemistry_module
+    # myGuy = 'OH'
     # nMaxR,nMaxP = 3,3
     # Dump = False
-    # includeNull=False
+    # includeNull = True
     # # C = loadZip('C.zip')
-    # C = nc.variables['CH_GAS'][:,:].data
-    # time = nc.variables['TIME_IN_HRS'][:]
+    # C = nc.variables['CH_GAS'][::jumpTime,:].data
+    # time = nc.variables['TIME_IN_HRS'][::jumpTime]
     # # time = np.linspace(0,12,nt)
     # nt = C.shape[0]
     # cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/HYDEAPRIL/PC_2018-04-11/NEWARCA2/'
