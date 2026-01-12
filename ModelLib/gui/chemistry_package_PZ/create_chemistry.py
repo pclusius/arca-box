@@ -205,12 +205,12 @@ def update_ro2_list(file_lines, ro2_list):
   # Start only when there is a RO2 definition
   if line_number_ro2 >= 0:
     # Starting to count RO2 species
-    for i, s in enumerate(file_lines[line_number_ro2+1:]):
+    for i, s in enumerate(file_lines[line_number_ro2:]):
       # Skip empty lines
       if re.search(r'^\s*$', s):
         continue
       # RO2 definition ending
-      elif not re.search(r'C\(ind_', s, re.I):
+      elif i>0 and not re.search(r'C\(ind_', s, re.I):
         return
       # Still inside the RO2 definition
       else:
@@ -889,30 +889,41 @@ if __name__ == '__main__':
   # Replace the RO2 definition in the root def file with new ro2_list
   #
   line_number_ro2, i1, i2 = index_containing_substring(file_lines, r'^\s*RO2\s*=', False)
+  inline1, inline2 = '',''
+  if line_number_ro2<0 and nro2>0:
+    logging.info('-----------------------------------')
+    logging.info('')
+    logging.info('RO2 was not calculated in the main input file.')
+    logging.info('Check that the RO2 inline is correctly placed.')
+    logging.info('')
+    inline1, inline2 = '#INLINE F90_RCONST\n','#ENDINLINE\n'
+    line_number_ro2, i1, i2 = index_containing_substring(file_lines, r'^\s*#EQUATIONS', False)
+    line_number_ro2 = line_number_ro2-1
+  elif line_number_ro2>=0:
+      block_line_count = 1
+      # Count the old RO2 definition block lines
+      for i, s in enumerate(file_lines[line_number_ro2+1:]):
+        # Count empty lines or the lines with 'C(ind_xxx)'
+        if re.search(r'^\s*$', s) or re.search(r'C\(ind_', s, re.I):
+          block_line_count += 1
+        # Otherwise quit
+        else:
+          break
 
-  # Count the old RO2 definition block lines
-  block_line_count = 0
-  for i, s in enumerate(file_lines[line_number_ro2+1:]):
-    # Count empty lines or the lines with 'C(ind_xxx)'
-    if re.search(r'^\s*$', s) or re.search(r'C\(ind_', s, re.I):
-      block_line_count += 1
-    # Otherwise quit
-    else:
-      break
-
-  # Delete the old RO2 definition block
-  if block_line_count >= 0:
-    del file_lines[line_number_ro2+1:line_number_ro2+block_line_count+1]
-
+      # Delete the old RO2 definition block
+      # if block_line_count >= 0:
+      del file_lines[line_number_ro2:line_number_ro2+block_line_count+1]
+  emptylinestart = re.search(r'^\s*',ro2_print_string).span()
+  ro2_print_string = inline1 + 'RO2 = '+ro2_print_string[emptylinestart[1]:] +  inline2
   # Write the new RO2 list
-  file_lines[line_number_ro2+1:line_number_ro2+1] = ro2_print_string
+  file_lines[line_number_ro2:line_number_ro2] = [ro2_print_string]
+
 
   # Write to log file
   logging.info('-----------------------------------')
   logging.info('')
   logging.info('Combined all the RO2 species.')
   logging.info('')
-
 
   #---------- 5. Combine chemical reactions for #EQUATIONS ----------#
   reactant_list = []
