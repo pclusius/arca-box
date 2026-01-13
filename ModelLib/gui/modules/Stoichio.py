@@ -182,7 +182,7 @@ def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder
     sourceR_MG,sinkR_MG = sourceR(myGuy),sinkR(myGuy)
     nP, nR = sum(sourceR_MG),sum(sinkR_MG)
     GiB = C.shape[0]*C.shape[1]*max(nP,nR)*8 /2**30
-    freeMem = psutil.virtual_memory().free /2**30
+    freeMem = psutil.virtual_memory().available /2**30
     if GiB / freeMem > 0.75:
     # if GiB>3:
         loop = True
@@ -226,69 +226,69 @@ def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder
 
 if __name__ == "__main__":
     pass
-    from proc_reactivity import process_reactions,is_number, to_number
-
-    chroot = '../../../src/chemistry/'
-    cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/STARTUP_0001/INTTEST/'
-    cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/HYDEAPRIL/PC_2018-04-11/NEWARCA2/'
-    nc = netCDF4.Dataset(f'{cs}/Chemistry.nc')
-    dimt = nc.dimensions['time'].size
-    if dimt>100:
-        jumpTime = int(dimt/100)+1
-
-    ch = chroot+nc.Chemistry_module
-    myGuy = 'OH'
-    nMaxR,nMaxP = 5,5
-    Dump = False
-    includeNull = True
-    saveMem = True
-    saveMem = False
-    # C = loadZip('C.zip')
-    C = nc.variables['CH_GAS'][::jumpTime,:].data
-    time = nc.variables['TIME_IN_HRS'][::jumpTime]
-    # time = np.linspace(0,12,nt)
-    nt = C.shape[0]
-
-    # Re,So,nReact,nComp,s_reactions,mySinks,mySources,areactants,RHS
-    ROBJ = getSto(C,myGuy,includeNull,ch,cs,Dump=Dump,jumpTime=jumpTime,loop=saveMem)
-
-    # ROBJ.nMaxR = min(nMaxR,sum(ROBJ.mySinks))
-    # ROBJ.nMaxP = min(nMaxP,sum(ROBJ.mySources))
-    # ProdReacFilter = [ True if i in ROBJ.RHS[myGuy] else False for i in range(ROBJ.nReact)]
-
-    # groupsR = ['CO,CH4,SDD','O3','NO']
-    ROBJ.groupsR = ['CO,CH4,O3','HO2','18']
-    # groupsP = [1365, 'TOTAL']
-    ROBJ.groupsP = ['35','TOTAL']
-
-    ROBJ.groupsR = ['TOTAL']
-    ROBJ.groupsP = ['TOTAL']
-
-    import matplotlib.pyplot as plt
-    plt.ion()
-
-    f,(a1,a2) = plt.subplots(2)
-    a1.set_title('Reactivity')
-    a2.set_title('Production')
-    ROBJ.lines()
-    for lab,lin in zip(ROBJ.sinkLabels,ROBJ.sinks):
-        a1.plot(time, lin, label=lab)
-    for lab,lin in zip(ROBJ.sourceLabels,ROBJ.sources):
-        a2.plot(time, lin, label=lab)
-    [a.legend() for a in [a1,a2]]
-
-    ROBJ.groupsR = ['TOTAL']
-    ROBJ.groupsP = ['TOTAL']
-    ROBJ.lines()
-    iMyGuy = nc.variables['CH_GAS'].names.split(',').index(myGuy)
-    cc = C[:,iMyGuy]
-    import scipy as sc
-    f,(a1,a2) = plt.subplots(2)
-    for lab,lin in zip(ROBJ.sinkLabels,ROBJ.sinks):
-        a1.plot(time[1:], sc.integrate.cumtrapz(lin*ROBJ.sources[0],time*3600), label=lab)
-    for lab,lin in zip(ROBJ.sourceLabels,ROBJ.sources):
-        a2.plot(time[1:], sc.integrate.cumtrapz(lin,time*3600), label=lab)
-    [a.legend() for a in [a1,a2]]
+    # from proc_reactivity import process_reactions,is_number, to_number
+    #
+    # chroot = '../../../src/chemistry/'
+    # cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/STARTUP_0001/INTTEST/'
+    # cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/HYDEAPRIL/PC_2018-04-11/NEWARCA2/'
+    # nc = netCDF4.Dataset(f'{cs}/Chemistry.nc')
+    # dimt = nc.dimensions['time'].size
+    # if dimt>100:
+    #     jumpTime = int(dimt/100)+1
+    #
+    # ch = chroot+nc.Chemistry_module
+    # myGuy = 'OH'
+    # nMaxR,nMaxP = 5,5
+    # Dump = False
+    # includeNull = True
+    # saveMem = True
+    # saveMem = False
+    # # C = loadZip('C.zip')
+    # C = nc.variables['CH_GAS'][::jumpTime,:].data
+    # time = nc.variables['TIME_IN_HRS'][::jumpTime]
+    # # time = np.linspace(0,12,nt)
+    # nt = C.shape[0]
+    #
+    # # Re,So,nReact,nComp,s_reactions,mySinks,mySources,areactants,RHS
+    # ROBJ = getSto(C,myGuy,includeNull,ch,cs,Dump=Dump,jumpTime=jumpTime,loop=saveMem)
+    #
+    # # ROBJ.nMaxR = min(nMaxR,sum(ROBJ.mySinks))
+    # # ROBJ.nMaxP = min(nMaxP,sum(ROBJ.mySources))
+    # # ProdReacFilter = [ True if i in ROBJ.RHS[myGuy] else False for i in range(ROBJ.nReact)]
+    #
+    # # groupsR = ['CO,CH4,SDD','O3','NO']
+    # ROBJ.groupsR = ['CO,CH4,O3','HO2','18']
+    # # groupsP = [1365, 'TOTAL']
+    # ROBJ.groupsP = ['35','TOTAL']
+    #
+    # ROBJ.groupsR = ['TOTAL']
+    # ROBJ.groupsP = ['TOTAL']
+    #
+    # import matplotlib.pyplot as plt
+    # plt.ion()
+    #
+    # f,(a1,a2) = plt.subplots(2)
+    # a1.set_title('Reactivity')
+    # a2.set_title('Production')
+    # ROBJ.lines()
+    # for lab,lin in zip(ROBJ.sinkLabels,ROBJ.sinks):
+    #     a1.plot(time, lin, label=lab)
+    # for lab,lin in zip(ROBJ.sourceLabels,ROBJ.sources):
+    #     a2.plot(time, lin, label=lab)
+    # [a.legend() for a in [a1,a2]]
+    #
+    # ROBJ.groupsR = ['TOTAL']
+    # ROBJ.groupsP = ['TOTAL']
+    # ROBJ.lines()
+    # iMyGuy = nc.variables['CH_GAS'].names.split(',').index(myGuy)
+    # cc = C[:,iMyGuy]
+    # import scipy as sc
+    # f,(a1,a2) = plt.subplots(2)
+    # for lab,lin in zip(ROBJ.sinkLabels,ROBJ.sinks):
+    #     a1.plot(time[1:], sc.integrate.cumtrapz(lin*ROBJ.sources[0],time*3600), label=lab)
+    # for lab,lin in zip(ROBJ.sourceLabels,ROBJ.sources):
+    #     a2.plot(time[1:], sc.integrate.cumtrapz(lin,time*3600), label=lab)
+    # [a.legend() for a in [a1,a2]]
 
 
     # sc.integrate.cumtrapz(y,x))
