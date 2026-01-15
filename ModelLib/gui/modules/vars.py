@@ -240,7 +240,7 @@ class INITFILE:
             self.names = names
             pass
         def printall(self,cmd,f,eol, mods=None):
-            units =['C','K','Pa','hPa','bar','kPa','mbar','#','ppm','ppb','ppt','ppq']
+            units =['C','K','Pa','hPa','mbar','kPa','bar','atm','#','ppm','ppb','ppt','ppq']
             counter = 1
             exec("%s('&NML_MODS%s')"%(cmd, eol))
             exec("%s(' !                   <------ CONSTANT ------>  <------------------------------- PARAMETRIC INPUT (PI)------------------------->%s')"%(cmd, eol))
