@@ -226,41 +226,111 @@ def getSto(Cin,myGuy,includeNull,chem,case,Dump=False,include_homomolSecondOrder
 
 if __name__ == "__main__":
     pass
-    # from proc_reactivity import process_reactions,is_number, to_number
-    #
-    # chroot = '../../../src/chemistry/'
-    # cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/STARTUP_0001/INTTEST/'
-    # cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/HYDEAPRIL/PC_2018-04-11/NEWARCA2/'
-    # nc = netCDF4.Dataset(f'{cs}/Chemistry.nc')
-    # dimt = nc.dimensions['time'].size
-    # if dimt>100:
-    #     jumpTime = int(dimt/100)+1
-    #
-    # ch = chroot+nc.Chemistry_module
-    # myGuy = 'OH'
-    # nMaxR,nMaxP = 5,5
-    # Dump = False
-    # includeNull = True
+    import sys
+    from proc_reactivity import process_reactions,is_number, to_number
+    chroot = '../../../src/chemistry/'
+    cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/O3REACT_0000/0002_BASE_X.X/'
+    myGuy = 'OH'
+    jumpTime = 1
+    includeNull = True
     # saveMem = True
-    # saveMem = False
+    Dump = False
+    saveMem = False
+    saveR,saveP,groupR,groupP = None,None,None,None
+
+    cmdline=False
+    if len(sys.argv)>1:
+        cmdline=True
+        os.chdir(os.path.split(sys.argv[0])[0])
+        for iarg,arg in enumerate(sys.argv):
+            if arg=='-h':
+                print("""
+    -c directory where Chemistry.nc is
+    -m the component (the 'main guy') that the reactivity is checked for
+    -j jump over every j indexes
+    -d delete Sto.zip and rewrite it
+    -R run Reactions.lines and save losses in this text file
+    -P run Reactions.lines and save production in this text file
+                    """)
+                exit()
+            elif arg=='-c':
+                cs=sys.argv[iarg+1]
+            elif arg=='-m':
+                myGuy=sys.argv[iarg+1]
+            elif arg=='-j':
+                jumpTime=int(sys.argv[iarg+1])
+            elif arg=='-d':
+                Dump = True
+            elif arg=='-R':
+                saveR=sys.argv[iarg+1]
+            elif arg=='-P':
+                saveP=sys.argv[iarg+1]
+            elif arg=='-gP':
+                groupP=[sys.argv[iarg+1]]
+                print(f'groupP string >{sys.argv[iarg+1]}<')
+            elif arg=='-gR':
+                print(f'groupP string >{sys.argv[iarg+1]}<')
+                groupR=[c for c in sys.argv[iarg+1].split(';')]
+        print('-c cs: ',cs)
+        print('-m myGuy: ',myGuy)
+        print('-j jumpTime: ',jumpTime)
+        print('-d Dump: ',Dump)
+        print('-R saveR: ',saveR)
+        print('-P saveP: ',saveP)
+        print('-gP groupP: ',groupP)
+        print('-gR groupR: ',groupR)
+        if '-dry' in sys.argv:
+            print('-dry test only, exiting')
+            print(os.getcwd())
+            exit()
+    # cs = '/home/pecl/05-ARCA/ARCA-box/INOUT/STARTUP_0001/INTTEST/'
+    nc = netCDF4.Dataset(f'{cs}/Chemistry.nc')
+    dimt = nc.dimensions['time'].size
+    # if dimt>100:
+        # jumpTime = int(dimt/100)+1
+    #
+    ch = chroot+nc.Chemistry_module
+    # nMaxR,nMaxP = 5,5
     # # C = loadZip('C.zip')
-    # C = nc.variables['CH_GAS'][::jumpTime,:].data
-    # time = nc.variables['TIME_IN_HRS'][::jumpTime]
+    C = nc.variables['CH_GAS'][::jumpTime,:].data
+    time = nc.variables['TIME_IN_HRS'][::jumpTime]
     # # time = np.linspace(0,12,nt)
     # nt = C.shape[0]
     #
     # # Re,So,nReact,nComp,s_reactions,mySinks,mySources,areactants,RHS
-    # ROBJ = getSto(C,myGuy,includeNull,ch,cs,Dump=Dump,jumpTime=jumpTime,loop=saveMem)
+    ROBJ = getSto(C,myGuy,includeNull,ch,cs,Dump=Dump,jumpTime=jumpTime)
     #
     # # ROBJ.nMaxR = min(nMaxR,sum(ROBJ.mySinks))
     # # ROBJ.nMaxP = min(nMaxP,sum(ROBJ.mySources))
-    # # ProdReacFilter = [ True if i in ROBJ.RHS[myGuy] else False for i in range(ROBJ.nReact)]
+    # # ProdReacFilter = [ True ifROBJ i in ROBJ.RHS[myGuy] else False for i in range(ROBJ.nReact)]
     #
     # # groupsR = ['CO,CH4,SDD','O3','NO']
     # ROBJ.groupsR = ['CO,CH4,O3','HO2','18']
     # # groupsP = [1365, 'TOTAL']
     # ROBJ.groupsP = ['35','TOTAL']
     #
+    if groupR is not None:
+        ROBJ.groupsR = groupR
+        print('ROBJ.groupsR: ',ROBJ.groupsR)
+    if groupP is not None:
+        ROBJ.groupsP = groupP
+        print('ROBJ.groupsP: ',ROBJ.groupsP)
+    ROBJ.lines()
+    if saveR is not None:
+        if '.csv' in saveR[-4:]:
+            print('Saving reactivity.')
+            with open(saveR,'w') as rfile:
+                rfile.write('"time(s)","'+'","'.join(ROBJ.sinkLabels)+'"\n')
+                for i_t,t in enumerate(time):
+                    rfile.write(','.join([f'{t*3600:12.3e}',*[f'{x[i_t]:12.3e}' for x in ROBJ.sinks]])+'\n')
+    if saveP is not None:
+        if '.csv' in saveP[-4:]:
+            print('Saving production.')
+            with open(saveP,'w') as pfile:
+                pfile.write('"time(s)","'+'","'.join(ROBJ.sourceLabels)+'"\n')
+                for i_t,t in enumerate(time):
+                    pfile.write(','.join([f'{t*3600:12.3e}',*[f'{x[i_t]:12.3e}' for x in ROBJ.sources]])+'\n')
+
     # ROBJ.groupsR = ['TOTAL']
     # ROBJ.groupsP = ['TOTAL']
     #
