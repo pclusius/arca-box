@@ -297,7 +297,7 @@ CONTAINS
 ! Timetype update function. When timestep is added, this will update all other time-related
 ! variables accordingly
 ! .................................................................................................
-PURE type(timetype) function ADD(time, sec)
+pure type(timetype) function ADD(time, sec)
     implicit none
     type(timetype), intent(in)            :: time
     real(dp),       intent(in), optional  :: sec
@@ -325,19 +325,19 @@ PURE type(timetype) function ADD(time, sec)
     ADD%day = ADD%sec/3600d0/24d0
     write(ADD%hms, '(i4.2, ":" i2.2, ":" i2.2)') nint(ADD%sec)/3600, &
     int(MODULO(nint(ADD%sec),3600)/60d0), MODULO(MODULO(nint(ADD%sec),3600), 60)
-    IF (ADD%sec >= (ADD%PRINT_INTERVAL*(1+ADD%prevPrint_i))) THEN
+    IF (ADD%sec+(time%dt/1000d0) >= (ADD%PRINT_INTERVAL*(1+ADD%prevPrint_i))) THEN
         ADD%printnow = .true.
         ADD%prevPrint_i = INT(ADD%sec)/INT(ADD%PRINT_INTERVAL)
     ELSE
         ADD%printnow = .false.
     END IF
-    IF (ADD%sec >= (ADD%FSAVE_INTERVAL*(1+ADD%prevSave_i))) THEN
+    IF (ADD%sec+(time%dt/1000d0) >= (ADD%FSAVE_INTERVAL*(1+ADD%prevSave_i))) THEN
         ADD%savenow = .true.
-        ADD%prevSave_i =  INT(10000_dint*ADD%sec, dint)/INT(ADD%FSAVE_INTERVAL*10000_dint, dint)
+        ADD%prevSave_i =  INT(10000_dint*(ADD%sec+(time%dt/1000d0)), dint)/INT(ADD%FSAVE_INTERVAL*10000_dint, dint)
     ELSE
         ADD%savenow = .false.
     END IF
-
+    ! print*, ADD%sec+(time%dt/1000d0), ADD%savenow,(ADD%FSAVE_INTERVAL*(1+ADD%prevSave_i)),ADD%prevSave_i
 end function ADD
 
 ! =================================================================================================
