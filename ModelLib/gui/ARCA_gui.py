@@ -3990,6 +3990,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
             if key == 'TEMPK' or key == 'PRESSURE':
                 if key == 'TEMPK': row = 0
                 if key == 'PRESSURE': row = 1
+                self.selected_vars.itemChanged.disconnect(self.highlightModifications)
                 self.selected_vars.setItem(row, 1, QtWidgets.QTableWidgetItem(str(vars.mods[key].col)))
                 self.selected_vars.setItem(row, 2, QtWidgets.QTableWidgetItem(str(vars.mods[key].multi)))
                 self.selected_vars.setItem(row, 3, QtWidgets.QTableWidgetItem(str(vars.mods[key].shift)))
@@ -4002,6 +4003,7 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                         self.selected_vars.item(row, z).setBackground(QtGui.QColor(*xtr_no))
                     else:
                         self.selected_vars.item(row, z).setBackground(QtGui.QColor(*org_no))
+                self.selected_vars.itemChanged.connect(self.highlightModifications)
 
             else:
                 init = 1 if key in INIT_ONLY else 0
