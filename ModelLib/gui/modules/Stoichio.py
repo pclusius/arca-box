@@ -251,6 +251,14 @@ if __name__ == "__main__":
     -d delete Sto.zip and rewrite it
     -R run Reactions.lines and save losses in this text file
     -P run Reactions.lines and save production in this text file
+
+For example (this could be used as ARCA postprocessing call in the GUI):
+
+python3 ModelLib/gui/modules/Stoichio.py \
+-c /home/pecl/05-ARCA/ARCA-box/INOUT/O3REACT_0000/ALL_1.0_HO2
+-m O3 -R /home/pecl/05-ARCA/ARCA-box/INOUT/O3REACT_0000/ALL_1.0_HO2/reactivity2.csv \
+-gR "TOTAL;APINENE;BCARY;LIMONENE"
+
                     """)
                 exit()
             elif arg=='-c':
@@ -294,6 +302,7 @@ if __name__ == "__main__":
     # # C = loadZip('C.zip')
     C = nc.variables['CH_GAS'][::jumpTime,:].data
     time = nc.variables['TIME_IN_HRS'][::jumpTime]
+    cMyGuy = nc.variables[myGuy][::jumpTime].data
     # # time = np.linspace(0,12,nt)
     # nt = C.shape[0]
     #
@@ -320,16 +329,16 @@ if __name__ == "__main__":
         if '.csv' in saveR[-4:]:
             print('Saving reactivity.')
             with open(saveR,'w') as rfile:
-                rfile.write('"time(s)","'+'","'.join(ROBJ.sinkLabels)+'"\n')
+                rfile.write(f'"time(s)","{myGuy}","'+'","'.join(ROBJ.sinkLabels)+'"\n')
                 for i_t,t in enumerate(time):
-                    rfile.write(','.join([f'{t*3600:12.3e}',*[f'{x[i_t]:12.3e}' for x in ROBJ.sinks]])+'\n')
+                    rfile.write(','.join([f'{t*3600:16.4e}',*[f'{cMyGuy[i_t]:16.4e}'], *[f'{x[i_t]:16.4e}' for x in ROBJ.sinks]])+'\n')
     if saveP is not None:
         if '.csv' in saveP[-4:]:
             print('Saving production.')
             with open(saveP,'w') as pfile:
-                pfile.write('"time(s)","'+'","'.join(ROBJ.sourceLabels)+'"\n')
+                pfile.write(f'"time(s)","{myGuy}","'+'","'.join(ROBJ.sourceLabels)+'"\n')
                 for i_t,t in enumerate(time):
-                    pfile.write(','.join([f'{t*3600:12.3e}',*[f'{x[i_t]:12.3e}' for x in ROBJ.sources]])+'\n')
+                    pfile.write(','.join([f'{t*3600:16.4e}',*[f'{cMyGuy[i_t]:16.4e}'],*[f'{x[i_t]:16.4e}' for x in ROBJ.sources]])+'\n')
 
     # ROBJ.groupsR = ['TOTAL']
     # ROBJ.groupsP = ['TOTAL']
