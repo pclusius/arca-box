@@ -331,14 +331,14 @@ python3 ModelLib/gui/modules/Stoichio.py \
             with open(saveR,'w') as rfile:
                 rfile.write(f'"time(s)","{myGuy}","'+'","'.join(ROBJ.sinkLabels)+'"\n')
                 for i_t,t in enumerate(time):
-                    rfile.write(','.join([f'{t*3600:16.4e}',*[f'{cMyGuy[i_t]:16.4e}'], *[f'{x[i_t]:16.4e}' for x in ROBJ.sinks]])+'\n')
+                    rfile.write(','.join([f'{t*3600:0.8e}',*[f'{cMyGuy[i_t]:0.20e}'], *[f'{x[i_t]:0.20e}' for x in ROBJ.sinks]])+'\n')
     if saveP is not None:
         if '.csv' in saveP[-4:]:
             print('Saving production.')
             with open(saveP,'w') as pfile:
                 pfile.write(f'"time(s)","{myGuy}","'+'","'.join(ROBJ.sourceLabels)+'"\n')
                 for i_t,t in enumerate(time):
-                    pfile.write(','.join([f'{t*3600:16.4e}',*[f'{cMyGuy[i_t]:16.4e}'],*[f'{x[i_t]:16.4e}' for x in ROBJ.sources]])+'\n')
+                    pfile.write(','.join([f'{t*3600:0.8e}',*[f'{cMyGuy[i_t]:0.20e}'],*[f'{x[i_t]:0.20e}' for x in ROBJ.sources]])+'\n')
 
     # ROBJ.groupsR = ['TOTAL']
     # ROBJ.groupsP = ['TOTAL']
