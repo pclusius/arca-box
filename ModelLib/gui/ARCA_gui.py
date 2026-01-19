@@ -4695,13 +4695,14 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 self.editMakefile(mod=self.chemistryModules.currentText())
                 out = self.load_initfile(tempfile)
                 ratesfile = f"src/chemistry/{self.chemistryModules.currentText()}/RATES.dat"
-                cmd = ["grep","-c","constant rate coefficient",ratesfile]
-                try:
-                    Nconst = check_output(cmd)
-                except CalledProcessError as e:
-                    Nconst = e.output
-                if int(Nconst.decode('utf-8').strip())>0:
-                    osremove(ratesfile)
+                if exists(ratesfile):
+                    cmd = ["grep","-c","constant rate coefficient",ratesfile]
+                    try:
+                        Nconst = check_output(cmd)
+                    except CalledProcessError as e:
+                        Nconst = e.output
+                    if int(Nconst.decode('utf-8').strip())>0:
+                        osremove(ratesfile)
                 os.system('make rates')
                 # writeRATESdat(self.chemistryModules.currentText())
                 if self.makeClean.isChecked():
