@@ -219,6 +219,7 @@ if dark_mode:
 # icon
 modellogo = gui_path+"/icons/%s/ArcaLogo.png"%icondir
 boxicon = gui_path+"/icons/%s/thebox_ico.png"%icondir
+R_icon = gui_path+"/icons/Ricon.png"
 CurrentVersion = "ARCA Box Model "
 # Some messages
 netcdfMissinnMes = ('Please note:',
@@ -592,7 +593,12 @@ class Variation(QtWidgets.QDialog):
     def brCont(self):
         path = self.vary.lineEdit.text()
         if exists(path):
-            self.indices, self.piInUse = variations.zzzz(path, ossplit(path)[0],variations.ops, dryrun=True)
+            parse = variations.zzzz(path, ossplit(path)[0],variations.ops, dryrun=True)
+            if type(parse) is not tuple:
+                print(parse)
+                return
+            else:
+                self.indices, self.piInUse = parse
             jjj = 0
             os.system('clear')
             print('\nFollowing variables and their indices are picked from chosen bash file\'s')
@@ -785,6 +791,7 @@ class React(QtWidgets.QDialog):
     def __init__(self,ncobj,parent = None):
         super(React, self).__init__(parent)
         self.pw = reactivityWin.Ui_Dialog()
+        self.setWindowIcon(QtGui.QIcon(R_icon))
         self.pw.setupUi(self)
         # self.pw.buttonClose.clicked.connect(self.reject)
         self.setWindowTitle(self.windowTitle() + ' in: ' + ncobj.path)
