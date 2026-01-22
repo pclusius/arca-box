@@ -122,12 +122,13 @@ CHARACTER(len=3) :: MCMFILE_TIME_UNIT  = '---'
 CHARACTER(len=3) :: LOSSFILE_TIME_UNIT  = 'day'
 CHARACTER(len=3) :: LOSSFILE_GAS_TIME_UNIT  = 'day'
 Logical :: USE_RATES           = .false.
+Logical :: verbose             = .true.
 
 NAMELIST /NML_Flag/ chemistry_flag, Aerosol_flag, ACDC_solve_ss, ACDC, & !NUCLEATION,
          Condensation, Coagulation, Deposition, Chem_Deposition, model_H2SO4, RESOLVE_BASE, &
          PRINT_ACDC, USE_SPEED,OPTIMIZE_DT, ORG_NUCL, AFTER_CHEM_ON, AFTER_NUCL_ON, &
          FILE_TIME_UNIT,ENVFILE_TIME_UNIT,MCMFILE_TIME_UNIT,LOSSFILE_TIME_UNIT,LOSSFILE_GAS_TIME_UNIT, &
-         USE_RATES !,INIT_W_MODAL, Extra_data
+         USE_RATES, verbose!,INIT_W_MODAL, Extra_data
 
 ! TIME OPTIONS
 real(dp)  :: runtime = 1d0
@@ -310,11 +311,12 @@ real(dp) :: MIN_CONCTOT_CC_FOR_DVAP = 1d3 ! [#/cm3] lower threshold of concentra
 
 ! defined in Constants: Logical  :: NO_NEGATIVE_CONCENTRATIONS = .true.
 REAL(dp),allocatable :: factorsForReactionRates(:) ! = 1d0   ! factors to modify chemical reaction rates (optionally)
-REAL(dp) :: START_CHEM = -9.9d10 ! Start and stop times in seconds for chem and aero
-REAL(dp) :: STOP_CHEM  =  9.9d10 ! Start and stop times in seconds for chem and aero
-REAL(dp) :: START_AER  = -9.9d10 ! Start and stop times in seconds for chem and aero
-REAL(dp) :: STOP_AER   =  9.9d10 ! Start and stop times in seconds for chem and aero
-LOGICAL  :: save_Rrates = .true. ! Save reaction constants time series needed for reactivity analysis
+REAL(dp) :: START_CHEM  = -9.9d10 ! Start and stop times in seconds for chem and aero
+REAL(dp) :: STOP_CHEM   =  9.9d10 ! Start and stop times in seconds for chem and aero
+REAL(dp) :: START_AER   = -9.9d10 ! Start and stop times in seconds for chem and aero
+REAL(dp) :: STOP_AER    =  9.9d10 ! Start and stop times in seconds for chem and aero
+LOGICAL  :: save_Rrates = .true.  ! Save reaction constants time series needed for reactivity analysis
+LOGICAL  :: init_w_bin  = .false. ! Save reaction constants time series needed for reactivity analysis
 
 INTEGER,PARAMETER :: NVBS = 6
 !                                ULVOC   |  ELVOC   |   LVOC   |  SVOC   |  IVOC   |   REST
@@ -333,7 +335,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS,FINAL_CHEM_TXT,NETCDF_OUT,VBS_LIMITS,VBS_NAMES,&
                       VBS_ONLY,PP_H2SO4_TO_AMM_SULFATE,VBS_CSAT, BINARY_FILE, &
                       LAST_VBS_BINNING_S,Aging_exponent,AGING_K, START_CHEM, STOP_CHEM, START_AER, STOP_AER, &
-                      Constant_vapour_conc,Minimal_nc,save_Rrates
+                      Constant_vapour_conc,Minimal_nc,save_Rrates,init_w_bin
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -371,7 +373,7 @@ subroutine READ_rates(Chem)
     CHARACTER(len=*),INTENT(IN) :: Chem
 
     NAMELIST /NML_RATES/  RCONST
-    print FMT_MSG, 'Looking for '//'src/chemistry/'//TRIM(ADJUSTL(Chem))//'/RATES.dat'
+    if (verbose) print FMT_MSG, 'Looking for '//'src/chemistry/'//TRIM(ADJUSTL(Chem))//'/RATES.dat'
 
     OPEN(UNIT=888, FILE='src/chemistry/'//TRIM(ADJUSTL(Chem))//'/RATES.dat', STATUS='OLD', ACTION='READ', iostat=iii)
     if (iii==0) THEN
@@ -379,10 +381,10 @@ subroutine READ_rates(Chem)
         factorsForReactionRates = 1d0
         READ(888,NML = NML_RATES, IOSTAT=iii)
 
-        print FMT_MSG, 'Reaction rates are multiplied with RATES.dat'
+        if (verbose) print FMT_MSG, 'Reaction rates are multiplied with RATES.dat'
         factorsForReactionRates = RCONST
     else
-        print FMT_MSG, 'Using hardcoded reaction rates'
+        if (verbose) print FMT_MSG, 'Using hardcoded reaction rates'
     END IF
 
 end subroutine READ_rates
@@ -475,6 +477,8 @@ subroutine READ_INPUT_DATA()
       print FMT_FAT0, 'Chemical deposition only works if aerosol module and condensation is turned on.'
       stop 'Turn on "aerosols" and "condensation", use clean air if desired (without particles).'
     END IF
+    if (init_w_bin) BINARY_FILE=3
+
     H2SO4_ind_in_chemistry = IndexFromName( 'H2SO4', SPC_NAMES )
     OH_ind_in_chemistry = IndexFromName( 'OH', SPC_NAMES )
 
@@ -592,7 +596,7 @@ IF (TRIM(extra_particles) /= '') THEN
     N_Xtr = ROWCOUNT(801)
     allocate(XTRAS(N_Xtr))
 
-    PRINT FMT_SUB, 'Reading XTRAS: '//TRIM(i2chr(N_Xtr))//' lines'
+    if (verbose) print FMT_SUB, 'Reading XTRAS: '//TRIM(i2chr(N_Xtr))//' lines'
 
     DO I=1,N_Xtr
         allocate(XTRAS(I)%options(n_xpar_options))
@@ -613,13 +617,13 @@ IF (TRIM(extra_particles) /= '') THEN
         read(BUF(path_l(2):), *) XTRAS(I)%options
 
         CALL PARSE_PARTICLE_GRID(buf(1:path_l(1)), XTRAS(I))
-        print FMT_MSG, 'Extra particle input for '//XTRAS(i)%name
+        if (verbose) print FMT_MSG, 'Extra particle input for '//XTRAS(i)%name
 
     END DO
 
 END IF
 
-print FMT_LEND,
+if (verbose) print FMT_LEND,
 
 IF (ACDC) CALL PARSE_ACDC_SYSTEMS
 
@@ -632,7 +636,7 @@ IF (Aerosol_flag) then
 
     if (PSD_MODE == 1) write(*,FMT_MSG) 'Using fully stationary PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
     if (PSD_MODE == 2) write(*,FMT_MSG) 'Using fixed grid/moving average PSD scheme with '//TRIM(i2chr(n_bins_par))//' bins.'
-    print FMT_LEND,
+    if (verbose) print FMT_LEND,
     IF (condensation) THEN
       Vap_file = Vap_names
       if ('.CSV' == UCASE(Vap_file(len(TRIM(Vap_file))-3:len(TRIM(Vap_file))))) CSV_INPUT = .true.
@@ -733,8 +737,8 @@ IF (Aerosol_flag) then
     END IF
 
 
-    IF (condensation) print FMT_SUB, 'Compounds picked from Vapours file: '//TRIM(i2chr(VAPOUR_PROP%n_cond_org))
-    IF (condensation) print FMT_SUB, 'Total number of condensibles      : '//TRIM(i2chr(VAPOUR_PROP%n_cond_tot))
+    IF (verbose.and.condensation) print FMT_SUB, 'Compounds picked from Vapours file: '//TRIM(i2chr(VAPOUR_PROP%n_cond_org))
+    IF (verbose.and.condensation) print FMT_SUB, 'Total number of condensibles      : '//TRIM(i2chr(VAPOUR_PROP%n_cond_tot))
 
     ! Reading the vap names and vap vapour_properties
     VAPOUR_PROP%ind_GENERIC = VAPOUR_PROP%n_cond_org
@@ -1095,11 +1099,11 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
     if (ioi == 0) read(date(9:) ,*,iostat=ioi) d
     if (ioi /= 0) THEN
         if (NUMBER /= '') THEN
-            print FMT_HDR,
-            print FMT_HDR, 'USING NUMBER INSTEAD OF DATE -> ASSUMING LIGHT DIRECTION IS FROM DIRECTLY UP'
-            print FMT_HDR,
+            if (verbose) print FMT_HDR,
+            if (verbose) print FMT_HDR, 'USING NUMBER INSTEAD OF DATE -> ASSUMING LIGHT DIRECTION IS FROM DIRECTLY UP'
+            if (verbose) print FMT_HDR,
         ELSE
-            print FMT_WARN0, 'Date provided in the INITFILE is not a proper date'
+            if (verbose) print FMT_WARN0, 'Date provided in the INITFILE is not a proper date'
         END IF
     ELSE
         if (MODULO(y,4) == 0) THEN
@@ -1112,8 +1116,13 @@ subroutine PUT_USER_SUPPLIED_TIMEOPTIONS_IN_GTIME
             days = non_leap_year
         END IF
         GTIME%JD = sum(days(:m-1)) + d
-        print FMT_MSG, 'Date: '//TRIM(date)//' -> Julian Day: '//TRIM(i2chr(GTIME%JD))
+        if (verbose) print FMT_MSG, 'Date: '//TRIM(date)//' -> Julian Day: '//TRIM(i2chr(GTIME%JD))
     END IF
+
+    gtime%verbose = verbose
+    gtime%printnow = verbose
+
+
 END if
 
 
@@ -1170,8 +1179,8 @@ subroutine REPORT_INPUT_COLUMNS_TO_USER
     integer :: i
 
     DO i=1,N_VARS
-        IF (I==1) print FMT_MSG, 'ENV values from '//TRIM(ENV_file)//':'
-        IF ((I==LENV+1) .and. (maxval(MODS(LENV+1:)%col)>-1)) print FMT_MSG, 'MCM values from '//TRIM(MCM_file)//':'
+        IF (I==1.and.verbose) print FMT_MSG, 'ENV values from '//TRIM(ENV_file)//':'
+        IF (verbose.and.(I==LENV+1) .and. (maxval(MODS(LENV+1:)%col)>-1)) print FMT_MSG, 'MCM values from '//TRIM(MCM_file)//':'
 
         IF (MODS(I)%col > -1) THEN
             IF ((TRIM(ENV_file) == '') .and. (I<=LENV) .and. MODS(I)%mode==0) THEN
@@ -1182,7 +1191,7 @@ subroutine REPORT_INPUT_COLUMNS_TO_USER
                 print FMT_SUB, TRIM(MODS(I)%NAME)//' should be read from column: '//TRIM(i2chr(MODS(I)%col))//' but no MCM_FILE'
                 print FMT_SUB, 'To avoid accidental error, if referring to file, it must exist.'
                 STOP  'Change column number to -1, link to another variable, or use parametric input'
-            ELSE
+            ELSE if (verbose) then
                 print FMT_SUB, TRIM(MODS(I)%NAME)//' will be read from column: '//TRIM(i2chr(MODS(I)%col))
             END IF
         END IF
@@ -1224,7 +1233,7 @@ subroutine FILL_INPUT_BUFF(unit,cols,INPUT_BF,Input_file)
     CHARACTER(len=32)       :: dump(cols+1)
 
     i = 1
-    print FMT_MSG, 'Filling input matrices...'
+    if (verbose) print FMT_MSG, 'Filling input matrices...'
     DO k = 1, ROWCOUNT(unit)
         READ(unit,*, iostat=ioi) (INPUT_BF(i,j),j=1,cols)
         IF ((ioi /= 0) .and. (k<=2)) THEN
@@ -1232,15 +1241,15 @@ subroutine FILL_INPUT_BUFF(unit,cols,INPUT_BF,Input_file)
             do l=1,k
               READ(unit,*, iostat=ioi) dump
             end do
-            print FMT_SUB, i2chr(k)//'. row omitted from file "'// TRIM(Input_file) //'".'
+            if (verbose) print FMT_SUB, i2chr(k)//'. row omitted from file "'// TRIM(Input_file) //'".'
             ! if (k==2) print*, dump
-        ELSE IF ((ioi /= 0) .and. (k>2)) THEN
+        ELSE IF (verbose.and.(ioi /= 0) .and. (k>2)) THEN
             print FMT_WARN1, 'Bad value in file '// TRIM(Input_file) //'". Maybe a non-numeric on line '//i2chr(k)
         ELSE
             i=i+1
         END IF
     END DO
-    print FMT_SUB, 'Done filling input matrices...'
+    if (verbose) print FMT_SUB, 'Done filling input matrices...'
 end subroutine FILL_INPUT_BUFF
 
 
@@ -1254,18 +1263,18 @@ SUBROUTINE CHECK_MODIFIERS()
     integer         :: i,j=0
     CHARACTER(4)    :: cprf
 
-    print FMT_HDR, 'Checking input validity'
+    if (verbose) print FMT_HDR, 'Checking input validity'
 
     CALL CONVERT_TEMPS_TO_KELVINS
     CALL CONVERT_PRESSURE_AND_VALIDATE_UNITS
 
     do i=1,size(MODS)
         IF (MODS(i)%MODE > 0) THEN
-            print FMT_MSG, '- Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
+            if (verbose) print FMT_MSG, '- Replacing input for '//TRIM(MODS(i)%name)//' with parametrized function.'
             j=1
         ELSE
             IF (ABS(MODS(i)%multi - test%multi) > 1d-9) THEN
-                print FMT_MSG, '- Multiplying '//TRIM(MODS(i)%name)//' with: '//TRIM(f2chr(MODS(i)%multi))
+                if (verbose) print FMT_MSG, '- Multiplying '//TRIM(MODS(i)%name)//' with: '//TRIM(f2chr(MODS(i)%multi))
                 j=1
             END IF
             if (ABS(MODS(i)%shift - test%shift) > 1d-9) THEN
@@ -1274,12 +1283,12 @@ SUBROUTINE CHECK_MODIFIERS()
                 else
                     cprf = ''
                 end if
-                print FMT_MSG, '- Adding a constant to '//TRIM(MODS(i)%name)//', [in '//TRIM(MODS(i)%UNIT)//TRIM(cprf)//']: '//TRIM(f2chr(MODS(i)%shift))
+                if (verbose) print FMT_MSG, '- Adding a constant to '//TRIM(MODS(i)%name)//', [in '//TRIM(MODS(i)%UNIT)//TRIM(cprf)//']: '//TRIM(f2chr(MODS(i)%shift))
                 j=1
             END IF
         END IF
     END DO
-    if (j == 1) print FMT_LEND
+    if (verbose.and.j == 1) print FMT_LEND
 
 END SUBROUTINE CHECK_MODIFIERS
 
@@ -1302,9 +1311,9 @@ SUBROUTINE CONVERT_TEMPS_TO_KELVINS
     TempUnit = TRIM(UCASE(MODS(inm_TempK)%UNIT))
 
     IF (UCASE(TempUnit) == 'K') THEN
-        print FMT_MSG, '- Temperature input in Kelvins.'
+        if (verbose) print FMT_MSG, '- Temperature input in Kelvins.'
     ELSEIF (UCASE(TempUnit) == 'C') THEN
-        print FMT_MSG, '- Converting temperature from degrees C -> K.'
+        if (verbose) print FMT_MSG, '- Converting temperature from degrees C -> K.'
         MODS(inm_TempK)%min = MODS(inm_TempK)%min + 273.15d0
         MODS(inm_TempK)%max = MODS(inm_TempK)%max + 273.15d0
         CONC_MAT_ENV(:,inm_TempK) = CONC_MAT_ENV(:,inm_TempK) + 273.15d0
@@ -1332,19 +1341,19 @@ SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
 
   buf = UCASE(TRIM(MODS(inm_pres)%UNIT))
   if (TRIM(buf) == 'HPA' .or. TRIM(buf) == 'MBAR') THEN
-      print FMT_MSG, '- Converting pressure from hPa (mbar) to Pascals.'
+      if (verbose) print FMT_MSG, '- Converting pressure from hPa (mbar) to Pascals.'
     ELSEIF (TRIM(buf) == 'KPA') THEN
-      print FMT_MSG, '- Converting pressure from kPa to Pascals.'
+      if (verbose) print FMT_MSG, '- Converting pressure from kPa to Pascals.'
     ELSEIF (TRIM(buf) == 'ATM') THEN
-      print FMT_MSG, '- Converting pressure from atm to Pascals.'
+      if (verbose) print FMT_MSG, '- Converting pressure from atm to Pascals.'
     ELSEIF (TRIM(buf) == 'BAR') THEN
-      print FMT_MSG, '- Converting pressure from bar to Pascals.'
+      if (verbose) print FMT_MSG, '- Converting pressure from bar to Pascals.'
     ELSEIF (TRIM(buf) == 'PA') THEN
-      print FMT_MSG, '- Pressure is given in Pascals.'
+      if (verbose) print FMT_MSG, '- Pressure is given in Pascals.'
     else
       if ((MODS(inm_pres)%MODE > 0) .or. (MODS(inm_pres)%col > 1)  .or. (ABS(MODS(inm_pres)%multi - 1d0)>1d-9) .or. (ABS(MODS(inm_pres)%shift)>1d-16)) THEN
           if (TRIM(buf) == '#') THEN
-              print FMT_MSG, '- Assuming Pascals for pressure.'
+              if (verbose) print FMT_MSG, '- Assuming Pascals for pressure.'
           else
               print FMT_FAT0, 'Cannot recognize given unit "'//TRIM(MODS(inm_pres)%UNIT)//'" for pressure. Exiting. '
               stop
@@ -1360,7 +1369,7 @@ SUBROUTINE CONVERT_PRESSURE_AND_VALIDATE_UNITS
               stop
           ELSE
               if ((MODS(i)%MODE > 0) .or. (MODS(i)%col > 1)  .or. (ABS(MODS(i)%multi - 1d0)>1d-9) .or. (ABS(MODS(i)%shift)>1d-16)) THEN
-                  print FMT_MSG, '- Converting '//TRIM(MODS(i)%name)//' from '//TRIM(MODS(i)%UNIT)
+                  if (verbose) print FMT_MSG, '- Converting '//TRIM(MODS(i)%name)//' from '//TRIM(MODS(i)%UNIT)
               end if
           END IF
       end if
@@ -1570,7 +1579,7 @@ SUBROUTINE SW_PP()
     REAL(dp), ALLOCATABLE :: WL(:), Weight(:)
     character(1) :: bufr
 
-    print FMT_HDR, ''
+    if (verbose) print FMT_HDR, ''
 
     ! Refuse to continue with default spectral file if it should represent actinic flux
     if (TRIM(spectrumfile) == "ModelLib/Photolyse/Spectra/glob_swr_distr.txt" .and. SWR_IS_ACTINICFLUX) &
@@ -1587,8 +1596,8 @@ SUBROUTINE SW_PP()
     REWIND(685)
 
     if (rows==1.and.cols>2) THEN
-        print FMT_MSG, 'Spectral data is time independent. Assuming that data starts at 280 nm, with dL = 5 nm.'
-        print FMT_SUB, ' Single row vector -> FIRST COLUMN IS TIME AND OMITTED!'
+        if (verbose) print FMT_MSG, 'Spectral data is time independent. Assuming that data starts at 280 nm, with dL = 5 nm.'
+        if (verbose) print FMT_SUB, ' Single row vector -> FIRST COLUMN IS TIME AND OMITTED!'
         do ii=1,allrows
             if (ii<=skiphdr) THEN
                 READ(685,*) bufr
@@ -1598,7 +1607,7 @@ SUBROUTINE SW_PP()
         end do
 
     else if (rows>1.and.cols==1) THEN
-        print FMT_MSG, 'Spectral data is time independent. Assuming that data starts at 280 nm, with dL = 5 nm.'
+        if (verbose) print FMT_MSG, 'Spectral data is time independent. Assuming that data starts at 280 nm, with dL = 5 nm.'
         do ii=1,min(allrows, 84+skiphdr)
             if (ii<=skiphdr) THEN
                 READ(685,*) bufr
@@ -1608,8 +1617,8 @@ SUBROUTINE SW_PP()
         end do
 
     else if (rows>1.and.cols==2) THEN
-        print FMT_MSG, 'Spectral data is time independent. Assuming that data starts at 280 nm, with dL = 5 nm.'
-        print FMT_SUB, ' IGNORING WAVELENGTHS: FIRST COLUMN IS OMITTED!'
+        if (verbose) print FMT_MSG, 'Spectral data is time independent. Assuming that data starts at 280 nm, with dL = 5 nm.'
+        if (verbose) print FMT_SUB, ' IGNORING WAVELENGTHS: FIRST COLUMN IS OMITTED!'
         do ii=1,min(allrows, 84+skiphdr)
             if (ii<=skiphdr) THEN
                 READ(685,*) bufr
@@ -1619,8 +1628,8 @@ SUBROUTINE SW_PP()
         end do
 
     else if (rows>1.and.cols>2) THEN
-        print FMT_MSG, 'Spectral data is time dependent. Assuming that data starts at 280 nm, with dL = 5 nm.'
-        print FMT_SUB, ' MATRIX DATA: FIRST COLUMN IS TIME.'
+        if (verbose) print FMT_MSG, 'Spectral data is time dependent. Assuming that data starts at 280 nm, with dL = 5 nm.'
+        if (verbose) print FMT_SUB, ' MATRIX DATA: FIRST COLUMN IS TIME.'
         ALLOCATE(swr_temporal_data(rows,84))
         ALLOCATE(swr_times(rows))
         swr_is_time_dependent = .true.
@@ -1658,7 +1667,7 @@ SUBROUTINE SW_PP()
         DL = WL(2) - WL(1)
 
         swr_spectrum = swr_spectrum / sum(Weight(aa:bb)*DL)
-        print FMT_MSG, 'Normalized the spectrum with '//TRIM(f2chr( 1/sum(Weight(aa:bb)*DL)))
+        if (verbose) print FMT_MSG, 'Normalized the spectrum with '//TRIM(f2chr( 1/sum(Weight(aa:bb)*DL)))
 
         DEALLOCATE(WL)
         DEALLOCATE(Weight)
@@ -1667,9 +1676,9 @@ SUBROUTINE SW_PP()
 
     close(685)
 
-    If (SWR_IS_ACTINICFLUX) print FMT_WARN0, 'TREATING SHORTWAVE DATA AS IT WERE ACTINIC FLUX!'
+    If (SWR_IS_ACTINICFLUX) print FMT_WARN0, 'TREATING SHORTWAVE DATA AS IF IT WERE ACTINIC FLUX!'
 
-    print FMT_HDR, ''
+    if (verbose) print FMT_HDR, ''
 
 END SUBROUTINE SW_PP
 
@@ -1681,8 +1690,8 @@ SUBROUTINE PARSE_ACDC_SYSTEMS
     CHARACTER(len=16)   :: name(24)
     CHARACTER(len=256)  :: System,Energies,Dipoles,path,Nickname
     NAMELIST /ACDC_RECORD_NML/ System,Energies,Dipoles,Nickname
-    print *, ''
-    print FMT_HDR, 'Allocating ACDC systems to the selected input'
+    if (verbose) print *, ''
+    if (verbose) print FMT_HDR, 'Allocating ACDC systems to the selected input'
 
     do jj=1,size(G_ACDC)
 
@@ -1696,7 +1705,7 @@ SUBROUTINE PARSE_ACDC_SYSTEMS
         end do
 
         if (ACDC_SYSTEMS(jj)==1) THEN
-            print FMT_MSG, 'ACDC submodule #'//i2chr(jj)//' is initialized with input definitions.'
+            if (verbose) print FMT_MSG, 'ACDC submodule #'//i2chr(jj)//' is initialized with input definitions.'
 
             WRITE(path,'(a,i0.2,a)') 'src/ACDC/ACDC_',jj,'/ACDC_RECORD_NML'
             OPEN(UNIT=889, FILE=TRIM(path), STATUS='OLD', ACTION='READ', iostat=ii)
@@ -1710,10 +1719,10 @@ SUBROUTINE PARSE_ACDC_SYSTEMS
                 G_ACDC(jj)%ENERGY_FILE=Energies
                 G_ACDC(jj)%DIPOLE_FILE=Dipoles
                 G_ACDC(jj)%NICKNAME=Nickname
-                print FMT_SUB, 'System name: '//TRIM(G_ACDC(jj)%NICKNAME)
-                print FMT_SUB, 'System based on '//TRIM(G_ACDC(jj)%SYSTEM_FILE)
-                print FMT_SUB, 'Energies from '//TRIM(G_ACDC(jj)%ENERGY_FILE)
-                print FMT_SUB, 'Dipoles from '//TRIM(G_ACDC(jj)%DIPOLE_FILE)
+                if (verbose) print FMT_SUB, 'System name: '//TRIM(G_ACDC(jj)%NICKNAME)
+                if (verbose) print FMT_SUB, 'System based on '//TRIM(G_ACDC(jj)%SYSTEM_FILE)
+                if (verbose) print FMT_SUB, 'Energies from '//TRIM(G_ACDC(jj)%ENERGY_FILE)
+                if (verbose) print FMT_SUB, 'Dipoles from '//TRIM(G_ACDC(jj)%DIPOLE_FILE)
             END IF
 
 
@@ -1730,9 +1739,9 @@ SUBROUTINE PARSE_ACDC_SYSTEMS
                     G_ACDC(jj)%ACDC_LINK_IND(ii) = IndexFromName(TRIM(name(((ii-1)*2)+2)), [(MODS(mm)%NAME, mm=1,size(MODS))] )
                     IF (G_ACDC(jj)%ACDC_LINK_IND(ii) == 0) THEN
                         print FMT_WARN0, 'In ACDC '//i2chr(jj)//': Compound '//TRIM(name(((ii-1)*2)+2))//' does not exist in input'
-                        print FMT_SUB, 'Searching compound '//TRIM(name(((ii-1)*2)+2))//' from chemistry...'
+                        if (verbose) print FMT_SUB, 'Searching compound '//TRIM(name(((ii-1)*2)+2))//' from chemistry...'
                         G_ACDC(jj)%ACDC_LINK_IND(ii) = -1 * IndexFromName(TRIM(name(((ii-1)*2)+2)), SPC_NAMES )
-                        if (G_ACDC(jj)%ACDC_LINK_IND(ii)<0) print FMT_SUB, 'Found '//TRIM(name(((ii-1)*2)+2))//' from chemistry. Using as input '//i2chr(ii)//' for ACDC '//i2chr(jj)//'.'
+                        if (verbose.and.G_ACDC(jj)%ACDC_LINK_IND(ii)<0) print FMT_SUB, 'Found '//TRIM(name(((ii-1)*2)+2))//' from chemistry. Using as input '//i2chr(ii)//' for ACDC '//i2chr(jj)//'.'
                         if (G_ACDC(jj)%ACDC_LINK_IND(ii)==0) THEN
                             print FMT_FAT0, 'In ACDC '//i2chr(jj)//': Could not find '//TRIM(name(((ii-1)*2)+2))
                             stop
@@ -1741,12 +1750,12 @@ SUBROUTINE PARSE_ACDC_SYSTEMS
                 end if
             end do
         ELSE
-            print FMT_MSG, 'ACDC submodule #'//i2chr(jj)//' is not used.'
+            if (verbose) print FMT_MSG, 'ACDC submodule #'//i2chr(jj)//' is not used.'
         END IF
 
     end do
 
-    print FMT_LEND,
+    if (verbose) print FMT_LEND,
 
 
 END SUBROUTINE PARSE_ACDC_SYSTEMS
@@ -1768,5 +1777,24 @@ SUBROUTINE PARSE_INIT_ONLY()
   end do
 
 END SUBROUTINE PARSE_INIT_ONLY
+
+subroutine read_bin(GAS)
+  implicit none
+  real(dp),intent(out) :: GAS(:)
+  integer :: ioi
+
+  if (verbose) print FMT_MSG, 'Initializing chemistry with binary file'
+  ! print*, 'beg ',gas(500)
+  open(unit=899,FILE=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME)//'/CFINAL.r16', &
+  action='read',form='unformatted', status='old', ACCESS="STREAM",iostat = ioi)
+  if (verbose.and.ioi==0) then
+    print FMT_MSG, 'Found binary file'
+    read(899, POS=1) GAS
+    close(899)
+  else
+    if (verbose) print FMT_MSG, 'No binary file. Continuing with default initial concentrations'
+  end if
+  ! print*, 'end ',gas(500)
+end subroutine read_bin
 
 end module INPUT

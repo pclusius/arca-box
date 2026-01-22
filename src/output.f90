@@ -644,11 +644,12 @@ END IF
 
 END SUBROUTINE INITIALIZE_WITH_LAST
 
-SUBROUTINE WRITE_GAS_BINARY_DUMP(dir, mode)
+SUBROUTINE WRITE_GAS_BINARY_DUMP(dir, mode,gas)
     CHARACTER(LEN=*) :: dir
     INTEGER :: ii
     INTEGER,INTENT(IN) :: mode
     real(dp) :: n1,n2
+    real(dp), intent(in),optional :: gas(:)
     real, ALLOCATABLE :: tmp(:,:)
     character(len=25) :: fmt
 
@@ -666,6 +667,12 @@ SUBROUTINE WRITE_GAS_BINARY_DUMP(dir, mode)
       call system('rm -f '//trim(dir)//'/TIMESERIES.r16')
       open (unit=1,file=trim(dir)//'/TIMESERIES.r16',form='unformatted',access='direct',recl=reclen+8*3,STATUS='new')
       write (1,rec=1) [GTIME%dt,n1,n2,PACK(TIMESERIES,.true.)]
+      close(1)
+    else if (mode==3) then ! Dump only last timestep
+      INQUIRE(iolength=reclen) gas
+      call system('rm -f '//trim(dir)//'/CFINAL.r16')
+      open (unit=1,file=trim(dir)//'/CFINAL.r16',form='unformatted',access='direct',recl=reclen,STATUS='new')
+      write (1,rec=1) gas
       close(1)
     end if
 END SUBROUTINE WRITE_GAS_BINARY_DUMP

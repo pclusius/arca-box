@@ -360,10 +360,10 @@ open(unit=610, file=RUN_OUTPUT_DIR//'/Changes.txt',status='replace',action='writ
 if (OPTIMIZE_DT) THEN
 
     write(610,'("# ddiam, dpnum, dvap: ", 3(es10.3," ",es10.3))') DDIAM_RANGE*1d-2,DPNUM_RANGE*1d-2,DVAPO_RANGE*1d-2
-    print FMT_HDR, 'Simulation time step will be optimized for precision'
-    print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for particle diameter',      DDIAM_RANGE
-    print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for particle concentration', DPNUM_RANGE
-    print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for vapour concentration',   DVAPO_RANGE
+    if (verbose) print FMT_HDR, 'Simulation time step will be optimized for precision'
+    if (verbose) print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for particle diameter',      DDIAM_RANGE
+    if (verbose) print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for particle concentration', DPNUM_RANGE
+    if (verbose) print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for vapour concentration',   DVAPO_RANGE
 
     ! Input was in percetages, here we change them to fractional
     DDIAM_RANGE = DDIAM_RANGE * 1d-2
@@ -372,24 +372,24 @@ if (OPTIMIZE_DT) THEN
 else
     write(610,'("# ddiam, dpnum, dvap: ", 3(es10.3," ",es10.3))') 0d0,0d0,0d0,0d0,0d0,0d0
 
-    print FMT_HDR, 'Beginning simulation with constant timestep'
+    if (verbose) print FMT_HDR, 'Beginning simulation with constant timestep'
     write(608, *) 'Time step not optimized, dt: ',GTIME%dt
     flush(608)
 end if
 
 write(610,'(4(a,"                "),a)') '#  time_sec  ','max_d_diam','max_d_npar','max_d_vap ','max_d_npdep'
 
-print*, ''
-print FMT_LEND
-print FMT_MSG, 'Starting main loop'
+if (verbose) print *, ''
+if (verbose) print  FMT_LEND
+if (verbose) print  FMT_MSG, 'Starting main loop'
 
-if (ENABLE_END_FROM_OUTSIDE) THEN
+if (verbose.and.ENABLE_END_FROM_OUTSIDE) THEN
     print FMT_SUB, "Simulation can be stopped using file called ENDNOW.INIT with text 'STOP' in it, saved"
     print FMT_SUB, "in the output directory. The program stops in orderly fashion upon next PRINTNOW time"
     print FMT_SUB, "and closes the output files."
 end if
 
-print FMT_LEND
+if (verbose) print FMT_LEND
 
 if (start_time_s>0) then
     write(*, '(a)', advance='no') 'Starting simulation at: ', ACHAR(10)
@@ -402,6 +402,8 @@ end if
 ! Sanity checks for bad input, add more when needed
 if (EQUAL(Cw_eqv,0d0)) STOP 'Effective wall concentration should not be zero.'
 ! End sanity checks, entering bonkers mode
+
+if (init_w_bin) call read_bin(CH_GAS)
 
 call cpu_time(cpu1) ! For efficiency calculation
 
@@ -458,6 +460,19 @@ MAINLOOP: DO ! The main loop, runs until time is out. For particular reasons the
         print FMT_INTRMT, 'Entered an unnecessary loop, should not have happened.'
     END IF
 
+    ! call read_bin(CH_GAS)
+    !
+    ! i = 0
+    ! print*, SPC_NAMES(500+i),CH_GAS(i+500),CH_GAS_old(i+500); i = i+1
+    ! print*, SPC_NAMES(500+i),CH_GAS(i+500),CH_GAS_old(i+500); i = i+1
+    ! print*, SPC_NAMES(500+i),CH_GAS(i+500),CH_GAS_old(i+500); i = i+1
+    ! print*, SPC_NAMES(500+i),CH_GAS(i+500),CH_GAS_old(i+500); i = i+1
+    ! print*, SPC_NAMES(500+i),CH_GAS(i+500),CH_GAS_old(i+500); i = i+1
+    ! print*, SPC_NAMES(500+i),CH_GAS(i+500),CH_GAS_old(i+500); i = i+1
+    ! do i=1,NSPEC
+    !   if (CH_GAS_old(500)==CH_GAS_old(i)) print*, i
+    ! end do
+    CH_GAS = CH_GAS_old
 
     ! Assign values to input variables. N_VARS will cycle through all variables that user can provide
     ! or alter, and value leave zero if no input was provided.
@@ -1116,6 +1131,14 @@ END IF in_turn_any
     END IF CHECK_PRECISION
     ! SPEED handling
 
+    ! if (BINARY_FILE==3) CALL WRITE_GAS_BINARY_DUMP(RUN_OUTPUT_DIR,BINARY_FILE,CH_GAS)
+    !   i = 0
+    ! print*, 'END ',SPC_NAMES(500+i),CH_GAS(i+500); i = i+1
+    ! print*, 'END ',SPC_NAMES(500+i),CH_GAS(i+500); i = i+1
+    ! print*, 'END ',SPC_NAMES(500+i),CH_GAS(i+500); i = i+1
+    ! print*, 'END ',SPC_NAMES(500+i),CH_GAS(i+500); i = i+1
+    ! print*, 'END ',SPC_NAMES(500+i),CH_GAS(i+500); i = i+1
+    ! print*, 'END ',SPC_NAMES(500+i),CH_GAS(i+500); i = i+1
 
 END DO MAINLOOP
 !=======================================================================================================================
@@ -1135,22 +1158,7 @@ END DO MAINLOOP
 !@@@@@@@@@@@@        @@@@@@@@@@@@@@                ,@@@@@@@@@@@@@@@@@@,            @@@@@@@@@@@@@@@@.       ,@@@@@@@@@@@@
 !=======================================================================================================================
 
-CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
-! print*, 'VAPOUR_PROP%VBS_BINS(:,:)'
-! do i = 1, VAPOUR_PROP%n_cond_org-1
-!   print*, VAPOUR_PROP%vapour_names(i),conc_vapour(i),VAPOUR_PROP%c_sat(i),VAPOUR_PROP%molar_mass(i), SUM(current_PSD%composition_fs(:,i), 1),  VAPOUR_PROP%VBS_BINS(i,:)
-! end do
-
-! print*, 'conc_vapour(1:VAPOUR_PROP%n_cond_org-1)'
-! print*, conc_vapour(1:VAPOUR_PROP%n_cond_org-1)
-!
-! print*, 'current_PSD%composition_fs(:,1:VAPOUR_PROP%n_cond_org-1), 1)'
-! print*, SUM(current_PSD%composition_fs(:,1:VAPOUR_PROP%n_cond_org-1), 1)
-
-
-
-! print*, 'total rounds: ',n_of_Rounds
-! print*, 'kelvin calculated: ', i_kel
+if (verbose) CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
 if (Aerosol_flag) THEN
     CLOSE(601)
@@ -1161,12 +1169,14 @@ END IF
 
 ! Close output file netcdf
 if (NETCDF_OUT) CALL CLOSE_FILES(RUN_OUTPUT_DIR)
-if (BINARY_FILE>0) CALL WRITE_GAS_BINARY_DUMP(RUN_OUTPUT_DIR,BINARY_FILE)
+if (BINARY_FILE>0) CALL WRITE_GAS_BINARY_DUMP(RUN_OUTPUT_DIR,BINARY_FILE,CH_GAS_old)
 
 if (OPTIMIZE_DT) THEN
-    print*, 'Total rounds for chemistry and/or condensation: ', bookkeeping(1,1)
-    print*, 'Total rounds for nucleation and/or coagulation: ', bookkeeping(2,1)
-    print*, 'Total rounds for deposition                   : ', bookkeeping(3,1)
+    if (verbose) then
+      print*, 'Total rounds for chemistry and/or condensation: ', bookkeeping(1,1)
+      print*, 'Total rounds for nucleation and/or coagulation: ', bookkeeping(2,1)
+      print*, 'Total rounds for deposition                   : ', bookkeeping(3,1)
+    end if
 END IF
 
 CALL FINISH
@@ -1567,12 +1577,12 @@ END SUBROUTINE PRINT_KEY_INFORMATION
 ! =================================================================================================
 SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
     implicit none
-    print*,''
-    print FMT_HDR, 'Main loop ended'
+    if (verbose) print *,''
+    if (verbose) print FMT_HDR, 'Main loop ended'
 
     if (.not. GTIME%printnow) THEN
-        print FMT_MSG, 'Values from the last timestep:'
-        print FMT_TIME, GTIME%hms
+        if (verbose) print FMT_MSG, 'Values from the last timestep:'
+        if (verbose) print FMT_TIME, GTIME%hms
         CALL PRINT_KEY_INFORMATION(TSTEP_CONC)
     END IF
     if (.not. GTIME%savenow)  THEN
@@ -1599,14 +1609,14 @@ SUBROUTINE CHECK_INPUT_AGAINST_KPP
     implicit none
     integer :: i,j, check
 
-    print FMT_HDR, 'Checking against KPP for chemicals'
+    if (verbose) print FMT_HDR, 'Checking against KPP for chemicals'
     do i=1,N_VARS-N_XTRS
         check = 0
         IF (MODS(I)%ISPROVIDED) THEN
             DO j=1,size(SPC_NAMES)
                 IF (MODS(i)%NAME == TRIM(SPC_NAMES(j))) THEN
                     check = 1
-                    print FMT_MSG, 'Found '//TRIM(SPC_NAMES(j))//' from chemistry: '//i2chr(j)
+                    if (verbose) print FMT_MSG, 'Found '//TRIM(SPC_NAMES(j))//' from chemistry: '//i2chr(j)
                     ! store the 'key->value map' for input and chemistry
                     INDRELAY_CH(I) = J
                     exit
@@ -1775,7 +1785,7 @@ END SUBROUTINE PRINT_GROWTH_RATE
 SUBROUTINE LINK_VARIABLES
     IMPLICIT NONE
     INTEGER :: i
-    print FMT_HDR, 'Checking for linked variables'
+    if (verbose) print FMT_HDR, 'Checking for linked variables'
     DO i=1,N_VARS
         IF ((MODS(i)%ISPROVIDED).and.(MODS(i)%TIED /= '')) THEN
             if (I < 3) THEN
@@ -1786,12 +1796,12 @@ SUBROUTINE LINK_VARIABLES
                 print FMT_FAT0, TRIM(MODS(i)%NAME)//' is tied to "'//TRIM(MODS(i)%TIED)//'" which is unavailable.'
                 stop
             ELSE
-                print FMT_MSG, 'Tying '//TRIM(MODS(i)%NAME)//' to '//TRIM(MODS(i)%TIED)
+                if (verbose) print FMT_MSG, 'Tying '//TRIM(MODS(i)%NAME)//' to '//TRIM(MODS(i)%TIED)
                 INDRELAY_TIED(I) = ii
             END IF
         END IF
     END DO
-    print FMT_LEND,
+    if (verbose) print FMT_LEND,
 END SUBROUTINE LINK_VARIABLES
 
 ! Handles output from subroutine Error_handling. Output 'text' to screen and/or 'unit' with 'format'

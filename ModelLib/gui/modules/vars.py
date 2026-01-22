@@ -102,6 +102,7 @@ class INITFILE:
             self.ORG_NUCL=0
             self.PRINT_ACDC=0
             self.OPTIMIZE_DT=0
+            self.VERBOSE=0
             self.AFTER_CHEM_ON=0
             self.AFTER_NUCL_ON=0
             self.ENVFILE_TIME_UNIT=0
@@ -130,6 +131,7 @@ class INITFILE:
             exec("%s(' LOSSFILE_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.LOSSFILE_TIME_UNIT,eol))
             exec("%s(' LOSSFILE_GAS_TIME_UNIT = \\'%s\\'%s')"%(cmd,self.LOSSFILE_GAS_TIME_UNIT,eol))
             exec("%s(' USE_RATES = %s%s')"%(cmd,self.USE_RATES,eol))
+            exec("%s(' VERBOSE = %s%s')"%(cmd,self.VERBOSE,eol))
 
             exec("%s('/ \\n%s')"%(cmd, eol))
 

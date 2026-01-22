@@ -117,6 +117,7 @@ type timetype
     logical       :: savenow        = .true.    ! this flag is true when saves are wanted
     logical       :: PRINTACDC      = .false.   ! this flag is true when cluster information is printed
     logical       :: First_loop     = .true.    ! this flag is set to false after first loop
+    logical       :: verbose        = .true.    ! this flag is set to false after first loop
 end type timetype
 
 
@@ -337,7 +338,8 @@ pure type(timetype) function ADD(time, sec)
     ELSE
         ADD%savenow = .false.
     END IF
-    ! print*, ADD%sec+(time%dt/1000d0), ADD%savenow,(ADD%FSAVE_INTERVAL*(1+ADD%prevSave_i)),ADD%prevSave_i
+    if (.not.gtime%verbose) ADD%printnow = .false.
+
 end function ADD
 
 ! =================================================================================================
