@@ -220,6 +220,9 @@ if dark_mode:
 modellogo = gui_path+"/icons/%s/ArcaLogo.png"%icondir
 boxicon = gui_path+"/icons/%s/thebox_ico.png"%icondir
 R_icon = gui_path+"/icons/Ricon.png"
+Var_icon = gui_path+"/icons/Var_ico.png"
+Conc_icon = gui_path+"/icons/Conc_ico.png"
+Chem_icon = gui_path+"/icons/Chem_ico.png"
 CurrentVersion = "ARCA Box Model "
 # Some messages
 netcdfMissinnMes = ('Please note:',
@@ -365,6 +368,7 @@ class CCWin(QtWidgets.QDialog):
         super(CCWin, self).__init__(parent)
         self.ccw = cc.Ui_Dialog()
         self.ccw.setupUi(self)
+        self.setWindowIcon(QtGui.QIcon(Chem_icon))
         self.outDir = './'
         self.ccw.ccClose.clicked.connect(self.reject)
         self.ccw.createKPPsettings.clicked.connect(self.kpp)
@@ -511,6 +515,7 @@ class Variation(QtWidgets.QDialog):
         super(Variation, self).__init__(parent)
         self.vary = varWin.Ui_Dialog()
         self.vary.setupUi(self)
+        self.setWindowIcon(QtGui.QIcon(Var_icon))
         self.vary.addLine.clicked.connect(lambda: self.addL())
         self.vary.removeLine.clicked.connect(self.remL)
         self.vary.Close.clicked.connect(self.reject)
@@ -1061,6 +1066,7 @@ class plotWin(QtWidgets.QDialog):
         super(plotWin, self).__init__(parent)
         self.pw = plotwin.Ui_Dialog()
         self.pw.setupUi(self)
+        self.setWindowIcon(QtGui.QIcon(Conc_icon))
         self.pw.buttonBox.clicked.connect(self.reject)
     def setplot(self,name,x,Y,unit,mtu,init,sc,off,legend=None,title=None,twoCol=True):
         x0 = x[0]
@@ -3471,6 +3477,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.FLAG.ORG_NUCL=self.checkboxToFOR(self.Org_nucl)
         nml.FLAG.PRINT_ACDC=self.checkboxToFOR(self.print_acdc)
         nml.FLAG.OPTIMIZE_DT=self.checkboxToFOR(self.useSpeed)
+        nml.FLAG.VERBOSE=self.checkboxToFOR(self.verbose)
         nml.FLAG.AFTER_CHEM_ON=self.checkboxToFOR(self.after_chem_on)
         nml.FLAG.AFTER_NUCL_ON=self.checkboxToFOR(self.after_nucl_on)
         nml.FLAG.ENVFILE_TIME_UNIT=self.fileTimeUnit_a.currentText()
@@ -3813,6 +3820,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 self.runTimeUnit.setCurrentIndex( iii )
             elif 'PRINT_ACDC' == key: self.print_acdc.setChecked(strng)
             elif 'OPTIMIZE_DT' == key: self.useSpeed.setChecked(strng)
+            elif 'VERBOSE' == key: self.verbose.setChecked(strng)
             elif 'AFTER_CHEM_ON' == key: self.after_chem_on.setChecked(strng)
             elif 'AFTER_NUCL_ON' == key: self.after_nucl_on.setChecked(strng)
             elif 'FSAVE_INTERVAL' == key and isFl: self.fsave_interval.setValue(int(float(strng)))
