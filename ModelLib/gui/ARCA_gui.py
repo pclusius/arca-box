@@ -1122,7 +1122,8 @@ class NcPlot:
         self.path = file
         self.masterfile = ossplit(file)[1]
         ncs = netCDF4.Dataset(file, 'r')
-        self.legend = getattr(ncs, 'experiment')+': '+self.masterfile
+        # self.legend = getattr(ncs, 'experiment')+': '+self.masterfile
+        self.legend = file
         self.getaircc(file, ncs)
         self.parvars = {}
         self.csat = {}
@@ -1177,14 +1178,7 @@ class NcPlot:
             timevars = [checker(i.dimensions[0], i.name) for i in ncs.get_variables_by_attributes(ndim=1)]
         self.varnames = cache[timevars]
 
-        try:
-            self.time = ncs.variables['TIME_IN_SEC'][:]/3600
-        except:
-            # Unfortunately these early version files are still somewhere out there
-            try:
-                self.time = ncs.variables['time_in_sec'][:]/3600
-            except:
-                self.time = ncs.variables['Time_in_sec'][:]/3600
+        self.time = ncs.variables['TIME_IN_SEC'][:]/3600
 
         if ma.is_masked(self.time):
             self.is_masked = True
