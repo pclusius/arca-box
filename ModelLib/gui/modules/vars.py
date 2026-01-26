@@ -346,7 +346,10 @@ class INITFILE:
             for key, value in self.CUSTOMS:
                 if key.strip() != '':
                     try:
-                        float(value)
+                        if 'str' in str(type(value)):
+                            float(value.replace('d','e').replace('D','e'))
+                        else:
+                            float(value)
                         exec("%s(' %s = %s%s')"%(cmd,key,value,eol))
                     except:
                         if value.upper() == '.TRUE.' or value.upper() == '.FALSE.':
