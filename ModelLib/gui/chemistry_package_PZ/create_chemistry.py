@@ -896,7 +896,7 @@ if __name__ == '__main__':
     logging.info('RO2 was not calculated in the main input file.')
     logging.info('Check that the RO2 inline is correctly placed.')
     logging.info('')
-    inline1, inline2 = '#INLINE F90_RCONST\n','#ENDINLINE\n'
+    inline1, inline2 = '#INLINE F90_RCONST\n','   call define_constants_mcm\n#ENDINLINE\n'
     line_number_ro2, i1, i2 = index_containing_substring(file_lines, r'^\s*#EQUATIONS', False)
     line_number_ro2 = line_number_ro2-1
   elif line_number_ro2>=0:
@@ -912,7 +912,7 @@ if __name__ == '__main__':
 
       # Delete the old RO2 definition block
       # if block_line_count >= 0:
-      del file_lines[line_number_ro2:line_number_ro2+block_line_count+1]
+      del file_lines[line_number_ro2:line_number_ro2+block_line_count]
   emptylinestart = re.search(r'^\s*',ro2_print_string).span()
   ro2_print_string = inline1 + 'RO2 = '+ro2_print_string[emptylinestart[1]:] +  inline2
   # Write the new RO2 list
