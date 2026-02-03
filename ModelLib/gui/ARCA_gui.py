@@ -3691,6 +3691,12 @@ a chemistry module in tab "Chemistry"''', icon=2)
                 key = line[:i].upper().strip()
                 if key == '# RAW_INPUT' or key == '# RAW_POST' or key == '# RAW_PRE':
                     rawline = line[i+1:].lstrip().rstrip()
+                    if key == '# RAW_INPUT':
+                        self.rawEdit.clear()
+                    elif key == '# RAW_POST':
+                        self.postProcCmd.clear()
+                    elif key == '# RAW_PRE':
+                        self.preProcCmd.clear()
                 # remove comma and excess whitespace
                 strng = line[i+1:x].strip(' ,')
                 if len(strng) == 0:
@@ -3915,13 +3921,13 @@ In the loaded settings: %s""" %(num, ' '.join(self.ACDC_available_compounds[num-
                 else:
                     nml.CUSTOM.CUSTOMS.append([key, strng])
             elif '# RAW_INPUT' == key:
-                self.rawEdit.clear()
+                # self.rawEdit.clear()
                 self.rawEdit.insertPlainText(rawline.replace('<br>', '\n'))
             elif '# RAW_PRE' == key:
-                self.preProcCmd.clear()
+                # self.preProcCmd.clear()
                 self.preProcCmd.insertPlainText(rawline.replace('<br>', '\n'))
             elif '# RAW_POST' == key:
-                self.postProcCmd.clear()
+                # self.postProcCmd.clear()
                 self.postProcCmd.insertPlainText(rawline.replace('<br>', '\n'))
             elif '# INPUT_SETTINGS' == key:
                 sets = strng.split()
