@@ -316,7 +316,8 @@ REAL(dp) :: STOP_CHEM   =  9.9d10 ! Start and stop times in seconds for chem and
 REAL(dp) :: START_AER   = -9.9d10 ! Start and stop times in seconds for chem and aero
 REAL(dp) :: STOP_AER    =  9.9d10 ! Start and stop times in seconds for chem and aero
 LOGICAL  :: save_Rrates = .true.  ! Save reaction constants time series needed for reactivity analysis
-LOGICAL  :: init_w_bin  = .false. ! Save reaction constants time series needed for reactivity analysis
+LOGICAL  :: extrafiles  = .true.  ! Save reaction constants time series needed for reactivity analysis
+CHARACTER(len=128)  :: init_w_bin  = '' ! binary file for intialization
 
 INTEGER,PARAMETER :: NVBS = 6
 !                                ULVOC   |  ELVOC   |   LVOC   |  SVOC   |  IVOC   |   REST
@@ -335,7 +336,7 @@ NAMELIST /NML_CUSTOM/ use_raoult, dmps_tres_min, &
                       FLOAT_EMIS_AFTER_HRS,NPF_DIST, PARAM_AGING, AGING_HL_HRS,FINAL_CHEM_TXT,NETCDF_OUT,VBS_LIMITS,VBS_NAMES,&
                       VBS_ONLY,PP_H2SO4_TO_AMM_SULFATE,VBS_CSAT, BINARY_FILE, &
                       LAST_VBS_BINNING_S,Aging_exponent,AGING_K, START_CHEM, STOP_CHEM, START_AER, STOP_AER, &
-                      Constant_vapour_conc,Minimal_nc,save_Rrates,init_w_bin
+                      Constant_vapour_conc,Minimal_nc,save_Rrates,init_w_bin,extrafiles
 
 ! ==================================================================================================================
 ! Define change range in percentage
@@ -477,7 +478,7 @@ subroutine READ_INPUT_DATA()
       print FMT_FAT0, 'Chemical deposition only works if aerosol module and condensation is turned on.'
       stop 'Turn on "aerosols" and "condensation", use clean air if desired (without particles).'
     END IF
-    if (init_w_bin) BINARY_FILE=3
+    if (init_w_bin/='') BINARY_FILE=3
 
     H2SO4_ind_in_chemistry = IndexFromName( 'H2SO4', SPC_NAMES )
     OH_ind_in_chemistry = IndexFromName( 'OH', SPC_NAMES )
@@ -1041,9 +1042,10 @@ end subroutine READ_INIT_FILE
 
 subroutine CREATE_DIRECTORIES
   implicit none
-  integer :: i
+  integer :: i=0
   ! Also save all settings to initfile. Use this file to rerun if necessary
-  open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE',iostat=i)
+  if (extrafiles) &
+    open(889, file=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME)//'/NMLS.conf', action='WRITE',iostat=i)
   if (i/=0) THEN
     ! Create output directory
     print FMT_MSG, 'Output directory did not exist -> creating...'
@@ -1054,7 +1056,7 @@ subroutine CREATE_DIRECTORIES
     call handle_file_io(I, TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME)//'/NMLS.conf',&
     'Could not write files, do you have permissions?')
   END if
-
+  if (extrafiles) THEN
   write(889,NML = NML_TIME       ) ! directories and test cases
   write(889,NML = NML_Flag       ) ! flags
   write(889,NML = NML_Path       ) ! time related stuff
@@ -1069,6 +1071,7 @@ subroutine CREATE_DIRECTORIES
   write(889,NML = NML_MODS       ) ! vapour input
   write(889,NML = NML_NAMES      ) ! vapour input
   close(889)
+  END if
 
 end subroutine CREATE_DIRECTORIES
 
@@ -1779,23 +1782,31 @@ SUBROUTINE PARSE_INIT_ONLY()
 
 END SUBROUTINE PARSE_INIT_ONLY
 
-subroutine read_bin(GAS)
+subroutine read_bin(GAS,conc,comp)
   implicit none
   real(dp),intent(out) :: GAS(:)
+  real(dp),intent(out) :: conc(:)
+  real(dp),intent(out) :: comp(:,:)
   integer :: ioi
+  character(len=128) :: name
 
-  if (verbose) print FMT_MSG, 'Initializing chemistry with binary file'
+  call access_largest_index(1,name,trim(init_w_bin)//'CFINAL_',4,'.r16') ! 0=access largest from zero that does not exist
+  if (verbose) print FMT_MSG, 'Initializing chemistry with binary file '//TRIM(name)
   ! print*, 'beg ',gas(500)
-  open(unit=899,FILE=TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NUMBER)//'/'//TRIM(RUN_NAME)//'/CFINAL.r16', &
-  action='read',form='unformatted', status='old', ACCESS="STREAM",iostat = ioi)
-  if (verbose.and.ioi==0) then
+
+  open(unit=899,FILE=TRIM(name),action='read',form='unformatted', status='old', ACCESS="STREAM",iostat = ioi)
+  if (ioi==0) then
     print FMT_MSG, 'Found binary file'
-    read(899, POS=1) GAS
+    if (Aerosol_flag) then
+      read(899, POS=1) GAS,conc,comp
+    else
+      read(899, POS=1) GAS
+    end if
     close(899)
   else
     if (verbose) print FMT_MSG, 'No binary file. Continuing with default initial concentrations'
   end if
-  ! print*, 'end ',gas(500)
+
 end subroutine read_bin
 
 end module INPUT

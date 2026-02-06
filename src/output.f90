@@ -49,7 +49,7 @@ CHARACTER(200) :: ncfile_names(N_FILES) = (['General  ', 'Chemistry', 'Particles
 
 real(dp),allocatable :: TIMESERIES(:,:)
 integer              :: i_TIMESERIES = 1
-integer              :: reclen
+integer              :: reclen,reclen_par,reclen_comp
 
 INTEGER, allocatable :: shifter_ind(:)
 INTEGER, allocatable :: multipl_ind(:)
@@ -651,7 +651,7 @@ SUBROUTINE WRITE_GAS_BINARY_DUMP(dir, mode,gas)
     real(dp) :: n1,n2
     real(dp), intent(in),optional :: gas(:)
     real, ALLOCATABLE :: tmp(:,:)
-    character(len=25) :: fmt
+    character(len=128) :: name
 
     if (mode==1) then
       tmp = TIMESERIES
@@ -670,12 +670,23 @@ SUBROUTINE WRITE_GAS_BINARY_DUMP(dir, mode,gas)
       close(1)
     else if (mode==3) then ! Dump only last timestep
       INQUIRE(iolength=reclen) gas
-      call system('rm -f '//trim(dir)//'/CFINAL.r16')
-      open (unit=1,file=trim(dir)//'/CFINAL.r16',form='unformatted',access='direct',recl=reclen,STATUS='new')
-      write (1,rec=1) gas
+      if (Aerosol_flag) &
+        INQUIRE(iolength=reclen_par) get_conc()
+        INQUIRE(iolength=reclen_comp) get_composition()
+      ! call system('rm -f '//trim(init_w_bin))
+      call access_largest_index(0,name,trim(init_w_bin)//'CFINAL_',4,'.r16') ! 0=access largest from zero that does not exist
+      if (Aerosol_flag) then
+        open (unit=1,file=trim(name),form='unformatted',access='direct', &
+              recl=reclen+reclen_par+reclen_comp,STATUS='new')
+        write (1,rec=1) [gas,get_conc(),get_composition()]
+      ELSE
+        open (unit=1,file=trim(name),form='unformatted',access='direct',recl=reclen,STATUS='new')
+        write (1,rec=1) gas
+      end if
       close(1)
     end if
 END SUBROUTINE WRITE_GAS_BINARY_DUMP
+
 
 
 END MODULE OUTPUT
