@@ -1697,6 +1697,44 @@ Please provide valid spectral function.') \
         self.resize(980, 840)
 
     # -----------------------
+    # 2D
+    # -----------------------
+        self.locationPlumeData.setText(get_config("2Dwall", "locationplumedata", fallback='INOUT/column'))
+        self.initialisationSettings.setText(get_config("2Dwall", "initialisationsettings", fallback=''))
+        self.backgroundContSettings.setText(get_config("2Dwall", "backgroundcontsettings", fallback=''))
+        self.plumeInitialisationSettings.setText(get_config("2Dwall", "plumeinitialisationsettings", fallback=''))
+        self.bottomContSettings.setText(get_config("2Dwall", "bottomcontsettings", fallback=''))
+        self.dx.setText(get_config("2Dwall", "dx", fallback='10.0'))
+        self.nVerticalLayers.setText(get_config("2Dwall", "nverticallayers", fallback='80'))
+        self.nHorisontalColumns.setText(get_config("2Dwall", "nhorisontalcolumns", fallback='99'))
+        self.zIndexPlume.setText(get_config("2Dwall", "zindexplume", fallback='12'))
+        self.yIndexPlume.setText(get_config("2Dwall", "yindexplume", fallback='49'))
+        self.tLapseRate.setText(get_config("2Dwall", "tlapserate", fallback='9.8'))
+        self.pLapseRate.setText(get_config("2Dwall", "plapserate", fallback='b'))
+        self.mixingTimestep.setText(get_config("2Dwall", "mixingtimestep", fallback='1'))
+        self.chemTimestep.setText(get_config("2Dwall", "chemtimestep", fallback='30'))
+        self.totalRuntime.setText(get_config("2Dwall", "totalruntime", fallback='900'))
+        self.KyKz.setText(get_config("2Dwall", "KyKz", fallback='2.0'))
+        self.randomize_k_cb.setChecked(int(get_config("2Dwall", "randomize_k", fallback='1')))
+        self.namelist.setChecked(int(get_config("2Dwall", "namelist", fallback='0')))
+        self.scaleConcWithAltitude.setChecked(int(get_config("2Dwall", "scaleconcwithaltitude", fallback='1')))
+        self.friction_vel.setText(get_config("2Dwall", "friction_vel", fallback='0.16'))
+        self.pblh.setText(get_config("2Dwall", "pblh", fallback='600.0'))
+        self.locationPlumeDataOpen.clicked.connect(lambda: self.openOutputDir(None, self.locationPlumeData.text()))
+        self.backgroundContSettingsOpen.clicked.connect(lambda: self.load_2dsetting(self.backgroundContSettings.text()))
+        self.plumeInitialisationSettingsOpen.clicked.connect(lambda: self.load_2dsetting(self.plumeInitialisationSettings.text()))
+        self.bottomContSettingsOpen.clicked.connect(lambda: self.load_2dsetting(self.bottomContSettings.text()))
+        self.initialisationSettingsOpen.clicked.connect(lambda: self.load_2dsetting(self.initialisationSettings.text()))
+        self.locationPlumeDataBrowse.clicked.connect(lambda: self.browse_path(self.locationPlumeData, 'dir'))
+        self.backgroundContSettingsBrowse.clicked.connect(lambda: self.browse_path(self.backgroundContSettings, 'file'))
+        self.plumeInitialisationSettingsBrowse.clicked.connect(lambda: self.browse_path(self.plumeInitialisationSettings, 'file'))
+        self.bottomContSettingsBrowse.clicked.connect(lambda: self.browse_path(self.bottomContSettings, 'file'))
+        self.initialisationSettingsBrowse.clicked.connect(lambda: self.browse_path(self.initialisationSettings, 'file'))
+        self.save2D.clicked.connect(self.save2Dsettings)
+        self.saveAndStart2D.clicked.connect(self.save2DsettingsStart)
+
+        # self.dtChem.setText(get_config("2Dwall", "dtChem", fallback='30'))
+    # -----------------------
     # Help links
     # -----------------------
         self.helpGroupName.clicked.connect(lambda: self.helplink('groupName'))
@@ -1753,6 +1791,68 @@ Please provide valid spectral function.') \
     # -----------------------
     # Class methods
     # -----------------------
+    def load_2dsetting(self,file):
+        if file is not None and exists(file):
+            out = self.load_initfile(file)
+            if out is None or out>0: self.show_currentInit(file)
+
+    def save2DsettingsStart(self):
+        self.save2Dsettings(start=True)
+
+    def save2Dsettings(self,start=False):
+        set_config("2Dwall", "locationplumedata",self.locationPlumeData.text())
+        set_config("2Dwall", "initialisationsettings",self.initialisationSettings.text())
+        set_config("2Dwall", "plumeinitialisationsettings",self.plumeInitialisationSettings.text())
+        set_config("2Dwall", "backgroundcontsettings",self.backgroundContSettings.text())
+        set_config("2Dwall", "bottomcontsettings",self.bottomContSettings.text())
+        set_config("2Dwall", "dx",self.dx.text())
+        set_config("2Dwall", "nverticallayers",self.nVerticalLayers.text())
+        set_config("2Dwall", "nhorisontalcolumns",self.nHorisontalColumns.text())
+        set_config("2Dwall", "zindexplume",self.zIndexPlume.text())
+        set_config("2Dwall", "yindexplume",self.yIndexPlume.text())
+        set_config("2Dwall", "tlapserate",self.tLapseRate.text())
+        set_config("2Dwall", "plapserate",self.pLapseRate.text())
+        set_config("2Dwall", "mixingtimestep",self.mixingTimestep.text())
+        set_config("2Dwall", "chemtimestep",self.chemTimestep.text())
+        set_config("2Dwall", "totalruntime",self.totalRuntime.text())
+        set_config("2Dwall", "kykz",self.KyKz.text())
+        set_config("2Dwall", "randomize_k",str(int(self.randomize_k_cb.isChecked())))
+        set_config("2Dwall", "scaleconcwithaltitude",str(int(self.scaleConcWithAltitude.isChecked())))
+        set_config("2Dwall", "friction_vel",self.friction_vel.text())
+        set_config("2Dwall", "pblh",self.pblh.text())
+        set_config("2Dwall", "namelist",str(int(self.namelist.isChecked())))
+        if not start:
+            return
+        from modules.callWall2D import start2D
+        if self.bottomContSettings.text() == '':
+            bottom = osjoin(currentdir,self.backgroundContSettings.text())
+        else:
+            bottom = osjoin(currentdir,self.bottomContSettings.text())
+        start2D(locationPlumeData=osjoin(currentdir,self.locationPlumeData.text()),
+                initialisationSettings=osjoin(currentdir,self.initialisationSettings.text()),
+                plumeInitialisationSettings=osjoin(currentdir,self.plumeInitialisationSettings.text()),
+                backgroundContSettings=osjoin(currentdir,self.backgroundContSettings.text()),
+                bottomContSettings=bottom,
+                dx=self.dx.text(),
+                nVerticalLayers=self.nVerticalLayers.text(),
+                nHorisontalColumns=self.nHorisontalColumns.text(),
+                zIndexPlume=self.zIndexPlume.text(),
+                yIndexPlume=self.yIndexPlume.text(),
+                tLapseRate=self.tLapseRate.text(),
+                pLapseRate=self.pLapseRate.text(),
+                mixingTimestep=self.mixingTimestep.text(),
+                chemTimestep=self.chemTimestep.text(),
+                totalRuntime=self.totalRuntime.text(),
+                arca=f'{currentdir}/',
+                KyKz=self.KyKz.text(),
+                randomize_k=str(int(self.randomize_k_cb.isChecked())),
+                scaleConcWithAltitude=str(int(self.scaleConcWithAltitude.isChecked())),
+                friction_vel=self.friction_vel.text(),
+                pblh=self.pblh.text(),
+                namelist=str(int(self.namelist.isChecked())),
+                )
+
+
     def closeOneFile(self):
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         paths = [l.path for l in self.LPD]

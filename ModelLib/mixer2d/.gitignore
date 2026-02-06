@@ -1,0 +1,5 @@
+*.mod
+*.o
+!makefile*
+!*.f90
+!*.sh
