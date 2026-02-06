@@ -202,7 +202,7 @@ CHARACTER(len=256)  :: ENV_FILE = ''
 CHARACTER(len=256)  :: LOSSES_FILE = ''
 CHARACTER(len=256)  :: LOSSES_FILE_GAS = ''
 REAL(dp)            :: CONSTANT_PAR_LOSS_RATE = -1d0
-REAL(dp)            :: CONSTANT_GAS_LOSS_RATE = -1d0
+REAL(dp)            :: CONSTANT_GAS_LOSS_RATE = 0d0
 ! Chamber properties
 REAL(dp)            :: CHAMBER_FLOOR_AREA     = 0d0
 REAL(dp)            :: CHAMBER_HEIGHT = 0d0
@@ -644,6 +644,7 @@ IF (Aerosol_flag) then
     else
       Vap_file = 'ModelLib/required/empty.dat'
       Use_atoms = .false.
+      INORGANIC = 'ModelLib/required/INORGANIC_empty.dat'
     end if
     OPEN(unit=802, File= TRIM(Vap_file) , STATUS='OLD', iostat=ioi)
     call handle_file_io(ioi, Vap_file, &
