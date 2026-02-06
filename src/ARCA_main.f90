@@ -319,17 +319,18 @@ if (Aerosol_flag) THEN
 END IF
 
 ! Save backup from the initfile
-OPEN(UNIT=606, FILE=TRIM(ADJUSTL(Fname_init)), STATUS='OLD', ACTION='READ', iostat=ioi)
-open(unit=607, file=RUN_OUTPUT_DIR//'/InitBackup_temp.txt')
-DO while (ioi == 0)
-    read(606,'(a)', iostat = ioi) inibuf
-    write(607,'(a)') TRIM(inibuf)
-end do
-close(606)
-close(607)
-call system('mv '//RUN_OUTPUT_DIR//'/InitBackup_temp.txt '//RUN_OUTPUT_DIR//'/InitBackup.txt', I)
-if (I/=0) print FMT_WARN0, "Could not save InitBackup.txt, is the file locked?"
-
+if (extrafiles) THEN
+  OPEN(UNIT=606, FILE=TRIM(ADJUSTL(Fname_init)), STATUS='OLD', ACTION='READ', iostat=ioi)
+  open(unit=607, file=RUN_OUTPUT_DIR//'/InitBackup_temp.txt')
+  DO while (ioi == 0)
+      read(606,'(a)', iostat = ioi) inibuf
+      write(607,'(a)') TRIM(inibuf)
+  end do
+  close(606)
+  close(607)
+  call system('mv '//RUN_OUTPUT_DIR//'/InitBackup_temp.txt '//RUN_OUTPUT_DIR//'/InitBackup.txt', I)
+  if (I/=0) print FMT_WARN0, "Could not save InitBackup.txt, is the file locked?"
+end if
 ! Open netCDF files
 IF (NETCDF_OUT) &
   CALL OPEN_FILES( RUN_OUTPUT_DIR, Description,CurrentChem,CurrentVers,SHA, MODS, CH_GAS, reactivities, VAPOUR_PROP,Vol_chamber)
@@ -353,12 +354,12 @@ END IF
 
 write(*,*) ''
 
-open(unit=608, file=RUN_OUTPUT_DIR//'/optimization.txt',status='replace',action='write')
-
-open(unit=610, file=RUN_OUTPUT_DIR//'/Changes.txt',status='replace',action='write')
+if (OPTIMIZE_DT.or.extrafiles) then
+  open(unit=608, file=RUN_OUTPUT_DIR//'/optimization.txt',status='replace',action='write')
+  open(unit=610, file=RUN_OUTPUT_DIR//'/Changes.txt',status='replace',action='write')
+end if
 
 if (OPTIMIZE_DT) THEN
-
     write(610,'("# ddiam, dpnum, dvap: ", 3(es10.3," ",es10.3))') DDIAM_RANGE*1d-2,DPNUM_RANGE*1d-2,DVAPO_RANGE*1d-2
     if (verbose) print FMT_HDR, 'Simulation time step will be optimized for precision'
     if (verbose) print'("| ",a,": ",t47,2(f7.2, " % "),t100,"|")', 'precision limits for particle diameter',      DDIAM_RANGE
@@ -370,14 +371,18 @@ if (OPTIMIZE_DT) THEN
     DPNUM_RANGE = DPNUM_RANGE * 1d-2
     DVAPO_RANGE = DVAPO_RANGE * 1d-2
 else
-    write(610,'("# ddiam, dpnum, dvap: ", 3(es10.3," ",es10.3))') 0d0,0d0,0d0,0d0,0d0,0d0
+    IF (extrafiles) &
+      write(610,'("# ddiam, dpnum, dvap: ", 3(es10.3," ",es10.3))') 0d0,0d0,0d0,0d0,0d0,0d0
 
     if (verbose) print FMT_HDR, 'Beginning simulation with constant timestep'
-    write(608, *) 'Time step not optimized, dt: ',GTIME%dt
-    flush(608)
+    IF (extrafiles) &
+      write(608, *) 'Time step not optimized, dt: ',GTIME%dt
+    IF (extrafiles) &
+      flush(608)
 end if
 
-write(610,'(4(a,"                "),a)') '#  time_sec  ','max_d_diam','max_d_npar','max_d_vap ','max_d_npdep'
+IF (extrafiles.or.OPTIMIZE_DT) &
+  write(610,'(4(a,"                "),a)') '#  time_sec  ','max_d_diam','max_d_npar','max_d_vap ','max_d_npdep'
 
 if (verbose) print *, ''
 if (verbose) print  FMT_LEND
@@ -403,7 +408,7 @@ end if
 if (EQUAL(Cw_eqv,0d0)) STOP 'Effective wall concentration should not be zero.'
 ! End sanity checks, entering bonkers mode
 
-if (init_w_bin) call read_bin(CH_GAS)
+if (init_w_bin /= '') call read_bin(CH_GAS,current_PSD%conc_fs,current_PSD%composition_fs)
 
 call cpu_time(cpu1) ! For efficiency calculation
 
@@ -802,7 +807,7 @@ END IF
         in_turn_cch_2: if (PRC%in_turn(PRC%cch)) THEN
         ! ..........................................................................................................
         ! CONDENSATION
-        ! onlyIfCondIsUsed: if (Condensation .and.(.not. PRC%err).and.(.not.VBS_ONLY)) THEN
+        onlyIfCondIsUsed: if (Condensation .and.(.not. PRC%err).and.(.not.VBS_ONLY)) THEN
 
             ! Pick the condensibles from chemistry and change units from #/cm^3 to #/m^3
             conc_vapour = 0d0
@@ -834,7 +839,7 @@ END IF
             !                       VAPOUR_PROP%molar_mass(1:VAPOUR_PROP%n_cond_org-1)*1d9, VAPOUR_PROP%VBS_BINS(:,:))
             ! if (GTIME%PRINTNOW) print*,'VBS PAR',GTIME%sec, MATMUL(MATMUL(get_conc(),current_PSD%composition_fs(:,1:VAPOUR_PROP%n_cond_org-1))*1e9, VAPOUR_PROP%VBS_BINS(:,:))
 
-            onlyIfCondIsUsed: if (Condensation .and.(.not. PRC%err).and.(.not.VBS_ONLY)) THEN
+            ! onlyIfCondIsUsed: if (Condensation .and.(.not. PRC%err).and.(.not.VBS_ONLY)) THEN
             CALL UPDATE_MOLECULAR_DIFF_AND_CSPEED(VAPOUR_PROP)
 
             IF (CHEM_DEPOSITION) CALL CALCULATE_CHEMICAL_WALL_LOSS(conc_vapour(1:VAPOUR_PROP%n_cond_org),c_org_wall)
@@ -1081,8 +1086,10 @@ END IF in_turn_any
                 save_measured = conc_fit/1d6
             END IF
 
-            WRITE(610,*) GTIME%sec, d_dpar(maxloc(abs(d_dpar),1)), d_npar(maxloc(abs(d_npar),1)), refdvap, d_npdep(maxloc(abs(d_npdep),1))
-            FLUSH(610)
+            IF (extrafiles.or.OPTIMIZE_DT) then
+              WRITE(610,*) GTIME%sec, d_dpar(maxloc(abs(d_dpar),1)), d_npar(maxloc(abs(d_npar),1)), refdvap, d_npdep(maxloc(abs(d_npdep),1))
+              FLUSH(610)
+            end if
 
             if (NETCDF_OUT) &
               CALL SAVE_GASES(TSTEP_CONC,MODS,CH_GAS_old,reactivities,conc_vapour*1d-6,VAPOUR_PROP, save_measured,&
@@ -1736,8 +1743,8 @@ SUBROUTINE FINISH
     write(*, '(a)') 'SO LONG!'
     write(*,*)
     write(*,*)
-    write(608,*) '---------- SIMULATION REACHED END SUCCESFULLY ------------'
-    close(608)
+    IF (extrafiles) write(608,*) '---------- SIMULATION REACHED END SUCCESFULLY ------------'
+    IF (extrafiles) close(608)
     if (FINAL_CHEM_TXT) THEN
       OPEN(600,file=RUN_OUTPUT_DIR//"/CHEM_FINAL.txt",status='replace',action='write')
       do ii = 1,size(CH_GAS)
@@ -1876,16 +1883,27 @@ subroutine gas_losses_dilution()
   real(dp),save :: component_rates(NSPEC) = 0d0
   integer :: ic,i
 
-  if (CONSTANT_GAS_LOSS_RATE>=0d0.and..not.Gaussian_plume_chm) THEN
+  if ((CONSTANT_GAS_LOSS_RATE>0d0.or.CONSTANT_GAS_LOSS_RATE<0d0).and..not.Gaussian_plume_chm) THEN
     uniform_rate = CONSTANT_GAS_LOSS_RATE
-    CH_GAS       = CH_GAS * EXP(-uniform_rate*GTIME%dt*speed_up(PRC%dep))
+    if (CONSTANT_GAS_LOSS_RATE>0d0) then
+      CH_GAS       = CH_GAS * EXP(-uniform_rate*GTIME%dt*speed_up(PRC%dep))
+    ! This makes negative loss rates direct emission! Easter egg!
+    elseif (CONSTANT_GAS_LOSS_RATE<0d0) then
+      CH_GAS       = CH_GAS - (uniform_rate*GTIME%dt*speed_up(PRC%dep))
+    end if
   ELSEIF (Gaussian_plume_chm) THEN
     uniform_rate = MIN( 0.1/GTIME%dt*speed_up(PRC%dep), &
                   & (2.0*GTIME%sec+GTIME%dt*speed_up(PRC%dep))/(GTIME%sec+GTIME%dt*speed_up(PRC%dep))**2)
                   CH_GAS = CH_GAS * (1d0 - uniform_rate * GTIME%dt*speed_up(PRC%dep))
   ELSE
-    component_rates(GAS_LOSSES%indices) = [(interp(GAS_LOSSES%time, GAS_LOSSES%conc_matrix(:,ic), unit=LOSSFILE_GAS_TIME_UNIT), ic=1,GAS_LOSSES%len_c)]
-    CH_GAS = CH_GAS * EXP(-component_rates*GTIME%dt*speed_up(PRC%dep))
+    component_rates(GAS_LOSSES%indices) = [(interp(GAS_LOSSES%time, &
+      GAS_LOSSES%conc_matrix(:,ic), unit=LOSSFILE_GAS_TIME_UNIT, noneg=.false.), ic=1,GAS_LOSSES%len_c)]
+    WHERE (component_rates>0d0)
+      CH_GAS = CH_GAS * EXP(-component_rates*GTIME%dt*speed_up(PRC%dep))
+    elsewhere
+      ! This makes negative loss rates direct emission! Easter egg!
+      CH_GAS = CH_GAS - (component_rates*GTIME%dt*speed_up(PRC%dep))
+    END WHERE
 
   end if
 
