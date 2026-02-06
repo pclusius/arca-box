@@ -198,14 +198,22 @@ END FUNCTION COLCOUNT
 ! correct row if this fails. If optional unit is provided ('sec', 'min', 'hrs',
 ! 'day') then the corresponding time unit is used from [time].
 !..............................................................................
-REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
+REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein, noneg)
   IMPLICIT NONE
   real(dp), OPTIONAL, intent(in)  :: timein
+  logical, OPTIONAL               :: noneg
+  logical                         :: noneg_int
   REAL(dp), intent(in) :: conctime(:), conc(:)
   REAL(dp) :: x
   INTEGER, OPTIONAL :: row
   CHARACTER(*), OPTIONAL :: unit
   INTEGER :: rw, i
+  if (PRESENT(noneg)) THEN
+    noneg_int = noneg
+  else
+    noneg_int = NO_NEGATIVE_CONCENTRATIONS
+  end if
+
   if (PRESENT(timein)) THEN
     x = timein
   ELSE
@@ -254,7 +262,7 @@ REAL(dp) FUNCTION INTERP(conctime, conc, row, unit, timein)
   end if
 
     INTERP = (conc(rw+1)-conc(rw)) / (conctime(rw+1)-conctime(rw)) * (x-conctime(rw)) + conc(rw)
-    if (NO_NEGATIVE_CONCENTRATIONS) INTERP = max(0d0, INTERP)
+    if (NO_NEGATIVE_CONCENTRATIONS.and.noneg_int) INTERP = max(0d0, INTERP)
 
 END FUNCTION INTERP
 
@@ -549,6 +557,27 @@ SUBROUTINE opti(report)
 
 END SUBROUTINE opti
 
+
+subroutine access_largest_index(mode,name,prefix,n,suffix)
+  implicit None
+  character(len=*), intent(out) :: name
+  character(len=*), intent(in)  :: prefix,suffix
+  integer, intent(in)           :: n,mode ! mode=0 next which does not exist, mode=1 does exist
+  integer                       :: i
+  character(len=128)            :: fname
+  character(len=10)             :: fmt
+  write(fmt,'(a,i0,a)') '(a,i0.',n,',a)'
+
+  i=0
+  write(fname, fmt) prefix,i,suffix
+  do
+    write(fname, fmt) prefix,i,suffix
+    if (access(TRIM(fname),' ') /= 0) exit
+    i = i + 1
+  end do
+  write(name, fmt) prefix,MAX(0,i-mode),suffix
+
+end subroutine access_largest_index
 
 
 end MODULE AUXILLARIES
