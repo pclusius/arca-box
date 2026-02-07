@@ -33,6 +33,7 @@ locPlumeBinary=${locationPlumeData}/${locPlumeBinary}
 [ -z ${boxRuntime+x} ] && echo Missing boxRuntime && exit 1
 [ -z ${scaleConcWithAltitude+x} ] && echo Missing scaleConcWithAltitude && exit 1
 [ -z ${namelist+x} ] && echo Missing namelist && exit 1
+[ -z ${BIGdata+x} ] && echo Missing BIGdata && exit 1
 
 MIXERSRC=${arca}/ModelLib/mixer2d
 s=$(grep NAMESDAT $initialisationSettings)
@@ -72,11 +73,12 @@ echo "friction_vel               : $friction_vel"
 echo "pblh                       : $pblh"
 echo "scaleConcWithAltitude      : $scaleConcWithAltitude"
 echo "namelist                   : $namelist"
+echo "BIGdata                    : $BIGdata"
 
 bginit=$initialisationSettings
 plumeinit=$plumeInitialisationSettings
 columnSettingDir=${bginit}/settings/column/
-cells=$locationPlumeData/cells
+cells=$locationPlumeData/${BIGdata}
 r16bin=CFINAL_0000.r16
 bginitDir=$(dirname $bginit)
 plumeinitDir=$(dirname $plumeinit)
@@ -249,16 +251,20 @@ fi
 NSPEC=$(<${locationPlumeData}/cells/01/01/${r16bin} wc -c)
 NSPEC=$(( $NSPEC / 8 ))
 
+update_nml() {
+echo """&NML_meteo
+ KyKz         = ${1}
+ randomize_k  = ${2}
+ friction_vel = ${3}
+ pblh         = ${4}
+/
+""" > ${locationPlumeData}/meteo.namelist
+}
+
 if [ $namelist == '1' ] ; then
   use_nml="use_namelist=1"
-  echo """&NML_meteo
- KyKz         = ${KyKz}
- randomize_k  = ${randomize_k}
- friction_vel = ${friction_vel}
- pblh         = ${pblh}
-/
-  """ > meteo.namelist
-meteonamelistfile=$(pwd)/meteo.namelist
+  update_nml ${KyKz} ${randomize_k} ${friction_vel} ${pblh}
+  meteonamelistfile=$(pwd)/meteo.namelist
 else
   use_nml="use_KyKz=${KyKz} use_randomize_k=${randomize_k} use_friction_vel=${friction_vel} use_pblh=${pblh}"
 fi
@@ -274,16 +280,6 @@ if [ "$CONT" == '1' ]; then
   time ./mixer2d.exe 0 0 $meteonamelistfile
 fi
 
-update_nml() {
-echo """&NML_meteo
- KyKz         = ${KyKz}
- randomize_k  = ${randomize_k}
- friction_vel = ${friction_vel}
- pblh         = $(sed -n ${1}p ${locationPlumeData}/settings/blh.txt )
-/
-""" > ${locationPlumeData}/meteo.namelist
-}
-
 cd ${arca}
 
 for i in $(seq $rounds )
@@ -292,7 +288,7 @@ do
   tot=$(( tot + 1 ))
   echo  ${i} \(${tot}\): Running $dim ARCA-boxes
   time bash $THIS/onecycle.sh > /dev/null
-  update_nml $tot
+  update_nml ${KyKz} ${randomize_k} ${friction_vel} $(sed -n ${tot}p ${locationPlumeData}/settings/blh.txt )
   echo  ${i} \($tot\): mixing concentrations
   time ${locationPlumeData}/mixer2d.exe 0 0 $meteonamelistfile
 [ -d 'stop' ] && rmdir stop && break
