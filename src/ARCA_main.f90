@@ -293,7 +293,8 @@ RUN_OUTPUT_DIR = TRIM(INOUT_DIR)//'/'//TRIM(CASE_NAME)//'_'//TRIM(DATE)//TRIM(NU
 
 if (Aerosol_flag) THEN
 
-    ! Save all condensibles for easier access
+  ! Save all condensibles for easier access
+  if (extrafiles) THEN
     OPEN(600,file=RUN_OUTPUT_DIR//"/CondensingVapours.txt",status='replace',action='write')
     do ii = 1,size(VAPOUR_PROP%vapour_names)
         WRITE(600,'(a,es12.4)') TRIM(VAPOUR_PROP%vapour_names(ii)), VAPOUR_PROP%molar_mass(ii)
@@ -315,7 +316,7 @@ if (Aerosol_flag) THEN
     ! Time 1 (s)---------dN--------------dN----------------dN . . . . . . . dN
     OPEN(604,file=RUN_OUTPUT_DIR//"/particle_conc.dat",status='replace',action='write')
     WRITE(604,*) 0d0,get_dp()
-
+  end if
 END IF
 
 ! Save backup from the initfile
@@ -1080,8 +1081,10 @@ END IF in_turn_any
 
             ! PSD is also saved to txt
             if (Aerosol_flag) THEN
+               if (extrafiles) THEN
                 WRITE(601,*) GTIME%sec, sum(get_conc(old_PSD)*1d-6), get_conc(old_PSD)*1d-6 / LOG10(bin_ratio)
                 WRITE(604,*) GTIME%sec, get_conc(old_PSD)*1d-6
+               end if
                 ! WRITE(605,*) GTIME%sec, G_COAG_SINK
                 save_measured = conc_fit/1d6
             END IF
@@ -1167,10 +1170,10 @@ END DO MAINLOOP
 
 if (verbose) CALL PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
 
-if (Aerosol_flag) THEN
-    CLOSE(601)
-    CLOSE(604)
-    CLOSE(610)
+if (Aerosol_flag.and.extrafiles) THEN
+  CLOSE(601)
+  CLOSE(604)
+  CLOSE(610)
 END IF
 
 
@@ -1595,8 +1598,10 @@ SUBROUTINE PRINT_FINAL_VALUES_IF_LAST_STEP_DID_NOT_DO_IT_ALREADY
     if (.not. GTIME%savenow)  THEN
         if (Aerosol_flag) THEN
             ! PSD is also saved to txt
+          if (extrafiles) THEN
             WRITE(601,*) GTIME%sec, sum(get_conc()*1d-6), get_conc()*1d-6 / LOG10(bin_ratio)
             WRITE(604,*) GTIME%sec, get_conc()*1d-6
+          end if
             save_measured = conc_fit/1d6
         END IF
         IF (NETCDF_OUT) &
