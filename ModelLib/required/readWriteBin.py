@@ -84,8 +84,8 @@ ws=5
 x = t*ws/1000
 
 f,ax=plt.subplots(4,figsize=(14,12))
-p1 = ax[0].pcolormesh(x,y,C[:,:,:].sum(1).T)#,norm='log')#,vmin=C[0,:,:].sum(0).min())
-p2 = ax[1].pcolormesh(x,h,C[:,:,:].sum(2).T)#,norm='log')#,vmin=C[0,:,:].sum(1).min())
+p1 = ax[0].pcolormesh(x,y,C[:,:,:].sum(1).T,norm='log')#,vmin=C[0,:,:].sum(0).min())
+p2 = ax[1].pcolormesh(x,h,C[:,:,:].sum(2).T,norm='log')#,vmin=C[0,:,:].sum(1).min())
 ax[0].set_title(f'{name}, total time: {t[-1]} s')
 ax[0].set_ylabel('Width (m)')
 ax[1].set_ylabel('Altitude (m)')

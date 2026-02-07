@@ -107,7 +107,9 @@ NSPEC=$(( $NSPEC / 8 ))
 tmpPyFile=F209fn0932f_OJ9OIDWNm94321b.py
 
 echo "------------------------------------------------------------------------------------------------------------------"
+dim=$(( $nVerticalLayers * $nHorisontalColumns ))
 echo "Number of scalars to mix   : $NSPEC"
+echo "Number of cells to mix     : $dim"
 
 echo "Mixing plume with background"
 echo """
@@ -115,7 +117,9 @@ from numpy import fromfile, array, float64
 import sys
 def read_bin(file):
     f = open(file, 'rb')
-    return fromfile(f, dtype=float64)
+    c = fromfile(f, dtype=float64)
+    f.close()
+    return c
 def write_bin(file,c):
     f = open(file, 'wb')
     f.write(c);f.close(); return
@@ -125,13 +129,13 @@ c = read_bin(infiles[0])
 for f in infiles[1:]:
     c[:ndil] = c[:ndil] + read_bin(f)[:ndil]
 write_bin(sys.argv[1],c)
-""">$tmpPyFile
-python $tmpPyFile \
+""">${tmpPyFile}
+python ${tmpPyFile} \
   ${locPlumeBinary}/${r16bin}   \
   ${locInitialBinary}/${r16bin} \
-  ${locPlumeBinary}/${r16bin} &
-
+  ${locPlumeBinary}/${r16bin}
 echo "Done mixing "
+
 # echo mkdir -p $cells # DONE already at this point
 
 Tinit=$(grep "MODS.*TEMPK" ${bottomContSettings} |awk '{print $6}')
@@ -207,10 +211,6 @@ for d in $(seq ${nVerticalLayers}); do
     mkdir -p $s
     # Clear directory, start copying stuff
     if [ "$c" != '1' ] ; then
-      # scaledConcentrations=${s}/${r16bin}
-      # cp ${locInitialBinary}/${r16bin} $scaledConcentrations
-      # [ $scaleConcWithAltitude == '1' ] && \
-      #   python $tmpPyFile $T0 $P0 $Temp $Pres $scaledConcentrations
       rm -f $s/*
       cp ${locationPlumeData}/cells/$( printf "%02d" $d )/01/${r16bin} $s/. &
     fi
@@ -249,8 +249,6 @@ fi
 NSPEC=$(<${locationPlumeData}/cells/01/01/${r16bin} wc -c)
 NSPEC=$(( $NSPEC / 8 ))
 
-echo $NSPEC
-
 if [ $namelist == '1' ] ; then
   use_nml="use_namelist=1"
   echo """&NML_meteo
@@ -276,15 +274,27 @@ if [ "$CONT" == '1' ]; then
   time ./mixer2d.exe 0 0 $meteonamelistfile
 fi
 
+update_nml() {
+echo """&NML_meteo
+ KyKz         = ${KyKz}
+ randomize_k  = ${randomize_k}
+ friction_vel = ${friction_vel}
+ pblh         = $(sed -n ${1}p ${locationPlumeData}/settings/blh.txt )
+/
+""" > ${locationPlumeData}/meteo.namelist
+}
 
 cd ${arca}
 
 for i in $(seq $rounds )
 do
-echo  ${i}: Running $(( $nVerticalLayers * $nHorisontalColumns )) ARCA-boxes
-time bash $THIS/onecycle.sh > /dev/null
-echo  ${i}: mixing concentrations
-time ${locationPlumeData}/mixer2d.exe 0 0 $meteonamelistfile
+  tot=$(ls ${locationPlumeData}/cells/01/01/CFINAL* |wc -l)
+  tot=$(( tot + 1 ))
+  echo  ${i} \(${tot}\): Running $dim ARCA-boxes
+  time bash $THIS/onecycle.sh > /dev/null
+  update_nml $tot
+  echo  ${i} \($tot\): mixing concentrations
+  time ${locationPlumeData}/mixer2d.exe 0 0 $meteonamelistfile
 [ -d 'stop' ] && rmdir stop && break
 done
 

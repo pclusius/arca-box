@@ -172,10 +172,8 @@ subroutine calculate_grid_parameters()
   enddo
   dfy(1)=dfy(2)
 
-  ! sigmaz0 = [(0.05, iz=1,nz)]
-  ! sigmaz0(:nz/3) = sigmaz0(:nz/3) + [(sin(1d0*iz/(nz/3-1)*3.141593)**2, iz=0,nz/3-1)]
   ! Grisogono scheme
-  sigmaz0 = MAX(1d-2,0.39*friction_vel*z*exp(-0.5*(z/(0.21*pblh))**2.))
+  sigmaz0 = MAX(1d-1,0.39*friction_vel*z*exp(-0.5*(z/(0.21*pblh))**2.))
 
 end subroutine calculate_grid_parameters
 
@@ -185,16 +183,10 @@ integer :: i
 if (randomize_k==1) &
   call random_number(random_z)
 sigmaz = sigmaz0 * ( 0.5 + random_z ) ! * k0 * sigmaK
-where (sigmaz<0.01)
-  sigmaz = 0.01
+where (sigmaz<0.1)
+  sigmaz = 0.1
 end where
-! sigmaz(1:2) = 0d0
-! sigmaz(:) = 3.0
-! do i=1,nz
-! print*, sigmaz(i),','
-! end do
-! stop
-! sigmaz(70:) = 0d0
+
 
 end subroutine update_sigma_z
 
@@ -207,8 +199,8 @@ if (randomize_k==1) &
 do iz=1,nz
   sigmahor(iz,:) = KyKz * ( 0.5 + random_y ) * sigmaz(iz)
 end do
-where (sigmahor<0.01)
-  sigmahor = 0.01
+where (sigmahor<0.1)
+  sigmahor = 0.1
 end where
 end subroutine update_sigma_y
 
