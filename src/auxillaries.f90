@@ -321,7 +321,7 @@ subroutine handle_file_io(ioi, file, halt)
     if (PRESENT(halt)) THEN
       print FMT_SUB, halt
       print FMT_LEND
-      stop
+      stop 'FILE NOT FOUND'
     END IF
   END if
 end subroutine handle_file_io
