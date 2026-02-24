@@ -3,9 +3,6 @@ Variables =
 ifdef fdx
 	Variables += -Dfdx=$(fdx)
 endif
-ifdef fddz
-	Variables += -Dfddz=$(fddz)
-endif
 ifdef nVerticalLayers
 	Variables += -DfnVerticalLayers=$(nVerticalLayers)
 endif
@@ -45,23 +42,15 @@ endif
 ifdef use_namelist
 	Variables += -Dfuse_namelist=1
 endif
-ifdef use_omp
-	Variables += -Dfuse_omp=1
-	gtri = variables_omp.f90 gtri_omp.f90
-	fopm = -fopenmp
-else
-	gtri = variables.f90 gtritest.f90
-	fopm =
-endif
 
 F90 = gfortran
 
 all: clean mixer2d.exe
 
 mixer2d.exe:
-	$(F90) -O2 -cpp $(Variables) seq_file_names.f90 $(gtri) -o $@ $(fopm)
+	$(F90) -O2 -cpp $(Variables) seq_file_names.f90 variables.f90 gtritest.f90 -o $@
 
 clean:
-	@rm -f *.o *.mod *.exe
+	@rm -f *.o *.mod
 variables:
 	@echo $(Variables)

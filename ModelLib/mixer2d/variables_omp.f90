@@ -101,7 +101,7 @@ character(len=1)    :: f_init
 INTEGER             :: i_init=0,i_file=0, advance=0
 INTEGER             :: iz,iy,k, ic,im,ioi
 real(dp)            :: C(nz,ny)=1d0
-real(dp)            :: Z(nz)=1d0, dz(2:nz)=1d0, Y(ny)=1d0, dy(MIN(ny,2):ny)=1d0
+real(dp)            :: Z(nz)=1d0, dz(2:nz)=1d0, Y(ny)=1d0, dy(2:ny)=1d0
 real(dp)            :: daz(nz)=1d0, dbz(nz)=1d0, dcz(nz)=1d0, dfz(nz)=1d0
 real(dp)            :: day(ny)=1d0, dby(ny)=1d0, dcy(ny)=1d0, dfy(ny)=1d0
 real(dp)            :: Khtz(nz)=1d0, Khbz(nz)=1d0 !,kt(nz)=1d0
@@ -112,7 +112,8 @@ real(dp)            :: termbz(nz)=1d0,termby(ny,nz)=1d0
 real(dp)            :: sigmaz0(nz)=1d0,sigmaz(nz)=1d0
 real(dp)            :: sigmahor(nz,ny)=1d0
 real(dp)            :: ch_gas(NSPEC)=1d0
-real(dp)            :: Cmajor(NSPEC,nz,ny),Cmajor1(NSPEC,nz,ny)
+real(dp)            :: Cmajor(NSPEC,nz,ny),Cmajora(NSPEC,nz,ny)
+real(dp),allocatable:: Cminor(:,:,:)
 real(dp)            :: random_z(nz)=0.5d0,random_y(ny)=0.5d0
 
 contains

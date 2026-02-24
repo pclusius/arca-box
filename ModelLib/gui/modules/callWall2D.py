@@ -2,14 +2,19 @@ import numpy as np
 import os,re,shutil
 
 def start2D(**kwds):
-    # os.system(f'mkdir -p {kwds['locationPlumeData']}/cells')
-    os.makedirs(f'{kwds['locationPlumeData']}/cells', exist_ok=True)
+    # os.makedirs(f'{kwds['locationPlumeData']}/{kwds['CaseCells']}', exist_ok=True)
     os.makedirs(f'{kwds['locationPlumeData']}/settings', exist_ok=True)
     filesTo  = kwds['locationPlumeData']
     initial  = kwds['initialisationSettings']
     plumeIni = kwds['plumeInitialisationSettings']
     BGcont   = kwds['backgroundContSettings']
     BtmCont  = kwds['bottomContSettings']
+    yIndex   = kwds['yIndexPlume']
+    zIndex   = kwds['zIndexPlume']
+    if yIndex.lower() == 'c':
+        yIndex = f'{int(np.ceil(int(kwds['nHorisontalColumns'])/2))}'
+    if zIndex.lower() == 'c':
+        zIndex = f'{int(np.ceil(int(kwds['nVerticalLayers'])/2))}'
 
     """Copy files to 'filesTo' """
     collect = []
@@ -99,10 +104,11 @@ def start2D(**kwds):
         file.write(f'export locPlumeBinary={locPlumeBinary}\n')
     #
     file.write(f'export dx={kwds['dx']}\n')
+    file.write(f'export ddz={kwds['ddz']}\n')
     file.write(f'export nVerticalLayers={kwds['nVerticalLayers']}\n')
     file.write(f'export nHorisontalColumns={kwds['nHorisontalColumns']}\n')
-    file.write(f'export zIndexPlume={kwds['zIndexPlume']}\n')
-    file.write(f'export yIndexPlume={kwds['yIndexPlume']}\n')
+    file.write(f'export zIndexPlumeStr={zIndex}\n')
+    file.write(f'export yIndexPlumeStr={yIndex}\n')
     file.write(f'export tLapseRate={kwds['tLapseRate']}\n')
     file.write(f'export pLapseRate={kwds['pLapseRate']}\n')
     file.write(f'export mixingTimestep={kwds['mixingTimestep']}\n')
@@ -112,10 +118,29 @@ def start2D(**kwds):
     file.write(f'export randomize_k={kwds['randomize_k']}\n')
     file.write(f'export scaleConcWithAltitude={kwds['scaleConcWithAltitude']}\n')
     file.write(f'export friction_vel={kwds['friction_vel']}\n')
+    file.write(f'export openMP={kwds['openMP']}\n')
     file.write(f'export pblh={kwds['pblh']}\n')
     file.write(f'export namelist={kwds['namelist']}\n')
+    file.write(f'export CaseCells=cells\n')
+    file.write("""
+if [ "$1" == "continue" ] ; then
+case "$2" in
+    ''|*[!0-9]*) echo Continuing max $rounds steps;;
+    *) echo Continuing max $2 steps
+       export rounds=$2 ;;
+esac
+fi
+
+[ ! -z "${interactive+x}" ] && [ "$interactive" == '1' ] && xterm -e "python -i ${arca}/ModelLib/mixer2d/DrawK.py" &
+
+        """)
     file.write('\n')
-    file.write('[ "$1" == "init" ] || [ "$1" == "continue" ] || [ "$1" == "post" ] && bash ${arca}/ModelLib/mixer2d/wall2D.sh $@')
+    file.write('echo\n')
+    file.write('echo Usage:\n')
+    file.write('echo source wall2DSettings.sh init       - to initialize and start simulation\n')
+    file.write('echo source wall2DSettings.sh continue   - to continue previously initialized simulation\n')
+    file.write('echo source wall2DSettings.sh post       - to combine data and plot\n')
+    file.write('[ "$1" == "init" ] || [ "$1" == "continue" ] || [ "$1" == "post" ] && bash ${arca}/ModelLib/mixer2d/wall2D.sh $@\n')
     file.close()
 
 if __name__ == "__main__":

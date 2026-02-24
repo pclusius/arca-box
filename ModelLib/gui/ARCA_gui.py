@@ -1705,10 +1705,11 @@ Please provide valid spectral function.') \
         self.plumeInitialisationSettings.setText(get_config("2Dwall", "plumeinitialisationsettings", fallback=''))
         self.bottomContSettings.setText(get_config("2Dwall", "bottomcontsettings", fallback=''))
         self.dx.setText(get_config("2Dwall", "dx", fallback='10.0'))
+        self.ddz.setText(get_config("2Dwall", "ddz", fallback='0.0'))
         self.nVerticalLayers.setText(get_config("2Dwall", "nverticallayers", fallback='80'))
         self.nHorisontalColumns.setText(get_config("2Dwall", "nhorisontalcolumns", fallback='99'))
         self.zIndexPlume.setText(get_config("2Dwall", "zindexplume", fallback='12'))
-        self.yIndexPlume.setText(get_config("2Dwall", "yindexplume", fallback='49'))
+        self.yIndexPlume.setText(get_config("2Dwall", "yindexplume", fallback=f'{int(self.nHorisontalColumns.text())//2}'))
         self.tLapseRate.setText(get_config("2Dwall", "tlapserate", fallback='9.8'))
         self.pLapseRate.setText(get_config("2Dwall", "plapserate", fallback='b'))
         self.mixingTimestep.setText(get_config("2Dwall", "mixingtimestep", fallback='1'))
@@ -1716,6 +1717,7 @@ Please provide valid spectral function.') \
         self.totalRuntime.setText(get_config("2Dwall", "totalruntime", fallback='900'))
         self.KyKz.setText(get_config("2Dwall", "KyKz", fallback='2.0'))
         self.randomize_k_cb.setChecked(int(get_config("2Dwall", "randomize_k", fallback='1')))
+        self.openMP.setChecked(int(get_config("2Dwall", "openmp", fallback='1')))
         self.namelist.setChecked(int(get_config("2Dwall", "namelist", fallback='0')))
         self.scaleConcWithAltitude.setChecked(int(get_config("2Dwall", "scaleconcwithaltitude", fallback='1')))
         self.friction_vel.setText(get_config("2Dwall", "friction_vel", fallback='0.16'))
@@ -1806,6 +1808,7 @@ Please provide valid spectral function.') \
         set_config("2Dwall", "backgroundcontsettings",self.backgroundContSettings.text())
         set_config("2Dwall", "bottomcontsettings",self.bottomContSettings.text())
         set_config("2Dwall", "dx",self.dx.text())
+        set_config("2Dwall", "ddz",self.ddz.text())
         set_config("2Dwall", "nverticallayers",self.nVerticalLayers.text())
         set_config("2Dwall", "nhorisontalcolumns",self.nHorisontalColumns.text())
         set_config("2Dwall", "zindexplume",self.zIndexPlume.text())
@@ -1817,6 +1820,7 @@ Please provide valid spectral function.') \
         set_config("2Dwall", "totalruntime",self.totalRuntime.text())
         set_config("2Dwall", "kykz",self.KyKz.text())
         set_config("2Dwall", "randomize_k",str(int(self.randomize_k_cb.isChecked())))
+        set_config("2Dwall", "openmp",str(int(self.openMP.isChecked())))
         set_config("2Dwall", "scaleconcwithaltitude",str(int(self.scaleConcWithAltitude.isChecked())))
         set_config("2Dwall", "friction_vel",self.friction_vel.text())
         set_config("2Dwall", "pblh",self.pblh.text())
@@ -1834,6 +1838,7 @@ Please provide valid spectral function.') \
                 backgroundContSettings=osjoin(currentdir,self.backgroundContSettings.text()),
                 bottomContSettings=bottom,
                 dx=self.dx.text(),
+                ddz=self.ddz.text(),
                 nVerticalLayers=self.nVerticalLayers.text(),
                 nHorisontalColumns=self.nHorisontalColumns.text(),
                 zIndexPlume=self.zIndexPlume.text(),
@@ -1846,6 +1851,7 @@ Please provide valid spectral function.') \
                 arca=f'{currentdir}/',
                 KyKz=self.KyKz.text(),
                 randomize_k=str(int(self.randomize_k_cb.isChecked())),
+                openMP=str(int(self.openMP.isChecked())),
                 scaleConcWithAltitude=str(int(self.scaleConcWithAltitude.isChecked())),
                 friction_vel=self.friction_vel.text(),
                 pblh=self.pblh.text(),

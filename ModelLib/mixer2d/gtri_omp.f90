@@ -1,6 +1,8 @@
 program gtritest
 use variables
 use seq_file_names
+USE OMP_LIB
+
 implicit none
 
 call cmdline()
@@ -13,33 +15,57 @@ call init()
 call init_gas()
 call calculate_grid_parameters()
 call update_sigma_z()
-call update_sigma_y()
+if (ny>2) then
+  call update_sigma_y()
+end if
 
-do im=1,mixstep ! loop through mixstep - meteo timestep
-  ! print*, im
-  do ic=1,NSPEC ! loop through components
+call update_terms_z(sigmaz,dt_mete)
+if (ny>2) then
+  do iz=2,nz
+    call update_terms_y(sigmahor(iz,:),termay(:,iz),termby(:,iz),termcy(:,iz),dt_mete)
+    if (iz==5) call save_sigma
+  end do
+else
+  call save_sigma
+end if
+
+! Cminor=0d0
+
+!$OMP PARALLEL PRIVATE(Cminor) SHARED(Cmajor)
+
+allocate(Cminor(NSPEC,nz,ny))
+cminor=0d0
+!$OMP DO
+do ic=1,NSPEC ! loop through components
+  Cminor(ic,:,:) = Cmajor(ic,:,:)
+  do im=1,mixstep ! loop through mixstep - meteo timestep
     do iy=1,ny
-      if (iy==1.and.ic==1.and.im==1) call update_terms_z(sigmaz,dt_mete)
-      call gtri(a=termaz, c=termcz, b=termbz, d=Cmajor(ic,:,iy), p=Cmajor1(ic,:,iy), &
-      l1=1, a1=a0Gz(ic,iy), q1=3.0d0, lm=1, am=amGz(ic,iy), qm=3.0d0, nz=nz, l2=2)
-      ! l1=1, a1=0d0, q1=3.0d0, lm=2, am=amGz(ic,iy), qm=3.0d0, nz=nz, l2=2)
-    Cmajor(ic,:,iy) = Cmajor1(ic,:,iy)
+      call gtri(a=termaz, c=termcz, b=termbz, d=Cminor(ic,:,iy), p=Cminor(ic,:,iy), &
+      l1=1, a1=a0Gz(Cminor,ic,iy), q1=3.0d0, lm=1, am=amGz(Cminor,ic,iy), qm=3.0d0, nz=nz, l2=2)
+    ! Cminor(ic,:,iy) = Cminora(ic,:,iy)
     end do
-    do iz=2,nz
-      if (ic==1.and.im==1) then
-        call update_terms_y(sigmahor(iz,:),termay(:,iz),termby(:,iz),termcy(:,iz),dt_mete)
-      end if
-      if (ic==1.and.im==1.and.iz==5) then
-        call save_sigma
-      end if
-      call gtri(a=termay(:,iz), c=termcy(:,iz), b=termby(:,iz), d=Cmajor(ic,iz,:), p=Cmajor1(ic,iz,:), &
-                l1=2, a1=a0G(ic,iz), q1=3.0d0, lm=2, am=amG(ic,iz), qm=3.0d0, nz=ny, l2=2)
-    end do
-  end do ! end loop through components
-  ! Cmajor1(:,1,:) = Cmajor1(:,2,:)
-  where (Cmajor1<0d0) Cmajor1=0d0
-  Cmajor = Cmajor1
-end do ! end loop through mixstep
+    if (ny>2) then
+      do iz=2,nz
+        call gtri(a=termay(:,iz), c=termcy(:,iz), b=termby(:,iz), d=Cminor(ic,iz,:), p=Cminor(ic,iz,:), &
+                  l1=2, a1=a0G(Cminor,ic,iz), q1=3.0d0, lm=2, am=amG(Cminor,ic,iz), qm=3.0d0, nz=ny, l2=2)
+      ! Cminor(ic,iz,:) = Cminora(ic,iz,:)
+      end do
+    end if
+  end do ! end loop through mixstep
+
+end do ! end loop through components
+!$OMP END DO
+
+!$OMP BARRIER
+if (OMP_GET_THREAD_NUM() == 0) Cmajor = 0d0
+
+!$OMP BARRIER
+!$OMP CRITICAL
+where (Cminor<0d0) Cminor=0d0
+Cmajor = Cminor + Cmajor
+!$OMP END CRITICAL
+
+!$OMP END PARALLEL
 
 call dump_gases()
 
@@ -79,9 +105,13 @@ subroutine init()
     print '(a, t12,a)', 'path', path
   end if
 
-  Z = [ (iz*dx, iz=0,nz-1) ]
+  ! dz= [ (iz*ddz, iz=0,nz-1) ]
+  dz = [ (dx + iz*ddz, iz=0,nz-2) ]
+  z = [0d0,[(sum(dz(2:iz+1)), iz=1,nz-1)]]
+
+  ! Z = [ (iz*dx, iz=0,nz-1) ]
   Y = [ (iy*dx, iy=0,ny-1) ]
-  dz = Z(2:)-z(1:nz-1)
+  ! dz = Z(2:)-z(1:nz-1)
   dy = Y(2:)-Y(1:ny-1)
   daz = 1
   day = 1
@@ -89,7 +119,6 @@ subroutine init()
   dby = 1
   dcz = 1
   dcy = 1
-
   i_file = findex(TRIM(path)//'/001/001/CFINAL_',4,'.r16')
   if (advance==0) i_file = max(0,i_file)
   print '(a,i0.4,a)', 'reading from '//TRIM(path)//'/*/*/CFINAL_',i_file,'.r16'
@@ -101,30 +130,13 @@ end subroutine init
 subroutine init_gas()
   implicit none
   integer :: i,j
-  if (initW_Previous) then
-    do i=1,nz
-    do j=1,ny
+  do i=1,nz
+  do j=1,ny
     call readBin(ch_gas,i,j)
     Cmajor(:,i,j) = ch_gas
-    end do
-    end do
-  else
-    Cmajor = 1D0
-  end if
-
-  if (i_init==1) THEN
-    print*, 'Intialization of plume'
-    C = 1d0
-    C(point_z,point_y) = point_multi
-    do i=1,NSPEC
-      if (i==2201.or.i==2206.or.i==2209.or.i==2207.or.i==1) THEN
-        Cmajor(i,:,:) = Cmajor(i,:,:) * C
-      end if
-    end do
-  ELSE
-    print*, 'Mixing input'
-  END IF
-
+  end do
+  end do
+  Cmajora = Cmajor
 end subroutine init_gas
 
 subroutine dump_gases()
@@ -141,6 +153,8 @@ end subroutine dump_gases
 subroutine calculate_grid_parameters()
   implicit none
   integer :: k
+  real(dp):: gmod(nz)
+  logical :: blh
 
   do k=2,nz-1
      daz(k)=dz(k+1)*(dz(k)+dz(k+1))
@@ -151,6 +165,7 @@ subroutine calculate_grid_parameters()
 
   dfz(1)=dfz(2)
 
+#if fnHorisontalColumns > 3
   do k=2,ny-1
      day(k)=dy(k+1)*(dy(k)+dy(k+1))
      dby(k)=dy(k)*dy(k+1)
@@ -158,18 +173,30 @@ subroutine calculate_grid_parameters()
      dfy(k)=(dy(k+1)+dy(k))/dy(k+1)/4.0d0
   enddo
   dfy(1)=dfy(2)
-
+#endif
   ! Grisogono scheme
-  sigmaz0 = MAX(1d-1,0.39*friction_vel*z*exp(-0.5*(z/(0.21*pblh))**2.))
+  ! sigmaz0 = MAX(1d-1,0.39*friction_vel*z*exp(-0.5*(z/(0.21*pblh))**2.))
 
+  ! Modified Grisogono scheme
+  sigmaz0 = 0.39*friction_vel*z*exp(-0.5*(z/(0.23*pblh))**2.)
+  Gmod = EXP(-3d0/(2d0*pblh)*z)
+  sigmaz0 = MAX(1d-1, Gmod*( sigmaz0 + (dx/2d0)*friction_vel ) )
+  inquire(file=TRIM(path)//'/../settings/Kdraw.txt',EXIST=blh)
+  if (blh) THEN
+    open(32,file=TRIM(path)//'/../settings/Kdraw.txt',action='READ')
+    read(32,*) sigmaz0
+    close(32)
+    print*, 'using K from sketch...'
+  end if
 end subroutine calculate_grid_parameters
 
 subroutine update_sigma_z()
 implicit none
 integer :: i
+real(dp):: rf=0.25d0
 if (randomize_k==1) &
   call random_number(random_z)
-sigmaz = sigmaz0 * ( 0.5 + random_z ) ! * k0 * sigmaK
+sigmaz = sigmaz0 * ((1-rf + 0.5*rf)+random_z*rf) ! * k0 * sigmaK
 where (sigmaz<0.1)
   sigmaz = 0.1
 end where
@@ -181,10 +208,11 @@ end subroutine update_sigma_z
 subroutine update_sigma_y()
 implicit none
 integer :: iz
+real(dp):: rf=0.25d0
 if (randomize_k==1) &
   call random_number(random_y)
 do iz=1,nz
-  sigmahor(iz,:) = KyKz * ( 0.5 + random_y ) * sigmaz(iz)
+  sigmahor(iz,:) = KyKz * ((1-rf + 0.5*rf)+random_y*rf) * sigmaz(iz)
 end do
 where (sigmahor<0.1)
   sigmahor = 0.1
@@ -268,7 +296,7 @@ SUBROUTINE gtri(a, c, b, d, p, l1, a1, q1, lm, am, qm, nz, l2)
 
   e=0d0
   f=0d0
-
+  !
   IF(l1.EQ.1) e(l2-1)=0.0d0
   IF(l1.EQ.1) f(l2-1)=a1
   IF(l1.EQ.2) e(l2-1)=1.0d0
@@ -321,30 +349,42 @@ write (1,rec=1) X
 close(1)
 end subroutine writeBin
 
-real(dp) function amG(ic,iz)
+real(dp) function amG(CM,ic,iz)
 implicit none
 integer :: ic,iz
-amG = (Cmajor(ic,iz,ny-1)-Cmajor(ic,iz,ny-2))/dx
+real(dp) :: CM(:,:,:)
+#if fnHorisontalColumns > 3
+  amG = (CM(ic,iz,ny-1)-CM(ic,iz,ny-2))/dx
+#else
+  amG = 0d0
+#endif
 end function amG
 
-real(dp) function a0G(ic,iz)
+real(dp) function a0G(CM,ic,iz)
 implicit none
 integer :: ic,iz
-a0G = (Cmajor(ic,iz,3)-Cmajor(ic,iz,2))/dx
+real(dp) :: CM(:,:,:)
+#if fnHorisontalColumns > 3
+  a0G = (CM(ic,iz,3)-CM(ic,iz,2))/dx
+#else
+  a0G = 0d0
+#endif
 end function a0G
 
-real(dp) function amGz(ic,iy)
+real(dp) function amGz(CM,ic,iy)
 implicit none
 integer :: ic,iy
-! amGz = (Cmajor(ic,nz-1,iy)-Cmajor(ic,nz-2,iy))/dx
-amGz = 2d0*Cmajor(ic,nz-1,iy) - Cmajor(ic,nz-2,iy)
+real(dp) :: CM(:,:,:)
+amGz = (Cmajor(ic,nz-1,iy)-Cmajor(ic,nz-2,iy))/dz(nz)
+! amGz = 2d0*CM(ic,nz-1,iy) - CM(ic,nz-2,iy)
 end function amGz
 
-real(dp) function a0Gz(ic,iy)
+real(dp) function a0Gz(CM,ic,iy)
 implicit none
 integer :: ic,iy
-! a0Gz = (Cmajor(ic,2,iy)-Cmajor(ic,3,iy))/dx
-a0Gz = 2d0*Cmajor(ic,2,iy) - Cmajor(ic,3,iy)
+real(dp) :: CM(:,:,:)
+a0Gz = (Cmajor(ic,2,iy)-Cmajor(ic,3,iy))/dz(3)
+! a0Gz = 2d0*CM(ic,2,iy) - CM(ic,3,iy)
 end function a0Gz
 
 
