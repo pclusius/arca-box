@@ -1247,7 +1247,7 @@ subroutine FILL_INPUT_BUFF(unit,cols,INPUT_BF,Input_file)
             end do
             if (verbose) print FMT_SUB, i2chr(k)//'. row omitted from file "'// TRIM(Input_file) //'".'
             ! if (k==2) print*, dump
-        ELSE IF (verbose.and.(ioi /= 0) .and. (k>2)) THEN
+        ELSE IF (verbose.and.(ioi /= 0) .and. (k>2).and.(k<ROWCOUNT(unit))) THEN
             print FMT_WARN1, 'Bad value in file '// TRIM(Input_file) //'". Maybe a non-numeric on line '//i2chr(k)
         ELSE
             i=i+1

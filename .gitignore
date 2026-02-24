@@ -1,3 +1,13 @@
+*
+!src
+!src/**
+!install
+!install/**
+!ModelLib
+!ModelLib/**
+!INOUT
+!README.md
+!LICENCE
 build/*.o
 build/*.mod
 build/*/*
@@ -14,4 +24,3 @@ INOUT/**
 !INOUT/.gitkeep
 Asetuksia
 Asetuksia/*
-wall*
