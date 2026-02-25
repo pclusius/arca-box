@@ -108,10 +108,8 @@ subroutine init()
   ! dz= [ (iz*ddz, iz=0,nz-1) ]
   dz = [ (dx + iz*ddz, iz=0,nz-2) ]
   z = [0d0,[(sum(dz(2:iz+1)), iz=1,nz-1)]]
-
-  ! Z = [ (iz*dx, iz=0,nz-1) ]
   Y = [ (iy*dx, iy=0,ny-1) ]
-  ! dz = Z(2:)-z(1:nz-1)
+
   dy = Y(2:)-Y(1:ny-1)
   daz = 1
   day = 1
@@ -175,12 +173,12 @@ subroutine calculate_grid_parameters()
   dfy(1)=dfy(2)
 #endif
   ! Grisogono scheme
-  ! sigmaz0 = MAX(1d-1,0.39*friction_vel*z*exp(-0.5*(z/(0.21*pblh))**2.))
+  sigmaz0 = MAX(1d-1,0.39*friction_vel*z*exp(-0.5*(z/(0.21*pblh))**2.))
 
   ! Modified Grisogono scheme
-  sigmaz0 = 0.39*friction_vel*z*exp(-0.5*(z/(0.23*pblh))**2.)
-  Gmod = EXP(-3d0/(2d0*pblh)*z)
-  sigmaz0 = MAX(1d-1, Gmod*( sigmaz0 + (dx/2d0)*friction_vel ) )
+  ! sigmaz0 = 0.39*friction_vel*z*exp(-0.5*(z/(0.23*pblh))**2.)
+  ! Gmod = EXP(-3d0/(2d0*pblh)*z)
+  ! sigmaz0 = MAX(1d-1, Gmod*( sigmaz0 + (dx/2d0)*friction_vel ) )
   inquire(file=TRIM(path)//'/../settings/Kdraw.txt',EXIST=blh)
   if (blh) THEN
     open(32,file=TRIM(path)//'/../settings/Kdraw.txt',action='READ')

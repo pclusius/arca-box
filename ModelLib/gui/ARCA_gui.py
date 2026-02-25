@@ -28,8 +28,8 @@ from layouts import varWin,gui20,batchDialog1,batchDialog2,batchDialog3,vdialog,
 from modules import variations,vars,batch,GetVapourPressures as gvp,proc_reactivity,Stoichio
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT,check_output,CalledProcessError
-from numpy import argmin,argmax,linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround
-from numpy import argsort,trapz,ones,interp,genfromtxt,abs as npabs
+from numpy import argmin,argmax,linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround,cumsum
+from numpy import argsort,trapz,ones,interp,genfromtxt,abs as npabs, append as npappend
 import numpy.ma as ma
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname, remove as osremove, rename as osrename
 from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin, relpath as osrelpath
@@ -1699,6 +1699,7 @@ Please provide valid spectral function.') \
     # -----------------------
     # 2D
     # -----------------------
+        self.ddz.editingFinished.connect(self.update2DDomain)
         self.locationPlumeData.setText(get_config("2Dwall", "locationplumedata", fallback='INOUT/column'))
         self.initialisationSettings.setText(get_config("2Dwall", "initialisationsettings", fallback=''))
         self.backgroundContSettings.setText(get_config("2Dwall", "backgroundcontsettings", fallback=''))
@@ -1734,7 +1735,7 @@ Please provide valid spectral function.') \
         self.initialisationSettingsBrowse.clicked.connect(lambda: self.browse_path(self.initialisationSettings, 'file'))
         self.save2D.clicked.connect(self.save2Dsettings)
         self.saveAndStart2D.clicked.connect(self.save2DsettingsStart)
-
+        self.update2DDomain()
         # self.dtChem.setText(get_config("2Dwall", "dtChem", fallback='30'))
     # -----------------------
     # Help links
@@ -1793,6 +1794,16 @@ Please provide valid spectral function.') \
     # -----------------------
     # Class methods
     # -----------------------
+    def update2DDomain(self):
+        dx  = float(self.dx.text())
+        ddz = float(self.ddz.text())
+        nz  = int(self.nVerticalLayers.text())
+        ny  = int(self.nHorisontalColumns.text())
+        ww  = 0 if ny<3 else dx * ny
+        dz  = linspace(0,(nz-2)*ddz,nz-1)
+        hh  = npappend(0,cumsum(dz+dx))[-1]
+        self.domLabel.setText(f'Domain parameters (height × width: {hh:0.1f} × {ww:0.1f} m)')
+
     def load_2dsetting(self,file):
         if file is not None and exists(file):
             out = self.load_initfile(file)
