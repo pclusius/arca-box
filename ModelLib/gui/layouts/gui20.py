@@ -910,8 +910,6 @@ class Ui_MainWindow(object):
         spacerItem11 = QtWidgets.QSpacerItem(28, 124, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_5.addItem(spacerItem11)
         self.defUnit = QtWidgets.QComboBox(self.frame_2)
-        self.defUnit.setFrame(True)
-        self.defUnit.setModelColumn(0)
         self.defUnit.setObjectName("defUnit")
         self.defUnit.addItem("")
         self.defUnit.addItem("")
