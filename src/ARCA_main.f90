@@ -98,6 +98,7 @@ REAL(dp) :: Vol_chamber                         ! chamber volume [m³]
 REAL(dp) :: E_field = 0d0                       ! chamber Electric field (not implemented yet) [V/m]
 ! REAL(dp) :: wl_rates(2)                         ! Transient vector for storing reversible chemical loss rates for chamber [1/s]
 CHARACTER(len=64) :: CurrentChem, CurrentVers,SHA ! Name of the chemistry module and current compiled version and its hash
+integer                 :: idmps                !   intermediate variable to store dmps-data time index
 
 ! This block is handled by C preprocessor --------------------------!
 #ifdef CHEM
@@ -643,7 +644,8 @@ END IF
 
         PARTICLE_INIT: if (use_dmps .and. GTIME%min >= (dmps_ln*dmps_tres_min)) THEN
             ! Particles are read in from measuremensts throughout the simulation and saved to Particles.nc for comparison
-            CALL GeneratePSDfromInput( BG_PAR%sections,  BG_PAR%conc_matrix(min(dmps_ln+1, size(BG_PAR%time, 1)),:), conc_fit )
+            idmps = min(dmps_ln+1, size(BG_PAR%time, 1)) ! Storing the index is for some reason necessary for mac gfortran
+            CALL GeneratePSDfromInput( BG_PAR%sections,  BG_PAR%conc_matrix(idmps,:), conc_fit )
             conc_fit = conc_fit*dmps_multi
 
             ! If the mdodel is still in initialization mode, replace the model particles with measured
