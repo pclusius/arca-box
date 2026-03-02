@@ -839,7 +839,12 @@ IF (Aerosol_flag) then
             VAPOUR_PROP%density(ii)      = rho  ! kg/m3
 
             VAPOUR_PROP%molec_volume(ii) = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
-            VAPOUR_PROP%diff_vol(ii)     = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
+            if (TRIM(species_name)=='H2SO4') then
+              VAPOUR_PROP%diff_vol(ii)      = 4*6.11D0 + 2*2.31D0 + 22.9D0 ! O=4, H=2, S=1
+            else
+              VAPOUR_PROP%diff_vol(ii)     = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
+            end if
+
             VAPOUR_PROP%surf_tension(ii) = 0d0
             VAPOUR_PROP%alpha(ii)        = 1.0
             VAPOUR_PROP%c_sat(ii)        = 0d0
