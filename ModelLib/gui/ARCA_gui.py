@@ -48,11 +48,15 @@ from modules.updateINITFILE import updateINITFILE,parse_chamistry_NAMES,convertM
 try:
     from scipy.ndimage import gaussian_filter
     from scipy.signal import savgol_filter
-    from scipy.integrate import cumtrapz
     scipyIs = True
 except:
     print('Consider adding SciPy to your Python')
     scipyIs = False
+if scipyIs:
+    try:
+        from scipy.integrate import cumtrapz
+    except:
+        from scipy.integrate import cumulative_trapezoid as cumtrapz
 try:
     from modules import particles as par
     import netCDF4
