@@ -359,6 +359,7 @@ SUBROUTINE OPEN_FILES(filename, Description, CurrentChem,CurrentVers,SHA, MODS, 
       ELSE
         call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'Psat_A' , vapours%psat_a(j) ))
         call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'Psat_B' , vapours%psat_b(j) ))
+        call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'Psat_C' , vapours%psat_c(j) ))
       END IF
       if (vapours%cond_type(j)<2) &
         call handler(__LINE__, nf90_put_att(ncfile_ids(I), par_ind(j), 'surface_tension' , vapours%surf_tension(j) ))

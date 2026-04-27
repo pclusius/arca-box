@@ -225,6 +225,7 @@ type :: vapour_ambient
     integer, allocatable            :: cond_type(:)         ! 0 = Non-evaporating Generic, 1 = Organic vapour 2 = Acid 3=Base. cond_type >= 2 are inorganics
     real(dp), allocatable           :: molar_mass(:)        ! molar mass [kg]
     real(dp), allocatable           :: psat_a(:), psat_b(:) ! Parameters to calculate sat. vapour press.: log10(Psat) = a-b/T Psat=[atm]
+    real(dp), allocatable           :: psat_c(:)            ! Parameters to calculate sat. vapour press.: log10(Psat) = a-b/(T+C) Psat=[atm]
     real(dp), allocatable           :: alpha(:)             ! accomodation coefficient i.e. "sticking coef."= 1.0 []
     real(dp), allocatable           :: alphawall(:)         ! wall accomodation coefficient i.e. "sticking coef."= 1.0 []
     real(dp), allocatable           :: density(:)           ! bulk density of liquid [kg/m³]
@@ -249,6 +250,7 @@ TYPE :: vapourfile_input
   REAL(DP) :: Mass    = 0d0
   REAL(DP) :: par_A   = 0d0
   REAL(DP) :: par_B   = 0d0
+  REAL(DP) :: par_C   = 0d0
   REAL(DP) :: st      = 0d0
   REAL(DP) :: alpha_w = 0d0
   REAL(DP) :: density = 0d0

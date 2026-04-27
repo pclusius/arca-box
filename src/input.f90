@@ -234,6 +234,7 @@ real(dp)  :: lon              ! Longitude for Photochemistry
 real(dp)  :: CH_Albedo = 2d-1 ! Albedo
 real(dp)  :: DMA_f = 0
 real(dp)  :: resolve_BASE_precision = 1d-2
+real(dp)  :: OrgNuclNominalRate = 5e-13
 CHARACTER(3) :: Fill_formation_with = ''
 INTEGER   :: JD = -1
 Logical   :: skip_acdc = .True.
@@ -241,7 +242,7 @@ INTEGER   :: wait_for = 0 ! -1 for no pause, 0 for indefinite and positive value
 CHARACTER(1000)  :: Description = '*'
 CHARACTER(len=256)      :: GR_sizes = '6d-9 20d-9 30d-9'
 NAMELIST /NML_MISC/ lat, lon, wait_for, Description, CH_Albedo, DMA_f, resolve_BASE_precision, Fill_formation_with, skip_acdc, &
-                    GR_sizes
+                    GR_sizes,OrgNuclNominalRate
 
 ! Logical                 :: VAP_logical = .True. deprecated
 Logical                 :: Use_atoms = .False.
@@ -400,7 +401,7 @@ subroutine READ_INPUT_DATA()
     integer                           :: i, j, k, jj, path_l(2), N_Xtr = 0
     integer                           :: rows, cols, class
     LOGICAL                           :: elements_missing = .false.
-    real(dp)                          :: molar_mass, parameter_A, parameter_B,SURFACE_TENSION_buf=-1d0, ALPHAWALL_buf=-1d0,Henry, rho
+    real(dp)                          :: molar_mass, parameter_A, parameter_B,parameter_C,SURFACE_TENSION_buf=-1d0, ALPHAWALL_buf=-1d0,Henry, rho
     CHARACTER(len=256)                :: species_name
     CHARACTER(len=20), ALLOCATABLE    :: atoms_name(:)
     CHARACTER(len=2)    :: noacd
@@ -414,6 +415,7 @@ subroutine READ_INPUT_DATA()
     default_vap%Mass     = 0d0
     default_vap%par_A    = 0d0
     default_vap%par_B    = 0d0
+    default_vap%par_C    = 0d0
     default_vap%st       = SURFACE_TENSION
     default_vap%alpha_w  = ALPHAWALL
     default_vap%density  = ORGANIC_DENSITY
@@ -474,6 +476,7 @@ subroutine READ_INPUT_DATA()
     If (.not.Aerosol_flag)     Coagulation       = .false.
     If (.not.Aerosol_flag)     Deposition        = .false.
     if (.not.Condensation)     CALC_GR           = .false.
+    if (.not.ACDC)             ORG_NUCL          = .false.
     if (Chem_Deposition.and..not.condensation) THEN
       print FMT_FAT0, 'Chemical deposition only works if aerosol module and condensation is turned on.'
       stop 'Turn on "aerosols" and "condensation", use clean air if desired (without particles).'
@@ -700,6 +703,7 @@ IF (Aerosol_flag) then
     allocate(VAPOUR_PROP%molar_mass   (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%psat_a       (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%psat_b       (VAPOUR_PROP%n_cond_tot) )
+    allocate(VAPOUR_PROP%psat_c       (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%molec_mass   (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%molec_volume (VAPOUR_PROP%n_cond_tot) )
     allocate(VAPOUR_PROP%density      (VAPOUR_PROP%n_cond_tot) )
@@ -727,6 +731,7 @@ IF (Aerosol_flag) then
     ! -1 because GENERIC is not in gas phase. Ever. H2SO4 is picked from chemistry manually
     ALLOCATE(index_cond(VAPOUR_PROP%n_cond_tot))
     ! ALLOCATE(index_inorg(VAPOUR_PROP%n_cond_org+1:VAPOUR_PROP%n_cond_tot))
+    VAPOUR_PROP%psat_c = 0d0
 
     index_cond = 0
     ! index_inorg = 0
@@ -753,20 +758,23 @@ IF (Aerosol_flag) then
     rows = ROWCOUNT(802)
     ii = 1
     do j = 1, rows
+        parameter_C = 0d0
         if (CSV_INPUT) THEN
           read(802,*,iostat=ioi) vap_in
           species_name        = vap_in%Compound
           molar_mass          = vap_in%Mass
           parameter_A         = vap_in%par_A
           parameter_B         = vap_in%par_B
+          parameter_C         = vap_in%par_C
           SURFACE_TENSION_buf = vap_in%st
           ALPHAWALL_buf       = vap_in%alpha_w
           rho                 = vap_in%density
           vap_in              = default_vap
         ELSE
           if (cols==4) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B
-          if (cols==5) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, SURFACE_TENSION_buf
-          if (cols==6) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, SURFACE_TENSION_buf, ALPHAWALL_buf
+          if (cols==5) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, parameter_C
+          if (cols==6) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, parameter_C, SURFACE_TENSION_buf
+          if (cols==7) read(802,*,iostat=ioi)   species_name, molar_mass, parameter_A, parameter_B, parameter_C, SURFACE_TENSION_buf, ALPHAWALL_buf
         end IF
         if (j<=limit_vapours .or. j==rows) THEN ! j==rows is because "GENERIC" is selected even if limitvapours<rows
 
@@ -781,6 +789,7 @@ IF (Aerosol_flag) then
                 VAPOUR_PROP%molar_mass(ii)   = molar_mass *1D-3 ! kg/mol
                 VAPOUR_PROP%psat_a(ii)       = parameter_A
                 VAPOUR_PROP%psat_b(ii)       = parameter_B
+                VAPOUR_PROP%psat_c(ii)       = parameter_C
                 VAPOUR_PROP%vapour_names(ii) = TRIM(species_name)
                 VAPOUR_PROP%molec_mass(ii)   = VAPOUR_PROP%molar_mass(ii)/Na  !kg/#
                 if (TRIM(species_name)=='GENERIC') THEN
@@ -793,15 +802,15 @@ IF (Aerosol_flag) then
                 VAPOUR_PROP%molec_volume(ii) = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
                 VAPOUR_PROP%diff_vol(ii)     = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
 
-                if (cols==4) VAPOUR_PROP%surf_tension(ii) = SURFACE_TENSION
-                if (cols>=5.or.CSV_INPUT) THEN
+                if (cols<6) VAPOUR_PROP%surf_tension(ii) = SURFACE_TENSION
+                if (cols>=6.or.CSV_INPUT) THEN
                     if (SURFACE_TENSION_buf<0d0) VAPOUR_PROP%surf_tension(ii) = abs(SURFACE_TENSION_buf)*SURFACE_TENSION
                     if (SURFACE_TENSION_buf>=0d0) VAPOUR_PROP%surf_tension(ii) = SURFACE_TENSION_buf
                 end if
                 SURFACE_TENSION_buf = -1d0
 
-                if (cols<6) VAPOUR_PROP%alphawall(ii) = ALPHAWALL
-                if (cols>=6.or.CSV_INPUT) THEN
+                if (cols<7) VAPOUR_PROP%alphawall(ii) = ALPHAWALL
+                if (cols>=7.or.CSV_INPUT) THEN
                     if (ALPHAWALL_buf<0d0) VAPOUR_PROP%alphawall(ii) = abs(ALPHAWALL_buf)*ALPHAWALL
                     if (ALPHAWALL_buf>=0d0) VAPOUR_PROP%alphawall(ii) = ALPHAWALL_buf
                 end if
@@ -809,7 +818,7 @@ IF (Aerosol_flag) then
 
                 VAPOUR_PROP%alpha(ii)         = 1.0
                 ! this is just initial value, always gets updated with T
-                VAPOUR_PROP%c_sat(ii)         = saturation_conc_m3(VAPOUR_PROP%psat_a(ii),VAPOUR_PROP%psat_b(ii), 293.15d0)
+                VAPOUR_PROP%c_sat(ii)         = saturation_conc_m3(VAPOUR_PROP%psat_a(ii),VAPOUR_PROP%psat_b(ii),VAPOUR_PROP%psat_c(ii),  293.15d0)
 
                 ii = ii + 1
             END IF
@@ -840,7 +849,7 @@ IF (Aerosol_flag) then
 
             VAPOUR_PROP%molec_volume(ii) = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
             if (TRIM(species_name)=='H2SO4') then
-              VAPOUR_PROP%diff_vol(ii)      = 4*6.11D0 + 2*2.31D0 + 22.9D0 ! O=4, H=2, S=1
+              VAPOUR_PROP%diff_vol(ii)      = ( 4*6.11D0 + 2*2.31D0 + 22.9D0 ) * 1e-30 ! O=4, H=2, S=1 m^3
             else
               VAPOUR_PROP%diff_vol(ii)     = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
             end if
@@ -864,6 +873,7 @@ IF (Aerosol_flag) then
         VAPOUR_PROP%molar_mass(ii)    = 437.0 * 1d-3
         VAPOUR_PROP%psat_a(ii)        = 10
         VAPOUR_PROP%psat_b(ii)        = 1d4
+        VAPOUR_PROP%psat_c(ii)        = 0d0
         VAPOUR_PROP%density(ii)       = HARD_CORE_DENSITY
         VAPOUR_PROP%molec_mass(ii)    = VAPOUR_PROP%molar_mass(ii)/Na
         VAPOUR_PROP%molec_volume(ii)  = VAPOUR_PROP%molec_mass(ii)/VAPOUR_PROP%density(ii)
@@ -871,7 +881,7 @@ IF (Aerosol_flag) then
         VAPOUR_PROP%surf_tension(ii)  = SURFACE_TENSION
         VAPOUR_PROP%alpha(ii)         = 1.0
         ! this is just initial value, always gets updated with T
-        VAPOUR_PROP%c_sat(ii)         = saturation_conc_m3(VAPOUR_PROP%psat_a(ii),VAPOUR_PROP%psat_b(ii), 293.15d0)
+        VAPOUR_PROP%c_sat(ii)         = saturation_conc_m3(VAPOUR_PROP%psat_a(ii),VAPOUR_PROP%psat_b(ii),VAPOUR_PROP%psat_c(ii), 293.15d0)
     END IF
 
     VAPOUR_PROP%Mfractions  = 0.0
@@ -905,8 +915,8 @@ IF (Aerosol_flag) then
         DO j=1,VAPOUR_PROP%n_cond_org
             jj = IndexFromName(VAPOUR_PROP%vapour_names(j), atoms_name)
             if (jj>0) THEN
-                vapour_prop%diff_vol(j) = (Natoms(1,jj)*15.9D0 + Natoms(2,jj)*6.11D0 &
-                                          + Natoms(4,jj)*2.31D0 + Natoms(3,jj)*4.54D0) + Natoms(5,jj) * 22.9D0 ![Å^3]
+                vapour_prop%diff_vol(j) = (Natoms(1,jj)*15.9D0 + Natoms(2,jj)*6.11D0 + Natoms(4,jj)*2.31D0 &
+                                          + Natoms(3,jj)*4.54D0 + Natoms(5,jj) * 22.9D0 )  * 1e-30 ![m^3]
             ELSE
                 elements_missing = .true.
             END IF
@@ -935,11 +945,12 @@ IF (Aerosol_flag) then
     ! VAPOUR_PROP%diff_dia(ii)      = VAPOUR_PROP%molec_dia(ii)
 
     ! Now the volumes are updated, the diameter can be calculated
-    VAPOUR_PROP%molec_dia(:ii-1) = (6D0 * VAPOUR_PROP%molec_volume(:ii-1) / pi )**(1D0/3D0)  ! molecular diameter [m]
+    ii = vapour_prop%n_cond_org
+    VAPOUR_PROP%molec_dia(:ii) = (6D0 * VAPOUR_PROP%molec_volume(:ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
     if (use_diff_dia_from_diff_vol) THEN
-        VAPOUR_PROP%diff_dia(:ii-1) = (6D0 * 1d-30 * VAPOUR_PROP%diff_vol(:ii-1) / pi )**(1D0/3D0)  ! molecular diameter [m]
+        VAPOUR_PROP%diff_dia(:ii) = (6D0 * 1d-30 * VAPOUR_PROP%diff_vol(:ii) / pi )**(1D0/3D0)  ! molecular diameter [m]
     ELSE
-        VAPOUR_PROP%diff_dia(:ii-1) = VAPOUR_PROP%molec_dia(:ii-1)  ! molecular diameter [m]
+        VAPOUR_PROP%diff_dia(:ii) = VAPOUR_PROP%molec_dia(:ii)  ! molecular diameter [m]
     END IF
 
 end if

@@ -30,9 +30,11 @@ else
 end if
 
 ! Cminor=0d0
+do ic=1,8
+  Cmajor(29+(ic*100):128+((ic)*100),2:,:) = Cmajor(29+(ic*100):128+((ic)*100),2:,:) * Cmajor(29:128,2:,:)
+end do
 
 !$OMP PARALLEL PRIVATE(Cminor) SHARED(Cmajor)
-
 allocate(Cminor(NSPEC,nz,ny))
 cminor=0d0
 !$OMP DO
@@ -66,6 +68,17 @@ Cmajor = Cminor + Cmajor
 !$OMP END CRITICAL
 
 !$OMP END PARALLEL
+
+do ic=1,8
+  where (Cmajor(29:128,2:,:)>0d0)
+    Cmajor(29+(ic*100):128+((ic)*100),2:,:) = Cmajor(29+(ic*100):128+((ic)*100),2:,:) / Cmajor(29:128,2:,:)
+  elsewhere
+    Cmajor(29+(ic*100):128+((ic)*100),2:,:) = 0d0
+  end where
+end do
+
+where (Cmajor<0d0) Cmajor=0d0
+where (Cmajor/=Cmajor) Cmajor=0d0
 
 call dump_gases()
 

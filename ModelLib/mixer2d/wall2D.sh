@@ -102,7 +102,7 @@ if [ $CONT == 'post' ] ; then
   done ;
   done
 
-  python ../ModelLib/required/readWriteBin.py 2208 || exit
+  python ${arca}/ModelLib/required/readWriteBin.py 1 || exit
   exit
 fi
 
@@ -328,7 +328,7 @@ for c in $(seq ${nHorisontalColumns}); do
 done ;
 done
 
-python ../ModelLib/required/readWriteBin.py 2205
+python ${arca}/ModelLib/required/readWriteBin.py 1
 #
 
 

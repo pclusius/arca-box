@@ -3,6 +3,7 @@ from numpy.random import random
 import sys,os
 import numpy as np
 import matplotlib.pyplot as plt
+from subprocess import Popen, PIPE
 
 def read_bin(file='TIMESERIES.r16'):
     f = open(file, 'rb')
@@ -46,9 +47,14 @@ else:
 
 Nc=read_bin(dataroot+'/initial/background/CFINAL_0000.r16').shape[0]
 
-names=np.genfromtxt(f'{arca}/src/chemistry/Hyde_VAR_MCM/SPC_NAMES.txt',dtype=str)
-nd = {n:i for i,n in enumerate(names)}
+x = Popen(f'{arca}/arcabox.exe', stdout=PIPE)
+chem = x.stdout.readline().decode("utf-8").strip().split()[0]
+x.poll()
+chemPath = os.path.join('src','chemistry',chem)
 
+names=np.genfromtxt(f'{arca}/{chemPath}/SPC_NAMES.txt',dtype=str)
+nd = {n:i for i,n in enumerate(names)}
+print(f'# of gas components: {len(names)}')
 N=read_bin(dataroot+f'/{case}/001/001/c_ts.r16').shape[0]//Nc
 Kz = np.zeros((N,nz))
 if ny>2:
@@ -65,7 +71,11 @@ KyKz = np.array([float(open(f'{dataroot}/{case}/k-values/K-values_{i:04d}.txt', 
 C=np.zeros((N,nz,ny))
 
 if len(sys.argv)>1:
-    tt = sys.argv[1].split(',')
+    if '-' in sys.argv[1]:
+        iii = sys.argv[1]
+        tt = list(range(int(iii.split('-')[0]),1+int(iii.split('-')[1])))
+    else:
+        tt = sys.argv[1].split(',')
     try:
         component_index = [int(t) for t in tt]
     except:
@@ -89,14 +99,13 @@ if len(sys.argv)>1:
             name='particles'
         else:
             name = ','.join([names[ci] for ci in component_index])
-
+# breakpoint()
 # h = np.arange(1,nz+1)*dx/1000
 # h =
 
 dz=np.linspace(0,(nz-2)*ddz,nz-1)
 dz0 = dx
 h = np.append(0,np.cumsum(dz+dz0))/1000
-
 y = np.arange(ny)*dx
 y = (y - y[plumeY].mean())/1000
 t = np.arange(N)*boxRuntime
@@ -105,9 +114,11 @@ x = t*ws/1000
 #fig 1
 f,(ax)=plt.subplots(2,2,figsize=(14,12))
 ax=ax.flatten()
+# breakpoint()
 if ny>2:
     p1 = ax[0].pcolormesh(x,y,C[:,:,:].sum(1).T,cmap='nipy_spectral',norm='log')#,vmin=C[0,:,:].sum(0).min())
     plt.colorbar(p1, orientation='horizontal')
+
 p2 = ax[1].pcolormesh(x,h,C[:,:,:].sum(2).T,cmap='nipy_spectral',norm='log')#,vmin=C[0,:,:].sum(1).min())
 ax[0].set_title(f'{case}: {name}, total time: {t[-1]} s')
 ax[0].set_ylabel('Width (km)')

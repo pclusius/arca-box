@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 =============================================================================
 """
 
-from pdb import set_trace as bp
+# from pdb import set_trace as bp
 # try:
 import numpy as np
 import sys, csv
@@ -36,8 +36,8 @@ from scipy import optimize
 def fitSimple(T,A,B):
     return A - B/(T)
 
-def askfor(key):
-    return
+def A3(T,A,B,C):
+    return A - B/(T+C)
 
 def getVaps(runforever=False, args={}):
     filter_w_chem = False
@@ -93,18 +93,20 @@ def getVaps(runforever=False, args={}):
             print('Saving compounds with Psat < %6.2e to %s ... '%(float(args['psat_lim']), args['saveto']))
         except:
             print('Saturation vapour pressure limit was not a float.')
-            return('Saturation vapour pressure limit was not a float.',)
 
+    elif args['server'] == 'UMan' or args['server'] == 'VaPOrS':
+        try:
+            from openbabel import pybel
+        except:
+            print('This tool needs Openbabel. You can install it with python -m pip install openbabel')
+            return('This tool needs Openbabel. You can install it with python -m pip install openbabel')
 
-
-    if args['server'] == 'UMan':
         try:
             f = open(args['smilesfile'])
             smilesdir, smilesfile = os.path.split(args['smilesfile'])
         except:
             print('file not found:', args['smilesfile'])
             return('file not found: '+args['smilesfile'],)
-
 
         i = 0
         Calculate_mass = False
@@ -126,7 +128,6 @@ def getVaps(runforever=False, args={}):
             smiles = smiles[mask]
             names = np.array(names)[mask]
             mass = np.array(mass)[mask]
-
 
         if args['mcm_type'] == 'old':
             for line in f:
@@ -159,17 +160,37 @@ def getVaps(runforever=False, args={}):
         sigma = np.ones(n_temp)*0.2
         sigma[temp<268] = 0.8
         sigma[-1] = 0.8
-        buffer  = np.zeros((N, n_temp))
 
-        for i_s, cheese in enumerate(smiles):
-            # get_VP(temperatures, mySmiles,vp_method='',bp_method='',umanpath='/xyz'):
-            tmp = get_VP(temp,[cheese],vp_method=args['vp_method'],bp_method=args['bp_method'],umanpath=args['uMan_loc'],include_mass=Calculate_mass)
-            if i_s == 0 and 'str' in str(type(tmp)):
-                return ('FAILED' ,tmp)
-            if i_s%100 == 0: print(f'Working with compound nr {i_s:0d}')
-            buffer[i_s,:] = tmp[cheese]
-            if Calculate_mass:
-                mass[i_s] = tmp[cheese+'_Mw']
+        buffer = np.zeros((N, n_temp))
+        if args['server'] == 'VaPOrS':
+            n_Ant = 3
+            ABC = np.zeros((N, 3))
+            sys.path.insert(0,os.path.abspath(args['VaPOrS_loc']))
+            import VaPOrS_api
+        else:
+            n_Ant = 2
+
+        if args['server'] == 'UMan':
+            for i_s, cheese in enumerate(smiles):
+                if i_s%100 == 0: print(f'Working with compound nr {i_s:0d}')
+                # get_VP(temperatures, mySmiles,vp_method='',bp_method='',umanpath='/xyz'):
+                tmp = get_VP(temp,[cheese],vp_method=args['vp_method'],bp_method=args['bp_method'],umanpath=args['uMan_loc'],include_mass=Calculate_mass)
+                if i_s == 0 and 'str' in str(type(tmp)):
+                    return ('FAILED' ,tmp)
+                buffer[i_s,:] = tmp[cheese]
+                if Calculate_mass:
+                    mass[i_s] = tmp[cheese+'_Mw']
+        elif args['server'] == 'VaPOrS':
+            i_s = 0
+            path, file = os.path.split(args['saveto'])
+            prefix,suffix = os.path.splitext(file)
+            vFileOut = os.path.join(path,prefix+'_VaPOrS'+suffix)
+            for aa,bb,cc in VaPOrS_api.simpol_saturation_pressure_gen(smiles,filename_out=vFileOut,yieldABC=True ):
+                ABC[i_s,:] = aa,bb,cc
+                buffer[i_s,:] = A3(temp, *ABC[i_s,:])
+                if Calculate_mass:
+                    mass[i_s] = pybel.readstring('smi',smiles[i_s]).molwt
+                i_s += 1
 
         n_homs = 0
 
@@ -188,17 +209,21 @@ def getVaps(runforever=False, args={}):
             mass = np.append(mass,hom_mass)
             try:
                 hom_atoms = np.genfromtxt(props,usecols=(3,6,5,4))
-                hom_atoms_full = np.zeros( (hom_atoms.shape[0],7 )  )
+                hom_atoms_full = np.zeros( (hom_atoms.shape[0],8 )  )
                 hom_atoms_full[:,:4] = hom_atoms
             except:
                 print('Cannot find elemental information from extra file')
 
         prop_matrix = np.zeros((N+n_homs, n_temp))
         prop_matrix[:N,:] = buffer
+        if args['server'] == 'VaPOrS':
+            allABC = np.zeros((N+n_homs, 3))
+            allABC[:N,:] = ABC
 
         if args['pram']:
             for i,v in enumerate(homs):
                 prop_matrix[i+N,:] = fitSimple(temp,HomA[i], HomB[i] )
+                if args['server'] == 'VaPOrS': allABC[i+N,:] = HomA[i],HomB[i], 0.0
 
 
         a,b=np.unique(names,return_counts=True)
@@ -207,6 +232,8 @@ def getVaps(runforever=False, args={}):
         selected_vapours = prop_matrix[10**(prop_matrix[:,n_temp//2]) < float(args['psat_lim'])]
         selected_vapournames = names[10**(prop_matrix[:,n_temp//2]) < float(args['psat_lim'])]
         selected_vapourmass = mass[10**(prop_matrix[:,n_temp//2]) < float(args['psat_lim'])]
+        if args['server'] == 'VaPOrS':
+            selected_abc = allABC[10**(prop_matrix[:,n_temp//2]) < float(args['psat_lim'])]
         if filter_w_chem:
             filter_a = [False]*len(selected_vapours)
             for i in range(len(selected_vapours)):
@@ -217,10 +244,12 @@ def getVaps(runforever=False, args={}):
             selected_vapours = selected_vapours[filter_a]
             selected_vapournames = selected_vapournames[filter_a]
             selected_vapourmass = selected_vapourmass[filter_a]
+            selected_abc = selected_abc[filter_a]
 
         N = np.size(selected_vapours,0)
         print(N, ' compounds selected'+ending)
-        MAB = np.zeros((N,3))
+
+        MAB = np.zeros((N,n_Ant+1))
         # np.savetxt('Vapour_names.dat', selected_vapournames, fmt='%s')
 
         # Determine elemental composition from SMILES
@@ -253,10 +282,13 @@ def getVaps(runforever=False, args={}):
 
         for i in range(N):
             MAB[i,0] = selected_vapourmass[i]
-            try:
-                MAB[i,1:], pcovS = optimize.curve_fit(fitSimple, temp, selected_vapours[i,:], maxfev = 100000, sigma=sigma)
-            except:
-                print('WARNING: Failed to fit Antoine equation to : '+selected_vapournames[i])
+            if n_Ant==2:
+                try:
+                    MAB[i,1:], pcovS = optimize.curve_fit(fitSimple, temp, selected_vapours[i,:], maxfev = 100000, sigma=sigma)
+                except:
+                    print('WARNING: Failed to fit Antoine equation to : '+selected_vapournames[i])
+            else:
+                MAB[i,1:] = selected_abc[i,:]
 
         names = selected_vapournames.tolist()
 
@@ -268,7 +300,8 @@ def getVaps(runforever=False, args={}):
         ii = names.index('GENERIC')
     if ii == -1:
         names.append('GENERIC')
-        MAB = np.append(MAB, [[437,10,10000]], axis=0)
+        gen = [437,10,10000] if n_Ant==2 else [437,10,10000,0]
+        MAB = np.append(MAB, [gen], axis=0)
         # if save_atoms: atoms = np.append(atoms, [[22,30,0,2,0,0,0]], axis=0)
     elif ii<len(names)-1 and ii>-1:
         print('GENERIC moved to last...')
@@ -289,13 +322,18 @@ def getVaps(runforever=False, args={}):
 
     count = 0
     f = open(args['saveto'], 'w')
-    f.write( '#Compound                    Mass                        parameter_A              parameter_B\n')
+    f.write( '#Compound                    Mass                        parameter_A              parameter_B              parameter_C\n')
     # print(names)
-    for name,m,A,B in zip(names,MAB[:,0],MAB[:,1],MAB[:,2]):
+    for name,m,ABc in zip(names,MAB[:,0],MAB[:,1:]):
+        if len(ABc)==2:
+            A,B,C = *ABc,0
+        else:
+            A,B,C = ABc
+
         if name == 'GENERIC' or name == 'HOA':
             print('\nNOTE!: The list contains a generic/pseudovapour which is not found in the gas phase: '+name)
-        if 10**(A-B/298.15)<float(args['psat_lim']):
-            f.write('%-18s   %24.12f   %24.12f   %24.12f\n' %(name,m,A,B))
+        if 10**(A-B/(298.15+C))<float(args['psat_lim']):
+            f.write('%-18s   %24.12f   %24.12f   %24.12f   %24.12f\n' %(name,m,A,B,C))
             count += 1
             if save_atoms:
                 fa.write('%-18s   %24.12f %3d %3d %3d %3d %3d %3d %3d %3d\n' %(name,m,*atomlib[name]))
@@ -331,12 +369,8 @@ def get_VP(temperatures, mySmiles,vp_method='',bp_method='',umanpath='/xyz',incl
     #                                                                                        #
     ##########################################################################################
     try:
-        from openbabel import pybel
-    except:
-        print('Openbabel is needed for umansysprop. You can install it with python -m pip install openbabel')
-        return('Openbabel is needed for umansysprop. You can install it with python -m pip install openbabel')
-    try:
         from flask import request
+        from openbabel import pybel
     except:
         print('Flask-WTF is needed for umansysprop. You can install it with python -m pip install -U Flask-WTF')
         return('Flask-WTF is needed for umansysprop. You can install it with python -m pip install -U Flask-WTF')

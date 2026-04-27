@@ -446,12 +446,12 @@ pure function gauss(x,mu,sig) result(zz)
 end function gauss
 
 
-pure elemental function saturation_conc_m3(A,B, Temperature) result(Vapour_concentration)
-  real(dp), intent(in) :: A, B, temperature
+pure elemental function saturation_conc_m3(A,B,C, Temperature) result(Vapour_concentration)
+  real(dp), intent(in) :: A, B,C, temperature
   real(dp) :: Vapour_concentration, vapour_pressure
 
   ! Using antoine equation log_10(p) = A- (B/T)
-  vapour_pressure      = 10 ** (A - (B/temperature)) ! in atm
+  vapour_pressure      = 10 ** (A - (B/(temperature + C))) ! in atm
   Vapour_concentration = (vapour_pressure*101325)/(kb * temperature) ! #/m3
 
 end function saturation_conc_m3

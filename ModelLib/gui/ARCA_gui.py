@@ -29,7 +29,11 @@ from modules import variations,vars,batch,GetVapourPressures as gvp,proc_reactiv
 from modules.grepunit import grepunit
 from subprocess import Popen, PIPE, STDOUT,check_output,CalledProcessError
 from numpy import argmin,argmax,linspace,log10,sqrt,log,exp,pi,sin,shape,unique,array,ndarray,where,newaxis,flip,zeros, sum as npsum, mean, round as npround,cumsum
-from numpy import argsort,trapz,ones,interp,genfromtxt,abs as npabs, append as npappend
+from numpy import argsort,ones,interp,genfromtxt,abs as npabs, append as npappend
+try:
+    from numpy import trapz
+except:
+    from numpy import trapezoid as trapz
 import numpy.ma as ma
 from os import walk, mkdir, getcwd, chdir, chmod, environ, system, name as osname, remove as osremove, rename as osrename
 from os.path import exists, dirname, getmtime, abspath, split as ossplit, join as osjoin, relpath as osrelpath
@@ -665,18 +669,21 @@ class VpressWin(QtWidgets.QDialog):
         self.vp = vdialog.Ui_Dialog()
         self.vp.setupUi(self)
         self.vp.VapourClose.clicked.connect(self.reject)
-        self.vp.UmanFrame.setEnabled(True)
-        # self.vp.useUMan.toggled.connect(lambda: qt_box.grayIfNotChecked(self.vp.useUMan,self.vp.UmanFrame))
+        self.vp.useUmansysprop.toggled.connect(lambda: qt_box.grayIfChecked(self.vp.useUmansysprop,self.vp.vaporsBox))
+        self.vp.useVapors.toggled.connect(lambda: qt_box.grayIfChecked(self.vp.useVapors,self.vp.UmanBox))
         self.vp.massSmilesButton.clicked.connect(lambda: qt_box.browse_path(self.vp.lineEdit, 'file',
             ftype="*mcm_subset_mass.txt *mcm_export_species.tsv *.csv *.ssv *.tsv"))
         self.vp.PramButton.clicked.connect(lambda: qt_box.browse_path(self.vp.pramFile, 'file'))
         self.vp.browseVapourPath.clicked.connect(self.filename)
         self.vp.createVapourFileButton.clicked.connect(self.saveVapours)
         self.vp.UmanWWW.clicked.connect(lambda: qt_box.helplink('umanweb'))
+        self.vp.VaPOrSWWW.clicked.connect(lambda: qt_box.helplink('vaporsweb'))
         self.vp.manualVap.clicked.connect(lambda: qt_box.helplink('CreateVapourFile'))
         self.vp.mainFrame.setFont(qt_box.font)
         uMan_loc = get_config("paths", "uMan_loc", fallback='The path to local UManSYsProp needs to be specified here')
+        vPress_loc = get_config("paths", "vPress_loc", fallback='The path to local VaPOrS needs to be specified here')
         self.vp.UManSys_location.setText(uMan_loc)
+        self.vp.vapors_location.setText(vPress_loc)
         self.vp.vpCombo.currentIndexChanged.connect(self.grayEvap)
 
     def grayEvap(self):
@@ -697,6 +704,7 @@ class VpressWin(QtWidgets.QDialog):
         """This tool creates the Vapour and Elements files from user input or from the AMG server."""
 
         set_config("paths", "uMan_loc", self.vp.UManSys_location.text()  )
+        set_config("paths", "vPress_loc", self.vp.vapors_location.text()  )
 
         filterlist = []
         if self.vp.filterWChem.isChecked():
@@ -715,7 +723,13 @@ class VpressWin(QtWidgets.QDialog):
         if self.vp.VapourPath.text() == '':
             qt_box.popup('Oops...', 'Output filename must be defined.',1)
             return
-        source = 'UMan'
+        if self.vp.useUmansysprop.isChecked():
+            source = 'UMan'
+        elif self.vp.useVapors.isChecked():
+            source = 'VaPOrS'
+        else:
+            qt_box.popup('Select a method','Please select the method for calculating the vapor pressures: UManSYsProp or VaPOrS',1)
+            return
         # else: source = 'AMG'
         if self.vp.limPsat.text() == '' : plim = 1e-6
         else : plim = self.vp.limPsat.text()
@@ -735,6 +749,7 @@ class VpressWin(QtWidgets.QDialog):
         'bp_method':bp_method[self.vp.bpCombo.currentIndex()],
         'server':source,
         'uMan_loc':self.vp.UManSys_location.text(),
+        'VaPOrS_loc':self.vp.vapors_location.text(),
         'smilesfile':self.vp.lineEdit.text(),
         'pram':self.vp.usePRAM.isChecked(),
         'pramfile':self.vp.pramFile.text(),
@@ -2068,7 +2083,7 @@ Please provide valid spectral function.') \
             Z = N * acl / (sum( acl ))
             ndel = -min(nb-1, 8)
             Z[ndel:] = where(Z[ndel:]>1e-12, 0,Z[ndel:])
-            self.massLabel.setText('Total mass: %9.2e µg/m3 (Density: 1.4g/cm³)'%(npsum(Z*(pi*x**3)/6)*1.4e3*1e15))
+            self.massLabel.setText('Total mass: %9.2e µg/m3 (Density: 2.2g/cm³)'%(npsum(Z*(pi*x**3)/6)*2.2e3*1e15))
             self.areaLabel.setText('Total Area: %9.2e µm2/cm3 '%(npsum(Z*(pi*x**2))*1e12))
             self.csLabel.setText(f'CS: {sum(1e6*Z*collision_rate(x,None,298,1e5)):9.2e} s⁻¹')
             self.HPLotter.plot(x,Z/k,pen=pg.mkPen('w', width=4), clear=True, name='PSD')
@@ -3659,6 +3674,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
         nml.MCM.MCM_FILE=self.pars(self.mcm_file.text(), file=self.indir, stripRoot=self.stripRoot_mcm.isChecked())
 
         # class _MISC:
+        nml.MISC.ORGNUCLNOMINALRATE=self.orgNuclBaseRate.text()
         nml.MISC.LAT=self.lat.value()
         nml.MISC.LON=self.lon.value()
         # nml.MISC.WAIT_FOR=self.wait_for
@@ -3961,6 +3977,7 @@ a chemistry module in tab "Chemistry"''', icon=2)
             elif 'MMODAL_INPUT' == key: self.mmodal_input.setText(strng)
             elif 'DMPS_READ_IN_TIME' == key and isFl: self.dmps_read_in_time.setValue(float(strng))
             elif 'DMPS_HIGHBAND_LOWER_LIMIT' == key: self.dmps_highband_lower_limit.setText(strng)
+            elif 'ORGNUCLNOMINALRATE' == key: self.orgNuclBaseRate.setText(strng)
             elif 'DMPS_LOWBAND_UPPER_LIMIT' == key: self.dmps_lowband_upper_limit.setText(strng)
             elif 'USE_DMPS' == key: self.use_dmps.setChecked(strng)
             elif 'USE_DMPS_PARTIAL' == key: self.use_dmps_partial.setChecked(strng)

@@ -832,6 +832,7 @@ END IF
             VAPOUR_PROP%c_sat(1:VAPOUR_PROP%n_cond_org) =  saturation_conc_m3( &
                                 VAPOUR_PROP%psat_a(1:VAPOUR_PROP%n_cond_org),  &
                                 VAPOUR_PROP%psat_b(1:VAPOUR_PROP%n_cond_org),  &
+                                VAPOUR_PROP%psat_c(1:VAPOUR_PROP%n_cond_org),  &
                                 GTEMPK) * VP_MULTI
             END IF
             if (GTIME%sec <= LAST_VBS_BINNING_S) &
@@ -846,7 +847,8 @@ END IF
             CALL UPDATE_MOLECULAR_DIFF_AND_CSPEED(VAPOUR_PROP)
 
             IF (CHEM_DEPOSITION) CALL CALCULATE_CHEMICAL_WALL_LOSS(conc_vapour(1:VAPOUR_PROP%n_cond_org),c_org_wall)
-
+            ! print*, 'VAPOUR_PROP%diff(ii) XXXXXX', VAPOUR_PROP%diff_vol(VAPOUR_PROP%ind_H2SO4)
+            ! print*, 'VAPOUR_PROP%diff(ii) XXXXXX', VAPOUR_PROP%molec_volume(VAPOUR_PROP%ind_H2SO4)
             dmass  = 0d0
             d_vap  = 0
             d_dpar = 0
@@ -1474,7 +1476,7 @@ SUBROUTINE ORGANIC_NUCL(J_TOTAL_M3)
     ORGS = sum(CH_GAS(inds))
 
     dH = dG - dS*GTEMPK
-    kJ = 5d-13*EXP(-dH/(Rcal) * (1/GTEMPK - 1/298d0))
+    kJ = OrgNuclNominalRate*EXP(-dH/(Rcal) * (1/GTEMPK - 1/298d0))
 
     J15 = kJ * ORGS*H2SO4
     if (GTIME%printnow) print FMT_MSG, 'Organic formation rate: '//TRIM(ADJUSTL(f2chr(J15)))//' [/s/cm3]'
@@ -1569,11 +1571,11 @@ SUBROUTINE PRINT_KEY_INFORMATION(C)
         print FMT10_CVU, 'H2SO4: ', H2SO4, ' [1/cm3]'
     end if
     if (chemistry_flag) THEN
-      IF (inm_NH3   /= 0) print FMT10_2CVU, 'NH3 C:', CH_GAS(ABS(INDRELAY_CH(inm_NH3))), ' [1/cm3]','J_NH3:', G_ACDC(1)%J_OUT_M3(1)*1d-6, ' [1/s/cm3]'!,'sum(Nn)/N1',clusterbase,' []'
-      IF (inm_DMA   /= 0) print FMT10_3CVU, 'DMA C:', CH_GAS(ABS(INDRELAY_CH(inm_DMA))) , ' [1/cm3]','J_DMA:', G_ACDC(2)%J_OUT_M3(1)*1d-6, ' [1/s/cm3]', 'J-total', J_TOTAL_M3*1e-6,' [1/s/cm3]'
+      IF (inm_NH3   /= 0) print FMT10_CVU, 'NH3 C:', CH_GAS(ABS(INDRELAY_CH(inm_NH3))) , ' [1/cm3]' !,'J_NH3:', G_ACDC(1)%J_OUT_M3(1)*1d-6, ' [1/s/cm3]'!,'sum(Nn)/N1',clusterbase,' []'
+      IF (inm_DMA   /= 0) print FMT10_CVU, 'DMA C:', CH_GAS(ABS(INDRELAY_CH(inm_DMA))) , ' [1/cm3]' !,'J_DMA:', G_ACDC(2)%J_OUT_M3(1)*1d-6, ' [1/s/cm3]', 'J-total', J_TOTAL_M3*1e-6,' [1/s/cm3]'
     end if
-    print FMT10_3CVU, 'Jion neut:', sum(G_ACDC(1:2)%J_OUT_CM3(2)) , ' [/s/cm3]','Jion pos:', SUM(G_ACDC(1:2)%J_OUT_CM3(3)) , ' [/s/cm3]','Jion neg:', SUM(G_ACDC(1:2)%J_OUT_CM3(4)) , ' [/s/cm3]'
-    print FMT10_2CVU, 'C-sink:', GCS , ' [1/s]','IPR:', GET_TS_CONC(inm_IPR) , ' [1/s/cm3]'
+    print FMT10_3CVU, 'C-sink:', GCS , ' [1/s]','IPR:', GET_TS_CONC(inm_IPR) , ' [1/s/cm3]', 'J_total:', J_TOTAL_M3 * 1e-6, ' [1/s/cm3]'
+    print FMT10_3CVU, 'Jion neut:', sum(G_ACDC(1:5)%J_OUT_CM3(2)) , ' [/s/cm3]','Jion pos:', SUM(G_ACDC(1:5)%J_OUT_CM3(3)) , ' [/s/cm3]','Jion neg:', SUM(G_ACDC(1:5)%J_OUT_CM3(4)) , ' [/s/cm3]'
     if ((GTIME%sec)>0 .and. (cpu2 - cpu1 > 0d0)) print '("| ",a,i0,a,i0.2,a,i0,a,i0.2,t65,a,f7.2,t100,"|")', 'Elapsed time (m:s) ',int(cpu2 - cpu1)/60,':',modulo(int(cpu2 - cpu1),60) ,' Est. time to finish (m:s) ',&
                             int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec))/60,':', MODULO(int((cpu2 - cpu1)/((GTIME%sec))*(GTIME%SIM_TIME_S-GTIME%sec)),60),&
                             'Realtime/Modeltime: ', (GTIME%sec-start_time_s)/(cpu2 - cpu1)

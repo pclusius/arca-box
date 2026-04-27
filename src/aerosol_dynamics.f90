@@ -433,7 +433,7 @@ SUBROUTINE UPDATE_MOLECULAR_DIFF_AND_CSPEED(VAPOUR_PROP)
     ! --- ORGANIC Molecular diffusivity, 2 methods, where Fullers is the default ---------------------------------------
     IF (Use_atoms) THEN
         VAPOUR_PROP%diff(1:om)  = 1D-7 * GTempK**1.75D0 * SQRT( 1/(Mair*1D3) + 1/(1d3*VAPOUR_PROP%molar_mass(1:om)) )   &
-                                / (GPres/1.01325D5 * (VAPOUR_PROP%diff_vol(1:om)**(1D0/3D0) + 20.1**(1D0/3D0))**2D0)
+                                / (GPres/1.01325D5 * (1d30 * VAPOUR_PROP%diff_vol(1:om)**(1D0/3D0) + 20.1**(1D0/3D0))**2D0)
     ELSE
         VAPOUR_PROP%diff(1:om)  = 5d0/(16d0*Na* VAPOUR_PROP%molec_dia(1:om)**2d0*(Mair * GPRES/(Rg*GTEMPK)))            &
                                 * sqrt(Rg*GTEMPK*Mair/(2.*pi)*((VAPOUR_PROP%molar_mass(1:om)+Mair)/VAPOUR_PROP%molar_mass(1:om)))
@@ -443,7 +443,7 @@ SUBROUTINE UPDATE_MOLECULAR_DIFF_AND_CSPEED(VAPOUR_PROP)
     ! --- Molecular diffusivity, sulfuric acid diffusivity is RH dependant ---------------------------------------------
 
     VAPOUR_PROP%diff(sa)  = 1D-7 * GTempK**1.75D0 * SQRT( 1/(Mair*1D3) + 1/(1d3*VAPOUR_PROP%molar_mass(sa)) )   &
-                            / (GPres/1.01325D5 * (VAPOUR_PROP%diff_vol(sa)**(1D0/3D0) + 20.1**(1D0/3D0))**2D0)
+                            / (GPres/1.01325D5 * (1d30 * VAPOUR_PROP%diff_vol(sa)**(1D0/3D0) + 20.1**(1D0/3D0))**2D0)
 
     IF (USE_RH_CORRECTION) THEN
         ! Diffusivity H2SO4 at ambient RH, Diffusivity of H2SO4 at RH=0%: 0.09D-4, defined in Constants.f90
@@ -464,6 +464,7 @@ SUBROUTINE UPDATE_MOLECULAR_DIFF_AND_CSPEED(VAPOUR_PROP)
         ! update sulfuric acid speed due to RH
         VAPOUR_PROP%c_speed(sa) = SQRT(8D0*Kb*GTEMPK/(pi*VAPOUR_PROP%wet_mass(sa)))
     END IF
+
 
 END SUBROUTINE UPDATE_MOLECULAR_DIFF_AND_CSPEED
 

@@ -284,6 +284,7 @@ class INITFILE:
             self.LON=0
             # self.WAIT_FOR=0
             self.DESCRIPTION=0
+            self.ORGNUCLNOMINALRATE=0
             self.CH_ALBEDO=0
             self.GR_SIZES=0
 
@@ -292,6 +293,7 @@ class INITFILE:
             exec("%s(' LAT = %s%s')"%(cmd,self.LAT,eol))
             exec("%s(' LON = %s%s')"%(cmd,self.LON,eol))
             # exec("%s(' WAIT_FOR = %s%s')"%(cmd,self.WAIT_FOR,eol))
+            exec("%s(' ORGNUCLNOMINALRATE = %s%s')"%(cmd,self.ORGNUCLNOMINALRATE,eol))
             exec("%s(' DESCRIPTION = \\'%s\\'%s')"%(cmd,self.DESCRIPTION,eol))
             exec("%s(' CH_ALBEDO = %s%s')"%(cmd,self.CH_ALBEDO,eol))
             exec("%s(' GR_SIZES = \\'%s\\'%s')"%(cmd,self.GR_SIZES,eol))

@@ -56,7 +56,7 @@ real(dp), PARAMETER  :: dt_mete = 1
 #ifdef fnSpec
  INTEGER, PARAMETER  :: NSPEC = fnSpec
 #else
- INTEGER, PARAMETER  :: NSPEC = 2409
+ INTEGER, PARAMETER  :: NSPEC = 1
 #endif
 
 #ifdef fPath
